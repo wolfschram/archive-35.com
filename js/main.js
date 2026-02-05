@@ -4,6 +4,7 @@
 // Exposed globally for product-selector.js
 window.photosData = { photos: [] };
 window.filteredPhotos = [];
+  if(typeof performSearch==="function")performSearch("",[]); // render on load
 
   // Initial render - show all photos on page load
   if (typeof performSearch === "function") performSearch("",[]);

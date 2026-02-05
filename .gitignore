@@ -1,0 +1,17 @@
+# Environment files (API keys)
+.env
+.env.*
+05_Business/.env
+
+# Credentials documentation
+08_Docs/credentials/*.md
+
+# Dependencies
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

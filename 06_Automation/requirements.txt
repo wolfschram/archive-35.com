@@ -1,0 +1,24 @@
+# Archive 35 Automation Dependencies
+
+# Core
+python-dotenv>=1.0.0
+pyyaml>=6.0
+
+# API clients (uncomment as needed)
+# instagrapi>=2.0.0        # Instagram
+# facebook-sdk>=3.1.0      # Facebook
+# TikTokApi>=6.0.0         # TikTok
+
+# Image processing
+Pillow>=10.0.0
+# exifread>=3.0.0          # EXIF metadata
+
+# Scheduling
+schedule>=1.2.0
+# apscheduler>=3.10.0      # Alternative scheduler
+
+# Data
+pandas>=2.0.0
+
+# Utilities
+requests>=2.31.0

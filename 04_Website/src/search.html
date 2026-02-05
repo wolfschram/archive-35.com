@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search | ARCHIVE-35</title>
+  <meta name="description" content="Search the complete Archive-35 photography collection.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">ARCHIVE-35</a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="search.html" class="active">Search</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container">
+      <h1>Search</h1>
+      <p>Find exactly what you're looking for.</p>
+    </div>
+  </div>
+
+  <!-- Search Content -->
+  <section class="page-content">
+    <div class="container">
+      <!-- Search Box -->
+      <div class="search-box">
+        <input
+          type="text"
+          id="search-input"
+          class="search-input"
+          placeholder="Search by title, location, or keyword..."
+          autofocus
+        >
+        <button class="search-btn" aria-label="Search">&#128269;</button>
+      </div>
+
+      <!-- Filter Tags -->
+      <div class="search-filters">
+        <button class="filter-tag active" data-filter="all">All</button>
+        <button class="filter-tag" data-filter="panorama">Panoramas</button>
+        <button class="filter-tag" data-filter="mountains">Mountains</button>
+        <button class="filter-tag" data-filter="lake">Lakes</button>
+        <button class="filter-tag" data-filter="sunrise">Sunrise</button>
+        <button class="filter-tag" data-filter="sunset">Sunset</button>
+        <button class="filter-tag" data-filter="grand-teton">Grand Teton</button>
+      </div>
+
+      <!-- Results Count -->
+      <p id="results-count" class="search-results-count">28 photos found</p>
+
+      <!-- Search Results Grid -->
+      <div id="search-results" class="gallery-grid">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">ARCHIVE-35</a>
+          <p>Fine art landscape photography prints. 25 years of capturing light.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Explore</h4>
+          <a href="gallery.html">Gallery</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-links">
+          <h4>Connect</h4>
+          <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://fineartamerica.com" target="_blank" rel="noopener">Fine Art America</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Archive-35. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox">
+    <div class="lightbox-content">
+      <button class="lightbox-close" aria-label="Close">&times;</button>
+      <button class="lightbox-nav lightbox-prev" aria-label="Previous">&lsaquo;</button>
+      <button class="lightbox-nav lightbox-next" aria-label="Next">&rsaquo;</button>
+      <img class="lightbox-image" src="" alt="">
+      <div class="lightbox-info">
+        <h3 class="lightbox-title"></h3>
+        <p class="lightbox-location"></p>
+        <a href="#" class="btn btn-small lightbox-buy" target="_blank" rel="noopener">Buy Print</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

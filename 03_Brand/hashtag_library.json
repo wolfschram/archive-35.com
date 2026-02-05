@@ -1,0 +1,24 @@
+{
+  "always": ["archive35", "fineartphotography", "fineartprints"],
+
+  "by_category": {
+    "landscape": ["landscapephotography", "landscape_captures", "earthfocus"],
+    "nature": ["naturephotography", "wildernessculture", "earthpix"],
+    "national-parks": ["nationalparks", "findyourpark", "nationalparkgeek"],
+    "urban": ["urbanphotography", "cityscapes", "streetphotography"],
+    "travel": ["travelphotography", "passionpassport", "traveltheworld"]
+  },
+
+  "by_theme": {
+    "mountain-light": ["mountainphotography", "alpenglow", "mountainlight"],
+    "winter": ["winterphotography", "snowscape", "winterwonderland"],
+    "sunrise": ["sunrisephotography", "goldenhour", "firstlight"],
+    "moody": ["moodygrams", "moodynature", "dramaticlight"]
+  },
+
+  "by_location": {
+    "USA": ["usa", "americanwest"],
+    "Wyoming": ["wyoming", "visitwyoming"],
+    "Grand Teton National Park": ["grandteton", "tetons", "grandtetonnationalpark"]
+  }
+}

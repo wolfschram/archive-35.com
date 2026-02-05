@@ -1,0 +1,39 @@
+{
+  "id": "grand-teton-jan-2026",
+  "title": "Grand Teton, January 2026",
+  "slug": "grand-teton-jan-2026",
+  "status": "published",
+  "featured": true,
+
+  "dates": {
+    "shot_start": "2026-01-26",
+    "shot_end": "2026-01-30",
+    "published": "2026-02-03"
+  },
+
+  "location": {
+    "country": "USA",
+    "region": "Wyoming",
+    "place": "Grand Teton National Park",
+    "coordinates": [43.7904, -110.6818]
+  },
+
+  "taxonomy": {
+    "categories": ["landscape", "nature", "national-parks"],
+    "themes": ["mountain-light", "winter", "sunrise"],
+    "moods": ["majestic", "serene", "vast"]
+  },
+
+  "story": {
+    "short": "Five days chasing winter light in the Tetons.",
+    "long": "PLACEHOLDER - Wolf will tell the story of this trip."
+  },
+
+  "cover_image": "WOLF7514-full.jpg",
+  "photo_count": 28,
+
+  "print_info": {
+    "available": true,
+    "store_url": "https://fineartamerica.com/profiles/archive35"
+  }
+}

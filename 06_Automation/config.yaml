@@ -1,0 +1,46 @@
+# Archive 35 — Automation Config
+# ⚠️ Do NOT commit this file with real credentials
+
+# Paths (relative to project root)
+paths:
+  portfolio: "../01_Portfolio"
+  social: "../02_Social"
+  queue: "../02_Social/Queue"
+  posted: "../02_Social/Posted"
+  schedule: "../02_Social/_schedule.csv"
+  index: "../01_Portfolio/_index.csv"
+
+# Posting defaults
+posting:
+  instagram:
+    enabled: false
+    default_time: "09:00"
+    timezone: "America/Los_Angeles"
+  facebook:
+    enabled: false
+    default_time: "12:00"
+    timezone: "America/Los_Angeles"
+  tiktok:
+    enabled: false
+    default_time: "18:00"
+    timezone: "America/Los_Angeles"
+
+# Image processing
+images:
+  instagram_max_size: [1080, 1350]  # Portrait max
+  facebook_max_size: [2048, 2048]
+  quality: 95
+
+# Credentials (use environment variables in production)
+# credentials:
+#   instagram:
+#     username: ${INSTAGRAM_USERNAME}
+#     password: ${INSTAGRAM_PASSWORD}
+#   facebook:
+#     access_token: ${FACEBOOK_ACCESS_TOKEN}
+#     page_id: ${FACEBOOK_PAGE_ID}
+
+# Logging
+logging:
+  level: INFO
+  file: "automation.log"

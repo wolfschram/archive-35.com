@@ -1,0 +1,43 @@
+{
+  "site": {
+    "name": "Archive-35",
+    "tagline": "Light. Place. Time.",
+    "url": "https://archive-35.com",
+    "owner": "Wolfgang Schram"
+  },
+  "galleries": [
+    {
+      "id": "grand-teton-jan-2026",
+      "title": "Grand Teton, January 2026",
+      "slug": "grand-teton-jan-2026",
+      "folder": "Grand_Teton",
+      "cover": "WOLF7514-full.jpg",
+      "photo_count": 28,
+      "date_start": "2026-01-26",
+      "date_end": "2026-01-30",
+      "status": "published",
+      "featured": true,
+      "location": {
+        "country": "USA",
+        "region": "Wyoming",
+        "place": "Grand Teton National Park"
+      },
+      "categories": ["landscape", "nature", "national-parks"],
+      "themes": ["mountain-light", "winter", "sunrise"],
+      "moods": ["majestic", "serene", "vast"]
+    }
+  ],
+  "taxonomy": {
+    "countries": ["USA"],
+    "regions": ["Wyoming"],
+    "places": ["Grand Teton National Park"],
+    "categories": ["landscape", "nature", "national-parks"],
+    "themes": ["mountain-light", "winter", "sunrise"],
+    "moods": ["majestic", "serene", "vast"]
+  },
+  "stats": {
+    "total_galleries": 1,
+    "total_photos": 28,
+    "last_updated": "2026-02-03"
+  }
+}

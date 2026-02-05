@@ -51,10 +51,6 @@ async function loadPhotos() {
     const response = await fetch('data/photos.json');
     window.photosData = await response.json();
     window.filteredPhotos = [...window.photosData.photos];
-    // Render all photos on initial load
-    if (typeof performSearch === "function") performSearch("", []);
-    // Render all photos on initial load
-    if (typeof performSearch === "function") performSearch("", []);
 
     // Check for collection parameter in URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -80,6 +76,7 @@ async function loadPhotos() {
     if (collectionGrid) renderCollectionGallery();
     if (featuredGrid) renderFeatured(featuredGrid);
 
+    if (typeof performSearch==="function") performSearch("", []);
   } catch (error) {
     console.error('Error loading photos:', error);
   }
@@ -351,7 +348,6 @@ function initSearch() {
   });
 
 
-  // Initial render - show all photos on page load
   performSearch('', []);
 }
 
@@ -362,10 +358,6 @@ function performSearch(query, filters) {
   if (!searchResults) return;
 
   window.filteredPhotos = window.photosData.photos.filter(photo => {
-    // Render all photos on initial load
-    if (typeof performSearch === "function") performSearch("", []);
-    // Render all photos on initial load
-    if (typeof performSearch === "function") performSearch("", []);
     // Text search
     const matchesQuery = !query ||
       photo.title.toLowerCase().includes(query) ||

@@ -2,7 +2,7 @@
 // Generated: 2026-02-04T21:18:07.009114
 // DO NOT EDIT MANUALLY
 
-const STRIPE_LINKS = {
+window.STRIPE_LINKS = {
   "gt-028": {
     "wood": {
       "40x30": "https://buy.stripe.com/6oU7sM7tH47FfN6cly97G01",

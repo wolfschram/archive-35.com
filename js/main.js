@@ -50,18 +50,99 @@ async function loadPhotos() {
     photosData = await response.json();
     filteredPhotos = [...photosData.photos];
 
+    // Check for collection parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const collectionId = urlParams.get('collection');
+
     // Render galleries if elements exist
+    const collectionsGrid = document.getElementById('collections-grid');
     const galleryGrid = document.getElementById('gallery-grid');
     const collectionGrid = document.getElementById('collection-grid');
     const featuredGrid = document.getElementById('featured-grid');
 
-    if (galleryGrid) renderGallery(galleryGrid, filteredPhotos);
+    // Gallery page with collections
+    if (collectionsGrid) {
+      if (collectionId) {
+        // Show specific collection photos
+        showCollectionPhotos(collectionId);
+      } else {
+        // Show collections overview
+        renderCollections(collectionsGrid);
+      }
+    }
+
     if (collectionGrid) renderCollectionGallery();
     if (featuredGrid) renderFeatured(featuredGrid);
 
   } catch (error) {
     console.error('Error loading photos:', error);
   }
+}
+
+// ===== Render Collections Overview =====
+function renderCollections(container) {
+  // Get unique collections
+  const collections = {};
+  photosData.photos.forEach(photo => {
+    if (!collections[photo.collection]) {
+      collections[photo.collection] = {
+        id: photo.collection,
+        title: photo.collectionTitle,
+        count: 0,
+        coverImage: photo.thumbnail,
+        location: photo.location
+      };
+    }
+    collections[photo.collection].count++;
+  });
+
+  container.innerHTML = Object.values(collections).map(col => `
+    <div class="collection-card" data-collection="${col.id}">
+      <img src="${col.coverImage}" alt="${col.title}">
+      <div class="collection-card-overlay">
+        <h3 class="collection-card-title">${col.title}</h3>
+        <p class="collection-card-count">${col.count} photographs</p>
+      </div>
+    </div>
+  `).join('');
+
+  // Add click handlers
+  container.querySelectorAll('.collection-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const collectionId = card.dataset.collection;
+      // Update URL and show collection
+      window.history.pushState({}, '', `gallery.html?collection=${collectionId}`);
+      showCollectionPhotos(collectionId);
+    });
+  });
+}
+
+// ===== Show Collection Photos =====
+function showCollectionPhotos(collectionId) {
+  const collectionsSection = document.getElementById('collections-section');
+  const gallerySection = document.getElementById('gallery-section');
+  const galleryGrid = document.getElementById('gallery-grid');
+  const galleryTitle = document.getElementById('gallery-title');
+  const galleryDesc = document.getElementById('gallery-desc');
+  const backBtn = document.getElementById('back-to-collections');
+
+  // Filter photos for this collection
+  const collectionPhotos = photosData.photos.filter(p => p.collection === collectionId);
+  filteredPhotos = collectionPhotos;
+
+  if (collectionPhotos.length > 0) {
+    // Update header
+    if (galleryTitle) galleryTitle.textContent = collectionPhotos[0].collectionTitle;
+    if (galleryDesc) galleryDesc.textContent = `${collectionPhotos.length} photographs from ${collectionPhotos[0].location}`;
+  }
+
+  // Show/hide sections
+  if (collectionsSection) collectionsSection.style.display = 'none';
+  if (gallerySection) gallerySection.style.display = 'block';
+  if (backBtn) backBtn.style.display = 'inline-block';
+
+  // Render photos
+  if (galleryGrid) renderGallery(galleryGrid, collectionPhotos);
 }
 
 // ===== Render Gallery =====

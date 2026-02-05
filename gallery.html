@@ -36,13 +36,23 @@
   <!-- Page Header -->
   <div class="page-header">
     <div class="container">
-      <h1>Gallery</h1>
-      <p>A curated collection of fine art landscape photography from around the world.</p>
+      <h1 id="gallery-title">Collections</h1>
+      <p id="gallery-desc">Explore curated collections from around the world.</p>
+      <a href="gallery.html" id="back-to-collections" class="btn btn-secondary" style="display: none; margin-top: 1rem;">← All Collections</a>
     </div>
   </div>
 
-  <!-- Gallery Grid -->
-  <section class="page-content">
+  <!-- Collections Overview -->
+  <section class="page-content" id="collections-section">
+    <div class="container">
+      <div id="collections-grid" class="collections-grid">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery Grid (shown when viewing a collection) -->
+  <section class="page-content" id="gallery-section" style="display: none;">
     <div class="container">
       <div id="gallery-grid" class="gallery-grid">
         <!-- Populated by JavaScript -->

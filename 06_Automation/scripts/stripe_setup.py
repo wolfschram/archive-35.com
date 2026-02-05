@@ -238,6 +238,52 @@ def create_all_payment_links():
     return links
 
 
+def fetch_existing_products():
+    """Fetch existing products from Stripe (if already created)."""
+    print("Fetching existing products from Stripe...")
+
+    # Get all products with archive35 metadata
+    products_list = stripe.Product.list(limit=100, active=True)
+
+    results = {}
+    product_count = 0
+
+    for product in products_list.auto_paging_iter():
+        metadata = product.metadata or {}
+        if metadata.get('archive35') != 'true':
+            continue
+
+        photo_id = metadata.get('photo_id', 'unknown')
+        material = metadata.get('material', 'unknown')
+
+        if photo_id not in results:
+            results[photo_id] = {}
+
+        if material not in results[photo_id]:
+            results[photo_id][material] = {'product_id': product.id, 'prices': {}}
+
+        # Get prices for this product
+        prices = stripe.Price.list(product=product.id, active=True)
+        for price in prices.data:
+            size = price.metadata.get('size', 'unknown')
+            results[photo_id][material]['prices'][size] = price.id
+
+        product_count += 1
+        print(f"  Found: {product.name}")
+
+    if product_count == 0:
+        print("No Archive-35 products found in Stripe. Run --create-products first.")
+        return
+
+    # Save results
+    output_path = Path(__file__).parent / 'stripe_products.json'
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+
+    print(f"\n✅ Found {product_count} products, saved to {output_path}")
+    return results
+
+
 def export_for_website():
     """Export payment links in format ready for website."""
     links_path = Path(__file__).parent / 'stripe_payment_links.json'
@@ -314,6 +360,7 @@ def test_single_product():
 def main():
     parser = argparse.ArgumentParser(description='Archive-35 Stripe Setup')
     parser.add_argument('--create-products', action='store_true', help='Create products and prices')
+    parser.add_argument('--fetch', action='store_true', help='Fetch existing products from Stripe')
     parser.add_argument('--create-links', action='store_true', help='Create payment links')
     parser.add_argument('--export', action='store_true', help='Export links for website')
     parser.add_argument('--test', action='store_true', help='Test with single product')
@@ -327,6 +374,8 @@ def main():
 
     if args.test:
         test_single_product()
+    elif args.fetch:
+        fetch_existing_products()
     elif args.create_products:
         setup_all_products()
     elif args.create_links:

@@ -1,9 +1,10 @@
 /* ARCHIVE-35 Main JavaScript */
 
 // ===== Photo Data Store =====
-let photosData = { photos: [] };
-let filteredPhotos = [];
-let currentPhotoIndex = 0;
+// Exposed globally for product-selector.js
+window.photosData = { photos: [] };
+window.filteredPhotos = [];
+window.currentPhotoIndex = 0;
 
 // ===== DOM Ready =====
 document.addEventListener('DOMContentLoaded', () => {
@@ -47,8 +48,8 @@ function initNavigation() {
 async function loadPhotos() {
   try {
     const response = await fetch('data/photos.json');
-    photosData = await response.json();
-    filteredPhotos = [...photosData.photos];
+    window.photosData = await response.json();
+    window.filteredPhotos = [...window.photosData.photos];
 
     // Check for collection parameter in URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -83,7 +84,7 @@ async function loadPhotos() {
 function renderCollections(container) {
   // Get unique collections
   const collections = {};
-  photosData.photos.forEach(photo => {
+  window.photosData.photos.forEach(photo => {
     if (!collections[photo.collection]) {
       collections[photo.collection] = {
         id: photo.collection,
@@ -127,8 +128,8 @@ function showCollectionPhotos(collectionId) {
   const backBtn = document.getElementById('back-to-collections');
 
   // Filter photos for this collection
-  const collectionPhotos = photosData.photos.filter(p => p.collection === collectionId);
-  filteredPhotos = collectionPhotos;
+  const collectionPhotos = window.photosData.photos.filter(p => p.collection === collectionId);
+  window.filteredPhotos = collectionPhotos;
 
   if (collectionPhotos.length > 0) {
     // Update header
@@ -182,8 +183,8 @@ function renderCollectionGallery() {
 
   if (!collectionId || !collectionGrid) return;
 
-  const collectionPhotos = photosData.photos.filter(p => p.collection === collectionId);
-  filteredPhotos = collectionPhotos;
+  const collectionPhotos = window.photosData.photos.filter(p => p.collection === collectionId);
+  window.filteredPhotos = collectionPhotos;
 
   if (collectionPhotos.length > 0) {
     if (collectionTitle) collectionTitle.textContent = collectionPhotos[0].collectionTitle;
@@ -196,7 +197,7 @@ function renderCollectionGallery() {
 // ===== Render Featured (Home Page) =====
 function renderFeatured(container) {
   // Show first 6 photos as featured
-  const featured = photosData.photos.slice(0, 6);
+  const featured = window.photosData.photos.slice(0, 6);
   renderGallery(container, featured);
 }
 
@@ -229,10 +230,9 @@ function initLightbox() {
 
 function openLightbox(index) {
   const lightbox = document.getElementById('lightbox');
-  if (!lightbox || !filteredPhotos[index]) return;
+  if (!lightbox || !window.filteredPhotos[index]) return;
 
-  currentPhotoIndex = index;
-  window.currentPhotoIndex = index; // Sync for product selector
+  window.currentPhotoIndex = index;
   updateLightboxContent();
   lightbox.classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -247,17 +247,16 @@ function closeLightbox() {
 }
 
 function navigateLightbox(direction) {
-  currentPhotoIndex += direction;
+  window.currentPhotoIndex += direction;
 
-  if (currentPhotoIndex < 0) currentPhotoIndex = filteredPhotos.length - 1;
-  if (currentPhotoIndex >= filteredPhotos.length) currentPhotoIndex = 0;
+  if (window.currentPhotoIndex < 0) window.currentPhotoIndex = window.filteredPhotos.length - 1;
+  if (window.currentPhotoIndex >= window.filteredPhotos.length) window.currentPhotoIndex = 0;
 
-  window.currentPhotoIndex = currentPhotoIndex; // Sync for product selector
   updateLightboxContent();
 }
 
 function updateLightboxContent() {
-  const photo = filteredPhotos[currentPhotoIndex];
+  const photo = window.filteredPhotos[window.currentPhotoIndex];
   if (!photo) return;
 
   const lightbox = document.getElementById('lightbox');
@@ -353,7 +352,7 @@ function performSearch(query, filters) {
 
   if (!searchResults) return;
 
-  filteredPhotos = photosData.photos.filter(photo => {
+  window.filteredPhotos = window.photosData.photos.filter(photo => {
     // Text search
     const matchesQuery = !query ||
       photo.title.toLowerCase().includes(query) ||
@@ -369,10 +368,10 @@ function performSearch(query, filters) {
   });
 
   if (resultsCount) {
-    resultsCount.textContent = `${filteredPhotos.length} photo${filteredPhotos.length !== 1 ? 's' : ''} found`;
+    resultsCount.textContent = `${window.filteredPhotos.length} photo${window.filteredPhotos.length !== 1 ? 's' : ''} found`;
   }
 
-  renderGallery(searchResults, filteredPhotos);
+  renderGallery(searchResults, window.filteredPhotos);
 }
 
 // ===== Utility Functions =====
@@ -392,7 +391,7 @@ function debounce(func, wait) {
 function getCollections() {
   const collections = {};
 
-  photosData.photos.forEach(photo => {
+  window.photosData.photos.forEach(photo => {
     if (!collections[photo.collection]) {
       collections[photo.collection] = {
         id: photo.collection,
@@ -417,16 +416,5 @@ window.Archive35 = {
   closeLightbox
 };
 
-// Expose for product selector integration
-// Note: filteredPhotos is an array (reference type) so changes propagate
-// currentPhotoIndex updates are handled in openLightbox/navigateLightbox
-window.filteredPhotos = filteredPhotos;
-window.currentPhotoIndex = currentPhotoIndex;
+// Expose closeLightbox for product selector
 window.closeLightbox = closeLightbox;
-
-// Keep filteredPhotos reference updated when it changes
-const originalLoadPhotos = loadPhotos;
-async function loadPhotosWithSync() {
-  await originalLoadPhotos();
-  window.filteredPhotos = filteredPhotos;
-}

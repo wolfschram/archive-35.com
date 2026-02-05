@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery | ARCHIVE-35</title>
+  <meta name="description" content="Browse the complete collection of fine art landscape photography prints.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/product-selector.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-white">ARCHIVE</span><span class="logo-gold">-35</span>
+      </a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="gallery.html" class="active">Gallery</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="search.html">Search</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container">
+      <h1>Gallery</h1>
+      <p>A curated collection of fine art landscape photography from around the world.</p>
+    </div>
+  </div>
+
+  <!-- Gallery Grid -->
+  <section class="page-content">
+    <div class="container">
+      <div id="gallery-grid" class="gallery-grid">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <span class="logo-white">ARCHIVE</span><span class="logo-gold">-35</span>
+          </a>
+          <p>Fine art landscape photography prints. Light. Place. Time.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Explore</h4>
+          <a href="gallery.html">Gallery</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-links">
+          <h4>Legal</h4>
+          <a href="terms.html">Terms of Sale</a>
+          <a href="privacy.html">Privacy Policy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Archive-35. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox">
+    <div class="lightbox-content">
+      <button class="lightbox-close" aria-label="Close">&times;</button>
+      <button class="lightbox-nav lightbox-prev" aria-label="Previous">&lsaquo;</button>
+      <button class="lightbox-nav lightbox-next" aria-label="Next">&rsaquo;</button>
+      <img class="lightbox-image" src="" alt="">
+      <div class="lightbox-info">
+        <h3 class="lightbox-title"></h3>
+        <p class="lightbox-location"></p>
+        <a href="#" class="btn btn-small lightbox-buy" target="_blank" rel="noopener">Buy Print</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script src="js/stripe-links.js"></script>
+  <script src="js/product-selector.js"></script>
+</body>
+</html>

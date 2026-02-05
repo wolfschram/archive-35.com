@@ -9,6 +9,17 @@ function ContentManagement() {
   const [loading, setLoading] = useState(false);
   const [deleteQueue, setDeleteQueue] = useState([]);
 
+  // Edit mode state
+  const [editingPhoto, setEditingPhoto] = useState(null);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    description: '',
+    location: '',
+    tags: '',
+    timeOfDay: '',  // sunrise, sunset, midday, night, etc.
+    notes: ''
+  });
+
   // Load portfolios on mount
   useEffect(() => {
     loadPortfolios();
@@ -37,6 +48,7 @@ function ContentManagement() {
     setLoading(true);
     setSelectedPortfolio(portfolioId);
     setSelectedPhotos([]);
+    setEditingPhoto(null);
     try {
       if (window.electronAPI) {
         const data = await window.electronAPI.getPortfolioPhotos(portfolioId);
@@ -44,9 +56,9 @@ function ContentManagement() {
       } else {
         // Demo data for development
         setPhotos([
-          { id: 'photo_001', filename: 'GT_sunrise_001.jpg', title: 'Teton Sunrise', inWebsite: true, inArtelo: false, inSocialQueue: true },
-          { id: 'photo_002', filename: 'GT_reflection_002.jpg', title: 'Mountain Reflection', inWebsite: true, inArtelo: false, inSocialQueue: false },
-          { id: 'photo_003', filename: 'GT_wildlife_003.jpg', title: 'Elk at Dawn', inWebsite: true, inArtelo: false, inSocialQueue: true },
+          { id: 'gt-001', filename: 'WOLF6535-Pano.jpg', title: 'Teton Range Panorama', description: 'Panoramic view of the Teton Range', location: 'Grand Teton National Park, Wyoming', tags: ['landscape', 'mountains', 'panorama'], timeOfDay: 'sunrise', inWebsite: true },
+          { id: 'gt-002', filename: 'WOLF6675.jpg', title: 'Morning Light on the Tetons', description: 'Golden light hitting peaks', location: 'Grand Teton National Park, Wyoming', tags: ['landscape', 'mountains', 'sunrise'], timeOfDay: 'sunrise', inWebsite: true },
+          { id: 'gt-003', filename: 'WOLF6679.jpg', title: 'Cathedral Group', description: 'The iconic Cathedral Group peaks', location: 'Grand Teton National Park, Wyoming', tags: ['landscape', 'mountains'], timeOfDay: 'morning', inWebsite: true },
         ]);
       }
     } catch (err) {
@@ -55,7 +67,10 @@ function ContentManagement() {
     setLoading(false);
   };
 
-  const togglePhotoSelection = (photoId) => {
+  const togglePhotoSelection = (photoId, e) => {
+    // Don't toggle selection if clicking edit button
+    if (e.target.closest('.edit-btn')) return;
+
     setSelectedPhotos(prev =>
       prev.includes(photoId)
         ? prev.filter(id => id !== photoId)
@@ -69,6 +84,69 @@ function ContentManagement() {
     } else {
       setSelectedPhotos(photos.map(p => p.id));
     }
+  };
+
+  // ===== EDIT METADATA =====
+  const openEditModal = (photo, e) => {
+    e.stopPropagation();
+    setEditingPhoto(photo);
+    setEditForm({
+      title: photo.title || '',
+      description: photo.description || '',
+      location: photo.location || '',
+      tags: (photo.tags || []).join(', '),
+      timeOfDay: photo.timeOfDay || '',
+      notes: photo.notes || ''
+    });
+  };
+
+  const closeEditModal = () => {
+    setEditingPhoto(null);
+    setEditForm({ title: '', description: '', location: '', tags: '', timeOfDay: '', notes: '' });
+  };
+
+  const handleEditChange = (field, value) => {
+    setEditForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const saveMetadata = async () => {
+    if (!editingPhoto) return;
+
+    const updatedData = {
+      ...editForm,
+      tags: editForm.tags.split(',').map(t => t.trim()).filter(t => t)
+    };
+
+    setLoading(true);
+    try {
+      if (window.electronAPI) {
+        const result = await window.electronAPI.updatePhotoMetadata({
+          portfolioId: selectedPortfolio,
+          photoId: editingPhoto.id,
+          metadata: updatedData
+        });
+
+        if (result.success) {
+          // Update local state
+          setPhotos(prev => prev.map(p =>
+            p.id === editingPhoto.id ? { ...p, ...updatedData } : p
+          ));
+          closeEditModal();
+          alert('✅ Metadata saved successfully!');
+        }
+      } else {
+        // Demo: just update local state
+        setPhotos(prev => prev.map(p =>
+          p.id === editingPhoto.id ? { ...p, ...updatedData } : p
+        ));
+        closeEditModal();
+        alert('Demo mode: Metadata would be saved to:\n• photos.json\n• _gallery.json\n• EXIF (optional)');
+      }
+    } catch (err) {
+      console.error('Failed to save metadata:', err);
+      alert('Failed to save. Check console for details.');
+    }
+    setLoading(false);
   };
 
   const handleSoftDelete = async () => {
@@ -96,11 +174,9 @@ function ContentManagement() {
 
         if (result.success) {
           setDeleteQueue(prev => [...prev, ...result.movedFiles]);
-          // Refresh the photo list
           await loadPhotos(selectedPortfolio);
         }
       } else {
-        // Demo: just remove from local state
         setPhotos(prev => prev.filter(p => !selectedPhotos.includes(p.id)));
         setSelectedPhotos([]);
         alert('Demo mode: Photos would be moved to _files_to_delete/');
@@ -208,8 +284,7 @@ function ContentManagement() {
           </div>
 
           <div className="info-box">
-            <strong>Soft Delete:</strong> Files move to <code>_files_to_delete/</code> folder.
-            Nothing is permanently deleted until you manually empty that folder.
+            <strong>Tip:</strong> Click the ✏️ button on any photo to edit its title, description, and other metadata.
           </div>
         </div>
 
@@ -228,16 +303,24 @@ function ContentManagement() {
                   <div
                     key={photo.id}
                     className={`photo-card ${selectedPhotos.includes(photo.id) ? 'selected' : ''}`}
-                    onClick={() => togglePhotoSelection(photo.id)}
+                    onClick={(e) => togglePhotoSelection(photo.id, e)}
                   >
                     <div className="photo-thumb">
                       <div className="photo-placeholder">📷</div>
                       {selectedPhotos.includes(photo.id) && (
                         <div className="photo-check">✓</div>
                       )}
+                      <button
+                        className="edit-btn"
+                        onClick={(e) => openEditModal(photo, e)}
+                        title="Edit metadata"
+                      >
+                        ✏️
+                      </button>
                     </div>
                     <div className="photo-info">
                       <span className="photo-title">{photo.title || photo.filename}</span>
+                      <span className="photo-time-badge">{photo.timeOfDay || '?'}</span>
                       <div className="photo-status">
                         {photo.inWebsite && <span className="status-badge website">Web</span>}
                         {photo.inArtelo && <span className="status-badge artelo">Artelo</span>}
@@ -265,6 +348,104 @@ function ContentManagement() {
           </div>
         )}
       </div>
+
+      {/* ===== EDIT METADATA MODAL ===== */}
+      {editingPhoto && (
+        <div className="modal-overlay" onClick={closeEditModal}>
+          <div className="modal-content edit-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Edit Photo Metadata</h3>
+              <button className="modal-close" onClick={closeEditModal}>×</button>
+            </div>
+
+            <div className="modal-body">
+              <div className="edit-photo-preview">
+                <div className="photo-placeholder large">📷</div>
+                <span className="filename">{editingPhoto.filename}</span>
+              </div>
+
+              <div className="form-group">
+                <label>Title</label>
+                <input
+                  type="text"
+                  value={editForm.title}
+                  onChange={e => handleEditChange('title', e.target.value)}
+                  placeholder="e.g., Teton Sunrise Panorama"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Description</label>
+                <textarea
+                  value={editForm.description}
+                  onChange={e => handleEditChange('description', e.target.value)}
+                  placeholder="Describe the scene..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Time of Day</label>
+                <select
+                  value={editForm.timeOfDay}
+                  onChange={e => handleEditChange('timeOfDay', e.target.value)}
+                >
+                  <option value="">-- Select --</option>
+                  <option value="sunrise">🌅 Sunrise</option>
+                  <option value="morning">☀️ Morning</option>
+                  <option value="midday">🌞 Midday</option>
+                  <option value="afternoon">🌤️ Afternoon</option>
+                  <option value="golden-hour">🌇 Golden Hour</option>
+                  <option value="sunset">🌆 Sunset</option>
+                  <option value="twilight">🌃 Twilight</option>
+                  <option value="night">🌙 Night</option>
+                  <option value="blue-hour">💙 Blue Hour</option>
+                </select>
+                <small className="help-text">⚠️ AI often confuses sunrise/sunset - please verify!</small>
+              </div>
+
+              <div className="form-group">
+                <label>Location</label>
+                <input
+                  type="text"
+                  value={editForm.location}
+                  onChange={e => handleEditChange('location', e.target.value)}
+                  placeholder="e.g., Grand Teton National Park, Wyoming"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Tags (comma-separated)</label>
+                <input
+                  type="text"
+                  value={editForm.tags}
+                  onChange={e => handleEditChange('tags', e.target.value)}
+                  placeholder="landscape, mountains, sunrise, panorama"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Notes (internal only)</label>
+                <textarea
+                  value={editForm.notes}
+                  onChange={e => handleEditChange('notes', e.target.value)}
+                  placeholder="Personal notes, corrections, reminders..."
+                  rows={2}
+                />
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={closeEditModal}>
+                Cancel
+              </button>
+              <button className="btn btn-primary" onClick={saveMetadata} disabled={loading}>
+                {loading ? 'Saving...' : '💾 Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

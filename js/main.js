@@ -344,6 +344,10 @@ function initSearch() {
       performSearch(searchInput.value.toLowerCase().trim(), activeFilters);
     });
   });
+
+
+  // Initial render - show all photos on page load
+  performSearch('', []);
 }
 
 function performSearch(query, filters) {

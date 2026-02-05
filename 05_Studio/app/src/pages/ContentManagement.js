@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Pages.css';
 
+// Helper to format location (handles both string and object formats)
+const formatLocation = (location) => {
+  if (!location) return '';
+  if (typeof location === 'string') return location;
+  if (typeof location === 'object') {
+    // Handle object format: {country, region, place, coordinates}
+    const parts = [location.place, location.region, location.country].filter(Boolean);
+    return parts.join(', ');
+  }
+  return String(location);
+};
+
 function ContentManagement() {
   const [portfolios, setPortfolios] = useState([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState(null);
@@ -16,7 +28,7 @@ function ContentManagement() {
     description: '',
     location: '',
     tags: '',
-    timeOfDay: '',  // sunrise, sunset, midday, night, etc.
+    timeOfDay: '',
     notes: ''
   });
 
@@ -68,7 +80,6 @@ function ContentManagement() {
   };
 
   const togglePhotoSelection = (photoId, e) => {
-    // Don't toggle selection if clicking edit button
     if (e.target.closest('.edit-btn')) return;
 
     setSelectedPhotos(prev =>
@@ -93,7 +104,7 @@ function ContentManagement() {
     setEditForm({
       title: photo.title || '',
       description: photo.description || '',
-      location: photo.location || '',
+      location: formatLocation(photo.location) || '',  // FIX: format location object
       tags: (photo.tags || []).join(', '),
       timeOfDay: photo.timeOfDay || '',
       notes: photo.notes || ''
@@ -127,7 +138,6 @@ function ContentManagement() {
         });
 
         if (result.success) {
-          // Update local state
           setPhotos(prev => prev.map(p =>
             p.id === editingPhoto.id ? { ...p, ...updatedData } : p
           ));
@@ -245,7 +255,7 @@ function ContentManagement() {
               >
                 <span className="portfolio-name">{portfolio.name}</span>
                 <span className="portfolio-meta">
-                  {portfolio.photoCount} photos • {portfolio.location}
+                  {portfolio.photoCount} photos • {formatLocation(portfolio.location)}
                 </span>
               </button>
             ))}

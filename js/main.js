@@ -53,6 +53,8 @@ async function loadPhotos() {
     window.filteredPhotos = [...window.photosData.photos];
     // Render all photos on initial load
     if (typeof performSearch === "function") performSearch("", []);
+    // Render all photos on initial load
+    if (typeof performSearch === "function") performSearch("", []);
 
     // Check for collection parameter in URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -360,6 +362,8 @@ function performSearch(query, filters) {
   if (!searchResults) return;
 
   window.filteredPhotos = window.photosData.photos.filter(photo => {
+    // Render all photos on initial load
+    if (typeof performSearch === "function") performSearch("", []);
     // Render all photos on initial load
     if (typeof performSearch === "function") performSearch("", []);
     // Text search

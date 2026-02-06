@@ -98,6 +98,100 @@ ipcMain.handle('get-base-path', () => {
 });
 
 // ===================
+// API KEY MANAGEMENT
+// ===================
+
+const ENV_PATH = path.join(ARCHIVE_BASE, '.env');
+
+// Helper: parse .env file into object
+function parseEnvFile() {
+  try {
+    const content = fsSync.readFileSync(ENV_PATH, 'utf8');
+    const keys = {};
+    for (const line of content.split('\n')) {
+      const match = line.match(/^([A-Z_]+)=(.*)$/);
+      if (match) keys[match[1]] = match[2];
+    }
+    return keys;
+  } catch { return {}; }
+}
+
+// Helper: mask a key for display (show first 8 and last 4 chars)
+function maskKey(value) {
+  if (!value || value.length < 16) return value ? '••••••••' : '';
+  return value.slice(0, 8) + '••••••' + value.slice(-4);
+}
+
+// Get all API key statuses
+ipcMain.handle('get-api-keys', async () => {
+  const env = parseEnvFile();
+  return [
+    { id: 'ANTHROPIC_API_KEY', name: 'Claude AI (Anthropic)', description: 'Powers AI photo metadata generation', value: env.ANTHROPIC_API_KEY || '', masked: maskKey(env.ANTHROPIC_API_KEY), configured: !!env.ANTHROPIC_API_KEY },
+    { id: 'PICTOREM_API_KEY', name: 'Pictorem', description: 'Print fulfillment service', value: env.PICTOREM_API_KEY || '', masked: maskKey(env.PICTOREM_API_KEY), configured: !!env.PICTOREM_API_KEY },
+    { id: 'STRIPE_SECRET_KEY', name: 'Stripe', description: 'Payment processing', value: env.STRIPE_SECRET_KEY || '', masked: maskKey(env.STRIPE_SECRET_KEY), configured: !!env.STRIPE_SECRET_KEY },
+    { id: 'STRIPE_PUBLISHABLE_KEY', name: 'Stripe (Publishable)', description: 'Stripe frontend key', value: env.STRIPE_PUBLISHABLE_KEY || '', masked: maskKey(env.STRIPE_PUBLISHABLE_KEY), configured: !!env.STRIPE_PUBLISHABLE_KEY },
+    { id: 'META_ACCESS_TOKEN', name: 'Meta (Instagram/Facebook)', description: 'Social media posting', value: env.META_ACCESS_TOKEN || '', masked: maskKey(env.META_ACCESS_TOKEN), configured: !!env.META_ACCESS_TOKEN },
+    { id: 'GOOGLE_ANALYTICS_ID', name: 'Google Analytics', description: 'Website traffic tracking', value: env.GOOGLE_ANALYTICS_ID || '', masked: maskKey(env.GOOGLE_ANALYTICS_ID), configured: !!env.GOOGLE_ANALYTICS_ID },
+  ];
+});
+
+// Save a single API key
+ipcMain.handle('save-api-key', async (event, { keyId, value }) => {
+  try {
+    let content = fsSync.existsSync(ENV_PATH) ? fsSync.readFileSync(ENV_PATH, 'utf8') : '';
+    const regex = new RegExp(`^${keyId}=.*$`, 'm');
+    if (regex.test(content)) {
+      content = content.replace(regex, `${keyId}=${value}`);
+    } else {
+      content += `\n${keyId}=${value}`;
+    }
+    fsSync.writeFileSync(ENV_PATH, content);
+    // Update process.env so it takes effect immediately
+    process.env[keyId] = value;
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// Test an API key
+ipcMain.handle('test-api-key', async (event, { keyId, value }) => {
+  try {
+    if (keyId === 'ANTHROPIC_API_KEY') {
+      const Anthropic = require('@anthropic-ai/sdk');
+      const client = new Anthropic({ apiKey: value });
+      const resp = await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'Say OK' }]
+      });
+      return { success: true, message: 'Claude API connected successfully' };
+    }
+    return { success: true, message: 'Key saved (no test available for this service)' };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// ===================
+// THUMBNAIL HANDLER
+// ===================
+
+ipcMain.handle('get-thumbnail', async (event, filePath) => {
+  try {
+    const sharp = require('sharp');
+    const buffer = await sharp(filePath)
+      .resize(400, 400, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 75 })
+      .toBuffer();
+    return `data:image/jpeg;base64,${buffer.toString('base64')}`;
+  } catch (err) {
+    console.error('Thumbnail failed:', filePath, err.message);
+    return null;
+  }
+});
+
+// ===================
 // PORTFOLIO HANDLERS
 // ===================
 
@@ -216,6 +310,7 @@ ipcMain.handle('get-portfolio-photos', async (event, portfolioId) => {
         photos.push({
           id: filename.replace(/\.[^.]+$/, '').toLowerCase().replace(/\s+/g, '_'),
           filename,
+          path: path.join(sourcePath, filename),
           title: meta.title || filename.replace(/\.[^.]+$/, '').replace(/_/g, ' '),
           description: meta.description || '',
           location: formatLocation(meta.location) || '',
@@ -223,7 +318,7 @@ ipcMain.handle('get-portfolio-photos', async (event, portfolioId) => {
           timeOfDay: meta.timeOfDay || '',
           dimensions: meta.dimensions || null,
           inWebsite: meta.inWebsite ?? true,
-          inArtelo: meta.inArtelo ?? false,
+          inPictorem: meta.inPictorem ?? false,
           inSocialQueue: meta.inSocialQueue ?? false
         });
       }
@@ -348,8 +443,55 @@ ipcMain.handle('archive-photos', async (event, { portfolioId, photoIds }) => {
 // PHOTO ANALYSIS HANDLERS
 // ===================
 
+// Build the AI prompt with geographic constraints
+function buildAIPrompt(galleryContext, filename) {
+  const c = galleryContext?.country || '';
+  const n = galleryContext?.name || '';
+  const l = galleryContext?.location || '';
+
+  let prompt = 'You are a fine art photography metadata assistant for Archive-35, a landscape photography brand by Wolfgang Schram.\n\n';
+
+  if (c) {
+    prompt += '=== MANDATORY GEOGRAPHIC CONSTRAINT ===\n';
+    prompt += `These photos were taken in ${c}. Gallery: "${n}".${l ? ' Region: ' + l + '.' : ''}\n`;
+    prompt += 'RULES:\n';
+    prompt += `- EVERY tag, description, and location MUST be consistent with ${c}\n`;
+    prompt += `- NEVER use tags or words like "Antarctica", "polar", "Arctic", "Alpine", "Patagonia", "Iceland", "Norway", "Scandinavia", or ANY country/region that is NOT ${c}\n`;
+    prompt += `- Even if a scene has glaciers, snow, or ice, it is in ${c}. Describe it as ${c} scenery.\n`;
+    prompt += `- The location field MUST be a real place within ${c}\n`;
+    prompt += `- Geography tags MUST reference ${c} and regions within ${c} ONLY\n`;
+    prompt += '=== END CONSTRAINT ===\n\n';
+  }
+
+  prompt += 'Respond with ONLY valid JSON (no markdown):\n';
+  prompt += '{\n';
+  prompt += '  "title": "short evocative title (3-6 words)",\n';
+  prompt += `  "description": "1-2 sentence art description for fine art print buyers. Timeless tone. No time-of-day references (no sunrise, sunset, morning, evening).",\n`;
+  prompt += `  "location": "specific place or region in ${c || 'the photographed area'}",\n`;
+  prompt += '  "tags": ["15-20 tags for maximum discoverability"]\n';
+  prompt += '}\n\n';
+
+  prompt += 'TAG STRATEGY (generate 15-20 tags across ALL these categories):\n';
+  prompt += '- Subject: what is in the photo (mountain, glacier, waterfall, forest, lake, etc.)\n';
+  prompt += `- Geography: ${c || 'country'}, region, specific place names ONLY from ${c || 'the area'}\n`;
+  prompt += '- Mood/emotion: serene, dramatic, majestic, tranquil, powerful, etc.\n';
+  prompt += '- Style: landscape-photography, fine-art, nature-photography, wall-art, etc.\n';
+  prompt += '- Physical features: geological terms, water features, vegetation types\n';
+  prompt += '- Colors: dominant colors (emerald, azure, golden, etc.)\n';
+  prompt += '- Buyer keywords: home-decor, office-art, canvas-print, gallery-wall, etc.\n';
+  prompt += '- Weather: mist, fog, clouds, clear-sky, overcast, etc.\n\n';
+
+  prompt += 'REMINDER: Timeless tone. No time-of-day. Tags lowercase and hyphenated.';
+  if (c) {
+    prompt += ` ALL geographic references MUST be ${c}. NEVER reference any other country or polar region.`;
+  }
+  prompt += `\nFilename: ${filename}`;
+
+  return prompt;
+}
+
 // Analyze photos - extract EXIF, dimensions, and prepare for AI descriptions
-ipcMain.handle('analyze-photos', async (event, { files }) => {
+ipcMain.handle('analyze-photos', async (event, { files, galleryContext }) => {
   try {
     const sharp = require('sharp');
     let exiftool = null;
@@ -425,12 +567,11 @@ ipcMain.handle('analyze-photos', async (event, { files }) => {
             } : null
           },
 
-          // Placeholders for AI-generated content
+          // AI-generated content (populated below if API key available)
           title: '',
           description: '',
           location: '',
           tags: [],
-          timeOfDay: 'unknown',
 
           // Processing state
           approved: false
@@ -448,6 +589,68 @@ ipcMain.handle('analyze-photos', async (event, { files }) => {
 
     if (exiftool) {
       await exiftool.end();
+    }
+
+    // AI metadata generation (requires ANTHROPIC_API_KEY in .env)
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (apiKey) {
+      try {
+        const Anthropic = require('@anthropic-ai/sdk');
+        const client = new Anthropic({ apiKey });
+        const sharp = require('sharp');
+
+        const aiTotal = results.filter(p => !p.error).length;
+        let aiDone = 0;
+
+        for (const photo of results) {
+          if (photo.error) continue;
+          aiDone++;
+          if (mainWindow) {
+            mainWindow.webContents.send('ingest-progress', {
+              phase: 'ai',
+              current: aiDone,
+              total: aiTotal,
+              filename: photo.filename,
+              message: `AI analyzing photo ${aiDone} of ${aiTotal}: ${photo.filename}`
+            });
+          }
+          try {
+            // Resize for API (max 1024px, keep small for speed)
+            const thumbBuffer = await sharp(photo.path)
+              .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+              .jpeg({ quality: 70 })
+              .toBuffer();
+            const base64Image = thumbBuffer.toString('base64');
+
+            const response = await client.messages.create({
+              model: 'claude-haiku-4-5-20251001',
+              max_tokens: 500,
+              messages: [{
+                role: 'user',
+                content: [
+                  { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64Image } },
+                  { type: 'text', text: buildAIPrompt(galleryContext, photo.filename) }
+                ]
+              }]
+            });
+
+            let text = response.content[0]?.text || '';
+            // Strip markdown code fences if Claude wraps in ```json ... ```
+            text = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
+            const parsed = JSON.parse(text);
+            if (parsed.title) photo.title = parsed.title;
+            if (parsed.description) photo.description = parsed.description;
+            if (parsed.location) photo.location = parsed.location;
+            if (parsed.tags) photo.tags = parsed.tags;
+          } catch (aiErr) {
+            console.warn('AI analysis failed for', photo.filename, aiErr.message);
+          }
+        }
+      } catch (sdkErr) {
+        console.warn('Anthropic SDK not available:', sdkErr.message);
+      }
+    } else {
+      console.log('No ANTHROPIC_API_KEY set — skipping AI metadata generation');
     }
 
     return { success: true, photos: results };
@@ -486,14 +689,13 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
       const galleryJson = {
         id: folderName.toLowerCase(),
         title: newGallery.name,
-        slug: folderName.toLowerCase(),
+        slug: folderName.toLowerCase().replace(/[_\s]+/g, '-').replace(/-+$/, ''),
         status: 'draft',
         dates: {
-          shot_start: newGallery.dateRange || null,
           published: null
         },
         location: {
-          country: '',
+          country: newGallery.country || '',
           region: '',
           place: newGallery.location || '',
           coordinates: null
@@ -516,9 +718,21 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
     await fs.mkdir(webFolder, { recursive: true });
 
     const processedPhotos = [];
+    const totalPhotos = photos.length;
+    let processedCount = 0;
 
     for (const photo of photos) {
       try {
+        processedCount++;
+        if (mainWindow) {
+          mainWindow.webContents.send('ingest-progress', {
+            phase: 'finalize',
+            current: processedCount,
+            total: totalPhotos,
+            filename: photo.filename,
+            message: `Processing ${processedCount} of ${totalPhotos}: ${photo.filename}`
+          });
+        }
         const filename = photo.filename;
         const baseName = filename.replace(/\.[^.]+$/, '');
 
@@ -547,7 +761,6 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
           description: photo.description,
           location: photo.location,
           tags: photo.tags,
-          timeOfDay: photo.timeOfDay,
           dimensions: photo.dimensions,
           thumbnail: `${baseName}-thumb.jpg`,
           full: `${baseName}-full.jpg`
@@ -709,4 +922,281 @@ ipcMain.handle('update-photo-metadata', async (event, { portfolioId, photoId, me
 ipcMain.handle('process-ingest', async (event, { files, mode, portfolioId, newGallery }) => {
   console.log('process-ingest called - redirecting to analyze-photos');
   return { success: true, message: 'Use analyze-photos and finalize-ingest instead' };
+});
+
+// ===================
+// DEPLOY STATUS CHECK
+// ===================
+
+ipcMain.handle('check-deploy-status', async () => {
+  try {
+    const entries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
+    const portfolioDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_'));
+
+    let portfolioPhotoCount = 0;
+    const portfolioCollections = [];
+
+    for (const dir of portfolioDirs) {
+      const portfolioPath = path.join(PORTFOLIO_DIR, dir.name);
+      const photosJsonPath = path.join(portfolioPath, '_photos.json');
+      const galleryJsonPath = path.join(portfolioPath, '_gallery.json');
+      const webPath = path.join(portfolioPath, 'web');
+
+      let gallery = {};
+      try {
+        if (fsSync.existsSync(galleryJsonPath)) {
+          gallery = JSON.parse(await fs.readFile(galleryJsonPath, 'utf8'));
+        }
+      } catch (e) {}
+
+      const folderSlug = dir.name.toLowerCase().replace(/[_\s]+/g, '-').replace(/-+$/, '');
+      const collectionSlug = gallery.slug || folderSlug;
+      let photoCount = 0;
+      let hasPhotosJson = false;
+
+      if (fsSync.existsSync(photosJsonPath)) {
+        const photos = JSON.parse(await fs.readFile(photosJsonPath, 'utf8'));
+        photoCount = photos.length;
+        hasPhotosJson = true;
+      } else if (fsSync.existsSync(webPath)) {
+        const webFiles = await fs.readdir(webPath);
+        photoCount = webFiles.filter(f => f.endsWith('-full.jpg')).length;
+      }
+
+      portfolioPhotoCount += photoCount;
+      portfolioCollections.push({
+        name: dir.name.replace(/_/g, ' ').trim(),
+        slug: collectionSlug,
+        count: photoCount,
+        hasPhotosJson
+      });
+    }
+
+    // Read website photos.json
+    const photosJsonWebPath = path.join(ARCHIVE_BASE, 'data', 'photos.json');
+    let websitePhotoCount = 0;
+    let websiteCollections = [];
+    try {
+      if (fsSync.existsSync(photosJsonWebPath)) {
+        const data = JSON.parse(await fs.readFile(photosJsonWebPath, 'utf8'));
+        websitePhotoCount = (data.photos || []).length;
+        const collMap = {};
+        for (const p of data.photos || []) {
+          if (!collMap[p.collection]) collMap[p.collection] = 0;
+          collMap[p.collection]++;
+        }
+        websiteCollections = Object.entries(collMap).map(([slug, count]) => ({ slug, count }));
+      }
+    } catch (e) {}
+
+    // Get last deploy date from git log
+    let lastDeployDate = null;
+    try {
+      const { execSync } = require('child_process');
+      lastDeployDate = execSync('git log -1 --format=%ci -- data/photos.json', { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 5000 }).trim();
+    } catch (e) {}
+
+    const pendingPhotos = portfolioPhotoCount - websitePhotoCount;
+
+    return {
+      portfolioPhotoCount,
+      websitePhotoCount,
+      pendingPhotos: Math.max(0, pendingPhotos),
+      portfolioCollections,
+      websiteCollections,
+      lastDeployDate,
+      needsDeploy: pendingPhotos > 0
+    };
+  } catch (err) {
+    console.error('check-deploy-status failed:', err);
+    return { error: err.message };
+  }
+});
+
+// ===================
+// WEBSITE DEPLOY
+// ===================
+
+ipcMain.handle('deploy-website', async () => {
+  try {
+    const DATA_DIR = path.join(ARCHIVE_BASE, 'data');
+    const IMAGES_DIR = path.join(ARCHIVE_BASE, 'images');
+
+    const sendProgress = (step, message, current = 0, total = 0) => {
+      if (mainWindow) {
+        mainWindow.webContents.send('deploy-progress', { step, message, current, total });
+      }
+    };
+
+    // Phase 1: Scan portfolios
+    sendProgress('scan', 'Scanning portfolios...');
+
+    const entries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
+    const portfolioDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_'));
+
+    // Read existing photos.json for fallback (hand-curated legacy data)
+    let existingPhotosData = { photos: [] };
+    const photosJsonWebPath = path.join(DATA_DIR, 'photos.json');
+    try {
+      if (fsSync.existsSync(photosJsonWebPath)) {
+        existingPhotosData = JSON.parse(await fs.readFile(photosJsonWebPath, 'utf8'));
+      }
+    } catch (e) {}
+
+    const allWebsitePhotos = [];
+    const copyTasks = [];
+
+    for (const dir of portfolioDirs) {
+      const portfolioPath = path.join(PORTFOLIO_DIR, dir.name);
+      const photosJsonPath = path.join(portfolioPath, '_photos.json');
+      const galleryJsonPath = path.join(portfolioPath, '_gallery.json');
+      const webPath = path.join(portfolioPath, 'web');
+
+      // Get gallery metadata
+      let gallery = {};
+      try {
+        if (fsSync.existsSync(galleryJsonPath)) {
+          gallery = JSON.parse(await fs.readFile(galleryJsonPath, 'utf8'));
+        }
+      } catch (e) {}
+
+      const folderSlug = dir.name.toLowerCase().replace(/[_\s]+/g, '-').replace(/-+$/, '');
+      const collectionSlug = gallery.slug || folderSlug;
+      const collectionTitle = (gallery.title || dir.name.replace(/_/g, ' ')).replace(/,.*$/, '').trim();
+      const collectionLocation = formatLocation(gallery.location) || '';
+
+      if (fsSync.existsSync(photosJsonPath)) {
+        // Has _photos.json — use Studio-ingested metadata
+        sendProgress('scan', `Reading ${dir.name}...`);
+        const photos = JSON.parse(await fs.readFile(photosJsonPath, 'utf8'));
+        const prefix = collectionSlug.split('-').map(w => w[0]).join('').substring(0, 2);
+
+        photos.forEach((photo, idx) => {
+          const baseName = photo.filename.replace(/\.[^.]+$/, '');
+          const thumbName = photo.thumbnail || `${baseName}-thumb.jpg`;
+          const fullName = photo.full || `${baseName}-full.jpg`;
+
+          allWebsitePhotos.push({
+            id: `${prefix}-${String(idx + 1).padStart(3, '0')}`,
+            filename: baseName,
+            title: photo.title || baseName,
+            description: photo.description || '',
+            collection: collectionSlug,
+            collectionTitle,
+            tags: photo.tags || [],
+            location: typeof photo.location === 'string' ? photo.location : collectionLocation,
+            year: new Date().getFullYear(),
+            thumbnail: `images/${collectionSlug}/${thumbName}`,
+            full: `images/${collectionSlug}/${fullName}`,
+            dimensions: photo.dimensions || null
+          });
+
+          // Queue image copies
+          const destDir = path.join(IMAGES_DIR, collectionSlug);
+          if (fsSync.existsSync(path.join(webPath, thumbName))) {
+            copyTasks.push({ src: path.join(webPath, thumbName), dest: path.join(destDir, thumbName) });
+          }
+          if (fsSync.existsSync(path.join(webPath, fullName))) {
+            copyTasks.push({ src: path.join(webPath, fullName), dest: path.join(destDir, fullName) });
+          }
+        });
+      } else {
+        // No _photos.json — use existing hand-curated data/photos.json entries
+        const existingForCollection = existingPhotosData.photos.filter(p =>
+          p.collection === collectionSlug || p.collection === folderSlug
+        );
+        if (existingForCollection.length > 0) {
+          allWebsitePhotos.push(...existingForCollection);
+        }
+
+        // Still copy web images to ensure sync
+        if (fsSync.existsSync(webPath)) {
+          try {
+            const webFiles = await fs.readdir(webPath);
+            const destDir = path.join(IMAGES_DIR, collectionSlug);
+            for (const wf of webFiles) {
+              if (/\.(jpg|jpeg|png|webp)$/i.test(wf)) {
+                copyTasks.push({ src: path.join(webPath, wf), dest: path.join(destDir, wf) });
+              }
+            }
+          } catch (e) {}
+        }
+      }
+    }
+
+    // Phase 2: Copy images
+    sendProgress('images', 'Copying images to website...', 0, copyTasks.length);
+
+    const targetDirs = new Set(copyTasks.map(t => path.dirname(t.dest)));
+    for (const d of targetDirs) {
+      await fs.mkdir(d, { recursive: true });
+    }
+
+    let copied = 0;
+    for (const task of copyTasks) {
+      try {
+        await fs.copyFile(task.src, task.dest);
+        copied++;
+        if (copied % 5 === 0 || copied === copyTasks.length) {
+          sendProgress('images', `Copying images: ${copied}/${copyTasks.length}`, copied, copyTasks.length);
+        }
+      } catch (e) {
+        console.warn('Copy failed:', task.src, e.message);
+      }
+    }
+
+    // Phase 3: Write photos.json
+    sendProgress('data', 'Writing photo data...');
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    await fs.writeFile(photosJsonWebPath, JSON.stringify({ photos: allWebsitePhotos }, null, 2));
+
+    // Phase 4: Git operations
+    sendProgress('git', 'Committing changes...');
+    const { execSync } = require('child_process');
+    const gitOpts = { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 30000 };
+
+    try {
+      execSync('git add data/photos.json images/', gitOpts);
+      const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      execSync(`git commit -m "Deploy: update photos — ${dateStr}"`, gitOpts);
+
+      sendProgress('push', 'Pushing to GitHub...');
+      execSync('git push origin main', { ...gitOpts, timeout: 60000 });
+
+      sendProgress('done', `Deploy complete! ${allWebsitePhotos.length} photos published.`);
+
+      return {
+        success: true,
+        photosPublished: allWebsitePhotos.length,
+        imagesCopied: copied,
+        message: `Deployed ${allWebsitePhotos.length} photos to archive-35.com`
+      };
+    } catch (gitErr) {
+      const errMsg = gitErr.stderr || gitErr.message;
+      // If "nothing to commit" that's actually fine
+      if (errMsg.includes('nothing to commit')) {
+        sendProgress('done', 'Website already up to date.');
+        return {
+          success: true,
+          photosPublished: allWebsitePhotos.length,
+          imagesCopied: copied,
+          message: 'Website already up to date — no changes to deploy'
+        };
+      }
+      sendProgress('error', `Git error: ${errMsg}`);
+      return {
+        success: false,
+        error: `Git operation failed: ${errMsg}`,
+        photosPublished: allWebsitePhotos.length,
+        imagesCopied: copied
+      };
+    }
+
+  } catch (err) {
+    console.error('deploy-website failed:', err);
+    if (mainWindow) {
+      mainWindow.webContents.send('deploy-progress', { step: 'error', message: err.message });
+    }
+    return { success: false, error: err.message };
+  }
 });

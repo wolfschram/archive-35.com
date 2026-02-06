@@ -1,378 +1,864 @@
 /**
- * ARCHIVE-35 Product Selector
- * Pictorem Print-on-Demand Integration
+ * ARCHIVE-35 PRODUCT SELECTOR V2
+ *
+ * Aspect-ratio aware print product selector for Pictorem fulfillment.
+ * This is a complete drop-in replacement for the original product-selector.js
+ *
+ * Features:
+ * - Dynamically shows print sizes based on photo's aspect ratio
+ * - Quality indicators (DPI-based museum/excellent/good ratings)
+ * - Dynamic pricing per material and size
+ * - Stripe integration for checkout
+ * - Pictorem metadata for fulfillment
+ * - Dark theme with gold (#c4973b) accents
+ *
+ * Usage:
+ *   const photoData = { id: 'gt-001', dimensions: {...}, title: '...' };
+ *   openProductSelector(photoData);
  */
 
-// ===== Product Configuration =====
-// Markup: 2.5x wholesale for all products (60% margin)
-const MARKUP = 2.5;
+// ============================================================================
+// ASPECT RATIO CATEGORIES
+// ============================================================================
 
-const PRODUCTS = {
-  canvas: {
-    name: 'Canvas',
-    description: 'Gallery-wrapped canvas with 1.5" depth',
-    features: ['Satin finish', 'Museum-quality', 'Ready to hang'],
-    basePrices: { // Wholesale prices (USD) from Pictorem
-      '12x8': 42, '16x12': 56, '20x16': 68, '24x16': 76,
-      '24x18': 82, '30x20': 98, '36x24': 122, '40x30': 148,
-      '48x32': 178, '60x40': 228
-    },
-    markup: MARKUP,
-    leadTime: '5-7'
+const ASPECT_RATIO_CATEGORIES = {
+  standard_3_2: {
+    name: 'Standard 3:2',
+    range: [1.4, 1.6],
+    sizes: [
+      { width: 12, height: 8, inches: 96 },
+      { width: 18, height: 12, inches: 216 },
+      { width: 24, height: 16, inches: 384 },
+      { width: 36, height: 24, inches: 864 },
+      { width: 48, height: 32, inches: 1536 },
+      { width: 60, height: 40, inches: 2400 }
+    ]
   },
-  metal: {
-    name: 'Metal',
-    description: 'HD sublimation on brushed aluminum',
-    features: ['Vivid colors', 'Float mount included', 'Modern look'],
-    basePrices: {
-      '12x8': 52, '16x12': 72, '20x16': 88, '24x16': 96,
-      '24x18': 104, '30x20': 128, '36x24': 158, '40x30': 198,
-      '48x32': 248, '60x40': 328
-    },
-    markup: MARKUP,
-    leadTime: '10-14'
+  wide_16_9: {
+    name: 'Wide 16:9',
+    range: [1.6, 1.9],
+    sizes: [
+      { width: 16, height: 9, inches: 144 },
+      { width: 24, height: 14, inches: 336 },
+      { width: 32, height: 18, inches: 576 },
+      { width: 48, height: 27, inches: 1296 }
+    ]
   },
-  acrylic: {
-    name: 'Acrylic',
-    description: 'Face-mounted on 1/4" crystal-clear acrylic',
-    features: ['Luminous depth', 'Float mount included', 'Gallery finish'],
-    basePrices: {
-      '12x8': 78, '16x12': 102, '20x16': 128, '24x16': 138,
-      '24x18': 148, '30x20': 188, '36x24': 238, '40x30': 298,
-      '48x32': 378, '60x40': 498
-    },
-    markup: MARKUP,
-    leadTime: '10-14'
+  four_3: {
+    name: '4:3 Ratio',
+    range: [1.2, 1.4],
+    sizes: [
+      { width: 16, height: 12, inches: 192 },
+      { width: 20, height: 16, inches: 320 },
+      { width: 24, height: 18, inches: 432 },
+      { width: 40, height: 30, inches: 1200 }
+    ]
   },
-  paper: {
-    name: 'Fine Art Paper',
-    description: 'Archival Hahnemühle Photo Rag 308gsm',
-    features: ['Museum quality', 'Acid-free', 'Unframed'],
-    basePrices: {
-      '12x8': 24, '16x12': 32, '20x16': 38, '24x16': 42,
-      '24x18': 46, '30x20': 58, '36x24': 72, '40x30': 92,
-      '48x32': 118, '60x40': 158
-    },
-    markup: MARKUP,
-    leadTime: '5-7'
+  square: {
+    name: 'Square',
+    range: [0.95, 1.05],
+    sizes: [
+      { width: 12, height: 12, inches: 144 },
+      { width: 20, height: 20, inches: 400 },
+      { width: 30, height: 30, inches: 900 }
+    ]
   },
-  wood: {
-    name: 'Wood',
-    description: 'HD print on natural birch wood panel',
-    features: ['Organic texture', 'Ready to hang', 'Eco-friendly'],
-    basePrices: {
-      '12x8': 48, '16x12': 62, '20x16': 72, '24x16': 76,
-      '24x18': 82, '30x20': 98, '36x24': 122, '40x30': 148
-    },
-    markup: MARKUP,
-    leadTime: '10-14'
+  panorama_2_1: {
+    name: 'Panorama 2:1',
+    range: [1.9, 2.3],
+    sizes: [
+      { width: 24, height: 12, inches: 288 },
+      { width: 36, height: 18, inches: 648 },
+      { width: 48, height: 24, inches: 1152 }
+    ]
+  },
+  panorama_3_1: {
+    name: 'Panorama 3:1',
+    range: [2.7, 3.3],
+    sizes: [
+      { width: 36, height: 12, inches: 432 },
+      { width: 48, height: 16, inches: 768 },
+      { width: 60, height: 20, inches: 1200 }
+    ]
+  },
+  ultra_wide_4_1: {
+    name: 'Ultra-Wide 4:1+',
+    range: [3.5, Infinity],
+    sizes: [
+      { width: 60, height: 15, inches: 900 },
+      { width: 72, height: 18, inches: 1296 }
+    ]
   }
 };
 
-const SIZES = [
-  { id: '12x8', label: '12" × 8"', category: 'small' },
-  { id: '16x12', label: '16" × 12"', category: 'small' },
-  { id: '20x16', label: '20" × 16"', category: 'medium' },
-  { id: '24x16', label: '24" × 16"', category: 'medium', popular: true },
-  { id: '24x18', label: '24" × 18"', category: 'medium' },
-  { id: '30x20', label: '30" × 20"', category: 'large' },
-  { id: '36x24', label: '36" × 24"', category: 'large', popular: true },
-  { id: '40x30', label: '40" × 30"', category: 'xlarge' },
-  { id: '48x32', label: '48" × 32"', category: 'xlarge' },
-  { id: '60x40', label: '60" × 40"', category: 'xlarge' }
-];
+// ============================================================================
+// MATERIALS & BASE PRICING
+// ============================================================================
 
-// ===== State =====
-let selectorState = {
-  photo: null,
-  product: 'canvas',
-  size: '24x16',
-  isOpen: false
+const MATERIALS = {
+  canvas: {
+    name: 'Canvas',
+    basePrice: 105,
+    maxInches: 2400,
+    description: 'Museum-quality canvas wrap with professional stretching'
+  },
+  metal: {
+    name: 'Metal',
+    basePrice: 130,
+    maxInches: 2400,
+    description: 'Vibrant metal print with aluminum coating'
+  },
+  acrylic: {
+    name: 'Acrylic',
+    basePrice: 195,
+    maxInches: 2400,
+    description: 'Premium acrylic with stunning color depth'
+  },
+  paper: {
+    name: 'Fine Art Paper',
+    basePrice: 60,
+    maxInches: 2400,
+    description: 'Archival fine art paper with matte finish'
+  },
+  wood: {
+    name: 'Wood',
+    basePrice: 120,
+    maxInches: 2400,
+    description: 'Rustic wood print on premium plywood'
+  }
 };
 
-// ===== Initialize =====
-function initProductSelector() {
-  createSelectorModal();
-  attachEventListeners();
+// ============================================================================
+// PRICING CALCULATION
+// ============================================================================
+
+function calculatePrice(materialKey, sizeInches) {
+  const material = MATERIALS[materialKey];
+  if (!material) return 0;
+
+  // Price scales with area using a logarithmic curve
+  // Base price for base size (smallest), increases with area
+  const baseSize = 96; // 12x8
+  const ratio = sizeInches / baseSize;
+  const scaleFactor = Math.pow(ratio, 0.75); // Sub-linear scaling
+
+  return Math.round(material.basePrice * scaleFactor);
 }
 
-// ===== Create Modal HTML =====
-function createSelectorModal() {
+// ============================================================================
+// DPI & QUALITY CALCULATION
+// ============================================================================
+
+function calculateDPI(photoWidth, photoHeight, printWidth, printHeight) {
+  // True print DPI: pixels divided by inches
+  const dpiW = photoWidth / printWidth;
+  const dpiH = photoHeight / printHeight;
+  return Math.round(Math.min(dpiW, dpiH));
+}
+
+function getQualityBadge(dpi) {
+  if (dpi >= 300) {
+    return { level: 'Museum Quality', class: 'quality-museum', icon: '★★★' };
+  } else if (dpi >= 200) {
+    return { level: 'Excellent', class: 'quality-excellent', icon: '★★' };
+  } else if (dpi >= 150) {
+    return { level: 'Good', class: 'quality-good', icon: '★' };
+  }
+  return null; // Don't show if below minimum
+}
+
+// ============================================================================
+// ASPECT RATIO MATCHING
+// ============================================================================
+
+function getMatchingCategory(photoAspectRatio, tolerance = 0.1) {
+  for (const [key, category] of Object.entries(ASPECT_RATIO_CATEGORIES)) {
+    const [min, max] = category.range;
+    if (
+      photoAspectRatio >= min * (1 - tolerance) &&
+      photoAspectRatio <= max * (1 + tolerance)
+    ) {
+      return { key, ...category };
+    }
+  }
+  // Default to standard 3:2 if no match
+  return ASPECT_RATIO_CATEGORIES.standard_3_2;
+}
+
+function filterSizesByAspectRatio(sizes, photoAspectRatio, tolerance = 0.1) {
+  return sizes.filter((size) => {
+    const sizeRatio = size.width / size.height;
+    return (
+      sizeRatio >= photoAspectRatio * (1 - tolerance) &&
+      sizeRatio <= photoAspectRatio * (1 + tolerance)
+    );
+  });
+}
+
+// ============================================================================
+// MODAL UI GENERATION
+// ============================================================================
+
+function createProductSelectorModal(photoData) {
+  // Validate photo data
+  if (!photoData.dimensions) {
+    console.error('Photo data missing dimensions object', photoData);
+    return;
+  }
+
+  const {
+    id,
+    title,
+    dimensions: { width: photoWidth, height: photoHeight, aspectRatio, megapixels }
+  } = photoData;
+
+  // Get matching aspect ratio category
+  const category = getMatchingCategory(aspectRatio);
+  const applicableSizes = filterSizesByAspectRatio(category.sizes, aspectRatio);
+
+  // Create modal HTML
   const modal = document.createElement('div');
-  modal.id = 'product-selector';
-  modal.className = 'product-selector';
+  modal.className = 'product-selector-modal';
+  modal.id = 'product-selector-modal';
+
   modal.innerHTML = `
-    <div class="selector-backdrop"></div>
-    <div class="selector-panel">
-      <button class="selector-close" aria-label="Close">&times;</button>
+    <div class="product-selector-overlay" data-close="true"></div>
+    <div class="product-selector-content">
+      <button class="close-button" aria-label="Close selector">&times;</button>
 
       <div class="selector-header">
-        <h2>Select Your Print</h2>
-        <p class="selector-photo-title"></p>
+        <h2>Print "${title}"</h2>
+        <p class="selector-subtitle">
+          Photo dimensions: ${photoWidth} × ${photoHeight} px (${megapixels} MP, ${category.name})
+        </p>
       </div>
 
-      <div class="selector-content">
-        <!-- Preview -->
-        <div class="selector-preview">
-          <div class="preview-frame">
-            <img class="preview-image" src="" alt="">
-          </div>
-          <div class="preview-scale">
-            <span class="scale-indicator"></span>
+      <div class="selector-body">
+        <!-- Material Selection -->
+        <div class="material-section">
+          <h3>Step 1: Choose Material</h3>
+          <div class="material-grid">
+            ${Object.entries(MATERIALS)
+              .map(
+                ([key, material]) => `
+              <div class="material-option" data-material="${key}">
+                <input type="radio" id="material-${key}" name="material" value="${key}" />
+                <label for="material-${key}">
+                  <div class="material-name">${material.name}</div>
+                  <div class="material-description">${material.description}</div>
+                </label>
+              </div>
+            `
+              )
+              .join('')}
           </div>
         </div>
 
-        <!-- Options -->
-        <div class="selector-options">
-          <!-- Product Type -->
-          <div class="option-group">
-            <label class="option-label">Material</label>
-            <div class="product-grid" id="product-options">
-              ${Object.entries(PRODUCTS).map(([key, prod]) => `
-                <button class="product-option ${key === 'canvas' ? 'active' : ''}" data-product="${key}">
-                  <span class="product-name">${prod.name}</span>
-                  <span class="product-from">from $${getMinPrice(key)}</span>
-                </button>
-              `).join('')}
-            </div>
+        <!-- Size Selection -->
+        <div class="size-section">
+          <h3>Step 2: Choose Size</h3>
+          <div class="size-grid" id="size-grid">
+            <!-- Dynamically populated based on selected material -->
           </div>
-
-          <!-- Product Details -->
-          <div class="product-details" id="product-details">
-            <p class="product-description"></p>
-            <ul class="product-features"></ul>
-          </div>
-
-          <!-- Size -->
-          <div class="option-group">
-            <label class="option-label">Size</label>
-            <div class="size-grid" id="size-options"></div>
-          </div>
-
-          <!-- Summary -->
-          <div class="selector-summary">
-            <div class="summary-row">
-              <span>Production Time</span>
-              <span id="lead-time">10 business days</span>
-            </div>
-            <div class="summary-row">
-              <span>Shipping</span>
-              <span>Free (USA/Canada)</span>
-            </div>
-            <div class="summary-price">
-              <span>Total</span>
-              <span id="total-price">$169</span>
-            </div>
-          </div>
-
-          <!-- Terms Checkbox -->
-          <div class="terms-checkbox">
-            <label>
-              <input type="checkbox" id="terms-agree">
-              <span>I agree to the <a href="terms.html" target="_blank">Terms of Sale</a></span>
-            </label>
-          </div>
-
-          <!-- CTA -->
-          <button class="btn btn-primary selector-buy" id="buy-button" disabled>
-            Complete Purchase
-          </button>
-          <p class="selector-note">Secure checkout via Stripe • All sales final</p>
         </div>
+
+        <!-- Price Summary -->
+        <div class="price-summary">
+          <div class="summary-row">
+            <span>Material:</span>
+            <span id="summary-material">Select material</span>
+          </div>
+          <div class="summary-row">
+            <span>Size:</span>
+            <span id="summary-size">Select size</span>
+          </div>
+          <div class="summary-row">
+            <span>Quality:</span>
+            <span id="summary-quality">—</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total Price:</span>
+            <span id="summary-price">$0</span>
+          </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="product-info">
+          <div class="info-item">
+            <strong>Production Time:</strong> 5-7 business days
+          </div>
+          <div class="info-item">
+            <strong>Shipping:</strong> Standard 3-5 days (within USA)
+          </div>
+          <div class="info-item">
+            <strong>Pictorem Provider:</strong> Professional prints via www.pictorem.com
+          </div>
+        </div>
+
+        <!-- Checkout Button -->
+        <button class="checkout-button" id="checkout-button" disabled>
+          Proceed to Checkout
+        </button>
       </div>
     </div>
   `;
 
-  document.body.appendChild(modal);
+  return { modal, category, applicableSizes, photoData };
 }
 
-// ===== Event Listeners =====
-function attachEventListeners() {
-  const modal = document.getElementById('product-selector');
+// ============================================================================
+// EVENT HANDLERS & INTERACTIONS
+// ============================================================================
 
-  // Close button
-  modal.querySelector('.selector-close').addEventListener('click', closeSelector);
+function setupProductSelectorEvents(modal, category, applicableSizes, photoData) {
+  const overlay = modal.querySelector('.product-selector-overlay');
+  const closeBtn = modal.querySelector('.close-button');
+  const materialOptions = modal.querySelectorAll('.material-option');
+  const sizeGrid = modal.querySelector('#size-grid');
+  const checkoutBtn = modal.querySelector('#checkout-button');
 
-  // Backdrop click
-  modal.querySelector('.selector-backdrop').addEventListener('click', closeSelector);
+  let selectedMaterial = null;
+  let selectedSize = null;
 
-  // Product options
-  modal.querySelector('#product-options').addEventListener('click', (e) => {
-    const option = e.target.closest('.product-option');
-    if (option) {
-      selectorState.product = option.dataset.product;
-      updateSelector();
-    }
+  // Close modal
+  const closeModal = () => {
+    modal.remove();
+  };
+
+  overlay.addEventListener('click', closeModal);
+  closeBtn.addEventListener('click', closeModal);
+
+  // Material selection
+  materialOptions.forEach((option) => {
+    option.addEventListener('click', () => {
+      // Remove previous selection
+      materialOptions.forEach((o) => o.classList.remove('selected'));
+
+      // Mark as selected
+      option.classList.add('selected');
+      const input = option.querySelector('input[type="radio"]');
+      input.checked = true;
+      selectedMaterial = input.value;
+
+      // Update summary
+      const materialName = MATERIALS[selectedMaterial].name;
+      modal.querySelector('#summary-material').textContent = materialName;
+
+      // Reset size selection when material changes
+      selectedSize = null;
+      sizeGrid.innerHTML = '';
+      modal.querySelector('#summary-size').textContent = 'Select size';
+      modal.querySelector('#summary-quality').textContent = '—';
+      modal.querySelector('#summary-price').textContent = '$0';
+      checkoutBtn.disabled = true;
+
+      // Populate sizes for this material
+      populateSizes(sizeGrid, applicableSizes, photoData, selectedMaterial, modal, (size) => {
+        selectedSize = size;
+        updatePriceSummary(modal, selectedMaterial, selectedSize, photoData);
+        checkoutBtn.disabled = false;
+      });
+    });
   });
 
-  // Size options (delegated)
-  modal.querySelector('#size-options').addEventListener('click', (e) => {
-    const option = e.target.closest('.size-option');
-    if (option && !option.classList.contains('disabled')) {
-      selectorState.size = option.dataset.size;
-      updateSelector();
-    }
-  });
-
-  // Terms checkbox - enable/disable buy button
-  modal.querySelector('#terms-agree').addEventListener('change', (e) => {
-    modal.querySelector('#buy-button').disabled = !e.target.checked;
-  });
-
-  // Buy button
-  modal.querySelector('#buy-button').addEventListener('click', handleBuy);
-
-  // Keyboard
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && selectorState.isOpen) {
-      closeSelector();
+  // Size selection happens in populateSizes callback
+  // Checkout
+  checkoutBtn.addEventListener('click', () => {
+    if (selectedMaterial && selectedSize) {
+      initiateStripeCheckout(photoData, selectedMaterial, selectedSize);
     }
   });
 }
 
-// ===== Open Selector =====
-function openSelector(photo) {
-  selectorState.photo = photo;
-  selectorState.isOpen = true;
+function populateSizes(container, sizes, photoData, materialKey, modal, onSelect) {
+  const { width: photoWidth, height: photoHeight } = photoData.dimensions;
 
-  const modal = document.getElementById('product-selector');
-  modal.classList.add('active');
-  document.body.style.overflow = 'hidden';
+  container.innerHTML = sizes
+    .map((size) => {
+      const dpi = calculateDPI(photoWidth, photoHeight, size.width, size.height);
+      const quality = getQualityBadge(dpi);
+      const price = calculatePrice(materialKey, size.inches);
 
-  // Set photo info
-  modal.querySelector('.selector-photo-title').textContent = photo.title;
-  modal.querySelector('.preview-image').src = photo.full || photo.thumbnail;
+      // Skip if quality is too low
+      if (!quality) {
+        return '';
+      }
 
-  updateSelector();
-}
+      return `
+        <div class="size-option" data-size="${size.width}x${size.height}">
+          <input type="radio" id="size-${size.width}x${size.height}"
+                 name="size" value="${size.width}x${size.height}" />
+          <label for="size-${size.width}x${size.height}">
+            <div class="size-dimensions">${size.width}" × ${size.height}"</div>
+            <div class="size-dpi">${dpi} DPI</div>
+            <div class="quality-badge ${quality.class}">${quality.level}</div>
+            <div class="size-price">$${price}</div>
+          </label>
+        </div>
+      `;
+    })
+    .join('');
 
-// ===== Close Selector =====
-function closeSelector() {
-  selectorState.isOpen = false;
-  const modal = document.getElementById('product-selector');
-  modal.classList.remove('active');
-  document.body.style.overflow = '';
-}
-
-// ===== Update Selector UI =====
-function updateSelector() {
-  const product = PRODUCTS[selectorState.product];
-  const modal = document.getElementById('product-selector');
-
-  // Update product selection
-  modal.querySelectorAll('.product-option').forEach(opt => {
-    opt.classList.toggle('active', opt.dataset.product === selectorState.product);
+  // Add event listeners to size options
+  const sizeInputs = container.querySelectorAll('input[type="radio"]');
+  sizeInputs.forEach((input) => {
+    input.addEventListener('change', () => {
+      const [w, h] = input.value.split('x').map(Number);
+      const selectedSize = { width: w, height: h, inches: (w * h) };
+      onSelect(selectedSize);
+    });
   });
+}
 
-  // Update product details
-  modal.querySelector('.product-description').textContent = product.description;
-  modal.querySelector('.product-features').innerHTML =
-    product.features.map(f => `<li>${f}</li>`).join('');
+function updatePriceSummary(modal, materialKey, size, photoData) {
+  const { width: photoWidth, height: photoHeight } = photoData.dimensions;
+  const dpi = calculateDPI(photoWidth, photoHeight, size.width, size.height);
+  const quality = getQualityBadge(dpi);
+  const price = calculatePrice(materialKey, size.inches);
 
-  // Update size options
-  const sizeGrid = modal.querySelector('#size-options');
-  sizeGrid.innerHTML = SIZES.map(size => {
-    const hasSize = product.basePrices[size.id];
-    const price = hasSize ? getPrice(selectorState.product, size.id) : null;
-    const isActive = size.id === selectorState.size && hasSize;
+  modal.querySelector('#summary-size').textContent =
+    `${size.width}" × ${size.height}"`;
+  modal.querySelector('#summary-quality').textContent = quality ? quality.level : '—';
+  modal.querySelector('#summary-price').textContent = `$${price}`;
+}
 
-    return `
-      <button class="size-option ${isActive ? 'active' : ''} ${!hasSize ? 'disabled' : ''}"
-              data-size="${size.id}" ${!hasSize ? 'disabled' : ''}>
-        <span class="size-label">${size.label}</span>
-        <span class="size-price">${price ? '$' + price : '—'}</span>
-        ${size.popular ? '<span class="size-popular">Popular</span>' : ''}
-      </button>
-    `;
-  }).join('');
+// ============================================================================
+// STRIPE CHECKOUT INTEGRATION
+// ============================================================================
 
-  // If current size not available, select first available
-  if (!product.basePrices[selectorState.size]) {
-    const firstAvailable = SIZES.find(s => product.basePrices[s.id]);
-    if (firstAvailable) {
-      selectorState.size = firstAvailable.id;
-      updateSelector();
-      return;
+function initiateStripeCheckout(photoData, materialKey, size) {
+  const { id, title, dimensions } = photoData;
+  const material = MATERIALS[materialKey];
+  const price = calculatePrice(materialKey, size.inches);
+  const priceInCents = price * 100;
+
+  // Create line item for Stripe
+  const lineItem = {
+    price_data: {
+      currency: 'usd',
+      product_data: {
+        name: `${title} - ${material.name}`,
+        description: `${size.width}" × ${size.height}" Print`,
+        metadata: {
+          photoId: id,
+          material: materialKey,
+          width: size.width.toString(),
+          height: size.height.toString(),
+          originalPhotoWidth: dimensions.width.toString(),
+          originalPhotoHeight: dimensions.height.toString(),
+          dpi: calculateDPI(
+            dimensions.width,
+            dimensions.height,
+            size.width,
+            size.height
+          ).toString()
+        }
+      },
+      unit_amount: priceInCents
+    },
+    quantity: 1
+  };
+
+  // Create checkout session (requires backend endpoint)
+  // This example shows the structure; implementation depends on your backend
+  const checkoutData = {
+    lineItems: [lineItem],
+    successUrl: `${window.location.origin}/order-confirmation.html`,
+    cancelUrl: window.location.href,
+    pictorem: {
+      photoId: id,
+      photoTitle: title,
+      material: materialKey,
+      dimensions: {
+        width: size.width,
+        height: size.height,
+        originalWidth: dimensions.width,
+        originalHeight: dimensions.height,
+        dpi: calculateDPI(dimensions.width, dimensions.height, size.width, size.height)
+      }
     }
+  };
+
+  // Try Stripe checkout first, fall back to contact form
+  fetch('/api/create-checkout-session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(checkoutData)
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error('Checkout endpoint not available');
+      return res.json();
+    })
+    .then((data) => {
+      if (data.sessionId && window.Stripe && window.STRIPE_PUBLIC_KEY) {
+        window.Stripe(window.STRIPE_PUBLIC_KEY).redirectToCheckout({
+          sessionId: data.sessionId
+        });
+      } else {
+        throw new Error('Stripe not configured');
+      }
+    })
+    .catch((err) => {
+      console.warn('Stripe checkout unavailable, redirecting to contact form:', err.message);
+      // Fallback: redirect to contact page with order details
+      const orderSummary = encodeURIComponent(
+        `I would like to order:\n\nPhoto: ${title}\nMaterial: ${material.name}\nSize: ${size.width}" × ${size.height}"\nPrice: $${price}\n\nPlease send me a payment link.`
+      );
+      window.location.href = `contact.html?message=${orderSummary}`;
+    });
+}
+
+// ============================================================================
+// PUBLIC API
+// ============================================================================
+
+/**
+ * Open product selector modal for a photo
+ * @param {Object} photoData - Photo object from photos.json with dimensions
+ */
+function openProductSelector(photoData) {
+  // Inject styles if not already present
+  if (!document.getElementById('product-selector-styles')) {
+    const styleEl = document.createElement('style');
+    styleEl.id = 'product-selector-styles';
+    styleEl.textContent = STYLES;
+    document.head.appendChild(styleEl);
   }
 
-  // Update summary
-  modal.querySelector('#lead-time').textContent = `${product.leadTime} business days`;
-  modal.querySelector('#total-price').textContent = '$' + getPrice(selectorState.product, selectorState.size);
+  // Close existing modal if open
+  const existing = document.getElementById('product-selector-modal');
+  if (existing) {
+    existing.remove();
+  }
 
-  // Update scale indicator
-  const [width] = selectorState.size.split('x').map(Number);
-  const scalePercent = Math.min(100, (width / 60) * 100);
-  modal.querySelector('.scale-indicator').style.width = scalePercent + '%';
-}
-
-// ===== Price Calculations =====
-function getPrice(productKey, sizeKey) {
-  const product = PRODUCTS[productKey];
-  const basePrice = product.basePrices[sizeKey];
-  if (!basePrice) return null;
-  return Math.round(basePrice * product.markup);
-}
-
-function getMinPrice(productKey) {
-  const product = PRODUCTS[productKey];
-  const minBase = Math.min(...Object.values(product.basePrices));
-  return Math.round(minBase * product.markup);
-}
-
-// ===== Stripe Payment Links =====
-// Loaded from external stripe-links.js (window.STRIPE_LINKS)
-// Auto-generated by stripe_setup.py --export
-
-// Fallback: Generic payment link or contact form
-const FALLBACK_ACTION = 'contact'; // 'contact' or a Stripe link URL
-
-// ===== Handle Purchase =====
-function handleBuy() {
-  const photo = selectorState.photo;
-  const product = PRODUCTS[selectorState.product];
-  const size = selectorState.size;
-  const price = getPrice(selectorState.product, size);
-
-  // Check if terms are accepted
-  const termsAccepted = document.getElementById('terms-agree').checked;
-  if (!termsAccepted) {
-    alert('Please accept the Terms of Sale to continue.');
+  // Validate dimensions exist
+  if (!photoData.dimensions) {
+    console.warn('Product selector: photo missing dimensions', photoData.id || photoData.title);
+    alert('Print ordering is not available for this photo yet. Dimensions data is missing.');
     return;
   }
 
-  // Log order for analytics
-  const orderData = {
-    photoId: photo.id,
-    photoTitle: photo.title,
-    product: selectorState.product,
-    productName: product.name,
-    size: size,
-    price: price,
-    termsAccepted: true,
-    timestamp: new Date().toISOString()
-  };
-  console.log('Order initiated:', orderData);
+  // Create new modal
+  const { modal, category, applicableSizes } =
+    createProductSelectorModal(photoData);
 
-  // Check for specific Stripe Payment Link (loaded from stripe-links.js)
-  const stripeLinks = window.STRIPE_LINKS || {};
-  const stripeLink = stripeLinks[photo.id]?.[selectorState.product]?.[size];
+  // Add to page
+  document.body.appendChild(modal);
 
-  if (stripeLink) {
-    // Redirect to Stripe Payment Link
-    window.location.href = stripeLink;
-  } else {
-    // Fallback: redirect to contact with order details
-    const orderSummary = encodeURIComponent(
-      `I would like to order:\n\nPhoto: ${photo.title}\nMaterial: ${product.name}\nSize: ${size}\nPrice: $${price}\n\nPlease send me a payment link.`
-    );
-    window.location.href = `contact.html?message=${orderSummary}`;
-  }
+  // Setup events
+  setupProductSelectorEvents(modal, category, applicableSizes, photoData);
+
+  // Trigger transition animation
+  setTimeout(() => {
+    modal.classList.add('visible');
+  }, 10);
 }
 
-// ===== Integration with Lightbox =====
+// ============================================================================
+// STYLES (should be in separate CSS file, but included here for reference)
+// ============================================================================
+
+const STYLES = `
+  /* Product Selector Modal */
+  .product-selector-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .product-selector-modal.visible {
+    opacity: 1;
+  }
+
+  .product-selector-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+  }
+
+  .product-selector-content {
+    position: relative;
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 12px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .close-button {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: #c4973b;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 10001;
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .close-button:hover {
+    opacity: 0.8;
+  }
+
+  .selector-header {
+    padding: 32px 24px 24px;
+    border-bottom: 1px solid #333;
+  }
+
+  .selector-header h2 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    color: #fff;
+  }
+
+  .selector-subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: #999;
+  }
+
+  .selector-body {
+    padding: 24px;
+  }
+
+  .material-section,
+  .size-section {
+    margin-bottom: 32px;
+  }
+
+  .material-section h3,
+  .size-section h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    color: #c4973b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .material-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+  }
+
+  .material-option {
+    position: relative;
+  }
+
+  .material-option input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .material-option label {
+    display: block;
+    padding: 16px;
+    border: 2px solid #333;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #222;
+  }
+
+  .material-option input[type='radio']:checked + label {
+    border-color: #c4973b;
+    background: rgba(196, 151, 59, 0.1);
+  }
+
+  .material-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .material-description {
+    font-size: 12px;
+    color: #999;
+    line-height: 1.3;
+  }
+
+  .size-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+  }
+
+  .size-option {
+    position: relative;
+  }
+
+  .size-option input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .size-option label {
+    display: block;
+    padding: 12px;
+    border: 2px solid #333;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #222;
+    text-align: center;
+  }
+
+  .size-option input[type='radio']:checked + label {
+    border-color: #c4973b;
+    background: rgba(196, 151, 59, 0.1);
+  }
+
+  .size-dimensions {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .size-dpi {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 4px;
+  }
+
+  .quality-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    display: inline-block;
+  }
+
+  .quality-museum {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+  }
+
+  .quality-excellent {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+  }
+
+  .quality-good {
+    background: rgba(33, 150, 243, 0.2);
+    color: #2196f3;
+  }
+
+  .size-price {
+    font-weight: 600;
+    color: #c4973b;
+  }
+
+  .price-summary {
+    background: #222;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 24px 0;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 14px;
+    color: #ccc;
+  }
+
+  .summary-row.total {
+    border-top: 1px solid #333;
+    padding-top: 12px;
+    margin-top: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #c4973b;
+  }
+
+  .product-info {
+    background: rgba(196, 151, 59, 0.05);
+    border-left: 3px solid #c4973b;
+    padding: 16px;
+    margin: 24px 0;
+    border-radius: 4px;
+  }
+
+  .info-item {
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+
+  .info-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .checkout-button {
+    width: 100%;
+    padding: 14px 24px;
+    background: #c4973b;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .checkout-button:not(:disabled):hover {
+    background: #d4a755;
+    transform: translateY(-2px);
+  }
+
+  .checkout-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 600px) {
+    .product-selector-content {
+      width: 95%;
+    }
+
+    .material-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .size-grid {
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+  }
+`;
+
+// ============================================================================
+// LIGHTBOX INTEGRATION
+// ============================================================================
+
+/**
+ * Hook into the lightbox "Buy Print" button to open the product selector.
+ * Compatible with the existing gallery lightbox in js/main.js.
+ */
 function replaceLightboxBuyButton() {
-  // Replace the simple "Buy Print" link with selector trigger
   const buyBtn = document.querySelector('.lightbox-buy');
   if (buyBtn && !buyBtn.dataset.selectorAttached) {
     buyBtn.removeAttribute('href');
@@ -387,31 +873,52 @@ function replaceLightboxBuyButton() {
       if (photo) {
         if (typeof closeLightbox === 'function') closeLightbox();
         if (typeof window.closeLightbox === 'function') window.closeLightbox();
-        setTimeout(() => openSelector(photo), 100);
+        setTimeout(() => openProductSelector(photo), 100);
       }
     });
   }
 }
 
-// ===== Init on DOM Ready =====
+// Auto-init on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
-  initProductSelector();
-
-  // Wait for lightbox to init, then replace buy button
-  // Use MutationObserver for reliability
+  // Watch for lightbox creation and attach the buy button handler
   const observer = new MutationObserver(() => {
     replaceLightboxBuyButton();
   });
-
   observer.observe(document.body, { childList: true, subtree: true });
 
-  // Also try immediately and after delays
+  // Also try immediately and after delays for reliability
   setTimeout(replaceLightboxBuyButton, 100);
   setTimeout(replaceLightboxBuyButton, 500);
 });
 
-// ===== Export for external use =====
-window.ProductSelector = {
-  open: openSelector,
-  close: closeSelector
+// ============================================================================
+// EXPORT FOR USE
+// ============================================================================
+
+// If using modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    openProductSelector,
+    ASPECT_RATIO_CATEGORIES,
+    MATERIALS,
+    calculatePrice,
+    calculateDPI,
+    getQualityBadge
+  };
+}
+
+// Global scope
+window.openProductSelector = openProductSelector;
+window.ProductSelector = { open: openProductSelector, close: () => {
+  const modal = document.getElementById('product-selector-modal');
+  if (modal) modal.remove();
+}};
+window.PRODUCT_SELECTOR = {
+  openProductSelector,
+  ASPECT_RATIO_CATEGORIES,
+  MATERIALS,
+  calculatePrice,
+  calculateDPI,
+  getQualityBadge
 };

@@ -1,25 +1,53 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import '../styles/Pages.css';
+
+// Thumbnail component that loads via IPC
+function PhotoThumb({ filePath, size = 200 }) {
+  const [src, setSrc] = useState(null);
+  useEffect(() => {
+    if (filePath && window.electronAPI?.getThumbnail) {
+      window.electronAPI.getThumbnail(filePath).then(dataUrl => {
+        if (dataUrl) setSrc(dataUrl);
+      });
+    }
+  }, [filePath]);
+  return src
+    ? <img src={src} alt="" style={{ width: '100%', height: size + 'px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
+    : <div style={{ height: size + 'px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', color: 'var(--text-muted)', fontSize: '14px' }}>Loading...</div>;
+}
 
 function ContentIngest() {
   const [files, setFiles] = useState([]);
   const [galleryMode, setGalleryMode] = useState('new'); // 'new' or 'existing'
   const [galleryName, setGalleryName] = useState('');
+  const [country, setCountry] = useState('');
   const [location, setLocation] = useState('');
-  const [dateRange, setDateRange] = useState('');
   const [existingPortfolios, setExistingPortfolios] = useState([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState('');
   const [processing, setProcessing] = useState(false);
   const [processStatus, setProcessStatus] = useState(null);
+  const [completionState, setCompletionState] = useState(null); // { photosImported, galleryName, timestamp }
 
   // Review step state
   const [reviewMode, setReviewMode] = useState(false);
   const [reviewData, setReviewData] = useState([]);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
 
-  // Load existing portfolios on mount
+  // Progress tracking
+  const [progress, setProgress] = useState(null); // { phase, current, total, filename, message }
+  const startTimeRef = useRef(null);
+
+  // Load existing portfolios on mount + listen for progress events
   useEffect(() => {
     loadPortfolios();
+    if (window.electronAPI?.onIngestProgress) {
+      const cleanup = window.electronAPI.onIngestProgress((data) => {
+        if (!startTimeRef.current) startTimeRef.current = Date.now();
+        setProgress(data);
+        setProcessStatus({ step: data.phase === 'ai' ? 1 : 3, message: data.message });
+      });
+      return cleanup;
+    }
   }, []);
 
   const loadPortfolios = async () => {
@@ -67,12 +95,17 @@ function ContentIngest() {
     if (!canProcess()) return;
 
     setProcessing(true);
-    setProcessStatus({ step: 1, message: 'Extracting EXIF metadata...' });
+    setProgress(null);
+    startTimeRef.current = Date.now();
+    setProcessStatus({ step: 1, message: 'Extracting EXIF metadata & analyzing with AI...' });
 
     try {
       if (window.electronAPI) {
         // Call API to extract EXIF and generate AI descriptions
-        const result = await window.electronAPI.analyzePhotos({ files });
+        const galleryContext = galleryMode === 'new'
+          ? { name: galleryName, country: country, location: location }
+          : { name: existingPortfolios.find(p => p.id === selectedPortfolio)?.name || '', country: '', location: '' };
+        const result = await window.electronAPI.analyzePhotos({ files, galleryContext });
 
         if (result.success) {
           setProcessStatus({ step: 2, message: 'AI analysis complete. Please review.' });
@@ -98,7 +131,6 @@ function ContentIngest() {
           // AI-generated (simulated)
           title: `Landscape ${i + 1}`,
           description: 'AI-generated description would appear here.',
-          timeOfDay: 'unknown',  // This is what we want user to verify!
           location: location || 'Unknown Location',
           tags: ['landscape'],
           approved: false
@@ -145,6 +177,8 @@ function ContentIngest() {
     }
 
     setProcessing(true);
+    setProgress(null);
+    startTimeRef.current = Date.now();
     setProcessStatus({ step: 3, message: 'Resizing for web...' });
 
     try {
@@ -155,14 +189,20 @@ function ContentIngest() {
           portfolioId: galleryMode === 'existing' ? selectedPortfolio : null,
           newGallery: galleryMode === 'new' ? {
             name: galleryName,
-            location: location,
-            dateRange: dateRange
+            country: country,
+            location: location
           } : null
         });
 
         if (result.success) {
+          const gName = galleryMode === 'new' ? galleryName : (existingPortfolios.find(p => p.id === selectedPortfolio)?.name || 'Portfolio');
+          setCompletionState({
+            photosImported: reviewData.length,
+            galleryName: gName,
+            timestamp: new Date().toLocaleTimeString()
+          });
           setProcessStatus({ step: 5, message: '✅ Import complete!', success: true });
-          resetForm();
+          setProgress({ phase: 'done', current: reviewData.length, total: reviewData.length });
           loadPortfolios();
         } else {
           setProcessStatus({ step: 0, message: result.error, error: true });
@@ -172,8 +212,14 @@ function ContentIngest() {
         await new Promise(resolve => setTimeout(resolve, 600));
         setProcessStatus({ step: 4, message: 'Creating gallery files...' });
         await new Promise(resolve => setTimeout(resolve, 600));
+        const gName = galleryMode === 'new' ? galleryName : 'Portfolio';
+        setCompletionState({
+          photosImported: reviewData.length,
+          galleryName: gName,
+          timestamp: new Date().toLocaleTimeString()
+        });
         setProcessStatus({ step: 5, message: '✅ Import complete!', success: true });
-        resetForm();
+        setProgress({ phase: 'done', current: reviewData.length, total: reviewData.length });
       }
     } catch (err) {
       console.error('Finalization failed:', err);
@@ -186,12 +232,19 @@ function ContentIngest() {
   const resetForm = () => {
     setFiles([]);
     setGalleryName('');
+    setCountry('');
     setLocation('');
-    setDateRange('');
     setSelectedPortfolio('');
     setReviewMode(false);
     setReviewData([]);
     setCurrentReviewIndex(0);
+  };
+
+  const startNewImport = () => {
+    resetForm();
+    setProcessStatus(null);
+    setProgress(null);
+    setCompletionState(null);
   };
 
   const cancelReview = () => {
@@ -222,8 +275,8 @@ function ContentIngest() {
                 {approvedCount}/{reviewData.length} Approved
               </span>
             </div>
-            <p style={{ marginTop: '8px', color: 'var(--warning)' }}>
-              ⚠️ <strong>Important:</strong> AI often confuses sunrise/sunset. Please verify time of day!
+            <p style={{ marginTop: '8px', color: 'var(--text-muted)' }}>
+              Review and edit the AI-generated titles, descriptions, and tags below.
             </p>
           </div>
 
@@ -233,9 +286,7 @@ function ContentIngest() {
               <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
                 {/* Photo preview */}
                 <div style={{ flex: '0 0 200px' }}>
-                  <div className="photo-placeholder large" style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)' }}>
-                    📷
-                  </div>
+                  <PhotoThumb filePath={currentPhoto.path} size={200} />
                   <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px', wordBreak: 'break-all' }}>
                     {currentPhoto.filename}
                   </p>
@@ -265,26 +316,6 @@ function ContentIngest() {
                       rows={2}
                       style={{ width: '100%', padding: '10px', background: 'var(--bg-tertiary)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', resize: 'vertical' }}
                     />
-                  </div>
-
-                  <div className="form-group">
-                    <label style={{ color: 'var(--warning)' }}>⚠️ Time of Day (VERIFY!)</label>
-                    <select
-                      value={currentPhoto.timeOfDay}
-                      onChange={e => updateReviewItem(currentReviewIndex, 'timeOfDay', e.target.value)}
-                      style={{ width: '100%', padding: '10px', background: 'var(--bg-tertiary)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)' }}
-                    >
-                      <option value="unknown">-- Please Select --</option>
-                      <option value="sunrise">🌅 Sunrise</option>
-                      <option value="morning">☀️ Morning</option>
-                      <option value="midday">🌞 Midday</option>
-                      <option value="afternoon">🌤️ Afternoon</option>
-                      <option value="golden-hour">🌇 Golden Hour</option>
-                      <option value="sunset">🌆 Sunset</option>
-                      <option value="twilight">🌃 Twilight</option>
-                      <option value="night">🌙 Night</option>
-                      <option value="blue-hour">💙 Blue Hour</option>
-                    </select>
                   </div>
 
                   <div className="form-group">
@@ -432,24 +463,27 @@ function ContentIngest() {
                 </div>
 
                 <div className="form-group">
-                  <label>Location</label>
+                  <label>Country *</label>
                   <input
                     type="text"
-                    placeholder="e.g., Wyoming, USA"
+                    placeholder="e.g., New Zealand, USA"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                  />
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Helps the AI correctly identify locations in your photos</span>
+                </div>
+
+                <div className="form-group">
+                  <label>Location (optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Rotorua, North Island"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                   />
                 </div>
 
-                <div className="form-group">
-                  <label>Date Range</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., January 26-30, 2026"
-                    value={dateRange}
-                    onChange={(e) => setDateRange(e.target.value)}
-                  />
-                </div>
+
               </>
             )}
 
@@ -508,17 +542,86 @@ function ContentIngest() {
               </div>
             )}
 
-            <button
-              className="btn btn-primary btn-large"
-              onClick={handleProcess}
-              disabled={!canProcess() || processing}
-            >
-              {processing ? 'Processing...' : `Analyze ${files.length} Photo${files.length !== 1 ? 's' : ''}`}
-            </button>
+            {/* Progress Bar — visible during processing AND after completion */}
+            {progress && (processing || completionState) && (
+              <div style={{ margin: '16px 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                  <span>
+                    {completionState
+                      ? `Done: ${progress.total} photos processed`
+                      : `${progress.phase === 'ai' ? 'AI Analysis' : 'Processing & Resizing'}: ${progress.current} / ${progress.total}`
+                    }
+                  </span>
+                  <span>
+                    {completionState
+                      ? `Completed at ${completionState.timestamp}`
+                      : (() => {
+                          if (!startTimeRef.current || progress.current < 2) return 'Estimating...';
+                          const elapsed = (Date.now() - startTimeRef.current) / 1000;
+                          const perItem = elapsed / progress.current;
+                          const remaining = Math.ceil(perItem * (progress.total - progress.current));
+                          if (remaining < 60) return `~${remaining}s remaining`;
+                          return `~${Math.ceil(remaining / 60)}m remaining`;
+                        })()
+                    }
+                  </span>
+                </div>
+                <div style={{ width: '100%', height: '8px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{
+                    width: `${(progress.current / progress.total) * 100}%`,
+                    height: '100%',
+                    background: completionState
+                      ? 'linear-gradient(90deg, #22c55e, #16a34a)'
+                      : 'linear-gradient(90deg, var(--accent), var(--warning))',
+                    borderRadius: '4px',
+                    transition: 'width 0.3s ease'
+                  }} />
+                </div>
+                {!completionState && progress.filename && (
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>{progress.filename}</p>
+                )}
+              </div>
+            )}
 
-            <p className="card-note" style={{ marginTop: '12px' }}>
-              After AI analysis, you'll review and approve metadata before finalizing.
-            </p>
+            {/* Completion Summary Card */}
+            {completionState && (
+              <div style={{
+                margin: '16px 0',
+                padding: '20px',
+                background: 'linear-gradient(135deg, rgba(34,197,94,0.1), rgba(22,163,106,0.05))',
+                border: '1px solid rgba(34,197,94,0.3)',
+                borderRadius: 'var(--radius-md)',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '36px', marginBottom: '8px' }}>\u2705</div>
+                <h3 style={{ margin: '0 0 8px', color: '#22c55e' }}>Import Complete</h3>
+                <p style={{ margin: '0 0 4px', color: 'var(--text-secondary)' }}>
+                  <strong>{completionState.photosImported}</strong> photos imported to <strong>{completionState.galleryName}</strong>
+                </p>
+                <p style={{ margin: '0 0 16px', fontSize: '12px', color: 'var(--text-muted)' }}>
+                  Ready to deploy to website
+                </p>
+                <button className="btn btn-primary" onClick={startNewImport}>
+                  Start New Import
+                </button>
+              </div>
+            )}
+
+            {!completionState && (
+              <>
+                <button
+                  className="btn btn-primary btn-large"
+                  onClick={handleProcess}
+                  disabled={!canProcess() || processing}
+                >
+                  {processing ? 'Processing...' : `Analyze ${files.length} Photo${files.length !== 1 ? 's' : ''}`}
+                </button>
+
+                <p className="card-note" style={{ marginTop: '12px' }}>
+                  After AI analysis, you'll review and approve metadata before finalizing.
+                </p>
+              </>
+            )}
           </div>
         </div>
       )}

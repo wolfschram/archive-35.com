@@ -28,6 +28,30 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Metadata editing
   updatePhotoMetadata: (data) => ipcRenderer.invoke('update-photo-metadata', data),
 
+  // Thumbnail generation
+  getThumbnail: (filePath) => ipcRenderer.invoke('get-thumbnail', filePath),
+
+  // Progress events
+  onIngestProgress: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('ingest-progress', handler);
+    return () => ipcRenderer.removeListener('ingest-progress', handler);
+  },
+
+  // API key management
+  getApiKeys: () => ipcRenderer.invoke('get-api-keys'),
+  saveApiKey: (data) => ipcRenderer.invoke('save-api-key', data),
+  testApiKey: (data) => ipcRenderer.invoke('test-api-key', data),
+
+  // Website deploy
+  deployWebsite: () => ipcRenderer.invoke('deploy-website'),
+  checkDeployStatus: () => ipcRenderer.invoke('check-deploy-status'),
+  onDeployProgress: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('deploy-progress', handler);
+    return () => ipcRenderer.removeListener('deploy-progress', handler);
+  },
+
   // Platform info
   platform: process.platform
 });

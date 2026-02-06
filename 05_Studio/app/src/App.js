@@ -3,7 +3,7 @@ import Sidebar from './components/Sidebar';
 import ContentIngest from './pages/ContentIngest';
 import ContentManagement from './pages/ContentManagement';
 import WebsiteControl from './pages/WebsiteControl';
-import SalesArtelo from './pages/SalesArtelo';
+import SalesPictorem from './pages/SalesPictorem';
 import SocialMedia from './pages/SocialMedia';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
@@ -21,7 +21,7 @@ function App() {
       case 'website':
         return <WebsiteControl />;
       case 'sales':
-        return <SalesArtelo />;
+        return <SalesPictorem />;
       case 'social':
         return <SocialMedia />;
       case 'analytics':

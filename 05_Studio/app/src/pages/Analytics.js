@@ -38,11 +38,8 @@ function Analytics() {
 
         <div className="glass-card full-width">
           <h3>Daily Report</h3>
-          <p>Receive daily email summaries at wolfbroadcast@gmail.com</p>
-          <label className="checkbox-item">
-            <input type="checkbox" />
-            <span>Enable daily email reports</span>
-          </label>
+          <p>Email summaries to wolfbroadcast@gmail.com</p>
+          <p className="card-note">Requires SMTP configuration in .env and Google Analytics integration. Not yet active.</p>
         </div>
       </div>
     </div>

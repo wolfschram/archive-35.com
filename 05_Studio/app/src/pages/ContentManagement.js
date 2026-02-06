@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Pages.css';
 
+// Thumbnail component that loads via IPC
+function PhotoThumb({ filePath }) {
+  const [src, setSrc] = useState(null);
+  useEffect(() => {
+    if (filePath && window.electronAPI?.getThumbnail) {
+      window.electronAPI.getThumbnail(filePath).then(dataUrl => {
+        if (dataUrl) setSrc(dataUrl);
+      });
+    }
+  }, [filePath]);
+  return src
+    ? <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+    : <div className="photo-placeholder">⏳</div>;
+}
+
 // Helper to format location (handles both string and object formats)
 const formatLocation = (location) => {
   if (!location) return '';
@@ -316,7 +331,7 @@ function ContentManagement() {
                     onClick={(e) => togglePhotoSelection(photo.id, e)}
                   >
                     <div className="photo-thumb">
-                      <div className="photo-placeholder">📷</div>
+                      <PhotoThumb filePath={photo.path} />
                       {selectedPhotos.includes(photo.id) && (
                         <div className="photo-check">✓</div>
                       )}
@@ -333,7 +348,7 @@ function ContentManagement() {
                       <span className="photo-time-badge">{photo.timeOfDay || '?'}</span>
                       <div className="photo-status">
                         {photo.inWebsite && <span className="status-badge website">Web</span>}
-                        {photo.inArtelo && <span className="status-badge artelo">Artelo</span>}
+                        {photo.inPictorem && <span className="status-badge pictorem">Pictorem</span>}
                         {photo.inSocialQueue && <span className="status-badge social">Social</span>}
                       </div>
                     </div>

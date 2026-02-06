@@ -1,0 +1,38 @@
+# Archive-35 Cloudflare Pages Ignore
+# Only deploy: HTML, css/, js/, images/, data/, functions/, CNAME
+
+# Portfolio originals & raw photography (huge files)
+01_Portfolio/
+02_Social/
+03_Brand/
+04_Website/
+05_Business/
+05_Studio/
+06_Automation/
+07_Analytics/
+08_Docs/
+09_Backups/
+00_Inbox/
+Photography/
+
+# Dev/build artifacts
+_CLAUDE/
+_files_to_delete/
+archive35-context-folder/
+memory/
+website documents /
+
+# Scripts & config not needed in deploy
+*.py
+*.command
+archive35_mcp.py
+create_moose_cutout.py
+FIX_GIT_AND_PUSH.command
+SETUP_STRIPE.command
+DEPLOY_product-selector.js
+stripe_backup_code.txt
+Archive35_Setup_Guide.docx
+package-lock.json
+CLAUDE.md
+.gitignore
+README.md

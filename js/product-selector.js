@@ -488,7 +488,9 @@ function initiateStripeCheckout(photoData, materialKey, size) {
   }
 
   // Try Stripe checkout first, fall back to contact form
-  fetch('/api/create-checkout-session', {
+  // Use pages.dev endpoint for API calls (custom domain function routing may lag)
+  const apiBase = 'https://archive-35-com.pages.dev';
+  fetch(`${apiBase}/api/create-checkout-session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(checkoutData)

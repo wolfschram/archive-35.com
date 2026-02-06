@@ -51,7 +51,11 @@ export async function onRequestPost(context) {
     // Line item
     params.append('line_items[0][price_data][currency]', 'usd');
     params.append('line_items[0][price_data][product_data][name]', item.price_data.product_data.name);
-    params.append('line_items[0][price_data][product_data][description]', item.price_data.product_data.description || '');
+    // Only append description if non-empty (Stripe rejects empty strings)
+    const desc = item.price_data.product_data.description;
+    if (desc) {
+      params.append('line_items[0][price_data][product_data][description]', desc);
+    }
     params.append('line_items[0][price_data][unit_amount]', item.price_data.unit_amount.toString());
     params.append('line_items[0][quantity]', '1');
 

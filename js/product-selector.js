@@ -479,6 +479,14 @@ function initiateStripeCheckout(photoData, materialKey, size) {
     }
   };
 
+  // Close the modal while processing
+  const modal = document.getElementById('product-selector-modal');
+  const checkoutBtn = modal?.querySelector('#checkout-button');
+  if (checkoutBtn) {
+    checkoutBtn.textContent = 'Processing...';
+    checkoutBtn.disabled = true;
+  }
+
   // Try Stripe checkout first, fall back to contact form
   fetch('/api/create-checkout-session', {
     method: 'POST',
@@ -490,6 +498,12 @@ function initiateStripeCheckout(photoData, materialKey, size) {
       return res.json();
     })
     .then((data) => {
+      // Prefer direct URL redirect (Stripe's recommended approach)
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      // Fallback to redirectToCheckout for older integration
       if (data.sessionId && window.Stripe && window.STRIPE_PUBLIC_KEY) {
         window.Stripe(window.STRIPE_PUBLIC_KEY).redirectToCheckout({
           sessionId: data.sessionId
@@ -502,7 +516,7 @@ function initiateStripeCheckout(photoData, materialKey, size) {
       console.warn('Stripe checkout unavailable, redirecting to contact form:', err.message);
       // Fallback: redirect to contact page with order details
       const orderSummary = encodeURIComponent(
-        `I would like to order:\n\nPhoto: ${title}\nMaterial: ${material.name}\nSize: ${size.width}" × ${size.height}"\nPrice: $${price}\n\nPlease send me a payment link.`
+        `I would like to order:\n\nPhoto: ${title}\nMaterial: ${material.name}\nSize: ${size.width}" \u00d7 ${size.height}"\nPrice: $${price}\n\nPlease send me a payment link.`
       );
       window.location.href = `contact.html?message=${orderSummary}`;
     });

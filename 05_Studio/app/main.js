@@ -1174,7 +1174,7 @@ ipcMain.handle('deploy-website', async () => {
     } catch (gitErr) {
       const errMsg = gitErr.stderr || gitErr.message;
       // If "nothing to commit" that's actually fine
-      if (errMsg.includes('nothing to commit')) {
+      if (errMsg.includes('nothing to commit') || errMsg.includes('nothing added to commit')) {
         sendProgress('done', 'Website already up to date.');
         return {
           success: true,

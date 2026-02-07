@@ -149,7 +149,7 @@ function parseEnvFile() {
     const content = fsSync.readFileSync(ENV_PATH, 'utf8');
     const keys = {};
     for (const line of content.split('\n')) {
-      const match = line.match(/^([A-Z_]+)=(.*)$/);
+      const match = line.match(/^([A-Z0-9_]+)=(.*)$/);
       if (match) keys[match[1]] = match[2];
     }
     return keys;

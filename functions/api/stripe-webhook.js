@@ -442,6 +442,7 @@ export async function onRequestPost(context) {
 
   const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
   const STRIPE_WEBHOOK_SECRET = env.STRIPE_WEBHOOK_SECRET || '';
+  const STRIPE_TEST_WEBHOOK_SECRET = env.STRIPE_TEST_WEBHOOK_SECRET || '';
   const PICTOREM_API_KEY = env.PICTOREM_API_KEY || 'archive-35';
   const RESEND_API_KEY = env.RESEND_API_KEY || '';
   const WOLF_EMAIL = env.WOLF_EMAIL || 'wolfbroadcast@gmail.com';
@@ -450,11 +451,17 @@ export async function onRequestPost(context) {
     // Read raw body for signature verification
     const rawBody = await request.text();
 
-    // Verify webhook signature
+    // Verify webhook signature — try live secret first, then test secret
     const sigHeader = request.headers.get('stripe-signature') || '';
-    if (STRIPE_WEBHOOK_SECRET) {
-      const valid = await verifyWebhookSignature(rawBody, sigHeader, STRIPE_WEBHOOK_SECRET);
-      if (!valid) {
+    if (STRIPE_WEBHOOK_SECRET || STRIPE_TEST_WEBHOOK_SECRET) {
+      const liveValid = STRIPE_WEBHOOK_SECRET
+        ? await verifyWebhookSignature(rawBody, sigHeader, STRIPE_WEBHOOK_SECRET)
+        : false;
+      const testValid = !liveValid && STRIPE_TEST_WEBHOOK_SECRET
+        ? await verifyWebhookSignature(rawBody, sigHeader, STRIPE_TEST_WEBHOOK_SECRET)
+        : false;
+
+      if (!liveValid && !testValid) {
         return new Response(JSON.stringify({ error: 'Invalid signature' }), {
           status: 401,
           headers: { 'Content-Type': 'application/json' },

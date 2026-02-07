@@ -1,5 +1,5 @@
 /**
- * ARCHIVE-35 PRODUCT SELECTOR V2.1
+ * ARCHIVE-35 PRODUCT SELECTOR V2.1.0
  *
  * Aspect-ratio aware print product selector for Pictorem fulfillment.
  * This is a complete drop-in replacement for the original product-selector.js

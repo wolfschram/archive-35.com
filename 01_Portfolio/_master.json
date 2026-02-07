@@ -12,7 +12,7 @@
       "slug": "grand-teton",
       "folder": "Grand_Teton",
       "cover": "WOLF7514-full.jpg",
-      "photo_count": 28,
+      "photo_count": 48,
       "date_start": "2026-01-26",
       "date_end": "2026-01-30",
       "status": "published",
@@ -22,22 +22,52 @@
         "region": "Wyoming",
         "place": "Grand Teton National Park"
       },
-      "categories": ["landscape", "nature", "national-parks"],
-      "themes": ["mountain-light", "winter", "sunrise"],
-      "moods": ["majestic", "serene", "vast"]
+      "categories": [
+        "landscape",
+        "nature",
+        "national-parks"
+      ],
+      "themes": [
+        "mountain-light",
+        "winter",
+        "sunrise"
+      ],
+      "moods": [
+        "majestic",
+        "serene",
+        "vast"
+      ]
     }
   ],
   "taxonomy": {
-    "countries": ["USA"],
-    "regions": ["Wyoming"],
-    "places": ["Grand Teton National Park"],
-    "categories": ["landscape", "nature", "national-parks"],
-    "themes": ["mountain-light", "winter", "sunrise"],
-    "moods": ["majestic", "serene", "vast"]
+    "countries": [
+      "USA"
+    ],
+    "regions": [
+      "Wyoming"
+    ],
+    "places": [
+      "Grand Teton National Park"
+    ],
+    "categories": [
+      "landscape",
+      "nature",
+      "national-parks"
+    ],
+    "themes": [
+      "mountain-light",
+      "winter",
+      "sunrise"
+    ],
+    "moods": [
+      "majestic",
+      "serene",
+      "vast"
+    ]
   },
   "stats": {
     "total_galleries": 1,
-    "total_photos": 35,
+    "total_photos": 108,
     "last_updated": "2026-02-07"
   }
 }

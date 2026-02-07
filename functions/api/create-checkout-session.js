@@ -71,6 +71,7 @@ export async function onRequestPost(context) {
     if (pictorem) {
       params.append('metadata[photoId]', pictorem.photoId || '');
       params.append('metadata[photoTitle]', pictorem.photoTitle || '');
+      params.append('metadata[photoFilename]', pictorem.photoFilename || '');
       params.append('metadata[material]', pictorem.material || '');
       params.append('metadata[printWidth]', String(pictorem.dimensions?.width || ''));
       params.append('metadata[printHeight]', String(pictorem.dimensions?.height || ''));

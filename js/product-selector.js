@@ -526,14 +526,14 @@ function initiateStripeCheckout(photoData, materialKey, size) {
   };
 
   // Create checkout session (requires backend endpoint)
-  // This example shows the structure; implementation depends on your backend
   const checkoutData = {
     lineItems: [lineItem],
-    successUrl: `${window.location.origin}/order-confirmation.html`,
+    successUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`,
     cancelUrl: window.location.href,
     pictorem: {
       photoId: id,
       photoTitle: title,
+      photoFilename: photoData.filename || id,
       material: materialKey,
       dimensions: {
         width: size.width,

@@ -1,5 +1,5 @@
 /**
- * ARCHIVE-35 Stripe Webhook → Pictorem Auto-Fulfillment
+ * ARCHIVE-35 Stripe Webhook → Pictorem Auto-Fulfillment + Email Confirmations
  * Cloudflare Pages Function
  *
  * POST /api/stripe-webhook
@@ -11,11 +11,14 @@
  * 4. Validates order with Pictorem API
  * 5. Gets price confirmation from Pictorem
  * 6. Submits order to Pictorem for fulfillment
+ * 7. Sends order confirmation email to customer (via Resend)
+ * 8. Sends order notification email to Wolf (via Resend)
  *
  * Required Cloudflare env vars:
  *   STRIPE_SECRET_KEY
  *   STRIPE_WEBHOOK_SECRET
  *   PICTOREM_API_KEY (default: "archive-35")
+ *   RESEND_API_KEY
  */
 
 // ============================================================================
@@ -26,30 +29,49 @@ const MATERIAL_MAP = {
   canvas: {
     material: 'canvas',
     type: 'stretched',
-    // semigloss finish, mirror image wrap (no content loss), 1.5" thick, no frame
+    displayName: 'Canvas',
     additionals: ['semigloss', 'mirrorimage', 'c15', 'none', 'none'],
   },
   metal: {
     material: 'metal',
-    type: 'al',           // aluminum
+    type: 'al',
+    displayName: 'Metal',
     additionals: ['none', 'none'],
   },
   acrylic: {
     material: 'acrylic',
-    type: 'ac220',        // 2-20mm acrylic
+    type: 'ac220',
+    displayName: 'Acrylic',
     additionals: ['none', 'none'],
   },
   paper: {
     material: 'paper',
-    type: 'art',          // fine art paper
+    type: 'art',
+    displayName: 'Fine Art Paper',
     additionals: ['none', 'none'],
   },
   wood: {
     material: 'wood',
-    type: 'ru14',         // rustic 1/4"
+    type: 'ru14',
+    displayName: 'Wood',
     additionals: ['none', 'none'],
   },
 };
+
+// ============================================================================
+// COLLECTION MAPPING: Photo ID prefix → collection slug
+// ============================================================================
+
+function getCollectionFromPhotoId(photoId) {
+  if (!photoId) return 'grand-teton';
+  const prefix = photoId.split('-')[0];
+  const map = {
+    'a': 'africa',
+    'gt': 'grand-teton',
+    'nz': 'new-zealand',
+  };
+  return map[prefix] || 'grand-teton';
+}
 
 // ============================================================================
 // BUILD PICTOREM PREORDER CODE
@@ -61,18 +83,16 @@ function buildPreorderCode(material, printWidth, printHeight) {
     throw new Error(`Unknown material: ${material}`);
   }
 
-  // Determine orientation
   const orientation = printWidth >= printHeight ? 'horizontal' : 'vertical';
 
-  // Format: numCopies|material|type|orientation|width|height|additional|...
   const parts = [
-    '1',                    // numCopies
-    mapping.material,       // material
-    mapping.type,           // type
-    orientation,            // orientation
-    String(printWidth),     // width in inches
-    String(printHeight),    // height in inches
-    ...mapping.additionals, // finish, wrap, thickness, frame options
+    '1',
+    mapping.material,
+    mapping.type,
+    orientation,
+    String(printWidth),
+    String(printHeight),
+    ...mapping.additionals,
   ];
 
   return parts.join('|');
@@ -139,7 +159,7 @@ async function getStripeSession(sessionId, stripeKey) {
 // ============================================================================
 
 async function verifyWebhookSignature(payload, sigHeader, secret) {
-  if (!secret) return true; // Skip verification if no secret configured
+  if (!secret) return true;
 
   const parts = sigHeader.split(',').reduce((acc, part) => {
     const [key, value] = part.split('=');
@@ -152,11 +172,9 @@ async function verifyWebhookSignature(payload, sigHeader, secret) {
 
   if (!timestamp || !signature) return false;
 
-  // Check timestamp freshness (5 min tolerance)
   const age = Math.floor(Date.now() / 1000) - parseInt(timestamp);
   if (age > 300) return false;
 
-  // Compute expected signature
   const signedPayload = `${timestamp}.${payload}`;
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
@@ -175,6 +193,178 @@ async function verifyWebhookSignature(payload, sigHeader, secret) {
 }
 
 // ============================================================================
+// EMAIL TEMPLATES
+// ============================================================================
+
+function buildCustomerEmail(orderDetails) {
+  const {
+    photoTitle, materialName, sizeStr, price,
+    imageUrl, customerName, orderRef, estimatedDelivery
+  } = orderDetails;
+
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#000;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#000;">
+<tr><td align="center" style="padding:40px 20px;">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+<!-- Header -->
+<tr><td style="padding:24px 0;text-align:center;border-bottom:1px solid #333;">
+  <span style="font-size:28px;font-weight:100;letter-spacing:8px;color:#fff;">ARCHIVE</span><span style="font-size:28px;font-weight:100;letter-spacing:8px;color:#c4973b;">-35</span>
+</td></tr>
+
+<!-- Greeting -->
+<tr><td style="padding:32px 0 16px;color:#fff;font-size:16px;">
+  ${customerName ? `Dear ${customerName},` : 'Hello,'}
+</td></tr>
+
+<tr><td style="padding:0 0 24px;color:#ccc;font-size:15px;line-height:1.6;">
+  Thank you for your order. Your fine art print is now in production with our printing partner.
+</td></tr>
+
+<!-- Product Image -->
+<tr><td style="padding:0 0 24px;text-align:center;">
+  <img src="${imageUrl}" alt="${photoTitle}" style="max-width:100%;height:auto;border:1px solid #333;" />
+</td></tr>
+
+<!-- Order Details -->
+<tr><td style="padding:0 0 24px;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#111;border:1px solid #333;border-radius:8px;">
+    <tr><td colspan="2" style="padding:16px 20px 8px;font-size:13px;color:#c4973b;text-transform:uppercase;letter-spacing:2px;font-weight:600;">
+      Order Details
+    </td></tr>
+    <tr>
+      <td style="padding:8px 20px;color:#999;font-size:14px;">Print</td>
+      <td style="padding:8px 20px;color:#fff;font-size:14px;text-align:right;">${photoTitle}</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 20px;color:#999;font-size:14px;">Material</td>
+      <td style="padding:8px 20px;color:#fff;font-size:14px;text-align:right;">${materialName}</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 20px;color:#999;font-size:14px;">Size</td>
+      <td style="padding:8px 20px;color:#fff;font-size:14px;text-align:right;">${sizeStr}</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 20px 16px;color:#999;font-size:14px;border-top:1px solid #333;">Total</td>
+      <td style="padding:8px 20px 16px;color:#c4973b;font-size:18px;font-weight:600;text-align:right;border-top:1px solid #333;">$${price}</td>
+    </tr>
+  </table>
+</td></tr>
+
+<!-- Timeline -->
+<tr><td style="padding:0 0 24px;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(196,151,59,0.05);border-left:3px solid #c4973b;border-radius:0 8px 8px 0;">
+    <tr><td style="padding:16px 20px;color:#ccc;font-size:13px;line-height:1.8;">
+      <strong style="color:#c4973b;">What happens next:</strong><br/>
+      Your print enters production within 24 hours.<br/>
+      Professional printing takes 5-7 business days.<br/>
+      Shipping: Standard ground 5-9 business days (USA/Canada).<br/>
+      <strong style="color:#fff;">Estimated delivery: ${estimatedDelivery}</strong>
+    </td></tr>
+  </table>
+</td></tr>
+
+<!-- Reference -->
+<tr><td style="padding:0 0 32px;color:#666;font-size:12px;">
+  Order reference: ${orderRef}
+</td></tr>
+
+<!-- Footer -->
+<tr><td style="padding:24px 0;border-top:1px solid #333;text-align:center;">
+  <span style="font-size:14px;font-weight:100;letter-spacing:4px;color:#666;">ARCHIVE</span><span style="font-size:14px;font-weight:100;letter-spacing:4px;color:#c4973b;">-35</span>
+  <br/><span style="color:#666;font-size:12px;">Light. Place. Time.</span>
+  <br/><br/>
+  <a href="https://archive-35.com" style="color:#c4973b;font-size:12px;text-decoration:none;">archive-35.com</a>
+  <span style="color:#333;font-size:12px;"> &middot; </span>
+  <a href="mailto:hello@archive-35.com" style="color:#c4973b;font-size:12px;text-decoration:none;">hello@archive-35.com</a>
+</td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
+function buildWolfNotificationEmail(orderDetails) {
+  const {
+    photoId, photoTitle, materialName, material, sizeStr, price,
+    imageUrl, customerName, customerEmail, orderRef,
+    shippingAddress, preorderCode, pictoremResult, wholesalePrice
+  } = orderDetails;
+
+  const addr = shippingAddress || {};
+
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:20px;background:#111;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#ccc;">
+
+<h2 style="color:#c4973b;margin:0 0 8px;">New Order</h2>
+<p style="color:#666;font-size:13px;margin:0 0 24px;">Archive-35 &middot; ${new Date().toISOString().split('T')[0]}</p>
+
+<table cellpadding="8" cellspacing="0" style="background:#1a1a1a;border:1px solid #333;border-radius:8px;width:100%;max-width:600px;font-size:14px;">
+  <tr><td style="color:#999;">Customer</td><td style="color:#fff;"><strong>${customerName}</strong> &lt;${customerEmail}&gt;</td></tr>
+  <tr><td style="color:#999;">Photo</td><td style="color:#fff;">${photoTitle} (${photoId})</td></tr>
+  <tr><td style="color:#999;">Material</td><td style="color:#fff;">${materialName} (${material})</td></tr>
+  <tr><td style="color:#999;">Size</td><td style="color:#fff;">${sizeStr}</td></tr>
+  <tr><td style="color:#999;">Customer Paid</td><td style="color:#c4973b;font-weight:600;">$${price}</td></tr>
+  ${wholesalePrice ? `<tr><td style="color:#999;">Pictorem Cost</td><td style="color:#fff;">$${wholesalePrice}</td></tr>` : ''}
+  ${wholesalePrice && price ? `<tr><td style="color:#999;">Margin</td><td style="color:#4caf50;font-weight:600;">$${(price - wholesalePrice).toFixed(2)}</td></tr>` : ''}
+  <tr><td colspan="2" style="border-top:1px solid #333;"></td></tr>
+  <tr><td style="color:#999;">Ship To</td><td style="color:#fff;">${addr.line1 || ''}${addr.line2 ? ', ' + addr.line2 : ''}<br/>${addr.city || ''}, ${addr.state || ''} ${addr.postal_code || ''}<br/>${addr.country || ''}</td></tr>
+  <tr><td colspan="2" style="border-top:1px solid #333;"></td></tr>
+  <tr><td style="color:#999;">Pictorem Code</td><td style="color:#fff;font-family:monospace;font-size:12px;">${preorderCode}</td></tr>
+  <tr><td style="color:#999;">Pictorem Status</td><td style="color:#fff;">${pictoremResult ? JSON.stringify(pictoremResult).substring(0, 200) : 'N/A'}</td></tr>
+  <tr><td style="color:#999;">Stripe Ref</td><td style="color:#fff;font-family:monospace;font-size:12px;">${orderRef}</td></tr>
+</table>
+
+<p style="margin:24px 0 0;"><img src="${imageUrl}" alt="${photoTitle}" style="max-width:400px;border:1px solid #333;" /></p>
+
+</body>
+</html>`;
+}
+
+// ============================================================================
+// SEND EMAILS VIA RESEND
+// ============================================================================
+
+async function sendEmail(resendApiKey, { to, subject, html }) {
+  if (!resendApiKey) {
+    console.warn('RESEND_API_KEY not set — skipping email to', to);
+    return { skipped: true };
+  }
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Archive-35 <orders@archive-35.com>',
+        to: Array.isArray(to) ? to : [to],
+        subject,
+        html,
+      }),
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      console.error('Resend error:', JSON.stringify(result));
+    }
+    return result;
+  } catch (err) {
+    console.error('Email send failed:', err.message);
+    return { error: err.message };
+  }
+}
+
+// ============================================================================
 // MAIN WEBHOOK HANDLER
 // ============================================================================
 
@@ -184,6 +374,8 @@ export async function onRequestPost(context) {
   const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
   const STRIPE_WEBHOOK_SECRET = env.STRIPE_WEBHOOK_SECRET || '';
   const PICTOREM_API_KEY = env.PICTOREM_API_KEY || 'archive-35';
+  const RESEND_API_KEY = env.RESEND_API_KEY || '';
+  const WOLF_EMAIL = env.WOLF_EMAIL || 'wolfbroadcast@gmail.com';
 
   try {
     // Read raw body for signature verification
@@ -219,6 +411,7 @@ export async function onRequestPost(context) {
     const material = metadata.material;
     const printWidth = parseInt(metadata.printWidth);
     const printHeight = parseInt(metadata.printHeight);
+    const photoTitle = metadata.photoTitle || photoId;
 
     if (!photoId || !material || !printWidth || !printHeight) {
       console.error('Missing order metadata:', metadata);
@@ -234,6 +427,7 @@ export async function onRequestPost(context) {
     const address = shipping.address || {};
     const customerName = shipping.name || fullSession.customer_details?.name || '';
     const customerEmail = fullSession.customer_details?.email || '';
+    const amountPaid = fullSession.amount_total ? (fullSession.amount_total / 100).toFixed(2) : '0';
 
     // Split name into first/last
     const nameParts = customerName.split(' ');
@@ -251,7 +445,6 @@ export async function onRequestPost(context) {
     if (validation.error || validation.valid === false) {
       console.error('Pictorem validation failed:', validation);
       // Don't fail the webhook — Stripe payment already succeeded
-      // Flag for manual review
       return new Response(JSON.stringify({
         received: true,
         warning: 'Pictorem validation failed — needs manual fulfillment',
@@ -266,13 +459,13 @@ export async function onRequestPost(context) {
     // Step 2: Get Pictorem price (for logging/verification)
     const priceResult = await getPrice(PICTOREM_API_KEY, preorderCode);
     console.log('Pictorem price:', JSON.stringify(priceResult));
+    const wholesalePrice = priceResult?.price || priceResult?.totalPrice || null;
 
     // Step 3: Build image URL
-    // Use the web version for now (2000px). For higher res, originals need cloud hosting.
-    const collection = photoId.split('-')[0] === 'nz' ? 'new-zealand' : 'grand-teton';
-    const filename = metadata.photoTitle ? metadata.photoTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-') : photoId;
-    // Construct the URL from the website's image path
-    const imageUrl = `https://archive-35.com/images/${collection}/${photoId}-full.jpg`;
+    const collection = getCollectionFromPhotoId(photoId);
+    // Use the photo filename from metadata, or derive from photos.json naming convention
+    const photoFilename = metadata.photoFilename || photoId;
+    const imageUrl = `https://archive-35.com/images/${collection}/${photoFilename}-full.jpg`;
 
     // Step 4: Submit order to Pictorem
     const orderPayload = {
@@ -295,12 +488,65 @@ export async function onRequestPost(context) {
     const orderResult = await sendOrder(PICTOREM_API_KEY, orderPayload);
     console.log('Pictorem order result:', JSON.stringify(orderResult));
 
+    // ====================================================================
+    // Step 5: Send confirmation emails
+    // ====================================================================
+
+    const materialDisplayName = MATERIAL_MAP[material]?.displayName || material;
+    const sizeStr = `${printWidth}" x ${printHeight}"`;
+    const orderRef = `stripe_${session.id}`;
+
+    // Estimated delivery: 2-4 weeks from now
+    const deliveryDate = new Date();
+    deliveryDate.setDate(deliveryDate.getDate() + 21);
+    const estimatedDelivery = deliveryDate.toLocaleDateString('en-US', {
+      month: 'long', day: 'numeric', year: 'numeric'
+    });
+
+    const orderDetails = {
+      photoId,
+      photoTitle,
+      material,
+      materialName: materialDisplayName,
+      sizeStr,
+      price: amountPaid,
+      imageUrl,
+      customerName,
+      customerEmail,
+      orderRef,
+      estimatedDelivery,
+      shippingAddress: address,
+      preorderCode,
+      pictoremResult: orderResult,
+      wholesalePrice,
+    };
+
+    // Send customer confirmation email
+    const customerEmailResult = await sendEmail(RESEND_API_KEY, {
+      to: customerEmail,
+      subject: `Your Archive-35 Print Order — ${photoTitle}`,
+      html: buildCustomerEmail(orderDetails),
+    });
+    console.log('Customer email result:', JSON.stringify(customerEmailResult));
+
+    // Send Wolf notification email
+    const wolfEmailResult = await sendEmail(RESEND_API_KEY, {
+      to: WOLF_EMAIL,
+      subject: `New Order: ${photoTitle} — ${materialDisplayName} ${sizeStr} — $${amountPaid}`,
+      html: buildWolfNotificationEmail(orderDetails),
+    });
+    console.log('Wolf notification result:', JSON.stringify(wolfEmailResult));
+
     return new Response(JSON.stringify({
       received: true,
       fulfilled: true,
       preorderCode,
       pictoremOrder: orderResult,
       stripeSessionId: session.id,
+      emailsSent: {
+        customer: customerEmailResult?.id ? true : false,
+        wolf: wolfEmailResult?.id ? true : false,
+      },
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },

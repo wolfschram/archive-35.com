@@ -38,3 +38,8 @@ archive35_logo_concepts.jsx
 
 # Strategy briefing (private)
 Archive-35_Strategy_Briefing_v2_FINAL.docx
+
+# Studio build artifacts (Electron)
+05_Studio/app/dist/
+05_Studio/app/build/
+.studio-mode

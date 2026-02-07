@@ -93,8 +93,10 @@ const ASPECT_RATIO_CATEGORIES = {
   },
   ultra_wide_4_1: {
     name: 'Ultra-Wide 4:1+',
-    range: [3.5, Infinity],
+    range: [3.3, Infinity],
     sizes: [
+      { width: 42, height: 12, inches: 504 },
+      { width: 56, height: 16, inches: 896 },
       { width: 60, height: 15, inches: 900 },
       { width: 72, height: 18, inches: 1296 }
     ]

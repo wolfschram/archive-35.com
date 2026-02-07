@@ -65,11 +65,21 @@ const ASPECT_RATIO_CATEGORIES = {
   },
   panorama_2_1: {
     name: 'Panorama 2:1',
-    range: [1.9, 2.3],
+    range: [1.9, 2.2],
     sizes: [
       { width: 24, height: 12, inches: 288 },
       { width: 36, height: 18, inches: 648 },
       { width: 48, height: 24, inches: 1152 }
+    ]
+  },
+  panorama_12_5: {
+    name: 'Wide Panorama 12:5',
+    range: [2.2, 2.7],
+    sizes: [
+      { width: 24, height: 10, inches: 240 },
+      { width: 36, height: 15, inches: 540 },
+      { width: 48, height: 20, inches: 960 },
+      { width: 60, height: 25, inches: 1500 }
     ]
   },
   panorama_3_1: {

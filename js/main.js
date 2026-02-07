@@ -99,15 +99,21 @@ function renderCollections(container) {
     collections[photo.collection].count++;
   });
 
-  container.innerHTML = Object.values(collections).map(col => `
+  container.innerHTML = Object.values(collections).map(col => {
+    // Split the title: first letter vs rest
+    const firstLetter = col.title.charAt(0);
+    const restOfTitle = col.title.slice(1);
+
+    return `
     <div class="collection-card" data-collection="${col.id}">
       <img src="${col.coverImage}" alt="${col.title}">
       <div class="collection-card-overlay">
-        <h3 class="collection-card-title">${col.title}</h3>
-        <p class="collection-card-count">${col.count} photographs</p>
+        <h3 class="collection-card-title"><span class="collection-first-letter">${firstLetter}</span><span class="collection-rest">${restOfTitle}</span></h3>
+        <p class="collection-count"><span class="count-number">${col.count}</span> <span class="count-label">photographs</span></p>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   // Add click handlers
   container.querySelectorAll('.collection-card').forEach(card => {
@@ -134,8 +140,13 @@ function showCollectionPhotos(collectionId) {
   window.filteredPhotos = collectionPhotos;
 
   if (collectionPhotos.length > 0) {
-    // Update header
-    if (galleryTitle) galleryTitle.textContent = collectionPhotos[0].collectionTitle;
+    // Update header with styled title
+    if (galleryTitle) {
+      const title = collectionPhotos[0].collectionTitle;
+      const firstLetter = title.charAt(0);
+      const restOfTitle = title.slice(1);
+      galleryTitle.innerHTML = `<span class="collection-first-letter">${firstLetter}</span><span class="collection-rest">${restOfTitle}</span>`;
+    }
     if (galleryDesc) galleryDesc.textContent = `${collectionPhotos.length} photographs from ${collectionPhotos[0].location}`;
   }
 
@@ -189,7 +200,12 @@ function renderCollectionGallery() {
   window.filteredPhotos = collectionPhotos;
 
   if (collectionPhotos.length > 0) {
-    if (collectionTitle) collectionTitle.textContent = collectionPhotos[0].collectionTitle;
+    if (collectionTitle) {
+      const title = collectionPhotos[0].collectionTitle;
+      const firstLetter = title.charAt(0);
+      const restOfTitle = title.slice(1);
+      collectionTitle.innerHTML = `<span class="collection-first-letter">${firstLetter}</span><span class="collection-rest">${restOfTitle}</span>`;
+    }
     if (collectionDesc) collectionDesc.textContent = `${collectionPhotos.length} photographs from ${collectionPhotos[0].location}`;
   }
 

@@ -580,6 +580,33 @@ h3 { font-size: clamp(1.125rem, 2vw, 1.5rem); }
   color: var(--text-secondary);
 }
 
+/* ===== Collection Card Title Styling ===== */
+.collection-first-letter {
+  color: var(--text-primary);
+  font-weight: 300;
+}
+
+.collection-rest {
+  color: var(--accent);
+}
+
+.collection-count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+}
+
+.count-number {
+  color: var(--accent);
+  font-weight: 300;
+}
+
+.count-label {
+  color: var(--text-primary);
+}
+
 /* ===== Lightbox ===== */
 .lightbox {
   position: fixed;
@@ -715,6 +742,15 @@ h3 { font-size: clamp(1.125rem, 2vw, 1.5rem); }
   max-width: 500px;
   margin: 0 auto;
   font-weight: 300;
+}
+
+.page-header h1 .collection-first-letter {
+  color: var(--text-primary);
+  font-weight: 300;
+}
+
+.page-header h1 .collection-rest {
+  color: var(--accent);
 }
 
 /* ===== About Page ===== */

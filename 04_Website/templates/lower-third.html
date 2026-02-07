@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive-35 Lower Third Template</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .lower-third-container {
+            width: 1920px;
+            height: 1080px;
+            background: transparent;
+            position: relative;
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* Lower third bar - animated slide in from left */
+        .lower-third-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 140px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.85) 100%);
+            border-top: 2px solid #FFD700;
+            padding: 25px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideInFromLeft 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            transform: translateX(-100%);
+            z-index: 100;
+        }
+
+        @keyframes slideInFromLeft {
+            0% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Left section: Archive logo + details */
+        .left-section {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex: 1;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .archive-text {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 24px;
+            font-weight: 200;
+            letter-spacing: 9px;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .divider {
+            width: 1.5px;
+            height: 28px;
+            background: #FFD700;
+            opacity: 0.4;
+        }
+
+        .archive-35 {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: #FFD700;
+            line-height: 1;
+        }
+
+        /* Image details section */
+        .image-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-left: 1px solid #FFD700;
+            border-left-opacity: 0.2;
+            padding-left: 30px;
+        }
+
+        .image-title {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 28px;
+            font-weight: 200;
+            color: #FFFFFF;
+            letter-spacing: 1px;
+            line-height: 1;
+            /* Customizable via data-title */
+        }
+
+        .image-location {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            color: #B8B8B8;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            /* Customizable via data-location */
+        }
+
+        /* Right section: Website URL */
+        .right-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        .website-url {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            font-weight: 200;
+            color: #FFFFFF;
+            letter-spacing: 1px;
+            text-decoration: none;
+        }
+
+        .website-url-label {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 11px;
+            font-weight: 200;
+            color: #999999;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .url-accent {
+            display: inline-block;
+            width: 20px;
+            height: 2px;
+            background: #FFD700;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
+
+        /* Alternative: QR Code style accent */
+        .qr-accent {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 215, 0, 0.05);
+            border: 1.5px solid #FFD700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .qr-accent::before {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: repeating-linear-gradient(
+                90deg,
+                #FFD700 0px,
+                #FFD700 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            background-size: 3px 100%;
+            opacity: 0.4;
+        }
+
+        /* Stagger animation for text elements */
+        .archive-text,
+        .archive-35,
+        .image-details,
+        .right-section {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        .archive-text {
+            animation-delay: 0.1s;
+        }
+
+        .archive-35 {
+            animation-delay: 0.15s;
+        }
+
+        .image-details {
+            animation-delay: 0.2s;
+        }
+
+        .right-section {
+            animation-delay: 0.25s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Accent line animation (optional accent effect) */
+        .accent-accent {
+            position: absolute;
+            bottom: 140px;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(to right, #FFD700, transparent);
+            animation: drawLineRight 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            width: 0;
+        }
+
+        @keyframes drawLineRight {
+            0% {
+                width: 0;
+            }
+            100% {
+                width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="lower-third-container">
+        <!-- Optional accent line above lower third -->
+        <div class="accent-accent"></div>
+
+        <!-- Main lower third bar -->
+        <div class="lower-third-bar">
+            <!-- Left section: Logo + Image details -->
+            <div class="left-section">
+                <!-- Archive logo -->
+                <div class="logo-section">
+                    <div class="archive-text">ARCHIVE</div>
+                    <div class="divider"></div>
+                    <div class="archive-35">35</div>
+                </div>
+
+                <!-- Image information -->
+                <div class="image-details">
+                    <div class="image-title" data-title="Untitled">Untitled</div>
+                    <div class="image-location" data-location="Location TBA">Location TBA</div>
+                </div>
+            </div>
+
+            <!-- Right section: Website URL -->
+            <div class="right-section">
+                <!-- Option 1: Simple URL text -->
+                <div class="website-url">
+                    <span class="website-url-label">Visit</span>
+                    archive-35.com
+                </div>
+
+                <!-- Option 2: Decorative QR-style accent (uncomment to use) -->
+                <!-- <div class="qr-accent"></div> -->
+            </div>
+        </div>
+    </div>
+
+    <!--
+    CUSTOMIZATION GUIDE:
+
+    1. SWAP IMAGE TITLE & LOCATION:
+       - Edit HTML: <div class="image-title">Your Title</div>
+       - Via JS: document.querySelector('.image-title').textContent = 'New Title'
+       - Same process for .image-location
+
+    2. CHANGE WEBSITE URL:
+       - Edit: archive-35.com to your desired URL
+       - Keep domain short for clarity on video
+
+    3. ADJUST ANIMATION TIMING:
+       - Bar slide-in: Change "0.8s" in @keyframes slideInFromLeft
+       - Text stagger: Modify animation-delay values (0.1s, 0.15s, etc.)
+       - Adjust proportionally for longer/shorter animations
+
+    4. CHANGE COLORS:
+       - Black background: rgba(0, 0, 0, 0.95) in .lower-third-bar
+       - Gold accents: #FFD700
+       - Text color: #FFFFFF
+
+    5. ADJUST TEXT SIZES:
+       - Logo ARCHIVE: font-size: 24px
+       - Logo 35: font-size: 32px
+       - Image title: font-size: 28px
+       - Image location: font-size: 14px
+       - Website URL: font-size: 16px
+
+    6. CHANGE LAYOUT:
+       - Remove border-left from .image-details for more compact layout
+       - Adjust gap: 30px to change spacing between sections
+       - Modify padding: 25px 60px for different margins
+
+    7. QR CODE ACCENT:
+       - Comment out Option 1 website URL div
+       - Uncomment Option 2 .qr-accent div
+       - Creates decorative QR-style visual on right side
+
+    8. ADJUST BAR HEIGHT:
+       - Change height: 140px in .lower-third-bar
+       - Ensure padding and font sizes scale proportionally
+
+    9. FOR VIDEO OVERLAY:
+       - Render at 1920x1080 with transparent background
+       - Export as PNG with transparency (not JPG)
+       - Composite over video in FFmpeg or video editor
+       - Example FFmpeg: ffmpeg -i video.mp4 -i lower-third.png -filter_complex "overlay=..." output.mp4
+
+    10. FOR INSTAGRAM/TIKTOK VERTICAL VIDEO:
+        - Adapt layout for vertical (1080x1920)
+        - Scale elements proportionally (60-70% of current size)
+        - Position lower third at bottom instead of across width
+
+    11. STAGGERED ANIMATION:
+        - Elements appear sequentially during slide-in
+        - Logo first (0.1s delay)
+        - 35 number (0.15s delay)
+        - Image details (0.2s delay)
+        - URL section (0.25s delay)
+        - Total entrance time: ~0.8-1.05s
+    -->
+</body>
+</html>

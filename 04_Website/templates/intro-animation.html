@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive-35 Intro Animation Template</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .intro-container {
+            width: 1920px;
+            height: 1080px;
+            background: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Central monolith container */
+        .monolith {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            position: relative;
+        }
+
+        /* ARCHIVE text - fades in from above */
+        .archive-title {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 120px;
+            font-weight: 200;
+            letter-spacing: 35px;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1;
+            animation: archiveFadeInDown 1.2s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes archiveFadeInDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-60px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Gold accent line - draws across */
+        .accent-divider {
+            width: 0;
+            height: 3px;
+            background: #FFD700;
+            margin: 25px 0;
+            animation: drawLineCross 1s ease-in-out 1.2s forwards;
+        }
+
+        @keyframes drawLineCross {
+            0% {
+                width: 0;
+            }
+            100% {
+                width: 400px;
+            }
+        }
+
+        /* 35 number - scales up from center */
+        .archive-35 {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 180px;
+            font-weight: 900;
+            letter-spacing: -8px;
+            color: #FFD700;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1;
+            animation: numberScaleIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s forwards;
+            opacity: 0;
+        }
+
+        @keyframes numberScaleIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) rotateZ(-5deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotateZ(0deg);
+            }
+        }
+
+        /* Tagline - fades in last */
+        .tagline {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 28px;
+            font-weight: 200;
+            letter-spacing: 8px;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            margin-top: 40px;
+            animation: taglineFadeIn 1s ease-out 2.3s forwards;
+            opacity: 0;
+        }
+
+        @keyframes taglineFadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Background fade - entire container fades out at end */
+        .background-fade {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            animation: fadeOutAll 0.8s ease-in 2.8s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes fadeOutAll {
+            0% {
+                background: transparent;
+            }
+            100% {
+                background: rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        /* Optional: subtle background animation */
+        .background-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
+            animation: glowPulse 3s ease-in-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes glowPulse {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="intro-container">
+        <!-- Optional background glow -->
+        <div class="background-glow"></div>
+
+        <!-- Main monolith logo -->
+        <div class="monolith">
+            <!-- ARCHIVE text -->
+            <h1 class="archive-title">ARCHIVE</h1>
+
+            <!-- Gold accent line -->
+            <div class="accent-divider"></div>
+
+            <!-- 35 number -->
+            <div class="archive-35">35</div>
+
+            <!-- Tagline -->
+            <p class="tagline">Light. Place. Time.</p>
+        </div>
+
+        <!-- Fade effect at end -->
+        <div class="background-fade"></div>
+    </div>
+
+    <!--
+    CUSTOMIZATION GUIDE:
+
+    1. ANIMATION TIMING BREAKDOWN:
+       - 0.0s: Start
+       - 0.0-1.2s: ARCHIVE fades in from above
+       - 1.2-2.2s: Gold line draws across
+       - 1.5-2.4s: 35 scales up and bounces in
+       - 2.3-3.3s: Tagline fades in
+       - 2.8-3.6s: Entire scene fades slightly
+       - 3.6s: Complete
+
+       Total animation: ~3.6 seconds (adjust as needed)
+
+    2. CHANGE ANIMATION DURATION:
+       - Adjust timing delays in each animation property
+       - Keep proportional spacing between elements
+       - Example: for 5-second intro, multiply all delays by 1.4
+
+    3. ADJUST TEXT SIZE:
+       - ARCHIVE: Change font-size in .archive-title (currently 120px)
+       - 35: Change font-size in .archive-35 (currently 180px)
+       - Tagline: Change font-size in .tagline (currently 28px)
+
+    4. MODIFY COLORS:
+       - ARCHIVE text: color: #FFFFFF in .archive-title
+       - 35 text: color: #FFD700 in .archive-35
+       - Gold line: background: #FFD700 in .accent-divider
+
+    5. ADJUST LETTER SPACING:
+       - ARCHIVE: letter-spacing: 35px
+       - 35: letter-spacing: -8px
+       - Tagline: letter-spacing: 8px
+
+    6. CHANGE EASING/BOUNCE:
+       - 35 scale: cubic-bezier(0.34, 1.56, 0.64, 1) creates bounce effect
+       - Change to ease-out for smoother animation
+
+    7. ENABLE/DISABLE BACKGROUND GLOW:
+       - Currently visible as subtle pulse
+       - Set opacity: 0 in @keyframes glowPulse to disable
+       - Adjust width/height for glow size
+
+    8. RENDER AS VIDEO/GIF:
+       - Use Puppeteer: wait for full animation (3.6s)
+       - Capture at 30fps for smooth motion
+       - Export as MP4, WebM, or animated GIF
+       - Perfect for YouTube intros, TikTok/Instagram Reels
+
+    9. VERTICAL VARIANT (1080x1920):
+       - Remove width: 1920px constraint
+       - Adjust font sizes proportionally (scale down ~40%)
+       - Works for vertical video formats
+    -->
+</body>
+</html>

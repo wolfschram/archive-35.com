@@ -791,3 +791,101 @@
   font-size: 11px;
   color: var(--warning);
 }
+
+/* ===== AUTOCOMPLETE COMPONENT ===== */
+.autocomplete-wrapper {
+  position: relative;
+}
+
+.autocomplete-wrapper input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.autocomplete-wrapper input:focus {
+  border-color: var(--accent);
+}
+
+.autocomplete-wrapper input::placeholder {
+  color: var(--text-muted);
+}
+
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  margin-top: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.autocomplete-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.highlighted {
+  background-color: rgba(212, 175, 55, 0.1);
+}
+
+.autocomplete-text {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.autocomplete-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-radius: 3px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.autocomplete-badge.exact {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.autocomplete-badge.alias {
+  background: rgba(212, 175, 55, 0.2);
+  color: var(--accent);
+}
+
+.autocomplete-badge.substring {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.autocomplete-badge.fuzzy {
+  background: rgba(251, 191, 36, 0.2);
+  color: var(--warning);
+}

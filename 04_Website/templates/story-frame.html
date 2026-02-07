@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive-35 Story Frame Template</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .story-container {
+            width: 1080px;
+            height: 1920px;
+            background: #000000;
+            position: relative;
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* Full-bleed background photo */
+        .story-bg {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            /* Replace with CSS variable for easy swapping */
+            background-image: var(--photo-url, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920"><rect fill="%23333333" width="1080" height="1920"/></svg>'));
+            filter: brightness(0.6);
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Branded overlay to ensure text readability */
+        .branded-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                rgba(0, 0, 0, 0.2) 0%,
+                rgba(0, 0, 0, 0.1) 50%,
+                rgba(0, 0, 0, 0.4) 100%
+            );
+            pointer-events: none;
+        }
+
+        /* Top brand header */
+        .story-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: transparent;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10;
+            animation: slideDownIn 0.6s ease-out forwards;
+        }
+
+        .logo-mark {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid #FFD700;
+            border-radius: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 900;
+            color: #FFD700;
+            letter-spacing: -1px;
+        }
+
+        .header-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-name {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 200;
+            letter-spacing: 5px;
+            color: #FFFFFF;
+            text-transform: uppercase;
+        }
+
+        .header-tagline {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 10px;
+            font-weight: 200;
+            letter-spacing: 2px;
+            color: #FFD700;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        @keyframes slideDownIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Bottom caption area with translucent bar */
+        .story-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+            min-height: 280px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.7) 50%, transparent 100%);
+            padding: 60px 30px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            z-index: 10;
+            animation: slideUpIn 0.6s ease-out 0.2s forwards;
+            opacity: 0;
+        }
+
+        @keyframes slideUpIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .caption-text {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 28px;
+            font-weight: 200;
+            color: #FFFFFF;
+            line-height: 1.3;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+            /* Editable via data-caption attribute or JS */
+        }
+
+        .caption-subtitle {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            color: #CCCCCC;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            /* Editable via data-subtitle attribute */
+        }
+
+        /* Call-to-action button/link area */
+        .cta-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .cta-text {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            font-weight: 200;
+            letter-spacing: 3px;
+            color: #FFD700;
+            text-transform: uppercase;
+        }
+
+        .cta-arrow {
+            width: 24px;
+            height: 2px;
+            background: #FFD700;
+            position: relative;
+        }
+
+        .cta-arrow::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #FFD700;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+
+        /* Safe zone guides (remove in production) */
+        .safe-zone-guide {
+            position: absolute;
+            border: 1px dashed rgba(255, 215, 0, 0.2);
+            pointer-events: none;
+        }
+
+        .safe-zone-top {
+            top: 100px;
+            left: 30px;
+            right: 30px;
+            height: 100px;
+        }
+
+        .safe-zone-bottom {
+            bottom: 280px;
+            left: 30px;
+            right: 30px;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="story-container" style="--photo-url: url('https://via.placeholder.com/1080x1920/333333/666666?text=Story+Photo');">
+        <!-- Background photo -->
+        <div class="story-bg"></div>
+
+        <!-- Branded overlay -->
+        <div class="branded-overlay"></div>
+
+        <!-- Top header with logo -->
+        <div class="story-header">
+            <div class="logo-mark">35</div>
+            <div class="header-text">
+                <div class="header-name">Archive</div>
+                <div class="header-tagline">Light. Place. Time.</div>
+            </div>
+        </div>
+
+        <!-- Bottom caption area -->
+        <div class="story-caption">
+            <div class="caption-text" data-caption="Untitled Moments">Untitled Moments</div>
+            <div class="caption-subtitle" data-subtitle="New work exploring the intersection of light and place">New work exploring the intersection of light and place</div>
+
+            <!-- Optional CTA -->
+            <div class="cta-section">
+                <div class="cta-text">View Collection</div>
+                <div class="cta-arrow"></div>
+            </div>
+        </div>
+
+        <!-- Safe zone guides (comment out in production) -->
+        <!-- <div class="safe-zone-guide safe-zone-top"></div>
+        <div class="safe-zone-guide safe-zone-bottom"></div> -->
+    </div>
+
+    <!--
+    CUSTOMIZATION GUIDE:
+
+    1. SWAP BACKGROUND PHOTO:
+       - Change style attribute: --photo-url: url('YOUR_IMAGE_URL_HERE')
+       - Via JS: document.querySelector('.story-container').style.setProperty('--photo-url', `url('${imageUrl}')`)
+
+    2. CHANGE CAPTION TEXT:
+       - Edit HTML: <div class="caption-text">Your Title</div>
+       - Via JS: document.querySelector('.caption-text').textContent = 'New Title'
+
+    3. UPDATE SUBTITLE:
+       - Edit: <div class="caption-subtitle">Your subtitle</div>
+       - Via JS: document.querySelector('.caption-subtitle').textContent = 'New text'
+
+    4. HIDE/SHOW CTA BUTTON:
+       - Remove or comment: <div class="cta-section">...</div>
+       - Or set display: none via CSS/JS
+
+    5. CHANGE BRIGHTNESS:
+       - Modify filter: brightness(0.6) in .story-bg
+       - Use brightness(0.4) for darker, brightness(0.8) for lighter
+
+    6. ADJUST OVERLAY GRADIENT:
+       - Modify linear-gradient in .branded-overlay
+       - Current: diagonal gradient with varying opacity
+       - Change colors and angles for different effects
+
+    7. ADJUST CAPTION POSITION:
+       - Change padding-top: 60px in .story-caption for more/less space
+       - Adjust min-height: 280px for caption area size
+
+    8. SAFE ZONE GUIDELINES:
+       - Enable guides by uncommenting <div class="safe-zone-guide">
+       - Top zone: where Instagram UI elements appear
+       - Bottom zone: where user profile/buttons appear
+       - Keep text within safe zones for maximum readability
+
+    9. FOR INSTAGRAM STORIES:
+       - Render at 1080x1920 pixels
+       - Export as full-quality PNG or JPG
+       - Upload directly to Instagram Stories
+       - Timing: Stories auto-cycle after 5 seconds (default)
+
+    10. MULTI-STORY SEQUENCES:
+        - Create numbered versions (story-01.html, story-02.html)
+        - Each with different caption and photo
+        - Render in sequence for cohesive story arc
+    -->
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive-35 Carousel Slide Template</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .carousel-container {
+            width: 1080px;
+            height: 1080px;
+            background: #000000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* Centered photo frame with padding */
+        .photo-frame {
+            width: 920px;
+            height: 920px;
+            background: #000000;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .photo-image {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            /* Replace with CSS variable for easy swapping */
+            background-image: var(--photo-url, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 920"><rect fill="%23333333" width="920" height="920"/></svg>'));
+            animation: subtleZoom 0.6s ease-out forwards;
+        }
+
+        @keyframes subtleZoom {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Gold accent line */
+        .accent-line {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 2px;
+            background: #FFD700;
+            animation: drawLine 0.8s ease-out 0.3s forwards;
+            opacity: 0;
+        }
+
+        @keyframes drawLine {
+            from {
+                width: 0;
+                opacity: 0;
+            }
+            to {
+                width: 120px;
+                opacity: 1;
+            }
+        }
+
+        /* Bottom brand bar */
+        .brand-bar {
+            width: 100%;
+            height: 120px;
+            background: #000000;
+            border-top: 2px solid #FFD700;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeInUp 0.6s ease-out 0.4s forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .archive-text {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 18px;
+            font-weight: 200;
+            letter-spacing: 7px;
+            color: #FFFFFF;
+            text-transform: uppercase;
+        }
+
+        .divider {
+            width: 1px;
+            height: 20px;
+            background: #FFD700;
+            opacity: 0.3;
+        }
+
+        .archive-35 {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: #FFD700;
+        }
+
+        .slide-counter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .counter-label {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            font-weight: 200;
+            letter-spacing: 2px;
+            color: #999999;
+            text-transform: uppercase;
+        }
+
+        .counter-display {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 18px;
+            font-weight: 300;
+            color: #FFFFFF;
+            min-width: 40px;
+            text-align: right;
+            /* Format: "3 / 10" */
+        }
+
+        /* Indicator dots (optional alternative to counter) */
+        .indicator-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #444444;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: #FFD700;
+            width: 24px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel-container" style="--photo-url: url('https://via.placeholder.com/920x920/333333/666666?text=Carousel+Photo');">
+        <!-- Photo Frame -->
+        <div class="photo-frame">
+            <div class="photo-image"></div>
+            <div class="accent-line"></div>
+        </div>
+
+        <!-- Brand Bar -->
+        <div class="brand-bar">
+            <div class="logo-section">
+                <div class="archive-text">ARCHIVE</div>
+                <div class="divider"></div>
+                <div class="archive-35">35</div>
+            </div>
+
+            <!-- Option 1: Numeric Counter -->
+            <div class="slide-counter">
+                <div class="counter-label">Slide</div>
+                <div class="counter-display" data-current-slide="1">1 / 10</div>
+            </div>
+
+            <!-- Option 2: Indicator Dots (uncomment to use instead of counter) -->
+            <!-- <div class="indicator-dots">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div> -->
+        </div>
+    </div>
+
+    <!--
+    CUSTOMIZATION GUIDE:
+
+    1. SWAP PHOTO:
+       - Change the style attribute: --photo-url: url('YOUR_IMAGE_URL_HERE')
+       - Via JS: document.querySelector('.carousel-container').style.setProperty('--photo-url', `url('${imageUrl}')`)
+
+    2. UPDATE SLIDE NUMBER:
+       - Edit HTML: <div class="counter-display">3 / 10</div>
+       - Via JS: document.querySelector('.counter-display').textContent = `${current} / ${total}`
+
+    3. USE INDICATOR DOTS INSTEAD OF COUNTER:
+       - Comment out the .slide-counter div
+       - Uncomment the .indicator-dots section
+       - Update active class via JS when slide changes
+
+    4. CHANGE PHOTO FRAME SIZE:
+       - Modify .photo-frame width/height (currently 920x920)
+       - Keep aspect ratio 1:1 for square carousel format
+
+    5. ADJUST ANIMATION TIMING:
+       - Photo zoom: Change "0.6s" in @keyframes subtleZoom
+       - Line draw: Change duration and delay in .accent-line animation
+       - Brand bar fade: Modify timing in @keyframes fadeInUp
+
+    6. MULTIPLE SLIDES WORKFLOW:
+       - Create numbered versions: carousel-slide-01.html, carousel-slide-02.html, etc.
+       - Or generate dynamically by swapping photo + counter via JS/templating
+       - Render each as individual image (1080x1080 PNG/JPG)
+
+    7. FOR INSTAGRAM CAROUSEL:
+       - Render at 1080x1080 pixels
+       - Export as .jpg or .png
+       - Upload 5-10 consecutive images to create carousel post
+    -->
+</body>
+</html>

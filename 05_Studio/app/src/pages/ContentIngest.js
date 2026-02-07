@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import '../styles/Pages.css';
+import AutocompleteInput from '../components/AutocompleteInput';
+import { COUNTRIES, US_STATES, LOCATIONS } from '../data/locations';
 
 // Thumbnail component that loads via IPC
 function PhotoThumb({ filePath, size = 200 }) {
@@ -452,38 +454,38 @@ function ContentIngest() {
             {/* New Portfolio Form */}
             {galleryMode === 'new' && (
               <>
-                <div className="form-group">
-                  <label>Gallery Name *</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Grand Teton January 2026"
-                    value={galleryName}
-                    onChange={(e) => setGalleryName(e.target.value)}
-                  />
-                </div>
+                <AutocompleteInput
+                  value={galleryName}
+                  onChange={setGalleryName}
+                  label="Gallery Name *"
+                  placeholder="e.g., Grand Teton January 2026"
+                  suggestions={existingPortfolios.map(p => ({ name: p.name, aliases: [] }))}
+                  helpText="Warns if you're close to an existing portfolio name to prevent duplicates"
+                  maxSuggestions={6}
+                  fuzzyThreshold={4}
+                />
 
-                <div className="form-group">
-                  <label>Country *</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., New Zealand, USA"
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                  />
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Helps the AI correctly identify locations in your photos</span>
-                </div>
+                <AutocompleteInput
+                  value={country}
+                  onChange={setCountry}
+                  label="Country *"
+                  placeholder="e.g., New Zealand, USA"
+                  suggestions={COUNTRIES}
+                  helpText="Helps the AI correctly identify locations in your photos"
+                  maxSuggestions={8}
+                  fuzzyThreshold={3}
+                />
 
-                <div className="form-group">
-                  <label>Location (optional)</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Rotorua, North Island"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                  />
-                </div>
-
-
+                <AutocompleteInput
+                  value={location}
+                  onChange={setLocation}
+                  label="Location (optional)"
+                  placeholder="e.g., Rotorua, North Island"
+                  suggestions={LOCATIONS}
+                  helpText="Search national parks, cities, landmarks, photography destinations"
+                  maxSuggestions={8}
+                  fuzzyThreshold={3}
+                />
               </>
             )}
 

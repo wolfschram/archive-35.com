@@ -7,9 +7,9 @@
   },
   "galleries": [
     {
-      "id": "grand-teton-jan-2026",
-      "title": "Grand Teton, January 2026",
-      "slug": "grand-teton-jan-2026",
+      "id": "grand-teton",
+      "title": "Grand Teton",
+      "slug": "grand-teton",
       "folder": "Grand_Teton",
       "cover": "WOLF7514-full.jpg",
       "photo_count": 28,
@@ -37,7 +37,7 @@
   },
   "stats": {
     "total_galleries": 1,
-    "total_photos": 28,
-    "last_updated": "2026-02-03"
+    "total_photos": 35,
+    "last_updated": "2026-02-07"
   }
 }

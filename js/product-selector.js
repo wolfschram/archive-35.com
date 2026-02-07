@@ -295,10 +295,15 @@ function createProductSelectorModal(photoData) {
           </div>
         </div>
 
-        <!-- Checkout Button -->
-        <button class="checkout-button" id="checkout-button" disabled>
-          Proceed to Checkout
-        </button>
+        <!-- Action Buttons -->
+        <div class="product-actions">
+          <button class="add-to-cart-button" id="add-to-cart-button" disabled>
+            Add to Cart
+          </button>
+          <button class="buy-now-button" id="buy-now-button" disabled>
+            Buy Now
+          </button>
+        </div>
       </div>
     </div>
   `;
@@ -315,7 +320,8 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData)
   const closeBtn = modal.querySelector('.close-button');
   const materialOptions = modal.querySelectorAll('.material-option');
   const sizeGrid = modal.querySelector('#size-grid');
-  const checkoutBtn = modal.querySelector('#checkout-button');
+  const addToCartBtn = modal.querySelector('#add-to-cart-button');
+  const buyNowBtn = modal.querySelector('#buy-now-button');
 
   let selectedMaterial = null;
   let selectedSize = null;
@@ -350,20 +356,30 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData)
       modal.querySelector('#summary-size').textContent = 'Select size';
       modal.querySelector('#summary-quality').textContent = '—';
       modal.querySelector('#summary-price').textContent = '$0';
-      checkoutBtn.disabled = true;
+      addToCartBtn.disabled = true;
+      buyNowBtn.disabled = true;
 
       // Populate sizes for this material
       populateSizes(sizeGrid, applicableSizes, photoData, selectedMaterial, modal, (size) => {
         selectedSize = size;
         updatePriceSummary(modal, selectedMaterial, selectedSize, photoData);
-        checkoutBtn.disabled = false;
+        addToCartBtn.disabled = false;
+        buyNowBtn.disabled = false;
       });
     });
   });
 
   // Size selection happens in populateSizes callback
-  // Checkout
-  checkoutBtn.addEventListener('click', () => {
+  // Add to cart
+  addToCartBtn.addEventListener('click', () => {
+    if (selectedMaterial && selectedSize) {
+      addToCart(photoData, selectedMaterial, selectedSize);
+      closeModal();
+    }
+  });
+
+  // Buy now
+  buyNowBtn.addEventListener('click', () => {
     if (selectedMaterial && selectedSize) {
       initiateStripeCheckout(photoData, selectedMaterial, selectedSize);
     }
@@ -420,6 +436,56 @@ function updatePriceSummary(modal, materialKey, size, photoData) {
     `${size.width}" × ${size.height}"`;
   modal.querySelector('#summary-quality').textContent = quality ? quality.level : '—';
   modal.querySelector('#summary-price').textContent = `$${price}`;
+}
+
+// ============================================================================
+// ADD TO CART INTEGRATION
+// ============================================================================
+
+function addToCart(photoData, materialKey, size) {
+  const { id, title, thumbnail, dimensions } = photoData;
+  const material = MATERIALS[materialKey];
+  const price = calculatePrice(materialKey, size.inches);
+  const sizeStr = `${size.width}" × ${size.height}"`;
+
+  // Create cart item
+  const cartItem = {
+    photoId: id,
+    title: title,
+    material: material.name,
+    size: sizeStr,
+    price: price,
+    thumbnail: thumbnail,
+    // stripePrice will be set to empty for now - handled via backend API
+    stripePrice: null,
+    metadata: {
+      photoId: id,
+      material: materialKey,
+      width: size.width.toString(),
+      height: size.height.toString(),
+      originalPhotoWidth: dimensions.width.toString(),
+      originalPhotoHeight: dimensions.height.toString(),
+      dpi: calculateDPI(
+        dimensions.width,
+        dimensions.height,
+        size.width,
+        size.height
+      ).toString()
+    }
+  };
+
+  // Add to cart
+  if (window.cart && window.cart.addToCart) {
+    window.cart.addToCart(cartItem);
+
+    // Show toast notification
+    if (window.cartUI && window.cartUI.showToast) {
+      window.cartUI.showToast(`Added "${title}" to cart`);
+    }
+  } else {
+    console.error('Cart not available');
+    alert('Cart system is not initialized. Please refresh the page.');
+  }
 }
 
 // ============================================================================
@@ -828,27 +894,59 @@ const STYLES = `
     margin-bottom: 0;
   }
 
-  .checkout-button {
-    width: 100%;
+  .product-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .add-to-cart-button,
+  .buy-now-button {
     padding: 14px 24px;
-    background: #c4973b;
-    color: #000;
     border: none;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
-  .checkout-button:not(:disabled):hover {
+  .add-to-cart-button {
+    background: #c4973b;
+    color: #000;
+  }
+
+  .add-to-cart-button:not(:disabled):hover {
     background: #d4a755;
     transform: translateY(-2px);
   }
 
-  .checkout-button:disabled {
+  .buy-now-button {
+    background: transparent;
+    color: #c4973b;
+    border: 1px solid #c4973b;
+  }
+
+  .buy-now-button:not(:disabled):hover {
+    background: rgba(196, 151, 59, 0.1);
+    border-color: #d4a755;
+    color: #d4a755;
+    transform: translateY(-2px);
+  }
+
+  .add-to-cart-button:disabled,
+  .buy-now-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  @media (max-width: 600px) {
+    .product-actions {
+      grid-template-columns: 1fr;
+    }
   }
 
   @media (max-width: 600px) {

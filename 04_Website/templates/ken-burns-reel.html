@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive-35 Ken Burns Reel Template</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .reel-container {
+            width: 1080px;
+            height: 1920px;
+            overflow: hidden;
+            background: #000000;
+            position: relative;
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+        }
+
+        /* Ken Burns effect: slow zoom and pan */
+        .photo-bg {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            /* Replace "url()" with your image URL via CSS variable or data attribute */
+            background-image: var(--photo-url, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920"><rect fill="%23333333" width="1080" height="1920"/></svg>'));
+            animation: kenBurnsZoom 8s ease-in-out forwards;
+            filter: brightness(0.75);
+        }
+
+        @keyframes kenBurnsZoom {
+            0% {
+                transform: scale(1) translateX(0) translateY(0);
+            }
+            50% {
+                transform: scale(1.1) translateX(-2%) translateY(-3%);
+            }
+            100% {
+                transform: scale(1.2) translateX(-5%) translateY(-8%);
+            }
+        }
+
+        /* Fade in/out */
+        .fade-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, transparent 20%, transparent 80%, rgba(0, 0, 0, 0.5) 100%);
+            animation: fadeInOut 8s ease-in-out forwards;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* Lower-third branded bar */
+        .lower-third {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.85) 100%);
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            animation: slideUpIn 0.8s ease-out 6.5s forwards;
+            opacity: 0;
+        }
+
+        @keyframes slideUpIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .lower-third-accent {
+            width: 80px;
+            height: 3px;
+            background: #FFD700;
+            margin-bottom: 20px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .archive-text {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 20px;
+            font-weight: 200;
+            letter-spacing: 8px;
+            color: #FFFFFF;
+            text-transform: uppercase;
+        }
+
+        .archive-35 {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: #FFD700;
+        }
+
+        .divider {
+            width: 1px;
+            height: 24px;
+            background: #FFD700;
+            opacity: 0.3;
+        }
+
+        .image-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .image-title {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 32px;
+            font-weight: 200;
+            color: #FFFFFF;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            /* Customizable via data-title attribute */
+        }
+
+        .image-location {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            font-weight: 300;
+            color: #CCCCCC;
+            letter-spacing: 0.5px;
+            /* Customizable via data-location attribute */
+        }
+
+        .tagline {
+            font-family: 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 200;
+            color: #FFD700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 12px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="reel-container" style="--photo-url: url('https://via.placeholder.com/1080x1920/333333/666666?text=Photo+for+Reel');">
+        <div class="photo-bg"></div>
+        <div class="fade-overlay"></div>
+
+        <div class="lower-third">
+            <div class="lower-third-accent"></div>
+
+            <div class="logo-section">
+                <div class="archive-text">ARCHIVE</div>
+                <div class="divider"></div>
+                <div class="archive-35">35</div>
+            </div>
+
+            <div class="image-info">
+                <div class="image-title" data-title="Untitled">Untitled</div>
+                <div class="image-location" data-location="Location TBA">Location TBA</div>
+                <div class="tagline">Light. Place. Time.</div>
+            </div>
+        </div>
+    </div>
+
+    <!--
+    CUSTOMIZATION GUIDE:
+
+    1. SWAP PHOTO:
+       - Inline: Change the style attribute on .reel-container
+         style="--photo-url: url('YOUR_IMAGE_URL_HERE');"
+       - Via JavaScript: document.querySelector('.reel-container').style.setProperty('--photo-url', `url('${imageUrl}')`)
+
+    2. CHANGE TITLE & LOCATION:
+       - Edit the HTML directly: <div class="image-title">Your Title</div>
+       - Or use JavaScript: document.querySelector('.image-title').textContent = 'New Title'
+       - Same for .image-location
+
+    3. ADJUST ANIMATION TIMING:
+       - Ken Burns zoom: Change "8s" in @keyframes kenBurnsZoom
+       - Fade timing: Change "8s" in @keyframes fadeInOut
+       - Lower-third slide: Change "6.5s" animation-delay and "0.8s" animation-duration
+
+    4. CHANGE BRIGHTNESS:
+       - Modify the filter: brightness(0.75) in .photo-bg
+       - Use filter: brightness(0.5) for darker, brightness(1) for original
+
+    5. RENDER WITH PUPPETEER/FFMPEG:
+       - Use headless browser to render at 1080x1920 @ 30fps
+       - Set animation duration and capture video output
+       - Example: puppeteer screenshot with waitForTimeout() for full animation
+    -->
+</body>
+</html>

@@ -6,7 +6,10 @@
  * Creates a Stripe Checkout Session and returns the session ID.
  * Stores Pictorem fulfillment metadata in session metadata.
  *
- * Required Cloudflare Pages env var: STRIPE_SECRET_KEY
+ * Supports test mode: when testMode=true, uses STRIPE_TEST_SECRET_KEY
+ * Required Cloudflare Pages env vars:
+ *   - STRIPE_SECRET_KEY (live mode)
+ *   - STRIPE_TEST_SECRET_KEY (test mode)
  */
 
 export async function onRequestPost(context) {
@@ -21,7 +24,15 @@ export async function onRequestPost(context) {
   };
 
   try {
-    const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
+    const body = await request.json();
+    const { lineItems, successUrl, cancelUrl, pictorem, testMode } = body;
+
+    // Select appropriate Stripe key based on test mode flag
+    const isTestMode = testMode === true;
+    const STRIPE_SECRET_KEY = isTestMode
+      ? (env.STRIPE_TEST_SECRET_KEY || env.STRIPE_SECRET_KEY)
+      : env.STRIPE_SECRET_KEY;
+
     if (!STRIPE_SECRET_KEY) {
       return new Response(
         JSON.stringify({ error: 'Stripe not configured. Contact support.' }),
@@ -29,8 +40,11 @@ export async function onRequestPost(context) {
       );
     }
 
-    const body = await request.json();
-    const { lineItems, successUrl, cancelUrl, pictorem } = body;
+    // Validate key matches requested mode
+    const keyIsTest = STRIPE_SECRET_KEY.startsWith('sk_test_');
+    if (isTestMode && !keyIsTest) {
+      console.warn('Test mode requested but no test secret key configured — falling back to live key');
+    }
 
     if (!lineItems || !lineItems.length) {
       return new Response(
@@ -112,7 +126,12 @@ export async function onRequestPost(context) {
     }
 
     return new Response(
-      JSON.stringify({ sessionId: session.id, url: session.url }),
+      JSON.stringify({
+        sessionId: session.id,
+        url: session.url,
+        mode: keyIsTest ? 'test' : 'live',
+        livemode: session.livemode
+      }),
       { status: 200, headers: corsHeaders }
     );
 

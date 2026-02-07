@@ -582,6 +582,13 @@ function initiateStripeCheckout(photoData, materialKey, size) {
     checkoutBtn.disabled = true;
   }
 
+  // Detect test mode from Stripe public key prefix
+  const isTestMode = window.STRIPE_PUBLIC_KEY && window.STRIPE_PUBLIC_KEY.startsWith('pk_test_');
+  if (isTestMode) {
+    checkoutData.testMode = true;
+    console.log('[ARCHIVE-35] Test mode detected — using test Stripe keys');
+  }
+
   // Try Stripe checkout first, fall back to contact form
   // Use pages.dev endpoint for API calls (custom domain function routing may lag)
   const apiBase = 'https://archive-35-com.pages.dev';
@@ -595,6 +602,10 @@ function initiateStripeCheckout(photoData, materialKey, size) {
       return res.json();
     })
     .then((data) => {
+      // Log mode confirmation from backend
+      if (data.mode) {
+        console.log(`[ARCHIVE-35] Checkout session created in ${data.mode.toUpperCase()} mode`);
+      }
       // Prefer direct URL redirect (Stripe's recommended approach)
       if (data.url) {
         window.location.href = data.url;

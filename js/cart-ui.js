@@ -316,6 +316,12 @@ class CartUI {
       checkoutBtn.textContent = 'Processing...';
     }
 
+    // Detect test mode from Stripe public key prefix
+    const isTestMode = window.STRIPE_PUBLIC_KEY && window.STRIPE_PUBLIC_KEY.startsWith('pk_test_');
+    if (isTestMode) {
+      console.log('[ARCHIVE-35] Cart checkout: test mode detected');
+    }
+
     // Use server-side checkout via create-checkout-session API
     const apiBase = 'https://archive-35-com.pages.dev';
     fetch(`${apiBase}/api/create-checkout-session`, {
@@ -325,7 +331,8 @@ class CartUI {
         lineItems,
         successUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: window.location.href,
-        pictorem
+        pictorem,
+        testMode: isTestMode || undefined
       })
     })
       .then((res) => {
@@ -333,6 +340,9 @@ class CartUI {
         return res.json();
       })
       .then((data) => {
+        if (data.mode) {
+          console.log(`[ARCHIVE-35] Checkout session created in ${data.mode.toUpperCase()} mode`);
+        }
         if (data.url) {
           window.location.href = data.url;
         } else if (data.sessionId && window.Stripe && window.STRIPE_PUBLIC_KEY) {

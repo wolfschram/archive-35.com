@@ -130,6 +130,10 @@ ipcMain.handle('get-api-keys', async () => {
     { id: 'PICTOREM_API_KEY', name: 'Pictorem', description: 'Print fulfillment service', value: env.PICTOREM_API_KEY || '', masked: maskKey(env.PICTOREM_API_KEY), configured: !!env.PICTOREM_API_KEY },
     { id: 'STRIPE_SECRET_KEY', name: 'Stripe', description: 'Payment processing', value: env.STRIPE_SECRET_KEY || '', masked: maskKey(env.STRIPE_SECRET_KEY), configured: !!env.STRIPE_SECRET_KEY },
     { id: 'STRIPE_PUBLISHABLE_KEY', name: 'Stripe (Publishable)', description: 'Stripe frontend key', value: env.STRIPE_PUBLISHABLE_KEY || '', masked: maskKey(env.STRIPE_PUBLISHABLE_KEY), configured: !!env.STRIPE_PUBLISHABLE_KEY },
+    { id: 'R2_ACCESS_KEY_ID', name: 'Cloudflare R2 (Access Key)', description: 'S3-compatible storage for high-res originals', value: env.R2_ACCESS_KEY_ID || '', masked: maskKey(env.R2_ACCESS_KEY_ID), configured: !!env.R2_ACCESS_KEY_ID },
+    { id: 'R2_SECRET_ACCESS_KEY', name: 'Cloudflare R2 (Secret Key)', description: 'R2 secret access key', value: env.R2_SECRET_ACCESS_KEY || '', masked: maskKey(env.R2_SECRET_ACCESS_KEY), configured: !!env.R2_SECRET_ACCESS_KEY },
+    { id: 'R2_ENDPOINT', name: 'Cloudflare R2 (Endpoint)', description: 'S3 API endpoint URL', value: env.R2_ENDPOINT || '', masked: env.R2_ENDPOINT ? env.R2_ENDPOINT.slice(0, 30) + '...' : '', configured: !!env.R2_ENDPOINT },
+    { id: 'R2_BUCKET_NAME', name: 'Cloudflare R2 (Bucket)', description: 'R2 bucket for originals', value: env.R2_BUCKET_NAME || '', masked: env.R2_BUCKET_NAME || '', configured: !!env.R2_BUCKET_NAME },
     { id: 'META_ACCESS_TOKEN', name: 'Meta (Instagram/Facebook)', description: 'Social media posting', value: env.META_ACCESS_TOKEN || '', masked: maskKey(env.META_ACCESS_TOKEN), configured: !!env.META_ACCESS_TOKEN },
     { id: 'GOOGLE_ANALYTICS_ID', name: 'Google Analytics', description: 'Website traffic tracking', value: env.GOOGLE_ANALYTICS_ID || '', masked: maskKey(env.GOOGLE_ANALYTICS_ID), configured: !!env.GOOGLE_ANALYTICS_ID },
   ];
@@ -166,6 +170,29 @@ ipcMain.handle('test-api-key', async (event, { keyId, value }) => {
         messages: [{ role: 'user', content: 'Say OK' }]
       });
       return { success: true, message: 'Claude API connected successfully' };
+    }
+    if (keyId === 'R2_ACCESS_KEY_ID' || keyId === 'R2_SECRET_ACCESS_KEY') {
+      // Test R2 connection by listing bucket contents
+      const env = parseEnvFile();
+      const accessKey = keyId === 'R2_ACCESS_KEY_ID' ? value : env.R2_ACCESS_KEY_ID;
+      const secretKey = keyId === 'R2_SECRET_ACCESS_KEY' ? value : env.R2_SECRET_ACCESS_KEY;
+      const endpoint = env.R2_ENDPOINT;
+      const bucket = env.R2_BUCKET_NAME;
+      if (accessKey && secretKey && endpoint && bucket) {
+        try {
+          const { S3Client, ListObjectsV2Command } = require('@aws-sdk/client-s3');
+          const s3 = new S3Client({
+            region: 'auto',
+            endpoint,
+            credentials: { accessKeyId: accessKey, secretAccessKey: secretKey },
+          });
+          const result = await s3.send(new ListObjectsV2Command({ Bucket: bucket, MaxKeys: 1 }));
+          return { success: true, message: `R2 connected! Bucket "${bucket}" accessible (${result.KeyCount || 0} objects listed)` };
+        } catch (r2err) {
+          return { success: false, error: `R2 connection failed: ${r2err.message}` };
+        }
+      }
+      return { success: true, message: 'Key saved — configure all R2 fields to enable connection test' };
     }
     return { success: true, message: 'Key saved (no test available for this service)' };
   } catch (err) {

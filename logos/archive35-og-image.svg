@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#0a0a0a"/>
+  <text x="600" y="260" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="40" font-weight="200" letter-spacing="18" fill="#FFFFFF">ARCHIVE</text>
+  <line x1="450" y1="280" x2="750" y2="280" stroke="#FFD700" stroke-width="1" opacity="0.5"/>
+  <text x="600" y="380" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="130" font-weight="900" letter-spacing="-4" fill="#FFD700">35</text>
+  <text x="600" y="440" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16" font-weight="300" letter-spacing="6" fill="#888888">FINE ART PHOTOGRAPHY</text>
+  <text x="600" y="520" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" font-weight="300" letter-spacing="4" fill="#555555">Light. Place. Time.</text>
+</svg>

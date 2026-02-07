@@ -475,6 +475,12 @@ export async function onRequestPost(context) {
     const session = event.data.object;
     const metadata = session.metadata || {};
 
+    // Detect test mode: Stripe test events have livemode=false
+    const isTestMode = session.livemode === false || event.livemode === false;
+    if (isTestMode) {
+      console.log('TEST MODE detected — Pictorem will be mocked');
+    }
+
     // Extract order info from session metadata
     const photoId = metadata.photoId;
     const material = metadata.material;
@@ -508,27 +514,35 @@ export async function onRequestPost(context) {
     console.log('Pictorem preorder code:', preorderCode);
 
     // Step 1: Validate the preorder
-    const validation = await validatePreorder(PICTOREM_API_KEY, preorderCode);
-    console.log('Pictorem validation:', JSON.stringify(validation));
+    let validation, wholesalePrice;
 
-    if (validation.error || validation.valid === false) {
-      console.error('Pictorem validation failed:', validation);
-      // Don't fail the webhook — Stripe payment already succeeded
-      return new Response(JSON.stringify({
-        received: true,
-        warning: 'Pictorem validation failed — needs manual fulfillment',
-        validation,
-        preorderCode,
-      }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    if (isTestMode) {
+      // MOCK: Skip real Pictorem calls in test mode
+      validation = { valid: true, mock: true };
+      wholesalePrice = '29.99';
+      console.log('TEST: Mocked Pictorem validation (skipped real API)');
+    } else {
+      validation = await validatePreorder(PICTOREM_API_KEY, preorderCode);
+      console.log('Pictorem validation:', JSON.stringify(validation));
+
+      if (validation.error || validation.valid === false) {
+        console.error('Pictorem validation failed:', validation);
+        return new Response(JSON.stringify({
+          received: true,
+          warning: 'Pictorem validation failed — needs manual fulfillment',
+          validation,
+          preorderCode,
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Step 2: Get Pictorem price (for logging/verification)
+      const priceResult = await getPrice(PICTOREM_API_KEY, preorderCode);
+      console.log('Pictorem price:', JSON.stringify(priceResult));
+      wholesalePrice = priceResult?.price || priceResult?.totalPrice || null;
     }
-
-    // Step 2: Get Pictorem price (for logging/verification)
-    const priceResult = await getPrice(PICTOREM_API_KEY, preorderCode);
-    console.log('Pictorem price:', JSON.stringify(priceResult));
-    const wholesalePrice = priceResult?.price || priceResult?.totalPrice || null;
 
     // Step 3: Build image URLs
     const collection = getCollectionFromPhotoId(photoId);
@@ -559,9 +573,21 @@ export async function onRequestPost(context) {
       'delivery[phone]': '',
     };
 
-    console.log('Submitting Pictorem order:', JSON.stringify(orderPayload));
-    const orderResult = await sendOrder(PICTOREM_API_KEY, orderPayload);
-    console.log('Pictorem order result:', JSON.stringify(orderResult));
+    let orderResult;
+    if (isTestMode) {
+      // MOCK: Don't submit real order to Pictorem in test mode
+      orderResult = {
+        mock: true,
+        status: 'simulated',
+        message: 'TEST MODE — no real Pictorem order created',
+        orderId: `mock_${Date.now()}`,
+      };
+      console.log('TEST: Mocked Pictorem order (no real order placed)');
+    } else {
+      console.log('Submitting Pictorem order:', JSON.stringify(orderPayload));
+      orderResult = await sendOrder(PICTOREM_API_KEY, orderPayload);
+      console.log('Pictorem order result:', JSON.stringify(orderResult));
+    }
 
     // ====================================================================
     // Step 5: Send confirmation emails
@@ -617,6 +643,7 @@ export async function onRequestPost(context) {
     return new Response(JSON.stringify({
       received: true,
       fulfilled: true,
+      testMode: isTestMode,
       preorderCode,
       imageSource: originalResult.source,
       pictoremOrder: orderResult,

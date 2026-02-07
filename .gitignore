@@ -15,5 +15,26 @@ __pycache__/
 
 # macOS
 .DS_Store
+
+# ===========================================
+# LARGE FILES - DO NOT PUSH TO GITHUB
+# ===========================================
+
+# Original high-res photos (8-35MB each) -> stored on Google Drive
+01_Portfolio/*/originals/
+
+# Portfolio web copies (redundant - images/ has the website copies)
+01_Portfolio/*/web/
+
+# Raw photography archive
 Photography/
-Photography/
+
+# Safe-delete staging folder
+_files_to_delete/
+
+# Large PDFs and design files
+*.pdf
+archive35_logo_concepts.jsx
+
+# Strategy briefing (private)
+Archive-35_Strategy_Briefing_v2_FINAL.docx

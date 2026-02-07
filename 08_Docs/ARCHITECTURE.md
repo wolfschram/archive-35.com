@@ -1098,6 +1098,157 @@ Step 7: LIVE (30 seconds total)
 
 ---
 
+## INFRASTRUCTURE REGISTRY
+
+### Domain & DNS Configuration
+
+| Property | Value |
+|----------|-------|
+| **Primary Domain** | `archive-35.com` |
+| **DNS Provider** | Cloudflare (Full DNS setup) |
+| **Nameservers** | `etienne.ns.cloudflare.com`, `karsyn.ns.cloudflare.com` |
+| **CDN** | Cloudflare (Proxied) |
+| **Hosting** | Cloudflare Pages (was GitHub Pages, migrated) |
+| **Pages Project** | `archive-35-com` |
+| **Deploy Branch** | `main` |
+| **SSL** | Cloudflare Universal SSL (auto-renewed) |
+
+#### DNS Records (Cloudflare)
+
+| Type | Name | Content | Proxy | Purpose |
+|------|------|---------|-------|---------|
+| CNAME | `archive-35.com` | `archive-35-com.pages.dev` | Proxied | Main site |
+| CNAME | `www` | `wolfschram.github.io` | Proxied | www redirect |
+| CNAME | `_domainconnect` | `_domainconnect.domains.s...` | Proxied | Domain connect |
+| MX | `archive-35.com` | `aspmx.l.google.com` | DNS only | Google Workspace email (pri 1) |
+| MX | `archive-35.com` | `alt1-4.aspmx.l.google.com` | DNS only | Google Workspace email (pri 5-10) |
+| TXT | `archive-35.com` | `v=spf1 include:_spf.google...` | DNS only | Google SPF |
+| TXT | `archive-35.com` | `*google-site-verification=...` | DNS only | Google verification |
+| TXT | `_dmarc` | `v=DMARC1; p=reject; sp=reject; adkim=s; aspf=s` | DNS only | DMARC policy |
+| **TXT** | **`resend._domainkey`** | **DKIM key (p=MIGfMA0...)** | DNS only | **Resend DKIM verification** |
+| **MX** | **`send`** | **`feedback-smtp.us-east-1.amazonses.com`** (pri 10) | DNS only | **Resend SPF (MX)** |
+| **TXT** | **`send`** | **`v=spf1 include:amazonses.com ~all`** | DNS only | **Resend SPF (TXT)** |
+| NS | `archive-35.com` | `ns-cloud-d1-d4.googledomains.com` | DNS only | Google domain NS |
+
+### Service Dashboards & Access
+
+| Service | Dashboard URL | Login Method | Account |
+|---------|-------------|--------------|---------|
+| **Cloudflare** | `dash.cloudflare.com` | Email + password | wolfbroadcast@gmail.com |
+| **Stripe** | `dashboard.stripe.com` | Email + password | wolfbroadcast@gmail.com |
+| **Resend** | `resend.com` | GitHub OAuth | wolfbroadcast (GitHub) |
+| **GitHub** | `github.com/wolfschram` | GitHub login | wolfschram |
+| **Pictorem** | `pictorem.com` (PRO account) | Email + password | archive-35 username |
+| **Google Domains** | `domains.google.com` | Google account | wolfbroadcast@gmail.com |
+| **Google Cloud** | `console.cloud.google.com` | Google account | (planned - not yet created) |
+
+### Credential Locations
+
+| Credential | Stored In | How to Access |
+|------------|-----------|---------------|
+| `STRIPE_SECRET_KEY` (sk_live_...) | Cloudflare Pages env vars | Cloudflare → Pages → archive-35-com → Settings → Environment Variables |
+| `STRIPE_PUBLISHABLE_KEY` (pk_live_...) | Hardcoded in HTML `<script>` tags | All HTML files: `window.STRIPE_PUBLIC_KEY = 'pk_live_51SxIaW...'` |
+| `STRIPE_WEBHOOK_SECRET` (whsec_...) | Cloudflare Pages env vars | Cloudflare → Pages → Settings → Environment Variables |
+| `PICTOREM_API_KEY` | Cloudflare Pages env vars | Default: "archive-35" |
+| `RESEND_API_KEY` (re_...) | Cloudflare Pages env vars (pending) | Resend → API Keys → Create API key |
+| `WOLF_EMAIL` | Cloudflare Pages env vars | Defaults to wolfbroadcast@gmail.com |
+| `ANTHROPIC_API_KEY` | Local `.env` on Mac | Mac: `~/Archive-35.com/.env` |
+| `GITHUB_TOKEN` | Local `.env` on Mac (optional) | GitHub → Settings → Developer settings → Personal access tokens |
+
+### Stripe Configuration
+
+| Property | Value |
+|----------|-------|
+| **Account ID** | `acct_1SxIaWIyLqYsy9lv` |
+| **Mode** | Live (production) |
+| **Test Mode API Keys** | Available at `dashboard.stripe.com/test/apikeys` |
+| **Live Publishable Key** | `pk_live_51SxIaWIyLqYsy9lv...` (in HTML) |
+| **Webhook Endpoint** | `https://archive-35.com/api/stripe-webhook` |
+| **Webhook Events** | `checkout.session.completed` |
+| **Checkout Success URL** | `/thank-you.html?session_id={CHECKOUT_SESSION_ID}` |
+| **Checkout Cancel URL** | `/gallery.html` |
+| **Shipping Countries** | US, CA, GB, AU, DE, NZ, AT, CH, FR, IT, ES, NL, BE, IE, JP |
+| **Branding** | Configured at `dashboard.stripe.com/.../settings/branding` |
+
+### Resend Email Configuration
+
+| Property | Value |
+|----------|-------|
+| **Domain** | `archive-35.com` |
+| **Domain ID** | `eacc319c-0651-4ca4-ba8f-7299ac2d3929` |
+| **Region** | North Virginia (us-east-1) |
+| **Sender Address** | `orders@archive-35.com` |
+| **DNS Status** | Pending verification (DNS records added to Cloudflare) |
+| **Free Tier** | 100 emails/day, 3000/month |
+| **API Key** | Pending creation (Resend → API Keys) |
+
+### Pictorem Fulfillment API
+
+| Property | Value |
+|----------|-------|
+| **API Base URL** | `https://www.pictorem.com/artflow/` |
+| **Endpoints** | `validatepreorder`, `getprice`, `sendorder` |
+| **Authentication** | `artFlowKey` parameter (env: `PICTOREM_API_KEY`) |
+| **Username** | `archive-35` |
+| **Currency** | USD |
+| **Materials** | Canvas, Metal (al), Acrylic (ac220), Fine Art Paper (art), Wood (wood) |
+
+---
+
+## END-TO-END TESTING
+
+### Stripe Test Mode
+
+Stripe provides isolated test/live environments. Switch by using test API keys (`sk_test_...`, `pk_test_...`) instead of live keys.
+
+**Dashboard:** `dashboard.stripe.com` → Toggle "View test data" in top nav
+
+**Test Credit Cards:**
+
+| Card Number | Result |
+|-------------|--------|
+| `4242 4242 4242 4242` | Success (Visa) |
+| `5555 5555 5555 4444` | Success (Mastercard) |
+| `4000 0000 0000 0002` | Declined |
+| `4000 0000 0000 0127` | Incorrect CVC |
+
+Use any future expiry date, any 3-digit CVC.
+
+**Test Webhook Flow:**
+
+1. Install Stripe CLI: `stripe login`
+2. Forward events locally: `stripe listen --forward-to localhost:8788/api/stripe-webhook`
+3. Use the CLI's webhook signing secret (`whsec_test_...`) in your local env
+4. Make a test payment → webhook fires → fulfillment logic runs
+
+### Pictorem Test Mode
+
+Pictorem does **NOT** have a documented sandbox/test environment. Options:
+
+1. **Mock API** (recommended): Set `PICTOREM_USE_MOCK=true` env var to return fake responses from `validatepreorder`, `getprice`, `sendorder` without placing real orders
+2. **Contact Pictorem**: Ask about staging endpoints (may have undocumented test mode)
+3. **Small test order**: Place a minimal real order (~$20) to verify full pipeline
+
+### Recommended Test Architecture
+
+```
+STRIPE TEST MODE (sk_test_...)
+    ↓ Test card: 4242 4242 4242 4242
+    ↓
+STRIPE WEBHOOK (test event)
+    ↓
+PICTOREM MOCK (PICTOREM_USE_MOCK=true)
+    ↓ Returns fake order ID
+    ↓
+RESEND EMAIL (real — sends to Wolf's email)
+    ↓
+VERIFY: Customer email + Wolf notification received
+```
+
+This tests the entire chain without spending money or creating real print orders.
+
+---
+
 ## KNOWN ISSUES
 
 ### Visual/UX Issues

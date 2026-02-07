@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 
 /**
  * Calculate Levenshtein distance between two strings
@@ -110,11 +110,13 @@ function AutocompleteInput({
   const wrapperRef = useRef(null);
 
   // Generate flat list of candidates with aliases
-  const candidates = suggestions.flatMap(item => {
+  // Memoized with serialized key — parent may pass new array refs each render
+  const suggestionsKey = JSON.stringify(suggestions);
+  const candidates = useMemo(() => suggestions.flatMap(item => {
     const name = typeof item === 'string' ? item : item.name;
     const aliases = typeof item === 'string' ? [] : (item.aliases || []);
     return { name, aliases };
-  });
+  }), [suggestionsKey]); // eslint-disable-line
 
   // Update suggestions on input change
   useEffect(() => {

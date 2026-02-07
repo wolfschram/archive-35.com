@@ -19,6 +19,10 @@
  *   STRIPE_WEBHOOK_SECRET
  *   PICTOREM_API_KEY (default: "archive-35")
  *   RESEND_API_KEY
+ *   ORIGINAL_SIGNING_SECRET (shared HMAC secret for signed original URLs)
+ *
+ * Required Cloudflare bindings:
+ *   ORIGINALS (R2 bucket: archive-35-originals) — high-res originals
  */
 
 // ============================================================================
@@ -96,6 +100,70 @@ function buildPreorderCode(material, printWidth, printHeight) {
   ];
 
   return parts.join('|');
+}
+
+// ============================================================================
+// R2 ORIGINAL IMAGE HELPERS
+// ============================================================================
+
+/**
+ * Generate an HMAC-signed URL for the serve-original endpoint.
+ * Pictorem downloads from this URL → our proxy fetches from R2.
+ * Default expiry: 24 hours (plenty for Pictorem to download).
+ */
+async function generateSignedOriginalUrl(key, secret, expiryMs = 24 * 60 * 60 * 1000) {
+  const expiry = String(Date.now() + expiryMs);
+  const message = `${key}:${expiry}`;
+  const encoder = new TextEncoder();
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(message));
+  const signature = Array.from(new Uint8Array(sig))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+
+  return `https://archive-35.com/api/serve-original?key=${encodeURIComponent(key)}&exp=${expiry}&sig=${signature}`;
+}
+
+/**
+ * Try to get the high-res original URL from R2.
+ * Falls back to web-optimized if R2 is unavailable or original not uploaded yet.
+ */
+async function getOriginalImageUrl(env, collection, photoFilename) {
+  const R2_BUCKET = env.ORIGINALS;
+  const SIGNING_SECRET = env.ORIGINAL_SIGNING_SECRET;
+  const webFallbackUrl = `https://archive-35.com/images/${collection}/${photoFilename}-full.jpg`;
+
+  // If R2 not configured, fall back to web-optimized
+  if (!R2_BUCKET || !SIGNING_SECRET) {
+    console.warn('R2 or signing secret not configured — using web-optimized image for Pictorem');
+    return { url: webFallbackUrl, source: 'web-optimized' };
+  }
+
+  // Check if original exists in R2
+  // Key convention: {collection}/{photoFilename}.jpg (e.g. "grand-teton/gt-001.jpg")
+  const r2Key = `${collection}/${photoFilename}.jpg`;
+
+  try {
+    const headResult = await R2_BUCKET.head(r2Key);
+    if (headResult) {
+      // Original exists — generate signed URL
+      const signedUrl = await generateSignedOriginalUrl(r2Key, SIGNING_SECRET);
+      console.log(`R2 original found: ${r2Key} (${headResult.size} bytes) → signed URL generated`);
+      return { url: signedUrl, source: 'r2-original', size: headResult.size };
+    }
+  } catch (err) {
+    console.error('R2 head check failed:', err.message);
+  }
+
+  // Original not in R2 yet — fall back with warning
+  console.warn(`Original not in R2 (${r2Key}) — falling back to web-optimized for Pictorem`);
+  return { url: webFallbackUrl, source: 'web-optimized-fallback' };
 }
 
 // ============================================================================
@@ -292,7 +360,7 @@ function buildCustomerEmail(orderDetails) {
 function buildWolfNotificationEmail(orderDetails) {
   const {
     photoId, photoTitle, materialName, material, sizeStr, price,
-    imageUrl, customerName, customerEmail, orderRef,
+    imageUrl, pictoremImageUrl, imageSource, customerName, customerEmail, orderRef,
     shippingAddress, preorderCode, pictoremResult, wholesalePrice
   } = orderDetails;
 
@@ -317,6 +385,7 @@ function buildWolfNotificationEmail(orderDetails) {
   <tr><td colspan="2" style="border-top:1px solid #333;"></td></tr>
   <tr><td style="color:#999;">Ship To</td><td style="color:#fff;">${addr.line1 || ''}${addr.line2 ? ', ' + addr.line2 : ''}<br/>${addr.city || ''}, ${addr.state || ''} ${addr.postal_code || ''}<br/>${addr.country || ''}</td></tr>
   <tr><td colspan="2" style="border-top:1px solid #333;"></td></tr>
+  <tr><td style="color:#999;">Image Source</td><td style="color:${imageSource === 'r2-original' ? '#4caf50' : '#ff9800'};font-size:13px;">${imageSource === 'r2-original' ? 'R2 Original (high-res)' : 'Web-optimized (fallback)'}</td></tr>
   <tr><td style="color:#999;">Pictorem Code</td><td style="color:#fff;font-family:monospace;font-size:12px;">${preorderCode}</td></tr>
   <tr><td style="color:#999;">Pictorem Status</td><td style="color:#fff;">${pictoremResult ? JSON.stringify(pictoremResult).substring(0, 200) : 'N/A'}</td></tr>
   <tr><td style="color:#999;">Stripe Ref</td><td style="color:#fff;font-family:monospace;font-size:12px;">${orderRef}</td></tr>
@@ -461,16 +530,22 @@ export async function onRequestPost(context) {
     console.log('Pictorem price:', JSON.stringify(priceResult));
     const wholesalePrice = priceResult?.price || priceResult?.totalPrice || null;
 
-    // Step 3: Build image URL
+    // Step 3: Build image URLs
     const collection = getCollectionFromPhotoId(photoId);
-    // Use the photo filename from metadata, or derive from photos.json naming convention
     const photoFilename = metadata.photoFilename || photoId;
-    const imageUrl = `https://archive-35.com/images/${collection}/${photoFilename}-full.jpg`;
+
+    // HIGH-RES for Pictorem: Try R2 original first, fall back to web-optimized
+    const originalResult = await getOriginalImageUrl(env, collection, photoFilename);
+    const pictoremImageUrl = originalResult.url;
+    console.log(`Image for Pictorem: ${originalResult.source}${originalResult.size ? ` (${(originalResult.size / 1024 / 1024).toFixed(1)}MB)` : ''}`);
+
+    // WEB-OPTIMIZED for emails: Always use the web version (smaller, loads fast in email)
+    const emailImageUrl = `https://archive-35.com/images/${collection}/${photoFilename}-full.jpg`;
 
     // Step 4: Submit order to Pictorem
     const orderPayload = {
       'orderList[0][preOrderCode]': preorderCode,
-      'orderList[0][fileurl]': imageUrl,
+      'orderList[0][fileurl]': pictoremImageUrl,
       'orderList[0][clientRef]': `stripe_${session.id}`,
       'delivery[firstname]': firstName,
       'delivery[lastname]': lastName,
@@ -510,7 +585,9 @@ export async function onRequestPost(context) {
       materialName: materialDisplayName,
       sizeStr,
       price: amountPaid,
-      imageUrl,
+      imageUrl: emailImageUrl,         // Web-optimized for email previews
+      pictoremImageUrl,                // High-res URL sent to Pictorem
+      imageSource: originalResult.source, // 'r2-original' or 'web-optimized-fallback'
       customerName,
       customerEmail,
       orderRef,
@@ -541,6 +618,7 @@ export async function onRequestPost(context) {
       received: true,
       fulfilled: true,
       preorderCode,
+      imageSource: originalResult.source,
       pictoremOrder: orderResult,
       stripeSessionId: session.id,
       emailsSent: {

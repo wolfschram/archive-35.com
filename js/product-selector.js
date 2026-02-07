@@ -182,15 +182,32 @@ function getQualityBadge(dpi) {
 // ============================================================================
 
 function getMatchingCategory(photoAspectRatio, tolerance = 0.1) {
+  // Pass 1: exact range match (no tolerance) — most precise
+  for (const [key, category] of Object.entries(ASPECT_RATIO_CATEGORIES)) {
+    const [min, max] = category.range;
+    if (photoAspectRatio >= min && photoAspectRatio <= max) {
+      return { key, ...category };
+    }
+  }
+
+  // Pass 2: best tolerance match — pick category whose sizes survive filtering
+  let bestMatch = null;
+  let bestSizeCount = 0;
   for (const [key, category] of Object.entries(ASPECT_RATIO_CATEGORIES)) {
     const [min, max] = category.range;
     if (
       photoAspectRatio >= min * (1 - tolerance) &&
       photoAspectRatio <= max * (1 + tolerance)
     ) {
-      return { key, ...category };
+      const filtered = filterSizesByAspectRatio(category.sizes, photoAspectRatio, tolerance);
+      if (filtered.length > bestSizeCount) {
+        bestSizeCount = filtered.length;
+        bestMatch = { key, ...category };
+      }
     }
   }
+  if (bestMatch) return bestMatch;
+
   // Default to standard 3:2 if no match
   return ASPECT_RATIO_CATEGORIES.standard_3_2;
 }

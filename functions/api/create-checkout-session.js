@@ -39,7 +39,6 @@ export async function onRequestPost(context) {
       );
     }
 
-    const item = lineItems[0];
     const origin = new URL(request.url).origin;
 
     // Build Stripe API params (form-encoded)
@@ -48,26 +47,27 @@ export async function onRequestPost(context) {
     params.append('success_url', successUrl || `${origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`);
     params.append('cancel_url', cancelUrl || `${origin}/gallery.html`);
 
-    // Line item
-    params.append('line_items[0][price_data][currency]', 'usd');
-    params.append('line_items[0][price_data][product_data][name]', item.price_data.product_data.name);
-    // Only append description if non-empty (Stripe rejects empty strings)
-    const desc = item.price_data.product_data.description;
-    if (desc) {
-      params.append('line_items[0][price_data][product_data][description]', desc);
-    }
-    params.append('line_items[0][price_data][unit_amount]', item.price_data.unit_amount.toString());
-    params.append('line_items[0][quantity]', '1');
+    // Support multiple line items
+    lineItems.forEach((item, i) => {
+      params.append(`line_items[${i}][price_data][currency]`, 'usd');
+      params.append(`line_items[${i}][price_data][product_data][name]`, item.price_data.product_data.name);
+      const desc = item.price_data.product_data.description;
+      if (desc) {
+        params.append(`line_items[${i}][price_data][product_data][description]`, desc);
+      }
+      params.append(`line_items[${i}][price_data][unit_amount]`, item.price_data.unit_amount.toString());
+      params.append(`line_items[${i}][quantity]`, '1');
 
-    // Product metadata (for Pictorem fulfillment)
-    if (item.price_data.product_data.metadata) {
-      const meta = item.price_data.product_data.metadata;
-      Object.entries(meta).forEach(([key, value]) => {
-        params.append(`line_items[0][price_data][product_data][metadata][${key}]`, value);
-      });
-    }
+      // Per-item metadata (for Pictorem fulfillment)
+      if (item.price_data.product_data.metadata) {
+        const meta = item.price_data.product_data.metadata;
+        Object.entries(meta).forEach(([key, value]) => {
+          params.append(`line_items[${i}][price_data][product_data][metadata][${key}]`, value);
+        });
+      }
+    });
 
-    // Session-level metadata for Pictorem order processing
+    // Session-level metadata for Pictorem order processing (first item or explicit)
     if (pictorem) {
       params.append('metadata[photoId]', pictorem.photoId || '');
       params.append('metadata[photoTitle]', pictorem.photoTitle || '');
@@ -79,6 +79,8 @@ export async function onRequestPost(context) {
       params.append('metadata[originalHeight]', String(pictorem.dimensions?.originalHeight || ''));
       params.append('metadata[dpi]', String(pictorem.dimensions?.dpi || ''));
     }
+    // Store item count for webhook multi-item handling
+    params.append('metadata[itemCount]', lineItems.length.toString());
 
     // Collect shipping address (needed for Pictorem fulfillment)
     const allowedCountries = ['US', 'CA', 'GB', 'AU', 'DE', 'NZ', 'AT', 'CH', 'FR', 'IT', 'ES', 'NL', 'BE', 'IE', 'JP'];

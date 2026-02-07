@@ -280,34 +280,35 @@ class CartUI {
       return;
     }
 
-    // Check if Stripe is loaded
-    if (!window.Stripe || !window.STRIPE_PUBLIC_KEY) {
-      console.error('Stripe not loaded');
-      this.showToast('Stripe is not configured. Please try again.');
-      return;
-    }
+    // Build line items with dynamic price_data (server-side checkout)
+    const lineItems = items.map((item) => ({
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: `${item.title} - ${item.material}`,
+          description: `${item.size} Print`,
+          metadata: item.metadata || {}
+        },
+        unit_amount: Math.round(item.price * 100)
+      },
+      quantity: 1
+    }));
 
-    // Build line items for Stripe
-    const lineItems = items.map((item) => {
-      if (!item.stripePrice) {
-        console.warn('Item missing stripePrice:', item);
-        return null;
+    // Build Pictorem metadata from first item (webhook handles per-item from line_item metadata)
+    const firstItem = items[0];
+    const pictorem = firstItem.metadata ? {
+      photoId: firstItem.metadata.photoId || firstItem.photoId,
+      photoTitle: firstItem.title,
+      photoFilename: firstItem.metadata.photoFilename || firstItem.photoId,
+      material: firstItem.metadata.material || '',
+      dimensions: {
+        width: parseInt(firstItem.metadata.width) || 0,
+        height: parseInt(firstItem.metadata.height) || 0,
+        originalWidth: parseInt(firstItem.metadata.originalPhotoWidth) || 0,
+        originalHeight: parseInt(firstItem.metadata.originalPhotoHeight) || 0,
+        dpi: parseInt(firstItem.metadata.dpi) || 0
       }
-
-      return {
-        price: item.stripePrice,
-        quantity: 1
-      };
-    }).filter(Boolean);
-
-    if (lineItems.length === 0) {
-      console.error('No valid line items for checkout');
-      this.showToast('Some items are not available. Please try again.');
-      return;
-    }
-
-    // Redirect to Stripe checkout
-    const stripe = window.Stripe(window.STRIPE_PUBLIC_KEY);
+    } : null;
 
     const checkoutBtn = document.getElementById('cart-checkout-btn');
     if (checkoutBtn) {
@@ -315,19 +316,39 @@ class CartUI {
       checkoutBtn.textContent = 'Processing...';
     }
 
-    stripe.redirectToCheckout({
-      lineItems: lineItems,
-      mode: 'payment',
-      successUrl: `${window.location.origin}/thank-you.html`,
-      cancelUrl: window.location.href
-    }).catch((error) => {
-      console.error('Stripe checkout error:', error);
-      this.showToast('Checkout failed. Please try again.');
-      if (checkoutBtn) {
-        checkoutBtn.disabled = false;
-        checkoutBtn.textContent = 'Proceed to Checkout';
-      }
-    });
+    // Use server-side checkout via create-checkout-session API
+    const apiBase = 'https://archive-35-com.pages.dev';
+    fetch(`${apiBase}/api/create-checkout-session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lineItems,
+        successUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: window.location.href,
+        pictorem
+      })
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Checkout endpoint not available');
+        return res.json();
+      })
+      .then((data) => {
+        if (data.url) {
+          window.location.href = data.url;
+        } else if (data.sessionId && window.Stripe && window.STRIPE_PUBLIC_KEY) {
+          window.Stripe(window.STRIPE_PUBLIC_KEY).redirectToCheckout({ sessionId: data.sessionId });
+        } else {
+          throw new Error('No checkout URL returned');
+        }
+      })
+      .catch((error) => {
+        console.error('Stripe checkout error:', error);
+        this.showToast('Checkout failed. Please try again.');
+        if (checkoutBtn) {
+          checkoutBtn.disabled = false;
+          checkoutBtn.textContent = 'Proceed to Checkout';
+        }
+      });
   }
 
   /**

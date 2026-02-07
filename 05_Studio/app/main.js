@@ -15,6 +15,46 @@ const PORTFOLIO_DIR = path.join(ARCHIVE_BASE, '01_Portfolio');
 const DELETE_DIR = path.join(ARCHIVE_BASE, '_files_to_delete');
 const ARCHIVE_DIR = path.join(ARCHIVE_BASE, '_archived');
 
+// ===================
+// R2 UPLOAD CLIENT (lazy-initialized)
+// ===================
+let r2Client = null;
+
+function getR2Client() {
+  const env = parseEnvFileSync();
+  const accessKey = env.R2_ACCESS_KEY_ID;
+  const secretKey = env.R2_SECRET_ACCESS_KEY;
+  const endpoint = env.R2_ENDPOINT;
+  if (!accessKey || !secretKey || !endpoint) return null;
+
+  try {
+    const { S3Client } = require('@aws-sdk/client-s3');
+    r2Client = new S3Client({
+      region: 'auto',
+      endpoint,
+      credentials: { accessKeyId: accessKey, secretAccessKey: secretKey },
+    });
+    return r2Client;
+  } catch (err) {
+    console.warn('R2 client init failed:', err.message);
+    return null;
+  }
+}
+
+// Sync version for early use before IPC is ready
+function parseEnvFileSync() {
+  try {
+    const envPath = path.join(ARCHIVE_BASE, '.env');
+    const content = fsSync.readFileSync(envPath, 'utf8');
+    const keys = {};
+    for (const line of content.split('\n')) {
+      const match = line.match(/^([A-Z0-9_]+)=(.*)$/);
+      if (match) keys[match[1]] = match[2];
+    }
+    return keys;
+  } catch { return {}; }
+}
+
 let mainWindow;
 
 function createWindow() {
@@ -134,6 +174,9 @@ ipcMain.handle('get-api-keys', async () => {
     { id: 'R2_SECRET_ACCESS_KEY', name: 'Cloudflare R2 (Secret Key)', description: 'R2 secret access key', value: env.R2_SECRET_ACCESS_KEY || '', masked: maskKey(env.R2_SECRET_ACCESS_KEY), configured: !!env.R2_SECRET_ACCESS_KEY },
     { id: 'R2_ENDPOINT', name: 'Cloudflare R2 (Endpoint)', description: 'S3 API endpoint URL', value: env.R2_ENDPOINT || '', masked: env.R2_ENDPOINT ? env.R2_ENDPOINT.slice(0, 30) + '...' : '', configured: !!env.R2_ENDPOINT },
     { id: 'R2_BUCKET_NAME', name: 'Cloudflare R2 (Bucket)', description: 'R2 bucket for originals', value: env.R2_BUCKET_NAME || '', masked: env.R2_BUCKET_NAME || '', configured: !!env.R2_BUCKET_NAME },
+    { id: 'STRIPE_TEST_SECRET_KEY', name: 'Stripe Test Secret', description: 'Stripe test mode secret key', value: env.STRIPE_TEST_SECRET_KEY || '', masked: maskKey(env.STRIPE_TEST_SECRET_KEY), configured: !!env.STRIPE_TEST_SECRET_KEY },
+    { id: 'STRIPE_TEST_PUBLISHABLE_KEY', name: 'Stripe Test Publishable', description: 'Stripe test mode publishable key', value: env.STRIPE_TEST_PUBLISHABLE_KEY || '', masked: maskKey(env.STRIPE_TEST_PUBLISHABLE_KEY), configured: !!env.STRIPE_TEST_PUBLISHABLE_KEY },
+    { id: 'STRIPE_TEST_WEBHOOK_SECRET', name: 'Stripe Test Webhook Secret', description: 'Stripe test webhook signing secret', value: env.STRIPE_TEST_WEBHOOK_SECRET || '', masked: maskKey(env.STRIPE_TEST_WEBHOOK_SECRET), configured: !!env.STRIPE_TEST_WEBHOOK_SECRET },
     { id: 'META_ACCESS_TOKEN', name: 'Meta (Instagram/Facebook)', description: 'Social media posting', value: env.META_ACCESS_TOKEN || '', masked: maskKey(env.META_ACCESS_TOKEN), configured: !!env.META_ACCESS_TOKEN },
     { id: 'GOOGLE_ANALYTICS_ID', name: 'Google Analytics', description: 'Website traffic tracking', value: env.GOOGLE_ANALYTICS_ID || '', masked: maskKey(env.GOOGLE_ANALYTICS_ID), configured: !!env.GOOGLE_ANALYTICS_ID },
   ];
@@ -198,6 +241,95 @@ ipcMain.handle('test-api-key', async (event, { keyId, value }) => {
   } catch (err) {
     return { success: false, error: err.message };
   }
+});
+
+// ===================
+// TEST / LIVE MODE MANAGEMENT
+// ===================
+
+const MODE_FILE = path.join(ARCHIVE_BASE, '.studio-mode');
+
+function getCurrentMode() {
+  try {
+    if (fsSync.existsSync(MODE_FILE)) {
+      const mode = fsSync.readFileSync(MODE_FILE, 'utf8').trim();
+      if (mode === 'test' || mode === 'live') return mode;
+    }
+  } catch {}
+  return 'live'; // Default to live
+}
+
+function setCurrentMode(mode) {
+  fsSync.writeFileSync(MODE_FILE, mode);
+}
+
+// Get current mode
+ipcMain.handle('get-mode', async () => {
+  return getCurrentMode();
+});
+
+// Set mode (test or live)
+ipcMain.handle('set-mode', async (event, mode) => {
+  if (mode !== 'test' && mode !== 'live') {
+    return { success: false, error: 'Invalid mode. Use "test" or "live".' };
+  }
+  try {
+    setCurrentMode(mode);
+    console.log(`Mode switched to: ${mode.toUpperCase()}`);
+    // Notify all windows
+    if (mainWindow) {
+      mainWindow.webContents.send('mode-changed', mode);
+    }
+    return { success: true, mode };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// Get mode-specific config (Stripe keys, mock flags, etc.)
+ipcMain.handle('get-mode-config', async () => {
+  const mode = getCurrentMode();
+  const env = parseEnvFile();
+
+  if (mode === 'test') {
+    return {
+      mode: 'test',
+      stripe: {
+        publishableKey: env.STRIPE_TEST_PUBLISHABLE_KEY || '',
+        secretKey: env.STRIPE_TEST_SECRET_KEY || '',
+        configured: !!(env.STRIPE_TEST_PUBLISHABLE_KEY && env.STRIPE_TEST_SECRET_KEY),
+      },
+      pictorem: {
+        useMock: true,
+        mockMessage: 'Pictorem orders are simulated in test mode (no real orders placed)',
+      },
+      r2: {
+        prefix: 'test/',
+        message: 'R2 uploads go to test/ prefix',
+      },
+      webhook: {
+        url: env.STRIPE_TEST_WEBHOOK_SECRET ? 'configured' : 'not configured',
+      },
+    };
+  }
+
+  return {
+    mode: 'live',
+    stripe: {
+      publishableKey: env.STRIPE_PUBLISHABLE_KEY || '',
+      secretKey: env.STRIPE_SECRET_KEY || '',
+      configured: !!(env.STRIPE_PUBLISHABLE_KEY && env.STRIPE_SECRET_KEY),
+    },
+    pictorem: {
+      useMock: false,
+    },
+    r2: {
+      prefix: '',
+    },
+    webhook: {
+      url: 'production',
+    },
+  };
 });
 
 // ===================
@@ -766,6 +898,37 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
         // Copy original to originals folder
         const origDest = path.join(originalsFolder, filename);
         await fs.copyFile(photo.path, origDest);
+
+        // Upload original to R2 for Pictorem high-res fulfillment
+        try {
+          const s3 = getR2Client();
+          const bucketName = parseEnvFileSync().R2_BUCKET_NAME;
+          if (s3 && bucketName) {
+            const { PutObjectCommand } = require('@aws-sdk/client-s3');
+            const collectionSlug = portfolioId || (newGallery?.name || 'unknown').toLowerCase().replace(/\s+/g, '-');
+            const modePrefix = getCurrentMode() === 'test' ? 'test/' : '';
+            const r2Key = `${modePrefix}${collectionSlug}/${baseName}.jpg`;
+            const fileBuffer = await fs.readFile(photo.path);
+            await s3.send(new PutObjectCommand({
+              Bucket: bucketName,
+              Key: r2Key,
+              Body: fileBuffer,
+              ContentType: 'image/jpeg',
+            }));
+            console.log(`R2 upload: ${r2Key} (${(fileBuffer.length / 1024 / 1024).toFixed(1)}MB)`);
+            if (mainWindow) {
+              mainWindow.webContents.send('ingest-progress', {
+                phase: 'finalize',
+                current: processedCount,
+                total: totalPhotos,
+                filename: photo.filename,
+                message: `Uploaded original to R2: ${photo.filename}`
+              });
+            }
+          }
+        } catch (r2Err) {
+          console.warn('R2 upload failed (non-blocking):', r2Err.message);
+        }
 
         // Create web-optimized version (max 2000px long edge, 85% quality)
         const webDest = path.join(webFolder, `${baseName}-full.jpg`);

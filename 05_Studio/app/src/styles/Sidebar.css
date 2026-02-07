@@ -101,3 +101,33 @@
 .status-indicator.offline .status-dot {
   background: var(--danger);
 }
+
+/* Test mode styles */
+.sidebar-test-mode {
+  border-right: 2px solid #ff9800;
+}
+
+.sidebar-test-mode .logo-35 {
+  color: #ff9800;
+}
+
+.sidebar-test-mode .logo-subtitle::after {
+  content: ' (TEST)';
+  color: #ff9800;
+  font-weight: 700;
+}
+
+.status-indicator.test-mode {
+  color: #ff9800;
+  font-weight: 600;
+}
+
+.status-indicator.test-mode .status-dot {
+  background: #ff9800;
+  animation: test-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes test-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

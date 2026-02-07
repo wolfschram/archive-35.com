@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import ContentIngest from './pages/ContentIngest';
 import ContentManagement from './pages/ContentManagement';
@@ -11,6 +11,21 @@ import './styles/App.css';
 
 function App() {
   const [activeTab, setActiveTab] = useState('ingest');
+  const [mode, setMode] = useState('live');
+
+  useEffect(() => {
+    // Load current mode on startup
+    if (window.electronAPI?.getMode) {
+      window.electronAPI.getMode().then(m => setMode(m));
+    }
+    // Listen for mode changes from Settings
+    if (window.electronAPI?.onModeChanged) {
+      const cleanup = window.electronAPI.onModeChanged((newMode) => {
+        setMode(newMode);
+      });
+      return cleanup;
+    }
+  }, []);
 
   const renderPage = () => {
     switch (activeTab) {
@@ -27,7 +42,7 @@ function App() {
       case 'analytics':
         return <Analytics />;
       case 'settings':
-        return <Settings />;
+        return <Settings mode={mode} setMode={setMode} />;
       default:
         return <ContentIngest />;
     }
@@ -35,8 +50,13 @@ function App() {
 
   return (
     <div className="app">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      <main className="main-content">
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} mode={mode} />
+      {mode === 'test' && (
+        <div className="test-mode-banner">
+          TEST MODE — No real orders, payments, or fulfillment
+        </div>
+      )}
+      <main className={`main-content ${mode === 'test' ? 'test-mode-active' : ''}`}>
         {renderPage()}
       </main>
     </div>

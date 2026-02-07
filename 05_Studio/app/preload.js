@@ -43,6 +43,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveApiKey: (data) => ipcRenderer.invoke('save-api-key', data),
   testApiKey: (data) => ipcRenderer.invoke('test-api-key', data),
 
+  // Test / Live mode management
+  getMode: () => ipcRenderer.invoke('get-mode'),
+  setMode: (mode) => ipcRenderer.invoke('set-mode', mode),
+  getModeConfig: () => ipcRenderer.invoke('get-mode-config'),
+  onModeChanged: (callback) => {
+    const handler = (event, mode) => callback(mode);
+    ipcRenderer.on('mode-changed', handler);
+    return () => ipcRenderer.removeListener('mode-changed', handler);
+  },
+
   // Website deploy
   deployWebsite: () => ipcRenderer.invoke('deploy-website'),
   checkDeployStatus: () => ipcRenderer.invoke('check-deploy-status'),

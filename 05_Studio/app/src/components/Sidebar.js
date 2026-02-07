@@ -11,9 +11,9 @@ const tabs = [
   { id: 'settings', label: 'Settings', icon: '⚙️' },
 ];
 
-function Sidebar({ activeTab, setActiveTab }) {
+function Sidebar({ activeTab, setActiveTab, mode }) {
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${mode === 'test' ? 'sidebar-test-mode' : ''}`}>
       <div className="sidebar-header">
         <h1 className="logo">
           <span className="logo-archive">ARCHIVE</span>
@@ -36,9 +36,9 @@ function Sidebar({ activeTab, setActiveTab }) {
       </nav>
 
       <div className="sidebar-footer">
-        <div className="status-indicator online">
+        <div className={`status-indicator ${mode === 'test' ? 'test-mode' : 'online'}`}>
           <span className="status-dot"></span>
-          <span>All systems operational</span>
+          <span>{mode === 'test' ? 'TEST MODE' : 'Live — Operational'}</span>
         </div>
       </div>
     </aside>

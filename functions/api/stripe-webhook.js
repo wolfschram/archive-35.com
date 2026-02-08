@@ -440,7 +440,8 @@ async function sendEmail(resendApiKey, { to, subject, html }) {
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
+  const STRIPE_LIVE_SECRET_KEY = env.STRIPE_SECRET_KEY;
+  const STRIPE_TEST_SECRET_KEY = env.STRIPE_TEST_SECRET_KEY || '';
   const STRIPE_WEBHOOK_SECRET = env.STRIPE_WEBHOOK_SECRET || '';
   const STRIPE_TEST_WEBHOOK_SECRET = env.STRIPE_TEST_WEBHOOK_SECRET || '';
   const PICTOREM_API_KEY = env.PICTOREM_API_KEY || 'archive-35';
@@ -484,8 +485,12 @@ export async function onRequestPost(context) {
 
     // Detect test mode: Stripe test events have livemode=false
     const isTestMode = session.livemode === false || event.livemode === false;
+    // Select the correct Stripe API key for fetching session details
+    const STRIPE_SECRET_KEY = isTestMode && STRIPE_TEST_SECRET_KEY
+      ? STRIPE_TEST_SECRET_KEY
+      : STRIPE_LIVE_SECRET_KEY;
     if (isTestMode) {
-      console.log('TEST MODE detected — Pictorem will be mocked');
+      console.log('TEST MODE detected — using test key, Pictorem will be mocked');
     }
 
     // Extract order info from session metadata

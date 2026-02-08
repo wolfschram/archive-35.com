@@ -905,7 +905,19 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
           const bucketName = parseEnvFileSync().R2_BUCKET_NAME;
           if (s3 && bucketName) {
             const { PutObjectCommand } = require('@aws-sdk/client-s3');
-            const collectionSlug = portfolioId || (newGallery?.name || 'unknown').toLowerCase().replace(/\s+/g, '-');
+            // Use gallery slug for R2 key consistency with webhook
+            let collectionSlug;
+            try {
+              const galleryPath = path.join(targetFolder, '_gallery.json');
+              if (fsSync.existsSync(galleryPath)) {
+                const gal = JSON.parse(fsSync.readFileSync(galleryPath, 'utf8'));
+                collectionSlug = gal.slug;
+              }
+            } catch (e) {}
+            if (!collectionSlug) {
+              collectionSlug = (portfolioId || (newGallery?.name || 'unknown').toLowerCase())
+                .replace(/[_\s]+/g, '-').replace(/-+$/, '');
+            }
             const modePrefix = getCurrentMode() === 'test' ? 'test/' : '';
             const r2Key = `${modePrefix}${collectionSlug}/${baseName}.jpg`;
             const fileBuffer = await fs.readFile(photo.path);
@@ -1112,6 +1124,132 @@ ipcMain.handle('update-photo-metadata', async (event, { portfolioId, photoId, me
 ipcMain.handle('process-ingest', async (event, { files, mode, portfolioId, newGallery }) => {
   console.log('process-ingest called - redirecting to analyze-photos');
   return { success: true, message: 'Use analyze-photos and finalize-ingest instead' };
+});
+
+// ===================
+// BATCH R2 UPLOAD (backfill existing originals)
+// ===================
+
+ipcMain.handle('batch-upload-r2', async () => {
+  const results = { uploaded: 0, skipped: 0, failed: 0, errors: [], collections: {} };
+
+  try {
+    const s3 = getR2Client();
+    const bucketName = parseEnvFileSync().R2_BUCKET_NAME;
+
+    if (!s3 || !bucketName) {
+      return { success: false, error: 'R2 credentials not configured. Set R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT, and R2_BUCKET_NAME in Settings → API Keys.' };
+    }
+
+    const { PutObjectCommand, HeadObjectCommand } = require('@aws-sdk/client-s3');
+
+    const entries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
+    const portfolioDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_'));
+
+    let totalFiles = 0;
+    let processedFiles = 0;
+
+    // First pass: count total files
+    for (const dir of portfolioDirs) {
+      const originalsPath = path.join(PORTFOLIO_DIR, dir.name, 'originals');
+      if (fsSync.existsSync(originalsPath)) {
+        const files = await fs.readdir(originalsPath);
+        totalFiles += files.filter(f => /\.(jpg|jpeg|tiff|tif|png)$/i.test(f)).length;
+      }
+    }
+
+    // Second pass: upload
+    for (const dir of portfolioDirs) {
+      const portfolioPath = path.join(PORTFOLIO_DIR, dir.name);
+      const originalsPath = path.join(portfolioPath, 'originals');
+      const galleryJsonPath = path.join(portfolioPath, '_gallery.json');
+
+      if (!fsSync.existsSync(originalsPath)) continue;
+
+      // Get collection slug from _gallery.json (must match webhook expectations)
+      let collectionSlug;
+      try {
+        if (fsSync.existsSync(galleryJsonPath)) {
+          const gallery = JSON.parse(await fs.readFile(galleryJsonPath, 'utf8'));
+          collectionSlug = gallery.slug;
+        }
+      } catch (e) {}
+
+      if (!collectionSlug) {
+        // Fallback: convert folder name to hyphenated slug
+        collectionSlug = dir.name.toLowerCase().replace(/[_\s]+/g, '-').replace(/-+$/, '');
+      }
+
+      results.collections[collectionSlug] = { uploaded: 0, skipped: 0, failed: 0 };
+
+      const files = await fs.readdir(originalsPath);
+      const imageFiles = files.filter(f => /\.(jpg|jpeg|tiff|tif|png)$/i.test(f));
+
+      for (const filename of imageFiles) {
+        processedFiles++;
+        const baseName = filename.replace(/\.[^.]+$/, '');
+        const r2Key = `${collectionSlug}/${baseName}.jpg`;
+
+        if (mainWindow) {
+          mainWindow.webContents.send('r2-upload-progress', {
+            current: processedFiles,
+            total: totalFiles,
+            collection: collectionSlug,
+            filename,
+            r2Key,
+            message: `Uploading ${processedFiles}/${totalFiles}: ${r2Key}`
+          });
+        }
+
+        try {
+          // Check if already exists in R2
+          try {
+            await s3.send(new HeadObjectCommand({ Bucket: bucketName, Key: r2Key }));
+            // Already exists — skip
+            results.skipped++;
+            results.collections[collectionSlug].skipped++;
+            console.log(`R2 skip (exists): ${r2Key}`);
+            continue;
+          } catch (headErr) {
+            // Not found — proceed with upload (this is expected)
+          }
+
+          const filePath = path.join(originalsPath, filename);
+          const fileBuffer = await fs.readFile(filePath);
+
+          await s3.send(new PutObjectCommand({
+            Bucket: bucketName,
+            Key: r2Key,
+            Body: fileBuffer,
+            ContentType: 'image/jpeg',
+          }));
+
+          results.uploaded++;
+          results.collections[collectionSlug].uploaded++;
+          console.log(`R2 upload: ${r2Key} (${(fileBuffer.length / 1024 / 1024).toFixed(1)}MB)`);
+
+        } catch (uploadErr) {
+          results.failed++;
+          results.collections[collectionSlug].failed++;
+          results.errors.push(`${r2Key}: ${uploadErr.message}`);
+          console.error(`R2 upload failed: ${r2Key}`, uploadErr.message);
+        }
+      }
+    }
+
+    if (mainWindow) {
+      mainWindow.webContents.send('r2-upload-progress', {
+        current: totalFiles,
+        total: totalFiles,
+        message: `Done! ${results.uploaded} uploaded, ${results.skipped} already existed, ${results.failed} failed.`
+      });
+    }
+
+    return { success: true, ...results };
+  } catch (err) {
+    console.error('batch-upload-r2 failed:', err);
+    return { success: false, error: err.message, ...results };
+  }
 });
 
 // ===================

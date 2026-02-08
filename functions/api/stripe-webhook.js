@@ -141,8 +141,8 @@ async function getOriginalImageUrl(env, collection, photoFilename) {
 
   // If R2 not configured, fall back to web-optimized
   if (!R2_BUCKET || !SIGNING_SECRET) {
-    console.warn('R2 or signing secret not configured — using web-optimized image for Pictorem');
-    return { url: webFallbackUrl, source: 'web-optimized' };
+    console.error('⚠️ CRITICAL: R2 or signing secret not configured — using web-optimized image for Pictorem. Print quality will be POOR.');
+    return { url: webFallbackUrl, source: 'web-optimized', warning: 'R2 storage not configured. Pictorem will receive web-optimized (low-res) image. Print quality will be unacceptable for large formats.' };
   }
 
   // Check if original exists in R2
@@ -161,9 +161,9 @@ async function getOriginalImageUrl(env, collection, photoFilename) {
     console.error('R2 head check failed:', err.message);
   }
 
-  // Original not in R2 yet — fall back with warning
-  console.warn(`Original not in R2 (${r2Key}) — falling back to web-optimized for Pictorem`);
-  return { url: webFallbackUrl, source: 'web-optimized-fallback' };
+  // Original not in R2 — this is a CRITICAL issue for print quality
+  console.error(`⚠️ CRITICAL: Original not in R2 (${r2Key}) — falling back to web-optimized. Print quality will be POOR.`);
+  return { url: webFallbackUrl, source: 'web-optimized-fallback', warning: `High-res original "${r2Key}" not found in R2 bucket. Pictorem will receive web-optimized (2000px, 85% JPEG) image. At large print sizes this produces ~56 DPI — unacceptable for fine art.` };
 }
 
 // ============================================================================
@@ -385,7 +385,8 @@ function buildWolfNotificationEmail(orderDetails) {
   <tr><td colspan="2" style="border-top:1px solid #333;"></td></tr>
   <tr><td style="color:#999;">Ship To</td><td style="color:#fff;">${addr.line1 || ''}${addr.line2 ? ', ' + addr.line2 : ''}<br/>${addr.city || ''}, ${addr.state || ''} ${addr.postal_code || ''}<br/>${addr.country || ''}</td></tr>
   <tr><td colspan="2" style="border-top:1px solid #333;"></td></tr>
-  <tr><td style="color:#999;">Image Source</td><td style="color:${imageSource === 'r2-original' ? '#4caf50' : '#ff9800'};font-size:13px;">${imageSource === 'r2-original' ? 'R2 Original (high-res)' : 'Web-optimized (fallback)'}</td></tr>
+  <tr><td style="color:#999;">Image Source</td><td style="color:${imageSource === 'r2-original' ? '#4caf50' : '#f44336'};font-size:13px;font-weight:${imageSource === 'r2-original' ? 'normal' : 'bold'};">${imageSource === 'r2-original' ? 'R2 Original (high-res)' : '⚠️ WEB-OPTIMIZED FALLBACK — LOW RES'}</td></tr>
+  ${imageSource !== 'r2-original' ? `<tr><td colspan="2" style="padding:12px 8px;background:#4a1010;border:2px solid #f44336;border-radius:4px;color:#ff8a80;font-size:13px;line-height:1.5;"><strong>⚠️ QUALITY ALERT:</strong> The high-res original was NOT found in R2 storage. Pictorem received a web-optimized image (2000px max, ~56 DPI at 36x24). This print quality is UNACCEPTABLE for fine art. Upload the original to R2 and contact Pictorem to replace the file before printing.</td></tr>` : ''}
   <tr><td style="color:#999;">Pictorem Code</td><td style="color:#fff;font-family:monospace;font-size:12px;">${preorderCode}</td></tr>
   <tr><td style="color:#999;">Pictorem Status</td><td style="color:#fff;">${pictoremResult ? JSON.stringify(pictoremResult).substring(0, 200) : 'N/A'}</td></tr>
   <tr><td style="color:#999;">Stripe Ref</td><td style="color:#fff;font-family:monospace;font-size:12px;">${orderRef}</td></tr>
@@ -647,7 +648,7 @@ export async function onRequestPost(context) {
     // Send Wolf notification email
     const wolfEmailResult = await sendEmail(RESEND_API_KEY, {
       to: WOLF_EMAIL,
-      subject: `New Order: ${photoTitle} — ${materialDisplayName} ${sizeStr} — $${amountPaid}`,
+      subject: `${originalResult.source !== 'r2-original' ? '⚠️ LOW-RES ALERT — ' : ''}New Order: ${photoTitle} — ${materialDisplayName} ${sizeStr} — $${amountPaid}`,
       html: buildWolfNotificationEmail(orderDetails),
     });
     console.log('Wolf notification result:', JSON.stringify(wolfEmailResult));

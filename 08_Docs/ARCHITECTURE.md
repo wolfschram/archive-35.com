@@ -1,5 +1,5 @@
 # Archive-35 System Architecture
-**Version 1.0** | Last Updated: 2026-02-07 | Living Document
+**Version 1.0** | Last Updated: 2026-02-08 | Living Document
 
 ---
 
@@ -9,7 +9,7 @@
 - [File System Map](#file-system-map) - Where everything lives
 - [Storage Architecture](#storage-architecture) - File types & locations
 - [API & Services](#api--services) - External integrations
-- [Google Drive Integration](#google-drive-integration-original-storage) - Original photo storage & fulfillment
+- [R2 Storage](#cloudflare-r2-storage-original-photos) - Original photo storage & fulfillment
 - [MCP Server Architecture](#mcp-server-architecture) - Claude desktop integration
 - [Electron Studio App](#electron-studio-app) - Mac-native desktop app
 - [Deployment Pipeline](#deployment-pipeline) - Publishing to live site
@@ -28,7 +28,7 @@ Archive-35 is a multi-layered photography portfolio and print fulfillment system
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    archive-35.com (Website)                 │
-│  GitHub Pages + Cloudflare CDN (Static HTML/CSS/JS/Images) │
+│  Cloudflare Pages (Static HTML/CSS/JS/Images + Serverless Functions) │
 └──────────────────────┬──────────────────────────────────────┘
                        │
          ┌─────────────┼─────────────┐
@@ -44,7 +44,15 @@ Archive-35 is a multi-layered photography portfolio and print fulfillment system
     │   Cloudflare Functions (API)        │
     │  - create-checkout-session          │
     │  - stripe-webhook (auto-fulfill)    │
+    │  - serve-original (R2 images)       │
+    │  - test-mode-status                 │
     └──────────────────────────────────────┘
+         │
+    ┌────▼────────────────────────────┐
+    │  Cloudflare R2 Storage          │
+    │  - High-res originals           │
+    │  - HMAC-signed URL access       │
+    └─────────────────────────────────┘
          │
     ┌────▼────────────────────────────────┐
     │  Archive-35 Studio (Electron App)   │
@@ -74,7 +82,7 @@ Archive-35 is a multi-layered photography portfolio and print fulfillment system
 
 | Component | Platform | Status | Notes |
 |-----------|----------|--------|-------|
-| **Website** | GitHub Pages + Cloudflare | Always on | CDN-served, zero-config |
+| **Website** | Cloudflare Pages | Always on | CDN-served, zero-config |
 | **Studio App** | macOS (Electron) | On demand | Runs on Mac when needed |
 | **MCP Server** | macOS | Running locally | Integrated with Claude Desktop |
 | **Pictorem API** | Cloud | Always on | Print fulfillment partner |
@@ -103,7 +111,7 @@ archive-35.com (displayed on website)
 ```
 
 **Key Points:**
-- Originals (8-35MB) stay on Mac, synced to Google Drive (planned)
+- Originals (8-35MB) stay on Mac, backed up to Cloudflare R2
 - Web copies (300-800KB) go to GitHub for CDN distribution
 - Thumbnails (30-75KB) indexed in photos.json for search/filtering
 - photos.json is the master content index
@@ -292,8 +300,10 @@ Archive-35.com/
 │
 ├── functions/
 │   └── api/
+│       ├── create-checkout-session.js  ← Create Stripe Checkout session
+│       ├── serve-original.js           ← Serve high-res from R2 (HMAC signed)
 │       ├── stripe-webhook.js           ← Auto-fulfill orders from Stripe
-│       └── create-checkout-session.js  ← Create Stripe Checkout session
+│       └── test-mode-status.js         ← Backend test/live mode status
 │
 ├── images/
 │   ├── africa/
@@ -306,8 +316,10 @@ Archive-35.com/
 ├── js/
 │   ├── main.js                         ← Website entry point
 │   ├── cart.js                         ← Shopping cart (localStorage)
+│   ├── cart-ui.js                      ← Cart drawer UI
 │   ├── product-selector.js             ← Print options UI
 │   ├── stripe-links.js                 ← Generated Stripe payment links
+│   ├── test-mode-banner.js             ← Test mode visual indicator
 │   └── lightbox.js                     ← Image viewer
 │
 ├── logos/
@@ -330,10 +342,10 @@ Archive-35.com/
 
 ### Where Different File Types Live
 
-| File Type | Location | Size | On GitHub? | On Google Drive? | Availability |
-|-----------|----------|------|-----------|-----------------|--------------|
-| **Original Photos (RAW)** | `01_Portfolio/*/originals/` | 8-35MB each | ❌ NO | ✅ PLANNED | Local Mac only |
-| **Print Masters (high-res JPEG)** | `01_Portfolio/*/originals/` | 8-35MB each | ❌ NO | ✅ PLANNED | Local Mac only |
+| File Type | Location | Size | On GitHub? | On R2? | Availability |
+|-----------|----------|------|-----------|--------|--------------|
+| **Original Photos (RAW)** | `01_Portfolio/*/originals/` | 8-35MB each | ❌ NO | ✅ YES | R2 + Local Mac |
+| **Print Masters (high-res JPEG)** | `01_Portfolio/*/originals/` | 8-35MB each | ❌ NO | ✅ YES | R2 + Local Mac |
 | **Web-Optimized (full)** | `images/{collection}/` | 300-800KB | ✅ YES | ❌ NO | CDN (Cloudflare) |
 | **Web-Optimized (thumbnails)** | `images/{collection}/` | 30-75KB | ✅ YES | ❌ NO | CDN (Cloudflare) |
 | **Portfolio Metadata (JSON)** | `01_Portfolio/{gallery}/` | <50KB | ✅ YES | ❌ NO | GitHub + CDN |
@@ -343,7 +355,7 @@ Archive-35.com/
 
 ### Why This Structure?
 
-- **Originals stored locally + Google Drive**: High-res files too large for GitHub, needed for printing. Cloud backup provides redundancy.
+- **Originals stored locally + Cloudflare R2**: High-res files too large for GitHub, needed for printing. Cloud backup provides redundancy.
 - **Web copies on GitHub**: CDN distribution, fast delivery, version control.
 - **Metadata on GitHub**: JSON files track portfolio structure, enable search/filtering.
 - **Social queue on GitHub**: Allows MCP server to schedule and audit posts.
@@ -358,7 +370,7 @@ Archive-35.com/
 |--------|---------|
 | **What It Does** | Processes customer purchases, handles payments, provides checkout UI |
 | **How We Access It** | Stripe.js SDK (client-side) + Stripe API (server-side in Cloudflare Functions) |
-| **Authentication** | `STRIPE_SECRET_KEY` (server), `STRIPE_PUBLISHABLE_KEY` (client) |
+| **Authentication** | `STRIPE_SECRET_KEY` + `STRIPE_TEST_SECRET_KEY` (server), `STRIPE_PUBLISHABLE_KEY` (client) |
 | **Critical Functions** | `create-checkout-session.js` creates sessions; `stripe-webhook.js` listens for payment confirmation |
 | **Status** | ✅ **WORKING** — Live payment processing active |
 | **Related Files** | `/functions/api/create-checkout-session.js`, `/functions/api/stripe-webhook.js`, `/js/stripe-links.js` |
@@ -444,20 +456,20 @@ Archive-35.com/
 | **What It Does** | CDN caching, serverless functions, DDoS protection |
 | **How We Access It** | Functions deployed in `/functions/` directory |
 | **Authentication** | Auto-managed by Cloudflare Pages integration |
-| **Endpoints** | `/api/create-checkout-session`, `/api/stripe-webhook` |
+| **Endpoints** | `/api/create-checkout-session`, `/api/stripe-webhook`, `/api/serve-original`, `/api/test-mode-status` |
 | **Status** | ✅ **WORKING** — Handling payment flows |
 | **Related Files** | `/functions/api/` |
 
-### Google Drive (Cloud Storage - Original Photo Storage)
+### Cloudflare R2 (Original Photo Storage)
 
 | Aspect | Details |
 |--------|---------|
 | **What It Does** | Store & serve original high-res photos for print fulfillment |
-| **How We Access It** | Google Drive API (Service Account) |
-| **Authentication** | `GOOGLE_DRIVE_CREDENTIALS` (Service Account JSON), `GOOGLE_DRIVE_FOLDER_ID` |
-| **Critical Functions** | Studio uploads originals after processing; Webhook retrieves for Pictorem |
-| **Status** | 🟡 **IN PROGRESS** — Architecture defined, implementation starting |
-| **Related Files** | `/05_Studio/` (upload integration), `/functions/api/stripe-webhook.js` (retrieval) |
+| **How We Access It** | R2 binding in Cloudflare Pages Functions, HMAC-signed URLs |
+| **Authentication** | `ORIGINAL_SIGNING_SECRET` (HMAC signing), R2 bucket binding (`ORIGINALS`) |
+| **Critical Functions** | Webhook generates signed URLs; serve-original.js serves images to Pictorem |
+| **Status** | ✅ **WORKING** — R2 bucket bound, serve-original.js deployed |
+| **Related Files** | `/functions/api/serve-original.js`, `/functions/api/stripe-webhook.js` |
 
 ### Meta/Instagram (Social Media - PLANNED)
 
@@ -526,155 +538,28 @@ Archive-35.com/
 
 ---
 
-## GOOGLE DRIVE INTEGRATION (ORIGINAL STORAGE)
+## CLOUDFLARE R2 STORAGE (ORIGINAL PHOTOS)
 
 ### Architecture Overview
 
-High-res original photos (8-35MB each) are stored on Google Drive for:
-1. **Cloud backup** — Redundancy beyond Mac local storage
-2. **Fulfillment access** — Pictorem needs originals for high-quality prints
-3. **Remote access** — Wolf can access originals from anywhere
-4. **Versioning** — Google Drive provides automatic version history
+High-res original photos (8-35MB each) are stored in Cloudflare R2 for:
+1. **Print fulfillment** — Pictorem needs originals for high-quality prints
+2. **Cloud backup** — Redundancy beyond Mac local storage
+3. **Secure access** — HMAC-signed URLs with 24-hour expiry prevent unauthorized access
+4. **Performance** — Cloudflare's global network delivers images quickly to Pictorem
 
-### Implementation Strategy: Service Account vs OAuth
+### R2 Bucket Configuration
 
-| Approach | Use Case | Setup |
-|----------|----------|-------|
-| **Service Account** (chosen) | Server-to-server automation | Simpler, no user interaction needed |
-| **OAuth** | User permission flow | More complex, requires user approval |
+| Property | Value |
+|----------|-------|
+| **Bucket Name** | `archive-35-originals` |
+| **Binding Name** | `ORIGINALS` (in Cloudflare Pages) |
+| **Access Method** | `serve-original.js` Cloudflare Function |
+| **URL Signing** | HMAC-SHA256 with `ORIGINAL_SIGNING_SECRET` |
+| **URL Expiry** | 24 hours |
+| **File Structure** | `{collection}/{filename}.jpg` (e.g., `grand-teton/gt-001.jpg`) |
 
-**Why Service Account?**
-- Studio (Electron app) uploads originals after processing — no user interaction needed
-- Webhook retrieves files to pass to Pictorem — no user context required
-- Credentials stored in environment variables (Cloudflare + local .env)
-- Wolf shares Drive folder with Service Account email — full access granted once
-
-### Google Drive Folder Structure
-
-```
-Archive-35 (Shared Folder)
-└── originals/
-    ├── grand-teton/
-    │   ├── gt-001.jpg          (8-35MB original)
-    │   ├── gt-002.jpg
-    │   └── ...
-    ├── africa/
-    │   ├── a-001.jpg
-    │   ├── a-002.jpg
-    │   └── ...
-    ├── new-zealand/
-    │   ├── nz-001.jpg
-    │   └── ...
-    └── [other collections...]
-```
-
-**Storage Calculation:**
-- Grand Teton originals: ~250MB
-- Africa originals: ~180MB
-- New Zealand originals: ~77MB
-- **Total:** ~507MB (well within 1TB available)
-
----
-
-### Upload Flow: Studio → Google Drive
-
-**Trigger:** When Studio imports and processes a new photo
-
-```
-Step 1: Photo Import
-┌─────────────────────────────┐
-│ User selects photos in      │
-│ Studio (from Lightroom)     │
-│ Assigns to gallery          │
-└──────────────┬──────────────┘
-               │
-Step 2: Processing
-┌──────────────▼──────────────────────┐
-│ Studio reads original (RAW/JPG)     │
-│ Extracts EXIF metadata              │
-│ Generates AI metadata (tags, etc.)  │
-└──────────────┬──────────────────────┘
-               │
-Step 3: Web Optimization
-┌──────────────▼────────────────────────┐
-│ Generate web copies:                 │
-│ - Full size (300-800KB)              │
-│ - Thumbnail (30-75KB)                │
-│ Store in images/{collection}/        │
-└──────────────┬────────────────────────┘
-               │
-Step 4: Upload Original to Google Drive
-┌──────────────▼─────────────────────────────┐
-│ Authenticate with Service Account          │
-│ Upload original to Google Drive            │
-│ Path: originals/{collection}/{filename}    │
-│ Retrieve Google Drive file ID              │
-└──────────────┬─────────────────────────────┘
-               │
-Step 5: Store Metadata
-┌──────────────▼──────────────────────┐
-│ Update _photos.json with:           │
-│ - google_drive_file_id              │
-│ - google_drive_download_link        │
-│ - original_size, dimensions, etc.   │
-└──────────────┬──────────────────────┘
-               │
-Step 6: Git Push
-┌──────────────▼──────────────────────┐
-│ git add data/photos.json            │
-│ git add images/{collection}/*       │
-│ git commit + push                   │
-└──────────────────────────────────────┘
-```
-
-**Implementation Details (Studio):**
-
-```javascript
-// pseudo-code for Studio upload handler
-const { google } = require('googleapis');
-
-async function uploadOriginalToGoogleDrive(filePath, collection, filename) {
-  // Load Service Account credentials
-  const auth = new google.auth.GoogleAuth({
-    keyFile: process.env.GOOGLE_DRIVE_KEY_FILE,  // or inline GOOGLE_DRIVE_CREDENTIALS
-    scopes: ['https://www.googleapis.com/auth/drive']
-  });
-
-  const drive = google.drive({ version: 'v3', auth });
-
-  // Create file metadata
-  const fileMetadata = {
-    name: `${filename}`,
-    parents: [process.env.GOOGLE_DRIVE_FOLDER_ID],
-    // Organize in subfolders: originals/{collection}/
-    webViewLink: true  // Return shareable link
-  };
-
-  // Upload file
-  const media = {
-    mimeType: 'image/jpeg',
-    body: fs.createReadStream(filePath)
-  };
-
-  const response = await drive.files.create({
-    resource: fileMetadata,
-    media: media,
-    fields: 'id, webViewLink, size'
-  });
-
-  return {
-    fileId: response.data.id,
-    downloadLink: `https://drive.google.com/uc?export=download&id=${response.data.id}`,
-    size: response.data.size
-  };
-}
-```
-
----
-
-### Fulfillment Flow: Webhook → Google Drive → Pictorem
-
-**Trigger:** Stripe webhook fires on successful payment
+### Fulfillment Flow: Webhook → R2 → Pictorem
 
 ```
 Step 1: Webhook Receives Order
@@ -683,260 +568,43 @@ Step 1: Webhook Receives Order
 │ webhook fires (async, secure)  │
 └──────────────┬─────────────────┘
                │
-Step 2: Lookup Photo Metadata
+Step 2: Generate Signed URL
 ┌──────────────▼──────────────────────┐
-│ Read data/photos.json               │
-│ Find photo by ID from order         │
-│ Extract google_drive_file_id        │
+│ Webhook generates HMAC-signed URL   │
+│ for original in R2 bucket           │
+│ URL expires in 24 hours             │
 └──────────────┬──────────────────────┘
                │
-Step 3: Get Download Link from Google Drive
-┌──────────────▼────────────────────────────┐
-│ Authenticate with Service Account         │
-│ Retrieve file metadata (size, link)       │
-│ Generate temporary download link          │
-│ (Or use Cloudflare Worker for proxying)   │
-└──────────────┬────────────────────────────┘
-               │
-Step 4: Submit Order to Pictorem
+Step 3: Submit Order to Pictorem
 ┌──────────────▼──────────────────────┐
 │ Call Pictorem API with:             │
-│ - High-res image URL (Google Drive) │
+│ - Signed R2 URL for high-res image │
 │ - Product specifications            │
 │ - Shipping address                  │
 │ - Customer email                    │
 └──────────────┬──────────────────────┘
                │
-Step 5: Confirm Fulfillment
+Step 4: Confirm Fulfillment
 ┌──────────────▼──────────────────────┐
 │ Pictorem validates order            │
 │ Begins print production              │
-│ Send confirmation email to customer │
+│ Send confirmation emails            │
 └──────────────────────────────────────┘
 ```
 
-**Implementation Details (Webhook):**
+### Security Model
 
-```javascript
-// pseudo-code for stripe-webhook.js enhancement
-const { google } = require('googleapis');
+- **No public access** — R2 bucket is private; only serve-original.js can read from it
+- **Signed URLs** — HMAC-SHA256 signature includes key + expiry timestamp
+- **Time-limited** — URLs expire after 24 hours
+- **No caching** — `Cache-Control: private, no-store` prevents CDN caching of originals
 
-async function fulfillOrder(stripeSessionId) {
-  // 1. Get order details from Stripe session
-  const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
-  const photoId = session.metadata.photo_id;
-  const quantity = session.metadata.quantity;
+### Related Files
 
-  // 2. Look up original from photos.json
-  const photosData = require('../data/photos.json');
-  const photo = findPhotoById(photosData, photoId);
-  const googleDriveFileId = photo.google_drive_file_id;
-
-  // 3. Get download link from Google Drive
-  const auth = new google.auth.GoogleAuth({
-    keyFile: process.env.GOOGLE_DRIVE_CREDENTIALS,
-    scopes: ['https://www.googleapis.com/auth/drive']
-  });
-
-  const drive = google.drive({ version: 'v3', auth });
-  const downloadLink = `https://drive.google.com/uc?export=download&id=${googleDriveFileId}`;
-
-  // 4. Submit to Pictorem with high-res image URL
-  const pictorem = new PictoremAPI(process.env.PICTOREM_API_KEY);
-  const orderResult = await pictorem.submitOrder({
-    imageUrl: downloadLink,
-    material: session.metadata.material,
-    size: session.metadata.size,
-    customerEmail: session.customer_email,
-    shippingAddress: session.shipping_details
-  });
-
-  // 5. Send confirmation emails
-  await sendCustomerEmail(session.customer_email, photo.title, orderResult);
-  await sendWolfNotification(photo.title, orderResult);
-}
-```
-
-**Alternative: Cloudflare Worker Proxy (More Reliable)**
-
-Instead of passing raw Google Drive links to Pictorem, use a Cloudflare Worker as a proxy:
-
-```javascript
-// Cloudflare Worker: proxy-google-drive.js
-export default {
-  async fetch(request) {
-    const url = new URL(request.url);
-    const fileId = url.searchParams.get('id');
-
-    // Authenticate to Google Drive and stream the file
-    // Pictorem receives: https://archive-35.com/api/google-drive-proxy?id=FILE_ID
-    // Worker handles auth transparently
-  }
-};
-```
-
-**Advantage:** Pictorem never sees credentials, and we have audit logs of all fulfillment requests.
-
----
-
-### Setup Requirements
-
-#### 1. Google Cloud Project Setup
-
-```bash
-# Create Google Cloud project (or use existing)
-# Enable Google Drive API:
-# - Go to console.cloud.google.com
-# - Search "Google Drive API"
-# - Click "Enable"
-
-# Create Service Account:
-# - Go to "Service Accounts" in Google Cloud Console
-# - Create new service account
-# - Name: "Archive-35-Studio"
-# - Grant role: "Editor" (or custom role with Drive access)
-# - Create JSON key and download
-
-# Copy key file to safe location (e.g., ~/Archive-35/.env.google-drive.json)
-```
-
-#### 2. Google Drive Setup
-
-```bash
-# Create folder structure:
-# 1. Create "Archive-35" folder in Wolf's Google Drive
-# 2. Create "originals" subfolder inside Archive-35
-# 3. Share Archive-35 folder with Service Account email:
-#    - Right-click folder → Share
-#    - Add: [service-account-email]@iam.gserviceaccount.com
-#    - Role: Editor
-#    - Click Share
-
-# Get folder ID from URL:
-# https://drive.google.com/drive/folders/[FOLDER_ID]
-```
-
-#### 3. Environment Variables
-
-Store in `.env` (Mac local) and Cloudflare environment variables:
-
-```yaml
-# ===== GOOGLE DRIVE (Original Photo Storage) =====
-GOOGLE_DRIVE_CREDENTIALS={"type":"service_account","project_id":"..."}  # Full JSON in one line
-GOOGLE_DRIVE_FOLDER_ID=1aBcDeFgHiJkLmNoPqRsTuVwXyZ123456  # Archive-35/originals folder ID
-```
-
-**For Cloudflare Functions:**
-1. Go to Cloudflare Pages dashboard
-2. Project Settings → Environment Variables
-3. Add `GOOGLE_DRIVE_CREDENTIALS` and `GOOGLE_DRIVE_FOLDER_ID`
-
-#### 4. Studio App Dependencies
-
-Add to `/05_Studio/package.json`:
-
-```json
-{
-  "dependencies": {
-    "googleapis": "^118.0.0",
-    "google-auth-library": "^9.0.0"
-  }
-}
-```
-
-Install:
-```bash
-cd /05_Studio
-npm install googleapis google-auth-library
-```
-
----
-
-### Migration Plan (Existing Photos)
-
-#### Phase 1: Setup (Week 1)
-- [ ] Create Google Cloud project + Service Account
-- [ ] Create Google Drive folder structure
-- [ ] Share with Service Account email
-- [ ] Store credentials in .env files
-
-#### Phase 2: Upload Existing Originals (Week 2)
-- [ ] Create upload script: `06_Automation/scripts/upload_originals_to_gdrive.py`
-- [ ] Batch upload existing originals:
-  - Grand Teton: 250MB
-  - Africa: 180MB
-  - New Zealand: 77MB
-- [ ] Update `_photos.json` with Google Drive file IDs
-- [ ] Verify all files uploaded successfully
-
-#### Phase 3: Studio Integration (Week 3)
-- [ ] Add Google Drive upload handler to Studio main.js
-- [ ] On import → generate originals → upload to Drive
-- [ ] Capture google_drive_file_id in photos.json
-- [ ] Test with 5-10 new photos
-
-#### Phase 4: Webhook Integration (Week 4)
-- [ ] Update `stripe-webhook.js` to read Google Drive URLs
-- [ ] Modify Pictorem order submission to use Drive links
-- [ ] Test fulfillment with test order
-- [ ] Verify Pictorem receives high-res images correctly
-
-#### Phase 5: Verification & Fallback (Week 5)
-- [ ] Monitor first 10 real orders through new pipeline
-- [ ] Document any issues (Pictorem download failures, etc.)
-- [ ] Implement fallback: if Google Drive fails, use local Mac copy
-- [ ] Add logging to Cloudflare function for debugging
-
----
-
-### Error Handling & Resilience
-
-**What if Google Drive upload fails?**
-```javascript
-// In Studio: Retry with exponential backoff
-async function uploadWithRetry(filePath, collection, filename, retries = 3) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      return await uploadOriginalToGoogleDrive(filePath, collection, filename);
-    } catch (error) {
-      if (i === retries - 1) throw error;
-      await delay(Math.pow(2, i) * 1000); // 1s, 2s, 4s backoff
-    }
-  }
-}
-```
-
-**What if Google Drive link expires?**
-```javascript
-// In webhook: Regenerate download link on-demand
-async function getDownloadLink(googleDriveFileId) {
-  const drive = google.drive({ version: 'v3', auth });
-  const file = await drive.files.get({
-    fileId: googleDriveFileId,
-    fields: 'webViewLink'
-  });
-  return file.data.webViewLink;
-}
-```
-
-**What if Pictorem can't access Google Drive URL?**
-```javascript
-// Fallback: Check local Mac copy if Drive URL fails
-// (Webhook runs in Cloudflare, can't access local Mac directly)
-// Instead: Use Cloudflare Worker to proxy + cache the file
-```
-
----
-
-### Monitoring & Maintenance
-
-| Task | Frequency | Owner | Notes |
-|------|-----------|-------|-------|
-| Check Google Drive storage quota | Monthly | Wolf | Alert at 80% usage |
-| Review upload failures in logs | Weekly | Automation | Check Cloudflare function logs |
-| Test fulfillment pipeline | Per order | Automatic | Log each webhook execution |
-| Verify photo IDs in photos.json | Monthly | Manual | Ensure all IDs are valid |
-| Backup Drive folder structure | Quarterly | Manual | Export folder list |
+| File | Purpose |
+|------|---------|
+| `functions/api/serve-original.js` | Verifies signature, streams original from R2 |
+| `functions/api/stripe-webhook.js` | Generates signed URL, passes to Pictorem |
 
 ---
 
@@ -1152,6 +820,9 @@ Step 7: LIVE (30 seconds total)
 | `PICTOREM_API_KEY` | Cloudflare Pages env vars | Default: "archive-35" |
 | `RESEND_API_KEY` (re_...) | Cloudflare Pages env vars (pending) | Resend → API Keys → Create API key |
 | `WOLF_EMAIL` | Cloudflare Pages env vars | Defaults to wolfbroadcast@gmail.com |
+| `STRIPE_TEST_SECRET_KEY` (sk_test_...) | Cloudflare Pages env vars | Cloudflare → Pages → Settings → Environment Variables |
+| `STRIPE_TEST_WEBHOOK_SECRET` (whsec_...) | Cloudflare Pages env vars | Cloudflare → Pages → Settings → Environment Variables |
+| `ORIGINAL_SIGNING_SECRET` | Cloudflare Pages env vars | Cloudflare → Pages → Settings → Environment Variables |
 | `ANTHROPIC_API_KEY` | Local `.env` on Mac | Mac: `~/Archive-35.com/.env` |
 | `GITHUB_TOKEN` | Local `.env` on Mac (optional) | GitHub → Settings → Developer settings → Personal access tokens |
 
@@ -1264,10 +935,9 @@ This tests the entire chain without spending money or creating real print orders
 
 | Issue | Impact | Workaround | Fix Priority |
 |-------|--------|-----------|--------------|
-| Originals only on Mac (no cloud backup) | Risk of data loss | Manually backup to external drive | 🔴 HIGH |
-| No automatic sync to Google Drive | Must remember to upload | Set calendar reminder weekly | 🔴 HIGH |
+| Some originals not yet in R2 | R2 bucket partially populated | Upload remaining via wrangler CLI | 🟠 MEDIUM |
 | Some portfolio folders have trailing underscores (Grand_Teton_) | Naming inconsistency in paths | Manually rename folders | 🟡 LOW |
-| Pictorem fulfillment requires Mac to be online | If Mac sleeps, webhook can't submit | Wake Mac before expected webhook | 🟠 MEDIUM |
+| R2 bucket needs originals uploaded | New photos must be uploaded to R2 | Upload via wrangler CLI or dashboard | 🟠 MEDIUM |
 
 ### Automation Gaps
 
@@ -1299,10 +969,15 @@ PICTOREM_CURRENCY=USD          # Pricing currency
 STRIPE_SECRET_KEY=             # Live secret key (sk_live_...)
 STRIPE_PUBLISHABLE_KEY=        # Live publishable key (pk_live_...)
 STRIPE_WEBHOOK_SECRET=         # Webhook signing secret
+STRIPE_TEST_SECRET_KEY=        # Test mode secret key (sk_test_...)
+STRIPE_TEST_WEBHOOK_SECRET=    # Test mode webhook signing secret
 
 # ===== EMAIL (Resend - Transactional) =====
 RESEND_API_KEY=                # Resend API key for order confirmation emails
 WOLF_EMAIL=wolfbroadcast@gmail.com  # Where to send order notifications (optional)
+
+# ===== STORAGE (Cloudflare R2) =====
+ORIGINAL_SIGNING_SECRET=       # HMAC secret for R2 signed URLs
 
 # ===== AI SERVICES (Claude) =====
 ANTHROPIC_API_KEY=             # Anthropic API key for MCP server
@@ -1352,6 +1027,9 @@ REPORT_EMAIL=wolfbroadcast@gmail.com  # Where to send daily reports
 | Component | Env Vars Used |
 |-----------|---------------|
 | **Stripe Checkout** | `STRIPE_PUBLISHABLE_KEY` (frontend), `STRIPE_SECRET_KEY` (Cloudflare function) |
+| **Stripe Webhook** | `STRIPE_SECRET_KEY`, `STRIPE_TEST_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_TEST_WEBHOOK_SECRET`, `PICTOREM_API_KEY`, `RESEND_API_KEY`, `WOLF_EMAIL`, `ORIGINAL_SIGNING_SECRET` |
+| **Original Image Serving** | `ORIGINAL_SIGNING_SECRET`, `ORIGINALS` (R2 binding) |
+| **Test Mode Status** | `STRIPE_SECRET_KEY`, `STRIPE_TEST_SECRET_KEY` |
 | **Pictorem Fulfillment** | `PICTOREM_API_KEY`, `PICTOREM_USERNAME` |
 | **MCP Server** | `ANTHROPIC_API_KEY` |
 | **Studio App** | Reads via Electron IPC (e.g., `ipcMain.handle('get-env')`) |
@@ -1370,19 +1048,19 @@ REPORT_EMAIL=wolfbroadcast@gmail.com  # Where to send daily reports
 
 ## KEY DECISIONS LOG
 
-### Why GitHub Pages (Not Cloudflare Pages, Vercel, etc.)?
+### Why Cloudflare Pages (Migrated from GitHub Pages)?
 
-**Decision:** Use GitHub Pages for website hosting.
+**Decision:** Migrated to Cloudflare Pages for website hosting.
 
 **Reasons:**
-- Free tier is unlimited (no overage fees)
-- Built into GitHub workflow (push → deploy)
-- Works perfectly for static sites (100% of Archive-35)
-- Cloudflare provides edge caching separately (added layer)
-- No vendor lock-in; can migrate to Vercel anytime
-- Deploy history visible in GitHub commits
+- Serverless Functions built-in (no separate infrastructure for API endpoints)
+- R2 storage integration (native bindings for original photo serving)
+- Single platform for hosting + CDN + functions + storage
+- Faster global deployment (Cloudflare's edge network)
+- Free tier generous (unlimited bandwidth, 500 builds/month)
+- GitHub integration preserved (auto-deploy on push to main)
 
-**Tradeoff:** Slightly slower initial response time vs. Cloudflare Pages. Offset by Cloudflare CDN layer.
+**Tradeoff:** Vendor consolidation on Cloudflare. GitHub repo remains portable if needed.
 
 ### Why Pictorem for Print Fulfillment (Not Printful, Redbubble, etc.)?
 
@@ -1429,26 +1107,21 @@ REPORT_EMAIL=wolfbroadcast@gmail.com  # Where to send daily reports
 
 **Future:** If inventory or user accounts needed, can add Node backend then.
 
-### Why Originals Must Move to Cloud Storage
+### Why Cloudflare R2 for Original Storage (Not Google Drive)?
 
-**Current State:** High-res masters (8-35MB each) only on Mac's local drive.
+**Decision:** Use Cloudflare R2 instead of initially planned Google Drive.
 
-**Risks:**
-- Single point of failure (if Mac is stolen/fails, originals are gone)
-- No backup (except manual external drive backup)
-- Can't access originals remotely
-- Backup workflow is manual (easy to forget)
+**Reasons:**
+- Native integration with Cloudflare Pages Functions (R2 bindings)
+- No authentication complexity (Service Account, OAuth, etc.)
+- HMAC-signed URLs provide secure, time-limited access
+- Same platform as hosting = simpler architecture
+- No API rate limits or quota concerns
+- Cost-effective (free tier: 10GB storage, 10M reads/month)
 
-**Solution:** Move originals to Google Drive (encrypted, redundant, versioned).
+**Tradeoff:** No built-in versioning like Google Drive. Can be added via R2 lifecycle policies if needed.
 
-**Why Google Drive?**
-- Free tier: 15GB (enough for ~500-1000 originals)
-- Built-in versioning & recovery
-- Shareable if needed (future team collaboration)
-- Can integrate with MCP server for smart backups
-- Partner with Lightroom (Wolf's existing workflow)
-
-**Timeline:** Planned for Q1 2026. Needs MCP server integration to automate.
+**Status:** ✅ Implemented. serve-original.js deployed, R2 bucket bound.
 
 ### Why MCP Server Over Traditional Backend API?
 

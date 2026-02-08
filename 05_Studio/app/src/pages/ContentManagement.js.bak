@@ -157,7 +157,7 @@ function ContentManagement() {
       `This will:\n` +
       `• Move originals to _files_to_delete/\n` +
       `• Remove from website\n` +
-      `• Queue Artelo removal\n` +
+      `• Delete from R2 bucket (Pictorem fulfillment)\n` +
       `• Remove from social queue\n\n` +
       `Files are NOT permanently deleted until you empty that folder manually.`
     );
@@ -323,7 +323,7 @@ function ContentManagement() {
                       <span className="photo-time-badge">{photo.timeOfDay || '?'}</span>
                       <div className="photo-status">
                         {photo.inWebsite && <span className="status-badge website">Web</span>}
-                        {photo.inArtelo && <span className="status-badge artelo">Artelo</span>}
+                        {photo.inPictorem && <span className="status-badge pictorem">Pictorem</span>}
                         {photo.inSocialQueue && <span className="status-badge social">Social</span>}
                       </div>
                     </div>

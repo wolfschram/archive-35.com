@@ -1,5 +1,5 @@
 # Archive-35 System Architecture
-**Version 1.0** | Last Updated: 2026-02-08 | Living Document
+**Version 2.0** | Last Updated: 2026-02-08 | Living Document
 
 ---
 
@@ -10,7 +10,10 @@
 - [Storage Architecture](#storage-architecture) - File types & locations
 - [API & Services](#api--services) - External integrations
 - [R2 Storage](#cloudflare-r2-storage-original-photos) - Original photo storage & fulfillment
-- [MCP Server Architecture](#mcp-server-architecture) - Claude desktop integration
+- [MCP Server (Cloud)](#mcp-server-cloud---ai-agent-catalog-access) - Cloudflare Function for AI agents
+- [MCP Server (Local)](#mcp-server-local---claude-desktop-integration) - Claude desktop integration
+- [C2PA Content Credentials](#c2pa-content-credentials) - Provenance & authenticity
+- [Commerce Protocol](#openai-agentic-commerce-protocol) - AI agent shopping endpoints
 - [Electron Studio App](#electron-studio-app) - Mac-native desktop app
 - [Deployment Pipeline](#deployment-pipeline) - Publishing to live site
 - [Known Issues](#known-issues) - Current limitations & tech debt
@@ -26,56 +29,61 @@ Archive-35 is a multi-layered photography portfolio and print fulfillment system
 ### Component Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    archive-35.com (Website)                 │
-│  Cloudflare Pages (Static HTML/CSS/JS/Images + Serverless Functions) │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-         ┌─────────────┼─────────────┐
-         │             │             │
-    ┌────▼─────┐  ┌────▼─────┐  ┌───▼──────┐
-    │  Stripe  │  │ Pictorem │  │  Webhook │
-    │Payments  │  │  Prints  │  │(Fulfillm)│
-    └──────────┘  └──────────┘  └──────────┘
-         │             │             │
-         └─────────────┼─────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│                      archive-35.com (Website)                        │
+│   Cloudflare Pages (Static HTML/CSS/JS/Images + Serverless Functions)│
+└────────────────────────────┬─────────────────────────────────────────┘
+                             │
+         ┌───────────┬───────┼───────┬──────────────┐
+         │           │       │       │              │
+    ┌────▼─────┐ ┌───▼────┐ ┌▼─────┐ ┌▼───────────┐ ┌▼──────────────┐
+    │  Stripe  │ │Pictorem│ │Webhook│ │ MCP Server │ │   Commerce    │
+    │ Payments │ │ Prints │ │(Order)│ │(AI Agents) │ │  Protocol     │
+    └──────────┘ └────────┘ └──────┘ └────────────┘ │(ChatGPT Shop) │
+         │           │         │          │          └───────────────┘
+         └───────────┼─────────┼──────────┘
+                     │         │
+    ┌────────────────▼─────────▼──────────────────┐
+    │   Cloudflare Functions (API)                │
+    │  - create-checkout-session                  │
+    │  - stripe-webhook (auto-fulfill)            │
+    │  - serve-original (R2 images)               │
+    │  - test-mode-status                         │
+    │  - mcp (JSON-RPC 2.0 AI agent interface)    │
+    │  - api/commerce/feed.json (product catalog) │
+    │  - api/commerce/checkout_sessions (ACP)     │
+    └──────────────────┬──────────────────────────┘
                        │
     ┌──────────────────▼──────────────────┐
-    │   Cloudflare Functions (API)        │
-    │  - create-checkout-session          │
-    │  - stripe-webhook (auto-fulfill)    │
-    │  - serve-original (R2 images)       │
-    │  - test-mode-status                 │
-    └──────────────────────────────────────┘
-         │
-    ┌────▼────────────────────────────┐
-    │  Cloudflare R2 Storage          │
-    │  - High-res originals           │
-    │  - HMAC-signed URL access       │
-    └─────────────────────────────────┘
-         │
-    ┌────▼────────────────────────────────┐
-    │  Archive-35 Studio (Electron App)   │
-    │  - Photo ingestion & organizing     │
-    │  - Portfolio metadata editor        │
-    │  - Generate photos.json             │
-    │  - Deploy to GitHub                 │
-    └────────────────────────────────────┘
-         │
-    ┌────▼────────────────────────────────┐
-    │   MCP Server (archive35_mcp.py)     │
-    │   Claude Desktop Integration        │
-    │  - File read/write/edit             │
-    │  - Git operations                   │
-    │  - Portfolio automation             │
-    └────────────────────────────────────┘
-         │
-    ┌────▼────────────────────────────────┐
-    │  GitHub Repository                  │
-    │  - Website source + images          │
-    │  - Portfolio metadata               │
-    │  - Deployment history               │
-    └────────────────────────────────────┘
+    │  Cloudflare R2 Storage              │
+    │  - High-res originals               │
+    │  - HMAC-signed URL access           │
+    └─────────────────────────────────────┘
+                       │
+    ┌──────────────────▼──────────────────────┐
+    │  Archive-35 Studio (Electron App)       │
+    │  - Photo ingestion & organizing         │
+    │  - C2PA Content Credentials signing     │
+    │  - Portfolio metadata editor            │
+    │  - R2 upload/delete (lifecycle mgmt)    │
+    │  - Generate photos.json                 │
+    │  - Deploy to GitHub                     │
+    └────────────────────────────────────────┘
+                       │
+    ┌──────────────────▼──────────────────────┐
+    │   MCP Server Local (archive35_mcp.py)   │
+    │   Claude Desktop Integration            │
+    │  - File read/write/edit                 │
+    │  - Git operations                       │
+    │  - Portfolio automation                 │
+    └────────────────────────────────────────┘
+                       │
+    ┌──────────────────▼──────────────────────┐
+    │  GitHub Repository                      │
+    │  - Website source + images              │
+    │  - Portfolio metadata                   │
+    │  - Deployment history                   │
+    └────────────────────────────────────────┘
 ```
 
 ### Running Environments
@@ -84,7 +92,10 @@ Archive-35 is a multi-layered photography portfolio and print fulfillment system
 |-----------|----------|--------|-------|
 | **Website** | Cloudflare Pages | Always on | CDN-served, zero-config |
 | **Studio App** | macOS (Electron) | On demand | Runs on Mac when needed |
-| **MCP Server** | macOS | Running locally | Integrated with Claude Desktop |
+| **MCP Server (Cloud)** | Cloudflare Function | Always on | JSON-RPC 2.0 at `/mcp` — serves AI agents |
+| **MCP Server (Local)** | macOS | Running locally | Integrated with Claude Desktop |
+| **Commerce Protocol** | Cloudflare Function | Always on | ACP endpoints at `/api/commerce/` |
+| **C2PA Signing** | Studio App (Python) | On ingest | Auto-signs new images during import |
 | **Pictorem API** | Cloud | Always on | Print fulfillment partner |
 | **Stripe** | Cloud | Always on | Payment processing |
 
@@ -103,11 +114,21 @@ Studio App (Import + Portfolio Assignment)
     ↓
 01_Portfolio/{Gallery}/originals/ (high-res masters, NOT on GitHub)
     ↓
-Generate photos.json + web-optimized images
+Upload original to Cloudflare R2 (print fulfillment backup)
     ↓
-images/{collection}/ (on GitHub, CDN-served)
+Generate web-optimized full (2000px max, 85% JPEG quality)
     ↓
-archive-35.com (displayed on website)
+Sign web image with C2PA Content Credentials (provenance metadata)
+    ↓
+Generate thumbnail (400px max, 80% JPEG quality)
+    ↓
+Write _photos.json (per-collection metadata including c2pa: true/false)
+    ↓
+[Deploy button] → Aggregate all _photos.json → data/photos.json
+    ↓
+git push → Cloudflare Pages rebuild → Live on archive-35.com
+    ↓
+MCP Server + Commerce Protocol auto-discover new images
 ```
 
 **Key Points:**
@@ -115,6 +136,8 @@ archive-35.com (displayed on website)
 - Web copies (300-800KB) go to GitHub for CDN distribution
 - Thumbnails (30-75KB) indexed in photos.json for search/filtering
 - photos.json is the master content index
+- C2PA credentials embed provenance in every web image (author, copyright, location)
+- MCP server and Commerce Protocol read data/photos.json dynamically — no manual sync needed
 
 ### 2. Purchase & Fulfillment Flow
 
@@ -253,10 +276,15 @@ Archive-35.com/
 ├── 05_Studio/
 │   ├── app/
 │   │   ├── main.js                     ← Electron main process (IPC handlers)
+│   │   ├── c2pa-sign.js                ← C2PA signing module (calls Python c2pa-python)
 │   │   ├── preload.js                  ← IPC bridge (security)
 │   │   └── package.json
 │   ├── src/
 │   │   ├── App.jsx                     ← React main component
+│   │   ├── pages/
+│   │   │   ├── ContentManagement.js    ← Photo grid, edit metadata, archive/delete
+│   │   │   ├── SalesArtelo.js          ← Sales channels overview (Stripe, Pictorem, ChatGPT, MCP)
+│   │   │   └── ...
 │   │   ├── components/                 ← UI components
 │   │   └── ...
 │   ├── public/
@@ -298,12 +326,27 @@ Archive-35.com/
 ├── data/
 │   └── photos.json                     ← MASTER PHOTO INDEX (generated by Studio)
 │
+├── 07_C2PA/
+│   ├── chain.pem                       ← Certificate chain (signer + CA)
+│   ├── ca.pem                          ← Self-signed Root CA certificate
+│   ├── signer.pem                      ← End-entity signing certificate
+│   ├── signer_pkcs8.key                ← Private key (NEVER committed — .gitignore)
+│   └── sign_all.py                     ← Batch signing script for all images
+│
 ├── functions/
+│   ├── mcp.js                          ← MCP Server (JSON-RPC 2.0 for AI agents)
 │   └── api/
 │       ├── create-checkout-session.js  ← Create Stripe Checkout session
 │       ├── serve-original.js           ← Serve high-res from R2 (HMAC signed)
 │       ├── stripe-webhook.js           ← Auto-fulfill orders from Stripe
-│       └── test-mode-status.js         ← Backend test/live mode status
+│       ├── test-mode-status.js         ← Backend test/live mode status
+│       └── commerce/
+│           ├── feed.json.js            ← ACP product feed (all variants)
+│           ├── checkout_sessions.js    ← ACP checkout create/get
+│           └── checkout_sessions/
+│               └── [id]/
+│                   ├── complete.js     ← ACP checkout complete
+│                   └── cancel.js       ← ACP checkout cancel
 │
 ├── images/
 │   ├── africa/
@@ -318,6 +361,7 @@ Archive-35.com/
 │   ├── cart.js                         ← Shopping cart (localStorage)
 │   ├── cart-ui.js                      ← Cart drawer UI
 │   ├── product-selector.js             ← Print options UI
+│   ├── schema-inject.js                ← Dynamic Schema.org JSON-LD for lightbox
 │   ├── stripe-links.js                 ← Generated Stripe payment links
 │   ├── test-mode-banner.js             ← Test mode visual indicator
 │   └── lightbox.js                     ← Image viewer
@@ -346,10 +390,11 @@ Archive-35.com/
 |-----------|----------|------|-----------|--------|--------------|
 | **Original Photos (RAW)** | `01_Portfolio/*/originals/` | 8-35MB each | ❌ NO | ✅ YES | R2 + Local Mac |
 | **Print Masters (high-res JPEG)** | `01_Portfolio/*/originals/` | 8-35MB each | ❌ NO | ✅ YES | R2 + Local Mac |
-| **Web-Optimized (full)** | `images/{collection}/` | 300-800KB | ✅ YES | ❌ NO | CDN (Cloudflare) |
+| **Web-Optimized (full, C2PA signed)** | `images/{collection}/` | 300-800KB | ✅ YES | ❌ NO | CDN (Cloudflare) |
 | **Web-Optimized (thumbnails)** | `images/{collection}/` | 30-75KB | ✅ YES | ❌ NO | CDN (Cloudflare) |
 | **Portfolio Metadata (JSON)** | `01_Portfolio/{gallery}/` | <50KB | ✅ YES | ❌ NO | GitHub + CDN |
-| **Photo Index** | `data/photos.json` | ~2-3MB | ✅ YES | ❌ NO | Fetched by website |
+| **Photo Index** | `data/photos.json` | ~2-3MB | ✅ YES | ❌ NO | Fetched by website + MCP + ACP |
+| **C2PA Certificates** | `07_C2PA/` | <10KB | ✅ YES (no key) | ❌ NO | Local only |
 | **Social Queue** | `02_Social/Queue/` | <10MB | ✅ YES | ❌ NO | Manual check + publish |
 | **Brand Assets** | `03_Brand/` | <50MB | ✅ YES | ❌ NO | Reference only |
 
@@ -456,9 +501,9 @@ Archive-35.com/
 | **What It Does** | CDN caching, serverless functions, DDoS protection |
 | **How We Access It** | Functions deployed in `/functions/` directory |
 | **Authentication** | Auto-managed by Cloudflare Pages integration |
-| **Endpoints** | `/api/create-checkout-session`, `/api/stripe-webhook`, `/api/serve-original`, `/api/test-mode-status` |
-| **Status** | ✅ **WORKING** — Handling payment flows |
-| **Related Files** | `/functions/api/` |
+| **Endpoints** | `/api/create-checkout-session`, `/api/stripe-webhook`, `/api/serve-original`, `/api/test-mode-status`, `/mcp`, `/api/commerce/feed.json`, `/api/commerce/checkout_sessions` |
+| **Status** | ✅ **WORKING** — Handling payment flows, MCP, and commerce protocol |
+| **Related Files** | `/functions/api/`, `/functions/mcp.js` |
 
 ### Cloudflare R2 (Original Photo Storage)
 
@@ -608,11 +653,56 @@ Step 4: Confirm Fulfillment
 
 ---
 
-## MCP SERVER ARCHITECTURE
+## MCP SERVER (CLOUD) — AI AGENT CATALOG ACCESS
+
+### What is it?
+
+A Cloudflare Pages Function at `/mcp` implementing the MCP (Model Context Protocol) over JSON-RPC 2.0 via HTTP. This lets any AI agent (Claude, ChatGPT, etc.) search and browse the Archive-35 product catalog programmatically.
+
+### Endpoint
+
+**URL:** `https://archive-35.com/mcp`
+**Protocol:** JSON-RPC 2.0 over HTTP POST
+**Data Source:** Fetches `/data/photos.json` dynamically on each request
+
+### Available Tools
+
+| Tool | Input | Output | Purpose |
+|------|-------|--------|---------|
+| `archive35_search_products` | `query` (string) | Matching photos with pricing | Search catalog by keyword |
+| `archive35_get_product` | `product_id` (string) | Full product + 25 variants | Get single product details |
+| `archive35_get_collection` | `collection_id` (string) | All photos in collection | Browse by collection |
+| `archive35_get_catalog_summary` | — | Collection counts + stats | Overview of entire catalog |
+
+### Available Resources
+
+| URI | Description |
+|-----|-------------|
+| `archive35://catalog` | Full product catalog JSON |
+| `archive35://policies` | Shipping, returns, pricing policies |
+| `archive35://artist` | About Wolf / Archive-35 bio |
+
+### How It Works
+
+1. AI agent sends JSON-RPC 2.0 request to `/mcp`
+2. Function reads `/data/photos.json` from the live site
+3. Processes the request (search, filter, enrich with pricing)
+4. Returns JSON-RPC 2.0 response with product data
+5. Each product includes 25 variants (5 materials x 5 sizes) with pricing
+
+### Testing
+
+All 10 endpoint tests pass: initialize, tools/list, tools/call (search, get_product, get_collection), resources/list, resources/read (policies, artist), error handling.
+
+**Related File:** `functions/mcp.js`
+
+---
+
+## MCP SERVER (LOCAL) — CLAUDE DESKTOP INTEGRATION
 
 ### What is MCP?
 
-MCP (Model Context Protocol) allows Claude Desktop to interact directly with local files and systems on your Mac. Archive-35's MCP server enables Claude to read code, generate content, and automate portfolio tasks.
+MCP (Model Context Protocol) allows Claude Desktop to interact directly with local files and systems on your Mac. Archive-35's local MCP server enables Claude to read code, generate content, and automate portfolio tasks.
 
 ### Current MCP Server: archive35_mcp.py
 
@@ -638,12 +728,6 @@ MCP (Model Context Protocol) allows Claude Desktop to interact directly with loc
 | `archive35_run_command` | command, timeout | Output | Execute shell commands |
 | `archive35_overview` | — | Project summary | Quick project status |
 
-**How It Works:**
-1. Claude requests operation (e.g., "read photos.json")
-2. MCP server validates the path (prevents directory traversal)
-3. Operation executes (file read, git command, etc.)
-4. Result returned to Claude
-
 **Security Features:**
 - Path validation (requests must be within repo root)
 - Timeout on shell commands (30 seconds default)
@@ -660,6 +744,112 @@ MCP (Model Context Protocol) allows Claude Desktop to interact directly with loc
 
 ---
 
+## C2PA CONTENT CREDENTIALS
+
+### What is C2PA?
+
+C2PA (Coalition for Content Provenance and Authenticity) embeds cryptographic provenance metadata directly into image files. This proves authorship, copyright, and creation context — critical for AI-era content authenticity.
+
+### Implementation
+
+**Signing Library:** `c2pa-python` 0.28.0
+**Algorithm:** ES256 (ECDSA P-256)
+**Certificate Chain:** Self-signed Root CA → End-entity signing certificate
+
+### Certificate Files (07_C2PA/)
+
+| File | Purpose | In Git? |
+|------|---------|---------|
+| `chain.pem` | Full certificate chain (signer + CA) | Yes |
+| `ca.pem` | Self-signed Root CA certificate | Yes |
+| `signer.pem` | End-entity signing certificate | Yes |
+| `signer_pkcs8.key` | ES256 private key (PKCS#8 format) | **NO** (.gitignore) |
+| `sign_all.py` | Batch signing script for all images | Yes |
+
+### What Gets Embedded
+
+Each signed image contains:
+
+- **stds.schema-org.CreativeWork** assertion:
+  - Author: Wolf (Person, url: archive-35.com)
+  - Copyright year and holder
+  - Title, description, location
+- **c2pa.actions** assertion:
+  - Action: `c2pa.created`
+  - Software agent: Canon EOS
+- **Claim generator:** `Archive-35-Studio/1.0`
+
+### Auto-Signing Pipeline
+
+When new photos are ingested via Studio:
+
+1. Studio creates web-optimized JPEG (2000px max, 85% quality)
+2. `c2pa-sign.js` module calls Python `c2pa-python` via child_process
+3. Image is signed in-place with C2PA manifest
+4. `c2pa: true/false` flag stored in `_photos.json` metadata
+5. Signing is non-blocking — if it fails, ingest continues without credentials
+
+### Batch Signing
+
+All 108 existing full-size images were batch-signed using `07_C2PA/sign_all.py`. Each image gained ~171KB of embedded credential data.
+
+**Related Files:**
+- `05_Studio/app/c2pa-sign.js` — Node.js signing utility (used during ingest)
+- `07_C2PA/sign_all.py` — Python batch signing script
+- `07_C2PA/chain.pem` — Certificate chain
+
+---
+
+## OPENAI AGENTIC COMMERCE PROTOCOL
+
+### What is ACP?
+
+The OpenAI Agentic Commerce Protocol (ACP) enables AI agents (like ChatGPT) to browse, search, and purchase products on behalf of users. Archive-35 implements ACP endpoints so our prints appear in ChatGPT Shopping and similar AI-powered marketplaces.
+
+### Endpoints
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/commerce/feed.json` | GET | Full product catalog with variants |
+| `/api/commerce/checkout_sessions` | POST | Create a checkout session |
+| `/api/commerce/checkout_sessions` | GET | Service info or session lookup |
+| `/api/commerce/checkout_sessions/[id]/complete` | POST | Mark session complete |
+| `/api/commerce/checkout_sessions/[id]/cancel` | POST | Cancel a session |
+
+### Product Feed
+
+- **Total products:** 2,323 (108 parent photos x ~21 variants each)
+- **Variant format:** `{photo_id}_{material}_{width}x{height}` (e.g., `a-001_canvas_24x16`)
+- **Materials:** Canvas, Metal, Acrylic, Fine Art Paper, Wood
+- **Size range:** 12x8" to 60x40" (filtered by aspect ratio compatibility)
+- **Price range:** $60 (smallest paper) to $750 (largest acrylic)
+
+### Checkout Flow
+
+1. AI agent creates checkout session with line items
+2. System calculates subtotal, tax (8%), shipping (free US/CA)
+3. Returns `checkout_url` pointing to Stripe Checkout
+4. Agent can check status, complete, or cancel the session
+
+### ChatGPT Shopping Registration
+
+- **Merchant portal:** `chatgpt.com/merchants/`
+- **Status:** Pending approval (application submitted)
+- **Schema.org:** Store JSON-LD embedded in `index.html` for discovery
+
+### Related Files
+
+| File | Purpose |
+|------|---------|
+| `functions/api/commerce/feed.json.js` | Product feed generator |
+| `functions/api/commerce/checkout_sessions.js` | Checkout create/get |
+| `functions/api/commerce/checkout_sessions/[id]/complete.js` | Complete checkout |
+| `functions/api/commerce/checkout_sessions/[id]/cancel.js` | Cancel checkout |
+| `index.html` | Contains Store JSON-LD for discovery |
+| `js/schema-inject.js` | Dynamic Product+VisualArtwork JSON-LD per photo |
+
+---
+
 ## ELECTRON STUDIO APP
 
 ### Purpose
@@ -667,6 +857,8 @@ Desktop app for Wolf to manage the photography portfolio locally on Mac:
 - Import photos from camera/Lightroom
 - Organize into galleries
 - Edit metadata (title, description, tags, location)
+- Sign images with C2PA Content Credentials
+- Upload originals to R2 for print fulfillment
 - Generate photos.json
 - Deploy to GitHub (publish live)
 
@@ -675,6 +867,8 @@ Desktop app for Wolf to manage the photography portfolio locally on Mac:
 - **UI:** React (in development, see `/05_Studio/src/`)
 - **IPC:** Electron ipcMain/ipcRenderer for secure communication
 - **Entry Point:** `/05_Studio/app/main.js`
+- **C2PA Signing:** `05_Studio/app/c2pa-sign.js` (calls Python c2pa-python)
+- **R2 Client:** AWS SDK S3Client (PutObjectCommand, DeleteObjectCommand, HeadObjectCommand)
 
 ### Key IPC Handlers (main.js)
 
@@ -685,7 +879,10 @@ ipcMain.handle('get-env')            // Read environment variables
 ipcMain.handle('get-base-path')      // Get Archive-35 repo root
 ipcMain.handle('read-portfolio')     // Load portfolio structure
 ipcMain.handle('write-metadata')     // Save gallery metadata
-ipcMain.handle('generate-photos-json') // Generate photos.json
+ipcMain.handle('finalize-ingest')    // Process photos: resize + R2 upload + C2PA sign
+ipcMain.handle('deploy-website')     // Aggregate data, copy images, git push
+ipcMain.handle('soft-delete-photos') // Move to _files_to_delete + R2 cleanup
+ipcMain.handle('archive-photos')     // Move to _archived/
 ipcMain.handle('git-status')         // Check git status
 ipcMain.handle('git-push')           // Deploy to GitHub
 ```
@@ -695,11 +892,21 @@ ipcMain.handle('git-push')           // Deploy to GitHub
 1. **Select folder** → `05_Studio/app` opens file dialog
 2. **Choose gallery** → Select which portfolio folder (Grand Teton, Africa, etc.)
 3. **Import images** → Copy originals to `01_Portfolio/{gallery}/originals/`
-4. **Generate thumbnails** → Create web-optimized versions
-5. **Edit metadata** → Title, description, tags, date, location
-6. **Generate photos.json** → Combine all metadata
-7. **Deploy** → `git add . && git commit && git push`
-8. **Live on website** → GitHub Pages + Cloudflare CDN (30 seconds)
+4. **Upload to R2** → High-res original backed up to Cloudflare R2
+5. **Generate web images** → 2000px full + 400px thumbnail
+6. **C2PA sign** → Embed content credentials in web-optimized image
+7. **Edit metadata** → Title, description, tags, date, location
+8. **Deploy** → Aggregate _photos.json → data/photos.json → git push
+9. **Live on website** → Cloudflare Pages CDN (30 seconds)
+
+### Workflow: Deleting Photos
+
+1. **Select photos** → Check photos in Content Management grid
+2. **Soft delete** → Confirm action
+3. **Move files** → Originals moved to `_files_to_delete/`
+4. **R2 cleanup** → DeleteObjectCommand removes from R2 bucket
+5. **Update metadata** → Photo removed from _photos.json
+6. **Deploy** → Updated photos.json pushed to live site
 
 ---
 
@@ -722,10 +929,11 @@ Step 2: Generate photos.json
 │ Copies to data/photos.json      │
 └──────────────────┬──────────────┘
                    │
-Step 3: Web Optimization
+Step 3: Web Optimization + C2PA Signing
 ┌──────────────────▼──────────────┐
 │ Studio generates web images     │
 │ 300-800KB full size             │
+│ C2PA Content Credentials signed │
 │ 30-75KB thumbnails              │
 │ Copies to images/{collection}/  │
 └──────────────────┬──────────────┘
@@ -1137,6 +1345,36 @@ REPORT_EMAIL=wolfbroadcast@gmail.com  # Where to send daily reports
 
 **Tradeoff:** Only Claude (via MCP) can trigger automation (not random HTTP clients). That's intentional.
 
+### Why C2PA Content Credentials (Not Watermarking)?
+
+**Decision:** Embed C2PA provenance metadata in every web-optimized image.
+
+**Reasons:**
+- **Industry standard:** C2PA is backed by Adobe, Microsoft, Google, BBC — becoming the default
+- **Invisible:** No visual watermarks that degrade the artwork
+- **Cryptographic proof:** Digitally signed — can't be faked or stripped without detection
+- **AI-ready:** AI agents and platforms increasingly check C2PA for authenticity
+- **Future-proof:** As AI-generated content proliferates, provenance becomes essential for trust
+
+**Implementation:** ES256 (ECDSA P-256) signing via `c2pa-python` 0.28.0. Self-signed CA chain (07_C2PA/). Auto-signs during Studio ingest.
+
+**Tradeoff:** ~171KB overhead per image. Negligible for web delivery. Private key must be protected.
+
+### Why OpenAI Agentic Commerce Protocol?
+
+**Decision:** Implement ACP endpoints so AI agents can browse and purchase prints.
+
+**Reasons:**
+- **New sales channel:** ChatGPT Shopping puts products in front of millions of users
+- **Zero marginal cost:** Serverless endpoints on existing Cloudflare infrastructure
+- **Standard protocol:** ACP is becoming the default for AI-to-merchant transactions
+- **Composable:** Same product data serves website, MCP, and ACP — no duplication
+- **Early mover:** Most fine art photographers haven't adopted AI commerce yet
+
+**Implementation:** Cloudflare Functions at `/api/commerce/`. Product feed auto-generates from `data/photos.json`. Checkout sessions integrate with existing Stripe flow.
+
+**Tradeoff:** Pending ChatGPT merchant approval. Protocol is still evolving.
+
 ### Why React in Studio (Not Vue, Svelte, etc.)?
 
 **Decision:** Use React for Electron desktop app UI.
@@ -1217,6 +1455,6 @@ archive35_read_file(path='data/photos.json')
 
 **Document Status:** ✅ Complete — All components documented. Updated as system evolves.
 
-**Last Reviewed:** 2026-02-07
+**Last Reviewed:** 2026-02-08
 
-**Next Review:** 2026-03-07 (monthly)
+**Next Review:** 2026-03-08 (monthly)

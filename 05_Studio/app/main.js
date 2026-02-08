@@ -523,6 +523,21 @@ ipcMain.handle('soft-delete-photos', async (event, { portfolioId, photoIds }) =>
       return photoIds.includes(id);
     });
 
+    // Resolve collection slug for R2 key construction
+    let collectionSlug = '';
+    try {
+      const galleryPath = path.join(portfolioPath, '_gallery.json');
+      if (fsSync.existsSync(galleryPath)) {
+        const gal = JSON.parse(fsSync.readFileSync(galleryPath, 'utf8'));
+        collectionSlug = gal.slug || '';
+      }
+    } catch (e) {}
+    if (!collectionSlug) {
+      collectionSlug = portfolioId.replace(/[_\s]+/g, '-').replace(/-+$/, '');
+    }
+
+    const r2DeletedKeys = [];
+
     for (const filename of photosToDelete) {
       // Move from originals/
       const origPath = path.join(originalsPath, filename);
@@ -539,9 +554,25 @@ ipcMain.handle('soft-delete-photos', async (event, { portfolioId, photoIds }) =>
           await fs.rename(webFile, path.join(deleteBatchDir, webName + suffix));
         }
       }
+
+      // Delete from R2 bucket (Pictorem fulfillment originals)
+      try {
+        const s3 = getR2Client();
+        const bucketName = parseEnvFileSync().R2_BUCKET_NAME;
+        if (s3 && bucketName && collectionSlug) {
+          const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
+          const modePrefix = getCurrentMode() === 'test' ? 'test/' : '';
+          const r2Key = `${modePrefix}${collectionSlug}/${webName}.jpg`;
+          await s3.send(new DeleteObjectCommand({ Bucket: bucketName, Key: r2Key }));
+          r2DeletedKeys.push(r2Key);
+          console.log(`R2 deleted: ${r2Key}`);
+        }
+      } catch (r2Err) {
+        console.warn(`R2 delete failed for ${webName} (non-blocking):`, r2Err.message);
+      }
     }
 
-    return { success: true, movedFiles };
+    return { success: true, movedFiles, r2DeletedKeys };
   } catch (err) {
     console.error('Soft delete failed:', err);
     return { success: false, error: err.message };
@@ -824,6 +855,13 @@ ipcMain.handle('analyze-photos', async (event, { files, galleryContext }) => {
 ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, newGallery }) => {
   try {
     const sharp = require('sharp');
+    const { signImageC2PA, isC2PAAvailable } = require('./c2pa-sign');
+    const c2paReady = isC2PAAvailable();
+    if (c2paReady) {
+      console.log('C2PA signing available — will embed content credentials');
+    } else {
+      console.log('C2PA signing not available — skipping content credentials');
+    }
 
     // Determine target portfolio folder
     let targetFolder;
@@ -949,6 +987,30 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
           .jpeg({ quality: 85 })
           .toFile(webDest);
 
+        // Sign web-optimized image with C2PA Content Credentials
+        let c2paSigned = false;
+        if (c2paReady) {
+          try {
+            const c2paResult = await signImageC2PA(webDest, {
+              title: photo.title || baseName,
+              author: 'Wolf',
+              location: typeof photo.location === 'object'
+                ? [photo.location.place, photo.location.region, photo.location.country].filter(Boolean).join(', ')
+                : (photo.location || ''),
+              year: new Date().getFullYear(),
+              description: photo.description || `Fine art photograph by Wolf`
+            });
+            c2paSigned = c2paResult.success;
+            if (!c2paResult.success) {
+              console.warn(`C2PA signing failed for ${baseName}: ${c2paResult.error}`);
+            } else {
+              console.log(`C2PA signed: ${baseName}-full.jpg`);
+            }
+          } catch (c2paErr) {
+            console.warn(`C2PA signing error for ${baseName}:`, c2paErr.message);
+          }
+        }
+
         // Create thumbnail (400px long edge)
         const thumbDest = path.join(webFolder, `${baseName}-thumb.jpg`);
         await sharp(photo.path)
@@ -965,7 +1027,8 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
           tags: photo.tags,
           dimensions: photo.dimensions,
           thumbnail: `${baseName}-thumb.jpg`,
-          full: `${baseName}-full.jpg`
+          full: `${baseName}-full.jpg`,
+          c2pa: c2paSigned
         });
 
       } catch (err) {

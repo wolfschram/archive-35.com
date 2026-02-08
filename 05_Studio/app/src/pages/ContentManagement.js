@@ -182,7 +182,7 @@ function ContentManagement() {
       `This will:\n` +
       `• Move originals to _files_to_delete/\n` +
       `• Remove from website\n` +
-      `• Queue Artelo removal\n` +
+      `• Delete from R2 bucket (Pictorem fulfillment)\n` +
       `• Remove from social queue\n\n` +
       `Files are NOT permanently deleted until you empty that folder manually.`
     );

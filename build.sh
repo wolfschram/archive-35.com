@@ -1,6 +1,7 @@
 #!/bin/bash
 # Archive-35 Build Script for Cloudflare Pages
 # This replaces the inline build command
+# Updated: 2026-02-08 - includes robots.txt, llms.txt, favicon, logos
 
 set -e
 

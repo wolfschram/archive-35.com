@@ -1,0 +1,16 @@
+[project]
+name = "archive35-photo-quality-mcp"
+version = "1.0.0"
+description = "Photo quality analyzer MCP server for Archive-35 fine art photography"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=1.0.0",
+    "fastmcp>=0.1.0",
+    "opencv-python-headless>=4.8.0",
+    "Pillow>=10.0.0",
+    "numpy>=1.24.0",
+    "scikit-image>=0.21.0",
+]
+
+[project.scripts]
+archive35-quality = "src.server:main"

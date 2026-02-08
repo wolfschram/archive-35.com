@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "archive35_photo_quality": {
+      "command": "python",
+      "args": ["-m", "src.server"],
+      "cwd": "/path/to/Archive-35.com/06_Automation/archive35-photo-quality-mcp"
+    }
+  }
+}

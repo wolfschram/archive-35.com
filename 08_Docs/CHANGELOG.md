@@ -4,6 +4,41 @@ All notable changes to the Archive-35 system are documented here, in reverse chr
 
 ---
 
+## 2026-02-08 (Session 5 — continued)
+
+### Fixed — Photo Quality MCP Server
+- Extracted business logic from `@mcp.tool()` decorators into internal functions (`_batch_analyze`, `_check_print_readiness`, `_compare_versions`) to fix FunctionTool callable error
+- All 4 tools verified: analyze_photo, batch_analyze, check_print_readiness, compare_versions
+- Batch test: 88 Africa images scanned (44 B, 31 C, 12 D, 1 F), CSV export working
+- Print readiness tested across multiple sizes and quality levels
+- Compare versions tested across collections (Africa vs NZ)
+- MCP server startup verified — 4 tools registered, ready for Claude Desktop
+- Added README.md with installation, config, test results
+
+---
+
+## 2026-02-08 (Session 4)
+
+### Added — Photo Quality Analyzer MCP Server
+- **Local MCP server** (`archive35-photo-quality-mcp/`) per spec document
+  - 4 tools: analyze_photo, batch_analyze, check_print_readiness, compare_versions
+  - OpenCV-based sharpness (Laplacian variance), noise (SNR), dynamic range, JPEG artifact analysis
+  - Print size calculator with DPI grading per Pictorem sizes
+  - Zone-based sharpness grid (5x5) for detecting soft spots in panoramas
+  - FastMCP server with stdio transport for Claude Desktop integration
+
+### Added — Business Documents
+- Saved EDD Execution Guide, Tax Addendum, and Tax Tracker to `08_Docs/business/`
+- Tax tracker spreadsheet: 4-tab Excel (Sales Log, Expenses, Quarterly Summary, EDD Reporting)
+
+### Changed — Studio App (from Session 3)
+- C2PA auto-signing hooked into finalize-ingest pipeline
+- All Artelo references replaced with Pictorem
+- R2 bucket deletion added to soft-delete workflow
+- Architecture docs updated to v2.0
+
+---
+
 ## 2026-02-08 (Session 3)
 
 ### Added — Phase 4: MCP Server (Cloud)

@@ -1,0 +1,88 @@
+# Archive-35 Fine Art Photography
+# https://archive-35.com
+#
+# Welcome to search engine crawlers.
+# Our images are copyrighted and NOT licensed for AI training.
+
+# General search engines - welcome
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://archive-35.com/sitemap.xml
+
+# ============================================================
+# AI Training Crawlers - BLOCKED
+# Our photographs are copyrighted fine art. They are not
+# licensed for machine learning training datasets.
+# ============================================================
+
+# OpenAI
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+# Google AI Training
+User-agent: Google-Extended
+Disallow: /
+
+# Anthropic
+User-agent: ClaudeBot
+Disallow: /
+User-agent: anthropic-ai
+Disallow: /
+
+# Common Crawl (used for many AI training sets)
+User-agent: CCBot
+Disallow: /
+
+# Meta / Facebook AI
+User-agent: FacebookBot
+Disallow: /
+User-agent: meta-externalagent
+Disallow: /
+
+# Bytedance
+User-agent: Bytespider
+Disallow: /
+
+# Apple AI
+User-agent: Applebot-Extended
+Disallow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Disallow: /
+
+# Cohere
+User-agent: cohere-ai
+Disallow: /
+
+# Amazon AI
+User-agent: Amazonbot
+Disallow: /
+
+# Diffbot
+User-agent: Diffbot
+Disallow: /
+
+# Scrapers and image grabbers
+User-agent: img2dataset
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+# Block all image directories from non-whitelisted bots
+# (This is enforced by the AI-specific blocks above)

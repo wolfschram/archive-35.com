@@ -324,6 +324,16 @@ function createProductSelectorModal(photoData) {
           </div>
         </div>
 
+        <!-- Terms Acknowledgment -->
+        <div class="terms-acknowledgment">
+          <label class="terms-checkbox-label">
+            <input type="checkbox" id="terms-checkbox" />
+            <span class="terms-checkbox-text">
+              I understand that this is a <strong>fine art photograph</strong>, that art appreciation is subjective, and that <strong>all sales are final</strong>. I accept the <a href="terms.html" target="_blank">Terms of Sale</a> including the no-return policy. Color variations between screen and print are normal and expected.
+            </span>
+          </label>
+        </div>
+
         <!-- Action Buttons -->
         <div class="product-actions">
           <button class="add-to-cart-button" id="add-to-cart-button" disabled>
@@ -351,9 +361,23 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData)
   const sizeGrid = modal.querySelector('#size-grid');
   const addToCartBtn = modal.querySelector('#add-to-cart-button');
   const buyNowBtn = modal.querySelector('#buy-now-button');
+  const termsCheckbox = modal.querySelector('#terms-checkbox');
 
   let selectedMaterial = null;
   let selectedSize = null;
+  let termsAccepted = false;
+
+  // Terms checkbox handler
+  termsCheckbox.addEventListener('change', () => {
+    termsAccepted = termsCheckbox.checked;
+    updateButtonStates();
+  });
+
+  function updateButtonStates() {
+    const canPurchase = selectedMaterial && selectedSize && termsAccepted;
+    addToCartBtn.disabled = !canPurchase;
+    buyNowBtn.disabled = !canPurchase;
+  }
 
   // Close modal
   const closeModal = () => {
@@ -385,15 +409,13 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData)
       modal.querySelector('#summary-size').textContent = 'Select size';
       modal.querySelector('#summary-quality').textContent = '—';
       modal.querySelector('#summary-price').textContent = '$0';
-      addToCartBtn.disabled = true;
-      buyNowBtn.disabled = true;
+      updateButtonStates();
 
       // Populate sizes for this material
       populateSizes(sizeGrid, applicableSizes, photoData, selectedMaterial, modal, (size) => {
         selectedSize = size;
         updatePriceSummary(modal, selectedMaterial, selectedSize, photoData);
-        addToCartBtn.disabled = false;
-        buyNowBtn.disabled = false;
+        updateButtonStates();
       });
     });
   });
@@ -939,6 +961,47 @@ const STYLES = `
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-top: 8px;
+  }
+
+  /* Terms Acknowledgment Checkbox */
+  .terms-acknowledgment {
+    background: rgba(255, 60, 60, 0.05);
+    border: 1px solid rgba(255, 60, 60, 0.2);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0 8px;
+  }
+
+  .terms-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #ccc;
+  }
+
+  .terms-checkbox-label input[type='checkbox'] {
+    margin-top: 2px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    accent-color: #c4973b;
+    cursor: pointer;
+  }
+
+  .terms-checkbox-text strong {
+    color: #fff;
+  }
+
+  .terms-checkbox-text a {
+    color: #c4973b;
+    text-decoration: underline;
+  }
+
+  .terms-checkbox-text a:hover {
+    color: #d4a755;
   }
 
   .add-to-cart-button,

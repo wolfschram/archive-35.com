@@ -1,0 +1,49 @@
+# Archive-35 | Fine Art Photography by Wolf
+
+> Fine art landscape and wildlife photography prints. Light. Place. Time.
+
+Archive-35 is a fine art photography gallery and print shop by Wolf, a photographer with 17+ years of experience across 55+ countries. All photographs are available as museum-quality prints on canvas, metal, acrylic, fine art paper, and wood.
+
+## Collections
+
+- Africa (44 photographs): Wildlife and landscape photography from Tanzania and the Serengeti
+- Grand Teton (48 photographs): Landscape photography from Grand Teton National Park, Wyoming
+- New Zealand (16 photographs): Landscape photography from across New Zealand
+
+## Products
+
+All 108 photographs are available as prints in the following materials:
+- Canvas (gallery-wrapped, from $105)
+- Metal (aluminum coating, from $130)
+- Acrylic (premium depth, from $195)
+- Fine Art Paper (archival matte, from $60)
+- Wood (rustic plywood, from $120)
+
+Sizes range from 12"x8" to 60"x40" depending on aspect ratio.
+Free shipping to USA and Canada.
+
+## Purchase
+
+Browse: https://archive-35.com/gallery.html
+Product catalog (JSON): https://archive-35.com/api/products.json
+Contact: https://archive-35.com/contact.html
+
+## Policies
+
+- All sales are final (custom, made-to-order products)
+- Damaged/defective prints replaced at no charge
+- Terms of Sale: https://archive-35.com/terms.html
+- Privacy Policy: https://archive-35.com/privacy.html
+
+## Copyright
+
+All photographs are copyrighted by Wolf / Archive-35.
+Images are NOT licensed for AI training or reproduction.
+Purchase grants personal display rights only.
+Commercial licensing available upon request.
+
+## Contact
+
+- Website: https://archive-35.com
+- Email: wolf@archive-35.com
+- Contact form: https://archive-35.com/contact.html

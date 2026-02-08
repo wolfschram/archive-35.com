@@ -15,6 +15,7 @@
   <meta name="twitter:title" content="ARCHIVE-35 | Fine Art Photography by Wolf">
   <meta name="twitter:description" content="Light. Place. Time. Fine art landscape photography prints by Wolf.">
   <meta name="twitter:image" content="https://archive-35.com/logos/archive35-og-image.png">
+  <meta name="robots" content="noai, noimageai">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="apple-touch-icon" href="logos/archive35-favicon-180.png">
   <link rel="icon" type="image/png" sizes="32x32" href="logos/archive35-favicon-32.png">
@@ -89,11 +90,25 @@
         <p>Curated galleries from around the world</p>
       </div>
       <div class="collections-grid">
+        <a href="collection.html?id=africa" class="collection-card">
+          <img src="images/africa/118A0002-thumb.jpg" alt="Africa Collection" loading="lazy">
+          <div class="collection-card-content">
+            <h3><span class="collection-first-letter">A</span><span class="collection-rest">frica</span></h3>
+            <p class="collection-count"><span class="count-number">44</span> <span class="count-label">photographs</span></p>
+          </div>
+        </a>
         <a href="collection.html?id=grand-teton" class="collection-card">
           <img src="images/grand-teton/WOLF7301-thumb.jpg" alt="Grand Teton Collection" loading="lazy">
           <div class="collection-card-content">
             <h3><span class="collection-first-letter">G</span><span class="collection-rest">rand Teton</span></h3>
-            <p class="collection-count"><span class="count-number">35</span> <span class="count-label">photographs</span></p>
+            <p class="collection-count"><span class="count-number">48</span> <span class="count-label">photographs</span></p>
+          </div>
+        </a>
+        <a href="collection.html?id=new-zealand" class="collection-card">
+          <img src="images/new-zealand/118A1369-thumb.jpg" alt="New Zealand Collection" loading="lazy">
+          <div class="collection-card-content">
+            <h3><span class="collection-first-letter">N</span><span class="collection-rest">ew Zealand</span></h3>
+            <p class="collection-count"><span class="count-number">16</span> <span class="count-label">photographs</span></p>
           </div>
         </a>
       </div>
@@ -143,6 +158,71 @@
     </div>
   </div>
 
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "ARCHIVE-35",
+    "url": "https://archive-35.com",
+    "description": "Fine art landscape and wildlife photography prints by Wolf. Museum-quality prints on canvas, metal, acrylic, fine art paper, and wood.",
+    "author": {
+      "@type": "Person",
+      "name": "Wolf",
+      "url": "https://archive-35.com/about.html"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Archive-35",
+    "url": "https://archive-35.com",
+    "logo": "https://archive-35.com/logos/archive35-og-image.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "wolf@archive-35.com",
+      "contactType": "customer service",
+      "url": "https://archive-35.com/contact.html"
+    },
+    "sameAs": []
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "ARCHIVE-35 Gallery",
+    "description": "Browse 108 fine art photographs across 3 collections: Africa, Grand Teton, and New Zealand.",
+    "url": "https://archive-35.com/gallery.html",
+    "numberOfItems": 108,
+    "hasPart": [
+      {
+        "@type": "ImageGallery",
+        "name": "Africa Collection",
+        "description": "44 fine art wildlife and landscape photographs from Tanzania and the Serengeti.",
+        "url": "https://archive-35.com/collection.html?id=africa",
+        "numberOfItems": 44
+      },
+      {
+        "@type": "ImageGallery",
+        "name": "Grand Teton Collection",
+        "description": "48 fine art landscape photographs from Grand Teton National Park, Wyoming.",
+        "url": "https://archive-35.com/collection.html?id=grand-teton",
+        "numberOfItems": 48
+      },
+      {
+        "@type": "ImageGallery",
+        "name": "New Zealand Collection",
+        "description": "16 fine art landscape photographs from across New Zealand.",
+        "url": "https://archive-35.com/collection.html?id=new-zealand",
+        "numberOfItems": 16
+      }
+    ]
+  }
+  </script>
+
   <script src="js/main.js"></script>
   <script src="js/stripe-links.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
@@ -150,6 +230,8 @@
   <script src="js/test-mode-banner.js?v=1"></script>
   <script src="js/cart.js"></script>
   <script src="js/cart-ui.js?v=2"></script>
-  <script src="js/product-selector.js?v=6"></script>
+  <script src="js/product-selector.js?v=7"></script>
+  <script src="js/schema-inject.js"></script>
+  <script src="js/image-protection.js"></script>
 </body>
 </html>

@@ -43,3 +43,7 @@ Archive-35_Strategy_Briefing_v2_FINAL.docx
 05_Studio/app/dist/
 05_Studio/app/build/
 .studio-mode
+
+# C2PA private keys (NEVER commit)
+07_C2PA/*.key
+07_C2PA/ca/

@@ -35,6 +35,9 @@ function ContentIngest() {
   const [scanResults, setScanResults] = useState(null);
   const [scanSelections, setScanSelections] = useState({}); // folderName → { selected, galleryName, country, location }
   const [scanProcessingFolder, setScanProcessingFolder] = useState(null); // folder currently being processed
+  const scanQueueRef = useRef([]); // remaining folders to process
+  const [scanQueueTotal, setScanQueueTotal] = useState(0);
+  const [scanQueueDone, setScanQueueDone] = useState(0);
 
   // Review step state
   const [reviewMode, setReviewMode] = useState(false);
@@ -123,17 +126,7 @@ function ContentIngest() {
     }));
   };
 
-  const handleImportFromScan = async () => {
-    if (!scanResults) return;
-    // Find first selected folder with content
-    const selectedFolders = scanResults.scanResults.filter(r =>
-      scanSelections[r.folderName]?.selected &&
-      (r.counts.new > 0 || r.counts.updated > 0)
-    );
-    if (selectedFolders.length === 0) return;
-
-    // Process first folder, then come back for more
-    const folder = selectedFolders[0];
+  const loadFolderForProcessing = (folder) => {
     setScanProcessingFolder(folder.folderName);
 
     const filePaths = [...folder.newFiles, ...folder.updatedFiles].map(f => f.path);
@@ -155,9 +148,56 @@ function ContentIngest() {
       setCountry(sel.country || '');
       setLocation(sel.location || '');
     }
+  };
 
-    // Clear scan view — user proceeds with normal flow
+  const handleImportFromScan = async () => {
+    if (!scanResults) return;
+    // Find ALL selected folders with content
+    const selectedFolders = scanResults.scanResults.filter(r =>
+      scanSelections[r.folderName]?.selected &&
+      (r.counts.new > 0 || r.counts.updated > 0)
+    );
+    if (selectedFolders.length === 0) return;
+
+    // Store full queue (everything after the first)
+    scanQueueRef.current = selectedFolders.slice(1);
+    setScanQueueTotal(selectedFolders.length);
+    setScanQueueDone(0);
+
+    // Load first folder
+    loadFolderForProcessing(selectedFolders[0]);
+
+    // Clear scan results view — user proceeds with analyze → review → finalize
     setScanResults(null);
+  };
+
+  const processNextScanFolder = () => {
+    if (scanQueueRef.current.length === 0) {
+      // All done — full reset
+      setScanQueueTotal(0);
+      setScanQueueDone(0);
+      setScanProcessingFolder(null);
+      scanQueueRef.current = [];
+      resetForm();
+      setProcessStatus(null);
+      setProgress(null);
+      setCompletionState(null);
+      return false;
+    }
+
+    // Pop next folder from queue
+    const nextFolder = scanQueueRef.current.shift();
+    setScanQueueDone(prev => prev + 1);
+
+    // Reset processing state for next folder
+    resetForm();
+    setProcessStatus(null);
+    setProgress(null);
+    setCompletionState(null);
+
+    // Load the next folder
+    loadFolderForProcessing(nextFolder);
+    return true;
   };
 
   const closeScan = () => {
@@ -340,10 +380,19 @@ function ContentIngest() {
   };
 
   const startNewImport = () => {
+    // If we're in a scan queue, advance to next folder instead of full reset
+    if (scanQueueRef.current.length > 0) {
+      processNextScanFolder();
+      return;
+    }
+    // Full reset
     resetForm();
     setProcessStatus(null);
     setProgress(null);
     setCompletionState(null);
+    setScanQueueTotal(0);
+    setScanQueueDone(0);
+    setScanProcessingFolder(null);
   };
 
   const cancelReview = () => {
@@ -505,6 +554,17 @@ function ContentIngest() {
         <div className="card-grid">
           {/* Progress indicator */}
           <div className="glass-card full-width">
+            {scanQueueTotal > 1 && (
+              <div style={{
+                marginBottom: '12px', padding: '8px 12px',
+                background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)',
+                borderRadius: 'var(--radius-sm)', fontSize: '13px', color: '#3b82f6',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+              }}>
+                <span>Folder {scanQueueDone + 1} of {scanQueueTotal}: <strong>{scanProcessingFolder}</strong></span>
+                <span>{scanQueueRef.current.length} remaining</span>
+              </div>
+            )}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3>Review AI-Generated Metadata</h3>
               <span className="status-badge pending">
@@ -678,6 +738,28 @@ function ContentIngest() {
             )}
           </div>
 
+          {/* Queue progress banner — shown when processing scan queue */}
+          {scanQueueTotal > 1 && scanProcessingFolder && !completionState && (
+            <div className="glass-card full-width" style={{
+              background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.25)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '14px', color: '#3b82f6' }}>
+                  Scan Queue: Folder <strong>{scanQueueDone + 1}</strong> of <strong>{scanQueueTotal}</strong>
+                </span>
+                <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                  Processing: <strong>{scanProcessingFolder}</strong>
+                </span>
+              </div>
+              <div style={{ marginTop: '8px', width: '100%', height: '4px', background: 'var(--bg-tertiary)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{
+                  width: `${((scanQueueDone + 1) / scanQueueTotal) * 100}%`,
+                  height: '100%', background: '#3b82f6', borderRadius: '2px', transition: 'width 0.3s ease'
+                }} />
+              </div>
+            </div>
+          )}
+
           {/* Gallery Selection Card */}
           <div className="glass-card">
             <h3>Destination</h3>
@@ -843,17 +925,50 @@ function ContentIngest() {
                 borderRadius: 'var(--radius-md)',
                 textAlign: 'center'
               }}>
-                <div style={{ fontSize: '36px', marginBottom: '8px' }}>\u2705</div>
+                <div style={{ fontSize: '36px', marginBottom: '8px' }}>{'\u2705'}</div>
                 <h3 style={{ margin: '0 0 8px', color: '#22c55e' }}>Import Complete</h3>
                 <p style={{ margin: '0 0 4px', color: 'var(--text-secondary)' }}>
                   <strong>{completionState.photosImported}</strong> photos imported to <strong>{completionState.galleryName}</strong>
                 </p>
-                <p style={{ margin: '0 0 16px', fontSize: '12px', color: 'var(--text-muted)' }}>
-                  Ready to deploy to website
-                </p>
-                <button className="btn btn-primary" onClick={startNewImport}>
-                  Start New Import
-                </button>
+                {scanQueueRef.current.length > 0 ? (
+                  <>
+                    <p style={{ margin: '0 0 4px', fontSize: '13px', color: '#3b82f6' }}>
+                      {scanQueueDone + 1} of {scanQueueTotal} folders complete — <strong>{scanQueueRef.current.length}</strong> remaining
+                    </p>
+                    <p style={{ margin: '0 0 4px', fontSize: '12px', color: 'var(--text-muted)' }}>
+                      Next: <strong>{scanQueueRef.current[0]?.folderName}</strong> ({(scanQueueRef.current[0]?.counts?.new || 0) + (scanQueueRef.current[0]?.counts?.updated || 0)} photos)
+                    </p>
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '16px' }}>
+                      <button className="btn btn-primary" onClick={startNewImport}>
+                        Next Folder →
+                      </button>
+                      <button className="btn btn-secondary" onClick={() => {
+                        scanQueueRef.current = [];
+                        setScanQueueTotal(0);
+                        setScanQueueDone(0);
+                        setScanProcessingFolder(null);
+                        resetForm();
+                        setProcessStatus(null);
+                        setProgress(null);
+                        setCompletionState(null);
+                      }}>
+                        Stop Queue
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p style={{ margin: '0 0 16px', fontSize: '12px', color: 'var(--text-muted)' }}>
+                      {scanQueueTotal > 1
+                        ? `All ${scanQueueTotal} folders processed! Ready to deploy.`
+                        : 'Ready to deploy to website'
+                      }
+                    </p>
+                    <button className="btn btn-primary" onClick={startNewImport}>
+                      Start New Import
+                    </button>
+                  </>
+                )}
               </div>
             )}
 

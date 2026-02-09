@@ -1815,20 +1815,25 @@ ipcMain.handle('check-service-status', async (event, service) => {
       }
 
       case 'c2pa': {
-        try {
-          // Check for c2pa-python (used by c2pa-sign.js for actual signing)
-          execSync('python3 -c "import c2pa"', { encoding: 'utf8', timeout: 5000 });
-          // Also verify certificate files exist
-          const c2paDir = require('path').join(ARCHIVE_BASE, '07_C2PA');
-          const hasCerts = require('fs').existsSync(require('path').join(c2paDir, 'chain.pem'))
-            && require('fs').existsSync(require('path').join(c2paDir, 'signer_pkcs8.key'));
-          if (!hasCerts) {
-            return { status: 'error', message: 'c2pa-python installed but certificates missing in 07_C2PA/' };
-          }
-          return { status: 'ok', message: 'c2pa-python + certificates ready' };
-        } catch (err) {
+        const pythonCandidates = ['/opt/homebrew/bin/python3', '/usr/local/bin/python3', 'python3'];
+        let foundPython = null;
+        for (const py of pythonCandidates) {
+          try {
+            execSync(`${py} -c "import c2pa"`, { encoding: 'utf8', timeout: 5000, stdio: 'pipe' });
+            foundPython = py;
+            break;
+          } catch { /* try next */ }
+        }
+        if (!foundPython) {
           return { status: 'error', message: 'c2pa-python not installed. Run: pip3 install c2pa-python' };
         }
+        const c2paDir = require('path').join(ARCHIVE_BASE, '07_C2PA');
+        const hasCerts = require('fs').existsSync(require('path').join(c2paDir, 'chain.pem'))
+          && require('fs').existsSync(require('path').join(c2paDir, 'signer_pkcs8.key'));
+        if (!hasCerts) {
+          return { status: 'error', message: 'c2pa-python installed but certificates missing in 07_C2PA/' };
+        }
+        return { status: 'ok', message: `c2pa-python + certificates ready (${foundPython})` };
       }
 
       case 'anthropic': {
@@ -1922,18 +1927,25 @@ ipcMain.handle('check-all-services', async (event) => {
         }
 
         case 'c2pa': {
-          try {
-            execSync('python3 -c "import c2pa"', { encoding: 'utf8', timeout: 5000 });
-            const c2paDir = require('path').join(ARCHIVE_BASE, '07_C2PA');
-            const hasCerts = require('fs').existsSync(require('path').join(c2paDir, 'chain.pem'))
-              && require('fs').existsSync(require('path').join(c2paDir, 'signer_pkcs8.key'));
-            if (!hasCerts) {
-              return { status: 'error', message: 'c2pa-python installed but certificates missing in 07_C2PA/' };
-            }
-            return { status: 'ok', message: 'c2pa-python + certificates ready' };
-          } catch (err) {
+          const pythonCandidates2 = ['/opt/homebrew/bin/python3', '/usr/local/bin/python3', 'python3'];
+          let foundPy = null;
+          for (const py of pythonCandidates2) {
+            try {
+              execSync(`${py} -c "import c2pa"`, { encoding: 'utf8', timeout: 5000, stdio: 'pipe' });
+              foundPy = py;
+              break;
+            } catch { /* try next */ }
+          }
+          if (!foundPy) {
             return { status: 'error', message: 'c2pa-python not installed. Run: pip3 install c2pa-python' };
           }
+          const c2paDir2 = require('path').join(ARCHIVE_BASE, '07_C2PA');
+          const hasCerts2 = require('fs').existsSync(require('path').join(c2paDir2, 'chain.pem'))
+            && require('fs').existsSync(require('path').join(c2paDir2, 'signer_pkcs8.key'));
+          if (!hasCerts2) {
+            return { status: 'error', message: 'c2pa-python installed but certificates missing in 07_C2PA/' };
+          }
+          return { status: 'ok', message: `c2pa-python + certificates ready (${foundPy})` };
         }
 
         case 'anthropic': {

@@ -13,7 +13,7 @@
  *   await signImageC2PA(imagePath, { title, author, location, year });
  */
 
-const { execFile } = require('child_process');
+const { execFile, execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -23,11 +23,35 @@ const CERT_CHAIN = path.join(C2PA_DIR, 'chain.pem');
 const PRIVATE_KEY = path.join(C2PA_DIR, 'signer_pkcs8.key');
 
 /**
+ * Find a Python 3.10+ with c2pa module installed.
+ * Electron's PATH is minimal, so we check common locations.
+ */
+let _resolvedPython = null;
+function findPython() {
+  if (_resolvedPython) return _resolvedPython;
+  const candidates = [
+    '/opt/homebrew/bin/python3',
+    '/usr/local/bin/python3',
+    'python3',
+    'python'
+  ];
+  for (const py of candidates) {
+    try {
+      execFileSync(py, ['-c', 'import c2pa'], { timeout: 5000, stdio: 'pipe' });
+      _resolvedPython = py;
+      console.log(`C2PA: using Python at ${py}`);
+      return py;
+    } catch { /* try next */ }
+  }
+  return null;
+}
+
+/**
  * Check if C2PA signing is available (cert + key + python module exist)
  */
 function isC2PAAvailable() {
   try {
-    return fs.existsSync(CERT_CHAIN) && fs.existsSync(PRIVATE_KEY);
+    return fs.existsSync(CERT_CHAIN) && fs.existsSync(PRIVATE_KEY) && !!findPython();
   } catch {
     return false;
   }
@@ -126,26 +150,17 @@ except Exception as e:
       description
     });
 
-    execFile('python3', ['-c', pythonScript, imagePath, metaJson, CERT_CHAIN, PRIVATE_KEY],
+    const pythonBin = findPython();
+    if (!pythonBin) {
+      resolve({ success: false, error: 'No Python with c2pa module found. Install: pip3 install c2pa-python' });
+      return;
+    }
+
+    execFile(pythonBin, ['-c', pythonScript, imagePath, metaJson, CERT_CHAIN, PRIVATE_KEY],
       { timeout: 30000 },
       (error, stdout, stderr) => {
         if (error) {
-          // Python not available or script failed — try python instead of python3
-          execFile('python', ['-c', pythonScript, imagePath, metaJson, CERT_CHAIN, PRIVATE_KEY],
-            { timeout: 30000 },
-            (error2, stdout2, stderr2) => {
-              if (error2) {
-                resolve({ success: false, error: `C2PA signing unavailable: ${error2.message}` });
-                return;
-              }
-              try {
-                const result = JSON.parse(stdout2.trim());
-                resolve(result);
-              } catch {
-                resolve({ success: false, error: 'Failed to parse C2PA result' });
-              }
-            }
-          );
+          resolve({ success: false, error: `C2PA signing failed: ${error.message}${stderr ? ' — ' + stderr : ''}` });
           return;
         }
 

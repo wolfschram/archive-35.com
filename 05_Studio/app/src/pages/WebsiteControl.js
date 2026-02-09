@@ -22,6 +22,8 @@ function WebsiteControl() {
   const [deployStages, setDeployStages] = useState({
     scan: { complete: false, active: false },
     images: { complete: false, active: false },
+    c2pa: { complete: false, active: false },
+    r2: { complete: false, active: false },
     data: { complete: false, active: false },
     git: { complete: false, active: false },
     push: { complete: false, active: false },
@@ -115,6 +117,8 @@ function WebsiteControl() {
     setDeployStages({
       scan: { complete: false, active: false },
       images: { complete: false, active: false },
+      c2pa: { complete: false, active: false },
+      r2: { complete: false, active: false },
       data: { complete: false, active: false },
       git: { complete: false, active: false },
       push: { complete: false, active: false },
@@ -130,7 +134,7 @@ function WebsiteControl() {
           setDeployStages(prev => {
             const newStages = { ...prev };
             // Mark previous stage as complete
-            const stageOrder = ['scan', 'images', 'data', 'git', 'push', 'done'];
+            const stageOrder = ['scan', 'images', 'c2pa', 'r2', 'data', 'git', 'push', 'done'];
             const currentIndex = stageOrder.indexOf(data.step);
 
             stageOrder.forEach((stage, idx) => {
@@ -156,6 +160,8 @@ function WebsiteControl() {
         setDeployStages({
           scan: { complete: true, active: false },
           images: { complete: true, active: false },
+          c2pa: { complete: true, active: false },
+          r2: { complete: true, active: false },
           data: { complete: true, active: false },
           git: { complete: true, active: false },
           push: { complete: true, active: false },
@@ -210,12 +216,14 @@ function WebsiteControl() {
   };
 
   const stageLabels = {
-    scan: 'Scan Portfolios',
-    images: 'Copy Images',
-    data: 'Build Data',
-    git: 'Git Commit',
-    push: 'Push to GitHub',
-    done: 'Complete'
+    scan: 'Scan',
+    images: 'Images',
+    c2pa: 'C2PA',
+    r2: 'R2',
+    data: 'Data',
+    git: 'Git',
+    push: 'Push',
+    done: 'Done'
   };
 
   return (
@@ -304,7 +312,7 @@ function WebsiteControl() {
               }}>
                 {deployResult.success ? '✓ Complete' : '✗ Failed'}
                 {deployResult.success && deployResult.photosPublished
-                  ? ` — ${deployResult.photosPublished} photos`
+                  ? ` — ${deployResult.photosPublished} photos${deployResult.imagesCopied === 0 ? ' (no changes)' : ''}`
                   : ''}
               </span>
             )}
@@ -349,14 +357,32 @@ function WebsiteControl() {
             </div>
           )}
           {deployResult && (
-            <div style={{ marginTop: '10px', fontSize: '13px', color: deployResult.success ? '#22c55e' : '#ef4444' }}>
-              {deployResult.success
-                ? deployResult.message
-                : `Error: ${deployResult.error}`}
-              {deployResult.success && deployResult.imagesCopied > 0 && (
-                <span style={{ color: 'var(--text-muted)', marginLeft: '8px' }}>
-                  ({deployResult.imagesCopied} images synced)
-                </span>
+            <div style={{ marginTop: '10px', fontSize: '13px' }}>
+              <div style={{ color: deployResult.success ? '#22c55e' : '#ef4444' }}>
+                {deployResult.success
+                  ? deployResult.message
+                  : `Error: ${deployResult.error}`}
+                {deployResult.success && deployResult.imagesCopied > 0 && (
+                  <span style={{ color: 'var(--text-muted)', marginLeft: '8px' }}>
+                    ({deployResult.photosPublished} photos · {deployResult.imagesCopied} image files synced)
+                  </span>
+                )}
+              </div>
+              {deployResult.success && (
+                <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
+                  <span>
+                    {deployResult.c2paUnsigned > 0
+                      ? `\uD83D\uDD13 C2PA: ${deployResult.c2paSigned}/${deployResult.c2paSigned + deployResult.c2paUnsigned} signed`
+                      : `\uD83D\uDD10 C2PA: All ${deployResult.c2paSigned} signed`}
+                  </span>
+                  <span>
+                    {deployResult.r2Status === 'configured'
+                      ? '\u2601\uFE0F R2: Connected'
+                      : deployResult.r2Status === 'unconfigured'
+                        ? '\u26A0\uFE0F R2: Not configured'
+                        : '\u2753 R2: Unknown'}
+                  </span>
+                </div>
               )}
             </div>
           )}

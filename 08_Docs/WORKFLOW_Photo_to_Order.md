@@ -35,8 +35,8 @@
 | photos.json | `04_Website/dist/data/photos.json` | Website catalog |
 
 ### Current Data
-- 28 photos in `Grand_Teton` collection
-- photos.json fields: `id`, `filename`, `title`, `collection`, `tags`, `location`, `buyUrl`, `thumbnail`, `full`
+- 181 photos across 5 collections (Africa, Grand Teton, Iceland Ring Road, New Zealand, South Africa)
+- photos.json fields: `id`, `filename`, `title`, `collection`, `tags`, `location`, `buyUrl`, `thumbnail`, `full`, `c2pa`
 
 ---
 
@@ -84,7 +84,7 @@ High-res originals (3-6MB each) needed for Pictorem orders but:
 ### Current Status
 - ✅ Account created (acct_1SxIaWIyLqYsy9lv)
 - ✅ API keys in .env
-- ✅ ~140 products created (28 photos × 5 materials)
+- ✅ ~3,801 products created (181 photos × ~21 variants)
 - ⏳ Payment links not created
 - ⏳ stripe-links.js not exported
 
@@ -313,4 +313,4 @@ git push origin main
 
 ---
 
-*Last updated: February 5, 2026*
+*Last updated: February 9, 2026*

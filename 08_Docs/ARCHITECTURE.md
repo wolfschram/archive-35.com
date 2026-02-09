@@ -791,7 +791,7 @@ When new photos are ingested via Studio:
 
 ### Batch Signing
 
-All 108 existing full-size images were batch-signed using `07_C2PA/sign_all.py`. Each image gained ~171KB of embedded credential data.
+All 181 existing full-size images were batch-signed using `07_C2PA/sign_all.py` (covers all 5 collections: Africa, Grand Teton, Iceland Ring Road, New Zealand, South Africa). Each image gained ~171KB of embedded credential data.
 
 **Related Files:**
 - `05_Studio/app/c2pa-sign.js` — Node.js signing utility (used during ingest)
@@ -818,7 +818,7 @@ The OpenAI Agentic Commerce Protocol (ACP) enables AI agents (like ChatGPT) to b
 
 ### Product Feed
 
-- **Total products:** 2,323 (108 parent photos x ~21 variants each)
+- **Total products:** 3,801 (181 parent photos x ~21 variants each)
 - **Variant format:** `{photo_id}_{material}_{width}x{height}` (e.g., `a-001_canvas_24x16`)
 - **Materials:** Canvas, Metal, Acrylic, Fine Art Paper, Wood
 - **Size range:** 12x8" to 60x40" (filtered by aspect ratio compatibility)

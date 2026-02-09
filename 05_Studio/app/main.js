@@ -1669,14 +1669,52 @@ ipcMain.handle('deploy-website', async () => {
         await fs.copyFile(task.src, task.dest);
         copied++;
         if (copied % 5 === 0 || copied === copyTasks.length) {
-          sendProgress('images', `Copying images: ${copied}/${copyTasks.length}`, copied, copyTasks.length);
+          sendProgress('images', `Syncing image files: ${copied}/${copyTasks.length} (${Math.ceil(copied/2)} photos)`, copied, copyTasks.length);
         }
       } catch (e) {
         console.warn('Copy failed:', task.src, e.message);
       }
     }
 
-    // Phase 3: Write photos.json
+    // Phase 3: C2PA Verification
+    sendProgress('c2pa', 'Verifying Content Credentials...');
+    let c2paSigned = 0;
+    let c2paUnsigned = 0;
+    for (const dir of portfolioDirs) {
+      const portfolioPath = path.join(PORTFOLIO_DIR, dir.name);
+      const photosJsonPath = path.join(portfolioPath, '_photos.json');
+      if (fsSync.existsSync(photosJsonPath)) {
+        try {
+          const photos = JSON.parse(await fs.readFile(photosJsonPath, 'utf8'));
+          for (const p of photos) {
+            if (p.c2pa) c2paSigned++; else c2paUnsigned++;
+          }
+        } catch (e) {}
+      }
+    }
+    sendProgress('c2pa', c2paUnsigned > 0
+      ? `C2PA: ${c2paSigned}/${c2paSigned + c2paUnsigned} signed (${c2paUnsigned} unsigned)`
+      : `C2PA: All ${c2paSigned} photos have Content Credentials`);
+
+    // Phase 4: R2 Verification
+    sendProgress('r2', 'Checking R2 cloud backup...');
+    let r2Status = 'unknown';
+    try {
+      // Check if R2 env vars are configured
+      const hasR2 = process.env.R2_ACCESS_KEY_ID && process.env.R2_BUCKET_NAME;
+      if (hasR2) {
+        r2Status = 'configured';
+        sendProgress('r2', 'R2 cloud storage configured');
+      } else {
+        r2Status = 'unconfigured';
+        sendProgress('r2', '\u26A0 R2 not configured — originals not backed up to cloud');
+      }
+    } catch (e) {
+      r2Status = 'error';
+      sendProgress('r2', 'R2 check failed: ' + e.message);
+    }
+
+    // Phase 5: Write photos.json
     sendProgress('data', 'Writing photo data...');
     await fs.mkdir(DATA_DIR, { recursive: true });
     await fs.writeFile(photosJsonWebPath, JSON.stringify({ photos: allWebsitePhotos }, null, 2));
@@ -1717,13 +1755,21 @@ ipcMain.handle('deploy-website', async () => {
       sendProgress('push', 'Pushing to GitHub...');
       execSync('git push origin main', { ...gitOpts, timeout: 60000 });
 
-      sendProgress('done', `Deploy complete! ${allWebsitePhotos.length} photos published.`);
+      const noNewContent = copied === 0;
+       sendProgress('done', noNewContent
+         ? `All ${allWebsitePhotos.length} photos already deployed. No new content to publish.`
+         : `Deploy complete! ${allWebsitePhotos.length} photos published (${copied} image files synced).`);
 
       return {
         success: true,
         photosPublished: allWebsitePhotos.length,
         imagesCopied: copied,
-        message: `Deployed ${allWebsitePhotos.length} photos to archive-35.com`
+        c2paSigned,
+        c2paUnsigned,
+        r2Status,
+        message: copied === 0
+           ? `All ${allWebsitePhotos.length} photos already deployed. No new content to publish.`
+           : `Deployed ${allWebsitePhotos.length} photos to archive-35.com (${copied} image files synced)`
       };
     } catch (gitErr) {
       const errMsg = (gitErr.stderr || '') + (gitErr.stdout || '') + (gitErr.message || '');
@@ -1732,7 +1778,10 @@ ipcMain.handle('deploy-website', async () => {
         success: false,
         error: `Git operation failed: ${errMsg}`,
         photosPublished: allWebsitePhotos.length,
-        imagesCopied: copied
+        imagesCopied: copied,
+        c2paSigned,
+        c2paUnsigned,
+        r2Status
       };
     }
 

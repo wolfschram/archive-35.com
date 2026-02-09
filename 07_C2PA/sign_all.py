@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Archive-35 C2PA Content Credentials Batch Signer
-Signs all 108 full-size photographs with C2PA provenance metadata.
+Signs all full-size photographs with C2PA provenance metadata.
+After signing, updates each portfolio's _photos.json with c2pa: true.
 
 Uses EC P-256 (ES256) certificate chain for signing.
 """
@@ -161,3 +162,33 @@ print(f"Done! Signed: {signed}, Errors: {errors}, Total: {len(full_images)}")
 
 if errors == 0:
     print("All images successfully signed with C2PA Content Credentials!")
+
+# --- Update _photos.json in each portfolio folder ---
+PORTFOLIO_DIR = os.path.join(ARCHIVE_BASE, '01_Portfolio')
+updated_portfolios = 0
+
+if os.path.isdir(PORTFOLIO_DIR):
+    for folder in sorted(os.listdir(PORTFOLIO_DIR)):
+        folder_path = os.path.join(PORTFOLIO_DIR, folder)
+        photos_json_path = os.path.join(folder_path, '_photos.json')
+        if not os.path.isfile(photos_json_path):
+            continue
+        try:
+            with open(photos_json_path, 'r') as f:
+                portfolio_photos = json.load(f)
+            changed = False
+            for p in portfolio_photos:
+                if not p.get('c2pa'):
+                    p['c2pa'] = True
+                    changed = True
+            if changed:
+                with open(photos_json_path, 'w') as f:
+                    json.dump(portfolio_photos, f, indent=2)
+                updated_portfolios += 1
+                print(f"  Updated {folder}/_photos.json — {len(portfolio_photos)} photos marked c2pa: true")
+        except Exception as e:
+            print(f"  ✗ Failed to update {folder}/_photos.json: {e}")
+
+    print(f"\nUpdated {updated_portfolios} portfolio _photos.json files with c2pa flags.")
+else:
+    print(f"\nWarning: Portfolio directory not found at {PORTFOLIO_DIR}")

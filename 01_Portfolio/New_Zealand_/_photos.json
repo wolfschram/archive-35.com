@@ -39,7 +39,8 @@
       "megapixels": 16.7
     },
     "thumbnail": "118A1369-thumb.jpg",
-    "full": "118A1369-full.jpg"
+    "full": "118A1369-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a1420",
@@ -78,7 +79,8 @@
       "megapixels": 16.7
     },
     "thumbnail": "118A1420-thumb.jpg",
-    "full": "118A1420-full.jpg"
+    "full": "118A1420-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a1570",
@@ -117,7 +119,8 @@
       "megapixels": 14.7
     },
     "thumbnail": "118A1570-thumb.jpg",
-    "full": "118A1570-full.jpg"
+    "full": "118A1570-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a1664",
@@ -156,7 +159,8 @@
       "megapixels": 16.7
     },
     "thumbnail": "118A1664-thumb.jpg",
-    "full": "118A1664-full.jpg"
+    "full": "118A1664-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a1841-enhanced-nr",
@@ -198,7 +202,8 @@
       "megapixels": 13.8
     },
     "thumbnail": "118A1841-Enhanced-NR-thumb.jpg",
-    "full": "118A1841-Enhanced-NR-full.jpg"
+    "full": "118A1841-Enhanced-NR-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a1989-enhanced-nr",
@@ -240,7 +245,8 @@
       "megapixels": 16.7
     },
     "thumbnail": "118A1989-Enhanced-NR-thumb.jpg",
-    "full": "118A1989-Enhanced-NR-full.jpg"
+    "full": "118A1989-Enhanced-NR-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a2056",
@@ -279,7 +285,8 @@
       "megapixels": 16.7
     },
     "thumbnail": "118A2056-thumb.jpg",
-    "full": "118A2056-full.jpg"
+    "full": "118A2056-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a2264",
@@ -318,7 +325,8 @@
       "megapixels": 14.2
     },
     "thumbnail": "118A2264-thumb.jpg",
-    "full": "118A2264-full.jpg"
+    "full": "118A2264-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a2532-enhanced-nr",
@@ -357,7 +365,8 @@
       "megapixels": 10.7
     },
     "thumbnail": "118A2532-Enhanced-NR-thumb.jpg",
-    "full": "118A2532-Enhanced-NR-full.jpg"
+    "full": "118A2532-Enhanced-NR-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a2536",
@@ -396,7 +405,8 @@
       "megapixels": 16.7
     },
     "thumbnail": "118A2536-thumb.jpg",
-    "full": "118A2536-full.jpg"
+    "full": "118A2536-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a2555",
@@ -439,7 +449,8 @@
       "megapixels": 11.6
     },
     "thumbnail": "118A2555-thumb.jpg",
-    "full": "118A2555-full.jpg"
+    "full": "118A2555-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a2649",
@@ -481,7 +492,8 @@
       "megapixels": 16.7
     },
     "thumbnail": "118A2649-thumb.jpg",
-    "full": "118A2649-full.jpg"
+    "full": "118A2649-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a2655",
@@ -521,7 +533,8 @@
       "megapixels": 15.3
     },
     "thumbnail": "118A2655-thumb.jpg",
-    "full": "118A2655-full.jpg"
+    "full": "118A2655-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a2696",
@@ -560,7 +573,8 @@
       "megapixels": 11.6
     },
     "thumbnail": "118A2696-thumb.jpg",
-    "full": "118A2696-full.jpg"
+    "full": "118A2696-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a2763",
@@ -599,7 +613,8 @@
       "megapixels": 16.7
     },
     "thumbnail": "118A2763-thumb.jpg",
-    "full": "118A2763-full.jpg"
+    "full": "118A2763-full.jpg",
+    "c2pa": true
   },
   {
     "id": "118a2772",
@@ -638,6 +653,7 @@
       "megapixels": 12.9
     },
     "thumbnail": "118A2772-thumb.jpg",
-    "full": "118A2772-full.jpg"
+    "full": "118A2772-full.jpg",
+    "c2pa": true
   }
 ]

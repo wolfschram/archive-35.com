@@ -36,7 +36,8 @@
       "megapixels": 41.7
     },
     "thumbnail": "WOLF6651-thumb.jpg",
-    "full": "WOLF6651-full.jpg"
+    "full": "WOLF6651-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6675",
@@ -75,7 +76,8 @@
       "megapixels": 33.5
     },
     "thumbnail": "WOLF6675-thumb.jpg",
-    "full": "WOLF6675-full.jpg"
+    "full": "WOLF6675-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6676",
@@ -114,7 +116,8 @@
       "megapixels": 44.8
     },
     "thumbnail": "WOLF6676-thumb.jpg",
-    "full": "WOLF6676-full.jpg"
+    "full": "WOLF6676-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6743",
@@ -153,7 +156,8 @@
       "megapixels": 41.7
     },
     "thumbnail": "WOLF6743-thumb.jpg",
-    "full": "WOLF6743-full.jpg"
+    "full": "WOLF6743-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6750",
@@ -192,7 +196,8 @@
       "megapixels": 41.7
     },
     "thumbnail": "WOLF6750-thumb.jpg",
-    "full": "WOLF6750-full.jpg"
+    "full": "WOLF6750-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6763",
@@ -231,7 +236,8 @@
       "megapixels": 44.8
     },
     "thumbnail": "WOLF6763-thumb.jpg",
-    "full": "WOLF6763-full.jpg"
+    "full": "WOLF6763-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6766",
@@ -270,7 +276,8 @@
       "megapixels": 33.1
     },
     "thumbnail": "WOLF6766-thumb.jpg",
-    "full": "WOLF6766-full.jpg"
+    "full": "WOLF6766-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6767",
@@ -309,7 +316,8 @@
       "megapixels": 34
     },
     "thumbnail": "WOLF6767-thumb.jpg",
-    "full": "WOLF6767-full.jpg"
+    "full": "WOLF6767-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6770",
@@ -350,7 +358,8 @@
       "megapixels": 28.9
     },
     "thumbnail": "WOLF6770-thumb.jpg",
-    "full": "WOLF6770-full.jpg"
+    "full": "WOLF6770-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6780-pano",
@@ -389,7 +398,8 @@
       "megapixels": 34.7
     },
     "thumbnail": "WOLF6780-Pano-thumb.jpg",
-    "full": "WOLF6780-Pano-full.jpg"
+    "full": "WOLF6780-Pano-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6797-pano",
@@ -428,7 +438,8 @@
       "megapixels": 28.3
     },
     "thumbnail": "WOLF6797-Pano-thumb.jpg",
-    "full": "WOLF6797-Pano-full.jpg"
+    "full": "WOLF6797-Pano-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6826",
@@ -467,7 +478,8 @@
       "megapixels": 28.5
     },
     "thumbnail": "WOLF6826-thumb.jpg",
-    "full": "WOLF6826-full.jpg"
+    "full": "WOLF6826-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6841",
@@ -506,7 +518,8 @@
       "megapixels": 32.6
     },
     "thumbnail": "WOLF6841-thumb.jpg",
-    "full": "WOLF6841-full.jpg"
+    "full": "WOLF6841-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6858-pano",
@@ -545,7 +558,8 @@
       "megapixels": 33.6
     },
     "thumbnail": "WOLF6858-Pano-thumb.jpg",
-    "full": "WOLF6858-Pano-full.jpg"
+    "full": "WOLF6858-Pano-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6872-pano",
@@ -587,7 +601,8 @@
       "megapixels": 41.9
     },
     "thumbnail": "WOLF6872-Pano-thumb.jpg",
-    "full": "WOLF6872-Pano-full.jpg"
+    "full": "WOLF6872-Pano-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6909",
@@ -626,7 +641,8 @@
       "megapixels": 34.3
     },
     "thumbnail": "WOLF6909-thumb.jpg",
-    "full": "WOLF6909-full.jpg"
+    "full": "WOLF6909-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6915",
@@ -665,7 +681,8 @@
       "megapixels": 30.6
     },
     "thumbnail": "WOLF6915-thumb.jpg",
-    "full": "WOLF6915-full.jpg"
+    "full": "WOLF6915-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6950",
@@ -704,7 +721,8 @@
       "megapixels": 28.2
     },
     "thumbnail": "WOLF6950-thumb.jpg",
-    "full": "WOLF6950-full.jpg"
+    "full": "WOLF6950-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7002",
@@ -743,7 +761,8 @@
       "megapixels": 28.2
     },
     "thumbnail": "WOLF7002-thumb.jpg",
-    "full": "WOLF7002-full.jpg"
+    "full": "WOLF7002-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7029",
@@ -782,7 +801,8 @@
       "megapixels": 30.3
     },
     "thumbnail": "WOLF7029-thumb.jpg",
-    "full": "WOLF7029-full.jpg"
+    "full": "WOLF7029-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7039",
@@ -821,7 +841,8 @@
       "megapixels": 39.3
     },
     "thumbnail": "WOLF7039-thumb.jpg",
-    "full": "WOLF7039-full.jpg"
+    "full": "WOLF7039-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7062",
@@ -860,7 +881,8 @@
       "megapixels": 39.3
     },
     "thumbnail": "WOLF7062-thumb.jpg",
-    "full": "WOLF7062-full.jpg"
+    "full": "WOLF7062-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7160",
@@ -899,7 +921,8 @@
       "megapixels": 27.8
     },
     "thumbnail": "WOLF7160-thumb.jpg",
-    "full": "WOLF7160-full.jpg"
+    "full": "WOLF7160-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7166",
@@ -938,7 +961,8 @@
       "megapixels": 27.8
     },
     "thumbnail": "WOLF7166-thumb.jpg",
-    "full": "WOLF7166-full.jpg"
+    "full": "WOLF7166-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7178",
@@ -977,7 +1001,8 @@
       "megapixels": 31.5
     },
     "thumbnail": "WOLF7178-thumb.jpg",
-    "full": "WOLF7178-full.jpg"
+    "full": "WOLF7178-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7227",
@@ -1016,7 +1041,8 @@
       "megapixels": 32
     },
     "thumbnail": "WOLF7227-thumb.jpg",
-    "full": "WOLF7227-full.jpg"
+    "full": "WOLF7227-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7301",
@@ -1055,7 +1081,8 @@
       "megapixels": 41.7
     },
     "thumbnail": "WOLF7301-thumb.jpg",
-    "full": "WOLF7301-full.jpg"
+    "full": "WOLF7301-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7336",
@@ -1094,7 +1121,8 @@
       "megapixels": 29.6
     },
     "thumbnail": "WOLF7336-thumb.jpg",
-    "full": "WOLF7336-full.jpg"
+    "full": "WOLF7336-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7337",
@@ -1133,7 +1161,8 @@
       "megapixels": 35.3
     },
     "thumbnail": "WOLF7337-thumb.jpg",
-    "full": "WOLF7337-full.jpg"
+    "full": "WOLF7337-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7356",
@@ -1172,7 +1201,8 @@
       "megapixels": 44.8
     },
     "thumbnail": "WOLF7356-thumb.jpg",
-    "full": "WOLF7356-full.jpg"
+    "full": "WOLF7356-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7406-pano",
@@ -1211,7 +1241,8 @@
       "megapixels": 42.7
     },
     "thumbnail": "WOLF7406-Pano-thumb.jpg",
-    "full": "WOLF7406-Pano-full.jpg"
+    "full": "WOLF7406-Pano-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7450",
@@ -1250,7 +1281,8 @@
       "megapixels": 41.7
     },
     "thumbnail": "WOLF7450-thumb.jpg",
-    "full": "WOLF7450-full.jpg"
+    "full": "WOLF7450-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7471",
@@ -1292,7 +1324,8 @@
       "megapixels": 41.7
     },
     "thumbnail": "WOLF7471-thumb.jpg",
-    "full": "WOLF7471-full.jpg"
+    "full": "WOLF7471-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7489",
@@ -1331,7 +1364,8 @@
       "megapixels": 30.4
     },
     "thumbnail": "WOLF7489-thumb.jpg",
-    "full": "WOLF7489-full.jpg"
+    "full": "WOLF7489-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7514",
@@ -1370,7 +1404,8 @@
       "megapixels": 25
     },
     "thumbnail": "WOLF7514-thumb.jpg",
-    "full": "WOLF7514-full.jpg"
+    "full": "WOLF7514-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6535-pano",
@@ -1409,7 +1444,8 @@
       "megapixels": 36.6
     },
     "thumbnail": "WOLF6535-Pano-thumb.jpg",
-    "full": "WOLF6535-Pano-full.jpg"
+    "full": "WOLF6535-Pano-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6679",
@@ -1448,7 +1484,8 @@
       "megapixels": 34.9
     },
     "thumbnail": "WOLF6679-thumb.jpg",
-    "full": "WOLF6679-full.jpg"
+    "full": "WOLF6679-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6698-pano",
@@ -1487,7 +1524,8 @@
       "megapixels": 46.4
     },
     "thumbnail": "WOLF6698-Pano-thumb.jpg",
-    "full": "WOLF6698-Pano-full.jpg"
+    "full": "WOLF6698-Pano-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6895",
@@ -1526,7 +1564,8 @@
       "megapixels": 31.4
     },
     "thumbnail": "WOLF6895-thumb.jpg",
-    "full": "WOLF6895-full.jpg"
+    "full": "WOLF6895-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6924",
@@ -1565,7 +1604,8 @@
       "megapixels": 29.2
     },
     "thumbnail": "WOLF6924-thumb.jpg",
-    "full": "WOLF6924-full.jpg"
+    "full": "WOLF6924-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf6999",
@@ -1604,7 +1644,8 @@
       "megapixels": 29.0
     },
     "thumbnail": "WOLF6999-thumb.jpg",
-    "full": "WOLF6999-full.jpg"
+    "full": "WOLF6999-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7013",
@@ -1643,7 +1684,8 @@
       "megapixels": 31.5
     },
     "thumbnail": "WOLF7013-thumb.jpg",
-    "full": "WOLF7013-full.jpg"
+    "full": "WOLF7013-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7038",
@@ -1682,7 +1724,8 @@
       "megapixels": 39.3
     },
     "thumbnail": "WOLF7038-thumb.jpg",
-    "full": "WOLF7038-full.jpg"
+    "full": "WOLF7038-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7165",
@@ -1721,7 +1764,8 @@
       "megapixels": 27.8
     },
     "thumbnail": "WOLF7165-thumb.jpg",
-    "full": "WOLF7165-full.jpg"
+    "full": "WOLF7165-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7228",
@@ -1760,7 +1804,8 @@
       "megapixels": 29.5
     },
     "thumbnail": "WOLF7228-thumb.jpg",
-    "full": "WOLF7228-full.jpg"
+    "full": "WOLF7228-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7364",
@@ -1799,7 +1844,8 @@
       "megapixels": 44.7
     },
     "thumbnail": "WOLF7364-thumb.jpg",
-    "full": "WOLF7364-full.jpg"
+    "full": "WOLF7364-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7454",
@@ -1838,7 +1884,8 @@
       "megapixels": 28.0
     },
     "thumbnail": "WOLF7454-thumb.jpg",
-    "full": "WOLF7454-full.jpg"
+    "full": "WOLF7454-full.jpg",
+    "c2pa": true
   },
   {
     "id": "wolf7470",
@@ -1877,6 +1924,7 @@
       "megapixels": 28.0
     },
     "thumbnail": "WOLF7470-thumb.jpg",
-    "full": "WOLF7470-full.jpg"
+    "full": "WOLF7470-full.jpg",
+    "c2pa": true
   }
 ]

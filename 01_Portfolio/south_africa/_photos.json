@@ -30,7 +30,8 @@
       "megapixels": 20.0
     },
     "thumbnail": "_MG_2190-thumb.jpg",
-    "full": "_MG_2190-full.jpg"
+    "full": "_MG_2190-full.jpg",
+    "c2pa": true
   },
   {
     "id": "sa-002",
@@ -64,7 +65,8 @@
       "megapixels": 20.0
     },
     "thumbnail": "_MG_2487-thumb.jpg",
-    "full": "_MG_2487-full.jpg"
+    "full": "_MG_2487-full.jpg",
+    "c2pa": true
   },
   {
     "id": "sa-003",
@@ -99,7 +101,8 @@
       "megapixels": 20.0
     },
     "thumbnail": "_MG_2508-thumb.jpg",
-    "full": "_MG_2508-full.jpg"
+    "full": "_MG_2508-full.jpg",
+    "c2pa": true
   },
   {
     "id": "sa-004",
@@ -134,7 +137,8 @@
       "megapixels": 15.1
     },
     "thumbnail": "_MG_3934-thumb.jpg",
-    "full": "_MG_3934-full.jpg"
+    "full": "_MG_3934-full.jpg",
+    "c2pa": true
   },
   {
     "id": "sa-005",
@@ -170,13 +174,14 @@
       "megapixels": 20.0
     },
     "thumbnail": "_MG_3975-thumb.jpg",
-    "full": "_MG_3975-full.jpg"
+    "full": "_MG_3975-full.jpg",
+    "c2pa": true
   },
   {
     "id": "sa-006",
     "filename": "_MG_4076.jpg",
     "title": "Rock Hyrax on the Coast",
-    "description": "A rock hyrax — the dassie — hunkers down on a lichen-covered granite boulder above the ocean, its small form braced against the cool coastal light of the Cape Peninsula.",
+    "description": "A rock hyrax \u2014 the dassie \u2014 hunkers down on a lichen-covered granite boulder above the ocean, its small form braced against the cool coastal light of the Cape Peninsula.",
     "location": {
       "country": "South Africa",
       "region": "Western Cape",
@@ -204,6 +209,7 @@
       "megapixels": 20.0
     },
     "thumbnail": "_MG_4076-thumb.jpg",
-    "full": "_MG_4076-full.jpg"
+    "full": "_MG_4076-full.jpg",
+    "c2pa": true
   }
 ]

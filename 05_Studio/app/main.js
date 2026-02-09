@@ -1816,10 +1816,18 @@ ipcMain.handle('check-service-status', async (event, service) => {
 
       case 'c2pa': {
         try {
-          const output = execSync('which c2patool', { encoding: 'utf8', timeout: 5000 });
-          return { status: 'ok', message: 'c2patool available' };
+          // Check for c2pa-python (used by c2pa-sign.js for actual signing)
+          execSync('python3 -c "import c2pa"', { encoding: 'utf8', timeout: 5000 });
+          // Also verify certificate files exist
+          const c2paDir = require('path').join(ARCHIVE_BASE, '07_C2PA');
+          const hasCerts = require('fs').existsSync(require('path').join(c2paDir, 'chain.pem'))
+            && require('fs').existsSync(require('path').join(c2paDir, 'signer_pkcs8.key'));
+          if (!hasCerts) {
+            return { status: 'error', message: 'c2pa-python installed but certificates missing in 07_C2PA/' };
+          }
+          return { status: 'ok', message: 'c2pa-python + certificates ready' };
         } catch (err) {
-          return { status: 'error', message: 'c2patool not found in PATH' };
+          return { status: 'error', message: 'c2pa-python not installed. Run: pip3 install c2pa-python' };
         }
       }
 
@@ -1915,10 +1923,16 @@ ipcMain.handle('check-all-services', async (event) => {
 
         case 'c2pa': {
           try {
-            execSync('which c2patool', { encoding: 'utf8', timeout: 5000 });
-            return { status: 'ok', message: 'c2patool available' };
+            execSync('python3 -c "import c2pa"', { encoding: 'utf8', timeout: 5000 });
+            const c2paDir = require('path').join(ARCHIVE_BASE, '07_C2PA');
+            const hasCerts = require('fs').existsSync(require('path').join(c2paDir, 'chain.pem'))
+              && require('fs').existsSync(require('path').join(c2paDir, 'signer_pkcs8.key'));
+            if (!hasCerts) {
+              return { status: 'error', message: 'c2pa-python installed but certificates missing in 07_C2PA/' };
+            }
+            return { status: 'ok', message: 'c2pa-python + certificates ready' };
           } catch (err) {
-            return { status: 'error', message: 'c2patool not found in PATH' };
+            return { status: 'error', message: 'c2pa-python not installed. Run: pip3 install c2pa-python' };
           }
         }
 

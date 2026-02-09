@@ -13,11 +13,13 @@ import os
 import shutil
 
 # --- Configuration ---
-IMAGES_DIR = "/sessions/hopeful-busy-mccarthy/mnt/Archive-35.com/images"
-CERT_CHAIN = "/sessions/hopeful-busy-mccarthy/c2pa/ca/chain.pem"
-KEY_FILE = "/sessions/hopeful-busy-mccarthy/c2pa/ca/signer_pkcs8.key"
-PHOTOS_JSON = "/sessions/hopeful-busy-mccarthy/mnt/Archive-35.com/data/photos.json"
-TEMP_DIR = "/sessions/hopeful-busy-mccarthy/c2pa/tmp"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+ARCHIVE_BASE = os.path.dirname(SCRIPT_DIR)
+IMAGES_DIR = os.path.join(ARCHIVE_BASE, 'images')
+CERT_CHAIN = os.path.join(SCRIPT_DIR, 'chain.pem')
+KEY_FILE = os.path.join(SCRIPT_DIR, 'signer_pkcs8.key')
+PHOTOS_JSON = os.path.join(ARCHIVE_BASE, 'data', 'photos.json')
+TEMP_DIR = os.path.join(SCRIPT_DIR, 'tmp')
 
 os.makedirs(TEMP_DIR, exist_ok=True)
 

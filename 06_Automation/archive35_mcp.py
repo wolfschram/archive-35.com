@@ -16,6 +16,11 @@ def safe(p):
     return r
 
 def git(*a):
+    # Auto-clean stale git lock files before any operation
+    import glob as _g
+    for lf in _g.glob(os.path.join(ROOT,'.git','*.lock'))+_g.glob(os.path.join(ROOT,'.git','refs','**','*.lock'),recursive=True):
+        try: os.remove(lf)
+        except: pass
     r=subprocess.run(['git']+list(a),cwd=ROOT,capture_output=True,text=True,timeout=30)
     return r.stdout.strip() or r.stderr.strip() or '(none)'
 

@@ -1684,7 +1684,25 @@ ipcMain.handle('deploy-website', async () => {
     // Phase 4: Git operations
     sendProgress('git', 'Committing changes...');
     const { execSync } = require('child_process');
+    const path = require('path');
     const gitOpts = { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 30000 };
+
+    // Clean up stale git lock files before any git operation
+    const lockFiles = [
+      '.git/HEAD.lock',
+      '.git/index.lock',
+      '.git/refs/heads/main.lock'
+    ];
+    for (const lockFile of lockFiles) {
+      const lockPath = path.join(ARCHIVE_BASE, lockFile);
+      try {
+        const fsStat = require('fs');
+        if (fsStat.existsSync(lockPath)) {
+          fsStat.unlinkSync(lockPath);
+          console.log(`Removed stale lock: ${lockFile}`);
+        }
+      } catch (e) { /* lock file doesn't exist or already removed */ }
+    }
 
     try {
       execSync('git add data/photos.json images/', gitOpts);

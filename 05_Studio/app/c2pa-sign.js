@@ -37,7 +37,7 @@ function findPython() {
   ];
   for (const py of candidates) {
     try {
-      execFileSync(py, ['-c', 'import c2pa'], { timeout: 5000, stdio: 'pipe' });
+      execFileSync(py, ['-c', 'import c2pa'], { timeout: 5000, stdio: 'ignore' });
       _resolvedPython = py;
       console.log(`C2PA: using Python at ${py}`);
       return py;

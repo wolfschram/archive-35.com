@@ -1684,7 +1684,6 @@ ipcMain.handle('deploy-website', async () => {
     // Phase 4: Git operations
     sendProgress('git', 'Committing changes...');
     const { execSync } = require('child_process');
-    const path = require('path');
     const gitOpts = { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 30000 };
 
     // Clean up stale git lock files before any git operation
@@ -1696,9 +1695,8 @@ ipcMain.handle('deploy-website', async () => {
     for (const lockFile of lockFiles) {
       const lockPath = path.join(ARCHIVE_BASE, lockFile);
       try {
-        const fsStat = require('fs');
-        if (fsStat.existsSync(lockPath)) {
-          fsStat.unlinkSync(lockPath);
+        if (fsSync.existsSync(lockPath)) {
+          fsSync.unlinkSync(lockPath);
           console.log(`Removed stale lock: ${lockFile}`);
         }
       } catch (e) { /* lock file doesn't exist or already removed */ }
@@ -1819,7 +1817,7 @@ ipcMain.handle('check-service-status', async (event, service) => {
         let foundPython = null;
         for (const py of pythonCandidates) {
           try {
-            execSync(`${py} -c "import c2pa"`, { encoding: 'utf8', timeout: 5000, stdio: 'pipe' });
+            execSync(`${py} -c "import c2pa"`, { timeout: 5000, stdio: 'ignore' });
             foundPython = py;
             break;
           } catch { /* try next */ }
@@ -1931,7 +1929,7 @@ ipcMain.handle('check-all-services', async (event) => {
           let foundPy = null;
           for (const py of pythonCandidates2) {
             try {
-              execSync(`${py} -c "import c2pa"`, { encoding: 'utf8', timeout: 5000, stdio: 'pipe' });
+              execSync(`${py} -c "import c2pa"`, { timeout: 5000, stdio: 'ignore' });
               foundPy = py;
               break;
             } catch { /* try next */ }

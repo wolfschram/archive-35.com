@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Environment
   getEnv: (key) => ipcRenderer.invoke('get-env', key),
   getBasePath: () => ipcRenderer.invoke('get-base-path'),
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
 
   // Portfolio operations
   getPortfolios: () => ipcRenderer.invoke('get-portfolios'),
@@ -68,6 +69,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Service status checks
   checkServiceStatus: (service) => ipcRenderer.invoke('check-service-status', service),
   checkAllServices: () => ipcRenderer.invoke('check-all-services'),
+
+  // Google Analytics
+  getAnalyticsConfig: () => ipcRenderer.invoke('get-analytics-config'),
+  getAnalyticsData: () => ipcRenderer.invoke('get-analytics-data'),
 
   // Platform info
   platform: process.platform

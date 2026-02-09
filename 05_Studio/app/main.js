@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
 const fsSync = require('fs');
@@ -135,6 +135,17 @@ ipcMain.handle('get-env', (event, key) => {
 // Get base path
 ipcMain.handle('get-base-path', () => {
   return path.join(__dirname, '..', '..');
+});
+
+// Open external URL in default browser
+ipcMain.handle('open-external', async (event, url) => {
+  try {
+    await shell.openExternal(url);
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to open external URL:', err);
+    return { success: false, error: err.message };
+  }
 });
 
 // ===================
@@ -1926,4 +1937,276 @@ ipcMain.handle('check-all-services', async (event) => {
   }
 
   return results;
+});
+
+// ===================
+// GOOGLE ANALYTICS
+// ===================
+
+ipcMain.handle('get-analytics-config', async () => {
+  const env = parseEnvFile();
+  const measurementId = env.GOOGLE_ANALYTICS_ID || '';
+  const propertyId = env.GOOGLE_ANALYTICS_PROPERTY_ID || '';
+  const configured = !!(measurementId && propertyId);
+
+  return {
+    configured,
+    measurementId,
+    propertyId,
+    streamId: '13580866536',
+    accountId: '193131448',
+    message: configured
+      ? 'GA4 property configured. Data collection started.'
+      : 'Google Analytics not configured. Add GOOGLE_ANALYTICS_ID and GOOGLE_ANALYTICS_PROPERTY_ID to .env'
+  };
+});
+
+ipcMain.handle('get-analytics-data', async () => {
+  try {
+    const env = parseEnvFile();
+
+    // ==================
+    // 1. GA4 Status
+    // ==================
+    const measurementId = env.GOOGLE_ANALYTICS_ID || '';
+    const propertyId = env.GOOGLE_ANALYTICS_PROPERTY_ID || '';
+    const ga4Configured = !!(measurementId && propertyId);
+
+    const ga4Data = {
+      configured: ga4Configured,
+      measurementId,
+      propertyId,
+      message: ga4Configured
+        ? 'GA4 configured. Data collection enabled.'
+        : 'GA4 not configured. Add GOOGLE_ANALYTICS_ID and GOOGLE_ANALYTICS_PROPERTY_ID to .env'
+    };
+
+    // ==================
+    // 2. Stripe Revenue Data
+    // ==================
+    let stripeData = {
+      configured: false,
+      revenue: 0,
+      orderCount: 0,
+      averageOrder: 0,
+      period: 'Last 30 days',
+      error: null
+    };
+
+    const stripeSecretKey = env.STRIPE_SECRET_KEY;
+    if (stripeSecretKey) {
+      stripeData.configured = true;
+      try {
+        const stripe = require('stripe')(stripeSecretKey);
+
+        // Fetch charges from last 30 days
+        const thirtyDaysAgo = Math.floor(Date.now() / 1000) - (30 * 24 * 60 * 60);
+        const charges = await stripe.charges.list({
+          created: { gte: thirtyDaysAgo },
+          limit: 100
+        });
+
+        // Calculate metrics
+        let totalRevenue = 0;
+        let successfulCharges = 0;
+
+        for (const charge of charges.data) {
+          // Only count successful charges
+          if (charge.paid && !charge.refunded) {
+            totalRevenue += charge.amount;
+            successfulCharges++;
+          }
+        }
+
+        // Convert from cents to dollars
+        const revenue = totalRevenue / 100;
+        const orderCount = successfulCharges;
+        const averageOrder = orderCount > 0 ? revenue / orderCount : 0;
+
+        stripeData = {
+          configured: true,
+          revenue: Math.round(revenue * 100) / 100,
+          orderCount,
+          averageOrder: Math.round(averageOrder * 100) / 100,
+          period: 'Last 30 days'
+        };
+
+        console.log(`Stripe: ${orderCount} orders, $${revenue.toFixed(2)} revenue, avg $${averageOrder.toFixed(2)}`);
+      } catch (stripeErr) {
+        console.warn('Stripe data fetch failed:', stripeErr.message);
+        stripeData.error = stripeErr.message;
+      }
+    } else {
+      stripeData.error = 'STRIPE_SECRET_KEY not configured';
+    }
+
+    // ==================
+    // 3. Cloudflare Web Analytics Data
+    // ==================
+    let cloudflareData = {
+      configured: false,
+      pageViews: 0,
+      uniqueVisitors: 0,
+      topPages: [],
+      topReferrers: [],
+      period: 'Last 7 days',
+      error: null
+    };
+
+    const cloudflareToken = env.CLOUDFLARE_ANALYTICS_TOKEN;
+    const accountId = env.R2_ACCOUNT_ID; // b7491e0a2209add17e1f4307eb77c991
+    const siteTag = env.CLOUDFLARE_ZONE_TAG || '951402c170604a77bedfd24b90e2ec0d';
+
+    if (cloudflareToken && accountId) {
+      try {
+        // Cloudflare Web Analytics uses RUM (Real User Monitoring) dataset
+        const now = new Date();
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const dateGte = sevenDaysAgo.toISOString().split('.')[0] + 'Z';
+        const dateLte = now.toISOString().split('.')[0] + 'Z';
+
+        const query = `query {
+          viewer {
+            accounts(filter: { accountTag: "${accountId}" }) {
+              topPages: rumPageloadEventsAdaptiveGroups(
+                filter: {
+                  AND: [
+                    { datetime_geq: "${dateGte}" }
+                    { datetime_leq: "${dateLte}" }
+                    { OR: [{ siteTag: "${siteTag}" }] }
+                  ]
+                }
+                limit: 10
+                orderBy: [sum_visits_DESC]
+              ) {
+                count
+                sum {
+                  visits
+                }
+                dimensions {
+                  path: requestPath
+                }
+              }
+              topReferrers: rumPageloadEventsAdaptiveGroups(
+                filter: {
+                  AND: [
+                    { datetime_geq: "${dateGte}" }
+                    { datetime_leq: "${dateLte}" }
+                    { OR: [{ siteTag: "${siteTag}" }] }
+                  ]
+                }
+                limit: 10
+                orderBy: [sum_visits_DESC]
+              ) {
+                count
+                sum {
+                  visits
+                }
+                dimensions {
+                  refererHost
+                }
+              }
+            }
+          }
+        }`;
+
+        const response = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${cloudflareToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ query })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Cloudflare API returned ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.errors && result.errors.length > 0) {
+          throw new Error(result.errors[0].message);
+        }
+
+        const accountData = result.data?.viewer?.accounts?.[0];
+        if (accountData) {
+          // Process page views data
+          let totalPageViews = 0;
+          let totalVisits = 0;
+          const topPages = [];
+
+          if (accountData.topPages && accountData.topPages.length > 0) {
+            for (const group of accountData.topPages) {
+              const visits = group.sum?.visits || 0;
+              const count = group.count || 0;
+              totalVisits += visits;
+              totalPageViews += count;
+
+              topPages.push({
+                path: group.dimensions?.path || '/',
+                views: count,
+                visitors: visits
+              });
+            }
+          }
+
+          // Process referrer data
+          const topReferrers = [];
+          if (accountData.topReferrers && accountData.topReferrers.length > 0) {
+            for (const group of accountData.topReferrers) {
+              const referrer = group.dimensions?.refererHost;
+              if (referrer && referrer !== '' && referrer !== 'archive-35.com') {
+                topReferrers.push({
+                  source: referrer,
+                  visits: group.sum?.visits || group.count || 0
+                });
+              }
+            }
+          }
+
+          cloudflareData = {
+            configured: true,
+            pageViews: totalPageViews,
+            uniqueVisitors: totalVisits,
+            topPages: topPages.slice(0, 5),
+            topReferrers: topReferrers.slice(0, 5),
+            period: 'Last 7 days'
+          };
+
+          console.log(`Cloudflare: ${totalPageViews} page views, ${totalVisits} visits`);
+        } else {
+          // API returned data but no account match
+          cloudflareData.configured = true;
+          cloudflareData.pageViews = 0;
+          cloudflareData.uniqueVisitors = 0;
+          console.log('Cloudflare: No data yet (site may be new)');
+        }
+      } catch (cfErr) {
+        console.warn('Cloudflare data fetch failed:', cfErr.message);
+        cloudflareData.error = cfErr.message;
+      }
+    } else {
+      if (!cloudflareToken) {
+        cloudflareData.error = 'CLOUDFLARE_ANALYTICS_TOKEN not configured';
+      } else if (!accountId) {
+        cloudflareData.error = 'R2_ACCOUNT_ID (Cloudflare Account ID) not configured';
+      }
+    }
+
+    // Return combined data
+    return {
+      ga4: ga4Data,
+      cloudflare: cloudflareData,
+      stripe: stripeData
+    };
+
+  } catch (err) {
+    console.error('get-analytics-data failed:', err);
+    return {
+      ga4: { configured: false, error: err.message },
+      cloudflare: { configured: false, error: err.message },
+      stripe: { configured: false, error: err.message }
+    };
+  }
 });

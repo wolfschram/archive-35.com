@@ -131,6 +131,7 @@ e098375 feat: add C2PA auto-signing to ingest, fix Artelo refs, R2 delete
 
 ### COMPLETED TASKS (Don't redo these):
 
+- ✅ **EIN (Federal)** — ISSUED Feb 9, 2026, EIN: 41-4155701, Sole Proprietor, Trade Name: Archive-35
 - ✅ **EDD Unemployment Claim** — FILED AND SUBMITTED, done
 - ✅ **GA4 Property Created** — Archive-35, property 523662516
 - ✅ **GA4 Tracking Deployed** — All 9 HTML pages, measurement ID G-SE2WETEK5D
@@ -146,23 +147,25 @@ e098375 feat: add C2PA auto-signing to ingest, fix Artelo refs, R2 delete
 - ✅ **Stripe Integration** — Live mode keys configured, checkout working
 - ✅ **R2 Storage** — Bucket configured, upload pipeline working
 - ✅ **Studio App** — All core features working (ingest, manage, deploy, settings, analytics)
+- ✅ **CA Seller's Permit** — APPROVED Feb 9, 2026, Account 108-510160, Tax ID 226-961760, Annual filer
 
 ---
 
 ### NEXT TASKS (Priority Order — Dependencies Matter):
 
-**1. Apply for EIN (Federal) — DO THIS FIRST**
-- URL: https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online
-- Mon-Fri 7am-10pm ET only, instant approval
+**1. Apply for EIN (Federal) — DONE Feb 9, 2026**
+- EIN: 41-4155701
 - Sole Proprietor, Trade Name: Archive-35
-- Need this before: bank account, Stripe activation, seller's permit
+- CP 575 confirmation letter downloaded (PDF)
+- Note: IRS record shows name as "WOLFGANG SCHRAM GUSTAVO SCHRAM" — correct name is Wolfgang Gustavo Schram
 
-**2. Register for CA Seller's Permit (CDTFA)**
-- URL: https://onlineservices.cdtfa.ca.gov/_/
-- Required for collecting sales tax on physical art prints in California
-- Need EIN from step 1
-- Estimated monthly sales: ~$2,000
-- Sales tax rate in Santa Clarita: ~9.5%
+**2. CA Seller's Permit (CDTFA) — DONE Feb 9, 2026**
+- Account ID: 108-510160, Sales & Use Tax ID: 226-961760
+- Confirmation #: 0-055-210-747
+- NAICS: 541921 (Photography Studios, Portrait)
+- Annual filer, period ending Dec 31, 2026
+- Portal login: wolf@archive-35.com
+- Full report: `05_Business/Tax_Paperwork/CA_Sellers_Permit_Report.md`
 
 **3. File DBA (Fictitious Business Name) — "Archive-35"**
 - URL: https://www.lavote.gov/home/county-clerk/fictitious-business-names

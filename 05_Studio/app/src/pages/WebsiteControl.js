@@ -165,6 +165,14 @@ function WebsiteControl() {
       await checkStatus();
     } catch (err) {
       setDeployResult({ success: false, error: err.message });
+      // Mark current active stage as failed
+      setDeployStages(prev => {
+        const newStages = { ...prev };
+        // If no stage was marked active (unexpected error), mark 'scan' as active
+        const hasActive = Object.values(newStages).some(s => s.active);
+        if (!hasActive) newStages.scan = { complete: false, active: true };
+        return newStages;
+      });
     }
 
     if (cleanupRef.current) {
@@ -273,19 +281,48 @@ function WebsiteControl() {
         </div>
       </div>
 
-      {/* Deploy Pipeline Visualization */}
-      {deploying && (
-        <div className="deploy-pipeline-container">
-          <h3>Deploy Pipeline</h3>
+      {/* Deploy Pipeline Visualization — stays visible after deploy completes */}
+      {(deploying || deployResult) && (
+        <div className="deploy-pipeline-container" style={{
+          border: deployResult
+            ? `1px solid ${deployResult.success ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+            : '1px solid rgba(251, 191, 36, 0.3)',
+          background: deployResult
+            ? (deployResult.success ? 'rgba(34, 197, 94, 0.05)' : 'rgba(239, 68, 68, 0.05)')
+            : 'rgba(251, 191, 36, 0.05)',
+          borderRadius: 'var(--radius-md)',
+          padding: '16px 20px',
+          marginBottom: '20px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <h3 style={{ margin: 0 }}>Deploy Pipeline</h3>
+            {deployResult && (
+              <span style={{
+                fontSize: '12px',
+                color: deployResult.success ? '#22c55e' : '#ef4444',
+                fontWeight: 600
+              }}>
+                {deployResult.success ? '✓ Complete' : '✗ Failed'}
+                {deployResult.success && deployResult.photosPublished
+                  ? ` — ${deployResult.photosPublished} photos`
+                  : ''}
+              </span>
+            )}
+            {deploying && !deployResult && (
+              <span style={{ fontSize: '12px', color: '#fbbf24', fontWeight: 600 }}>
+                ◉ Deploying...
+              </span>
+            )}
+          </div>
           <div className="deploy-pipeline">
             {Object.entries(deployStages).map(([stage, stageData], idx) => (
               <React.Fragment key={stage}>
                 <div
-                  className={`pipeline-stage ${stageData.active ? 'active' : ''} ${stageData.complete ? 'complete' : ''}`}
+                  className={`pipeline-stage ${stageData.active ? 'active' : ''} ${stageData.complete ? 'complete' : ''} ${deployResult && !deployResult.success && stageData.active ? 'failed' : ''}`}
                   title={stageLabels[stage]}
                 >
                   <div className="stage-content">
-                    {stageData.complete ? '✓' : stageData.active ? '◉' : '○'}
+                    {stageData.complete ? '✓' : stageData.active ? (deployResult && !deployResult.success ? '✗' : '◉') : '○'}
                   </div>
                   <span className="stage-label">{stageLabels[stage]}</span>
                 </div>
@@ -295,6 +332,34 @@ function WebsiteControl() {
               </React.Fragment>
             ))}
           </div>
+          {/* Status message */}
+          {progress && deploying && (
+            <div style={{ marginTop: '10px', color: 'var(--text-muted)', fontSize: '13px' }}>
+              {progress.message}
+              {progress.total > 0 && (
+                <div style={{ background: 'var(--bg-tertiary)', borderRadius: '4px', height: '4px', overflow: 'hidden', marginTop: '6px' }}>
+                  <div style={{
+                    background: 'var(--accent)',
+                    height: '100%',
+                    width: `${Math.round((progress.current / progress.total) * 100)}%`,
+                    transition: 'width 0.3s ease'
+                  }} />
+                </div>
+              )}
+            </div>
+          )}
+          {deployResult && (
+            <div style={{ marginTop: '10px', fontSize: '13px', color: deployResult.success ? '#22c55e' : '#ef4444' }}>
+              {deployResult.success
+                ? deployResult.message
+                : `Error: ${deployResult.error}`}
+              {deployResult.success && deployResult.imagesCopied > 0 && (
+                <span style={{ color: 'var(--text-muted)', marginLeft: '8px' }}>
+                  ({deployResult.imagesCopied} images synced)
+                </span>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -369,27 +434,8 @@ function WebsiteControl() {
             </div>
           )}
 
-          {/* Progress during deploy */}
-          {deploying && progress && (
-            <div style={{ marginBottom: '16px' }}>
-              <div style={{ color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '8px' }}>
-                {progress.message}
-              </div>
-              {progress.total > 0 && (
-                <div style={{ background: 'var(--bg-tertiary)', borderRadius: '4px', height: '6px', overflow: 'hidden' }}>
-                  <div style={{
-                    background: 'var(--accent)',
-                    height: '100%',
-                    width: `${Math.round((progress.current / progress.total) * 100)}%`,
-                    transition: 'width 0.3s ease'
-                  }} />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Deploy result */}
-          {deployResult && (
+          {/* Deploy result summary in card */}
+          {deployResult && !deploying && (
             <div style={{
               background: deployResult.success ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
               border: `1px solid ${deployResult.success ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
@@ -397,16 +443,11 @@ function WebsiteControl() {
               padding: '12px',
               marginBottom: '16px'
             }}>
-              <div style={{ color: deployResult.success ? '#22c55e' : '#ef4444', fontWeight: 600 }}>
+              <div style={{ color: deployResult.success ? '#22c55e' : '#ef4444', fontWeight: 600, fontSize: '13px' }}>
                 {deployResult.success
-                  ? `\u2713 ${deployResult.message}`
-                  : `\u2717 Deploy failed: ${deployResult.error}`}
+                  ? '\u2713 Deploy complete \u2014 see pipeline above'
+                  : `\u2717 Deploy failed \u2014 see pipeline above`}
               </div>
-              {deployResult.success && deployResult.imagesCopied > 0 && (
-                <div style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px' }}>
-                  {deployResult.imagesCopied} images synced
-                </div>
-              )}
             </div>
           )}
 

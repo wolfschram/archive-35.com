@@ -200,7 +200,7 @@ function ContentIngest() {
 
   const allGalleriesConfigured = () => {
     return configuredGalleries.every(g => {
-      if (g.config.mode === 'new') return g.config.galleryName?.trim() && g.config.country?.trim();
+      if (g.config.mode === 'new') return g.config.galleryName?.trim();
       return true; // existing portfolios already have metadata
     });
   };
@@ -715,7 +715,8 @@ function ContentIngest() {
             return (
               <div key={gallery.folderName} className="glass-card full-width" style={{
                 border: `1px solid ${isNew ? 'rgba(59,130,246,0.3)' : 'rgba(251,191,36,0.3)'}`,
-                background: isNew ? 'rgba(59,130,246,0.05)' : 'rgba(251,191,36,0.05)'
+                background: isNew ? 'rgba(59,130,246,0.05)' : 'rgba(251,191,36,0.05)',
+                position: 'relative', zIndex: configuredGalleries.length - idx, overflow: 'visible'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -749,7 +750,7 @@ function ContentIngest() {
                       <AutocompleteInput
                         value={gallery.config.country}
                         onChange={v => updateGalleryConfig(gallery.folderName, 'country', v)}
-                        label="Country *"
+                        label="Country"
                         placeholder="e.g., USA"
                         suggestions={COUNTRIES}
                         helpText=""
@@ -791,7 +792,7 @@ function ContentIngest() {
             </button>
             {!allGalleriesConfigured() && (
               <p style={{ fontSize: '12px', color: '#f59e0b', marginTop: '8px' }}>
-                Fill in required fields (Gallery Name, Country) for all new galleries.
+                Fill in Gallery Name for all new galleries.
               </p>
             )}
           </div>

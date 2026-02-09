@@ -66,6 +66,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('deploy-progress', handler);
   },
 
+  // Auto-scan Photography folder
+  scanPhotography: () => ipcRenderer.invoke('scan-photography'),
+  onScanProgress: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('scan-progress', handler);
+    return () => ipcRenderer.removeListener('scan-progress', handler);
+  },
+
   // Service status checks
   checkServiceStatus: (service) => ipcRenderer.invoke('check-service-status', service),
   checkAllServices: () => ipcRenderer.invoke('check-all-services'),

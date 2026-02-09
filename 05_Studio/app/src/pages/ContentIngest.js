@@ -30,6 +30,12 @@ function ContentIngest() {
   const [processStatus, setProcessStatus] = useState(null);
   const [completionState, setCompletionState] = useState(null); // { photosImported, galleryName, timestamp }
 
+  // Scan state
+  const [scanning, setScanning] = useState(false);
+  const [scanResults, setScanResults] = useState(null);
+  const [scanSelections, setScanSelections] = useState({}); // folderName → { selected, galleryName, country, location }
+  const [scanProcessingFolder, setScanProcessingFolder] = useState(null); // folder currently being processed
+
   // Review step state
   const [reviewMode, setReviewMode] = useState(false);
   const [reviewData, setReviewData] = useState([]);
@@ -67,6 +73,96 @@ function ContentIngest() {
     } catch (err) {
       console.error('Failed to load portfolios:', err);
     }
+  };
+
+  // ===== AUTO-SCAN =====
+  const handleScanForNewContent = async () => {
+    setScanning(true);
+    setScanResults(null);
+    setScanSelections({});
+    try {
+      const result = await window.electronAPI.scanPhotography();
+      if (result.success) {
+        setScanResults(result);
+        // Pre-select folders that have new/updated content
+        const selections = {};
+        result.scanResults.forEach(r => {
+          if (r.status === 'has-updates' || r.status === 'new-gallery') {
+            selections[r.folderName] = {
+              selected: true,
+              galleryName: r.match ? '' : r.folderName,
+              country: '',
+              location: ''
+            };
+          }
+        });
+        setScanSelections(selections);
+      } else {
+        setProcessStatus({ step: 0, message: result.error, error: true });
+      }
+    } catch (err) {
+      setProcessStatus({ step: 0, message: err.message, error: true });
+    }
+    setScanning(false);
+  };
+
+  const toggleScanSelection = (folderName) => {
+    setScanSelections(prev => ({
+      ...prev,
+      [folderName]: {
+        ...prev[folderName],
+        selected: !prev[folderName]?.selected
+      }
+    }));
+  };
+
+  const updateScanGalleryField = (folderName, field, value) => {
+    setScanSelections(prev => ({
+      ...prev,
+      [folderName]: { ...prev[folderName], [field]: value }
+    }));
+  };
+
+  const handleImportFromScan = async () => {
+    if (!scanResults) return;
+    // Find first selected folder with content
+    const selectedFolders = scanResults.scanResults.filter(r =>
+      scanSelections[r.folderName]?.selected &&
+      (r.counts.new > 0 || r.counts.updated > 0)
+    );
+    if (selectedFolders.length === 0) return;
+
+    // Process first folder, then come back for more
+    const folder = selectedFolders[0];
+    setScanProcessingFolder(folder.folderName);
+
+    const filePaths = [...folder.newFiles, ...folder.updatedFiles].map(f => f.path);
+    setFiles(filePaths);
+
+    if (folder.match) {
+      // Existing portfolio
+      setGalleryMode('existing');
+      const portfolio = existingPortfolios.find(p =>
+        p.id === folder.match.portfolioFolder ||
+        p.name === folder.match.portfolioFolder
+      );
+      if (portfolio) setSelectedPortfolio(portfolio.id);
+    } else {
+      // New gallery
+      setGalleryMode('new');
+      const sel = scanSelections[folder.folderName] || {};
+      setGalleryName(sel.galleryName || folder.folderName);
+      setCountry(sel.country || '');
+      setLocation(sel.location || '');
+    }
+
+    // Clear scan view — user proceeds with normal flow
+    setScanResults(null);
+  };
+
+  const closeScan = () => {
+    setScanResults(null);
+    setScanSelections({});
   };
 
   const handleSelectFiles = async () => {
@@ -267,8 +363,145 @@ function ContentIngest() {
         <p className="page-subtitle">Import and process new photography</p>
       </header>
 
-      {/* ===== REVIEW MODE ===== */}
-      {reviewMode ? (
+      {/* ===== SCAN RESULTS VIEW ===== */}
+      {scanResults ? (
+        <div className="card-grid">
+          {/* Summary */}
+          <div className="glass-card full-width">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3>Scan Results</h3>
+              <button className="btn btn-secondary" onClick={closeScan} style={{ fontSize: '12px', padding: '6px 12px' }}>
+                Close
+              </button>
+            </div>
+            <div style={{ display: 'flex', gap: '24px', marginTop: '12px', flexWrap: 'wrap' }}>
+              <div style={{ textAlign: 'center', padding: '12px 16px', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)' }}>
+                <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--accent)' }}>{scanResults.summary.totalNewPhotos}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>New Photos</div>
+              </div>
+              <div style={{ textAlign: 'center', padding: '12px 16px', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)' }}>
+                <div style={{ fontSize: '24px', fontWeight: 700, color: '#f59e0b' }}>{scanResults.summary.totalUpdatedPhotos}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Updated</div>
+              </div>
+              <div style={{ textAlign: 'center', padding: '12px 16px', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)' }}>
+                <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-muted)' }}>{scanResults.summary.newGalleries}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>New Galleries</div>
+              </div>
+              <div style={{ textAlign: 'center', padding: '12px 16px', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)' }}>
+                <div style={{ fontSize: '24px', fontWeight: 700, color: '#22c55e' }}>{scanResults.summary.upToDate}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Up to Date</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Folder list */}
+          {scanResults.scanResults.map(folder => {
+            const sel = scanSelections[folder.folderName];
+            const hasContent = folder.counts.new > 0 || folder.counts.updated > 0;
+            const statusColors = {
+              'new-gallery': { bg: 'rgba(59,130,246,0.1)', border: 'rgba(59,130,246,0.3)', label: 'New Gallery', color: '#3b82f6' },
+              'has-updates': { bg: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.3)', label: 'Has Updates', color: '#f59e0b' },
+              'up-to-date': { bg: 'rgba(34,197,94,0.05)', border: 'rgba(34,197,94,0.2)', label: 'Up to Date', color: '#22c55e' },
+              'empty': { bg: 'var(--bg-tertiary)', border: 'var(--glass-border)', label: 'Empty', color: 'var(--text-muted)' }
+            };
+            const st = statusColors[folder.status] || statusColors.empty;
+
+            return (
+              <div key={folder.folderName} className="glass-card full-width" style={{
+                border: `1px solid ${st.border}`,
+                background: st.bg,
+                opacity: folder.status === 'empty' ? 0.5 : 1
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  {hasContent && (
+                    <input
+                      type="checkbox"
+                      checked={sel?.selected || false}
+                      onChange={() => toggleScanSelection(folder.folderName)}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    />
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <strong>{folder.folderName}</strong>
+                      <span style={{
+                        fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
+                        background: st.bg, color: st.color, border: `1px solid ${st.border}`,
+                        fontWeight: 600
+                      }}>{st.label}</span>
+                      {folder.match && (
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                          {folder.match.method === 'alias' ? '=' : '\u2248'} {folder.match.portfolioFolder}
+                          <span style={{ fontSize: '11px', marginLeft: '4px', color: folder.match.confidence >= 90 ? '#22c55e' : '#f59e0b' }}>
+                            {folder.match.confidence}%
+                          </span>
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                      {folder.counts.new > 0 && <span style={{ marginRight: '12px' }}>{folder.counts.new} new</span>}
+                      {folder.counts.updated > 0 && <span style={{ marginRight: '12px' }}>{folder.counts.updated} updated</span>}
+                      {folder.counts.existing > 0 && <span>{folder.counts.existing} existing</span>}
+                      {folder.status === 'empty' && <span>No images</span>}
+                    </div>
+                  </div>
+                </div>
+
+                {/* New gallery metadata form */}
+                {folder.status === 'new-gallery' && sel?.selected && (
+                  <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--glass-border)', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <div style={{ flex: '1 1 200px' }}>
+                      <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Gallery Name *</label>
+                      <input
+                        type="text"
+                        value={sel?.galleryName || ''}
+                        onChange={e => updateScanGalleryField(folder.folderName, 'galleryName', e.target.value)}
+                        placeholder={folder.folderName}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                    <div style={{ flex: '1 1 150px' }}>
+                      <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Country *</label>
+                      <input
+                        type="text"
+                        value={sel?.country || ''}
+                        onChange={e => updateScanGalleryField(folder.folderName, 'country', e.target.value)}
+                        placeholder="e.g., USA"
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                    <div style={{ flex: '1 1 150px' }}>
+                      <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Location</label>
+                      <input
+                        type="text"
+                        value={sel?.location || ''}
+                        onChange={e => updateScanGalleryField(folder.folderName, 'location', e.target.value)}
+                        placeholder="e.g., Death Valley"
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* Import button */}
+          <div className="glass-card full-width">
+            <button
+              className="btn btn-primary btn-large"
+              onClick={handleImportFromScan}
+              disabled={!Object.values(scanSelections).some(s => s.selected)}
+              style={{ width: '100%' }}
+            >
+              Import Selected Folders
+            </button>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
+              Each folder will go through AI analysis and review before finalizing.
+            </p>
+          </div>
+        </div>
+      ) : reviewMode ? (
         <div className="card-grid">
           {/* Progress indicator */}
           <div className="glass-card full-width">
@@ -416,6 +649,20 @@ function ContentIngest() {
               <button className="btn btn-secondary" onClick={handleSelectFolder}>
                 Select Folder
               </button>
+            </div>
+
+            <div style={{ borderTop: '1px solid var(--glass-border)', marginTop: '16px', paddingTop: '16px' }}>
+              <button
+                className="btn btn-secondary"
+                onClick={handleScanForNewContent}
+                disabled={scanning}
+                style={{ width: '100%' }}
+              >
+                {scanning ? 'Scanning...' : 'Scan for New Content'}
+              </button>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
+                Auto-detect new photos from your Photography folder
+              </p>
             </div>
 
             {files.length > 0 && (

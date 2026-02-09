@@ -1798,6 +1798,211 @@ ipcMain.handle('deploy-website', async () => {
 // SERVICE STATUS CHECKS
 // ===================
 
+// ===== AUTO-SCAN PHOTOGRAPHY FOLDER =====
+
+function normalizeForMatch(str) {
+  return str.toLowerCase().trim()
+    .replace(/[_\-\s:]+/g, '')
+    .replace(/[àáäâ]/g, 'a').replace(/[èéëê]/g, 'e')
+    .replace(/[ìíïî]/g, 'i').replace(/[òóöô]/g, 'o')
+    .replace(/[ùúüû]/g, 'u').replace(/ñ/g, 'n').replace(/ç/g, 'c');
+}
+
+function levenshteinDistance(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, (_, i) => {
+    const row = new Array(n + 1).fill(0);
+    row[0] = i;
+    return row;
+  });
+  for (let j = 1; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1];
+      else dp[i][j] = 1 + Math.min(dp[i - 1][j - 1], dp[i][j - 1], dp[i - 1][j]);
+    }
+  }
+  return dp[m][n];
+}
+
+function calculateSimilarity(a, b) {
+  const na = normalizeForMatch(a), nb = normalizeForMatch(b);
+  if (!na.length || !nb.length) return 0;
+  const dist = levenshteinDistance(na, nb);
+  return Math.max(0, (1 - dist / Math.max(na.length, nb.length)) * 100);
+}
+
+ipcMain.handle('scan-photography', async () => {
+  try {
+    const PHOTOGRAPHY_DIR = path.join(ARCHIVE_BASE, 'Photography');
+    if (!fsSync.existsSync(PHOTOGRAPHY_DIR)) {
+      return { success: false, error: 'Photography folder not found' };
+    }
+
+    // Load scan config
+    const configPath = path.join(PORTFOLIO_DIR, '.scan-config.json');
+    let config = { excludeFolders: [], aliasMap: {} };
+    try {
+      if (fsSync.existsSync(configPath)) {
+        config = JSON.parse(fsSync.readFileSync(configPath, 'utf8'));
+      }
+    } catch (e) {}
+
+    // Normalize alias map keys
+    const aliasMap = {};
+    for (const [key, val] of Object.entries(config.aliasMap || {})) {
+      aliasMap[normalizeForMatch(key)] = val;
+    }
+
+    // Get existing portfolios
+    const portfolioEntries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
+    const portfolios = portfolioEntries
+      .filter(e => e.isDirectory() && !e.name.startsWith('.'))
+      .map(e => {
+        const originalsDir = path.join(PORTFOLIO_DIR, e.name, 'originals');
+        let originalsMap = {};
+        if (fsSync.existsSync(originalsDir)) {
+          try {
+            const files = fsSync.readdirSync(originalsDir).filter(f => /\.(jpg|jpeg|tiff|tif|png)$/i.test(f));
+            files.forEach(f => {
+              try {
+                originalsMap[f] = fsSync.statSync(path.join(originalsDir, f)).mtime.getTime();
+              } catch (e) {}
+            });
+          } catch (e) {}
+        }
+        return { folderName: e.name, originalsMap };
+      });
+
+    // Scan Photography subfolders
+    const photoEntries = await fs.readdir(PHOTOGRAPHY_DIR, { withFileTypes: true });
+    const scanResults = [];
+
+    for (const entry of photoEntries) {
+      if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
+      if ((config.excludeFolders || []).includes(entry.name)) continue;
+
+      const folderPath = path.join(PHOTOGRAPHY_DIR, entry.name);
+
+      // Send progress
+      if (mainWindow) {
+        mainWindow.webContents.send('scan-progress', { message: `Scanning: ${entry.name}` });
+      }
+
+      // Get image files
+      let imageFiles = [];
+      try {
+        const allFiles = await fs.readdir(folderPath);
+        imageFiles = allFiles.filter(f => /\.(jpg|jpeg|tiff|tif|png)$/i.test(f));
+      } catch (e) {}
+
+      if (imageFiles.length === 0) {
+        scanResults.push({
+          folderName: entry.name, path: folderPath, status: 'empty',
+          match: null, counts: { new: 0, updated: 0, existing: 0 },
+          newFiles: [], updatedFiles: []
+        });
+        continue;
+      }
+
+      // Try alias match first
+      const normalizedName = normalizeForMatch(entry.name);
+      let matchedPortfolio = null;
+      let matchConfidence = 0;
+      let matchMethod = null;
+
+      if (aliasMap[normalizedName]) {
+        const aliasTarget = aliasMap[normalizedName];
+        const found = portfolios.find(p => p.folderName === aliasTarget);
+        if (found) {
+          matchedPortfolio = found;
+          matchConfidence = 100;
+          matchMethod = 'alias';
+        }
+      }
+
+      // Fuzzy match if no alias
+      if (!matchedPortfolio) {
+        let bestScore = 0;
+        let bestMatch = null;
+        for (const p of portfolios) {
+          const score = calculateSimilarity(entry.name, p.folderName);
+          if (score > bestScore) {
+            bestScore = score;
+            bestMatch = p;
+          }
+        }
+        if (bestMatch && bestScore >= 60) {
+          matchedPortfolio = bestMatch;
+          matchConfidence = Math.round(bestScore);
+          matchMethod = 'fuzzy';
+        }
+      }
+
+      // Compare files
+      const newFiles = [];
+      const updatedFiles = [];
+      let existingCount = 0;
+
+      const originalsMap = matchedPortfolio ? matchedPortfolio.originalsMap : {};
+
+      for (const filename of imageFiles) {
+        const filePath = path.join(folderPath, filename);
+        let fileMtime;
+        try { fileMtime = fsSync.statSync(filePath).mtime.getTime(); } catch (e) { continue; }
+
+        if (!originalsMap[filename]) {
+          newFiles.push({ filename, path: filePath });
+        } else if (fileMtime > originalsMap[filename]) {
+          updatedFiles.push({ filename, path: filePath });
+        } else {
+          existingCount++;
+        }
+      }
+
+      // Determine status
+      let status = 'up-to-date';
+      if (!matchedPortfolio) status = 'new-gallery';
+      else if (newFiles.length > 0 || updatedFiles.length > 0) status = 'has-updates';
+
+      scanResults.push({
+        folderName: entry.name,
+        path: folderPath,
+        status,
+        match: matchedPortfolio ? {
+          portfolioFolder: matchedPortfolio.folderName,
+          confidence: matchConfidence,
+          method: matchMethod
+        } : null,
+        counts: { new: newFiles.length, updated: updatedFiles.length, existing: existingCount },
+        newFiles,
+        updatedFiles
+      });
+    }
+
+    // Sort: new-gallery first, then has-updates, then up-to-date, then empty
+    const statusOrder = { 'new-gallery': 0, 'has-updates': 1, 'up-to-date': 2, 'empty': 3 };
+    scanResults.sort((a, b) => (statusOrder[a.status] ?? 4) - (statusOrder[b.status] ?? 4));
+
+    return {
+      success: true,
+      scanResults,
+      summary: {
+        totalFolders: scanResults.length,
+        newGalleries: scanResults.filter(r => r.status === 'new-gallery').length,
+        withUpdates: scanResults.filter(r => r.status === 'has-updates').length,
+        upToDate: scanResults.filter(r => r.status === 'up-to-date').length,
+        empty: scanResults.filter(r => r.status === 'empty').length,
+        totalNewPhotos: scanResults.reduce((s, r) => s + r.counts.new, 0),
+        totalUpdatedPhotos: scanResults.reduce((s, r) => s + r.counts.updated, 0)
+      }
+    };
+  } catch (err) {
+    console.error('scan-photography failed:', err);
+    return { success: false, error: err.message };
+  }
+});
+
 ipcMain.handle('check-service-status', async (event, service) => {
   try {
     const { execSync } = require('child_process');

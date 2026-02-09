@@ -1704,8 +1704,15 @@ ipcMain.handle('deploy-website', async () => {
 
     try {
       execSync('git add data/photos.json images/', gitOpts);
-      const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      execSync(`git commit -m "Deploy: update photos — ${dateStr}"`, gitOpts);
+
+      // Check if there are staged changes before committing
+      const gitStatus = execSync('git diff --cached --stat', gitOpts).trim();
+      if (gitStatus) {
+        const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        execSync(`git commit -m "Deploy: update photos — ${dateStr}"`, gitOpts);
+      } else {
+        console.log('No changes to commit — skipping git commit');
+      }
 
       sendProgress('push', 'Pushing to GitHub...');
       execSync('git push origin main', { ...gitOpts, timeout: 60000 });
@@ -1719,17 +1726,7 @@ ipcMain.handle('deploy-website', async () => {
         message: `Deployed ${allWebsitePhotos.length} photos to archive-35.com`
       };
     } catch (gitErr) {
-      const errMsg = gitErr.stderr || gitErr.message;
-      // If "nothing to commit" that's actually fine
-      if (errMsg.includes('nothing to commit') || errMsg.includes('nothing added to commit')) {
-        sendProgress('done', 'Website already up to date.');
-        return {
-          success: true,
-          photosPublished: allWebsitePhotos.length,
-          imagesCopied: copied,
-          message: 'Website already up to date — no changes to deploy'
-        };
-      }
+      const errMsg = (gitErr.stderr || '') + (gitErr.stdout || '') + (gitErr.message || '');
       sendProgress('error', `Git error: ${errMsg}`);
       return {
         success: false,

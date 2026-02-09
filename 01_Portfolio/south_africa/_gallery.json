@@ -1,0 +1,16 @@
+{
+  "id": "south_africa",
+  "title": "South Africa",
+  "slug": "south-africa",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "South Africa",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 6
+}

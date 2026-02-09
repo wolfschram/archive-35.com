@@ -4563,6 +4563,207 @@
         "orientation": "wide",
         "megapixels": 12.9
       }
+    },
+    {
+      "id": "sa-001",
+      "filename": "_MG_2190",
+      "title": "Ostrich Portrait",
+      "description": "An ostrich turns its head with beak open, caught mid-call against a soft bokeh of green foliage and pale sky on a South African game reserve.",
+      "collection": "south-africa",
+      "collectionTitle": "South Africa",
+      "tags": [
+        "ostrich",
+        "wildlife-portrait",
+        "south-africa",
+        "bird-photography",
+        "game-reserve",
+        "safari",
+        "bokeh",
+        "nature-photography",
+        "fine-art",
+        "african-wildlife"
+      ],
+      "location": "South Africa",
+      "year": 2013,
+      "thumbnail": "images/south-africa/_MG_2190-thumb.jpg",
+      "full": "images/south-africa/_MG_2190-full.jpg",
+      "dimensions": {
+        "width": 5472,
+        "height": 3648,
+        "aspectRatio": 1.5,
+        "aspectRatioString": "5472:3648",
+        "orientation": "landscape",
+        "megapixels": 20.0
+      }
+    },
+    {
+      "id": "sa-002",
+      "filename": "_MG_2487",
+      "title": "Lion Cub on the Lookout",
+      "description": "A young lion cub peers over a rocky ledge from a low angle, paws draped forward, framed against dramatic cumulus clouds in the South African bush.",
+      "collection": "south-africa",
+      "collectionTitle": "South Africa",
+      "tags": [
+        "lion-cub",
+        "wildlife-portrait",
+        "south-africa",
+        "big-five",
+        "safari",
+        "low-angle",
+        "dramatic-sky",
+        "predator",
+        "nature-photography",
+        "fine-art",
+        "african-wildlife"
+      ],
+      "location": "South Africa",
+      "year": 2013,
+      "thumbnail": "images/south-africa/_MG_2487-thumb.jpg",
+      "full": "images/south-africa/_MG_2487-full.jpg",
+      "dimensions": {
+        "width": 5472,
+        "height": 3648,
+        "aspectRatio": 1.5,
+        "aspectRatioString": "5472:3648",
+        "orientation": "landscape",
+        "megapixels": 20.0
+      }
+    },
+    {
+      "id": "sa-003",
+      "filename": "_MG_2508",
+      "title": "White Lion Cub",
+      "description": "An intimate close-up portrait of a rare white lion cub with golden eyes and soft cream-colored fur, gazing directly into the camera with quiet intensity.",
+      "collection": "south-africa",
+      "collectionTitle": "South Africa",
+      "tags": [
+        "white-lion",
+        "lion-cub",
+        "wildlife-portrait",
+        "south-africa",
+        "rare-animal",
+        "big-five",
+        "close-up",
+        "golden-eyes",
+        "safari",
+        "nature-photography",
+        "fine-art",
+        "african-wildlife"
+      ],
+      "location": "South Africa",
+      "year": 2013,
+      "thumbnail": "images/south-africa/_MG_2508-thumb.jpg",
+      "full": "images/south-africa/_MG_2508-full.jpg",
+      "dimensions": {
+        "width": 5472,
+        "height": 3648,
+        "aspectRatio": 1.5,
+        "aspectRatioString": "5472:3648",
+        "orientation": "landscape",
+        "megapixels": 20.0
+      }
+    },
+    {
+      "id": "sa-004",
+      "filename": "_MG_3934",
+      "title": "African Penguin on the Beach",
+      "description": "An African penguin walks across the white sand of Boulders Beach near Simon's Town, Cape Peninsula, casting a sharp shadow in the midday sun.",
+      "collection": "south-africa",
+      "collectionTitle": "South Africa",
+      "tags": [
+        "african-penguin",
+        "boulders-beach",
+        "simons-town",
+        "cape-town",
+        "cape-peninsula",
+        "wildlife",
+        "beach",
+        "coastal",
+        "endangered-species",
+        "nature-photography",
+        "fine-art",
+        "south-africa"
+      ],
+      "location": "Boulders Beach, Simon's Town, Western Cape, South Africa",
+      "year": 2013,
+      "thumbnail": "images/south-africa/_MG_3934-thumb.jpg",
+      "full": "images/south-africa/_MG_3934-full.jpg",
+      "dimensions": {
+        "width": 5472,
+        "height": 2758,
+        "aspectRatio": 1.984,
+        "aspectRatioString": "5472:2758",
+        "orientation": "panorama",
+        "megapixels": 15.1
+      }
+    },
+    {
+      "id": "sa-005",
+      "filename": "_MG_3975",
+      "title": "Penguin Pair at Boulders Beach",
+      "description": "Two African penguins stand together on a granite boulder with turquoise ocean surf rolling in behind them at Boulders Beach, Cape Peninsula.",
+      "collection": "south-africa",
+      "collectionTitle": "South Africa",
+      "tags": [
+        "african-penguin",
+        "penguin-pair",
+        "boulders-beach",
+        "simons-town",
+        "cape-town",
+        "cape-peninsula",
+        "ocean",
+        "granite-boulders",
+        "coastal-wildlife",
+        "endangered-species",
+        "nature-photography",
+        "fine-art",
+        "south-africa"
+      ],
+      "location": "Boulders Beach, Simon's Town, Western Cape, South Africa",
+      "year": 2013,
+      "thumbnail": "images/south-africa/_MG_3975-thumb.jpg",
+      "full": "images/south-africa/_MG_3975-full.jpg",
+      "dimensions": {
+        "width": 5472,
+        "height": 3648,
+        "aspectRatio": 1.5,
+        "aspectRatioString": "5472:3648",
+        "orientation": "landscape",
+        "megapixels": 20.0
+      }
+    },
+    {
+      "id": "sa-006",
+      "filename": "_MG_4076",
+      "title": "Rock Hyrax on the Coast",
+      "description": "A rock hyrax \u2014 the dassie \u2014 hunkers down on a lichen-covered granite boulder above the ocean, its small form braced against the cool coastal light of the Cape Peninsula.",
+      "collection": "south-africa",
+      "collectionTitle": "South Africa",
+      "tags": [
+        "rock-hyrax",
+        "dassie",
+        "cape-peninsula",
+        "coastal-wildlife",
+        "south-africa",
+        "granite",
+        "lichen",
+        "ocean",
+        "wildlife-portrait",
+        "nature-photography",
+        "fine-art"
+      ],
+      "location": "Cape Peninsula, Western Cape, South Africa",
+      "year": 2013,
+      "thumbnail": "images/south-africa/_MG_4076-thumb.jpg",
+      "full": "images/south-africa/_MG_4076-full.jpg",
+      "dimensions": {
+        "width": 5472,
+        "height": 3648,
+        "aspectRatio": 1.5,
+        "aspectRatioString": "5472:3648",
+        "orientation": "landscape",
+        "megapixels": 20.0
+      }
     }
   ]
 }

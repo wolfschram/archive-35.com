@@ -380,6 +380,7 @@ ipcMain.handle('get-portfolios', async () => {
       const portfolioPath = path.join(PORTFOLIO_DIR, entry.name);
       let photoCount = 0;
       let location = '';
+      let country = '';
 
       // Try to read _gallery.json for metadata
       const galleryJsonPath = path.join(portfolioPath, '_gallery.json');
@@ -388,6 +389,12 @@ ipcMain.handle('get-portfolios', async () => {
           const galleryData = JSON.parse(await fs.readFile(galleryJsonPath, 'utf8'));
           // FIX: Format location object to string
           location = formatLocation(galleryData.location);
+          // Extract country from location object
+          if (galleryData.location) {
+            country = typeof galleryData.location === 'object'
+              ? (galleryData.location.country || '')
+              : '';
+          }
         }
       } catch (err) {
         // Ignore JSON parse errors
@@ -414,7 +421,8 @@ ipcMain.handle('get-portfolios', async () => {
         name: entry.name.replace(/_/g, ' '),
         folderName: entry.name,
         photoCount,
-        location
+        location,
+        country
       });
     }
 
@@ -1183,6 +1191,127 @@ ipcMain.handle('update-photo-metadata', async (event, { portfolioId, photoId, me
   }
 });
 
+// Replace photo with a new image
+ipcMain.handle('replace-photo', async (event, { portfolioId, photoId, newFilePath }) => {
+  try {
+    const sharp = require('sharp');
+    const { signImageC2PA, isC2PAAvailable } = require('./c2pa-sign');
+
+    // Find portfolio folder
+    const entries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
+    const portfolio = entries.find(e =>
+      e.isDirectory() && e.name.toLowerCase().replace(/\s+/g, '_') === portfolioId
+    );
+    if (!portfolio) return { success: false, error: 'Portfolio not found' };
+
+    const portfolioPath = path.join(PORTFOLIO_DIR, portfolio.name);
+    const originalsFolder = path.join(portfolioPath, 'originals');
+    const webFolder = path.join(portfolioPath, 'web');
+
+    // Read _photos.json to find the photo entry
+    const photosJsonPath = path.join(portfolioPath, '_photos.json');
+    let photosData = JSON.parse(await fs.readFile(photosJsonPath, 'utf8'));
+    const photoIndex = photosData.findIndex(p => p.id === photoId);
+    if (photoIndex === -1) return { success: false, error: 'Photo not found in metadata' };
+
+    const photo = photosData[photoIndex];
+    const baseName = photo.filename.replace(/\.[^.]+$/, '');
+
+    // 1. Replace original
+    const origDest = path.join(originalsFolder, photo.filename);
+    await fs.copyFile(newFilePath, origDest);
+
+    // 2. Create new web-optimized version
+    const webDest = path.join(webFolder, `${baseName}-full.jpg`);
+    await sharp(newFilePath)
+      .resize(2000, 2000, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 85 })
+      .toFile(webDest);
+
+    // 3. Sign with C2PA
+    const c2paReady = isC2PAAvailable();
+    if (c2paReady) {
+      try {
+        await signImageC2PA(webDest, {
+          title: photo.title || baseName,
+          author: 'Wolf',
+          location: typeof photo.location === 'object'
+            ? [photo.location.place, photo.location.region, photo.location.country].filter(Boolean).join(', ')
+            : (photo.location || ''),
+          year: new Date().getFullYear(),
+          description: photo.description || 'Fine art photograph by Wolf'
+        });
+      } catch (c2paErr) {
+        console.warn('C2PA signing failed for replacement:', c2paErr.message);
+      }
+    }
+
+    // 4. Create new thumbnail
+    const thumbDest = path.join(webFolder, `${baseName}-thumb.jpg`);
+    await sharp(newFilePath)
+      .resize(400, 400, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 80 })
+      .toFile(thumbDest);
+
+    // 5. Upload to R2
+    try {
+      const s3 = getR2Client();
+      const bucketName = parseEnvFileSync().R2_BUCKET_NAME;
+      if (s3 && bucketName) {
+        const { PutObjectCommand } = require('@aws-sdk/client-s3');
+        let collectionSlug;
+        try {
+          const galleryPath = path.join(portfolioPath, '_gallery.json');
+          if (fsSync.existsSync(galleryPath)) {
+            const gal = JSON.parse(fsSync.readFileSync(galleryPath, 'utf8'));
+            collectionSlug = gal.slug;
+          }
+        } catch (e) {}
+        if (!collectionSlug) {
+          collectionSlug = portfolioId.replace(/[_\s]+/g, '-').replace(/-+$/, '');
+        }
+        const modePrefix = getCurrentMode() === 'test' ? 'test/' : '';
+        const r2Key = `${modePrefix}${collectionSlug}/${baseName}.jpg`;
+        const fileBuffer = await fs.readFile(newFilePath);
+        await s3.send(new PutObjectCommand({
+          Bucket: bucketName,
+          Key: r2Key,
+          Body: fileBuffer,
+          ContentType: 'image/jpeg',
+        }));
+        console.log(`R2 upload (replace): ${r2Key}`);
+      }
+    } catch (r2Err) {
+      console.warn('R2 upload failed (non-blocking):', r2Err.message);
+    }
+
+    // 6. Update dimensions in _photos.json
+    const newMetadata = await sharp(newFilePath).metadata();
+    const aspectRatio = newMetadata.width / newMetadata.height;
+    let orientation = 'landscape';
+    if (aspectRatio < 0.95) orientation = 'portrait';
+    else if (aspectRatio >= 0.95 && aspectRatio <= 1.05) orientation = 'square';
+    else if (aspectRatio > 2.0) orientation = 'panorama';
+    else if (aspectRatio > 1.5) orientation = 'wide';
+
+    photosData[photoIndex].dimensions = {
+      width: newMetadata.width,
+      height: newMetadata.height,
+      aspectRatio: parseFloat(aspectRatio.toFixed(3)),
+      aspectRatioString: `${newMetadata.width}:${newMetadata.height}`,
+      orientation,
+      megapixels: parseFloat(((newMetadata.width * newMetadata.height) / 1000000).toFixed(1))
+    };
+
+    await fs.writeFile(photosJsonPath, JSON.stringify(photosData, null, 2));
+
+    return { success: true, message: `Replaced ${photo.filename} successfully` };
+  } catch (err) {
+    console.error('replace-photo failed:', err);
+    return { success: false, error: err.message };
+  }
+});
+
 // Process ingest (legacy - kept for compatibility)
 ipcMain.handle('process-ingest', async (event, { files, mode, portfolioId, newGallery }) => {
   console.log('process-ingest called - redirecting to analyze-photos');
@@ -1590,4 +1719,211 @@ ipcMain.handle('deploy-website', async () => {
     }
     return { success: false, error: err.message };
   }
+});
+
+// ===================
+// SERVICE STATUS CHECKS
+// ===================
+
+ipcMain.handle('check-service-status', async (event, service) => {
+  try {
+    const { execSync } = require('child_process');
+    const env = parseEnvFile();
+
+    switch (service) {
+      case 'github': {
+        try {
+          const output = execSync('git ls-remote --exit-code origin', {
+            cwd: ARCHIVE_BASE,
+            encoding: 'utf8',
+            timeout: 10000
+          });
+          return { status: 'ok', message: 'Connected to GitHub' };
+        } catch (err) {
+          return { status: 'error', message: 'Failed to connect to GitHub' };
+        }
+      }
+
+      case 'cloudflare': {
+        try {
+          const response = await fetch('https://archive-35.com/data/photos.json', { method: 'HEAD', timeout: 5000 });
+          if (response.ok) {
+            return { status: 'ok', message: `Site responding (${response.status})` };
+          } else {
+            return { status: 'warning', message: `Site returned ${response.status}` };
+          }
+        } catch (err) {
+          return { status: 'error', message: 'Could not reach archive-35.com' };
+        }
+      }
+
+      case 'stripe': {
+        if (!env.STRIPE_SECRET_KEY) {
+          return { status: 'error', message: 'API key not configured' };
+        }
+        return { status: 'ok', message: 'API key configured' };
+      }
+
+      case 'r2': {
+        if (!env.R2_ACCESS_KEY_ID || !env.R2_SECRET_ACCESS_KEY || !env.R2_ENDPOINT || !env.R2_BUCKET_NAME) {
+          return { status: 'error', message: 'R2 configuration incomplete' };
+        }
+        try {
+          const { S3Client, ListObjectsV2Command } = require('@aws-sdk/client-s3');
+          const s3 = new S3Client({
+            region: 'auto',
+            endpoint: env.R2_ENDPOINT,
+            credentials: {
+              accessKeyId: env.R2_ACCESS_KEY_ID,
+              secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+            },
+          });
+          const result = await s3.send(new ListObjectsV2Command({ Bucket: env.R2_BUCKET_NAME, MaxKeys: 1 }));
+          return { status: 'ok', message: `Bucket accessible (${result.KeyCount || 0} objects)` };
+        } catch (err) {
+          return { status: 'error', message: 'Could not access R2 bucket' };
+        }
+      }
+
+      case 'c2pa': {
+        try {
+          const output = execSync('which c2patool', { encoding: 'utf8', timeout: 5000 });
+          return { status: 'ok', message: 'c2patool available' };
+        } catch (err) {
+          return { status: 'error', message: 'c2patool not found in PATH' };
+        }
+      }
+
+      case 'anthropic': {
+        if (!env.ANTHROPIC_API_KEY) {
+          return { status: 'error', message: 'API key not configured' };
+        }
+        try {
+          const Anthropic = require('@anthropic-ai/sdk');
+          const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+          const resp = await client.messages.create({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 10,
+            messages: [{ role: 'user', content: 'OK' }]
+          });
+          return { status: 'ok', message: 'API key valid' };
+        } catch (err) {
+          return { status: 'error', message: 'API key invalid or connection failed' };
+        }
+      }
+
+      default:
+        return { status: 'error', message: 'Unknown service' };
+    }
+  } catch (err) {
+    console.error(`Service check failed for ${service}:`, err);
+    return { status: 'error', message: `Check failed: ${err.message}` };
+  }
+});
+
+ipcMain.handle('check-all-services', async (event) => {
+  const { execSync } = require('child_process');
+  const env = parseEnvFile();
+  const results = {};
+
+  // Helper function to check individual services
+  const checkService = async (service) => {
+    try {
+      switch (service) {
+        case 'github': {
+          try {
+            execSync('git ls-remote --exit-code origin', {
+              cwd: ARCHIVE_BASE,
+              encoding: 'utf8',
+              timeout: 10000
+            });
+            return { status: 'ok', message: 'Connected to GitHub' };
+          } catch (err) {
+            return { status: 'error', message: 'Failed to connect to GitHub' };
+          }
+        }
+
+        case 'cloudflare': {
+          try {
+            const response = await fetch('https://archive-35.com/data/photos.json', { method: 'HEAD', timeout: 5000 });
+            if (response.ok) {
+              return { status: 'ok', message: `Site responding (${response.status})` };
+            } else {
+              return { status: 'warning', message: `Site returned ${response.status}` };
+            }
+          } catch (err) {
+            return { status: 'error', message: 'Could not reach archive-35.com' };
+          }
+        }
+
+        case 'stripe': {
+          if (!env.STRIPE_SECRET_KEY) {
+            return { status: 'error', message: 'API key not configured' };
+          }
+          return { status: 'ok', message: 'API key configured' };
+        }
+
+        case 'r2': {
+          if (!env.R2_ACCESS_KEY_ID || !env.R2_SECRET_ACCESS_KEY || !env.R2_ENDPOINT || !env.R2_BUCKET_NAME) {
+            return { status: 'error', message: 'R2 configuration incomplete' };
+          }
+          try {
+            const { S3Client, ListObjectsV2Command } = require('@aws-sdk/client-s3');
+            const s3 = new S3Client({
+              region: 'auto',
+              endpoint: env.R2_ENDPOINT,
+              credentials: {
+                accessKeyId: env.R2_ACCESS_KEY_ID,
+                secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+              },
+            });
+            const result = await s3.send(new ListObjectsV2Command({ Bucket: env.R2_BUCKET_NAME, MaxKeys: 1 }));
+            return { status: 'ok', message: `Bucket accessible (${result.KeyCount || 0} objects)` };
+          } catch (err) {
+            return { status: 'error', message: 'Could not access R2 bucket' };
+          }
+        }
+
+        case 'c2pa': {
+          try {
+            execSync('which c2patool', { encoding: 'utf8', timeout: 5000 });
+            return { status: 'ok', message: 'c2patool available' };
+          } catch (err) {
+            return { status: 'error', message: 'c2patool not found in PATH' };
+          }
+        }
+
+        case 'anthropic': {
+          if (!env.ANTHROPIC_API_KEY) {
+            return { status: 'error', message: 'API key not configured' };
+          }
+          try {
+            const Anthropic = require('@anthropic-ai/sdk');
+            const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+            const resp = await client.messages.create({
+              model: 'claude-haiku-4-5-20251001',
+              max_tokens: 10,
+              messages: [{ role: 'user', content: 'OK' }]
+            });
+            return { status: 'ok', message: 'API key valid' };
+          } catch (err) {
+            return { status: 'error', message: 'API key invalid or connection failed' };
+          }
+        }
+
+        default:
+          return { status: 'error', message: 'Unknown service' };
+      }
+    } catch (err) {
+      console.error(`Service check failed for ${service}:`, err);
+      return { status: 'error', message: `Check failed: ${err.message}` };
+    }
+  };
+
+  const services = ['github', 'cloudflare', 'stripe', 'r2', 'c2pa', 'anthropic'];
+  for (const service of services) {
+    results[service] = await checkService(service);
+  }
+
+  return results;
 });

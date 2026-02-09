@@ -9,6 +9,25 @@ function WebsiteControl() {
   const [loading, setLoading] = useState(true);
   const cleanupRef = useRef(null);
 
+  // Service status monitoring
+  const [serviceStatuses, setServiceStatuses] = useState({
+    github: { status: 'idle', message: 'Not checked', lastChecked: null, testing: false },
+    cloudflare: { status: 'idle', message: 'Not checked', lastChecked: null, testing: false },
+    stripe: { status: 'idle', message: 'Not checked', lastChecked: null, testing: false },
+    r2: { status: 'idle', message: 'Not checked', lastChecked: null, testing: false },
+    c2pa: { status: 'idle', message: 'Not checked', lastChecked: null, testing: false },
+    anthropic: { status: 'idle', message: 'Not checked', lastChecked: null, testing: false },
+  });
+
+  const [deployStages, setDeployStages] = useState({
+    scan: { complete: false, active: false },
+    images: { complete: false, active: false },
+    data: { complete: false, active: false },
+    git: { complete: false, active: false },
+    push: { complete: false, active: false },
+    done: { complete: false, active: false }
+  });
+
   // Check deploy status on mount
   useEffect(() => {
     checkStatus();
@@ -30,21 +49,119 @@ function WebsiteControl() {
     setLoading(false);
   };
 
+  const checkServiceStatus = async (service) => {
+    setServiceStatuses(prev => ({
+      ...prev,
+      [service]: { ...prev[service], testing: true }
+    }));
+
+    try {
+      if (window.electronAPI?.checkServiceStatus) {
+        const result = await window.electronAPI.checkServiceStatus(service);
+        setServiceStatuses(prev => ({
+          ...prev,
+          [service]: {
+            status: result.status === 'ok' ? 'ok' : result.status === 'warning' ? 'warning' : 'error',
+            message: result.message || 'Unknown status',
+            lastChecked: new Date().toLocaleTimeString(),
+            testing: false
+          }
+        }));
+      }
+    } catch (err) {
+      setServiceStatuses(prev => ({
+        ...prev,
+        [service]: {
+          status: 'error',
+          message: `Check failed: ${err.message}`,
+          lastChecked: new Date().toLocaleTimeString(),
+          testing: false
+        }
+      }));
+    }
+  };
+
+  const checkAllServices = async () => {
+    // Mark all as testing
+    const testingState = {};
+    Object.keys(serviceStatuses).forEach(key => {
+      testingState[key] = { ...serviceStatuses[key], testing: true };
+    });
+    setServiceStatuses(testingState);
+
+    if (window.electronAPI?.checkAllServices) {
+      try {
+        const results = await window.electronAPI.checkAllServices();
+        const newStatuses = {};
+        Object.entries(results).forEach(([service, result]) => {
+          newStatuses[service] = {
+            status: result.status === 'ok' ? 'ok' : result.status === 'warning' ? 'warning' : 'error',
+            message: result.message || 'Unknown status',
+            lastChecked: new Date().toLocaleTimeString(),
+            testing: false
+          };
+        });
+        setServiceStatuses(newStatuses);
+      } catch (err) {
+        console.error('Failed to check all services:', err);
+      }
+    }
+  };
+
   const handleDeploy = async () => {
     setDeploying(true);
     setProgress(null);
     setDeployResult(null);
+    setDeployStages({
+      scan: { complete: false, active: false },
+      images: { complete: false, active: false },
+      data: { complete: false, active: false },
+      git: { complete: false, active: false },
+      push: { complete: false, active: false },
+      done: { complete: false, active: false }
+    });
 
     // Listen for progress events
     if (window.electronAPI?.onDeployProgress) {
       cleanupRef.current = window.electronAPI.onDeployProgress((data) => {
         setProgress(data);
+        // Update stage tracking
+        if (data.step) {
+          setDeployStages(prev => {
+            const newStages = { ...prev };
+            // Mark previous stage as complete
+            const stageOrder = ['scan', 'images', 'data', 'git', 'push', 'done'];
+            const currentIndex = stageOrder.indexOf(data.step);
+
+            stageOrder.forEach((stage, idx) => {
+              if (idx < currentIndex) {
+                newStages[stage] = { complete: true, active: false };
+              } else if (idx === currentIndex) {
+                newStages[stage] = { complete: false, active: true };
+              } else {
+                newStages[stage] = { complete: false, active: false };
+              }
+            });
+            return newStages;
+          });
+        }
       });
     }
 
     try {
       const result = await window.electronAPI.deployWebsite();
       setDeployResult(result);
+      // Mark all stages complete on success
+      if (result.success) {
+        setDeployStages({
+          scan: { complete: true, active: false },
+          images: { complete: true, active: false },
+          data: { complete: true, active: false },
+          git: { complete: true, active: false },
+          push: { complete: true, active: false },
+          done: { complete: true, active: false }
+        });
+      }
       await checkStatus();
     } catch (err) {
       setDeployResult({ success: false, error: err.message });
@@ -65,12 +182,121 @@ function WebsiteControl() {
     } catch { return dateStr; }
   };
 
+  const getServiceIcon = (service) => {
+    const icons = {
+      github: '🐙',
+      cloudflare: '☁️',
+      stripe: '💳',
+      r2: '💾',
+      c2pa: '🔐',
+      anthropic: '🤖'
+    };
+    return icons[service] || '⚙️';
+  };
+
+  const getStatusEmoji = (status) => {
+    if (status === 'ok') return '🟢';
+    if (status === 'warning') return '🟡';
+    if (status === 'error') return '🔴';
+    return '⚪';
+  };
+
+  const stageLabels = {
+    scan: 'Scan Portfolios',
+    images: 'Copy Images',
+    data: 'Build Data',
+    git: 'Git Commit',
+    push: 'Push to GitHub',
+    done: 'Complete'
+  };
+
   return (
     <div className="page">
       <header className="page-header">
         <h2>Website Control</h2>
         <p className="page-subtitle">Deploy and manage archive-35.com</p>
       </header>
+
+      {/* System Status Section */}
+      <div className="status-panel-container">
+        <div className="status-panel-header">
+          <h3>⚙️ Service Health</h3>
+          <button
+            className="btn btn-secondary"
+            onClick={checkAllServices}
+            style={{ fontSize: '12px', padding: '8px 12px' }}
+            disabled={Object.values(serviceStatuses).some(s => s.testing)}
+          >
+            {Object.values(serviceStatuses).some(s => s.testing) ? 'Checking...' : 'Check All'}
+          </button>
+        </div>
+
+        <div className="service-grid">
+          {Object.entries(serviceStatuses).map(([service, status]) => (
+            <div
+              key={service}
+              className={`service-card service-${status.status}`}
+              style={{
+                borderColor: status.status === 'ok' ? 'rgba(34, 197, 94, 0.3)' : status.status === 'warning' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(239, 68, 68, 0.3)',
+                background: status.status === 'ok' ? 'rgba(34, 197, 94, 0.05)' : status.status === 'warning' ? 'rgba(251, 191, 36, 0.05)' : 'rgba(239, 68, 68, 0.05)'
+              }}
+            >
+              <div className="service-header">
+                <span className="service-icon">{getServiceIcon(service)}</span>
+                <span className="service-name">
+                  {service.charAt(0).toUpperCase() + service.slice(1).replace(/([A-Z])/g, ' $1')}
+                </span>
+              </div>
+
+              <div className="service-status">
+                <span className="status-indicator">{getStatusEmoji(status.status)}</span>
+              </div>
+
+              <div className="service-message" title={status.message}>
+                {status.message}
+              </div>
+
+              <div className="service-footer">
+                <span className="service-time">
+                  {status.lastChecked ? `${status.lastChecked}` : 'Never checked'}
+                </span>
+                <button
+                  className="btn-test"
+                  onClick={() => checkServiceStatus(service)}
+                  disabled={status.testing}
+                >
+                  {status.testing ? '...' : 'Test'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Deploy Pipeline Visualization */}
+      {deploying && (
+        <div className="deploy-pipeline-container">
+          <h3>Deploy Pipeline</h3>
+          <div className="deploy-pipeline">
+            {Object.entries(deployStages).map(([stage, stageData], idx) => (
+              <React.Fragment key={stage}>
+                <div
+                  className={`pipeline-stage ${stageData.active ? 'active' : ''} ${stageData.complete ? 'complete' : ''}`}
+                  title={stageLabels[stage]}
+                >
+                  <div className="stage-content">
+                    {stageData.complete ? '✓' : stageData.active ? '◉' : '○'}
+                  </div>
+                  <span className="stage-label">{stageLabels[stage]}</span>
+                </div>
+                {idx < Object.keys(deployStages).length - 1 && (
+                  <div className="pipeline-arrow">→</div>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="card-grid">
         {/* Site Status */}

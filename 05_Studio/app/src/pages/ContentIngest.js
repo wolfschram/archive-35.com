@@ -104,9 +104,10 @@ function ContentIngest() {
     try {
       if (window.electronAPI) {
         // Call API to extract EXIF and generate AI descriptions
+        const selectedP = existingPortfolios.find(p => p.id === selectedPortfolio);
         const galleryContext = galleryMode === 'new'
           ? { name: galleryName, country: country, location: location }
-          : { name: existingPortfolios.find(p => p.id === selectedPortfolio)?.name || '', country: '', location: '' };
+          : { name: selectedP?.name || '', country: selectedP?.country || '', location: selectedP?.location || '' };
         const result = await window.electronAPI.analyzePhotos({ files, galleryContext });
 
         if (result.success) {

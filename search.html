@@ -26,6 +26,22 @@
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/product-selector.css">
   <link rel="stylesheet" href="css/cart.css">
+  <!-- Google Analytics 4 -->
+  <!-- Replace G-XXXXXXXXXX with your GA4 Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX', {
+      'anonymize_ip': true,
+      'allow_google_signals': false,
+      'allow_ad_personalization_signals': false
+    });
+  </script>
+  <!-- Cloudflare Web Analytics -->
+  <!-- Replace with your Cloudflare beacon token -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "CLOUDFLARE_BEACON_TOKEN"}'></script>
 </head>
 <body>
   <!-- Header -->
@@ -136,6 +152,7 @@
     </div>
   </div>
 
+  <script src="js/analytics.js"></script>
   <script src="js/main.js"></script>
   <script src="js/stripe-links.js"></script>
   <script src="https://js.stripe.com/v3/"></script>

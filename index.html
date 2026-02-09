@@ -24,6 +24,22 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <!-- Google Analytics 4 -->
+  <!-- Replace G-XXXXXXXXXX with your GA4 Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX', {
+      'anonymize_ip': true,
+      'allow_google_signals': false,
+      'allow_ad_personalization_signals': false
+    });
+  </script>
+  <!-- Cloudflare Web Analytics -->
+  <!-- Replace with your Cloudflare beacon token -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "CLOUDFLARE_BEACON_TOKEN"}'></script>
   <link rel="stylesheet" href="css/product-selector.css">
   <link rel="stylesheet" href="css/cart.css">
   <script type="application/ld+json">
@@ -48,7 +64,8 @@
       "itemListElement": [
         { "@type": "OfferCatalog", "name": "Africa Collection", "url": "https://archive-35.com/gallery.html?collection=africa" },
         { "@type": "OfferCatalog", "name": "Grand Teton Collection", "url": "https://archive-35.com/gallery.html?collection=grand-teton" },
-        { "@type": "OfferCatalog", "name": "New Zealand Collection", "url": "https://archive-35.com/gallery.html?collection=new-zealand" }
+        { "@type": "OfferCatalog", "name": "New Zealand Collection", "url": "https://archive-35.com/gallery.html?collection=new-zealand" },
+        { "@type": "OfferCatalog", "name": "South Africa Collection", "url": "https://archive-35.com/gallery.html?collection=south-africa" }
       ]
     }
   }
@@ -221,9 +238,9 @@
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": "ARCHIVE-35 Gallery",
-    "description": "Browse 108 fine art photographs across 3 collections: Africa, Grand Teton, and New Zealand.",
+    "description": "Browse 114 fine art photographs across 4 collections: Africa, Grand Teton, New Zealand, and South Africa.",
     "url": "https://archive-35.com/gallery.html",
-    "numberOfItems": 108,
+    "numberOfItems": 114,
     "hasPart": [
       {
         "@type": "ImageGallery",
@@ -245,11 +262,19 @@
         "description": "16 fine art landscape photographs from across New Zealand.",
         "url": "https://archive-35.com/collection.html?id=new-zealand",
         "numberOfItems": 16
+      },
+      {
+        "@type": "ImageGallery",
+        "name": "South Africa Collection",
+        "description": "6 fine art wildlife photographs from South African game reserves and the Cape Peninsula.",
+        "url": "https://archive-35.com/collection.html?id=south-africa",
+        "numberOfItems": 6
       }
     ]
   }
   </script>
 
+  <script src="js/analytics.js"></script>
   <script src="js/main.js"></script>
   <script src="js/stripe-links.js"></script>
   <script src="https://js.stripe.com/v3/"></script>

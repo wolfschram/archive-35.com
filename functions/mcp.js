@@ -95,9 +95,10 @@ Available collections:
   - "africa" (44 photographs) — Wildlife and landscapes from Tanzania/Serengeti
   - "grand-teton" (48 photographs) — Landscapes from Grand Teton National Park, Wyoming
   - "new-zealand" (16 photographs) — Landscapes from across New Zealand
+  - "south-africa" (6 photographs) — Wildlife from South African game reserves and the Cape Peninsula
 
 Args:
-  - collection (string, required): Collection ID ("africa", "grand-teton", or "new-zealand")
+  - collection (string, required): Collection ID ("africa", "grand-teton", "new-zealand", or "south-africa")
 
 Returns: All photographs in the collection with titles, descriptions, and price ranges.`,
     inputSchema: {
@@ -105,8 +106,8 @@ Returns: All photographs in the collection with titles, descriptions, and price 
       properties: {
         collection: {
           type: 'string',
-          description: 'Collection ID: "africa", "grand-teton", or "new-zealand"',
-          enum: ['africa', 'grand-teton', 'new-zealand']
+          description: 'Collection ID: "africa", "grand-teton", "new-zealand", or "south-africa"',
+          enum: ['africa', 'grand-teton', 'new-zealand', 'south-africa']
         }
       },
       required: ['collection']
@@ -134,7 +135,7 @@ const RESOURCES = [
   {
     uri: 'archive35://catalog',
     name: 'Archive-35 Product Catalog',
-    description: 'Complete product catalog with all 108 photographs and their metadata',
+    description: 'Complete product catalog with all 114 photographs and their metadata',
     mimeType: 'application/json'
   },
   {
@@ -252,7 +253,7 @@ async function handleToolCall(name, args, requestUrl) {
     case 'archive35_get_product': {
       const photo = photos.find(p => p.id === args.id);
       if (!photo) {
-        return { error: `Product "${args.id}" not found. Valid IDs: a-001 to a-044, gt-001 to gt-048, nz-001 to nz-016.` };
+        return { error: `Product "${args.id}" not found. Valid IDs: a-001 to a-044, gt-001 to gt-048, nz-001 to nz-016, sa-001 to sa-006.` };
       }
       return buildProductDetail(photo);
     }
@@ -260,7 +261,7 @@ async function handleToolCall(name, args, requestUrl) {
     case 'archive35_get_collection': {
       const collectionPhotos = photos.filter(p => p.collection === args.collection);
       if (collectionPhotos.length === 0) {
-        return { error: `Collection "${args.collection}" not found. Valid: africa, grand-teton, new-zealand.` };
+        return { error: `Collection "${args.collection}" not found. Valid: africa, grand-teton, new-zealand, south-africa.` };
       }
       return {
         collection: args.collection,
@@ -376,6 +377,7 @@ COLLECTIONS
 • Africa — Wildlife and landscape photography from Tanzania and the Serengeti (44 photographs)
 • Grand Teton — Landscape photography from Grand Teton National Park, Wyoming (48 photographs)
 • New Zealand — Landscape photography from across New Zealand (16 photographs)
+• South Africa — Wildlife photography from South African game reserves and the Cape Peninsula (6 photographs)
 
 PRINT MATERIALS
 All photographs are available as museum-quality prints in five materials: Canvas, Metal, Acrylic, Fine Art Paper, and Wood. Sizes range from 12"x8" to 60"x40".

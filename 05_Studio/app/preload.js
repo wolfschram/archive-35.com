@@ -28,6 +28,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Metadata editing
   updatePhotoMetadata: (data) => ipcRenderer.invoke('update-photo-metadata', data),
 
+  // Replace photo with new image
+  replacePhoto: (data) => ipcRenderer.invoke('replace-photo', data),
+
   // Thumbnail generation
   getThumbnail: (filePath) => ipcRenderer.invoke('get-thumbnail', filePath),
 
@@ -61,6 +64,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('deploy-progress', handler);
     return () => ipcRenderer.removeListener('deploy-progress', handler);
   },
+
+  // Service status checks
+  checkServiceStatus: (service) => ipcRenderer.invoke('check-service-status', service),
+  checkAllServices: () => ipcRenderer.invoke('check-all-services'),
 
   // Platform info
   platform: process.platform

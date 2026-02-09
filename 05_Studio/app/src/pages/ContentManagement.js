@@ -246,6 +246,90 @@ function ContentManagement() {
     setLoading(false);
   };
 
+  // ===== ADD PHOTOS =====
+  const handleAddPhotos = async () => {
+    if (!selectedPortfolio) {
+      alert('Please select a portfolio first');
+      return;
+    }
+
+    try {
+      if (window.electronAPI) {
+        const selectedFiles = await window.electronAPI.selectFiles();
+        if (!selectedFiles || selectedFiles.length === 0) return;
+
+        const portfolio = portfolios.find(p => p.id === selectedPortfolio);
+        const confirmed = window.confirm(
+          `Add ${selectedFiles.length} photo(s) to "${portfolio?.name}"?\n\n` +
+          `This will:\n` +
+          `• Analyze with AI for metadata\n` +
+          `• Create web-optimized versions\n` +
+          `• Sign with C2PA credentials\n` +
+          `• Upload originals to R2\n\n` +
+          `You'll be taken to Content Ingestion to review.`
+        );
+
+        if (confirmed) {
+          // Navigate to ingest page
+          window.location.hash = '#ingest';
+          // Note: User will need to select the portfolio again in ingest
+          alert('Go to Content Ingestion, select this portfolio, and add your photos.');
+        }
+      } else {
+        alert('Demo mode: File picker would open here');
+      }
+    } catch (err) {
+      console.error('Add photos failed:', err);
+      alert('Failed to add photos. Check console for details.');
+    }
+  };
+
+  // ===== REPLACE PHOTO =====
+  const handleReplacePhoto = async (photo, e) => {
+    e.stopPropagation();
+
+    try {
+      if (window.electronAPI) {
+        const selectedFiles = await window.electronAPI.selectFiles();
+        if (!selectedFiles || selectedFiles.length === 0) return;
+
+        const newFilePath = selectedFiles[0];
+        const confirmed = window.confirm(
+          `Replace "${photo.title || photo.filename}" with the new image?\n\n` +
+          `This will:\n` +
+          `• Replace the original file\n` +
+          `• Regenerate web-optimized versions\n` +
+          `• Update C2PA credentials\n` +
+          `• Upload new version to R2\n` +
+          `• Preserve all metadata\n\n` +
+          `This action cannot be undone.`
+        );
+
+        if (!confirmed) return;
+
+        setLoading(true);
+        const result = await window.electronAPI.replacePhoto({
+          portfolioId: selectedPortfolio,
+          photoId: photo.id,
+          newFilePath
+        });
+
+        if (result.success) {
+          alert('✅ Photo replaced successfully!');
+          await loadPhotos(selectedPortfolio);
+        } else {
+          alert(`❌ Failed to replace photo: ${result.error}`);
+        }
+      } else {
+        alert('Demo mode: Replace function would process the new file');
+      }
+    } catch (err) {
+      console.error('Replace photo failed:', err);
+      alert('Failed to replace photo. Check console for details.');
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="page">
       <header className="page-header">
@@ -283,6 +367,14 @@ function ContentManagement() {
           <p>Manage selected photos ({selectedPhotos.length} selected)</p>
 
           <div className="button-group vertical">
+            <button
+              className="btn btn-primary"
+              onClick={handleAddPhotos}
+              disabled={!selectedPortfolio || loading}
+            >
+              ➕ Add Photos
+            </button>
+
             <button
               className="btn btn-secondary"
               onClick={selectAllPhotos}
@@ -335,13 +427,22 @@ function ContentManagement() {
                       {selectedPhotos.includes(photo.id) && (
                         <div className="photo-check">✓</div>
                       )}
-                      <button
-                        className="edit-btn"
-                        onClick={(e) => openEditModal(photo, e)}
-                        title="Edit metadata"
-                      >
-                        ✏️
-                      </button>
+                      <div className="photo-actions">
+                        <button
+                          className="edit-btn"
+                          onClick={(e) => openEditModal(photo, e)}
+                          title="Edit metadata"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          className="replace-btn"
+                          onClick={(e) => handleReplacePhoto(photo, e)}
+                          title="Replace with new image"
+                        >
+                          🔄
+                        </button>
+                      </div>
                     </div>
                     <div className="photo-info">
                       <span className="photo-title">{photo.title || photo.filename}</span>

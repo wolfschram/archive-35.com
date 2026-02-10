@@ -10,6 +10,24 @@ import GalleryPreview from './pages/GalleryPreview';
 import Settings from './pages/Settings';
 import './styles/App.css';
 
+/**
+ * Page wrapper: keeps component mounted but hidden when not active.
+ * This preserves all React state (scan results, AI analysis progress,
+ * review data, batch phases) across tab switches.
+ */
+function TabPanel({ id, activeTab, children }) {
+  return (
+    <div
+      className="tab-panel"
+      style={{ display: activeTab === id ? 'block' : 'none' }}
+      role="tabpanel"
+      aria-hidden={activeTab !== id}
+    >
+      {children}
+    </div>
+  );
+}
+
 function App() {
   const [activeTab, setActiveTab] = useState('ingest');
   const [mode, setMode] = useState('live');
@@ -28,29 +46,6 @@ function App() {
     }
   }, []);
 
-  const renderPage = () => {
-    switch (activeTab) {
-      case 'ingest':
-        return <ContentIngest />;
-      case 'manage':
-        return <ContentManagement />;
-      case 'gallery':
-        return <GalleryPreview />;
-      case 'website':
-        return <WebsiteControl />;
-      case 'sales':
-        return <SalesPictorem />;
-      case 'social':
-        return <SocialMedia />;
-      case 'analytics':
-        return <Analytics />;
-      case 'settings':
-        return <Settings mode={mode} setMode={setMode} />;
-      default:
-        return <ContentIngest />;
-    }
-  };
-
   return (
     <div className="app">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} mode={mode} />
@@ -60,7 +55,30 @@ function App() {
         </div>
       )}
       <main className={`main-content ${mode === 'test' ? 'test-mode-active' : ''}`}>
-        {renderPage()}
+        <TabPanel id="ingest" activeTab={activeTab}>
+          <ContentIngest />
+        </TabPanel>
+        <TabPanel id="manage" activeTab={activeTab}>
+          <ContentManagement />
+        </TabPanel>
+        <TabPanel id="gallery" activeTab={activeTab}>
+          <GalleryPreview />
+        </TabPanel>
+        <TabPanel id="website" activeTab={activeTab}>
+          <WebsiteControl />
+        </TabPanel>
+        <TabPanel id="sales" activeTab={activeTab}>
+          <SalesPictorem />
+        </TabPanel>
+        <TabPanel id="social" activeTab={activeTab}>
+          <SocialMedia />
+        </TabPanel>
+        <TabPanel id="analytics" activeTab={activeTab}>
+          <Analytics />
+        </TabPanel>
+        <TabPanel id="settings" activeTab={activeTab}>
+          <Settings mode={mode} setMode={setMode} />
+        </TabPanel>
       </main>
     </div>
   );

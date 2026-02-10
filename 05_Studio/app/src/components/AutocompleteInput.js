@@ -70,9 +70,17 @@ function fuzzyScore(input, candidate, aliases = []) {
     }
   }
 
-  // Levenshtein distance (fuzzy)
+  // Levenshtein distance (fuzzy) — with relative threshold
+  // A real typo changes ~1-2 characters, not 60% of the word
   const distance = levenshtein(inputLower, candidateLower);
-  if (distance > 0) {
+  const maxLen = Math.max(inputLower.length, candidateLower.length);
+  const similarity = 1 - (distance / maxLen);
+
+  // Only consider it a typo match if:
+  //  - At least 50% of characters are the same (similarity >= 0.5)
+  //  - AND they share the same first letter (most typos preserve the start)
+  //  - AND edit distance is <= 2 (real typos are 1-2 chars, not 4+)
+  if (distance > 0 && distance <= 2 && similarity >= 0.5 && inputLower[0] === candidateLower[0]) {
     return { score: distance + 2, candidate, matchType: 'fuzzy' };
   }
 

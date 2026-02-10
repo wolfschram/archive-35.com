@@ -12,6 +12,12 @@
   padding-top: 48px; /* Account for macOS title bar */
 }
 
+/* Tab panels: always mounted, hidden when inactive.
+   This preserves component state (scan results, AI analysis, etc.) */
+.tab-panel {
+  height: 100%;
+}
+
 .main-content.test-mode-active {
   padding-top: 80px; /* Extra space for test banner */
 }

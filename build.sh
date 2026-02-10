@@ -23,6 +23,12 @@ cp -r css js images data logos _site/ 2>/dev/null || true
 cp -r prototype _site/ 2>/dev/null || true
 cp *.png _site/ 2>/dev/null || true
 
+# Copy licensing assets (public-safe only: thumbnails, watermarked previews, terms page)
+mkdir -p _site/09_Licensing/thumbnails _site/09_Licensing/watermarked _site/licensing
+cp 09_Licensing/thumbnails/*.jpg _site/09_Licensing/thumbnails/ 2>/dev/null || true
+cp 09_Licensing/watermarked/*.jpg _site/09_Licensing/watermarked/ 2>/dev/null || true
+cp -r licensing/* _site/licensing/ 2>/dev/null || true
+
 # Copy favicon
 cp favicon.svg _site/ 2>/dev/null || true
 

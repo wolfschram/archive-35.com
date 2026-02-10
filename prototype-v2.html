@@ -252,6 +252,79 @@ body{cursor:grab}body:active{cursor:grabbing}
 #settings label{display:block;margin-bottom:12px}
 #settings label span{display:block;margin-bottom:4px;color:#c9a84c;text-transform:uppercase;letter-spacing:2px;font-size:9px}
 #settings input[type=range]{width:100%;accent-color:#c9a84c;margin-top:2px}
+
+/* Hamburger — hidden on desktop */
+.hamburger{display:none;background:none;border:none;color:#c9a84c;font-size:22px;cursor:pointer;pointer-events:auto;padding:4px 8px;line-height:1}
+
+/* ═══════════════════════════════════ */
+/* MOBILE RESPONSIVE (<768px)         */
+/* ═══════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Header */
+  .hdr{padding:12px 16px}
+  .logo{font-size:17px;letter-spacing:5px}
+  .hamburger{display:block}
+  .nav{
+    display:none;position:absolute;top:48px;right:12px;
+    flex-direction:column;gap:18px;
+    background:rgba(10,10,10,0.96);padding:20px 28px;
+    border:1px solid rgba(201,168,76,0.12);border-radius:4px;
+    backdrop-filter:blur(12px);z-index:102;
+  }
+  .nav.mob-open{display:flex}
+  .nav a{font-size:11px;letter-spacing:3px}
+
+  /* Hide decorative elements */
+  #canister,#coil{display:none!important}
+  #settings-btn,#settings{display:none!important}
+  .vf{display:none}
+  #film-edge{display:none}
+  #light-cone{height:200px;opacity:0.25}
+  #table-edge{height:50px}
+
+  /* Film frames — smaller */
+  .film-frame{width:155px;height:218px}
+  .pa{height:132px;margin:2px 6px}
+  .sr{height:16px}
+  .sp{width:7px;height:4px}
+  .fi{padding:2px 8px 0;height:18px}
+  .fl{font-size:11px;letter-spacing:2px}
+  .fn{font-size:7px}
+  .fc{font-size:7px;padding:0 0 1px}
+  .fs{bottom:-8px;height:14px}
+
+  /* HUD — compact */
+  .hud{padding-bottom:18px}
+  .ht{font-size:26px;letter-spacing:7px}
+  .hc{font-size:9px;letter-spacing:1px;margin-bottom:8px}
+  .hp{width:120px}
+  .hpn{font-size:8px;min-width:40px}
+  .hw{gap:8px;margin-bottom:3px}
+  .hh{font-size:7px;letter-spacing:2px}
+
+  /* Gallery overlay — single column friendly */
+  .ov-h{padding:12px 16px}
+  .ov-t{font-size:18px;letter-spacing:5px}
+  .ov-sub{font-size:9px;margin-left:10px}
+  .ov-x{font-size:9px;padding:6px 14px}
+  .ov-g{padding:12px;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+
+  /* Lightbox — more screen space */
+  .lb img{max-width:97vw;max-height:80vh}
+
+  /* Film strip — mobile perspective */
+  #film-strip{perspective:1100px;perspective-origin:50% 52%}
+}
+
+/* Small phones (<400px) */
+@media (max-width: 400px) {
+  .film-frame{width:130px;height:183px}
+  .pa{height:108px}
+  .sr{height:14px}
+  .ht{font-size:22px;letter-spacing:5px}
+  .hp{width:100px}
+  .ov-g{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
+}
 </style>
 </head>
 <body>
@@ -276,12 +349,15 @@ body{cursor:grab}body:active{cursor:grabbing}
 
 <header class="hdr">
   <div class="logo">ARCHIVE<span>-35</span></div>
-  <nav class="nav">
-    <a href="#">Home</a>
-    <a href="#" class="active">Gallery</a>
-    <a href="#">About</a>
-    <a href="#">Contact</a>
-  </nav>
+  <div style="display:flex;align-items:center;gap:16px">
+    <nav class="nav" id="main-nav">
+      <a href="#">Home</a>
+      <a href="#" class="active">Gallery</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </nav>
+    <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+  </div>
 </header>
 
 <button id="settings-btn">⚙ TUNE</button>
@@ -412,6 +488,46 @@ let cfg = {
 };
 
 // ═══════════════════════════════════
+// DEVICE DETECTION & MOBILE CONFIG
+// ═══════════════════════════════════
+let isMobile = window.matchMedia('(max-width: 768px)').matches;
+let isSmallPhone = window.matchMedia('(max-width: 400px)').matches;
+
+// Dynamic frame dimensions (match CSS)
+function getFrameSize() {
+  if (isSmallPhone) return { w: 130, h: 183 };
+  if (isMobile) return { w: 155, h: 218 };
+  return { w: 220, h: 310 };
+}
+
+// Touch/drag sensitivity coefficient
+function getDragCoeff() { return isMobile ? 0.012 : 0.005; }
+
+function applyMobileConfig() {
+  isMobile = window.matchMedia('(max-width: 768px)').matches;
+  isSmallPhone = window.matchMedia('(max-width: 400px)').matches;
+  if (isMobile) {
+    cfg.perspective = 1100;
+    cfg.scaleMult = 0.9;
+    cfg.visibleSlots = 3;
+    cfg.maxRotY = 15;
+    cfg.grain = 0.15;
+    curveDepth = 0.35;
+    strip.style.perspective = cfg.perspective + 'px';
+    grainEl.style.opacity = cfg.grain;
+  } else {
+    cfg.perspective = 1600;
+    cfg.scaleMult = 1.0;
+    cfg.visibleSlots = 5;
+    cfg.maxRotY = 25;
+    cfg.grain = 0.25;
+    curveDepth = 0.55;
+    strip.style.perspective = cfg.perspective + 'px';
+    grainEl.style.opacity = cfg.grain;
+  }
+}
+
+// ═══════════════════════════════════
 // FRAME TRANSFORMS
 // ═══════════════════════════════════
 function frameXform(t, W, H) {
@@ -500,12 +616,13 @@ document.addEventListener('mousemove', e => {
   const now = performance.now(), dt = now - lastT;
   if (dt > 0) vel = (lastX - e.clientX) / dt;
   lastX = e.clientX; lastT = now;
-  target = dragOff0 - (e.clientX - dragX0) * 0.005;
+  const dc = getDragCoeff();
+  target = dragOff0 - (e.clientX - dragX0) * dc;
   target = Math.max(-1.5, Math.min(N + 0.5, target));
 });
 document.addEventListener('mouseup', () => {
   if (!isDrag) return; isDrag = false;
-  target += vel * 180 * 0.005;
+  target += vel * 180 * getDragCoeff();
   snap();
 });
 
@@ -522,12 +639,13 @@ document.addEventListener('touchmove', e => {
   const now = performance.now(), dt = now - lastT;
   if (dt > 0) vel = (lastX - cx) / dt;
   lastX = cx; lastT = now;
-  target = dragOff0 - (cx - dragX0) * 0.005;
+  const dc = getDragCoeff();
+  target = dragOff0 - (cx - dragX0) * dc;
   target = Math.max(-1.5, Math.min(N + 0.5, target));
 }, {passive:true});
 document.addEventListener('touchend', () => {
   if (!isDrag) return; isDrag = false;
-  target += vel * 180 * 0.005;
+  target += vel * 180 * getDragCoeff();
   snap();
 });
 
@@ -578,9 +696,9 @@ function drawStrip(W, H) {
       </filter>
     </defs>
     <path d="M ${x0} ${y0} C ${x1} ${y1}, ${x2} ${y2}, ${x3} ${y3}"
-          fill="none" stroke="#100f0d" stroke-width="24" stroke-linecap="round" filter="url(#ss)" opacity="0.55"/>
+          fill="none" stroke="#100f0d" stroke-width="${isMobile ? 16 : 24}" stroke-linecap="round" filter="url(#ss)" opacity="0.55"/>
     <path d="M ${x0} ${y0} C ${x1} ${y1}, ${x2} ${y2}, ${x3} ${y3}"
-          fill="none" stroke="#1a1816" stroke-width="20" stroke-linecap="round" opacity="0.45"/>
+          fill="none" stroke="#1a1816" stroke-width="${isMobile ? 12 : 20}" stroke-linecap="round" opacity="0.45"/>
   `;
 
   // Sprocket holes along curve
@@ -610,7 +728,10 @@ function render() {
   scroll += (target - scroll) * ease;
   const ai = activeIdx();
   const sp = SPACING();
-  const heroT = 0.32; // where the "active" frame sits on the curve
+  const heroT = isMobile ? 0.42 : 0.32; // active frame position on curve
+  const fs = getFrameSize();
+  const halfW = fs.w / 2;
+  const halfH = fs.h / 2;
 
   for (let i = 0; i < N; i++) {
     const t = (i - scroll) * sp + heroT;
@@ -624,8 +745,8 @@ function render() {
     f.style.display = 'block';
     const xf = frameXform(t, W, H);
 
-    f.style.left = (xf.x - 110) + 'px';
-    f.style.top = (xf.y - 155) + 'px';
+    f.style.left = (xf.x - halfW) + 'px';
+    f.style.top = (xf.y - halfH) + 'px';
     f.style.transform = `scale(${xf.scale}) rotateY(${xf.rotY}deg) rotateX(${xf.rotX}deg) rotateZ(${xf.rotZ}deg)`;
     f.style.opacity = xf.op;
     f.style.zIndex = xf.z;
@@ -748,9 +869,23 @@ async function init() {
 window.addEventListener('resize', () => {
   W = window.innerWidth;
   H = window.innerHeight;
+  applyMobileConfig();
   drawStrip(W, H);
 });
 
+// ═══════════════════════════════════
+// HAMBURGER MENU
+// ═══════════════════════════════════
+document.getElementById('hamburger').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('main-nav').classList.toggle('mob-open');
+});
+document.addEventListener('click', () => {
+  document.getElementById('main-nav').classList.remove('mob-open');
+});
+
+// Apply mobile config on load
+applyMobileConfig();
 init();
 </script>
 </body>

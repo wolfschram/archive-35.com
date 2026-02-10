@@ -1929,7 +1929,7 @@ ipcMain.handle('deploy-website', async () => {
           const resp = await fetch('https://archive-35.com/data/photos.json', { timeout: 8000 });
           if (resp.ok) {
             const liveData = await resp.json();
-            const liveCount = Array.isArray(liveData) ? liveData.length : 0;
+            const liveCount = Array.isArray(liveData?.photos) ? liveData.photos.length : (Array.isArray(liveData) ? liveData.length : 0);
             if (liveCount >= allWebsitePhotos.length) {
               sendProgress('verify', `Website verified — ${liveCount} photos live`);
               verified = true;

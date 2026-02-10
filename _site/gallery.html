@@ -185,16 +185,25 @@ html, body {
 
 /* === HEADER === */
 header {
-  position:fixed; top:0; left:0; right:0; z-index:100;
-  display:flex; align-items:center; justify-content:space-between;
-  padding:20px 40px; pointer-events:none;
+  position:fixed; top:1.2rem; left:50%; transform:translateX(-50%); z-index:100;
+  width:calc(100% - 3rem); max-width:1200px; pointer-events:none;
 }
-header > * { pointer-events:auto; }
+header > .h-inner {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0.8rem 2rem;
+  background:rgba(10,10,10,0.75);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:100px;
+  pointer-events:auto;
+}
 .logo { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:8px; text-decoration:none; color:#e8e0d0; }
 .logo em { color:var(--gold); font-style:normal; }
-nav { display:flex; gap:26px; font-size:10px; letter-spacing:3px; text-transform:uppercase; font-weight:300; }
-nav a { color:#555; text-decoration:none; transition:color .3s; }
+nav { display:flex; gap:2rem; font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; font-weight:300; }
+nav a { color:rgba(255,255,255,0.45); text-decoration:none; transition:all .3s; position:relative; }
+nav a::after { content:''; position:absolute; bottom:-3px; left:0; width:0; height:1px; background:var(--gold); transition:width .3s; }
 nav a:hover, nav a.active { color:var(--gold); }
+nav a:hover::after, nav a.active::after { width:100%; }
 
 /* === COVERFLOW === */
 #cf {
@@ -383,7 +392,7 @@ nav a:hover, nav a.active { color:var(--gold); }
 #lb-p{left:10px}#lb-n{right:10px}
 #lb-x { position:absolute; top:20px; right:28px; font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px; color:var(--gold); background:none; border:1px solid var(--gold-dim); padding:8px 18px; cursor:pointer; transition:all .3s; }
 #lb-x:hover { background:var(--gold); color:#000; }
-#lb-buy { position:absolute; bottom:60px; right:28px; font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px; color:var(--gold); background:rgba(0,0,0,0.6); border:1px solid var(--gold-dim); padding:10px 22px; cursor:pointer; transition:all .3s; z-index:310; text-transform:uppercase; }
+#lb-buy { position:absolute; bottom:75px; left:50%; transform:translateX(-50%); font-family:'Courier Prime',monospace; font-size:11px; letter-spacing:3px; color:var(--gold); background:rgba(0,0,0,0.7); border:1px solid var(--gold-dim); padding:12px 32px; cursor:pointer; transition:all .3s; z-index:310; text-transform:uppercase; white-space:nowrap; }
 #lb-buy:hover { background:var(--gold); color:#000; border-color:var(--gold); }
 
 /* Viewfinder */
@@ -425,15 +434,17 @@ nav a:hover, nav a.active { color:var(--gold); }
 
 <!-- HEADER -->
 <header>
-  <a href="index.html" class="logo">ARCHIVE<em>-35</em></a>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="prototype-v2.html" class="active">Gallery</a>
-    <a href="licensing.html">Licensing</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
-    <a href="search.html">Search</a>
-  </nav>
+  <div class="h-inner">
+    <a href="index.html" class="logo">ARCHIVE<em>-35</em></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="gallery.html" class="active">Gallery</a>
+      <a href="licensing.html">Licensing</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="search.html">Search</a>
+    </nav>
+  </div>
 </header>
 
 <!-- PANELS -->

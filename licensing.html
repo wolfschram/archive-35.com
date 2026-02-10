@@ -34,16 +34,21 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-s
 a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var(--text)}
 .mono{font-family:'JetBrains Mono',monospace}
 
-/* ── NAV ── */
-.nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(13,13,13,0.95),rgba(13,13,13,0.7));backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.03)}
-.nav-logo{font-size:16px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--text)}
-.nav-logo span{color:var(--gold)}
-.nav-links{display:flex;gap:28px;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:400}
-.nav-links a{color:var(--text-dim)}.nav-links a:hover,.nav-links a.active{color:var(--gold)}
-.hamburger{display:none;background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer}
+/* ── NAV (shared glass pill style) ── */
+.header{position:fixed;top:1.5rem;left:50%;transform:translateX(-50%);z-index:100;width:calc(100% - 3rem);max-width:1200px}
+.header-inner{display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;background:rgba(10,10,10,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:100px}
+.logo-a{font-size:1rem;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;color:var(--text);text-decoration:none;transition:all 0.3s}
+.logo-a .gold{color:var(--gold)}
+.logo-a:hover .gold{text-shadow:0 0 25px rgba(201,168,76,0.5)}
+.nav-links{display:flex;gap:2.5rem;font-size:0.8rem;font-weight:400;letter-spacing:0.15em;text-transform:uppercase}
+.nav-links a{color:var(--text-dim);text-decoration:none;transition:all 0.3s;position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--gold);transition:width 0.3s}
+.nav-links a:hover,.nav-links a.active{color:var(--text)}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.hamburger{display:none;background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;padding:0.5rem}
 
 /* ── HERO ── */
-.hero{position:relative;height:70vh;min-height:500px;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;margin-top:52px}
+.hero{position:relative;height:70vh;min-height:500px;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;margin-top:80px}
 .hero-bg{position:absolute;inset:0;background:center/cover no-repeat;filter:brightness(0.4) saturate(0.8)}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(13,13,13,0.3),rgba(13,13,13,0.9))}
 .hero-content{position:relative;z-index:2;max-width:700px;padding:0 24px}
@@ -55,7 +60,7 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
 .hero .cta a:hover{background:var(--gold);color:var(--bg)}
 
 /* ── FILTERS ── */
-.filters{padding:24px 40px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border);position:sticky;top:52px;z-index:90;background:var(--bg)}
+.filters{padding:24px 40px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:90;background:var(--bg)}
 .filter-btn{padding:8px 20px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;font-family:inherit}
 .filter-btn:hover,.filter-btn.active{border-color:var(--gold-dim);color:var(--gold);background:rgba(201,168,76,0.05)}
 .filter-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);margin-left:auto}
@@ -126,12 +131,13 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
 
 /* ── MOBILE ── */
 @media(max-width:768px){
-  .nav-bar{padding:12px 16px}
-  .nav-links{display:none;position:absolute;top:48px;right:12px;flex-direction:column;gap:16px;background:rgba(13,13,13,0.97);padding:20px 28px;border:1px solid var(--border);border-radius:4px;backdrop-filter:blur(12px)}
+  .header{top:0.75rem;width:calc(100% - 1.5rem)}
+  .header-inner{padding:0.75rem 1.25rem}
+  .nav-links{display:none;position:absolute;top:60px;right:0;left:0;flex-direction:column;gap:16px;background:rgba(13,13,13,0.97);padding:20px 28px;border:1px solid var(--border);border-radius:12px;backdrop-filter:blur(12px)}
   .nav-links.open{display:flex}
   .hamburger{display:block}
   .hero{height:50vh;min-height:360px}
-  .filters{padding:16px;top:48px;gap:8px}
+  .filters{padding:16px;top:0;gap:8px}
   .filter-btn{padding:6px 14px;font-size:10px}
   .grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;padding:20px 16px}
   .modal{grid-template-columns:1fr;margin:20px auto;padding:0 16px}
@@ -142,17 +148,20 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
 <body>
 
 <!-- Navigation -->
-<nav class="nav-bar">
-  <a href="index.html" class="nav-logo">ARCHIVE<span>-35</span></a>
-  <div class="nav-links" id="nav-links">
-    <a href="index.html">Home</a>
-    <a href="gallery.html">Gallery</a>
-    <a href="licensing.html" class="active">Licensing</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo-a">ARCHIVE<span class="gold">-35</span></a>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html">Home</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="licensing.html" class="active">Licensing</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="search.html">Search</a>
+    </div>
+    <button class="hamburger" id="hamburger" onclick="document.getElementById('nav-links').classList.toggle('open')">&#9776;</button>
   </div>
-  <button class="hamburger" id="hamburger" onclick="document.getElementById('nav-links').classList.toggle('open')">&#9776;</button>
-</nav>
+</header>
 
 <!-- Hero -->
 <section class="hero">
@@ -255,6 +264,23 @@ async function loadCatalog() {
   renderGrid();
 }
 
+function cleanTitle(title) {
+  if (!title) return '';
+  // Strip file extension
+  let clean = title.replace(/\.(jpg|jpeg|png|tiff?)$/i, '');
+  // Replace underscores and hyphens with spaces
+  clean = clean.replace(/[-_]/g, ' ');
+  // Remove common suffixes
+  clean = clean.replace(/\b(Pano|Edit|HDR|Stitch)\b/gi, '').trim();
+  // Collapse multiple spaces
+  clean = clean.replace(/\s+/g, ' ').trim();
+  // If it's just a camera code like "WOLF3219" or "IMG 0140", make it prettier
+  if (/^(WOLF|IMG|DSC|DJI)\s*\d+$/i.test(clean)) {
+    return 'Panoramic ' + clean;
+  }
+  return clean || title;
+}
+
 function renderGrid() {
   const grid = document.getElementById('grid');
   const empty = document.getElementById('empty');
@@ -279,7 +305,7 @@ function renderGrid() {
     return `
       <div class="card" onclick="openModal('${img.id}')">
         <div class="card-img">
-          <img src="${img.thumbnail}" alt="${img.title}" loading="lazy">
+          <img src="${img.thumbnail}" alt="${cleanTitle(img.title)}" loading="lazy">
           <div class="card-badges">
             <span class="badge ${badgeClass}">${img.classification}</span>
             <span class="badge badge-res mono">${img.width.toLocaleString()} × ${img.height.toLocaleString()}</span>
@@ -287,7 +313,7 @@ function renderGrid() {
           </div>
         </div>
         <div class="card-info">
-          <div class="card-title">${img.title || img.id}</div>
+          <div class="card-title">${cleanTitle(img.title) || img.id}</div>
           <div class="card-location">${img.location || ''}</div>
           <div class="card-meta">
             <span class="card-price">From $${img.starting_price.toLocaleString()}</span>
@@ -408,6 +434,28 @@ document.getElementById('modal').addEventListener('click', e => {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
 });
+
+// Retry failed images with stagger to avoid rate limiting
+function retryFailedImages() {
+  const imgs = document.querySelectorAll('.card-img img');
+  let delay = 0;
+  imgs.forEach(img => {
+    if (img.complete && img.naturalWidth === 0) {
+      delay += 150;
+      setTimeout(() => {
+        const src = img.src;
+        img.src = '';
+        img.src = src + (src.includes('?') ? '&' : '?') + 'r=' + Date.now();
+      }, delay);
+    }
+  });
+  // Check again after all retries
+  if (delay > 0) {
+    setTimeout(retryFailedImages, delay + 2000);
+  }
+}
+// Start retry after initial load attempt
+setTimeout(retryFailedImages, 2000);
 
 // Init
 loadCatalog();

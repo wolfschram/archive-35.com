@@ -1388,9 +1388,12 @@ function replaceLightboxBuyButton() {
       e.stopPropagation();
       const photo = window.filteredPhotos?.[window.currentPhotoIndex];
       if (photo) {
-        if (typeof closeLightbox === 'function') closeLightbox();
-        if (typeof window.closeLightbox === 'function') window.closeLightbox();
-        setTimeout(() => openProductSelector(photo), 100);
+        // Open product selector directly — it's position:fixed and overlays everything.
+        // Close lightbox AFTER selector is created to avoid DOM mutation interference.
+        openProductSelector(photo);
+        try {
+          if (typeof window.closeLightbox === 'function') window.closeLightbox();
+        } catch(err) { /* lightbox already gone */ }
       }
     });
   }

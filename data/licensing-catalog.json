@@ -1,0 +1,160 @@
+{
+  "generated_at": "2026-02-10T20:28:04.666952+00:00",
+  "total_images": 3,
+  "classifications": {
+    "ULTRA": {
+      "min_width": 15000,
+      "badge_color": "#c9a84c",
+      "label": "ULTRA"
+    },
+    "PREMIUM": {
+      "min_width": 8000,
+      "badge_color": "#b0b0b0",
+      "label": "PREMIUM"
+    },
+    "STANDARD": {
+      "min_width": 4000,
+      "badge_color": "#cd7f32",
+      "label": "STANDARD"
+    }
+  },
+  "tiers": {
+    "web_social": {
+      "name": "Web / Social",
+      "duration": "1 year",
+      "geography": "Worldwide",
+      "max_users": 5
+    },
+    "editorial": {
+      "name": "Editorial",
+      "duration": "1 year",
+      "geography": "Worldwide",
+      "max_users": 5
+    },
+    "commercial_print": {
+      "name": "Commercial Print",
+      "duration": "2 years",
+      "geography": "Worldwide",
+      "max_users": 10
+    },
+    "billboard_ooh": {
+      "name": "Billboard / OOH",
+      "duration": "1 year",
+      "geography": "Worldwide",
+      "max_users": 10
+    },
+    "hospitality": {
+      "name": "Hospitality",
+      "duration": "Perpetual",
+      "geography": "Worldwide",
+      "max_users": "Unlimited"
+    },
+    "exclusive": {
+      "name": "Exclusive",
+      "duration": "2-5 years (negotiated)",
+      "geography": "Worldwide",
+      "max_users": "Unlimited"
+    }
+  },
+  "images": [
+    {
+      "id": "A35-20260210-0001",
+      "title": "TEST_PREMIUM_Landscape.jpg",
+      "classification": "PREMIUM",
+      "width": 10000,
+      "height": 6667,
+      "megapixels": 66.7,
+      "file_size_mb": 1.2,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0001.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0001.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 33.3,
+        "height_in": 22.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 66.7,
+        "height_in": 44.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0002",
+      "title": "TEST_STANDARD_Wildlife.jpg",
+      "classification": "STANDARD",
+      "width": 6000,
+      "height": 4000,
+      "megapixels": 24.0,
+      "file_size_mb": 0.4,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0002.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0002.jpg",
+      "starting_price": 250,
+      "pricing": {
+        "web_social": 250,
+        "editorial": 500,
+        "commercial_print": 1000,
+        "billboard_ooh": 1500,
+        "hospitality": 2000,
+        "exclusive": 5000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 20.0,
+        "height_in": 13.3,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 40.0,
+        "height_in": 26.7,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0003",
+      "title": "TEST_ULTRA_Panorama.jpg",
+      "classification": "ULTRA",
+      "width": 16000,
+      "height": 8000,
+      "megapixels": 128.0,
+      "file_size_mb": 2.1,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0003.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0003.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 53.3,
+        "height_in": 26.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 106.7,
+        "height_in": 53.3,
+        "dpi": 150
+      }
+    }
+  ]
+}

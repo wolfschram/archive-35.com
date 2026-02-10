@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-02-10T20:27:56.943880+00:00",
+  "images": [
+    {
+      "catalog_id": "A35-20260210-0001",
+      "original_filename": "TEST_PREMIUM_Landscape.jpg",
+      "title": "",
+      "classification": "PREMIUM",
+      "width": 10000,
+      "height": 6667,
+      "megapixels": 66.7,
+      "file_size_mb": 1.2,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260210-0002",
+      "original_filename": "TEST_STANDARD_Wildlife.jpg",
+      "title": "",
+      "classification": "STANDARD",
+      "width": 6000,
+      "height": 4000,
+      "megapixels": 24.0,
+      "file_size_mb": 0.4,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260210-0003",
+      "original_filename": "TEST_ULTRA_Panorama.jpg",
+      "title": "",
+      "classification": "ULTRA",
+      "width": 16000,
+      "height": 8000,
+      "megapixels": 128.0,
+      "file_size_mb": 2.1,
+      "status": "available",
+      "license_count": 0
+    }
+  ]
+}

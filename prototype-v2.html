@@ -257,73 +257,67 @@ body{cursor:grab}body:active{cursor:grabbing}
 .hamburger{display:none;background:none;border:none;color:#c9a84c;font-size:22px;cursor:pointer;pointer-events:auto;padding:4px 8px;line-height:1}
 
 /* ═══════════════════════════════════ */
-/* MOBILE RESPONSIVE (<768px)         */
+/* MOBILE — FULL-SCREEN CARD SWIPE   */
 /* ═══════════════════════════════════ */
 @media (max-width: 768px) {
-  /* Header */
-  .hdr{padding:12px 16px}
-  .logo{font-size:17px;letter-spacing:5px}
+  /* Header — minimal, just logo + hamburger */
+  .hdr{padding:10px 16px;background:linear-gradient(to bottom,rgba(10,10,10,0.6) 0%,transparent 100%)}
+  .logo{font-size:15px;letter-spacing:4px}
   .hamburger{display:block}
   .nav{
-    display:none;position:absolute;top:48px;right:12px;
+    display:none!important;position:absolute;top:44px;right:12px;
     flex-direction:column;gap:18px;
-    background:rgba(10,10,10,0.96);padding:20px 28px;
+    background:rgba(10,10,10,0.97);padding:20px 28px;
     border:1px solid rgba(201,168,76,0.12);border-radius:4px;
     backdrop-filter:blur(12px);z-index:102;
   }
-  .nav.mob-open{display:flex}
+  .nav.mob-open{display:flex!important}
   .nav a{font-size:11px;letter-spacing:3px}
 
-  /* Hide decorative elements */
+  /* Kill all decorative clutter */
   #canister,#coil{display:none!important}
   #settings-btn,#settings{display:none!important}
   .vf{display:none}
   #film-edge{display:none}
-  #light-cone{height:200px;opacity:0.25}
-  #table-edge{height:50px}
+  #strip-svg{display:none}
+  #light-cone{display:none}
+  #table-edge{height:30px}
 
-  /* Film frames — smaller */
-  .film-frame{width:155px;height:218px}
-  .pa{height:132px;margin:2px 6px}
-  .sr{height:16px}
-  .sp{width:7px;height:4px}
-  .fi{padding:2px 8px 0;height:18px}
-  .fl{font-size:11px;letter-spacing:2px}
-  .fn{font-size:7px}
-  .fc{font-size:7px;padding:0 0 1px}
-  .fs{bottom:-8px;height:14px}
+  /* ── BIG FRAMES — fill the screen ── */
+  .film-frame{width:72vw;height:calc(72vw * 1.41)}
+  .pa{height:calc(72vw * 0.9);margin:3px 8px}
+  .sr{height:calc(72vw * 0.07)}
+  .sp{width:9px;height:5px}
+  .fi{padding:3px 11px 0;height:calc(72vw * 0.08)}
+  .fl{font-size:16px;letter-spacing:3px}
+  .fn{font-size:9px}
+  .fc{font-size:9px;padding:0 0 2px}
+  .fs{bottom:-10px;height:16px}
 
-  /* HUD — compact */
-  .hud{padding-bottom:18px}
-  .ht{font-size:26px;letter-spacing:7px}
-  .hc{font-size:9px;letter-spacing:1px;margin-bottom:8px}
-  .hp{width:120px}
-  .hpn{font-size:8px;min-width:40px}
-  .hw{gap:8px;margin-bottom:3px}
-  .hh{font-size:7px;letter-spacing:2px}
+  /* HUD — right below the frame, not at page bottom */
+  .hud{padding-bottom:24px}
+  .ht{font-size:36px;letter-spacing:10px}
+  .hc{font-size:10px;letter-spacing:2px;margin-bottom:10px}
+  .hp{width:50vw}
+  .hpn{font-size:9px;min-width:40px}
+  .hw{gap:10px;margin-bottom:4px}
+  .hh{font-size:8px;letter-spacing:2px}
 
-  /* Gallery overlay — single column friendly */
+  /* Gallery overlay — touch friendly grid */
   .ov-h{padding:12px 16px}
-  .ov-t{font-size:18px;letter-spacing:5px}
+  .ov-t{font-size:20px;letter-spacing:5px}
   .ov-sub{font-size:9px;margin-left:10px}
-  .ov-x{font-size:9px;padding:6px 14px}
-  .ov-g{padding:12px;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+  .ov-x{font-size:10px;padding:8px 16px}
+  .ov-g{padding:12px;grid-template-columns:repeat(auto-fill,minmax(42vw,1fr));gap:8px}
 
-  /* Lightbox — more screen space */
-  .lb img{max-width:97vw;max-height:80vh}
+  /* Lightbox — full screen */
+  .lb img{max-width:97vw;max-height:85vh}
 
-  /* Film strip — mobile perspective */
-  #film-strip{perspective:1100px;perspective-origin:50% 52%}
-}
+  /* Film strip — centered perspective for card feel */
+  #film-strip{perspective:900px;perspective-origin:50% 42%}
 
-/* Small phones (<400px) */
-@media (max-width: 400px) {
-  .film-frame{width:130px;height:183px}
-  .pa{height:108px}
-  .sr{height:14px}
-  .ht{font-size:22px;letter-spacing:5px}
-  .hp{width:100px}
-  .ov-g{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
+  /* Vignette — tighter for mobile */
+  #vignette{background:radial-gradient(ellipse 80% 55% at 50% 42%,transparent 0%,rgba(0,0,0,0.65) 100%)}
 }
 </style>
 </head>
@@ -493,26 +487,28 @@ let cfg = {
 let isMobile = window.matchMedia('(max-width: 768px)').matches;
 let isSmallPhone = window.matchMedia('(max-width: 400px)').matches;
 
-// Dynamic frame dimensions (match CSS)
+// Dynamic frame dimensions (match CSS: 72vw on mobile)
 function getFrameSize() {
-  if (isSmallPhone) return { w: 130, h: 183 };
-  if (isMobile) return { w: 155, h: 218 };
+  if (isMobile) {
+    const w = Math.round(window.innerWidth * 0.72);
+    return { w, h: Math.round(w * 1.41) };
+  }
   return { w: 220, h: 310 };
 }
 
-// Touch/drag sensitivity coefficient
-function getDragCoeff() { return isMobile ? 0.012 : 0.005; }
+// Touch/drag — much more responsive on mobile for card swiping
+function getDragCoeff() { return isMobile ? 0.015 : 0.005; }
 
 function applyMobileConfig() {
   isMobile = window.matchMedia('(max-width: 768px)').matches;
   isSmallPhone = window.matchMedia('(max-width: 400px)').matches;
   if (isMobile) {
-    cfg.perspective = 1100;
-    cfg.scaleMult = 0.9;
-    cfg.visibleSlots = 3;
-    cfg.maxRotY = 15;
-    cfg.grain = 0.15;
-    curveDepth = 0.35;
+    cfg.perspective = 900;
+    cfg.scaleMult = 1.6;        // BIG active frame
+    cfg.visibleSlots = 2;       // only peek neighbors
+    cfg.maxRotY = 8;            // subtle rotation
+    cfg.grain = 0.10;
+    curveDepth = 0.08;          // nearly flat — keeps frames centered vertically
     strip.style.perspective = cfg.perspective + 'px';
     grainEl.style.opacity = cfg.grain;
   } else {
@@ -535,27 +531,53 @@ function frameXform(t, W, H) {
   const pt = pathPt(tc);
   const tan = pathTan(Math.max(0.01, Math.min(0.99, tc)));
 
-  const x = pt.x * W;
-  const y = pt.y * H;
+  let x, y, scale, rotY, rotX, rotZ, op, z;
 
-  // Scale: dramatic depth — large near canister, small near coil
-  const baseScale = 1.35 * Math.pow(Math.max(0.01, 1 - tc * 0.72), 1.4);
-  const scale = baseScale * cfg.scaleMult;
+  if (isMobile) {
+    // ── MOBILE: centered card layout ──
+    // X: center of screen, slight horizontal offset for adjacent cards
+    x = W * 0.5;
+    // Y: place frames at ~40% from top (visually centered accounting for HUD)
+    y = H * 0.40;
 
-  // Rotation
-  const rotY = -6 + tc * cfg.maxRotY;
-  const rotX = tc * 10 - 2;
-  const tanAngle = Math.atan2(tan.dy, tan.dx);
-  const rotZ = tanAngle * (180 / Math.PI) * 0.12;
+    // Scale: active frame = full size, neighbors shrink fast
+    // tc represents position on curve, heroT is where active sits
+    const distFromHero = Math.abs(t - 0.50);
+    scale = Math.max(0.3, 1.0 - distFromHero * 2.5) * cfg.scaleMult;
 
-  // Opacity
-  let op = 1;
-  if (t < 0) op = Math.max(0, 1 + t * 4);
-  else if (t < 0.07) op = t / 0.07;
-  else if (t > 0.93) op = Math.max(0, (1 - t) / 0.07);
-  else if (t > 1) op = Math.max(0, 1 - (t - 1) * 4);
+    // Slight Y rotation for depth peek on neighbors
+    rotY = (t - 0.50) * cfg.maxRotY * 4;
+    rotX = 0;
+    rotZ = 0;
 
-  const z = Math.round((1 - tc) * 100) + 10;
+    // Opacity: active = 1, neighbors fade
+    op = Math.max(0, 1 - distFromHero * 3);
+    if (t < -0.1 || t > 1.1) op = 0;
+
+    // Z-index: active on top
+    z = 100 - Math.round(distFromHero * 100);
+
+  } else {
+    // ── DESKTOP: original bezier S-curve ──
+    x = pt.x * W;
+    y = pt.y * H;
+
+    const baseScale = 1.35 * Math.pow(Math.max(0.01, 1 - tc * 0.72), 1.4);
+    scale = baseScale * cfg.scaleMult;
+
+    rotY = -6 + tc * cfg.maxRotY;
+    rotX = tc * 10 - 2;
+    const tanAngle = Math.atan2(tan.dy, tan.dx);
+    rotZ = tanAngle * (180 / Math.PI) * 0.12;
+
+    op = 1;
+    if (t < 0) op = Math.max(0, 1 + t * 4);
+    else if (t < 0.07) op = t / 0.07;
+    else if (t > 0.93) op = Math.max(0, (1 - t) / 0.07);
+    else if (t > 1) op = Math.max(0, 1 - (t - 1) * 4);
+
+    z = Math.round((1 - tc) * 100) + 10;
+  }
 
   return { x, y, scale, rotY, rotX, rotZ, op, z };
 }
@@ -681,6 +703,7 @@ function activeIdx() {
 const svg = document.getElementById('strip-svg');
 
 function drawStrip(W, H) {
+  if (isMobile) { svg.innerHTML = ''; return; } // no strip path on mobile
   const py = P.y;
   const x0 = P.x[0]*W - 50, y0 = py[0]*H;
   const x1 = P.x[1]*W, y1 = py[1]*H;
@@ -728,7 +751,7 @@ function render() {
   scroll += (target - scroll) * ease;
   const ai = activeIdx();
   const sp = SPACING();
-  const heroT = isMobile ? 0.42 : 0.32; // active frame position on curve
+  const heroT = isMobile ? 0.50 : 0.32; // mobile: dead center; desktop: left-biased
   const fs = getFrameSize();
   const halfW = fs.w / 2;
   const halfH = fs.h / 2;

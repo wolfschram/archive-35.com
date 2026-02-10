@@ -27,7 +27,7 @@
       "aspectRatio": 1.5,
       "aspectRatioString": "5472:3648",
       "orientation": "landscape",
-      "megapixels": 20.0
+      "megapixels": 20
     },
     "thumbnail": "_MG_2190-thumb.jpg",
     "full": "_MG_2190-full.jpg",
@@ -62,7 +62,7 @@
       "aspectRatio": 1.5,
       "aspectRatioString": "5472:3648",
       "orientation": "landscape",
-      "megapixels": 20.0
+      "megapixels": 20
     },
     "thumbnail": "_MG_2487-thumb.jpg",
     "full": "_MG_2487-full.jpg",
@@ -98,7 +98,7 @@
       "aspectRatio": 1.5,
       "aspectRatioString": "5472:3648",
       "orientation": "landscape",
-      "megapixels": 20.0
+      "megapixels": 20
     },
     "thumbnail": "_MG_2508-thumb.jpg",
     "full": "_MG_2508-full.jpg",
@@ -171,7 +171,7 @@
       "aspectRatio": 1.5,
       "aspectRatioString": "5472:3648",
       "orientation": "landscape",
-      "megapixels": 20.0
+      "megapixels": 20
     },
     "thumbnail": "_MG_3975-thumb.jpg",
     "full": "_MG_3975-full.jpg",
@@ -181,7 +181,7 @@
     "id": "sa-006",
     "filename": "_MG_4076.jpg",
     "title": "Rock Hyrax on the Coast",
-    "description": "A rock hyrax \u2014 the dassie \u2014 hunkers down on a lichen-covered granite boulder above the ocean, its small form braced against the cool coastal light of the Cape Peninsula.",
+    "description": "A rock hyrax — the dassie — hunkers down on a lichen-covered granite boulder above the ocean, its small form braced against the cool coastal light of the Cape Peninsula.",
     "location": {
       "country": "South Africa",
       "region": "Western Cape",
@@ -206,10 +206,90 @@
       "aspectRatio": 1.5,
       "aspectRatioString": "5472:3648",
       "orientation": "landscape",
-      "megapixels": 20.0
+      "megapixels": 20
     },
     "thumbnail": "_MG_4076-thumb.jpg",
     "full": "_MG_4076-full.jpg",
+    "c2pa": true
+  },
+  {
+    "id": "_mg_3992",
+    "filename": "_MG_3992.jpg",
+    "title": "Turquoise Shores and Ancient Stone",
+    "description": "A pristine South African coastline where weathered boulders emerge from crystalline turquoise waters, their ochre and amber surfaces sculpted by centuries of Atlantic swells. The composition captures the raw geological beauty and serene majesty of this temperate seaside landscape.",
+    "location": "Cape Peninsula, Western Cape, South Africa",
+    "tags": [
+      "south-africa",
+      "cape-peninsula",
+      "coastal-landscape",
+      "boulder-beach",
+      "turquoise-water",
+      "rocky-shore",
+      "fine-art-photography",
+      "landscape-photography",
+      "nature-photography",
+      "seascape",
+      "geological-formations",
+      "weathered-rocks",
+      "azure-ocean",
+      "tranquil-seascape",
+      "wall-art",
+      "canvas-print",
+      "home-decor",
+      "gallery-art",
+      "south-africa-coast",
+      "atlantic-shore"
+    ],
+    "dimensions": {
+      "width": 5000,
+      "height": 2429,
+      "aspectRatio": 2.058,
+      "aspectRatioString": "5000:2429",
+      "orientation": "panorama",
+      "megapixels": 12.1
+    },
+    "thumbnail": "_MG_3992-thumb.jpg",
+    "full": "_MG_3992-full.jpg",
+    "c2pa": true
+  },
+  {
+    "id": "_mg_4025-pano",
+    "filename": "_MG_4025-Pano.jpg",
+    "title": "Cape Peninsula Coastal Splendor",
+    "description": "A breathtaking panoramic vista of South Africa's rugged coastline, where dramatic mountain peaks frame pristine turquoise waters and windswept cliffs meet the Atlantic. The interplay of verdant vegetation, weathered granite formations, and crystalline ocean light creates a timeless portrait of coastal wilderness.",
+    "location": "Cape Peninsula, Western Cape, South Africa",
+    "tags": [
+      "cape-peninsula",
+      "south-africa",
+      "western-cape",
+      "landscape-photography",
+      "coastal-scenery",
+      "mountain-peaks",
+      "atlantic-ocean",
+      "dramatic-coastline",
+      "turquoise-waters",
+      "granite-cliffs",
+      "panoramic-vista",
+      "fine-art-photography",
+      "nature-photography",
+      "wilderness",
+      "azure-waters",
+      "rugged-terrain",
+      "coastal-landscape",
+      "wall-art",
+      "canvas-print",
+      "gallery-wall"
+    ],
+    "dimensions": {
+      "width": 5000,
+      "height": 2371,
+      "aspectRatio": 2.109,
+      "aspectRatioString": "5000:2371",
+      "orientation": "panorama",
+      "megapixels": 11.9
+    },
+    "thumbnail": "_MG_4025-Pano-thumb.jpg",
+    "full": "_MG_4025-Pano-full.jpg",
     "c2pa": true
   }
 ]

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "img_0208_(1)",
+    "filename": "IMG_0208 (1).jpg",
+    "title": "Sentinels of the Desert",
+    "description": "Two massive buttes rise majestically from the arid desert floor, their rust-colored peaks commanding the landscape against a luminous sky. This timeless scene captures the raw geological power and serene isolation of one of North America's most iconic high deserts.",
+    "location": "Monument Valley, Arizona-Utah Border",
+    "tags": [
+      "butte",
+      "desert-landscape",
+      "monument-valley",
+      "arizona",
+      "utah",
+      "geological-formation",
+      "sandstone",
+      "arid-landscape",
+      "fine-art-photography",
+      "nature-photography",
+      "dramatic-landscape",
+      "majestic",
+      "rust-colored",
+      "golden-ochre",
+      "clear-sky",
+      "wall-art",
+      "canvas-print",
+      "landscape-photography",
+      "gallery-wall",
+      "home-decor"
+    ],
+    "dimensions": {
+      "width": 5000,
+      "height": 2438,
+      "aspectRatio": 2.051,
+      "aspectRatioString": "2500:1219",
+      "orientation": "panorama",
+      "megapixels": 12.2
+    },
+    "thumbnail": "IMG_0208 (1)-thumb.jpg",
+    "full": "IMG_0208 (1)-full.jpg",
+    "c2pa": true
+  }
+]

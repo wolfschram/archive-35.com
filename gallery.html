@@ -1,150 +1,957 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gallery | ARCHIVE-35</title>
-  <meta name="description" content="Browse the complete collection of fine art landscape photography prints.">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="ARCHIVE-35">
-  <meta property="og:title" content="Gallery | ARCHIVE-35">
-  <meta property="og:description" content="Browse the complete collection of fine art landscape photography prints.">
-  <meta property="og:url" content="https://archive-35.com/gallery.html">
-  <meta property="og:image" content="https://archive-35.com/logos/archive35-og-image.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Gallery | ARCHIVE-35">
-  <meta name="twitter:description" content="Browse the complete collection of fine art landscape photography prints.">
-  <meta name="twitter:image" content="https://archive-35.com/logos/archive35-og-image.png">
-  <meta name="robots" content="noai, noimageai">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="apple-touch-icon" href="logos/archive35-favicon-180.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="logos/archive35-favicon-32.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="logos/archive35-favicon-192.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/product-selector.css">
-  <link rel="stylesheet" href="css/cart.css">
-  <!-- Google Analytics 4 -->
-  <!-- GA4 Measurement ID: G-SE2WETEK5D -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SE2WETEK5D"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-SE2WETEK5D', {
-      'anonymize_ip': true,
-      'allow_google_signals': false,
-      'allow_ad_personalization_signals': false
-    });
-  </script>
-  <!-- Cloudflare Web Analytics -->
-  <!-- Replace with your Cloudflare beacon token -->
-  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "CLOUDFLARE_BEACON_TOKEN"}'></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery | ARCHIVE-35</title>
+<meta name="description" content="Browse the complete collection of fine art landscape photography prints. Cover Flow gallery experience.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ARCHIVE-35">
+<meta property="og:title" content="Gallery | ARCHIVE-35">
+<meta property="og:description" content="Browse the complete collection of fine art landscape photography prints.">
+<meta property="og:url" content="https://archive-35.com/gallery.html">
+<meta property="og:image" content="https://archive-35.com/logos/archive35-og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Gallery | ARCHIVE-35">
+<meta name="twitter:description" content="Browse the complete collection of fine art landscape photography prints.">
+<meta name="twitter:image" content="https://archive-35.com/logos/archive35-og-image.png">
+<meta name="robots" content="noai, noimageai">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="logos/archive35-favicon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="logos/archive35-favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="logos/archive35-favicon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SE2WETEK5D"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-SE2WETEK5D', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- Cloudflare Web Analytics -->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "CLOUDFLARE_BEACON_TOKEN"}'></script>
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+/* === ROOT — NEVER PURE BLACK === */
+:root {
+  --void:    #050504;
+  --deep:    #0a0908;
+  --base:    #0d0c0a;
+  --surface: #13120f;
+  --raised:  #1a1916;
+  --gold:    #c9a84c;
+  --gold-dim:#7a6830;
+  --warmlight: rgba(255,248,230,1);
+  --coolshadow: #0a0b0d;
+}
+
+html, body { 
+  height:100%; overflow:hidden; 
+  background:var(--base); color:#e8e0d0;
+  font-family:'DM Sans',sans-serif;
+  user-select:none; -webkit-user-select:none;
+}
+
+/* === ROOM — 12-layer environment === */
+#room { position:fixed; inset:0; overflow:hidden; }
+
+#back-wall {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 50% 40% at 50% 38%, rgba(25,22,18,0.6) 0%, transparent 70%),
+    linear-gradient(180deg, var(--coolshadow) 0%, var(--base) 35%, var(--base) 100%);
+}
+
+#ceiling {
+  position:absolute; top:0; left:0; right:0; height:20vh;
+  background:linear-gradient(180deg, 
+    rgba(5,5,8,0.95) 0%, 
+    rgba(8,8,10,0.6) 40%, 
+    transparent 100%);
+  pointer-events:none;
+}
+
+#wall-left {
+  position:absolute; top:0; bottom:0; left:0; width:30vw;
+  background:linear-gradient(90deg, 
+    rgba(4,4,3,0.9) 0%, 
+    rgba(6,6,5,0.5) 30%, 
+    transparent 100%);
+  pointer-events:none;
+}
+#wall-right {
+  position:absolute; top:0; bottom:0; right:0; width:30vw;
+  background:linear-gradient(270deg, 
+    rgba(4,4,3,0.9) 0%, 
+    rgba(6,6,5,0.5) 30%, 
+    transparent 100%);
+  pointer-events:none;
+}
+
+#floor {
+  position:absolute; bottom:0; left:0; right:0; height:52vh;
+  background:linear-gradient(180deg,
+    var(--base) 0%,
+    #0b0a08 8%,
+    #080706 25%,
+    #060504 50%,
+    var(--void) 100%);
+  pointer-events:none;
+}
+
+#floor-edge {
+  position:absolute; top:48vh; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,
+    transparent 8%,
+    rgba(255,248,230,0.02) 25%,
+    rgba(255,248,230,0.05) 40%,
+    rgba(255,248,230,0.08) 50%,
+    rgba(255,248,230,0.05) 60%,
+    rgba(255,248,230,0.02) 75%,
+    transparent 92%);
+  pointer-events:none; z-index:3;
+}
+
+#spotlight {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 12% 18% at 50% 15%, 
+      rgba(255,248,230,0.07) 0%, transparent 100%),
+    radial-gradient(ellipse 25% 35% at 50% 20%, 
+      rgba(255,248,230,0.04) 0%, rgba(255,248,230,0.015) 40%, transparent 100%),
+    radial-gradient(ellipse 45% 55% at 50% 25%, 
+      rgba(255,248,230,0.02) 0%, transparent 100%);
+  mix-blend-mode:screen;
+  pointer-events:none; z-index:2;
+}
+
+#light-cone {
+  position:absolute;
+  top:0; left:50%; transform:translateX(-50%);
+  width:0; height:0;
+  border-left:22vw solid transparent;
+  border-right:22vw solid transparent;
+  border-top:55vh solid rgba(255,248,230,0.012);
+  filter:blur(30px);
+  pointer-events:none; z-index:1;
+}
+
+#floor-pool {
+  position:absolute;
+  top:42vh; left:50%; transform:translateX(-50%);
+  width:50vw; height:18vh;
+  background:radial-gradient(ellipse 55% 45% at 50% 30%,
+    rgba(255,248,230,0.04) 0%,
+    rgba(255,248,230,0.015) 40%,
+    transparent 80%);
+  pointer-events:none; z-index:2;
+}
+
+#ao {
+  position:absolute; inset:0;
+  box-shadow:
+    inset 0 0 40px rgba(0,0,0,0.5),
+    inset 0 0 120px rgba(0,0,0,0.3),
+    inset 0 0 250px rgba(0,0,0,0.15),
+    inset 0 80px 120px -60px rgba(0,0,0,0.4),
+    inset 0 -60px 100px -40px rgba(0,0,0,0.5);
+  pointer-events:none; z-index:3;
+}
+
+#noise {
+  position:absolute; inset:-50%; width:200%; height:200%;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:512px;
+  mix-blend-mode:soft-light;
+  opacity:0.028;
+  pointer-events:none; z-index:4;
+}
+
+#vignette {
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse 65% 60% at 50% 42%,
+    transparent 20%,
+    rgba(0,0,0,0.15) 50%,
+    rgba(0,0,0,0.45) 75%,
+    rgba(0,0,0,0.7) 100%);
+  pointer-events:none; z-index:5;
+}
+
+/* === HEADER === */
+header {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 40px; pointer-events:none;
+}
+header > * { pointer-events:auto; }
+.logo { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:8px; text-decoration:none; color:#e8e0d0; }
+.logo em { color:var(--gold); font-style:normal; }
+nav { display:flex; gap:26px; font-size:10px; letter-spacing:3px; text-transform:uppercase; font-weight:300; }
+nav a { color:#555; text-decoration:none; transition:color .3s; }
+nav a:hover, nav a.active { color:var(--gold); }
+
+/* === COVERFLOW === */
+#cf {
+  position:absolute;
+  top:4vh; left:0; right:0;
+  height:50vh;
+  perspective:1800px;
+  perspective-origin:50% 52%;
+  z-index:10;
+}
+
+.c {
+  position:absolute; left:50%; top:0;
+  transform-style:preserve-3d;
+  cursor:pointer;
+}
+
+.c-face {
+  position:relative;
+  width:var(--cs); height:var(--cs);
+  border-radius:3px; overflow:hidden;
+  border:1px solid rgba(100,90,65,0.2);
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.4),
+    0 8px 25px rgba(0,0,0,0.5),
+    0 20px 50px rgba(0,0,0,0.4),
+    0 35px 80px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.c.active .c-face {
+  border-color:rgba(201,168,76,0.18);
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.4),
+    0 8px 25px rgba(0,0,0,0.5),
+    0 25px 60px rgba(0,0,0,0.5),
+    0 40px 100px rgba(0,0,0,0.3),
+    0 0 50px rgba(201,168,76,0.03),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.c-face img { width:100%; height:100%; object-fit:cover; display:block; }
+.c-lbl {
+  position:absolute; bottom:0; left:0; right:0;
+  padding:30px 12px 8px;
+  background:linear-gradient(transparent, rgba(0,0,0,0.65));
+  font-family:'Courier Prime',monospace; font-size:8px;
+  letter-spacing:2px; color:rgba(201,168,76,0.35);
+  text-transform:uppercase; pointer-events:none;
+}
+
+/* === REFLECTION === */
+.c-refl {
+  position:absolute;
+  top:calc(var(--cs) + 3px); left:0;
+  width:var(--cs); height:var(--cs);
+  transform:scaleY(-1);
+  overflow:hidden; border-radius:3px;
+  mask-image:linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.06) 30%, transparent 55%);
+  -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.06) 30%, transparent 55%);
+  pointer-events:none;
+  filter:blur(2px);
+}
+.c-refl img { width:100%; height:100%; object-fit:cover; display:block; filter:brightness(0.35) saturate(0.5); }
+.c-refl .rg {
+  position:absolute; inset:0;
+  display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(3,1fr);
+  gap:2px; padding:2px; opacity:0; transition:opacity 0.8s;
+}
+.c.active .c-refl .rg { opacity:1; }
+.c.active .c-refl { filter:blur(1px); }
+.rg-c { overflow:hidden; background:rgba(13,12,10,0.9); }
+.rg-c img { width:100%; height:100%; object-fit:cover; filter:blur(2px) brightness(0.3) saturate(0.6); transition:filter 0.8s; }
+.c.active .rg-c img { filter:blur(1px) brightness(0.45) saturate(0.75); }
+
+/* === INFO === */
+#info {
+  position:absolute; bottom:24vh; left:0; right:0;
+  text-align:center; z-index:15; pointer-events:none;
+}
+#info-t {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(28px,4.2vw,56px);
+  letter-spacing:clamp(8px,1.4vw,16px);
+  color:#e8e0d0;
+  text-shadow:0 4px 40px rgba(0,0,0,0.9),0 1px 3px rgba(0,0,0,0.8);
+}
+#info-c {
+  font-family:'Courier Prime',monospace; font-size:11px;
+  color:var(--gold); letter-spacing:3px; margin-top:6px;
+  text-shadow:0 2px 12px rgba(0,0,0,0.9);
+}
+#info-h {
+  font-family:'Courier Prime',monospace; font-size:8px;
+  letter-spacing:3px; color:rgba(201,168,76,0.15);
+  margin-top:14px; animation:breathe 4s ease-in-out infinite;
+  transition:opacity .4s;
+}
+@keyframes breathe{0%,100%{opacity:.15}50%{opacity:.35}}
+
+#dots {
+  position:fixed; bottom:14px; left:50%; transform:translateX(-50%);
+  display:flex; gap:6px; z-index:20;
+}
+.dot {
+  width:5px; height:5px; border-radius:50%;
+  background:rgba(255,255,255,0.06); transition:all .5s;
+}
+.dot.active { background:var(--gold); box-shadow:0 0 6px rgba(201,168,76,0.3); }
+
+/* === CONTENT PREVIEW === */
+#cprev {
+  position:fixed; bottom:0; left:0; right:0;
+  max-height:0; opacity:0; overflow:hidden;
+  transition:max-height .7s cubic-bezier(.23,1,.32,1), opacity .5s;
+  z-index:30;
+  background:linear-gradient(180deg, transparent 0%, rgba(8,7,6,0.97) 5%, rgba(5,5,4,0.99) 100%);
+}
+#cprev.open { max-height:46vh; opacity:1; }
+#cprev-in { padding:14px 48px 28px; height:100%; display:flex; flex-direction:column; }
+#cprev-hd {
+  display:flex; align-items:baseline; justify-content:space-between;
+  padding-bottom:10px; margin-bottom:10px;
+  border-bottom:1px solid rgba(201,168,76,0.05); flex-shrink:0;
+}
+#cprev-t { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:6px; }
+#cprev-c { font-family:'Courier Prime',monospace; font-size:10px; color:rgba(201,168,76,0.45); letter-spacing:2px; margin-left:14px; }
+#cprev-btn {
+  font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px;
+  color:var(--gold); background:transparent; border:1px solid var(--gold-dim);
+  padding:8px 24px; cursor:pointer; transition:all .3s;
+}
+#cprev-btn:hover { background:var(--gold); color:#000; }
+#cprev-g {
+  flex:1; overflow-y:auto;
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:6px;
+}
+#cprev-g::-webkit-scrollbar{width:3px}
+#cprev-g::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px}
+.cp-th {
+  aspect-ratio:3/2; overflow:hidden;
+  border:1px solid rgba(255,255,255,0.02);
+  cursor:pointer; transition:all .3s; border-radius:2px;
+}
+.cp-th:hover { transform:scale(1.03); border-color:rgba(201,168,76,0.15); }
+.cp-th img { width:100%; height:100%; object-fit:cover; display:block; }
+
+/* === FULL GALLERY === */
+#fgal {
+  position:fixed; inset:0; z-index:200; background:var(--base);
+  opacity:0; pointer-events:none; transition:opacity .6s; overflow-y:auto;
+}
+#fgal.open { opacity:1; pointer-events:auto; }
+#fg-bk {
+  position:fixed; top:22px; left:36px; z-index:210;
+  font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px; color:var(--gold);
+  background:rgba(13,12,10,0.85); border:1px solid var(--gold-dim);
+  padding:10px 24px; cursor:pointer; transition:all .3s; backdrop-filter:blur(8px);
+}
+#fg-bk:hover { background:var(--gold); color:#000; }
+#fg-hd { text-align:center; padding:80px 40px 30px; }
+#fg-ti { font-family:'Bebas Neue',sans-serif; font-size:48px; letter-spacing:14px; }
+#fg-ct { font-family:'Courier Prime',monospace; font-size:11px; color:var(--gold); letter-spacing:3px; margin-top:8px; }
+#fg-ru { width:80px; height:1px; background:var(--gold); margin:16px auto 0; opacity:.3; }
+#fg-gr { columns:3; column-gap:10px; padding:24px 48px 60px; }
+@media(max-width:900px){#fg-gr{columns:2}}
+@media(max-width:550px){#fg-gr{columns:1}}
+.fg-im {
+  width:100%; margin-bottom:10px; display:block;
+  border:1px solid rgba(255,255,255,0.02);
+  cursor:zoom-in; transition:all .3s; break-inside:avoid; border-radius:2px;
+}
+.fg-im:hover { border-color:rgba(201,168,76,0.12); }
+
+/* === LIGHTBOX === */
+#lb {
+  position:fixed; inset:0; z-index:300;
+  background:rgba(5,5,4,0.97);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .4s;
+}
+#lb.open { opacity:1; pointer-events:auto; }
+#lb-img { max-width:92vw; max-height:90vh; object-fit:contain; box-shadow:0 0 100px rgba(0,0,0,0.5); }
+#lb-ctr { position:absolute; bottom:24px; left:50%; transform:translateX(-50%); font-family:'Courier Prime',monospace; font-size:11px; color:var(--gold); letter-spacing:3px; }
+#lb-ttl { position:absolute; bottom:48px; left:50%; transform:translateX(-50%); font-family:'DM Sans',sans-serif; font-size:13px; color:rgba(232,224,208,0.6); letter-spacing:1px; white-space:nowrap; }
+.lb-a { position:absolute; top:50%; transform:translateY(-50%); font-size:32px; color:rgba(255,255,255,0.2); cursor:pointer; background:none; border:none; padding:30px; transition:color .3s; }
+.lb-a:hover { color:var(--gold); }
+#lb-p{left:10px}#lb-n{right:10px}
+#lb-x { position:absolute; top:20px; right:28px; font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px; color:var(--gold); background:none; border:1px solid var(--gold-dim); padding:8px 18px; cursor:pointer; transition:all .3s; }
+#lb-x:hover { background:var(--gold); color:#000; }
+
+/* Viewfinder */
+.vf{position:fixed;z-index:60;pointer-events:none;width:16px;height:16px;opacity:.035}
+.vf-tl{top:6px;left:6px;border-top:1px solid var(--gold);border-left:1px solid var(--gold)}
+.vf-tr{top:6px;right:6px;border-top:1px solid var(--gold);border-right:1px solid var(--gold)}
+.vf-bl{bottom:6px;left:6px;border-bottom:1px solid var(--gold);border-left:1px solid var(--gold)}
+.vf-br{bottom:6px;right:6px;border-bottom:1px solid var(--gold);border-right:1px solid var(--gold)}
+</style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <div class="header-inner">
-      <a href="index.html" class="logo">
-        <span class="logo-white">ARCHIVE</span><span class="logo-gold">-35</span>
-      </a>
-      <nav class="nav">
-        <a href="index.html">Home</a>
-        <a href="gallery.html" class="active">Gallery</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="search.html">Search</a>
-      </nav>
-      <button class="nav-toggle" aria-label="Toggle navigation">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-    </div>
-  </header>
 
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="container">
-      <h1 id="gallery-title">Collections</h1>
-      <p id="gallery-desc">Explore curated collections from around the world.</p>
-      <a href="gallery.html" id="back-to-collections" class="btn btn-secondary" style="display: none; margin-top: 1rem;">← All Collections</a>
-    </div>
-  </div>
+<!-- THE ROOM -->
+<div id="room">
+  <div id="back-wall"></div>
+  <div id="ceiling"></div>
+  <div id="wall-left"></div>
+  <div id="wall-right"></div>
+  <div id="floor"></div>
+  <div id="floor-edge"></div>
+  <div id="light-cone"></div>
+  <div id="spotlight"></div>
+  <div id="floor-pool"></div>
+  <div id="ao"></div>
+  <div id="noise"></div>
+  <div id="vignette"></div>
+</div>
 
-  <!-- Collections Overview -->
-  <section class="page-content" id="collections-section">
-    <div class="container">
-      <div id="collections-grid" class="collections-grid">
-        <!-- Populated by JavaScript -->
-      </div>
-    </div>
-  </section>
+<!-- COVERFLOW -->
+<div id="cf"></div>
 
-  <!-- Gallery Grid (shown when viewing a collection) -->
-  <section class="page-content" id="gallery-section" style="display: none;">
-    <div class="container">
-      <div id="gallery-grid" class="gallery-grid">
-        <!-- Populated by JavaScript -->
-      </div>
-    </div>
-  </section>
+<!-- INFO -->
+<div id="info">
+  <div id="info-t">&mdash;</div>
+  <div id="info-c"></div>
+  <div id="info-h">&#10235; scroll &middot; click to preview &#10236;</div>
+</div>
+<div id="dots"></div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-inner">
-        <div class="footer-brand">
-          <a href="index.html" class="logo">
-            <span class="logo-white">ARCHIVE</span><span class="logo-gold">-35</span>
-          </a>
-          <p>Fine art landscape photography prints. Light. Place. Time.</p>
-        </div>
-        <div class="footer-links">
-          <h4>Explore</h4>
-          <a href="gallery.html">Gallery</a>
-          <a href="about.html">About</a>
-          <a href="contact.html">Contact</a>
-        </div>
-        <div class="footer-links">
-          <h4>Legal</h4>
-          <a href="terms.html">Terms of Sale</a>
-          <a href="privacy.html">Privacy Policy</a>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2026 Archive-35. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
+<!-- HEADER -->
+<header>
+  <a href="index.html" class="logo">ARCHIVE<em>-35</em></a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="gallery.html" class="active">Gallery</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="search.html">Search</a>
+  </nav>
+</header>
 
-  <!-- Lightbox -->
-  <div id="lightbox" class="lightbox">
-    <div class="lightbox-content">
-      <button class="lightbox-close" aria-label="Close">&times;</button>
-      <button class="lightbox-nav lightbox-prev" aria-label="Previous">&lsaquo;</button>
-      <button class="lightbox-nav lightbox-next" aria-label="Next">&rsaquo;</button>
-      <img class="lightbox-image" src="" alt="">
-      <div class="lightbox-info">
-        <h3 class="lightbox-title"></h3>
-        <p class="lightbox-location"></p>
-        <a href="#" class="btn btn-small lightbox-buy" target="_blank" rel="noopener">Buy Print</a>
-      </div>
-    </div>
-  </div>
+<!-- PANELS -->
+<div id="cprev"><div id="cprev-in">
+  <div id="cprev-hd"><div><span id="cprev-t"></span><span id="cprev-c"></span></div><button id="cprev-btn">ENTER GALLERY &rarr;</button></div>
+  <div id="cprev-g"></div>
+</div></div>
 
-  <script src="https://js.stripe.com/v3/"></script>
-  <script>window.STRIPE_PUBLIC_KEY = 'pk_live_51SxIaWIyLqYsy9lvz6b9LBV2cMBz4JJgFb30aYvbrMxH0hromGU1mFWF2vu6tV97Co8LrczCM3dFJg89a9a4tT0U007cpVXRWM';</script>
-  <script src="js/test-mode-banner.js?v=1"></script>
-  <script src="js/analytics.js"></script>
-  <script src="js/main.js"></script>
-  <script src="js/stripe-links.js"></script>
-  <script src="js/cart.js"></script>
-  <script src="js/cart-ui.js?v=2"></script>
-  <script src="js/product-selector.js?v=7"></script>
-  <script src="js/schema-inject.js"></script>
-  <script src="js/image-protection.js"></script>
+<div id="fgal">
+  <button id="fg-bk">&larr; BACK</button>
+  <div id="fg-hd"><div id="fg-ti"></div><div id="fg-ct"></div><div id="fg-ru"></div></div>
+  <div id="fg-gr"></div>
+</div>
+
+<div id="lb">
+  <button id="lb-x">&#10005; CLOSE</button>
+  <button class="lb-a" id="lb-p">&#8249;</button>
+  <button class="lb-a" id="lb-n">&#8250;</button>
+  <img id="lb-img" src="" alt="">
+  <div id="lb-ttl"></div>
+  <div id="lb-ctr"></div>
+</div>
+
+<div class="vf vf-tl"></div><div class="vf vf-tr"></div><div class="vf vf-bl"></div><div class="vf vf-br"></div>
+
+<script>
+/* ===== GALLERY DATA (from photos.json) ===== */
+const G=[
+  {name:"Grand Teton",slug:"grand-teton",n:48,img:"images/grand-teton/WOLF6651-thumb.jpg",p:[
+    {t:"images/grand-teton/WOLF6651-thumb.jpg",f:"images/grand-teton/WOLF6651-full.jpg",n:"Teton Peaks Across Frozen Waters",ar:2.399},
+    {t:"images/grand-teton/WOLF6675-thumb.jpg",f:"images/grand-teton/WOLF6675-full.jpg",n:"Frozen Lake Beneath the Tetons",ar:2.004},
+    {t:"images/grand-teton/WOLF6676-thumb.jpg",f:"images/grand-teton/WOLF6676-full.jpg",n:"Teton Range Winter Reflection",ar:1.499},
+    {t:"images/grand-teton/WOLF6743-thumb.jpg",f:"images/grand-teton/WOLF6743-full.jpg",n:"Teton Range Frozen Reflection",ar:2.399},
+    {t:"images/grand-teton/WOLF6750-thumb.jpg",f:"images/grand-teton/WOLF6750-full.jpg",n:"Teton Range in Winter Silence",ar:2.399},
+    {t:"images/grand-teton/WOLF6763-thumb.jpg",f:"images/grand-teton/WOLF6763-full.jpg",n:"Winter's Twilight Over the Valley",ar:1.499},
+    {t:"images/grand-teton/WOLF6766-thumb.jpg",f:"images/grand-teton/WOLF6766-full.jpg",n:"Winter Valley Light",ar:2.03},
+    {t:"images/grand-teton/WOLF6767-thumb.jpg",f:"images/grand-teton/WOLF6767-full.jpg",n:"Teton Range Winter Solitude",ar:1.961},
+    {t:"images/grand-teton/WOLF6770-thumb.jpg",f:"images/grand-teton/WOLF6770-full.jpg",n:"Teton Range in Winter Stillness",ar:2.267},
+    {t:"images/grand-teton/WOLF6780-Pano-thumb.jpg",f:"images/grand-teton/WOLF6780-Pano-full.jpg",n:"Teton Range Winter Expanse",ar:2.197},
+    {t:"images/grand-teton/WOLF6797-Pano-thumb.jpg",f:"images/grand-teton/WOLF6797-Pano-full.jpg",n:"Winter Expanse at Grand Teton",ar:3.535},
+    {t:"images/grand-teton/WOLF6826-thumb.jpg",f:"images/grand-teton/WOLF6826-full.jpg",n:"Winter River Valley Solitude",ar:2.257},
+    {t:"images/grand-teton/WOLF6841-thumb.jpg",f:"images/grand-teton/WOLF6841-full.jpg",n:"Solitary Raven in Winter Silence",ar:2.059},
+    {t:"images/grand-teton/WOLF6858-Pano-thumb.jpg",f:"images/grand-teton/WOLF6858-Pano-full.jpg",n:"Frozen Lake Below the Tetons",ar:1.847},
+    {t:"images/grand-teton/WOLF6872-Pano-thumb.jpg",f:"images/grand-teton/WOLF6872-Pano-full.jpg",n:"Snow Stop: Teton Wilderness",ar:2.388},
+    {t:"images/grand-teton/WOLF6909-thumb.jpg",f:"images/grand-teton/WOLF6909-full.jpg",n:"Geese in Morning Mist",ar:1.958},
+    {t:"images/grand-teton/WOLF6915-thumb.jpg",f:"images/grand-teton/WOLF6915-full.jpg",n:"Birch Avenue to the Tetons",ar:2.196},
+    {t:"images/grand-teton/WOLF6950-thumb.jpg",f:"images/grand-teton/WOLF6950-full.jpg",n:"Elk in Winter Meadow",ar:2.379},
+    {t:"images/grand-teton/WOLF7002-thumb.jpg",f:"images/grand-teton/WOLF7002-full.jpg",n:"Elk Herd in Winter Meadow",ar:2.379},
+    {t:"images/grand-teton/WOLF7029-thumb.jpg",f:"images/grand-teton/WOLF7029-full.jpg",n:"Bighorn Sheep on Rocky Outcrop",ar:2.216},
+    {t:"images/grand-teton/WOLF7039-thumb.jpg",f:"images/grand-teton/WOLF7039-full.jpg",n:"Mountain Sheep on Rocky Slope",ar:1.706},
+    {t:"images/grand-teton/WOLF7062-thumb.jpg",f:"images/grand-teton/WOLF7062-full.jpg",n:"Bighorn Sheep on Rocky Slope",ar:1.706},
+    {t:"images/grand-teton/WOLF7160-thumb.jpg",f:"images/grand-teton/WOLF7160-full.jpg",n:"Winter Elk Migration, Grand Teton",ar:2.414},
+    {t:"images/grand-teton/WOLF7166-thumb.jpg",f:"images/grand-teton/WOLF7166-full.jpg",n:"Winter Migration Across the Valley",ar:2.414},
+    {t:"images/grand-teton/WOLF7178-thumb.jpg",f:"images/grand-teton/WOLF7178-full.jpg",n:"Frozen River Through Alpine Forest",ar:2.132},
+    {t:"images/grand-teton/WOLF7227-thumb.jpg",f:"images/grand-teton/WOLF7227-full.jpg",n:"Moose in Winter Solitude",ar:2.097},
+    {t:"images/grand-teton/WOLF7301-thumb.jpg",f:"images/grand-teton/WOLF7301-full.jpg",n:"Tetons Emerge Through Alpine Mist",ar:2.399},
+    {t:"images/grand-teton/WOLF7336-thumb.jpg",f:"images/grand-teton/WOLF7336-full.jpg",n:"Mountain Majesty Over Frozen Waters",ar:2.264},
+    {t:"images/grand-teton/WOLF7337-thumb.jpg",f:"images/grand-teton/WOLF7337-full.jpg",n:"Teton Peak Veiled in Cloud",ar:1.902},
+    {t:"images/grand-teton/WOLF7356-thumb.jpg",f:"images/grand-teton/WOLF7356-full.jpg",n:"Teton Peak Through Winter Mist",ar:1.499},
+    {t:"images/grand-teton/WOLF7406-Pano-thumb.jpg",f:"images/grand-teton/WOLF7406-Pano-full.jpg",n:"Teton Valley Winter Homestead",ar:2.34},
+    {t:"images/grand-teton/WOLF7450-thumb.jpg",f:"images/grand-teton/WOLF7450-full.jpg",n:"Homestead Beneath the Tetons",ar:2.399},
+    {t:"images/grand-teton/WOLF7471-thumb.jpg",f:"images/grand-teton/WOLF7471-full.jpg",n:"Homestead in the Tetons",ar:2.399},
+    {t:"images/grand-teton/WOLF7489-thumb.jpg",f:"images/grand-teton/WOLF7489-full.jpg",n:"Infinite Highway Through Winter",ar:2.21},
+    {t:"images/grand-teton/WOLF7514-thumb.jpg",f:"images/grand-teton/WOLF7514-full.jpg",n:"Moose in Sagebrush Winter",ar:1.798},
+    {t:"images/grand-teton/WOLF6535-Pano-thumb.jpg",f:"images/grand-teton/WOLF6535-Pano-full.jpg",n:"Panoramic Teton Dawn",ar:2.73},
+    {t:"images/grand-teton/WOLF6679-thumb.jpg",f:"images/grand-teton/WOLF6679-full.jpg",n:"Dawn Light on the Snake River",ar:1.925},
+    {t:"images/grand-teton/WOLF6698-Pano-thumb.jpg",f:"images/grand-teton/WOLF6698-Pano-full.jpg",n:"Snake River Winter Panorama",ar:2.156},
+    {t:"images/grand-teton/WOLF6895-thumb.jpg",f:"images/grand-teton/WOLF6895-full.jpg",n:"Waterfowl on Frozen Lake",ar:2.136},
+    {t:"images/grand-teton/WOLF6924-thumb.jpg",f:"images/grand-teton/WOLF6924-full.jpg",n:"Moose Crossing Frosted Meadow",ar:2.296},
+    {t:"images/grand-teton/WOLF6999-thumb.jpg",f:"images/grand-teton/WOLF6999-full.jpg",n:"Elk Gathering at Winter's Edge",ar:2.315},
+    {t:"images/grand-teton/WOLF7013-thumb.jpg",f:"images/grand-teton/WOLF7013-full.jpg",n:"Bighorn Sheep on Teton Cliffs",ar:2.13},
+    {t:"images/grand-teton/WOLF7038-thumb.jpg",f:"images/grand-teton/WOLF7038-full.jpg",n:"Elk on Frozen Riverbank",ar:1.706},
+    {t:"images/grand-teton/WOLF7165-thumb.jpg",f:"images/grand-teton/WOLF7165-full.jpg",n:"Bison Crossing Winter Terrain",ar:2.413},
+    {t:"images/grand-teton/WOLF7228-thumb.jpg",f:"images/grand-teton/WOLF7228-full.jpg",n:"Moose at Twilight",ar:2.276},
+    {t:"images/grand-teton/WOLF7364-thumb.jpg",f:"images/grand-teton/WOLF7364-full.jpg",n:"Grand Teton Rising Through Mist",ar:1.5},
+    {t:"images/grand-teton/WOLF7454-thumb.jpg",f:"images/grand-teton/WOLF7454-full.jpg",n:"Mormon Row Winter Homestead",ar:2.399},
+    {t:"images/grand-teton/WOLF7470-thumb.jpg",f:"images/grand-teton/WOLF7470-full.jpg",n:"Barn and Birches Below Tetons",ar:2.399}
+  ]}},
+  {name:"Iceland Ring Road",slug:"iceland-ring-road",n:67,img:"images/iceland-ring-road/DJI_20250802232350_0025_D-thumb.jpg",p:[
+    {t:"images/iceland-ring-road/DJI_20250802232350_0025_D-thumb.jpg",f:"images/iceland-ring-road/DJI_20250802232350_0025_D-full.jpg",n:"Turquoise river on Dark Stone",ar:1.778},
+    {t:"images/iceland-ring-road/WOLF2901-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF2901-Pano-full.jpg",n:"Moss-Covered Lava Fields",ar:2.017},
+    {t:"images/iceland-ring-road/WOLF2943-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF2943-Pano-full.jpg",n:"Storm Light Over Moorland",ar:2.508},
+    {t:"images/iceland-ring-road/WOLF2970-thumb.jpg",f:"images/iceland-ring-road/WOLF2970-full.jpg",n:"Glacial Valley Under Dramatic Skies",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF2997-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF2997-Pano-full.jpg",n:"Moss-Draped Lava Canyon",ar:2.017},
+    {t:"images/iceland-ring-road/WOLF3043-thumb.jpg",f:"images/iceland-ring-road/WOLF3043-full.jpg",n:"Cascading Waters Through Stone",ar:1.822},
+    {t:"images/iceland-ring-road/WOLF3044-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF3044-Pano-full.jpg",n:"Turquoise Cascade Through Basalt",ar:1.602},
+    {t:"images/iceland-ring-road/WOLF3058-thumb.jpg",f:"images/iceland-ring-road/WOLF3058-full.jpg",n:"Cascading Waters Through Moss-Clad Stone",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF3088-thumb.jpg",f:"images/iceland-ring-road/WOLF3088-full.jpg",n:"Geothermal Eruption in Mist",ar:2.051},
+    {t:"images/iceland-ring-road/WOLF3245-thumb.jpg",f:"images/iceland-ring-road/WOLF3245-full.jpg",n:"Gullfoss Cascades Through Emerald",ar:1.663},
+    {t:"images/iceland-ring-road/WOLF3249-thumb.jpg",f:"images/iceland-ring-road/WOLF3249-full.jpg",n:"Waterfall Cascades Over Emerald Cliffs",ar:2.287},
+    {t:"images/iceland-ring-road/WOLF3293-thumb.jpg",f:"images/iceland-ring-road/WOLF3293-full.jpg",n:"Storm Over Black Sand Shores",ar:2.324},
+    {t:"images/iceland-ring-road/WOLF3700-thumb.jpg",f:"images/iceland-ring-road/WOLF3700-full.jpg",n:"Emerald Valleys Under Dramatic Skies",ar:2.652},
+    {t:"images/iceland-ring-road/WOLF3710-thumb.jpg",f:"images/iceland-ring-road/WOLF3710-full.jpg",n:"Abandoned Aircraft on Black Sands",ar:1.93},
+    {t:"images/iceland-ring-road/WOLF3746-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF3746-Edit-full.jpg",n:"Solitude on the Black Sand Plain",ar:2.399},
+    {t:"images/iceland-ring-road/WOLF3753-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF3753-Edit-full.jpg",n:"Abandoned Aircraft on Black Sand",ar:2.399},
+    {t:"images/iceland-ring-road/WOLF3768-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF3768-Pano-full.jpg",n:"Glacier Lake's Emerald Sentinel",ar:3.247},
+    {t:"images/iceland-ring-road/WOLF3850-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF3850-Pano-full.jpg",n:"Glacier Lake and Moss Mountain",ar:3.547},
+    {t:"images/iceland-ring-road/WOLF3859-thumb.jpg",f:"images/iceland-ring-road/WOLF3859-full.jpg",n:"Glacier Meets Moss-Clad Cliffs",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF3921-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF3921-Pano-full.jpg",n:"Mirrored Reflection in Shallow Waters",ar:2.947},
+    {t:"images/iceland-ring-road/WOLF3950-thumb.jpg",f:"images/iceland-ring-road/WOLF3950-full.jpg",n:"Puffin Portrait on Coastal Grassland",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF3955-thumb.jpg",f:"images/iceland-ring-road/WOLF3955-full.jpg",n:"Puffin on Coastal Grassland",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF3963-thumb.jpg",f:"images/iceland-ring-road/WOLF3963-full.jpg",n:"Puffin on Coastal Grass",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF3969-thumb.jpg",f:"images/iceland-ring-road/WOLF3969-full.jpg",n:"Puffin Among Coastal Grasses",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF3972-thumb.jpg",f:"images/iceland-ring-road/WOLF3972-full.jpg",n:"Puffin in Flight, Coastal Iceland",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF3979-thumb.jpg",f:"images/iceland-ring-road/WOLF3979-full.jpg",n:"Puffin Portrait, Westman Islands",ar:1.621},
+    {t:"images/iceland-ring-road/WOLF4025-thumb.jpg",f:"images/iceland-ring-road/WOLF4025-full.jpg",n:"Lava Fields and Distant Peaks",ar:1.9},
+    {t:"images/iceland-ring-road/WOLF4086-thumb.jpg",f:"images/iceland-ring-road/WOLF4086-full.jpg",n:"Road Through Stone and Moss",ar:1.766},
+    {t:"images/iceland-ring-road/WOLF4120-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4120-Edit-full.jpg",n:"Moss-Draped Canyon and Stream",ar:2.399},
+    {t:"images/iceland-ring-road/WOLF4122-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4122-Edit-full.jpg",n:"Emerald Canyon with Cascading Waters",ar:2.399},
+    {t:"images/iceland-ring-road/WOLF4123-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4123-Edit-full.jpg",n:"Emerald Canyon and Flowing Waters",ar:2.399},
+    {t:"images/iceland-ring-road/WOLF4127-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4127-Edit-full.jpg",n:"Emerald Canyon's Secret Stream",ar:2.399},
+    {t:"images/iceland-ring-road/WOLF4132-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4132-Edit-full.jpg",n:"Vast Plateau Beneath Mountain Sentinels",ar:2.477},
+    {t:"images/iceland-ring-road/WOLF4133-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4133-Edit-full.jpg",n:"Kirkjufell's Moss-Draped Majesty",ar:2.399},
+    {t:"images/iceland-ring-road/WOLF4163-thumb.jpg",f:"images/iceland-ring-road/WOLF4163-full.jpg",n:"Glacier Cathedral in Stone",ar:2.315},
+    {t:"images/iceland-ring-road/WOLF4187-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4187-Pano-full.jpg",n:"Glacier-Crowned Coast and Tundra",ar:2.931},
+    {t:"images/iceland-ring-road/WOLF4228-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4228-Pano-full.jpg",n:"Vatnajökull's Icy Expanse",ar:4.049},
+    {t:"images/iceland-ring-road/WOLF4298-thumb.jpg",f:"images/iceland-ring-road/WOLF4298-full.jpg",n:"Glacial Ice on Black Sand",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF4306-thumb.jpg",f:"images/iceland-ring-road/WOLF4306-full.jpg",n:"Glacial Ice Meets Coastal Surge",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF4324-thumb.jpg",f:"images/iceland-ring-road/WOLF4324-full.jpg",n:"Ice Fragment in Motion",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF4365-thumb.jpg",f:"images/iceland-ring-road/WOLF4365-full.jpg",n:"Glacial Ice Fragment on Black Sand",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF4389-thumb.jpg",f:"images/iceland-ring-road/WOLF4389-full.jpg",n:"Glacial Ice on Black Sand",ar:2.148},
+    {t:"images/iceland-ring-road/WOLF4418-thumb.jpg",f:"images/iceland-ring-road/WOLF4418-full.jpg",n:"Glacial Sculpture in Turquoise Waters",ar:2.117},
+    {t:"images/iceland-ring-road/WOLF4419-thumb.jpg",f:"images/iceland-ring-road/WOLF4419-full.jpg",n:"Glacial Perch",ar:2.124},
+    {t:"images/iceland-ring-road/WOLF4427-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4427-Pano-full.jpg",n:"Glacial Lagoon's Turquoise Expanse",ar:2.105},
+    {t:"images/iceland-ring-road/WOLF4438-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4438-Edit-full.jpg",n:"Glacial Waters at Jökulsárlón",ar:2.399},
+    {t:"images/iceland-ring-road/WOLF4448-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4448-Edit-full.jpg",n:"Stokksnes Mountain's Dark Reflection",ar:2.399},
+    {t:"images/iceland-ring-road/WOLF4460-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4460-Pano-full.jpg",n:"Vestrahorn's Reflection",ar:2.032},
+    {t:"images/iceland-ring-road/WOLF4530-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4530-Pano-full.jpg",n:"Vestrahorn's Black Sand Majesty",ar:1.958},
+    {t:"images/iceland-ring-road/WOLF4556-thumb.jpg",f:"images/iceland-ring-road/WOLF4556-full.jpg",n:"Mountain Reflection at Vestrahorn",ar:1.79},
+    {t:"images/iceland-ring-road/WOLF4557-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4557-Pano-full.jpg",n:"Mountain Reflection in Still Waters",ar:2.232},
+    {t:"images/iceland-ring-road/WOLF4569-thumb.jpg",f:"images/iceland-ring-road/WOLF4569-full.jpg",n:"Settlements Beneath the Mountain",ar:2.334},
+    {t:"images/iceland-ring-road/WOLF4631-thumb.jpg",f:"images/iceland-ring-road/WOLF4631-full.jpg",n:"Wooden Portal to Stillness",ar:1.739},
+    {t:"images/iceland-ring-road/WOLF4635-thumb.jpg",f:"images/iceland-ring-road/WOLF4635-full.jpg",n:"Moss-Draped Basalt Canyons",ar:1.76},
+    {t:"images/iceland-ring-road/WOLF4663-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4663-Pano-full.jpg",n:"Vast Lava Plain Under Shifting Skies",ar:2.542},
+    {t:"images/iceland-ring-road/WOLF4712-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4712-Pano-full.jpg",n:"Geothermal Wilderness in Mist",ar:2.514},
+    {t:"images/iceland-ring-road/WOLF4745-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4745-Pano-full.jpg",n:"Geothermal Steam Rising",ar:2.299},
+    {t:"images/iceland-ring-road/WOLF4749-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4749-Pano-full.jpg",n:"Geothermal Basin and Striped Mountain",ar:1.746},
+    {t:"images/iceland-ring-road/WOLF4775-thumb.jpg",f:"images/iceland-ring-road/WOLF4775-full.jpg",n:"Geothermal Ravine in Mineral Colors",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF4783-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4783-Pano-full.jpg",n:"Crater's Shadow, Volcanic Basin",ar:2.478},
+    {t:"images/iceland-ring-road/WOLF4838-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4838-Pano-full.jpg",n:"Emerald Waters of Godafoss",ar:2.111},
+    {t:"images/iceland-ring-road/WOLF4872-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4872-Pano-full.jpg",n:"Green Valleys Beneath Distant Peaks",ar:3.269},
+    {t:"images/iceland-ring-road/WOLF4890-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4890-Pano-full.jpg",n:"Emerald Vastness Beneath Shifting Clouds",ar:2.317},
+    {t:"images/iceland-ring-road/WOLF4924-thumb.jpg",f:"images/iceland-ring-road/WOLF4924-full.jpg",n:"Kirkjufell's Emerald Sentinel",ar:2.317},
+    {t:"images/iceland-ring-road/WOLF4944-thumb.jpg",f:"images/iceland-ring-road/WOLF4944-full.jpg",n:"Moss-Cloaked Valley of Waterfalls",ar:1.499},
+    {t:"images/iceland-ring-road/WOLF5060-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF5060-Pano-full.jpg",n:"Iconic Mountain Road Through Iceland",ar:2.219},
+    {t:"images/iceland-ring-road/WOLF5076-thumb.jpg",f:"images/iceland-ring-road/WOLF5076-full.jpg",n:"Tidal Marshlands Under Dramatic Sky",ar:1.499}
+  ]}},
+  {name:"New Zealand",slug:"new-zealand",n:16,img:"images/new-zealand/118A1369-thumb.jpg",p:[
+    {t:"images/new-zealand/118A1369-thumb.jpg",f:"images/new-zealand/118A1369-full.jpg",n:"Geothermal Mineral Pools",ar:1.5},
+    {t:"images/new-zealand/118A1420-thumb.jpg",f:"images/new-zealand/118A1420-full.jpg",n:"Geothermal Waters of Rotorua",ar:1.5},
+    {t:"images/new-zealand/118A1570-thumb.jpg",f:"images/new-zealand/118A1570-full.jpg",n:"Solitary Island in Turbid Waters",ar:1.705},
+    {t:"images/new-zealand/118A1664-thumb.jpg",f:"images/new-zealand/118A1664-full.jpg",n:"Waterfall Through Native Forest",ar:1.5},
+    {t:"images/new-zealand/118A1841-Enhanced-NR-thumb.jpg",f:"images/new-zealand/118A1841-Enhanced-NR-full.jpg",n:"Emerald Canopy of Native Bush",ar:1.811},
+    {t:"images/new-zealand/118A1989-Enhanced-NR-thumb.jpg",f:"images/new-zealand/118A1989-Enhanced-NR-full.jpg",n:"Pancake Rocks' Sculptural Gateway",ar:1.5},
+    {t:"images/new-zealand/118A2056-thumb.jpg",f:"images/new-zealand/118A2056-full.jpg",n:"Pancake Rocks in Stormy Light",ar:1.5},
+    {t:"images/new-zealand/118A2264-thumb.jpg",f:"images/new-zealand/118A2264-full.jpg",n:"Solitary Peak Over Frozen Expanse",ar:1.766},
+    {t:"images/new-zealand/118A2532-Enhanced-NR-thumb.jpg",f:"images/new-zealand/118A2532-Enhanced-NR-full.jpg",n:"Rainbow Arc Over Mountain Waters",ar:2.341},
+    {t:"images/new-zealand/118A2536-thumb.jpg",f:"images/new-zealand/118A2536-full.jpg",n:"Milford Peak Wreathed in Mist",ar:1.5},
+    {t:"images/new-zealand/118A2555-thumb.jpg",f:"images/new-zealand/118A2555-full.jpg",n:"Waterfall Cascades Into Milford Sound",ar:2.16},
+    {t:"images/new-zealand/118A2649-thumb.jpg",f:"images/new-zealand/118A2649-full.jpg",n:"Cascading Waters Through Verdant Cliffs",ar:1.5},
+    {t:"images/new-zealand/118A2655-thumb.jpg",f:"images/new-zealand/118A2655-full.jpg",n:"Cascade into Fjord Waters",ar:1.637},
+    {t:"images/new-zealand/118A2696-thumb.jpg",f:"images/new-zealand/118A2696-full.jpg",n:"Alpine Meadow with Mountain Stream",ar:2.159},
+    {t:"images/new-zealand/118A2763-thumb.jpg",f:"images/new-zealand/118A2763-full.jpg",n:"Flock in the High Country",ar:1.5},
+    {t:"images/new-zealand/118A2772-thumb.jpg",f:"images/new-zealand/118A2772-full.jpg",n:"Wool Country: Pastoral Abundance",ar:1.941}
+  ]}},
+  {name:"Africa",slug:"africa",n:44,img:"images/africa/118A0002-thumb.jpg",p:[
+    {t:"images/africa/118A0002-thumb.jpg",f:"images/africa/118A0002-full.jpg",n:"Zebra Herd in Serengeti Grassland",ar:1.5},
+    {t:"images/africa/118A0007-thumb.jpg",f:"images/africa/118A0007-full.jpg",n:"Zebra Family in Serengeti Grassland",ar:1.5},
+    {t:"images/africa/118A0018 1-thumb.jpg",f:"images/africa/118A0018 1-full.jpg",n:"Giraffe Among Acacia Trees",ar:1.807},
+    {t:"images/africa/118A0037-thumb.jpg",f:"images/africa/118A0037-full.jpg",n:"Mother and Young in the Serengeti",ar:1.5},
+    {t:"images/africa/118A0041-thumb.jpg",f:"images/africa/118A0041-full.jpg",n:"Serengeti Ascent",ar:1.5},
+    {t:"images/africa/118A0044-thumb.jpg",f:"images/africa/118A0044-full.jpg",n:"Balloon Over the Serengeti",ar:1.5},
+    {t:"images/africa/118A0069-thumb.jpg",f:"images/africa/118A0069-full.jpg",n:"Sentinel of the Serengeti",ar:1.5},
+    {t:"images/africa/118A0071-thumb.jpg",f:"images/africa/118A0071-full.jpg",n:"Sentinel of the Serengeti",ar:1.5},
+    {t:"images/africa/118A0077-thumb.jpg",f:"images/africa/118A0077-full.jpg",n:"Lioness in Golden Grassland",ar:1.5},
+    {t:"images/africa/118A0080-thumb.jpg",f:"images/africa/118A0080-full.jpg",n:"Sentinels of the Serengeti Plain",ar:1.841},
+    {t:"images/africa/118A0081-Enhanced-NR-thumb.jpg",f:"images/africa/118A0081-Enhanced-NR-full.jpg",n:"Lions in Golden Grassland",ar:1.5},
+    {t:"images/africa/118A0086-thumb.jpg",f:"images/africa/118A0086-full.jpg",n:"Cheetah in Golden Grassland",ar:1.5},
+    {t:"images/africa/118A0107-thumb.jpg",f:"images/africa/118A0107-full.jpg",n:"Hyena with Kill, Serengeti Plains",ar:1.5},
+    {t:"images/africa/118A0118 1-thumb.jpg",f:"images/africa/118A0118 1-full.jpg",n:"Pride on the Savanna",ar:1.84},
+    {t:"images/africa/118A0125-thumb.jpg",f:"images/africa/118A0125-full.jpg",n:"Lion Pride on the Serengeti",ar:1.574},
+    {t:"images/africa/118A0133-thumb.jpg",f:"images/africa/118A0133-full.jpg",n:"Pride's Rest in the Serengeti",ar:1.5},
+    {t:"images/africa/118A0140-thumb.jpg",f:"images/africa/118A0140-full.jpg",n:"Pride at Rest, Serengeti Plains",ar:1.737},
+    {t:"images/africa/118A0141-thumb.jpg",f:"images/africa/118A0141-full.jpg",n:"Lioness in Golden Grassland",ar:1.5},
+    {t:"images/africa/118A0170 1-thumb.jpg",f:"images/africa/118A0170 1-full.jpg",n:"Buffalo Herd Across the Serengeti",ar:1.5},
+    {t:"images/africa/118A0199 1-thumb.jpg",f:"images/africa/118A0199 1-full.jpg",n:"Cheetah in the Golden Grassland",ar:1.732},
+    {t:"images/africa/118A0210-thumb.jpg",f:"images/africa/118A0210-full.jpg",n:"Wildebeest Herd at Rest",ar:2.035},
+    {t:"images/africa/118A0218-thumb.jpg",f:"images/africa/118A0218-full.jpg",n:"Serengeti Sentinel",ar:1.5},
+    {t:"images/africa/118A0221 1-thumb.jpg",f:"images/africa/118A0221 1-full.jpg",n:"Cheetah Presence in the Serengeti",ar:1.5},
+    {t:"images/africa/118A0275-thumb.jpg",f:"images/africa/118A0275-full.jpg",n:"Serengeti Mixed Herd in Golden Grassland",ar:2.199},
+    {t:"images/africa/118A0277-Enhanced-NR-thumb.jpg",f:"images/africa/118A0277-Enhanced-NR-full.jpg",n:"Wildebeest Congregation, Serengeti Plain",ar:1.94},
+    {t:"images/africa/118A0286-thumb.jpg",f:"images/africa/118A0286-full.jpg",n:"Solitary Wildebeest Among the Herd",ar:1.5},
+    {t:"images/africa/118A0291-thumb.jpg",f:"images/africa/118A0291-full.jpg",n:"Wildebeest Migration Across the Plains",ar:2.136},
+    {t:"images/africa/118A0332-Enhanced-NR-thumb.jpg",f:"images/africa/118A0332-Enhanced-NR-full.jpg",n:"Zebras on the Serengeti Plain",ar:1.96},
+    {t:"images/africa/118A0334-Enhanced-NR-thumb.jpg",f:"images/africa/118A0334-Enhanced-NR-full.jpg",n:"Zebra Gathering, Serengeti Plains",ar:1.5},
+    {t:"images/africa/118A0343-Enhanced-NR-thumb.jpg",f:"images/africa/118A0343-Enhanced-NR-full.jpg",n:"Zebras in the Serengeti Plain",ar:1.5},
+    {t:"images/africa/118A0385-thumb.jpg",f:"images/africa/118A0385-full.jpg",n:"Agama Lizard on Stone",ar:1.5},
+    {t:"images/africa/118A0389-thumb.jpg",f:"images/africa/118A0389-full.jpg",n:"Hippo Pod in Serengeti Waters",ar:1.5},
+    {t:"images/africa/118A0403-thumb.jpg",f:"images/africa/118A0403-full.jpg",n:"Secretary Bird in the Serengeti Grass",ar:1.5},
+    {t:"images/africa/118A0416-thumb.jpg",f:"images/africa/118A0416-full.jpg",n:"Zebra Family in the Serengeti",ar:1.5},
+    {t:"images/africa/118A0417 1-thumb.jpg",f:"images/africa/118A0417 1-full.jpg",n:"Hippopotamus in the Serengeti Waters",ar:1.5},
+    {t:"images/africa/118A0421-thumb.jpg",f:"images/africa/118A0421-full.jpg",n:"Hippos at Rest in Serengeti Waters",ar:1.5},
+    {t:"images/africa/118A0458-thumb.jpg",f:"images/africa/118A0458-full.jpg",n:"Wildebeest Congregation, Serengeti Plains",ar:1.5},
+    {t:"images/africa/118A0482-Enhanced-NR-thumb.jpg",f:"images/africa/118A0482-Enhanced-NR-full.jpg",n:"Acacia Sentinel of the Serengeti",ar:1.786},
+    {t:"images/africa/118A0504 1-thumb.jpg",f:"images/africa/118A0504 1-full.jpg",n:"Solitary Acacia in the Serengeti",ar:1.5},
+    {t:"images/africa/118A0535-thumb.jpg",f:"images/africa/118A0535-full.jpg",n:"Olive Baboon Troop in Motion",ar:1.5},
+    {t:"images/africa/118A0548-thumb.jpg",f:"images/africa/118A0548-full.jpg",n:"Mother and Child in the Serengeti",ar:1.5},
+    {t:"images/africa/118A0672-thumb.jpg",f:"images/africa/118A0672-full.jpg",n:"Mother and Calf in Golden Grassland",ar:1.5},
+    {t:"images/africa/118A0676-thumb.jpg",f:"images/africa/118A0676-full.jpg",n:"Elephant in the Serengeti Grasslands",ar:1.5},
+    {t:"images/africa/118A0694-thumb.jpg",f:"images/africa/118A0694-full.jpg",n:"Elephant Herd on Serengeti Path",ar:1.5}
+  ]}},
+  {name:"South Africa",slug:"south-africa",n:8,img:"images/south-africa/_MG_2190-thumb.jpg",p:[
+    {t:"images/south-africa/_MG_2190-thumb.jpg",f:"images/south-africa/_MG_2190-full.jpg",n:"Ostrich Portrait",ar:1.5},
+    {t:"images/south-africa/_MG_2487-thumb.jpg",f:"images/south-africa/_MG_2487-full.jpg",n:"Lion Cub on the Lookout",ar:1.5},
+    {t:"images/south-africa/_MG_2508-thumb.jpg",f:"images/south-africa/_MG_2508-full.jpg",n:"White Lion Cub",ar:1.5},
+    {t:"images/south-africa/_MG_3934-thumb.jpg",f:"images/south-africa/_MG_3934-full.jpg",n:"African Penguin on the Beach",ar:1.984},
+    {t:"images/south-africa/_MG_3975-thumb.jpg",f:"images/south-africa/_MG_3975-full.jpg",n:"Penguin Pair at Boulders Beach",ar:1.5},
+    {t:"images/south-africa/_MG_4076-thumb.jpg",f:"images/south-africa/_MG_4076-full.jpg",n:"Rock Hyrax on the Coast",ar:1.5},
+    {t:"images/south-africa/_MG_3992-thumb.jpg",f:"images/south-africa/_MG_3992-full.jpg",n:"Turquoise Shores and Ancient Stone",ar:2.058},
+    {t:"images/south-africa/_MG_4025-Pano-thumb.jpg",f:"images/south-africa/_MG_4025-Pano-full.jpg",n:"Cape Peninsula Coastal Splendor",ar:2.109}
+  ]}},
+  {name:"Black and White",slug:"black-and-white",n:9,img:"images/black-and-white/118A0359-2-thumb.jpg",p:[
+    {t:"images/black-and-white/118A0359-2-thumb.jpg",f:"images/black-and-white/118A0359-2-full.jpg",n:"Urban Dance Embrace",ar:0.667},
+    {t:"images/black-and-white/118A0416-thumb.jpg",f:"images/black-and-white/118A0416-full.jpg",n:"Zebra Family in the Grassland",ar:1.5},
+    {t:"images/black-and-white/118A0498-Enhanced-NR-thumb.jpg",f:"images/black-and-white/118A0498-Enhanced-NR-full.jpg",n:"Elephant Herd Across the Savanna",ar:1.914},
+    {t:"images/black-and-white/118A0660-2-Enhanced-NR-thumb.jpg",f:"images/black-and-white/118A0660-2-Enhanced-NR-full.jpg",n:"Intimate Connection",ar:1.5},
+    {t:"images/black-and-white/118A0695-2-2-thumb.jpg",f:"images/black-and-white/118A0695-2-2-full.jpg",n:"The Magician's Contemplation",ar:2.017},
+    {t:"images/black-and-white/WOLF3446-Edit-thumb.jpg",f:"images/black-and-white/WOLF3446-Edit-full.jpg",n:"Shipwreck's Final Embrace",ar:2.399},
+    {t:"images/black-and-white/_MG_1873-thumb.jpg",f:"images/black-and-white/_MG_1873-full.jpg",n:"Alpine Peaks in Monochrome",ar:1.5},
+    {t:"images/black-and-white/_MG_1881-thumb.jpg",f:"images/black-and-white/_MG_1881-full.jpg",n:"Alpine Peaks in Monochrome",ar:1.5},
+    {t:"images/black-and-white/_MG_2454-thumb.jpg",f:"images/black-and-white/_MG_2454-full.jpg",n:"Lion's Gaze",ar:1.5}
+  ]}},
+  {name:"Colorado",slug:"colorado",n:8,img:"images/colorado/WOLF2296-Edit-thumb.jpg",p:[
+    {t:"images/colorado/WOLF2296-Edit-thumb.jpg",f:"images/colorado/WOLF2296-Edit-full.jpg",n:"Ancient Stone Vigil Over Green Valley",ar:2.399},
+    {t:"images/colorado/WOLF2473-thumb.jpg",f:"images/colorado/WOLF2473-full.jpg",n:"Desert Sentinel",ar:1.499},
+    {t:"images/colorado/WOLF2492-Pano-thumb.jpg",f:"images/colorado/WOLF2492-Pano-full.jpg",n:"Valleys of Pine and Mountain",ar:2.391},
+    {t:"images/colorado/WOLF2521-thumb.jpg",f:"images/colorado/WOLF2521-full.jpg",n:"Meandering Waters Through Boreal Forest",ar:1.749},
+    {t:"images/colorado/WOLF2718-thumb.jpg",f:"images/colorado/WOLF2718-full.jpg",n:"Mule Deer in Forest Light",ar:1.893},
+    {t:"images/colorado/WOLF2719-thumb.jpg",f:"images/colorado/WOLF2719-full.jpg",n:"Monarch of the Evergreen Forest",ar:1.499},
+    {t:"images/colorado/WOLF2722-thumb.jpg",f:"images/colorado/WOLF2722-full.jpg",n:"Stag Among the Verdant Forest",ar:1.499},
+    {t:"images/colorado/WOLF2733-thumb.jpg",f:"images/colorado/WOLF2733-full.jpg",n:"Moose Among the Evergreens",ar:1.956}
+  ]}},
+  {name:"Death Valley",slug:"death-valley",n:2,img:"images/death-valley/WOLF5987-Pano-thumb.jpg",p:[
+    {t:"images/death-valley/WOLF5987-Pano-thumb.jpg",f:"images/death-valley/WOLF5987-Pano-full.jpg",n:"Alpine Basin Beneath the Peaks",ar:1.935},
+    {t:"images/death-valley/_MG_0159-thumb.jpg",f:"images/death-valley/_MG_0159-full.jpg",n:"Mineral Mountains of Ladakh",ar:1.5}
+  ]}},
+  {name:"Desert Dunes",slug:"desert-dunes",n:1,img:"images/desert-dunes/IMG_0174-thumb.jpg",p:[
+    {t:"images/desert-dunes/IMG_0174-thumb.jpg",f:"images/desert-dunes/IMG_0174-full.jpg",n:"Desert Dunes Meet Ancient Plateaus",ar:1.5}
+  ]}},
+  {name:"Lake Powell",slug:"lake-powell",n:4,img:"images/lake-powell/IMG_0075-4-thumb.jpg",p:[
+    {t:"images/lake-powell/IMG_0075-4-thumb.jpg",f:"images/lake-powell/IMG_0075-4-full.jpg",n:"Desert Monument Reflection",ar:1.5},
+    {t:"images/lake-powell/IMG_0156-2-thumb.jpg",f:"images/lake-powell/IMG_0156-2-full.jpg",n:"Canyon Portal: Stone's Silent Gateway",ar:2.034},
+    {t:"images/lake-powell/IMG_0175-2-thumb.jpg",f:"images/lake-powell/IMG_0175-2-full.jpg",n:"Desert Arch in Golden Stone",ar:1.756},
+    {t:"images/lake-powell/IMG_0179-2-thumb.jpg",f:"images/lake-powell/IMG_0179-2-full.jpg",n:"Desert Arch and Ancient Stone",ar:1.5}
+  ]}},
+  {name:"Monument Valley",slug:"monument-valley",n:1,img:"images/monument-valley/IMG_0208 (1)-thumb.jpg",p:[
+    {t:"images/monument-valley/IMG_0208 (1)-thumb.jpg",f:"images/monument-valley/IMG_0208 (1)-full.jpg",n:"Sentinels of the Desert",ar:2.051}
+  ]}},
+  {name:"Paris",slug:"paris",n:1,img:"images/paris/_MG_0953-thumb.jpg",p:[
+    {t:"images/paris/_MG_0953-thumb.jpg",f:"images/paris/_MG_0953-full.jpg",n:"Iron Lattice Against Sky",ar:1.5}
+  ]}},
+  {name:"Los Angeles",slug:"los-angeles",n:1,img:"images/los-angeles/118A5493-thumb.jpg",p:[
+    {t:"images/los-angeles/118A5493-thumb.jpg",f:"images/los-angeles/118A5493-full.jpg",n:"Sailboats in Golden Harbor Light",ar:1.592}
+  ]}},
+  {name:"Australia",slug:"australia",n:3,img:"images/australia/_MG_0052 (1)-thumb.jpg",p:[
+    {t:"images/australia/_MG_0052 (1)-thumb.jpg",f:"images/australia/_MG_0052 (1)-full.jpg",n:"Tempestuous Cove",ar:1.813},
+    {t:"images/australia/_MG_0185-thumb.jpg",f:"images/australia/_MG_0185-full.jpg",n:"Kangaroo in Native Scrubland",ar:1.5},
+    {t:"images/australia/_MG_1549-thumb.jpg",f:"images/australia/_MG_1549-full.jpg",n:"Melbourne Twilight Urban Expanse",ar:1.784}
+  ]}},
+  {name:"Valley of Fire",slug:"valley-of-fire",n:3,img:"images/valley-of-fire/IMG_0102-2-thumb.jpg",p:[
+    {t:"images/valley-of-fire/IMG_0102-2-thumb.jpg",f:"images/valley-of-fire/IMG_0102-2-full.jpg",n:"Desert Ridges and Russet Plateaus",ar:1.915},
+    {t:"images/valley-of-fire/IMG_0109-thumb.jpg",f:"images/valley-of-fire/IMG_0109-full.jpg",n:"Layered Desert Canyons in Stillness",ar:1.846},
+    {t:"images/valley-of-fire/IMG_0130 (1)-thumb.jpg",f:"images/valley-of-fire/IMG_0130 (1)-full.jpg",n:"Desert Boulders and Stone Formations",ar:0.667}
+  ]}},
+  {name:"Flowers and Leaves",slug:"flowers-and-leaves",n:3,img:"images/flowers-and-leaves/118A5717-thumb.jpg",p:[
+    {t:"images/flowers-and-leaves/118A5717-thumb.jpg",f:"images/flowers-and-leaves/118A5717-full.jpg",n:"Golden Umbels in Mist",ar:1.5},
+    {t:"images/flowers-and-leaves/IMG_0026 (4)-thumb.jpg",f:"images/flowers-and-leaves/IMG_0026 (4)-full.jpg",n:"Dandelion Seed Head in Green",ar:1.5},
+    {t:"images/flowers-and-leaves/_MG_0502-thumb.jpg",f:"images/flowers-and-leaves/_MG_0502-full.jpg",n:"Emergence: New Life Among Decay",ar:1.5}
+  ]}},
+  {name:"Argentina",slug:"argentina",n:3,img:"images/argentina/118A0359-2-thumb.jpg",p:[
+    {t:"images/argentina/118A0359-2-thumb.jpg",f:"images/argentina/118A0359-2-full.jpg",n:"Urban Dance in Buenos Aires",ar:0.667},
+    {t:"images/argentina/118A0446-2-thumb.jpg",f:"images/argentina/118A0446-2-full.jpg",n:"Urban Canvas: Street Art Community",ar:1.447},
+    {t:"images/argentina/118A0695-2-thumb.jpg",f:"images/argentina/118A0695-2-full.jpg",n:"Moment of Contemplation, Argentina",ar:2.017}
+  ]}},
+  {name:"Random Stuff",slug:"random-stuff",n:4,img:"images/random-stuff/IMG_0051-thumb.jpg",p:[
+    {t:"images/random-stuff/IMG_0051-thumb.jpg",f:"images/random-stuff/IMG_0051-full.jpg",n:"Unity in Motion",ar:1.5},
+    {t:"images/random-stuff/IMG_0151 (2)-thumb.jpg",f:"images/random-stuff/IMG_0151 (2)-full.jpg",n:"Desert Currents in Sand",ar:1.838},
+    {t:"images/random-stuff/WOLF2432-thumb.jpg",f:"images/random-stuff/WOLF2432-full.jpg",n:"Weathered Wood's Spiral Memory",ar:1.769},
+    {t:"images/random-stuff/_MG_0508-thumb.jpg",f:"images/random-stuff/_MG_0508-full.jpg",n:"Chromatic Journey Through Urban Space",ar:2.407}
+  ]}}
+];
+const N=G.length;
+
+function covSz(){return Math.min(window.innerHeight*0.44,window.innerWidth*0.28,460);}
+
+/* ===== AUDIO — Für Elise melody ===== */
+const AC=window.AudioContext||window.webkitAudioContext;
+let actx, melodyIdx=0;
+
+const MELODY = [
+  659.25, 622.25, 659.25, 622.25, 659.25, 493.88, 587.33, 523.25,
+  440.00, 261.63, 329.63, 440.00, 493.88, 329.63, 415.30, 493.88,
+  523.25, 329.63, 659.25, 622.25, 659.25, 622.25, 659.25, 493.88,
+  587.33, 523.25, 440.00, 261.63, 329.63, 440.00, 493.88, 329.63,
+  523.25, 493.88, 440.00
+];
+
+function tick() {
+  if (!actx) actx = new AC();
+  const t = actx.currentTime;
+  const freq = MELODY[melodyIdx % MELODY.length];
+  melodyIdx++;
+
+  const master = actx.createGain();
+  master.gain.setValueAtTime(0.00375, t);
+  master.gain.exponentialRampToValueAtTime(0.002, t + 0.08);
+  master.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+  master.connect(actx.destination);
+
+  const o1 = actx.createOscillator();
+  const g1 = actx.createGain();
+  o1.type = 'sine'; o1.frequency.value = freq;
+  g1.gain.value = 1.0;
+  o1.connect(g1); g1.connect(master);
+  o1.start(t); o1.stop(t + 1.0);
+
+  const o2 = actx.createOscillator();
+  const g2 = actx.createGain();
+  o2.type = 'sine'; o2.frequency.value = freq * 2;
+  g2.gain.value = 0.15;
+  o2.connect(g2); g2.connect(master);
+  o2.start(t); o2.stop(t + 0.8);
+
+  const o3 = actx.createOscillator();
+  const g3 = actx.createGain();
+  o3.type = 'sine'; o3.frequency.value = freq * 3;
+  g3.gain.value = 0.05;
+  o3.connect(g3); g3.connect(master);
+  o3.start(t); o3.stop(t + 0.5);
+
+  const click = actx.createOscillator();
+  const cg = actx.createGain();
+  click.type = 'triangle'; click.frequency.value = freq * 4;
+  cg.gain.setValueAtTime(0.001, t);
+  cg.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
+  click.connect(cg); cg.connect(actx.destination);
+  click.start(t); click.stop(t + 0.03);
+}
+
+/* ===== BUILD COVERS ===== */
+const cfEl=document.getElementById('cf'),items=[],dotsEl=document.getElementById('dots');
+G.forEach((g,i)=>{
+  const el=document.createElement('div');el.className='c';
+  const face=document.createElement('div');face.className='c-face';
+  face.innerHTML=`<img src="${g.img}" alt="${g.name} — Cover" draggable="false" loading="${i<3?'eager':'lazy'}">`;
+  face.innerHTML+=`<div class="c-lbl">${g.name.toUpperCase()}</div>`;
+  el.appendChild(face);
+
+  /* Reflection with real photo grid */
+  const refl=document.createElement('div');refl.className='c-refl';
+  refl.innerHTML=`<img src="${g.img}" draggable="false" loading="lazy">`;
+  const rg=document.createElement('div');rg.className='rg';
+  for(let c=0;c<Math.min(g.n,12);c++){
+    const cell=document.createElement('div');cell.className='rg-c';
+    const ci=document.createElement('img');
+    ci.src=g.p[c%g.n].t;  /* Use actual photo thumbnails */
+    ci.draggable=false; ci.loading='lazy';
+    cell.appendChild(ci);
+    rg.appendChild(cell);
+  }
+  refl.appendChild(rg);el.appendChild(refl);
+  el.addEventListener('click',()=>onCC(i));
+  cfEl.appendChild(el);items.push(el);
+
+  const d=document.createElement('div');d.className='dot';
+  d.addEventListener('click',()=>{cur=i;closeCP();});
+  dotsEl.appendChild(d);
+});
+
+/* ===== ENGINE ===== */
+let cur=0,sm=0,lastR=-1;
+const SA=68,VH=7;
+function wI(i){return((i%N)+N)%N;}
+function cD(a,b){let d=b-a;while(d>N/2)d-=N;while(d<-N/2)d+=N;return d;}
+
+function layout(){
+  const S=covSz(),sp=S*0.22,cZ=S*0.55,sS=0.55;
+  items.forEach((el,i)=>{
+    el.style.setProperty('--cs',S+'px');
+    let off=cD(Math.round(sm)%N,i)-(sm-Math.round(sm));
+    const abs=Math.abs(off);
+    if(abs>VH+1.5){el.style.visibility='hidden';return;}
+    el.style.visibility='visible';
+    let tx,tz,ry,sc,op;
+    if(abs<0.01){tx=0;tz=cZ;ry=0;sc=1;op=1;}
+    else{const dir=off>0?1:-1,t=Math.min(abs,VH+1),bO=S*0.4;
+      tx=dir*(bO*Math.min(t,1)+Math.max(0,t-1)*sp);
+      tz=cZ*Math.max(0,1-t);
+      ry=-dir*SA*Math.min(t,1);
+      sc=1-(1-sS)*Math.min(t,1)-Math.max(0,t-1)*0.04;
+      sc=Math.max(0.28,sc);
+      op=Math.max(0,1-Math.max(0,t-1)*0.15);
+    }
+    el.style.transform=`translateX(${tx-S/2}px) translateZ(${tz}px) rotateY(${ry}deg) scale(${sc})`;
+    el.style.opacity=op.toFixed(3);
+    el.style.zIndex=Math.round(100-abs*10);
+    el.classList.toggle('active',abs<0.5);
+  });
+  const ai=wI(Math.round(sm));
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===ai));
+}
+
+const tEl=document.getElementById('info-t'),cEl=document.getElementById('info-c');let lastH=-1;
+function updH(){const i=wI(Math.round(sm));if(i===lastH)return;lastH=i;tEl.textContent=G[i].name.toUpperCase();cEl.textContent=G[i].n+' photograph'+(G[i].n!==1?'s':'');}
+
+(function run(){
+  const d=cur-sm;sm+=d*0.12;if(Math.abs(d)<0.0005)sm=cur;
+  const r=Math.round(sm);if(r!==lastR){lastR=r;tick();}
+  layout();updH();requestAnimationFrame(run);
+})();
+
+window.addEventListener('resize',layout);
+
+/* ===== INPUT ===== */
+function modal(){return document.getElementById('fgal').classList.contains('open')||document.getElementById('lb').classList.contains('open');}
+let sA=0;
+document.addEventListener('wheel',e=>{if(modal())return;e.preventDefault();sA+=(e.deltaY||0)+(e.deltaX||0);if(Math.abs(sA)>=35){cur+=Math.sign(sA);sA=0;closeCP();}},{passive:false});
+
+let drag=false,dX0=0,dC0=0,dM=false,dLX=0,dV=0;
+function dS(x){if(modal())return;drag=true;dM=false;dX0=x;dC0=cur;dLX=x;dV=0;}
+function dMv(x){if(!drag)return;if(Math.abs(x-dX0)>5)dM=true;dV=(dLX-x)*0.012;dLX=x;cur=dC0+(dX0-x)/130;}
+function dE(){if(!drag)return;drag=false;cur+=dV*3;cur=Math.round(cur);}
+document.addEventListener('mousedown',e=>dS(e.clientX));
+document.addEventListener('mousemove',e=>dMv(e.clientX));
+document.addEventListener('mouseup',dE);
+document.addEventListener('touchstart',e=>dS(e.touches[0].clientX),{passive:true});
+document.addEventListener('touchmove',e=>dMv(e.touches[0].clientX),{passive:true});
+document.addEventListener('touchend',dE);
+
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('lb').classList.contains('open')){if(e.key==='Escape')closeLb();if(e.key==='ArrowLeft')lbN(-1);if(e.key==='ArrowRight')lbN(1);return;}
+  if(document.getElementById('fgal').classList.contains('open')){if(e.key==='Escape')closeFg();return;}
+  if(document.getElementById('cprev').classList.contains('open')){if(e.key==='Escape')closeCP();if(e.key==='Enter')openFg(cpI);return;}
+  if(e.key==='ArrowRight'){cur++;closeCP();}if(e.key==='ArrowLeft'){cur--;closeCP();}
+  if(e.key==='Enter')onCC(wI(Math.round(cur)));
+});
+
+/* ===== COVER CLICK ===== */
+let cpI=-1;
+function onCC(idx){if(dM)return;const ci=wI(Math.round(cur));if(idx!==ci){cur+=cD(ci,idx);closeCP();return;}
+  if(cpI===idx&&document.getElementById('cprev').classList.contains('open')){openFg(idx);return;}openCP(idx);}
+
+/* ===== PREVIEW PANEL — uses real photo thumbnails ===== */
+function openCP(idx){
+  cpI=idx;const g=G[idx];
+  document.getElementById('cprev-t').textContent=g.name.toUpperCase();
+  document.getElementById('cprev-c').textContent='  '+g.n+' photographs';
+  const grid=document.getElementById('cprev-g');grid.innerHTML='';
+  const max=Math.min(g.n,16);
+  for(let i=0;i<max;i++){
+    const th=document.createElement('div');th.className='cp-th';
+    const im=document.createElement('img');
+    im.src=g.p[i].t;
+    im.alt=g.p[i].n||`${g.name} — ${i+1}`;
+    im.loading='lazy';
+    th.appendChild(im);
+    th.addEventListener('click',e=>{e.stopPropagation();openFg(idx,i);});
+    grid.appendChild(th);
+  }
+  if(g.n>16){
+    const m=document.createElement('div');m.className='cp-th';
+    m.style.cssText='display:flex;align-items:center;justify-content:center;background:rgba(201,168,76,0.03);font-family:"Courier Prime",monospace;font-size:11px;color:#c9a84c;letter-spacing:1px;cursor:pointer';
+    m.textContent=`+${g.n-16}`;
+    m.addEventListener('click',e=>{e.stopPropagation();openFg(idx);});
+    grid.appendChild(m);
+  }
+  document.getElementById('cprev').classList.add('open');
+  document.getElementById('info-h').style.opacity='0';
+}
+function closeCP(){cpI=-1;document.getElementById('cprev').classList.remove('open');document.getElementById('info-h').style.opacity='';}
+document.getElementById('cprev-btn').addEventListener('click',()=>{if(cpI>=0)openFg(cpI);});
+
+/* ===== FULL GALLERY — uses real full-size images ===== */
+function openFg(idx,scrollToPhoto){
+  const g=G[idx];document.getElementById('fg-ti').textContent=g.name.toUpperCase();
+  document.getElementById('fg-ct').textContent=g.n+' photograph'+(g.n!==1?'s':'');
+  const grid=document.getElementById('fg-gr');grid.innerHTML='';
+  for(let i=0;i<g.n;i++){
+    const img=document.createElement('img');img.className='fg-im';
+    img.src=g.p[i].f;
+    img.alt=g.p[i].n||`${g.name} — ${i+1}`;
+    img.loading='lazy';
+    img.addEventListener('click',()=>openLb(idx,i));
+    grid.appendChild(img);
+  }
+  closeCP();document.getElementById('fgal').classList.add('open');document.getElementById('fgal').scrollTop=0;
+}
+function closeFg(){document.getElementById('fgal').classList.remove('open');}
+document.getElementById('fg-bk').addEventListener('click',closeFg);
+
+/* ===== LIGHTBOX — uses real full-size images ===== */
+let lG=0,lP=0;
+function openLb(gi,pi){lG=gi;lP=pi;updLb();document.getElementById('lb').classList.add('open');}
+function closeLb(){document.getElementById('lb').classList.remove('open');}
+function lbN(d){lP=Math.max(0,Math.min(G[lG].n-1,lP+d));updLb();}
+function updLb(){
+  const g=G[lG];
+  const img=document.getElementById('lb-img');
+  img.src=g.p[lP].f;
+  img.alt=g.p[lP].n||`${g.name} — ${lP+1}`;
+  document.getElementById('lb-ttl').textContent=g.p[lP].n||'';
+  document.getElementById('lb-ctr').textContent=`${lP+1} / ${g.n}`;
+}
+document.getElementById('lb').addEventListener('click',e=>{if(e.target.id==='lb'||e.target.id==='lb-img')closeLb();});
+document.getElementById('lb-x').addEventListener('click',closeLb);
+document.getElementById('lb-p').addEventListener('click',e=>{e.stopPropagation();lbN(-1);});
+document.getElementById('lb-n').addEventListener('click',e=>{e.stopPropagation();lbN(1);});
+
+/* ===== GRAIN ANIMATION ===== */
+const noiseEl=document.getElementById('noise');
+setInterval(()=>{noiseEl.style.transform=`translate(${Math.random()*200-100}px,${Math.random()*200-100}px)`;},120);
+</script>
 </body>
 </html>

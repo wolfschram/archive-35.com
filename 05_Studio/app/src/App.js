@@ -6,6 +6,7 @@ import WebsiteControl from './pages/WebsiteControl';
 import SalesPictorem from './pages/SalesPictorem';
 import SocialMedia from './pages/SocialMedia';
 import Analytics from './pages/Analytics';
+import GalleryPreview from './pages/GalleryPreview';
 import Settings from './pages/Settings';
 import './styles/App.css';
 
@@ -33,6 +34,8 @@ function App() {
         return <ContentIngest />;
       case 'manage':
         return <ContentManagement />;
+      case 'gallery':
+        return <GalleryPreview />;
       case 'website':
         return <WebsiteControl />;
       case 'sales':

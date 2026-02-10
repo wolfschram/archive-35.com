@@ -1,0 +1,16 @@
+{
+  "id": "flowers_and_leaves",
+  "title": "Flowers and Leaves",
+  "slug": "flowers-and-leaves",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 3
+}

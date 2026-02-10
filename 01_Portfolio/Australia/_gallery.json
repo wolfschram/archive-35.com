@@ -1,16 +1,16 @@
 {
-  "id": "new_zealand_",
-  "title": "New Zealand ",
-  "slug": "new-zealand",
+  "id": "australia",
+  "title": "Australia",
+  "slug": "australia",
   "status": "draft",
   "dates": {
     "published": null
   },
   "location": {
-    "country": "New Zealand ",
+    "country": "Australia",
     "region": "",
     "place": "",
     "coordinates": null
   },
-  "photo_count": 16
+  "photo_count": 3
 }

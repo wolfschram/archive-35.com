@@ -1,0 +1,16 @@
+{
+  "id": "valley_of_fire",
+  "title": "Valley of Fire",
+  "slug": "valley-of-fire",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 3
+}

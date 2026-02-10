@@ -1202,6 +1202,168 @@ ipcMain.handle('update-photo-metadata', async (event, { portfolioId, photoId, me
   }
 });
 
+// Reorder photos within a portfolio
+ipcMain.handle('reorder-photos', async (event, { portfolioId, orderedFilenames }) => {
+  try {
+    const entries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
+    const portfolioFolder = entries.find(e =>
+      e.isDirectory() && e.name.toLowerCase().replace(/\s+/g, '_') === portfolioId
+    );
+    if (!portfolioFolder) return { success: false, error: 'Portfolio not found' };
+
+    const portfolioPath = path.join(PORTFOLIO_DIR, portfolioFolder.name);
+    const photosJsonPath = path.join(portfolioPath, '_photos.json');
+    if (!fsSync.existsSync(photosJsonPath)) return { success: false, error: 'No _photos.json found' };
+
+    const photos = JSON.parse(await fs.readFile(photosJsonPath, 'utf8'));
+    const photoMap = {};
+    photos.forEach(p => { photoMap[p.filename] = p; });
+
+    // Rebuild array in new order, keeping any not in orderedFilenames at the end
+    const reordered = [];
+    for (const fn of orderedFilenames) {
+      if (photoMap[fn]) {
+        reordered.push(photoMap[fn]);
+        delete photoMap[fn];
+      }
+    }
+    // Append any remaining photos not in the ordered list
+    Object.values(photoMap).forEach(p => reordered.push(p));
+
+    await fs.writeFile(photosJsonPath, JSON.stringify(reordered, null, 2));
+    return { success: true, count: reordered.length };
+  } catch (err) {
+    console.error('Reorder photos failed:', err);
+    return { success: false, error: err.message };
+  }
+});
+
+// ===== RENAME PORTFOLIO =====
+ipcMain.handle('rename-portfolio', async (event, { portfolioId, newName }) => {
+  try {
+    if (!newName || !newName.trim()) {
+      return { success: false, error: 'Name cannot be empty' };
+    }
+
+    const cleanName = newName.trim();
+    const newFolderName = cleanName.replace(/\s+/g, '_');
+    const newSlug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const newId = newFolderName.toLowerCase();
+
+    // Invalid characters check
+    if (/[<>:"/\\|?*]/.test(cleanName)) {
+      return { success: false, error: 'Name contains invalid characters' };
+    }
+
+    // Find current folder
+    const entries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
+    const currentFolder = entries.find(e =>
+      e.isDirectory() && e.name.toLowerCase().replace(/\s+/g, '_') === portfolioId
+    );
+    if (!currentFolder) return { success: false, error: 'Portfolio not found' };
+
+    const oldPath = path.join(PORTFOLIO_DIR, currentFolder.name);
+    const newPath = path.join(PORTFOLIO_DIR, newFolderName);
+
+    // Check for duplicate (skip if same folder, case-insensitive)
+    if (currentFolder.name.toLowerCase() !== newFolderName.toLowerCase()) {
+      if (fsSync.existsSync(newPath)) {
+        return { success: false, error: 'A portfolio with that name already exists' };
+      }
+    }
+
+    // Update _gallery.json before renaming folder
+    const galleryJsonPath = path.join(oldPath, '_gallery.json');
+    if (fsSync.existsSync(galleryJsonPath)) {
+      const galleryData = JSON.parse(await fs.readFile(galleryJsonPath, 'utf8'));
+      galleryData.id = newId;
+      galleryData.title = cleanName;
+      galleryData.slug = newSlug;
+      await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+    }
+
+    // Rename the 01_Portfolio folder
+    // Handle case-insensitive filesystems with two-step rename
+    if (currentFolder.name.toLowerCase() === newFolderName.toLowerCase() && currentFolder.name !== newFolderName) {
+      const tmpPath = oldPath + '_rename_tmp';
+      await fs.rename(oldPath, tmpPath);
+      await fs.rename(tmpPath, newPath);
+    } else if (currentFolder.name !== newFolderName) {
+      await fs.rename(oldPath, newPath);
+    }
+
+    // Also rename Photography folder if it exists
+    const PHOTOGRAPHY_DIR = path.join(ARCHIVE_BASE, 'Photography');
+    if (fsSync.existsSync(PHOTOGRAPHY_DIR)) {
+      try {
+        const photoEntries = await fs.readdir(PHOTOGRAPHY_DIR, { withFileTypes: true });
+        // Match by normalized name (spaces, underscores, case-insensitive)
+        const oldNorm = currentFolder.name.toLowerCase().replace(/[_\s]+/g, '');
+        const photoFolder = photoEntries.find(e => {
+          if (!e.isDirectory()) return false;
+          const norm = e.name.toLowerCase().replace(/[_\s]+/g, '');
+          return norm === oldNorm;
+        });
+        if (photoFolder) {
+          const oldPhotoPath = path.join(PHOTOGRAPHY_DIR, photoFolder.name);
+          const newPhotoPath = path.join(PHOTOGRAPHY_DIR, cleanName);
+          if (photoFolder.name.toLowerCase() === cleanName.toLowerCase() && photoFolder.name !== cleanName) {
+            const tmpPhotoPath = oldPhotoPath + '_rename_tmp';
+            await fs.rename(oldPhotoPath, tmpPhotoPath);
+            await fs.rename(tmpPhotoPath, newPhotoPath);
+          } else if (photoFolder.name !== cleanName) {
+            await fs.rename(oldPhotoPath, newPhotoPath);
+          }
+        }
+      } catch (photoErr) {
+        console.warn('Photography folder rename skipped:', photoErr.message);
+      }
+    }
+
+    console.log(`Portfolio renamed: ${currentFolder.name} → ${newFolderName}`);
+    return {
+      success: true,
+      newId: newId,
+      newName: cleanName,
+      newFolderName: newFolderName,
+      newSlug: newSlug
+    };
+  } catch (err) {
+    console.error('Rename portfolio failed:', err);
+    return { success: false, error: err.message };
+  }
+});
+
+// Get/set portfolio display order
+ipcMain.handle('get-portfolio-order', async () => {
+  try {
+    const orderPath = path.join(PORTFOLIO_DIR, '_portfolio-order.json');
+    if (fsSync.existsSync(orderPath)) {
+      return JSON.parse(await fs.readFile(orderPath, 'utf8'));
+    }
+    // Default: return folder names in alphabetical order
+    const entries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
+    return entries
+      .filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_'))
+      .map(e => e.name)
+      .sort();
+  } catch (err) {
+    console.error('Get portfolio order failed:', err);
+    return [];
+  }
+});
+
+ipcMain.handle('save-portfolio-order', async (event, { orderedFolderNames }) => {
+  try {
+    const orderPath = path.join(PORTFOLIO_DIR, '_portfolio-order.json');
+    await fs.writeFile(orderPath, JSON.stringify(orderedFolderNames, null, 2));
+    return { success: true };
+  } catch (err) {
+    console.error('Save portfolio order failed:', err);
+    return { success: false, error: err.message };
+  }
+});
+
 // Replace photo with a new image
 ipcMain.handle('replace-photo', async (event, { portfolioId, photoId, newFilePath }) => {
   try {
@@ -1756,20 +1918,49 @@ ipcMain.handle('deploy-website', async () => {
       execSync('git push origin main', { ...gitOpts, timeout: 60000 });
 
       const noNewContent = copied === 0;
-       sendProgress('done', noNewContent
-         ? `All ${allWebsitePhotos.length} photos already deployed. No new content to publish.`
-         : `Deploy complete! ${allWebsitePhotos.length} photos published (${copied} image files synced).`);
+
+      // Verify website is live with updated content
+      sendProgress('verify', 'Waiting for website to update...');
+      let verified = false;
+      const maxAttempts = 20; // ~60 seconds max
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          sendProgress('verify', `Checking website... (attempt ${attempt}/${maxAttempts})`);
+          const resp = await fetch('https://archive-35.com/data/photos.json', { timeout: 8000 });
+          if (resp.ok) {
+            const liveData = await resp.json();
+            const liveCount = Array.isArray(liveData) ? liveData.length : 0;
+            if (liveCount >= allWebsitePhotos.length) {
+              sendProgress('verify', `Website verified — ${liveCount} photos live`);
+              verified = true;
+              break;
+            } else {
+              sendProgress('verify', `Website has ${liveCount}/${allWebsitePhotos.length} photos — waiting for CDN...`);
+            }
+          }
+        } catch (fetchErr) {
+          sendProgress('verify', `Website not ready yet... (attempt ${attempt}/${maxAttempts})`);
+        }
+        // Wait 3 seconds between attempts
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      }
+
+      const verifyMsg = verified ? '' : ' (website may still be updating)';
+      sendProgress('done', noNewContent
+        ? `All ${allWebsitePhotos.length} photos already deployed.${verifyMsg}`
+        : `Deploy complete! ${allWebsitePhotos.length} photos published (${copied} synced).${verifyMsg}`);
 
       return {
         success: true,
+        verified,
         photosPublished: allWebsitePhotos.length,
         imagesCopied: copied,
         c2paSigned,
         c2paUnsigned,
         r2Status,
-        message: copied === 0
-           ? `All ${allWebsitePhotos.length} photos already deployed. No new content to publish.`
-           : `Deployed ${allWebsitePhotos.length} photos to archive-35.com (${copied} image files synced)`
+        message: noNewContent
+           ? `All ${allWebsitePhotos.length} photos already deployed.${verifyMsg}`
+           : `Deployed ${allWebsitePhotos.length} photos to archive-35.com (${copied} synced)${verifyMsg}`
       };
     } catch (gitErr) {
       const errMsg = (gitErr.stderr || '') + (gitErr.stdout || '') + (gitErr.message || '');

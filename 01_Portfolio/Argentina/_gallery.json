@@ -1,0 +1,16 @@
+{
+  "id": "argentina",
+  "title": "Argentina",
+  "slug": "argentina",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "Argentina",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 3
+}

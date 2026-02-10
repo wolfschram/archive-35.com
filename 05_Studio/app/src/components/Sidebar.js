@@ -4,6 +4,7 @@ import '../styles/Sidebar.css';
 const tabs = [
   { id: 'ingest', label: 'Ingest', icon: '📷' },
   { id: 'manage', label: 'Manage', icon: '🗂️' },
+  { id: 'gallery', label: 'Gallery', icon: '🖼️' },
   { id: 'website', label: 'Website', icon: '🌐' },
   { id: 'sales', label: 'Sales', icon: '🛒' },
   { id: 'social', label: 'Social', icon: '📱' },

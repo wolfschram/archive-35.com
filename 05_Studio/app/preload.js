@@ -26,11 +26,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Get compatible print sizes for an image
   getPrintSizes: (data) => ipcRenderer.invoke('get-print-sizes', data),
 
+  // Portfolio rename
+  renamePortfolio: (data) => ipcRenderer.invoke('rename-portfolio', data),
+
   // Metadata editing
   updatePhotoMetadata: (data) => ipcRenderer.invoke('update-photo-metadata', data),
 
   // Replace photo with new image
   replacePhoto: (data) => ipcRenderer.invoke('replace-photo', data),
+
+  // Photo/portfolio reordering
+  reorderPhotos: (data) => ipcRenderer.invoke('reorder-photos', data),
+  getPortfolioOrder: () => ipcRenderer.invoke('get-portfolio-order'),
+  savePortfolioOrder: (data) => ipcRenderer.invoke('save-portfolio-order', data),
 
   // Thumbnail generation
   getThumbnail: (filePath) => ipcRenderer.invoke('get-thumbnail', filePath),

@@ -159,8 +159,9 @@ function ContentIngest() {
     const galleries = selectedFolders.map(folder => {
       const sel = scanSelections[folder.folderName] || {};
       if (folder.match) {
+        const pf = folder.match.portfolioFolder;
         const portfolio = existingPortfolios.find(p =>
-          p.id === folder.match.portfolioFolder || p.name === folder.match.portfolioFolder
+          p.id === pf || p.name === pf || p.folderName === pf
         );
         return {
           folderName: folder.folderName,

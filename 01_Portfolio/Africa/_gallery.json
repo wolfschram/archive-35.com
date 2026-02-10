@@ -1,15 +1,15 @@
 {
-  "id": "africa_",
-  "title": "Africa ",
+  "id": "africa",
+  "title": "Africa",
   "slug": "africa",
   "status": "draft",
   "dates": {
     "published": null
   },
   "location": {
-    "country": "Tansania ",
+    "country": "Tanzania",
     "region": "",
-    "place": "Serengeti ",
+    "place": "Serengeti",
     "coordinates": null
   },
   "photo_count": 44

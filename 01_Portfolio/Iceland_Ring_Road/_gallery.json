@@ -1,0 +1,16 @@
+{
+  "id": "iceland_ring_road",
+  "title": "Iceland Ring Road",
+  "slug": "iceland-ring-road",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "Iceland",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 67
+}

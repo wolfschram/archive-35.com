@@ -1,0 +1,83 @@
+[
+  {
+    "id": "wolf5987-pano",
+    "filename": "WOLF5987-Pano.jpg",
+    "title": "Alpine Basin Beneath the Peaks",
+    "description": "A sweeping panoramic vista captures the grandeur of high-altitude terrain, where rugged mountain ridges frame a serene alpine valley and shimmering lake below. The composition reveals the raw geological drama of tectonic landscapes, inviting contemplation of nature's monumental scale and timeless beauty.",
+    "location": "Southern Alps, New Zealand",
+    "tags": [
+      "mountain-landscape",
+      "alpine-valley",
+      "panoramic-vista",
+      "new-zealand",
+      "southern-alps",
+      "lake-reflection",
+      "dramatic-peaks",
+      "high-altitude",
+      "geological-formation",
+      "arid-landscape",
+      "fine-art-photography",
+      "nature-photography",
+      "landscape-wall-art",
+      "gallery-print",
+      "canvas-art",
+      "majestic-scenery",
+      "clear-sky",
+      "azure-water",
+      "desert-mountain",
+      "contemplative-mood",
+      "home-decor"
+    ],
+    "dimensions": {
+      "width": 5000,
+      "height": 2584,
+      "aspectRatio": 1.935,
+      "aspectRatioString": "625:323",
+      "orientation": "wide",
+      "megapixels": 12.9
+    },
+    "thumbnail": "WOLF5987-Pano-thumb.jpg",
+    "full": "WOLF5987-Pano-full.jpg",
+    "c2pa": true
+  },
+  {
+    "id": "_mg_0159",
+    "filename": "_MG_0159.jpg",
+    "title": "Mineral Mountains of Ladakh",
+    "description": "A stunning geological tapestry unfolds across this high-altitude valley, where mineral-rich earth reveals nature's palette in vivid turquoise, rust, and ochre. This landscape captures the raw beauty of the Himalayas, where erosion and mineral deposits create an otherworldly terrain of profound visual depth.",
+    "location": "Ladakh, Jammu and Kashmir, India",
+    "tags": [
+      "ladakh",
+      "himalaya",
+      "mountain-landscape",
+      "geological-formations",
+      "mineral-deposits",
+      "high-altitude",
+      "desert-mountains",
+      "turquoise-earth",
+      "earth-tones",
+      "natural-colors",
+      "fine-art-photography",
+      "landscape-photography",
+      "nature-photography",
+      "wall-art",
+      "gallery-print",
+      "canvas-art",
+      "dramatic-terrain",
+      "pristine-wilderness",
+      "color-rich-landscape",
+      "geological-wonder"
+    ],
+    "dimensions": {
+      "width": 5472,
+      "height": 3648,
+      "aspectRatio": 1.5,
+      "aspectRatioString": "3:2",
+      "orientation": "landscape",
+      "megapixels": 20
+    },
+    "thumbnail": "_MG_0159-thumb.jpg",
+    "full": "_MG_0159-full.jpg",
+    "c2pa": true
+  }
+]

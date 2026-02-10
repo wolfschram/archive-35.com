@@ -1,0 +1,16 @@
+{
+  "id": "lake_powell",
+  "title": "Lake Powell",
+  "slug": "lake-powell",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 4
+}

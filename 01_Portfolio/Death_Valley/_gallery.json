@@ -1,0 +1,16 @@
+{
+  "id": "death_valley",
+  "title": "Death Valley",
+  "slug": "death-valley",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 2
+}

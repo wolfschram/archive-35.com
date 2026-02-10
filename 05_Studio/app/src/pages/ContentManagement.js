@@ -36,6 +36,11 @@ function ContentManagement() {
   const [loading, setLoading] = useState(false);
   const [deleteQueue, setDeleteQueue] = useState([]);
 
+  // Portfolio rename state
+  const [renamingId, setRenamingId] = useState(null);
+  const [renameValue, setRenameValue] = useState('');
+  const [renameError, setRenameError] = useState('');
+
   // Edit mode state
   const [editingPhoto, setEditingPhoto] = useState(null);
   const [editForm, setEditForm] = useState({
@@ -330,6 +335,65 @@ function ContentManagement() {
     setLoading(false);
   };
 
+  // ===== RENAME PORTFOLIO =====
+  const startRename = (portfolio, e) => {
+    e.stopPropagation();
+    setRenamingId(portfolio.id);
+    setRenameValue(portfolio.name);
+    setRenameError('');
+  };
+
+  const cancelRename = () => {
+    setRenamingId(null);
+    setRenameValue('');
+    setRenameError('');
+  };
+
+  const confirmRename = async (portfolioId) => {
+    const trimmed = renameValue.trim();
+    if (!trimmed) { setRenameError('Name cannot be empty'); return; }
+    if (/[<>:"/\\|?*]/.test(trimmed)) { setRenameError('Invalid characters in name'); return; }
+
+    const original = portfolios.find(p => p.id === portfolioId);
+    if (original && original.name === trimmed) { cancelRename(); return; }
+
+    setLoading(true);
+    setRenameError('');
+    try {
+      if (window.electronAPI && window.electronAPI.renamePortfolio) {
+        const result = await window.electronAPI.renamePortfolio({
+          portfolioId,
+          newName: trimmed
+        });
+        if (result.success) {
+          // Update selected portfolio if it was the renamed one
+          if (selectedPortfolio === portfolioId) {
+            setSelectedPortfolio(result.newId);
+          }
+          await loadPortfolios();
+          cancelRename();
+        } else {
+          setRenameError(result.error || 'Rename failed');
+        }
+      } else {
+        // Demo mode
+        setPortfolios(prev => prev.map(p =>
+          p.id === portfolioId ? { ...p, name: trimmed, id: trimmed.toLowerCase().replace(/\s+/g, '_') } : p
+        ));
+        cancelRename();
+      }
+    } catch (err) {
+      console.error('Rename failed:', err);
+      setRenameError('Rename failed: ' + err.message);
+    }
+    setLoading(false);
+  };
+
+  const handleRenameKeyDown = (e, portfolioId) => {
+    if (e.key === 'Enter') { e.preventDefault(); confirmRename(portfolioId); }
+    else if (e.key === 'Escape') cancelRename();
+  };
+
   return (
     <div className="page">
       <header className="page-header">
@@ -347,16 +411,40 @@ function ContentManagement() {
 
           <div className="portfolio-list">
             {portfolios.map(portfolio => (
-              <button
+              <div
                 key={portfolio.id}
                 className={`portfolio-item ${selectedPortfolio === portfolio.id ? 'selected' : ''}`}
-                onClick={() => loadPhotos(portfolio.id)}
+                onClick={() => { if (renamingId !== portfolio.id) loadPhotos(portfolio.id); }}
               >
-                <span className="portfolio-name">{portfolio.name}</span>
+                {renamingId === portfolio.id ? (
+                  <div className="portfolio-rename-row" onClick={e => e.stopPropagation()}>
+                    <input
+                      type="text"
+                      className="portfolio-rename-input"
+                      value={renameValue}
+                      onChange={e => setRenameValue(e.target.value)}
+                      onKeyDown={e => handleRenameKeyDown(e, portfolio.id)}
+                      onBlur={() => confirmRename(portfolio.id)}
+                      autoFocus
+                    />
+                    {renameError && <span className="rename-error">{renameError}</span>}
+                  </div>
+                ) : (
+                  <>
+                    <span className="portfolio-name">{portfolio.name}</span>
+                    <button
+                      className="rename-btn"
+                      onClick={(e) => startRename(portfolio, e)}
+                      title="Rename portfolio"
+                    >
+                      ✏️
+                    </button>
+                  </>
+                )}
                 <span className="portfolio-meta">
                   {portfolio.photoCount} photos • {formatLocation(portfolio.location)}
                 </span>
-              </button>
+              </div>
             ))}
           </div>
         </div>

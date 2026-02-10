@@ -122,6 +122,7 @@ function WebsiteControl() {
       data: { complete: false, active: false },
       git: { complete: false, active: false },
       push: { complete: false, active: false },
+      verify: { complete: false, active: false },
       done: { complete: false, active: false }
     });
 
@@ -134,7 +135,7 @@ function WebsiteControl() {
           setDeployStages(prev => {
             const newStages = { ...prev };
             // Mark previous stage as complete
-            const stageOrder = ['scan', 'images', 'c2pa', 'r2', 'data', 'git', 'push', 'done'];
+            const stageOrder = ['scan', 'images', 'c2pa', 'r2', 'data', 'git', 'push', 'verify', 'done'];
             const currentIndex = stageOrder.indexOf(data.step);
 
             stageOrder.forEach((stage, idx) => {
@@ -165,7 +166,8 @@ function WebsiteControl() {
           data: { complete: true, active: false },
           git: { complete: true, active: false },
           push: { complete: true, active: false },
-          done: { complete: true, active: false }
+          verify: { complete: result.verified !== false, active: !result.verified },
+          done: { complete: result.verified !== false, active: false }
         });
       }
       await checkStatus();
@@ -223,6 +225,7 @@ function WebsiteControl() {
     data: 'Data',
     git: 'Git',
     push: 'Push',
+    verify: 'Verify',
     done: 'Done'
   };
 
@@ -310,7 +313,7 @@ function WebsiteControl() {
                 color: deployResult.success ? '#22c55e' : '#ef4444',
                 fontWeight: 600
               }}>
-                {deployResult.success ? '✓ Complete' : '✗ Failed'}
+                {deployResult.success ? (deployResult.verified !== false ? '✓ Verified' : '⚠ Pushed (verify pending)') : '✗ Failed'}
                 {deployResult.success && deployResult.photosPublished
                   ? ` — ${deployResult.photosPublished} photos${deployResult.imagesCopied === 0 ? ' (no changes)' : ''}`
                   : ''}

@@ -1,35 +1,45 @@
 {
   "catalog_id": "A35-20260210-0002",
-  "original_filename": "TEST_STANDARD_Wildlife.jpg",
+  "original_filename": "WOLF1974-Pano.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "",
   "description": "",
   "location": "",
-  "classification": "STANDARD",
+  "classification": "ULTRA",
   "resolution": {
-    "width": 6000,
-    "height": 4000
+    "width": 31714,
+    "height": 7907
   },
-  "megapixels": 24.0,
-  "aspect_ratio": 1.5,
-  "file_size_bytes": 461377,
-  "file_size_mb": 0.4,
+  "megapixels": 250.8,
+  "aspect_ratio": 4.011,
+  "file_size_bytes": 68655089,
+  "file_size_mb": 65.5,
   "color_space": "RGB",
   "format": "JPEG",
   "dpi": [
-    300,
-    300
+    "300.0",
+    "300.0"
   ],
   "max_print_300dpi": {
-    "width_in": 20.0,
-    "height_in": 13.3,
+    "width_in": 105.7,
+    "height_in": 26.4,
     "dpi": 300
   },
   "max_print_150dpi": {
-    "width_in": 40.0,
-    "height_in": 26.7,
+    "width_in": 211.4,
+    "height_in": 52.7,
     "dpi": 150
   },
-  "exif": {},
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5m2",
+    "DateTimeOriginal": "2025:05:18 08:51:45",
+    "FocalLength": "70.0",
+    "ExposureTime": "0.003125",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
   "gps": null,
   "pricing": {
     "web_social": {
@@ -71,5 +81,5 @@
     "preview": "previews/A35-20260210-0002.jpg",
     "thumbnail": "thumbnails/A35-20260210-0002.jpg"
   },
-  "scanned_at": "2026-02-10T20:27:56.941319+00:00"
+  "scanned_at": "2026-02-10T20:51:12.756148+00:00"
 }

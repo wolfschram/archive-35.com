@@ -103,18 +103,27 @@ def generate_gallery_catalog(base_path):
 
 
 def main():
-    folder = sys.argv[1] if len(sys.argv) > 1 else os.path.dirname(os.path.abspath(__file__))
+    import argparse
+    parser = argparse.ArgumentParser(description="ARCHIVE-35 Licensing Image Pipeline")
+    parser.add_argument("folder", nargs="?", default=os.path.dirname(os.path.abspath(__file__)),
+                        help="Path to 09_Licensing directory")
+    parser.add_argument("--source", help="External source folder to scan (e.g., Photography/Large Scale Photography Stitch/)")
+    args = parser.parse_args()
+    folder = args.folder
+    source = args.source
     base = Path(folder)
 
     print("=" * 60)
     print("  ARCHIVE-35 LICENSING IMAGE PIPELINE")
+    if source:
+        print(f"  Source: {source}")
     print("=" * 60)
 
     # Step 1: Scan & classify
     print(f"\n{'─' * 40}")
     print("STEP 1: Scan & Classify")
     print(f"{'─' * 40}")
-    scan(folder)
+    scan(folder, source_folder=source)
 
     # Step 2: Watermarks
     print(f"\n{'─' * 40}")

@@ -1,0 +1,85 @@
+{
+  "catalog_id": "A35-20260210-0033",
+  "original_filename": "WOLF4924.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "title": "",
+  "description": "",
+  "location": "",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 8134,
+    "height": 3510
+  },
+  "megapixels": 28.6,
+  "aspect_ratio": 2.317,
+  "file_size_bytes": 11356249,
+  "file_size_mb": 10.8,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 27.1,
+    "height_in": 11.7,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 54.2,
+    "height_in": 23.4,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5m2",
+    "DateTimeOriginal": "2025:08:08 07:33:29",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.0003125",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 125,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 250,
+      "PREMIUM": 400,
+      "ULTRA": 500
+    },
+    "editorial": {
+      "STANDARD": 500,
+      "PREMIUM": 750,
+      "ULTRA": 1000
+    },
+    "commercial_print": {
+      "STANDARD": 1000,
+      "PREMIUM": 1500,
+      "ULTRA": 2000
+    },
+    "billboard_ooh": {
+      "STANDARD": 1500,
+      "PREMIUM": 2500,
+      "ULTRA": 3500
+    },
+    "hospitality": {
+      "STANDARD": 2000,
+      "PREMIUM": 3500,
+      "ULTRA": 5000
+    },
+    "exclusive": {
+      "STANDARD": 5000,
+      "PREMIUM": 10000,
+      "ULTRA": 15000
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260210-0033.jpg",
+    "preview": "previews/A35-20260210-0033.jpg",
+    "thumbnail": "thumbnails/A35-20260210-0033.jpg"
+  },
+  "scanned_at": "2026-02-10T20:51:12.815425+00:00"
+}

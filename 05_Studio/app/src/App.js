@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import ContentIngest from './pages/ContentIngest';
 import ContentManagement from './pages/ContentManagement';
 import WebsiteControl from './pages/WebsiteControl';
+import LicensingManager from './pages/LicensingManager';
 import SalesPictorem from './pages/SalesPictorem';
 import SocialMedia from './pages/SocialMedia';
 import Analytics from './pages/Analytics';
@@ -66,6 +67,9 @@ function App() {
         </TabPanel>
         <TabPanel id="website" activeTab={activeTab}>
           <WebsiteControl />
+        </TabPanel>
+        <TabPanel id="licensing" activeTab={activeTab}>
+          <LicensingManager />
         </TabPanel>
         <TabPanel id="sales" activeTab={activeTab}>
           <SalesPictorem />

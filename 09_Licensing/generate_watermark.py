@@ -21,6 +21,9 @@ try:
 except ImportError:
     sys.exit("ERROR: Pillow not installed. Run: pip install Pillow")
 
+# Allow ultra-large panoramic images (up to 500MP)
+Image.MAX_IMAGE_PIXELS = 500_000_000
+
 
 def load_config(base):
     with open(base / "_config.json") as f:
@@ -125,7 +128,9 @@ def generate_watermarks(base_path):
             meta = json.load(f)
 
         catalog_id = meta["catalog_id"]
-        original_file = originals_dir / meta["original_filename"]
+        # Use source_path from metadata if available (for external source folders)
+        src_dir = Path(meta["source_path"]) if "source_path" in meta else originals_dir
+        original_file = src_dir / meta["original_filename"]
         output_file = output_dir / f"{catalog_id}.jpg"
 
         if output_file.exists():

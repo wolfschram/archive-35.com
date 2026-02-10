@@ -6,6 +6,7 @@ const tabs = [
   { id: 'manage', label: 'Manage', icon: '🗂️' },
   { id: 'gallery', label: 'Gallery', icon: '🖼️' },
   { id: 'website', label: 'Website', icon: '🌐' },
+  { id: 'licensing', label: 'Licensing', icon: '📜' },
   { id: 'sales', label: 'Sales', icon: '🛒' },
   { id: 'social', label: 'Social', icon: '📱' },
   { id: 'analytics', label: 'Analytics', icon: '📊' },

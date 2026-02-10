@@ -225,6 +225,35 @@ function filterSizesByAspectRatio(sizes, photoAspectRatio, tolerance = 0.1) {
 }
 
 // ============================================================================
+// LICENSING TIERS & PRICING
+// ============================================================================
+
+const LICENSE_TIERS = {
+  web_social:       { name: 'Web / Social',      duration: '1 year',  geography: 'Worldwide', maxUsers: 5,          sort: 1 },
+  editorial:        { name: 'Editorial',          duration: '1 year',  geography: 'Worldwide', maxUsers: 5,          sort: 2 },
+  commercial_print: { name: 'Commercial Print',   duration: '2 years', geography: 'Worldwide', maxUsers: 10,         sort: 3 },
+  billboard_ooh:    { name: 'Billboard / OOH',    duration: '1 year',  geography: 'Worldwide', maxUsers: 10,         sort: 4 },
+  hospitality:      { name: 'Hospitality',        duration: 'Perpetual', geography: 'Worldwide', maxUsers: 'Unlimited', sort: 5 },
+  exclusive:        { name: 'Exclusive',           duration: '2-5 years', geography: 'Worldwide', maxUsers: 'Unlimited', sort: 6 }
+};
+
+const LICENSE_PRICING = {
+  web_social:       { STANDARD: 250,  PREMIUM: 400,  ULTRA: 500 },
+  editorial:        { STANDARD: 500,  PREMIUM: 750,  ULTRA: 1000 },
+  commercial_print: { STANDARD: 1000, PREMIUM: 1500, ULTRA: 2000 },
+  billboard_ooh:    { STANDARD: 1500, PREMIUM: 2500, ULTRA: 3500 },
+  hospitality:      { STANDARD: 2000, PREMIUM: 3500, ULTRA: 5000 },
+  exclusive:        { STANDARD: 5000, PREMIUM: 10000, ULTRA: 15000 }
+};
+
+function classifyForLicensing(width) {
+  if (width >= 15000) return 'ULTRA';
+  if (width >= 8000) return 'PREMIUM';
+  if (width >= 4000) return 'STANDARD';
+  return null;
+}
+
+// ============================================================================
 // MODAL UI GENERATION
 // ============================================================================
 
@@ -245,6 +274,10 @@ function createProductSelectorModal(photoData) {
   const category = getMatchingCategory(aspectRatio);
   const applicableSizes = filterSizesByAspectRatio(category.sizes, aspectRatio);
 
+  // Licensing classification
+  const licenseClass = classifyForLicensing(photoWidth) || 'STANDARD';
+  const classColors = { ULTRA: '#c9a84c', PREMIUM: '#b0b0b0', STANDARD: '#cd7f32' };
+
   // Create modal HTML
   const modal = document.createElement('div');
   modal.className = 'product-selector-modal';
@@ -256,13 +289,19 @@ function createProductSelectorModal(photoData) {
       <button class="close-button" aria-label="Close selector">&times;</button>
 
       <div class="selector-header">
-        <h2>Print "${title}"</h2>
+        <h2>"${title}"</h2>
         <p class="selector-subtitle">
-          Photo dimensions: ${photoWidth} × ${photoHeight} px (${megapixels} MP, ${category.name})
+          ${photoWidth} × ${photoHeight} px &middot; ${megapixels} MP &middot; ${category.name}
         </p>
+        <!-- Tab Bar -->
+        <div class="selector-tabs">
+          <button class="selector-tab active" data-tab="print">Order Print</button>
+          <button class="selector-tab" data-tab="license">License Image</button>
+        </div>
       </div>
 
-      <div class="selector-body">
+      <!-- ===== PRINT TAB ===== -->
+      <div class="selector-body tab-content" id="tab-print">
         <!-- Material Selection -->
         <div class="material-section">
           <h3>Step 1: Choose Material</h3>
@@ -344,17 +383,119 @@ function createProductSelectorModal(photoData) {
           </button>
         </div>
       </div>
+
+      <!-- ===== LICENSE TAB ===== -->
+      <div class="selector-body tab-content" id="tab-license" style="display:none;">
+        <div class="license-classification">
+          <span class="license-badge" style="background:${classColors[licenseClass]};color:#000;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:1px;">${licenseClass}</span>
+          <span style="color:#999;font-size:13px;margin-left:8px;">
+            Max print @300dpi: ${Math.round(photoWidth/300)}" × ${Math.round(photoHeight/300)}"
+          </span>
+        </div>
+
+        <!-- Tier Selection -->
+        <div class="material-section">
+          <h3>Step 1: Choose License Tier</h3>
+          <div class="license-tier-grid">
+            ${Object.entries(LICENSE_TIERS)
+              .sort((a,b) => a[1].sort - b[1].sort)
+              .map(([key, tier]) => {
+                const price = LICENSE_PRICING[key]?.[licenseClass] || 0;
+                return `
+              <div class="license-tier-option" data-tier="${key}">
+                <input type="radio" id="tier-${key}" name="license-tier" value="${key}" />
+                <label for="tier-${key}">
+                  <div class="material-name">${tier.name}</div>
+                  <div class="material-description">${tier.duration} &middot; ${tier.geography} &middot; ${tier.maxUsers} users</div>
+                  <div class="size-price" style="margin-top:6px;">$${price.toLocaleString()}</div>
+                </label>
+              </div>`;
+              }).join('')}
+          </div>
+        </div>
+
+        <!-- Format Selection -->
+        <div class="size-section">
+          <h3>Step 2: Choose Delivery Format</h3>
+          <div class="license-format-grid">
+            <div class="size-option">
+              <input type="radio" id="format-jpeg" name="license-format" value="jpeg" checked />
+              <label for="format-jpeg">
+                <div class="size-dimensions">JPEG</div>
+                <div class="size-dpi">Included</div>
+              </label>
+            </div>
+            <div class="size-option">
+              <input type="radio" id="format-tiff" name="license-format" value="tiff" />
+              <label for="format-tiff">
+                <div class="size-dimensions">TIFF</div>
+                <div class="size-dpi">+$100</div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- License Price Summary -->
+        <div class="price-summary">
+          <div class="summary-row">
+            <span>License Tier:</span>
+            <span id="license-summary-tier">Select tier</span>
+          </div>
+          <div class="summary-row">
+            <span>Format:</span>
+            <span id="license-summary-format">JPEG (included)</span>
+          </div>
+          <div class="summary-row">
+            <span>Duration:</span>
+            <span id="license-summary-duration">—</span>
+          </div>
+          <div class="summary-row total">
+            <span>License Fee:</span>
+            <span id="license-summary-price">$0</span>
+          </div>
+        </div>
+
+        <!-- License Info -->
+        <div class="product-info">
+          <div class="info-item">
+            <strong>Delivery:</strong> Download link within 24 hours
+          </div>
+          <div class="info-item">
+            <strong>Certificate:</strong> Signed provenance certificate included
+          </div>
+          <div class="info-item">
+            <strong>Original Resolution:</strong> ${photoWidth.toLocaleString()} × ${photoHeight.toLocaleString()} px (${megapixels} MP)
+          </div>
+        </div>
+
+        <!-- License Terms -->
+        <div class="terms-acknowledgment">
+          <label class="terms-checkbox-label">
+            <input type="checkbox" id="license-terms-checkbox" />
+            <span class="terms-checkbox-text">
+              I have read and agree to the <a href="licensing/terms.html" target="_blank"><strong>Image License Agreement</strong></a>. I understand that this license is <strong>non-transferable</strong> and usage is limited to the selected tier.
+            </span>
+          </label>
+        </div>
+
+        <!-- License Action -->
+        <div class="product-actions" style="grid-template-columns:1fr;">
+          <button class="add-to-cart-button" id="license-buy-button" disabled>
+            License This Image
+          </button>
+        </div>
+      </div>
     </div>
   `;
 
-  return { modal, category, applicableSizes, photoData };
+  return { modal, category, applicableSizes, photoData, licenseClass };
 }
 
 // ============================================================================
 // EVENT HANDLERS & INTERACTIONS
 // ============================================================================
 
-function setupProductSelectorEvents(modal, category, applicableSizes, photoData) {
+function setupProductSelectorEvents(modal, category, applicableSizes, photoData, licenseClass) {
   const overlay = modal.querySelector('.product-selector-overlay');
   const closeBtn = modal.querySelector('.close-button');
   const materialOptions = modal.querySelectorAll('.material-option');
@@ -367,6 +508,84 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData)
   let selectedSize = null;
   let termsAccepted = false;
 
+  // ── Tab switching ────────────────────────────────────────────────
+  const tabs = modal.querySelectorAll('.selector-tab');
+  const tabPrint = modal.querySelector('#tab-print');
+  const tabLicense = modal.querySelector('#tab-license');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      if (tab.dataset.tab === 'print') {
+        tabPrint.style.display = '';
+        tabLicense.style.display = 'none';
+      } else {
+        tabPrint.style.display = 'none';
+        tabLicense.style.display = '';
+      }
+    });
+  });
+
+  // ── Licensing tier events ────────────────────────────────────────
+  const tierOptions = modal.querySelectorAll('.license-tier-option');
+  const licenseBuyBtn = modal.querySelector('#license-buy-button');
+  const licenseTermsCheckbox = modal.querySelector('#license-terms-checkbox');
+  const formatInputs = modal.querySelectorAll('input[name="license-format"]');
+  let selectedTier = null;
+  let selectedFormat = 'jpeg';
+  let licenseTermsAccepted = false;
+
+  function updateLicensePrice() {
+    if (!selectedTier) return;
+    const basePrice = LICENSE_PRICING[selectedTier]?.[licenseClass || 'STANDARD'] || 0;
+    const formatSurcharge = selectedFormat === 'tiff' ? 100 : 0;
+    const total = basePrice + formatSurcharge;
+    modal.querySelector('#license-summary-tier').textContent = LICENSE_TIERS[selectedTier].name;
+    modal.querySelector('#license-summary-format').textContent = selectedFormat === 'tiff' ? 'TIFF (+$100)' : 'JPEG (included)';
+    modal.querySelector('#license-summary-duration').textContent = LICENSE_TIERS[selectedTier].duration;
+    modal.querySelector('#license-summary-price').textContent = '$' + total.toLocaleString();
+    licenseBuyBtn.disabled = !(selectedTier && licenseTermsAccepted);
+  }
+
+  tierOptions.forEach(opt => {
+    opt.addEventListener('click', () => {
+      tierOptions.forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      opt.querySelector('input').checked = true;
+      selectedTier = opt.dataset.tier;
+      updateLicensePrice();
+    });
+  });
+
+  formatInputs.forEach(input => {
+    input.addEventListener('change', () => {
+      selectedFormat = input.value;
+      updateLicensePrice();
+    });
+  });
+
+  if (licenseTermsCheckbox) {
+    licenseTermsCheckbox.addEventListener('change', () => {
+      licenseTermsAccepted = licenseTermsCheckbox.checked;
+      licenseBuyBtn.disabled = !(selectedTier && licenseTermsAccepted);
+    });
+  }
+
+  if (licenseBuyBtn) {
+    licenseBuyBtn.addEventListener('click', () => {
+      if (!selectedTier || !licenseTermsAccepted) return;
+      const basePrice = LICENSE_PRICING[selectedTier]?.[licenseClass || 'STANDARD'] || 0;
+      const total = basePrice + (selectedFormat === 'tiff' ? 100 : 0);
+      const tierName = LICENSE_TIERS[selectedTier].name;
+      const msg = encodeURIComponent(
+        `License Request:\n\nPhoto: ${photoData.title}\nTier: ${tierName}\nFormat: ${selectedFormat.toUpperCase()}\nResolution: ${photoData.dimensions.width} × ${photoData.dimensions.height} px\nPrice: $${total.toLocaleString()}\n\nPlease send me the license agreement and payment link.`
+      );
+      window.location.href = `contact.html?message=${msg}`;
+    });
+  }
+
+  // ── Print tab events (existing) ──────────────────────────────────
   // Terms checkbox handler
   termsCheckbox.addEventListener('change', () => {
     termsAccepted = termsCheckbox.checked;
@@ -683,14 +902,14 @@ function openProductSelector(photoData) {
   }
 
   // Create new modal
-  const { modal, category, applicableSizes } =
+  const { modal, category, applicableSizes, licenseClass } =
     createProductSelectorModal(photoData);
 
   // Add to page
   document.body.appendChild(modal);
 
   // Setup events
-  setupProductSelectorEvents(modal, category, applicableSizes, photoData);
+  setupProductSelectorEvents(modal, category, applicableSizes, photoData, licenseClass);
 
   // Trigger transition animation
   setTimeout(() => {
@@ -1052,17 +1271,98 @@ const STYLES = `
     }
   }
 
+  /* Tab bar */
+  .selector-tabs {
+    display: flex;
+    gap: 0;
+    margin-top: 16px;
+    border-bottom: 1px solid #333;
+  }
+
+  .selector-tab {
+    padding: 10px 24px;
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+  }
+
+  .selector-tab:hover { color: #ccc; }
+
+  .selector-tab.active {
+    color: #c4973b;
+    border-bottom-color: #c4973b;
+  }
+
+  /* Licensing tier grid */
+  .license-tier-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  .license-tier-option {
+    position: relative;
+  }
+
+  .license-tier-option input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .license-tier-option label {
+    display: block;
+    padding: 16px;
+    border: 2px solid #333;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #222;
+  }
+
+  .license-tier-option.selected label,
+  .license-tier-option input[type='radio']:checked + label {
+    border-color: #c4973b;
+    background: rgba(196, 151, 59, 0.1);
+  }
+
+  .license-classification {
+    margin-bottom: 20px;
+    padding: 12px 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .license-format-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    max-width: 300px;
+  }
+
   @media (max-width: 600px) {
     .product-selector-content {
       width: 95%;
     }
 
-    .material-grid {
+    .material-grid,
+    .license-tier-grid {
       grid-template-columns: 1fr;
     }
 
     .size-grid {
       grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .selector-tab {
+      padding: 8px 14px;
+      font-size: 11px;
     }
   }
 `;
@@ -1080,7 +1380,7 @@ function replaceLightboxBuyButton() {
   if (buyBtn && !buyBtn.dataset.selectorAttached) {
     buyBtn.removeAttribute('href');
     buyBtn.removeAttribute('target');
-    buyBtn.textContent = 'Order Print';
+    buyBtn.textContent = 'Buy Print / License';
     buyBtn.dataset.selectorAttached = 'true';
 
     buyBtn.addEventListener('click', (e) => {

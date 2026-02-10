@@ -22,6 +22,9 @@ try:
 except ImportError:
     sys.exit("ERROR: Pillow not installed. Run: pip install Pillow")
 
+# Allow ultra-large panoramic images (up to 500MP)
+Image.MAX_IMAGE_PIXELS = 500_000_000
+
 SUPPORTED_EXT = {".jpg", ".jpeg", ".tif", ".tiff", ".png", ".webp"}
 
 # ─── helpers ───────────────────────────────────────────────────────
@@ -106,15 +109,23 @@ def generate_catalog_id(index):
 
 
 # ─── main ──────────────────────────────────────────────────────────
-def scan(base_path):
+def scan(base_path, source_folder=None):
+    """
+    Scan images and classify them for licensing.
+
+    Args:
+        base_path: Path to 09_Licensing/ directory
+        source_folder: Optional external folder to scan instead of originals/
+                       (e.g., Photography/Large Scale Photography Stitch/)
+    """
     base = Path(base_path)
     cfg = load_config(base)
-    originals = base / "originals"
+    originals = Path(source_folder) if source_folder else base / "originals"
     metadata_dir = base / "metadata"
     catalog_path = base / "_catalog.json"
 
     if not originals.exists():
-        sys.exit(f"ERROR: originals folder not found at {originals}")
+        sys.exit(f"ERROR: source folder not found at {originals}")
 
     # Load existing catalog
     catalog = {"version": "1.0", "last_updated": None, "images": []}
@@ -161,6 +172,7 @@ def scan(base_path):
         meta = {
             "catalog_id": catalog_id,
             "original_filename": f.name,
+            "source_path": str(originals),  # where the original lives
             "title": "",  # user fills in later
             "description": "",
             "location": "",
@@ -223,6 +235,12 @@ def scan(base_path):
 
 
 if __name__ == "__main__":
-    folder = sys.argv[1] if len(sys.argv) > 1 else os.path.dirname(os.path.abspath(__file__))
-    print(f"Scanning {folder}/originals/ ...")
-    scan(folder)
+    import argparse
+    parser = argparse.ArgumentParser(description="Scan and classify images for licensing")
+    parser.add_argument("folder", nargs="?", default=os.path.dirname(os.path.abspath(__file__)),
+                        help="Path to 09_Licensing directory")
+    parser.add_argument("--source", help="External source folder (instead of originals/)")
+    args = parser.parse_args()
+    src = args.source or f"{args.folder}/originals"
+    print(f"Scanning {src} ...")
+    scan(args.folder, source_folder=args.source)

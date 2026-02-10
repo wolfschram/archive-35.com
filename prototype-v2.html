@@ -386,26 +386,34 @@ body{cursor:grab}body:active{cursor:grabbing}
 
 <script>
 // ═══════════════════════════════════
-// GALLERY DATA
+// GALLERY DATA — loaded from photos.json
 // ═══════════════════════════════════
-const G = [
-  {t:"Africa",         n:8,  img:"prototype/assets/thumbs/africa.jpg",          lbl:"gallery_label_Africa.png",          h:35,  s:55, l:32},
-  {t:"Colorado",       n:8,  img:"prototype/assets/thumbs/colorado.jpg",        lbl:"gallery_label_Colorado.png",        h:25,  s:55, l:38},
-  {t:"Death Valley",   n:2,  img:"prototype/assets/thumbs/death_valley.jpg",    lbl:"gallery_label_Death_Valley.png",    h:32,  s:50, l:35},
-  {t:"Desert Dunes",   n:6,  img:"prototype/assets/thumbs/desert_dunes.jpg",    lbl:"gallery_label_Desert_Dunes.png",    h:40,  s:60, l:35},
-  {t:"Flowers",        n:8,  img:null,                                           lbl:"gallery_label_Flowers.png",         h:95,  s:50, l:30},
-  {t:"Grand Teton",    n:48, img:"prototype/assets/thumbs/grand_teton.jpg",     lbl:"gallery_label_Grand_Teton.png",     h:130, s:30, l:32},
-  {t:"Iceland",        n:67, img:"prototype/assets/thumbs/iceland.jpg",         lbl:"gallery_label_Iceland.png",         h:205, s:50, l:35},
-  {t:"Lake Powell",    n:4,  img:"prototype/assets/thumbs/lake_powell.jpg",     lbl:"gallery_label_Lake_Powell.png",     h:18,  s:60, l:35},
-  {t:"Los Angeles",    n:1,  img:"prototype/assets/thumbs/los_angeles.jpg",     lbl:"gallery_label_Los_Angeles.png",     h:38,  s:65, l:38},
-  {t:"Monument Valley",n:1,  img:"prototype/assets/thumbs/monument_valley.jpg", lbl:"gallery_label_Monument_Valley.png", h:20,  s:70, l:32},
-  {t:"New Zealand",    n:16, img:"prototype/assets/thumbs/new_zealand.jpg",     lbl:"gallery_label_New_Zealand.png",     h:160, s:45, l:32},
-  {t:"Paris",          n:1,  img:"prototype/assets/thumbs/paris.jpg",           lbl:"gallery_label_Paris.png",           h:40,  s:25, l:40},
-  {t:"South Africa",   n:12, img:"prototype/assets/thumbs/south_africa.jpg",    lbl:"gallery_label_South_Africa.png",    h:85,  s:35, l:32},
-  {t:"Argentina",      n:5,  img:null,                                           lbl:"gallery_label_Argentina.png",       h:180, s:40, l:35},
-  {t:"Valley of Fire", n:3,  img:null,                                           lbl:"gallery_label_Valley_of_Fire.png",  h:12,  s:75, l:30},
-];
-const N = G.length;
+let G = [];
+let N = 0;
+
+async function loadGalleryData() {
+  const resp = await fetch('data/photos.json');
+  const data = await resp.json();
+
+  // Group photos by collection, preserve order of first appearance
+  const colMap = new Map();
+  for (const p of data.photos) {
+    const c = p.collection;
+    if (!colMap.has(c)) {
+      colMap.set(c, { t: p.collectionTitle || c, dir: c, photos: [] });
+    }
+    colMap.get(c).photos.push({ thumb: p.thumbnail, full: p.full, title: p.title });
+  }
+
+  // Build gallery array
+  G = Array.from(colMap.values()).map(col => ({
+    t: col.t,
+    n: col.photos.length,
+    img: col.photos[0].thumb,   // cover image for film frame
+    photos: col.photos           // all photos for gallery overlay
+  }));
+  N = G.length;
+}
 
 // ═══════════════════════════════════
 // WHITE BACKGROUND REMOVAL
@@ -586,37 +594,36 @@ function frameXform(t, W, H) {
 // BUILD FRAME DOM
 // ═══════════════════════════════════
 const strip = document.getElementById('film-strip');
-const frames = [];
+let frames = [];
 
-G.forEach((g, i) => {
-  const f = document.createElement('div');
-  f.className = 'film-frame';
-  f.dataset.idx = i;
+function buildFrames() {
+  strip.innerHTML = '';
+  frames = [];
 
-  // Sprockets
-  const spr = Array(9).fill('<div class="sp"></div>').join('');
+  G.forEach((g, i) => {
+    const f = document.createElement('div');
+    f.className = 'film-frame';
+    f.dataset.idx = i;
 
-  // Photo
-  const photo = g.img
-    ? `<img src="${g.img}" alt="${g.t}" loading="lazy">`
-    : `<div class="ph" style="background:linear-gradient(135deg,hsl(${g.h},${g.s}%,${g.l}%),hsl(${g.h+20},${Math.max(g.s-10,0)}%,${Math.max(g.l-10,8)}%))"></div>`;
+    const spr = Array(9).fill('<div class="sp"></div>').join('');
 
-  f.innerHTML = `
-    <div class="sr">${spr}</div>
-    <div class="pa">${photo}</div>
-    <div class="fi">
-      <span class="fl">${g.t.toUpperCase()}</span>
-      <span class="fn">${String(i+1).padStart(2,'0')}A  5247</span>
-    </div>
-    <div class="fc">${g.n} photograph${g.n !== 1 ? 's' : ''}</div>
-    <div class="sr">${spr}</div>
-    <div class="fs"></div>
-  `;
+    f.innerHTML = `
+      <div class="sr">${spr}</div>
+      <div class="pa"><img src="${g.img}" alt="${g.t}" loading="lazy"></div>
+      <div class="fi">
+        <span class="fl">${g.t.toUpperCase()}</span>
+        <span class="fn">${String(i+1).padStart(2,'0')}A  5247</span>
+      </div>
+      <div class="fc">${g.n} photograph${g.n !== 1 ? 's' : ''}</div>
+      <div class="sr">${spr}</div>
+      <div class="fs"></div>
+    `;
 
-  f.addEventListener('click', () => { if (!dragMoved) openGallery(i); });
-  strip.appendChild(f);
-  frames.push(f);
-});
+    f.addEventListener('click', () => { if (!dragMoved) openGallery(i); });
+    strip.appendChild(f);
+    frames.push(f);
+  });
+}
 
 // ═══════════════════════════════════
 // SCROLL / DRAG PHYSICS
@@ -808,23 +815,16 @@ function openGallery(idx) {
   const grid = document.getElementById('ovg');
   grid.innerHTML = '';
 
-  for (let i = 0; i < g.n; i++) {
+  g.photos.forEach((photo, i) => {
     const d = document.createElement('div');
     d.className = 'ov-i';
-    if (g.img) {
-      d.innerHTML = `<img src="${g.img}" alt="${g.t} ${i+1}" style="filter:hue-rotate(${i*18}deg) brightness(${0.8+Math.random()*0.35})" loading="lazy">`;
-    } else {
-      const hs = g.h + (i * 14) % 45;
-      d.innerHTML = `<div style="width:100%;height:100%;background:linear-gradient(${40+i*25}deg,hsl(${hs},${g.s}%,${g.l}%),hsl(${hs+18},${Math.max(g.s-8,0)}%,${Math.max(g.l-8,6)}%))"></div>`;
-    }
+    d.innerHTML = `<img src="${photo.thumb}" alt="${photo.title || g.t + ' ' + (i+1)}" loading="lazy">`;
     d.addEventListener('click', () => {
-      if (g.img) {
-        document.getElementById('lbi').src = g.img;
-        document.getElementById('lb').classList.add('open');
-      }
+      document.getElementById('lbi').src = photo.full;
+      document.getElementById('lb').classList.add('open');
     });
     grid.appendChild(d);
-  }
+  });
   ov.classList.add('open');
 }
 
@@ -873,14 +873,19 @@ bindSetting('s-grain', v => {
 // INIT
 // ═══════════════════════════════════
 async function init() {
-  // Process canister + coil: remove white backgrounds
-  const [canSrc, coilSrc] = await Promise.all([
-    removeWhiteBg('ChatGPT Image Feb 9, 2026, 06_52_14 PM.png'),
-    removeWhiteBg('ChatGPT Image Feb 9, 2026, 07_31_12 PM.png'),
-  ]);
+  // Load gallery data from photos.json
+  await loadGalleryData();
+  buildFrames();
 
-  document.getElementById('canister').src = canSrc;
-  document.getElementById('coil').src = coilSrc;
+  // Process canister + coil: remove white backgrounds (desktop only)
+  if (!isMobile) {
+    const [canSrc, coilSrc] = await Promise.all([
+      removeWhiteBg('ChatGPT Image Feb 9, 2026, 06_52_14 PM.png'),
+      removeWhiteBg('ChatGPT Image Feb 9, 2026, 07_31_12 PM.png'),
+    ]);
+    document.getElementById('canister').src = canSrc;
+    document.getElementById('coil').src = coilSrc;
+  }
 
   // Draw SVG strip
   drawStrip(W, H);

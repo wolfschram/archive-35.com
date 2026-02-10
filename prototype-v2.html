@@ -135,6 +135,7 @@ body{cursor:grab}body:active{cursor:grabbing}
   background:#0a0908;border:1px solid rgba(30,28,24,0.6);position:relative;
 }
 .pa img{width:100%;height:100%;object-fit:cover;display:block}
+@media (max-width: 768px) { .pa img{object-fit:contain} }
 .pa .ph{width:100%;height:100%}
 
 /* Frame info */
@@ -504,8 +505,8 @@ function getFrameSize() {
   return { w: 220, h: 310 };
 }
 
-// Touch/drag — much more responsive on mobile for card swiping
-function getDragCoeff() { return isMobile ? 0.015 : 0.005; }
+// Touch/drag coefficient — mobile is tuned for card-by-card snapping
+function getDragCoeff() { return isMobile ? 0.005 : 0.005; }
 
 function applyMobileConfig() {
   isMobile = window.matchMedia('(max-width: 768px)').matches;
@@ -651,8 +652,21 @@ document.addEventListener('mousemove', e => {
 });
 document.addEventListener('mouseup', () => {
   if (!isDrag) return; isDrag = false;
-  target += vel * 180 * getDragCoeff();
-  snap();
+  if (isMobile) {
+    const startIdx = Math.round(dragOff0);
+    const dist = target - dragOff0;
+    if (Math.abs(vel) > 0.25 || Math.abs(dist) > 0.35) {
+      const dir = (vel > 0 || dist > 0) ? 1 : -1;
+      const advance = (Math.abs(vel) > 0.6) ? 2 : 1;
+      target = startIdx + dir * advance;
+    } else {
+      target = startIdx;
+    }
+    target = Math.max(0, Math.min(N - 1, target));
+  } else {
+    target += vel * 180 * getDragCoeff();
+    snap();
+  }
 });
 
 document.addEventListener('touchstart', e => {
@@ -674,8 +688,24 @@ document.addEventListener('touchmove', e => {
 }, {passive:true});
 document.addEventListener('touchend', () => {
   if (!isDrag) return; isDrag = false;
-  target += vel * 180 * getDragCoeff();
-  snap();
+  if (isMobile) {
+    // Card-by-card snap: swipe advances exactly 1 card (max 2 on hard flick)
+    const startIdx = Math.round(dragOff0);
+    const dist = target - dragOff0;
+    if (Math.abs(vel) > 0.25 || Math.abs(dist) > 0.35) {
+      // Intentional swipe — advance 1 card, or 2 on very hard flick
+      const dir = (vel > 0 || dist > 0) ? 1 : -1;
+      const advance = (Math.abs(vel) > 0.6) ? 2 : 1;
+      target = startIdx + dir * advance;
+    } else {
+      // Small drag — snap back to where we started
+      target = startIdx;
+    }
+    target = Math.max(0, Math.min(N - 1, target));
+  } else {
+    target += vel * 180 * getDragCoeff();
+    snap();
+  }
 });
 
 document.addEventListener('wheel', e => {
@@ -754,7 +784,7 @@ const hpnEl = document.getElementById('hpn');
 let W = window.innerWidth, H = window.innerHeight;
 
 function render() {
-  const ease = isDrag ? 0.25 : 0.075;
+  const ease = isDrag ? 0.25 : (isMobile ? 0.14 : 0.075);
   scroll += (target - scroll) * ease;
   const ai = activeIdx();
   const sp = SPACING();

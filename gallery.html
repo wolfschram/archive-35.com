@@ -223,10 +223,10 @@ nav a:hover::after, nav a.active::after { width:100%; }
 /* === COVERFLOW === */
 #cf {
   position:absolute;
-  top:4vh; left:0; right:0;
-  height:50vh;
-  perspective:1800px;
-  perspective-origin:50% 52%;
+  top:2vh; left:0; right:0;
+  height:54vh;
+  perspective:1600px;
+  perspective-origin:50% 50%;
   z-index:10;
 }
 
@@ -416,6 +416,33 @@ nav a:hover::after, nav a.active::after { width:100%; }
 .vf-tr{top:6px;right:6px;border-top:1px solid var(--gold);border-right:1px solid var(--gold)}
 .vf-bl{bottom:6px;left:6px;border-bottom:1px solid var(--gold);border-left:1px solid var(--gold)}
 .vf-br{bottom:6px;right:6px;border-bottom:1px solid var(--gold);border-right:1px solid var(--gold)}
+
+/* === MOBILE === */
+@media(max-width:768px){
+  header { top:0.6rem; width:calc(100% - 1.2rem); }
+  header > .h-inner { padding:0.5rem 1rem; }
+  .logo { font-size:16px; letter-spacing:5px; }
+  nav { gap:0.7rem; font-size:0.55rem; letter-spacing:0.08em; }
+  .cart-icon-btn { width:30px; height:30px; margin-left:8px; }
+  .cart-icon { width:18px; height:18px; }
+  #cf { top:12vh; height:44vh; }
+  #info { bottom:20vh; }
+  #info-t { font-size:clamp(20px,5vw,32px); letter-spacing:clamp(5px,1.2vw,10px); }
+  #info-c { font-size:9px; letter-spacing:2px; }
+  #dots { bottom:10px; }
+  #cprev.open { max-height:38vh; }
+  #cprev-in { padding:10px 16px 20px; }
+  #cprev-g { grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:4px; }
+  #fg-hd { padding:70px 20px 20px; }
+  #fg-ti { font-size:28px; letter-spacing:8px; }
+  #fg-gr { padding:14px 12px 40px; }
+}
+@media(max-width:420px){
+  nav a { font-size:0.5rem; }
+  nav { gap:0.5rem; }
+  #cf { top:14vh; height:40vh; }
+  #info { bottom:18vh; }
+}
 </style>
 </head>
 <body>
@@ -762,7 +789,7 @@ const G=[
 ];
 const N=G.length;
 
-function covSz(){return Math.min(window.innerHeight*0.44,window.innerWidth*0.28,460);}
+function covSz(){const w=window.innerWidth,h=window.innerHeight;if(w<=768)return Math.min(h*0.32,w*0.52,320);return Math.min(h*0.50,w*0.34,540);}
 
 /* ===== AUDIO — Für Elise melody ===== */
 const AC=window.AudioContext||window.webkitAudioContext;
@@ -850,12 +877,12 @@ G.forEach((g,i)=>{
 
 /* ===== ENGINE ===== */
 let cur=0,sm=0,lastR=-1;
-const SA=68,VH=7;
+const SA=68,VH=9;
 function wI(i){return((i%N)+N)%N;}
 function cD(a,b){let d=b-a;while(d>N/2)d-=N;while(d<-N/2)d+=N;return d;}
 
 function layout(){
-  const S=covSz(),sp=S*0.22,cZ=S*0.55,sS=0.55;
+  const S=covSz(),sp=S*0.26,cZ=S*0.6,sS=0.55;
   items.forEach((el,i)=>{
     el.style.setProperty('--cs',S+'px');
     let off=cD(Math.round(sm)%N,i)-(sm-Math.round(sm));
@@ -864,13 +891,13 @@ function layout(){
     el.style.visibility='visible';
     let tx,tz,ry,sc,op;
     if(abs<0.01){tx=0;tz=cZ;ry=0;sc=1;op=1;}
-    else{const dir=off>0?1:-1,t=Math.min(abs,VH+1),bO=S*0.4;
+    else{const dir=off>0?1:-1,t=Math.min(abs,VH+1),bO=S*0.5;
       tx=dir*(bO*Math.min(t,1)+Math.max(0,t-1)*sp);
       tz=cZ*Math.max(0,1-t);
       ry=-dir*SA*Math.min(t,1);
-      sc=1-(1-sS)*Math.min(t,1)-Math.max(0,t-1)*0.04;
-      sc=Math.max(0.28,sc);
-      op=Math.max(0,1-Math.max(0,t-1)*0.15);
+      sc=1-(1-sS)*Math.min(t,1)-Math.max(0,t-1)*0.03;
+      sc=Math.max(0.22,sc);
+      op=Math.max(0,1-Math.max(0,t-1)*0.10);
     }
     el.style.transform=`translateX(${tx-S/2}px) translateZ(${tz}px) rotateY(${ry}deg) scale(${sc})`;
     el.style.opacity=op.toFixed(3);
@@ -899,8 +926,9 @@ document.addEventListener('wheel',e=>{if(modal())return;e.preventDefault();sA+=(
 
 let drag=false,dX0=0,dC0=0,dM=false,dLX=0,dV=0;
 function dS(x){if(modal())return;drag=true;dM=false;dX0=x;dC0=cur;dLX=x;dV=0;}
-function dMv(x){if(!drag)return;if(Math.abs(x-dX0)>5)dM=true;dV=(dLX-x)*0.012;dLX=x;cur=dC0+(dX0-x)/130;}
-function dE(){if(!drag)return;drag=false;cur+=dV*3;cur=Math.round(cur);}
+const _isTouch='ontouchstart'in window,_swDiv=_isTouch?200:130,_swVel=_isTouch?0.008:0.012,_swFling=_isTouch?2:3;
+function dMv(x){if(!drag)return;if(Math.abs(x-dX0)>5)dM=true;dV=(dLX-x)*_swVel;dLX=x;cur=dC0+(dX0-x)/_swDiv;}
+function dE(){if(!drag)return;drag=false;cur+=dV*_swFling;cur=Math.round(cur);}
 document.addEventListener('mousedown',e=>dS(e.clientX));
 document.addEventListener('mousemove',e=>dMv(e.clientX));
 document.addEventListener('mouseup',dE);

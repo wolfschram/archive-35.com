@@ -929,7 +929,7 @@ const STYLES = `
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 10000;
+    z-index: 999999;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -947,7 +947,7 @@ const STYLES = `
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.85);
     cursor: pointer;
   }
 
@@ -960,6 +960,7 @@ const STYLES = `
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
+    z-index: 1000000;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   }
 

@@ -49,6 +49,21 @@
   --gold-dim:#7a6830;
   --warmlight: rgba(255,248,230,1);
   --coolshadow: #0a0b0d;
+  /* cart compat vars */
+  --text-primary: #fcfcfc;
+  --text-secondary: #a0a0a0;
+  --text-muted: #777777;
+  --accent: #c9a84c;
+  --accent-hover: #f5c963;
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --glass-bg: rgba(255,255,255,0.03);
+  --glass-bg-hover: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.08);
+  --glass-border-hover: rgba(212,165,116,0.4);
+  --glass-blur: 12px;
+  --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+  --radius-sm: 8px;
 }
 
 html, body { 
@@ -379,7 +394,7 @@ nav a:hover::after, nav a.active::after { width:100%; }
 /* === LIGHTBOX === */
 #lb {
   position:fixed; inset:0; z-index:9999;
-  background:rgba(5,5,4,0.98);
+  background:#050504;
   display:flex; align-items:center; justify-content:center;
   opacity:0; pointer-events:none; transition:opacity .4s;
 }
@@ -436,7 +451,7 @@ nav a:hover::after, nav a.active::after { width:100%; }
 <header>
   <div class="h-inner">
     <a href="index.html" class="logo">ARCHIVE<em>-35</em></a>
-    <nav>
+    <nav class="nav">
       <a href="index.html">Home</a>
       <a href="gallery.html" class="active">Gallery</a>
       <a href="licensing.html">Licensing</a>
@@ -471,7 +486,14 @@ nav a:hover::after, nav a.active::after { width:100%; }
 
 <div class="vf vf-tl"></div><div class="vf vf-tr"></div><div class="vf vf-bl"></div><div class="vf vf-br"></div>
 
-<script src="js/product-selector.js"></script>
+<link rel="stylesheet" href="css/cart.css">
+<link rel="stylesheet" href="css/product-selector.css">
+<script src="https://js.stripe.com/v3/"></script>
+<script>window.STRIPE_PUBLIC_KEY = 'pk_live_51SxIaWIyLqYsy9lvz6b9LBV2cMBz4JJgFb30aYvbrMxH0hromGU1mFWF2vu6tV97Co8LrczCM3dFJg89a9a4tT0U007cpVXRWM';</script>
+<script src="js/cart.js"></script>
+<script src="js/cart-ui.js?v=2"></script>
+<script src="js/product-selector.js?v=7"></script>
+<script src="js/image-protection.js"></script>
 <script>
 /* ===== GALLERY DATA (from photos.json) ===== */
 const G=[
@@ -949,8 +971,8 @@ document.getElementById('fg-bk').addEventListener('click',closeFg);
 
 /* ===== LIGHTBOX — uses real full-size images ===== */
 let lG=0,lP=0;
-function openLb(gi,pi){lG=gi;lP=pi;updLb();document.getElementById('lb').classList.add('open');}
-function closeLb(){document.getElementById('lb').classList.remove('open');}
+function openLb(gi,pi){lG=gi;lP=pi;updLb();document.getElementById('fgal').style.visibility='hidden';document.getElementById('lb').classList.add('open');}
+function closeLb(){document.getElementById('lb').classList.remove('open');document.getElementById('fgal').style.visibility='';}
 function lbN(d){lP=Math.max(0,Math.min(G[lG].n-1,lP+d));updLb();}
 function updLb(){
   const g=G[lG];

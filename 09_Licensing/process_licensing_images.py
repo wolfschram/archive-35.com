@@ -90,7 +90,8 @@ def generate_gallery_catalog(base_path):
     }
 
     # Write to website data directory
-    site_root = base.parent
+    # Use resolve() to get absolute path — Path('.').parent is still '.' without it
+    site_root = base.resolve().parent
     data_dir = site_root / "data"
     data_dir.mkdir(exist_ok=True)
     output_path = data_dir / "licensing-catalog.json"

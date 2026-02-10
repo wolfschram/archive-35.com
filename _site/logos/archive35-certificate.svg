@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" width="400" height="200">
+  <rect width="400" height="200" fill="#000000"/>
+  <line x1="50" y1="30" x2="350" y2="30" stroke="#FFD700" stroke-width="0.5" opacity="0.4"/>
+  <text x="200" y="85" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="24" font-weight="200" letter-spacing="14" fill="#FFFFFF">ARCHIVE</text>
+  <line x1="130" y1="98" x2="270" y2="98" stroke="#FFD700" stroke-width="0.6" opacity="0.5"/>
+  <text x="200" y="150" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="64" font-weight="900" letter-spacing="-2" fill="#FFD700">35</text>
+  <line x1="50" y1="170" x2="350" y2="170" stroke="#FFD700" stroke-width="0.5" opacity="0.4"/>
+</svg>

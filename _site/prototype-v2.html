@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARCHIVE-35 | The Restless Eye</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════ */
+/* RESET & BASE                       */
+/* ═══════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:#0a0a0a;color:#e8e0d0;font-family:'DM Sans',sans-serif;user-select:none;-webkit-user-select:none}
+body{cursor:grab}body:active{cursor:grabbing}
+
+/* ═══════════════════════════════════ */
+/* SCENE LAYERS                       */
+/* ═══════════════════════════════════ */
+#scene{position:fixed;top:0;left:0;right:0;bottom:0;overflow:hidden}
+
+/* Table background — ChatGPT dark brushed metal */
+#table-bg{
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  background:url('ChatGPT Image Feb 9, 2026, 06_51_17 PM.png') center center/cover no-repeat;
+  filter:brightness(0.7) contrast(1.1);
+}
+
+/* Warm light pools on table */
+#light-pools{
+  position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 35% 50% at 12% 50%, rgba(60,50,30,0.35) 0%, transparent 100%),
+    radial-gradient(ellipse 25% 35% at 85% 25%, rgba(40,35,25,0.2) 0%, transparent 100%),
+    radial-gradient(ellipse 50% 40% at 45% 45%, rgba(50,42,28,0.15) 0%, transparent 100%);
+}
+
+/* Light cone from above */
+#light-cone{
+  position:absolute;top:-80px;left:0;right:0;height:450px;
+  background:url('light_cone_overlay_1920x400.png') center top/100% auto no-repeat;
+  mix-blend-mode:screen;opacity:0.5;pointer-events:none;
+}
+
+/* Light leak warm */
+#light-leak{
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  background:url('light_leak_warm_1920x1080.png') center/cover no-repeat;
+  mix-blend-mode:screen;opacity:0.08;pointer-events:none;
+}
+
+/* SVG strip path */
+#strip-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:8}
+
+/* Canister — photorealistic, left side */
+#canister{
+  position:absolute;left:1%;top:50%;transform:translateY(-52%);
+  height:50vh;max-height:520px;width:auto;
+  pointer-events:none;z-index:50;
+  filter:drop-shadow(0 10px 30px rgba(0,0,0,0.7));
+}
+
+/* Coil — photorealistic, right side */
+#coil{
+  position:absolute;right:2%;top:10%;
+  height:20vh;max-height:220px;width:auto;
+  pointer-events:none;z-index:5;
+  filter:drop-shadow(0 6px 20px rgba(0,0,0,0.6));
+}
+
+/* Film strip container — 3D perspective */
+#film-strip{
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  perspective:1600px;perspective-origin:38% 55%;
+  z-index:20;pointer-events:none;
+}
+
+/* Film edge text */
+#film-edge{
+  position:absolute;bottom:95px;left:15%;right:15%;height:24px;
+  background:url('ChatGPT Image Feb 9, 2026, 07_56_54 PM.png') center/contain repeat-x;
+  mix-blend-mode:screen;opacity:0.12;pointer-events:none;z-index:6;
+}
+
+/* Table edge shadow */
+#table-edge{
+  position:absolute;bottom:0;left:0;right:0;height:120px;
+  background:url('table_edge_shadow_3840x200.png') center bottom/100% auto no-repeat;
+  opacity:0.6;pointer-events:none;z-index:55;
+}
+
+/* Film grain (cycling) */
+#grain{
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  mix-blend-mode:overlay;opacity:0.25;pointer-events:none;z-index:56;
+}
+
+/* Vignette */
+#vignette{
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  background:radial-gradient(ellipse 70% 65% at 40% 48%, transparent 0%, rgba(0,0,0,0.55) 100%);
+  pointer-events:none;z-index:57;
+}
+
+/* ═══════════════════════════════════ */
+/* FILM FRAME                         */
+/* ═══════════════════════════════════ */
+.film-frame{
+  position:absolute;width:220px;height:310px;
+  background:#141210;border-radius:2px;
+  pointer-events:auto;cursor:pointer;
+  transform-origin:center center;will-change:transform,opacity;
+  transition:filter 0.2s;
+}
+.film-frame::after{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  border:1px solid rgba(201,168,76,0);border-radius:2px;
+  transition:border-color 0.3s,box-shadow 0.3s;pointer-events:none;
+}
+.film-frame.active::after{
+  border-color:rgba(201,168,76,0.12);
+  box-shadow:0 0 25px rgba(201,168,76,0.05);
+}
+.film-frame:hover{filter:brightness(1.05)}
+
+/* Sprocket rows */
+.sr{display:flex;justify-content:space-evenly;align-items:center;height:22px;padding:0 5px}
+.sp{
+  width:10px;height:6px;background:#080706;border-radius:1.5px;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,0.9),0 0.5px 0 rgba(201,168,76,0.02);
+}
+
+/* Photo area */
+.pa{
+  margin:3px 8px;height:198px;overflow:hidden;
+  background:#0a0908;border:1px solid rgba(30,28,24,0.6);position:relative;
+}
+.pa img{width:100%;height:100%;object-fit:cover;display:block}
+@media (max-width: 768px) { .pa img{object-fit:contain} }
+.pa .ph{width:100%;height:100%}
+
+/* Frame info */
+.fi{display:flex;justify-content:space-between;align-items:center;padding:3px 11px 0;height:24px}
+.fl{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:rgba(232,224,208,0.7)}
+.fn{font-family:'Courier Prime',monospace;font-size:8px;color:rgba(201,168,76,0.35);letter-spacing:1px}
+.fc{font-family:'Courier Prime',monospace;font-size:8px;color:rgba(201,168,76,0.25);text-align:center;padding:0 0 2px}
+
+/* Frame shadow (dynamic via JS) */
+.fs{
+  position:absolute;bottom:-12px;left:10%;right:10%;height:20px;
+  background:radial-gradient(ellipse at center,rgba(0,0,0,0.5) 0%,transparent 70%);
+  pointer-events:none;filter:blur(6px);
+}
+
+/* ═══════════════════════════════════ */
+/* HEADER                             */
+/* ═══════════════════════════════════ */
+.hdr{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px 44px;
+  background:linear-gradient(to bottom,rgba(10,10,10,0.85) 0%,rgba(10,10,10,0.3) 60%,transparent 100%);
+  pointer-events:none;
+}
+.hdr>*{pointer-events:auto}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:8px}
+.logo span{color:#c9a84c}
+.nav{display:flex;gap:28px;font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:300}
+.nav a{color:#555;text-decoration:none;transition:color 0.3s}.nav a:hover,.nav a.active{color:#c9a84c}
+
+/* ═══════════════════════════════════ */
+/* HUD                                */
+/* ═══════════════════════════════════ */
+.hud{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;padding-bottom:28px;
+  background:linear-gradient(to top,rgba(10,10,10,0.9) 0%,rgba(10,10,10,0.4) 50%,transparent 100%);
+  pointer-events:none;
+}
+.ht{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:14px;text-shadow:0 2px 30px rgba(0,0,0,0.9);transition:opacity 0.2s}
+.hc{font-family:'Courier Prime',monospace;font-size:11px;color:#c9a84c;letter-spacing:2px;margin-bottom:14px}
+.hw{display:flex;align-items:center;gap:12px;margin-bottom:5px}
+.hp{width:220px;height:2px;background:rgba(255,255,255,0.04);border-radius:1px;overflow:hidden}
+.hpf{height:100%;background:#c9a84c;border-radius:1px;transition:width 0.3s}
+.hpn{font-family:'Courier Prime',monospace;font-size:9px;color:#555;letter-spacing:2px;min-width:50px;text-align:center}
+.hh{font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.12);text-transform:uppercase;animation:br 4s ease-in-out infinite;margin-top:4px}
+@keyframes br{0%,100%{opacity:0.12}50%{opacity:0.35}}
+
+/* ═══════════════════════════════════ */
+/* VIEWFINDER CORNERS                 */
+/* ═══════════════════════════════════ */
+.vf{position:fixed;z-index:60;pointer-events:none;width:24px;height:24px;opacity:0.08}
+.vf-tl{top:10px;left:10px;border-top:1px solid #c9a84c;border-left:1px solid #c9a84c}
+.vf-tr{top:10px;right:10px;border-top:1px solid #c9a84c;border-right:1px solid #c9a84c}
+.vf-bl{bottom:10px;left:10px;border-bottom:1px solid #c9a84c;border-left:1px solid #c9a84c}
+.vf-br{bottom:10px;right:10px;border-bottom:1px solid #c9a84c;border-right:1px solid #c9a84c}
+
+/* ═══════════════════════════════════ */
+/* GALLERY OVERLAY                    */
+/* ═══════════════════════════════════ */
+.ov{
+  position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;
+  background:rgba(8,8,8,0.97);opacity:0;pointer-events:none;
+  transition:opacity 0.4s;display:flex;flex-direction:column;
+}
+.ov.open{opacity:1;pointer-events:auto}
+.ov-h{display:flex;align-items:center;justify-content:space-between;padding:20px 44px;border-bottom:1px solid rgba(255,255,255,0.04);flex-shrink:0}
+.ov-t{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:8px}
+.ov-sub{font-family:'Courier Prime',monospace;font-size:11px;color:#c9a84c;letter-spacing:2px;margin-left:20px}
+.ov-x{
+  font-family:'Courier Prime',monospace;font-size:11px;color:#c9a84c;letter-spacing:2px;
+  cursor:pointer;border:1px solid #7a6830;padding:8px 20px;background:transparent;transition:all 0.3s;
+}
+.ov-x:hover{background:#c9a84c;color:#0a0a0a}
+.ov-g{
+  flex:1;overflow-y:auto;padding:30px 44px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;align-content:start;
+}
+.ov-g::-webkit-scrollbar{width:3px}.ov-g::-webkit-scrollbar-thumb{background:#7a6830;border-radius:2px}
+.ov-i{
+  aspect-ratio:3/2;overflow:hidden;border:1px solid rgba(255,255,255,0.03);
+  cursor:pointer;transition:transform 0.3s,border-color 0.3s;
+}
+.ov-i:hover{transform:scale(1.02);border-color:rgba(201,168,76,0.25)}
+.ov-i img{width:100%;height:100%;object-fit:cover}
+
+/* Lightbox */
+.lb{
+  position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;
+  background:rgba(0,0,0,0.96);display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.3s;cursor:pointer;
+}
+.lb.open{opacity:1;pointer-events:auto}
+.lb img{max-width:92vw;max-height:92vh;object-fit:contain;filter:drop-shadow(0 4px 40px rgba(0,0,0,0.5))}
+
+/* ═══════════════════════════════════ */
+/* SETTINGS PANEL                     */
+/* ═══════════════════════════════════ */
+#settings-btn{
+  position:fixed;top:22px;right:140px;z-index:101;
+  font-family:'Courier Prime',monospace;font-size:10px;color:#555;
+  letter-spacing:2px;cursor:pointer;pointer-events:auto;
+  transition:color 0.3s;background:none;border:none;
+}
+#settings-btn:hover{color:#c9a84c}
+#settings{
+  position:fixed;top:60px;right:30px;z-index:110;
+  background:rgba(15,14,12,0.95);border:1px solid rgba(201,168,76,0.1);
+  padding:20px;width:260px;border-radius:4px;
+  font-family:'Courier Prime',monospace;font-size:10px;color:#888;letter-spacing:1px;
+  display:none;backdrop-filter:blur(10px);
+}
+#settings.open{display:block}
+#settings label{display:block;margin-bottom:12px}
+#settings label span{display:block;margin-bottom:4px;color:#c9a84c;text-transform:uppercase;letter-spacing:2px;font-size:9px}
+#settings input[type=range]{width:100%;accent-color:#c9a84c;margin-top:2px}
+
+/* Hamburger — hidden on desktop */
+.hamburger{display:none;background:none;border:none;color:#c9a84c;font-size:22px;cursor:pointer;pointer-events:auto;padding:4px 8px;line-height:1}
+
+/* ═══════════════════════════════════ */
+/* MOBILE — FULL-SCREEN CARD SWIPE   */
+/* ═══════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Header — minimal, just logo + hamburger */
+  .hdr{padding:10px 16px;background:linear-gradient(to bottom,rgba(10,10,10,0.6) 0%,transparent 100%)}
+  .logo{font-size:15px;letter-spacing:4px}
+  .hamburger{display:block}
+  .nav{
+    display:none!important;position:absolute;top:44px;right:12px;
+    flex-direction:column;gap:18px;
+    background:rgba(10,10,10,0.97);padding:20px 28px;
+    border:1px solid rgba(201,168,76,0.12);border-radius:4px;
+    backdrop-filter:blur(12px);z-index:102;
+  }
+  .nav.mob-open{display:flex!important}
+  .nav a{font-size:11px;letter-spacing:3px}
+
+  /* Kill all decorative clutter */
+  #canister,#coil{display:none!important}
+  #settings-btn,#settings{display:none!important}
+  .vf{display:none}
+  #film-edge{display:none}
+  #strip-svg{display:none}
+  #light-cone{display:none}
+  #table-edge{height:30px}
+
+  /* ── BIG FRAMES — fill the screen ── */
+  .film-frame{width:72vw;height:calc(72vw * 1.41)}
+  .pa{height:calc(72vw * 0.9);margin:3px 8px}
+  .sr{height:calc(72vw * 0.07)}
+  .sp{width:9px;height:5px}
+  .fi{padding:3px 11px 0;height:calc(72vw * 0.08)}
+  .fl{font-size:16px;letter-spacing:3px}
+  .fn{font-size:9px}
+  .fc{font-size:9px;padding:0 0 2px}
+  .fs{bottom:-10px;height:16px}
+
+  /* HUD — right below the frame, not at page bottom */
+  .hud{padding-bottom:24px}
+  .ht{font-size:36px;letter-spacing:10px}
+  .hc{font-size:10px;letter-spacing:2px;margin-bottom:10px}
+  .hp{width:50vw}
+  .hpn{font-size:9px;min-width:40px}
+  .hw{gap:10px;margin-bottom:4px}
+  .hh{font-size:8px;letter-spacing:2px}
+
+  /* Gallery overlay — touch friendly grid */
+  .ov-h{padding:12px 16px}
+  .ov-t{font-size:20px;letter-spacing:5px}
+  .ov-sub{font-size:9px;margin-left:10px}
+  .ov-x{font-size:10px;padding:8px 16px}
+  .ov-g{padding:12px;grid-template-columns:repeat(auto-fill,minmax(42vw,1fr));gap:8px}
+
+  /* Lightbox — full screen */
+  .lb img{max-width:97vw;max-height:85vh}
+
+  /* Film strip — centered perspective for card feel */
+  #film-strip{perspective:900px;perspective-origin:50% 42%}
+
+  /* Vignette — tighter for mobile */
+  #vignette{background:radial-gradient(ellipse 80% 55% at 50% 42%,transparent 0%,rgba(0,0,0,0.65) 100%)}
+}
+</style>
+</head>
+<body>
+
+<div id="scene">
+  <div id="table-bg"></div>
+  <div id="light-pools"></div>
+  <div id="light-cone"></div>
+  <div id="light-leak"></div>
+  <svg id="strip-svg"></svg>
+  <div id="film-edge"></div>
+  <img id="canister" src="" alt="">
+  <div id="film-strip"></div>
+  <img id="coil" src="" alt="">
+  <div id="table-edge"></div>
+  <div id="grain"></div>
+  <div id="vignette"></div>
+</div>
+
+<div class="vf vf-tl"></div><div class="vf vf-tr"></div>
+<div class="vf vf-bl"></div><div class="vf vf-br"></div>
+
+<header class="hdr">
+  <div class="logo">ARCHIVE<span>-35</span></div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <nav class="nav" id="main-nav">
+      <a href="index.html">Home</a>
+      <a href="gallery.html" class="active">Gallery</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<button id="settings-btn">⚙ TUNE</button>
+<div id="settings">
+  <label><span>Curve Depth</span><input type="range" id="s-curve" min="0" max="100" value="55"></label>
+  <label><span>Perspective</span><input type="range" id="s-persp" min="800" max="3000" value="1600"></label>
+  <label><span>Frame Scale</span><input type="range" id="s-scale" min="50" max="150" value="100"></label>
+  <label><span>Visible Count</span><input type="range" id="s-count" min="3" max="8" value="5"></label>
+  <label><span>Y Rotation</span><input type="range" id="s-roty" min="0" max="50" value="25"></label>
+  <label><span>Grain</span><input type="range" id="s-grain" min="0" max="50" value="25"></label>
+</div>
+
+<div class="hud">
+  <div class="ht" id="ht">—</div>
+  <div class="hc" id="hc"></div>
+  <div class="hw"><div class="hp"><div class="hpf" id="hpf"></div></div><div class="hpn" id="hpn"></div></div>
+  <div class="hh">⟵ drag to explore · click to enter gallery ⟶</div>
+</div>
+
+<div class="ov" id="ov">
+  <div class="ov-h">
+    <div style="display:flex;align-items:baseline">
+      <div class="ov-t" id="ovt"></div>
+      <div class="ov-sub" id="ovsub"></div>
+    </div>
+    <button class="ov-x" id="ovx">✕ BACK TO FILM</button>
+  </div>
+  <div class="ov-g" id="ovg"></div>
+</div>
+
+<div class="lb" id="lb"><img id="lbi" src="" alt=""></div>
+
+<script>
+// ═══════════════════════════════════
+// GALLERY DATA — loaded from photos.json
+// ═══════════════════════════════════
+let G = [];
+let N = 0;
+
+async function loadGalleryData() {
+  const resp = await fetch('data/photos.json');
+  const data = await resp.json();
+
+  // Group photos by collection, preserve order of first appearance
+  const colMap = new Map();
+  for (const p of data.photos) {
+    const c = p.collection;
+    if (!colMap.has(c)) {
+      colMap.set(c, { t: p.collectionTitle || c, dir: c, photos: [] });
+    }
+    colMap.get(c).photos.push({ thumb: p.thumbnail, full: p.full, title: p.title });
+  }
+
+  // Build gallery array
+  G = Array.from(colMap.values()).map(col => ({
+    t: col.t,
+    n: col.photos.length,
+    img: col.photos[0].thumb,   // cover image for film frame
+    photos: col.photos           // all photos for gallery overlay
+  }));
+  N = G.length;
+}
+
+// ═══════════════════════════════════
+// WHITE BACKGROUND REMOVAL
+// ═══════════════════════════════════
+function removeWhiteBg(src) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const x = c.getContext('2d');
+      x.drawImage(img, 0, 0);
+      const d = x.getImageData(0, 0, c.width, c.height);
+      const p = d.data;
+      for (let i = 0; i < p.length; i += 4) {
+        const r=p[i], g=p[i+1], b=p[i+2];
+        const brightness = (r + g + b) / 3;
+        const sat = Math.max(r,g,b) - Math.min(r,g,b);
+        if (brightness > 248 && sat < 12) {
+          p[i+3] = 0;
+        } else if (brightness > 220 && sat < 35) {
+          p[i+3] = Math.round(Math.max(0, 255 * (1 - (brightness - 220) / 28)));
+        } else if (brightness > 200 && sat < 25) {
+          p[i+3] = Math.round(Math.max(0, 255 * (1 - (brightness - 200) / 48)));
+        }
+      }
+      x.putImageData(d, 0, 0);
+      resolve(c.toDataURL('image/png'));
+    };
+    img.onerror = () => resolve(src);
+    img.src = src;
+  });
+}
+
+// ═══════════════════════════════════
+// BEZIER S-CURVE
+// ═══════════════════════════════════
+let curveDepth = 0.55;
+const P = {
+  get x() { return [0.14, 0.32, 0.70, 0.87]; },
+  get y() {
+    const d = curveDepth;
+    return [0.52, 0.52 + d * 0.22, 0.52 - d * 0.40, 0.52 - d * 0.55];
+  }
+};
+
+function cbz(t, a, b, c, d) {
+  const m = 1 - t;
+  return m*m*m*a + 3*m*m*t*b + 3*m*t*t*c + t*t*t*d;
+}
+function cbzD(t, a, b, c, d) {
+  const m = 1 - t;
+  return 3*m*m*(b-a) + 6*m*t*(c-b) + 3*t*t*(d-c);
+}
+
+function pathPt(t) {
+  const py = P.y;
+  return { x: cbz(t, P.x[0], P.x[1], P.x[2], P.x[3]), y: cbz(t, py[0], py[1], py[2], py[3]) };
+}
+function pathTan(t) {
+  const py = P.y;
+  return { dx: cbzD(t, P.x[0], P.x[1], P.x[2], P.x[3]), dy: cbzD(t, py[0], py[1], py[2], py[3]) };
+}
+
+// ═══════════════════════════════════
+// TUNABLE PARAMS
+// ═══════════════════════════════════
+let cfg = {
+  perspective: 1600,
+  scaleMult: 1.0,
+  visibleSlots: 5,
+  maxRotY: 25,
+  grain: 0.25,
+};
+
+// ═══════════════════════════════════
+// DEVICE DETECTION & MOBILE CONFIG
+// ═══════════════════════════════════
+let isMobile = window.matchMedia('(max-width: 768px)').matches;
+let isSmallPhone = window.matchMedia('(max-width: 400px)').matches;
+
+// Dynamic frame dimensions (match CSS: 72vw on mobile)
+function getFrameSize() {
+  if (isMobile) {
+    const w = Math.round(window.innerWidth * 0.72);
+    return { w, h: Math.round(w * 1.41) };
+  }
+  return { w: 220, h: 310 };
+}
+
+// Touch/drag coefficient — mobile is tuned for card-by-card snapping
+function getDragCoeff() { return isMobile ? 0.005 : 0.005; }
+
+function applyMobileConfig() {
+  isMobile = window.matchMedia('(max-width: 768px)').matches;
+  isSmallPhone = window.matchMedia('(max-width: 400px)').matches;
+  if (isMobile) {
+    cfg.perspective = 900;
+    cfg.scaleMult = 1.6;        // BIG active frame
+    cfg.visibleSlots = 2;       // only peek neighbors
+    cfg.maxRotY = 8;            // subtle rotation
+    cfg.grain = 0.10;
+    curveDepth = 0.08;          // nearly flat — keeps frames centered vertically
+    strip.style.perspective = cfg.perspective + 'px';
+    grainEl.style.opacity = cfg.grain;
+  } else {
+    cfg.perspective = 1600;
+    cfg.scaleMult = 1.0;
+    cfg.visibleSlots = 5;
+    cfg.maxRotY = 25;
+    cfg.grain = 0.25;
+    curveDepth = 0.55;
+    strip.style.perspective = cfg.perspective + 'px';
+    grainEl.style.opacity = cfg.grain;
+  }
+}
+
+// ═══════════════════════════════════
+// FRAME TRANSFORMS
+// ═══════════════════════════════════
+function frameXform(t, W, H) {
+  const tc = Math.max(0, Math.min(1, t));
+  const pt = pathPt(tc);
+  const tan = pathTan(Math.max(0.01, Math.min(0.99, tc)));
+
+  let x, y, scale, rotY, rotX, rotZ, op, z;
+
+  if (isMobile) {
+    // ── MOBILE: centered card layout ──
+    // X: center of screen, slight horizontal offset for adjacent cards
+    x = W * 0.5;
+    // Y: place frames at ~40% from top (visually centered accounting for HUD)
+    y = H * 0.40;
+
+    // Scale: active frame = full size, neighbors shrink fast
+    // tc represents position on curve, heroT is where active sits
+    const distFromHero = Math.abs(t - 0.50);
+    scale = Math.max(0.3, 1.0 - distFromHero * 2.5) * cfg.scaleMult;
+
+    // Slight Y rotation for depth peek on neighbors
+    rotY = (t - 0.50) * cfg.maxRotY * 4;
+    rotX = 0;
+    rotZ = 0;
+
+    // Opacity: active = 1, neighbors fade
+    op = Math.max(0, 1 - distFromHero * 3);
+    if (t < -0.1 || t > 1.1) op = 0;
+
+    // Z-index: active on top
+    z = 100 - Math.round(distFromHero * 100);
+
+  } else {
+    // ── DESKTOP: original bezier S-curve ──
+    x = pt.x * W;
+    y = pt.y * H;
+
+    const baseScale = 1.35 * Math.pow(Math.max(0.01, 1 - tc * 0.72), 1.4);
+    scale = baseScale * cfg.scaleMult;
+
+    rotY = -6 + tc * cfg.maxRotY;
+    rotX = tc * 10 - 2;
+    const tanAngle = Math.atan2(tan.dy, tan.dx);
+    rotZ = tanAngle * (180 / Math.PI) * 0.12;
+
+    op = 1;
+    if (t < 0) op = Math.max(0, 1 + t * 4);
+    else if (t < 0.07) op = t / 0.07;
+    else if (t > 0.93) op = Math.max(0, (1 - t) / 0.07);
+    else if (t > 1) op = Math.max(0, 1 - (t - 1) * 4);
+
+    z = Math.round((1 - tc) * 100) + 10;
+  }
+
+  return { x, y, scale, rotY, rotX, rotZ, op, z };
+}
+
+// ═══════════════════════════════════
+// BUILD FRAME DOM
+// ═══════════════════════════════════
+const strip = document.getElementById('film-strip');
+let frames = [];
+
+function buildFrames() {
+  strip.innerHTML = '';
+  frames = [];
+
+  G.forEach((g, i) => {
+    const f = document.createElement('div');
+    f.className = 'film-frame';
+    f.dataset.idx = i;
+
+    const spr = Array(9).fill('<div class="sp"></div>').join('');
+
+    f.innerHTML = `
+      <div class="sr">${spr}</div>
+      <div class="pa"><img src="${g.img}" alt="${g.t}" loading="lazy"></div>
+      <div class="fi">
+        <span class="fl">${g.t.toUpperCase()}</span>
+        <span class="fn">${String(i+1).padStart(2,'0')}A  5247</span>
+      </div>
+      <div class="fc">${g.n} photograph${g.n !== 1 ? 's' : ''}</div>
+      <div class="sr">${spr}</div>
+      <div class="fs"></div>
+    `;
+
+    f.addEventListener('click', () => { if (!dragMoved) openGallery(i); });
+    strip.appendChild(f);
+    frames.push(f);
+  });
+}
+
+// ═══════════════════════════════════
+// SCROLL / DRAG PHYSICS
+// ═══════════════════════════════════
+let scroll = 0, target = 0, vel = 0;
+let isDrag = false, dragX0 = 0, dragOff0 = 0, lastX = 0, lastT = 0, dragMoved = false;
+
+const SPACING = () => 1 / cfg.visibleSlots;
+
+document.addEventListener('mousedown', e => {
+  if (document.getElementById('ov').classList.contains('open')) return;
+  isDrag = true; dragMoved = false;
+  dragX0 = e.clientX; dragOff0 = target;
+  lastX = e.clientX; lastT = performance.now(); vel = 0;
+});
+document.addEventListener('mousemove', e => {
+  if (!isDrag) return;
+  if (Math.abs(e.clientX - dragX0) > 4) dragMoved = true;
+  const now = performance.now(), dt = now - lastT;
+  if (dt > 0) vel = (lastX - e.clientX) / dt;
+  lastX = e.clientX; lastT = now;
+  const dc = getDragCoeff();
+  target = dragOff0 - (e.clientX - dragX0) * dc;
+  target = Math.max(-1.5, Math.min(N + 0.5, target));
+});
+document.addEventListener('mouseup', () => {
+  if (!isDrag) return; isDrag = false;
+  if (isMobile) {
+    const startIdx = Math.round(dragOff0);
+    const dist = target - dragOff0;
+    if (Math.abs(vel) > 0.25 || Math.abs(dist) > 0.35) {
+      const dir = (vel > 0 || dist > 0) ? 1 : -1;
+      const advance = (Math.abs(vel) > 0.6) ? 2 : 1;
+      target = startIdx + dir * advance;
+    } else {
+      target = startIdx;
+    }
+    target = Math.max(0, Math.min(N - 1, target));
+  } else {
+    target += vel * 180 * getDragCoeff();
+    snap();
+  }
+});
+
+document.addEventListener('touchstart', e => {
+  if (document.getElementById('ov').classList.contains('open')) return;
+  isDrag = true; dragMoved = false;
+  dragX0 = e.touches[0].clientX; dragOff0 = target;
+  lastX = dragX0; lastT = performance.now(); vel = 0;
+}, {passive:true});
+document.addEventListener('touchmove', e => {
+  if (!isDrag) return;
+  const cx = e.touches[0].clientX;
+  if (Math.abs(cx - dragX0) > 4) dragMoved = true;
+  const now = performance.now(), dt = now - lastT;
+  if (dt > 0) vel = (lastX - cx) / dt;
+  lastX = cx; lastT = now;
+  const dc = getDragCoeff();
+  target = dragOff0 - (cx - dragX0) * dc;
+  target = Math.max(-1.5, Math.min(N + 0.5, target));
+}, {passive:true});
+document.addEventListener('touchend', () => {
+  if (!isDrag) return; isDrag = false;
+  if (isMobile) {
+    // Card-by-card snap: swipe advances exactly 1 card (max 2 on hard flick)
+    const startIdx = Math.round(dragOff0);
+    const dist = target - dragOff0;
+    if (Math.abs(vel) > 0.25 || Math.abs(dist) > 0.35) {
+      // Intentional swipe — advance 1 card, or 2 on very hard flick
+      const dir = (vel > 0 || dist > 0) ? 1 : -1;
+      const advance = (Math.abs(vel) > 0.6) ? 2 : 1;
+      target = startIdx + dir * advance;
+    } else {
+      // Small drag — snap back to where we started
+      target = startIdx;
+    }
+    target = Math.max(0, Math.min(N - 1, target));
+  } else {
+    target += vel * 180 * getDragCoeff();
+    snap();
+  }
+});
+
+document.addEventListener('wheel', e => {
+  if (document.getElementById('ov').classList.contains('open')) return;
+  e.preventDefault();
+  target += (e.deltaY + e.deltaX) * 0.004;
+  target = Math.max(-0.5, Math.min(N - 0.5, target));
+  clearTimeout(document._snt);
+  document._snt = setTimeout(snap, 220);
+}, {passive:false});
+
+document.addEventListener('keydown', e => {
+  if (document.getElementById('ov').classList.contains('open')) {
+    if (e.key === 'Escape') closeGallery(); return;
+  }
+  if (e.key === 'ArrowRight') target = Math.min(N - 1, Math.round(target) + 1);
+  else if (e.key === 'ArrowLeft') target = Math.max(0, Math.round(target) - 1);
+  else if (e.key === 'Enter') openGallery(activeIdx());
+});
+
+function snap() {
+  target = Math.max(0, Math.min(N - 1, target));
+  target = Math.round(target);
+}
+function activeIdx() {
+  return Math.max(0, Math.min(N - 1, Math.round(scroll)));
+}
+
+// ═══════════════════════════════════
+// SVG STRIP PATH
+// ═══════════════════════════════════
+const svg = document.getElementById('strip-svg');
+
+function drawStrip(W, H) {
+  if (isMobile) { svg.innerHTML = ''; return; } // no strip path on mobile
+  const py = P.y;
+  const x0 = P.x[0]*W - 50, y0 = py[0]*H;
+  const x1 = P.x[1]*W, y1 = py[1]*H;
+  const x2 = P.x[2]*W, y2 = py[2]*H;
+  const x3 = P.x[3]*W + 50, y3 = py[3]*H;
+
+  let html = `
+    <defs>
+      <filter id="ss" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
+        <feOffset dy="6"/><feComponentTransfer><feFuncA type="linear" slope="0.45"/></feComponentTransfer>
+        <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <path d="M ${x0} ${y0} C ${x1} ${y1}, ${x2} ${y2}, ${x3} ${y3}"
+          fill="none" stroke="#100f0d" stroke-width="${isMobile ? 16 : 24}" stroke-linecap="round" filter="url(#ss)" opacity="0.55"/>
+    <path d="M ${x0} ${y0} C ${x1} ${y1}, ${x2} ${y2}, ${x3} ${y3}"
+          fill="none" stroke="#1a1816" stroke-width="${isMobile ? 12 : 20}" stroke-linecap="round" opacity="0.45"/>
+  `;
+
+  // Sprocket holes along curve
+  for (let t = 0.01; t < 0.99; t += 0.015) {
+    const pt = pathPt(t);
+    const tan = pathTan(t);
+    const a = Math.atan2(tan.dy, tan.dx);
+    const px = -Math.sin(a) * 8.5, py2 = Math.cos(a) * 8.5;
+    html += `<circle cx="${pt.x*W+px}" cy="${pt.y*H+py2}" r="1.3" fill="#080706" opacity="0.35"/>`;
+    html += `<circle cx="${pt.x*W-px}" cy="${pt.y*H-py2}" r="1.3" fill="#080706" opacity="0.35"/>`;
+  }
+
+  svg.innerHTML = html;
+}
+
+// ═══════════════════════════════════
+// RENDER LOOP
+// ═══════════════════════════════════
+const htEl = document.getElementById('ht');
+const hcEl = document.getElementById('hc');
+const hpfEl = document.getElementById('hpf');
+const hpnEl = document.getElementById('hpn');
+let W = window.innerWidth, H = window.innerHeight;
+
+function render() {
+  const ease = isDrag ? 0.25 : (isMobile ? 0.14 : 0.075);
+  scroll += (target - scroll) * ease;
+  const ai = activeIdx();
+  const sp = SPACING();
+  const heroT = isMobile ? 0.50 : 0.32; // mobile: dead center; desktop: left-biased
+  const fs = getFrameSize();
+  const halfW = fs.w / 2;
+  const halfH = fs.h / 2;
+
+  for (let i = 0; i < N; i++) {
+    const t = (i - scroll) * sp + heroT;
+    const f = frames[i];
+
+    if (t < -0.18 || t > 1.18) {
+      f.style.display = 'none';
+      continue;
+    }
+
+    f.style.display = 'block';
+    const xf = frameXform(t, W, H);
+
+    f.style.left = (xf.x - halfW) + 'px';
+    f.style.top = (xf.y - halfH) + 'px';
+    f.style.transform = `scale(${xf.scale}) rotateY(${xf.rotY}deg) rotateX(${xf.rotX}deg) rotateZ(${xf.rotZ}deg)`;
+    f.style.opacity = xf.op;
+    f.style.zIndex = xf.z;
+
+    // Dynamic shadow
+    const shadow = f.querySelector('.fs');
+    if (shadow) {
+      shadow.style.opacity = 0.3 + xf.scale * 0.3;
+      shadow.style.transform = `scaleX(${0.5 + xf.scale * 0.5})`;
+    }
+
+    if (i === ai) f.classList.add('active');
+    else f.classList.remove('active');
+  }
+
+  // HUD
+  const g = G[ai];
+  if (g) {
+    htEl.textContent = g.t.toUpperCase();
+    hcEl.textContent = g.n + ' photograph' + (g.n !== 1 ? 's' : '');
+    hpfEl.style.width = (ai / (N - 1) * 100) + '%';
+    hpnEl.textContent = (ai + 1) + ' / ' + N;
+  }
+
+  requestAnimationFrame(render);
+}
+
+// ═══════════════════════════════════
+// GALLERY OVERLAY
+// ═══════════════════════════════════
+function openGallery(idx) {
+  const g = G[idx];
+  const ov = document.getElementById('ov');
+  document.getElementById('ovt').textContent = g.t.toUpperCase();
+  document.getElementById('ovsub').textContent = g.n + ' photograph' + (g.n !== 1 ? 's' : '');
+  const grid = document.getElementById('ovg');
+  grid.innerHTML = '';
+
+  g.photos.forEach((photo, i) => {
+    const d = document.createElement('div');
+    d.className = 'ov-i';
+    d.innerHTML = `<img src="${photo.thumb}" alt="${photo.title || g.t + ' ' + (i+1)}" loading="lazy">`;
+    d.addEventListener('click', () => {
+      document.getElementById('lbi').src = photo.full;
+      document.getElementById('lb').classList.add('open');
+    });
+    grid.appendChild(d);
+  });
+  ov.classList.add('open');
+}
+
+function closeGallery() { document.getElementById('ov').classList.remove('open'); }
+document.getElementById('ovx').addEventListener('click', closeGallery);
+document.getElementById('ov').addEventListener('click', e => { if (e.target.id === 'ov') closeGallery(); });
+document.getElementById('lb').addEventListener('click', () => { document.getElementById('lb').classList.remove('open'); });
+
+// ═══════════════════════════════════
+// FILM GRAIN CYCLE
+// ═══════════════════════════════════
+const grainFrames = ['grain_frame_01.png','grain_frame_02.png','grain_frame_03.png','grain_frame_04.png'];
+let grainIdx = 0;
+const grainEl = document.getElementById('grain');
+setInterval(() => {
+  grainIdx = (grainIdx + 1) % grainFrames.length;
+  grainEl.style.backgroundImage = `url('${grainFrames[grainIdx]}')`;
+  grainEl.style.backgroundSize = 'cover';
+}, 120);
+
+// ═══════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════
+document.getElementById('settings-btn').addEventListener('click', () => {
+  document.getElementById('settings').classList.toggle('open');
+});
+
+function bindSetting(id, cb) {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { cb(+el.value); drawStrip(W, H); });
+}
+bindSetting('s-curve', v => { curveDepth = v / 100; });
+bindSetting('s-persp', v => {
+  cfg.perspective = v;
+  strip.style.perspective = v + 'px';
+});
+bindSetting('s-scale', v => { cfg.scaleMult = v / 100; });
+bindSetting('s-count', v => { cfg.visibleSlots = v; });
+bindSetting('s-roty', v => { cfg.maxRotY = v; });
+bindSetting('s-grain', v => {
+  cfg.grain = v / 100;
+  grainEl.style.opacity = cfg.grain;
+});
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+async function init() {
+  // Load gallery data from photos.json
+  await loadGalleryData();
+  buildFrames();
+
+  // Process canister + coil: remove white backgrounds (desktop only)
+  if (!isMobile) {
+    const [canSrc, coilSrc] = await Promise.all([
+      removeWhiteBg('ChatGPT Image Feb 9, 2026, 06_52_14 PM.png'),
+      removeWhiteBg('ChatGPT Image Feb 9, 2026, 07_31_12 PM.png'),
+    ]);
+    document.getElementById('canister').src = canSrc;
+    document.getElementById('coil').src = coilSrc;
+  }
+
+  // Draw SVG strip
+  drawStrip(W, H);
+
+  // Start render
+  render();
+}
+
+window.addEventListener('resize', () => {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  applyMobileConfig();
+  drawStrip(W, H);
+});
+
+// ═══════════════════════════════════
+// HAMBURGER MENU
+// ═══════════════════════════════════
+document.getElementById('hamburger').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('main-nav').classList.toggle('mob-open');
+});
+document.addEventListener('click', () => {
+  document.getElementById('main-nav').classList.remove('mob-open');
+});
+
+// Apply mobile config on load
+applyMobileConfig();
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "id": "chicago",
+  "title": "Chicago",
+  "slug": "chicago",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "USA",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 6
+}

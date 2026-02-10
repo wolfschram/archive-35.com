@@ -1,0 +1,16 @@
+{
+  "id": "iceland",
+  "title": "Iceland",
+  "slug": "iceland",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 67
+}

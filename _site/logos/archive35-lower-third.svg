@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 120" width="1920" height="120">
+  <rect width="1920" height="120" fill="#000000" opacity="0.85"/>
+  <line x1="0" y1="0" x2="1920" y2="0" stroke="#FFD700" stroke-width="2"/>
+  <text x="80" y="75" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="32" font-weight="200" letter-spacing="10" fill="#FFFFFF">ARCHIVE</text>
+  <line x1="305" y1="45" x2="305" y2="85" stroke="#FFD700" stroke-width="1" opacity="0.5"/>
+  <text x="340" y="78" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="42" font-weight="900" letter-spacing="-1" fill="#FFD700">35</text>
+</svg>

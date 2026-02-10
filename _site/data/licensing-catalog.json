@@ -1,0 +1,1546 @@
+{
+  "generated_at": "2026-02-10T20:53:49.975262+00:00",
+  "total_images": 45,
+  "classifications": {
+    "ULTRA": {
+      "min_width": 15000,
+      "badge_color": "#c9a84c",
+      "label": "ULTRA"
+    },
+    "PREMIUM": {
+      "min_width": 8000,
+      "badge_color": "#b0b0b0",
+      "label": "PREMIUM"
+    },
+    "STANDARD": {
+      "min_width": 4000,
+      "badge_color": "#cd7f32",
+      "label": "STANDARD"
+    }
+  },
+  "tiers": {
+    "web_social": {
+      "name": "Web / Social",
+      "duration": "1 year",
+      "geography": "Worldwide",
+      "max_users": 5
+    },
+    "editorial": {
+      "name": "Editorial",
+      "duration": "1 year",
+      "geography": "Worldwide",
+      "max_users": 5
+    },
+    "commercial_print": {
+      "name": "Commercial Print",
+      "duration": "2 years",
+      "geography": "Worldwide",
+      "max_users": 10
+    },
+    "billboard_ooh": {
+      "name": "Billboard / OOH",
+      "duration": "1 year",
+      "geography": "Worldwide",
+      "max_users": 10
+    },
+    "hospitality": {
+      "name": "Hospitality",
+      "duration": "Perpetual",
+      "geography": "Worldwide",
+      "max_users": "Unlimited"
+    },
+    "exclusive": {
+      "name": "Exclusive",
+      "duration": "2-5 years (negotiated)",
+      "geography": "Worldwide",
+      "max_users": "Unlimited"
+    }
+  },
+  "images": [
+    {
+      "id": "A35-20260210-0001",
+      "title": "IMG_0140-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 27985,
+      "height": 11199,
+      "megapixels": 313.4,
+      "file_size_mb": 71.3,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0001.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0001.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 93.3,
+        "height_in": 37.3,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 186.6,
+        "height_in": 74.7,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0002",
+      "title": "WOLF1974-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 31714,
+      "height": 7907,
+      "megapixels": 250.8,
+      "file_size_mb": 65.5,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0002.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0002.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 105.7,
+        "height_in": 26.4,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 211.4,
+        "height_in": 52.7,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0003",
+      "title": "WOLF2375-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 19396,
+      "height": 6324,
+      "megapixels": 122.7,
+      "file_size_mb": 55.5,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0003.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0003.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 64.7,
+        "height_in": 21.1,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 129.3,
+        "height_in": 42.2,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0004",
+      "title": "WOLF2492-Pano.jpg",
+      "classification": "PREMIUM",
+      "width": 10000,
+      "height": 4183,
+      "megapixels": 41.8,
+      "file_size_mb": 33.4,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0004.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0004.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 33.3,
+        "height_in": 13.9,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 66.7,
+        "height_in": 27.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0005",
+      "title": "WOLF2901-Pano.jpg",
+      "classification": "PREMIUM",
+      "width": 11901,
+      "height": 5900,
+      "megapixels": 70.2,
+      "file_size_mb": 45.5,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0005.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0005.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 39.7,
+        "height_in": 19.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 79.3,
+        "height_in": 39.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0006",
+      "title": "WOLF2943-Pano.jpg",
+      "classification": "PREMIUM",
+      "width": 14989,
+      "height": 5976,
+      "megapixels": 89.6,
+      "file_size_mb": 54.2,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0006.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0006.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 50.0,
+        "height_in": 19.9,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 99.9,
+        "height_in": 39.8,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0007",
+      "title": "WOLF2997-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 15917,
+      "height": 7892,
+      "megapixels": 125.6,
+      "file_size_mb": 76.8,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0007.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0007.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 53.1,
+        "height_in": 26.3,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 106.1,
+        "height_in": 52.6,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0008",
+      "title": "WOLF3044-Pano.jpg",
+      "classification": "PREMIUM",
+      "width": 12969,
+      "height": 8096,
+      "megapixels": 105.0,
+      "file_size_mb": 83.2,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0008.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0008.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 43.2,
+        "height_in": 27.0,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 86.5,
+        "height_in": 54.0,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0009",
+      "title": "WOLF3219-Pano.jpg",
+      "classification": "PREMIUM",
+      "width": 10802,
+      "height": 4689,
+      "megapixels": 50.7,
+      "file_size_mb": 36.5,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0009.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0009.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 36.0,
+        "height_in": 15.6,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 72.0,
+        "height_in": 31.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0010",
+      "title": "WOLF3446-Edit.jpg",
+      "classification": "PREMIUM",
+      "width": 13107,
+      "height": 5464,
+      "megapixels": 71.6,
+      "file_size_mb": 22.3,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0010.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0010.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 43.7,
+        "height_in": 18.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 87.4,
+        "height_in": 36.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0011",
+      "title": "WOLF3501-Pano.jpg",
+      "classification": "PREMIUM",
+      "width": 11365,
+      "height": 4806,
+      "megapixels": 54.6,
+      "file_size_mb": 33.4,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0011.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0011.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 37.9,
+        "height_in": 16.0,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 75.8,
+        "height_in": 32.0,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0012",
+      "title": "WOLF3537-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 16259,
+      "height": 6659,
+      "megapixels": 108.3,
+      "file_size_mb": 64.6,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0012.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0012.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 54.2,
+        "height_in": 22.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 108.4,
+        "height_in": 44.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0013",
+      "title": "WOLF3565-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 20078,
+      "height": 9955,
+      "megapixels": 199.9,
+      "file_size_mb": 95.4,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0013.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0013.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 66.9,
+        "height_in": 33.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 133.9,
+        "height_in": 66.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0014",
+      "title": "WOLF3592-Pano.jpg",
+      "classification": "PREMIUM",
+      "width": 11640,
+      "height": 6694,
+      "megapixels": 77.9,
+      "file_size_mb": 45.3,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0014.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0014.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 38.8,
+        "height_in": 22.3,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 77.6,
+        "height_in": 44.6,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0015",
+      "title": "WOLF3746-Edit.jpg",
+      "classification": "PREMIUM",
+      "width": 13107,
+      "height": 5464,
+      "megapixels": 71.6,
+      "file_size_mb": 21.6,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0015.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0015.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 43.7,
+        "height_in": 18.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 87.4,
+        "height_in": 36.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0016",
+      "title": "WOLF3753-Edit.jpg",
+      "classification": "PREMIUM",
+      "width": 13107,
+      "height": 5464,
+      "megapixels": 71.6,
+      "file_size_mb": 24.2,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0016.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0016.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 43.7,
+        "height_in": 18.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 87.4,
+        "height_in": 36.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0017",
+      "title": "WOLF3768-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 23883,
+      "height": 7355,
+      "megapixels": 175.7,
+      "file_size_mb": 97.9,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0017.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0017.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 79.6,
+        "height_in": 24.5,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 159.2,
+        "height_in": 49.0,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0018",
+      "title": "WOLF3850-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 27149,
+      "height": 7654,
+      "megapixels": 207.8,
+      "file_size_mb": 102.3,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0018.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0018.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 90.5,
+        "height_in": 25.5,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 181.0,
+        "height_in": 51.0,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0019",
+      "title": "WOLF3921-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 18927,
+      "height": 6421,
+      "megapixels": 121.5,
+      "file_size_mb": 45.0,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0019.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0019.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 63.1,
+        "height_in": 21.4,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 126.2,
+        "height_in": 42.8,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0020",
+      "title": "WOLF4187-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 22895,
+      "height": 7812,
+      "megapixels": 178.9,
+      "file_size_mb": 107.3,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0020.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0020.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 76.3,
+        "height_in": 26.0,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 152.6,
+        "height_in": 52.1,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0021",
+      "title": "WOLF4427-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 16818,
+      "height": 7989,
+      "megapixels": 134.4,
+      "file_size_mb": 61.8,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0021.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0021.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 56.1,
+        "height_in": 26.6,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 112.1,
+        "height_in": 53.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0022",
+      "title": "WOLF4438-Edit.jpg",
+      "classification": "PREMIUM",
+      "width": 13107,
+      "height": 5464,
+      "megapixels": 71.6,
+      "file_size_mb": 25.6,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0022.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0022.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 43.7,
+        "height_in": 18.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 87.4,
+        "height_in": 36.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0023",
+      "title": "WOLF4448-Edit.jpg",
+      "classification": "PREMIUM",
+      "width": 13107,
+      "height": 5464,
+      "megapixels": 71.6,
+      "file_size_mb": 30.0,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0023.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0023.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 43.7,
+        "height_in": 18.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 87.4,
+        "height_in": 36.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0024",
+      "title": "WOLF4460-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 15496,
+      "height": 5781,
+      "megapixels": 89.6,
+      "file_size_mb": 52.1,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0024.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0024.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 51.7,
+        "height_in": 19.3,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 103.3,
+        "height_in": 38.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0025",
+      "title": "WOLF4530-Pano.jpg",
+      "classification": "PREMIUM",
+      "width": 12989,
+      "height": 6635,
+      "megapixels": 86.2,
+      "file_size_mb": 47.4,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0025.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0025.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 43.3,
+        "height_in": 22.1,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 86.6,
+        "height_in": 44.2,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0026",
+      "title": "WOLF4557-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 15210,
+      "height": 6815,
+      "megapixels": 103.7,
+      "file_size_mb": 56.6,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0026.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0026.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 50.7,
+        "height_in": 22.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 101.4,
+        "height_in": 45.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0027",
+      "title": "WOLF4675-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 25677,
+      "height": 6636,
+      "megapixels": 170.4,
+      "file_size_mb": 73.2,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0027.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0027.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 85.6,
+        "height_in": 22.1,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 171.2,
+        "height_in": 44.2,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0028",
+      "title": "WOLF4712-Pano.jpg",
+      "classification": "PREMIUM",
+      "width": 12115,
+      "height": 4819,
+      "megapixels": 58.4,
+      "file_size_mb": 31.4,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0028.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0028.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 40.4,
+        "height_in": 16.1,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 80.8,
+        "height_in": 32.1,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0029",
+      "title": "WOLF4745-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 15317,
+      "height": 6661,
+      "megapixels": 102.0,
+      "file_size_mb": 62.0,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0029.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0029.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 51.1,
+        "height_in": 22.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 102.1,
+        "height_in": 44.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0030",
+      "title": "WOLF4783-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 19907,
+      "height": 8032,
+      "megapixels": 159.9,
+      "file_size_mb": 74.8,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0030.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0030.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 66.4,
+        "height_in": 26.8,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 132.7,
+        "height_in": 53.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0031",
+      "title": "WOLF4838-Pano.jpg",
+      "classification": "PREMIUM",
+      "width": 11876,
+      "height": 6220,
+      "megapixels": 73.9,
+      "file_size_mb": 37.7,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0031.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0031.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 39.6,
+        "height_in": 20.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 79.2,
+        "height_in": 41.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0032",
+      "title": "WOLF4872-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 23885,
+      "height": 7307,
+      "megapixels": 174.5,
+      "file_size_mb": 107.3,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0032.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0032.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 79.6,
+        "height_in": 24.4,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 159.2,
+        "height_in": 48.7,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0033",
+      "title": "WOLF4924.jpg",
+      "classification": "PREMIUM",
+      "width": 8134,
+      "height": 3510,
+      "megapixels": 28.6,
+      "file_size_mb": 10.8,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0033.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0033.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 27.1,
+        "height_in": 11.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 54.2,
+        "height_in": 23.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0034",
+      "title": "WOLF6535-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 19791,
+      "height": 7247,
+      "megapixels": 143.4,
+      "file_size_mb": 72.8,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0034.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0034.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 66.0,
+        "height_in": 24.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 131.9,
+        "height_in": 48.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0035",
+      "title": "WOLF6651.jpg",
+      "classification": "PREMIUM",
+      "width": 13107,
+      "height": 5464,
+      "megapixels": 71.6,
+      "file_size_mb": 31.2,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0035.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0035.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 43.7,
+        "height_in": 18.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 87.4,
+        "height_in": 36.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0036",
+      "title": "WOLF6698-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 23832,
+      "height": 10894,
+      "megapixels": 259.6,
+      "file_size_mb": 125.5,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0036.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0036.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 79.4,
+        "height_in": 36.3,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 158.9,
+        "height_in": 72.6,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0037",
+      "title": "WOLF6797-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 16402,
+      "height": 4639,
+      "megapixels": 76.1,
+      "file_size_mb": 47.8,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0037.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0037.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 54.7,
+        "height_in": 15.5,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 109.3,
+        "height_in": 30.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0038",
+      "title": "WOLF6872-Pano.jpg",
+      "classification": "PREMIUM",
+      "width": 11877,
+      "height": 4973,
+      "megapixels": 59.1,
+      "file_size_mb": 28.9,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0038.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0038.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 39.6,
+        "height_in": 16.6,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 79.2,
+        "height_in": 33.2,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0039",
+      "title": "WOLF7261-Pano.jpg",
+      "classification": "PREMIUM",
+      "width": 13560,
+      "height": 6197,
+      "megapixels": 84.0,
+      "file_size_mb": 41.7,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0039.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0039.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 45.2,
+        "height_in": 20.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 90.4,
+        "height_in": 41.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0040",
+      "title": "WOLF7271-Pano.jpg",
+      "classification": "ULTRA",
+      "width": 18300,
+      "height": 8992,
+      "megapixels": 164.6,
+      "file_size_mb": 68.6,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0040.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0040.jpg",
+      "starting_price": 500,
+      "pricing": {
+        "web_social": 500,
+        "editorial": 1000,
+        "commercial_print": 2000,
+        "billboard_ooh": 3500,
+        "hospitality": 5000,
+        "exclusive": 15000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 61.0,
+        "height_in": 30.0,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 122.0,
+        "height_in": 59.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0041",
+      "title": "WOLF7301.jpg",
+      "classification": "PREMIUM",
+      "width": 13107,
+      "height": 5464,
+      "megapixels": 71.6,
+      "file_size_mb": 33.7,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0041.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0041.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 43.7,
+        "height_in": 18.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 87.4,
+        "height_in": 36.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0042",
+      "title": "WOLF7406-Pano.jpg",
+      "classification": "PREMIUM",
+      "width": 11224,
+      "height": 4797,
+      "megapixels": 53.8,
+      "file_size_mb": 21.1,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0042.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0042.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 37.4,
+        "height_in": 16.0,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 74.8,
+        "height_in": 32.0,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0043",
+      "title": "WOLF7450.jpg",
+      "classification": "PREMIUM",
+      "width": 13107,
+      "height": 5464,
+      "megapixels": 71.6,
+      "file_size_mb": 29.5,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0043.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0043.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 43.7,
+        "height_in": 18.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 87.4,
+        "height_in": 36.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0044",
+      "title": "WOLF7451.jpg",
+      "classification": "PREMIUM",
+      "width": 13107,
+      "height": 5464,
+      "megapixels": 71.6,
+      "file_size_mb": 29.1,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0044.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0044.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 43.7,
+        "height_in": 18.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 87.4,
+        "height_in": 36.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260210-0045",
+      "title": "WOLF7470.jpg",
+      "classification": "PREMIUM",
+      "width": 13107,
+      "height": 5464,
+      "megapixels": 71.6,
+      "file_size_mb": 33.9,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260210-0045.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260210-0045.jpg",
+      "starting_price": 400,
+      "pricing": {
+        "web_social": 400,
+        "editorial": 750,
+        "commercial_print": 1500,
+        "billboard_ooh": 2500,
+        "hospitality": 3500,
+        "exclusive": 10000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 43.7,
+        "height_in": 18.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 87.4,
+        "height_in": 36.4,
+        "dpi": 150
+      }
+    }
+  ]
+}

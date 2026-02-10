@@ -19,6 +19,10 @@ cp CNAME _site/ 2>/dev/null || true
 # Copy static assets (includes analytics.js)
 cp -r css js images data logos _site/ 2>/dev/null || true
 
+# Copy prototype gallery assets (thumbs, labels, textures)
+cp -r prototype _site/ 2>/dev/null || true
+cp *.png _site/ 2>/dev/null || true
+
 # Copy favicon
 cp favicon.svg _site/ 2>/dev/null || true
 

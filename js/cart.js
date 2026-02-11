@@ -50,6 +50,17 @@ class ShoppingCart {
       return false;
     }
 
+    // Validate metadata for checkout integrity
+    if (!item.metadata) {
+      console.warn('[ARCHIVE-35] Cart item missing metadata object — checkout may have incomplete fulfillment data:', item.photoId);
+    } else {
+      const required = ['photoId', 'material', 'width', 'height'];
+      const missing = required.filter(f => !item.metadata[f]);
+      if (missing.length > 0) {
+        console.warn('[ARCHIVE-35] Cart item metadata incomplete:', missing.join(', '), 'for', item.photoId);
+      }
+    }
+
     // Add to cart array
     this.cart.push({
       id: this.generateItemId(),

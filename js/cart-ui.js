@@ -294,21 +294,45 @@ class CartUI {
       quantity: 1
     }));
 
-    // Build Pictorem metadata from first item (webhook handles per-item from line_item metadata)
+    // Build Pictorem metadata with robust fallbacks (never null)
     const firstItem = items[0];
-    const pictorem = firstItem.metadata ? {
-      photoId: firstItem.metadata.photoId || firstItem.photoId,
-      photoTitle: firstItem.title,
-      photoFilename: firstItem.metadata.photoFilename || firstItem.photoId,
-      material: firstItem.metadata.material || '',
-      dimensions: {
-        width: parseInt(firstItem.metadata.width) || 0,
-        height: parseInt(firstItem.metadata.height) || 0,
-        originalWidth: parseInt(firstItem.metadata.originalPhotoWidth) || 0,
-        originalHeight: parseInt(firstItem.metadata.originalPhotoHeight) || 0,
-        dpi: parseInt(firstItem.metadata.dpi) || 0
+    const meta = firstItem.metadata || {};
+
+    // Parse size string (e.g., "24 × 16") for fallback dimensions
+    let fallbackWidth = 0, fallbackHeight = 0;
+    if (firstItem.size) {
+      const sizeParts = firstItem.size.replace(/["\s]/g, '').split(/[x×]/i);
+      if (sizeParts.length === 2) {
+        fallbackWidth = parseInt(sizeParts[0]) || 0;
+        fallbackHeight = parseInt(sizeParts[1]) || 0;
       }
-    } : null;
+    }
+
+    const pictorem = {
+      photoId: meta.photoId || firstItem.photoId || 'unknown',
+      photoTitle: firstItem.title || 'Untitled',
+      photoFilename: meta.photoFilename || meta.photoId || firstItem.photoId || 'unknown',
+      material: meta.material || firstItem.material || '',
+      dimensions: {
+        width: parseInt(meta.width) || fallbackWidth,
+        height: parseInt(meta.height) || fallbackHeight,
+        originalWidth: parseInt(meta.originalPhotoWidth) || 0,
+        originalHeight: parseInt(meta.originalPhotoHeight) || 0,
+        dpi: parseInt(meta.dpi) || 0
+      }
+    };
+
+    // Pre-checkout validation — log warnings for missing critical fields
+    const missingFields = [];
+    if (!pictorem.photoId || pictorem.photoId === 'unknown') missingFields.push('photoId');
+    if (!pictorem.material) missingFields.push('material');
+    if (!pictorem.dimensions.width) missingFields.push('printWidth');
+    if (!pictorem.dimensions.height) missingFields.push('printHeight');
+    if (missingFields.length > 0) {
+      console.warn('[ARCHIVE-35] Checkout metadata incomplete:', missingFields.join(', '), pictorem);
+    } else {
+      console.log('[ARCHIVE-35] Checkout metadata validated OK:', pictorem.photoId, pictorem.material);
+    }
 
     const checkoutBtn = document.getElementById('cart-checkout-btn');
     if (checkoutBtn) {

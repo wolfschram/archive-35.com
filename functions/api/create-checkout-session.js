@@ -92,6 +92,18 @@ export async function onRequestPost(context) {
       params.append('metadata[originalWidth]', String(pictorem.dimensions?.originalWidth || ''));
       params.append('metadata[originalHeight]', String(pictorem.dimensions?.originalHeight || ''));
       params.append('metadata[dpi]', String(pictorem.dimensions?.dpi || ''));
+
+      // Server-side validation checkpoint
+      const missing = [];
+      if (!pictorem.photoId) missing.push('photoId');
+      if (!pictorem.material) missing.push('material');
+      if (!pictorem.dimensions?.width) missing.push('printWidth');
+      if (!pictorem.dimensions?.height) missing.push('printHeight');
+      if (missing.length > 0) {
+        console.warn('Checkout session: incomplete Pictorem metadata:', missing.join(', '));
+      }
+    } else {
+      console.warn('Checkout session: NO pictorem metadata provided — webhook will reject this order');
     }
     // Store item count for webhook multi-item handling
     params.append('metadata[itemCount]', lineItems.length.toString());

@@ -502,8 +502,17 @@ export async function onRequestPost(context) {
     const photoTitle = metadata.photoTitle || photoId;
 
     if (!photoId || !material || !printWidth || !printHeight) {
-      console.error('Missing order metadata:', metadata);
-      return new Response(JSON.stringify({ error: 'Missing order metadata' }), {
+      const missing = [];
+      if (!photoId) missing.push('photoId');
+      if (!material) missing.push('material');
+      if (!printWidth) missing.push('printWidth');
+      if (!printHeight) missing.push('printHeight');
+      console.error('Missing order metadata fields:', missing.join(', '), '| Full metadata:', JSON.stringify(metadata));
+      return new Response(JSON.stringify({
+        error: 'Missing order metadata',
+        missingFields: missing,
+        receivedMetadata: Object.keys(metadata || {})
+      }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });

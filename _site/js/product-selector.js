@@ -110,31 +110,31 @@ const ASPECT_RATIO_CATEGORIES = {
 const MATERIALS = {
   canvas: {
     name: 'Canvas',
-    basePrice: 105,
+    basePrice: 82,
     maxInches: 2400,
     description: 'Museum-quality canvas wrap with professional stretching'
   },
   metal: {
     name: 'Metal',
-    basePrice: 130,
+    basePrice: 99,
     maxInches: 2400,
     description: 'Vibrant metal print with aluminum coating'
   },
   acrylic: {
     name: 'Acrylic',
-    basePrice: 195,
+    basePrice: 149,
     maxInches: 2400,
     description: 'Premium acrylic with stunning color depth'
   },
   paper: {
     name: 'Fine Art Paper',
-    basePrice: 60,
+    basePrice: 45,
     maxInches: 2400,
     description: 'Archival fine art paper with matte finish'
   },
   wood: {
     name: 'Wood',
-    basePrice: 120,
+    basePrice: 92,
     maxInches: 2400,
     description: 'Rustic wood print on premium plywood'
   }
@@ -238,12 +238,12 @@ const LICENSE_TIERS = {
 };
 
 const LICENSE_PRICING = {
-  web_social:       { STANDARD: 250,  PREMIUM: 400,  ULTRA: 500 },
-  editorial:        { STANDARD: 500,  PREMIUM: 750,  ULTRA: 1000 },
-  commercial_print: { STANDARD: 1000, PREMIUM: 1500, ULTRA: 2000 },
-  billboard_ooh:    { STANDARD: 1500, PREMIUM: 2500, ULTRA: 3500 },
-  hospitality:      { STANDARD: 2000, PREMIUM: 3500, ULTRA: 5000 },
-  exclusive:        { STANDARD: 5000, PREMIUM: 10000, ULTRA: 15000 }
+  web_social:       { STANDARD: 175,  PREMIUM: 280,  ULTRA: 350 },
+  editorial:        { STANDARD: 350,  PREMIUM: 525,  ULTRA: 700 },
+  commercial_print: { STANDARD: 700,  PREMIUM: 1050, ULTRA: 1400 },
+  billboard_ooh:    { STANDARD: 1050, PREMIUM: 1750, ULTRA: 2450 },
+  hospitality:      { STANDARD: 1400, PREMIUM: 2450, ULTRA: 3500 },
+  exclusive:        { STANDARD: 3500, PREMIUM: 7000, ULTRA: 10500 }
 };
 
 function classifyForLicensing(width) {

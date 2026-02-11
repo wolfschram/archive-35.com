@@ -15,11 +15,11 @@
 const ACP_VERSION = '2025-09-29';
 
 const MATERIALS = {
-  canvas: { name: 'Canvas', basePrice: 105 },
-  metal: { name: 'Metal', basePrice: 130 },
-  acrylic: { name: 'Acrylic', basePrice: 195 },
-  paper: { name: 'Fine Art Paper', basePrice: 60 },
-  wood: { name: 'Wood', basePrice: 120 }
+  canvas: { name: 'Canvas', basePrice: 82 },
+  metal: { name: 'Metal', basePrice: 99 },
+  acrylic: { name: 'Acrylic', basePrice: 149 },
+  paper: { name: 'Fine Art Paper', basePrice: 45 },
+  wood: { name: 'Wood', basePrice: 92 }
 };
 
 const STANDARD_SIZES = [

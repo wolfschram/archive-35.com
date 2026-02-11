@@ -9,12 +9,12 @@
   },
 
   "pricing": {
-    "web_social":       { "STANDARD": 250,  "PREMIUM": 400,   "ULTRA": 500 },
-    "editorial":        { "STANDARD": 500,  "PREMIUM": 750,   "ULTRA": 1000 },
-    "commercial_print": { "STANDARD": 1000, "PREMIUM": 1500,  "ULTRA": 2000 },
-    "billboard_ooh":    { "STANDARD": 1500, "PREMIUM": 2500,  "ULTRA": 3500 },
-    "hospitality":      { "STANDARD": 2000, "PREMIUM": 3500,  "ULTRA": 5000 },
-    "exclusive":        { "STANDARD": 5000, "PREMIUM": 10000, "ULTRA": 15000 }
+    "web_social":       { "STANDARD": 175,  "PREMIUM": 280,   "ULTRA": 350 },
+    "editorial":        { "STANDARD": 350,  "PREMIUM": 525,   "ULTRA": 700 },
+    "commercial_print": { "STANDARD": 700,  "PREMIUM": 1050,  "ULTRA": 1400 },
+    "billboard_ooh":    { "STANDARD": 1050, "PREMIUM": 1750,  "ULTRA": 2450 },
+    "hospitality":      { "STANDARD": 1400, "PREMIUM": 2450,  "ULTRA": 3500 },
+    "exclusive":        { "STANDARD": 3500, "PREMIUM": 7000,  "ULTRA": 10500 }
   },
 
   "tiers": {

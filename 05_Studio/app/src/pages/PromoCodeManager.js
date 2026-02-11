@@ -575,12 +575,16 @@ function PromoCodeManager() {
 
       {/* ── Quick Reference ──────────────────────────────── */}
       <div style={{ ...styles.card, marginTop: 24, background: '#1a1a1a' }}>
-        <h4 style={{ margin: '0 0 8px', color: '#c9a84c' }}>Enterprise Pricing Quick Reference</h4>
+        <h4 style={{ margin: '0 0 8px', color: '#c9a84c' }}>Launch Pricing Quick Reference</h4>
         <div style={{ fontSize: 13, color: '#aaa', lineHeight: 1.6 }}>
-          <div><strong>Per-Image:</strong> Standard $300–600 • Premium $400+ • Ultra $500+ • Exclusive +$1,000–5,000</div>
-          <div><strong>Creative Tier:</strong> $99/mo or $990/yr → 2 licenses/month, standard catalog</div>
-          <div><strong>Studio Tier:</strong> $2,500/yr → 20 licenses/year, full catalog + panoramics</div>
-          <div><strong>Enterprise:</strong> Custom negotiated → 50–200+ licenses, exclusivity, concierge</div>
+          <div><strong>Prints (12×8 base):</strong> Paper $45 • Canvas $82 • Wood $92 • Metal $99 • Acrylic $149</div>
+          <div><strong>License — Web/Social:</strong> Standard $175 • Premium $280 • Ultra $350</div>
+          <div><strong>License — Editorial:</strong> Standard $350 • Premium $525 • Ultra $700</div>
+          <div><strong>License — Commercial:</strong> Standard $700 • Premium $1,050 • Ultra $1,400</div>
+          <div><strong>License — Hospitality:</strong> Standard $1,400 • Premium $2,450 • Ultra $3,500</div>
+          <div><strong>License — Exclusive:</strong> Standard $3,500 • Premium $7,000 • Ultra $10,500</div>
+          <div style={{ marginTop: 8 }}><strong>Subscription Tiers (future):</strong></div>
+          <div>Creative $49/mo ($490/yr) • Studio $1,200/yr • Enterprise: custom</div>
           <div style={{ marginTop: 4, color: '#777' }}>
             Tip: For subscription clients, create a 100% off code with high max redemptions to simulate unlimited access after they pay the annual fee separately.
           </div>

@@ -222,8 +222,22 @@ Cart (cart.js + cart-ui.js)
 ├── Slide-out panel from right
 └── CHECKOUT → Stripe
     ↓
-Stripe → Pictorem fulfillment
+Stripe (with promotion code support) → Pictorem fulfillment
 ```
+
+### Promotion Code System
+- **Stripe native**: `allow_promotion_codes: true` on all checkout sessions
+- **Studio UI**: PromoCodeManager.js — create/manage/deactivate promo codes
+- **IPC handlers**: 6 Stripe API handlers in main.js (coupons + promotion codes)
+- **Flow**: Wolf creates coupon + promo code in Studio → gives code to client → client enters at Stripe checkout
+- **Metadata**: Each code tracks client_name, client_email, notes, tier
+- **Presets**: 10%, 15%, 20%, 25%, 50%, 100% off + $50, $100, $250 off
+
+### Cart Metadata Validation (4-Layer Defense)
+1. **cart.js**: Warns when items added without metadata
+2. **cart-ui.js**: `pictorem` is never null — falls back to top-level item props + size string parsing
+3. **create-checkout-session.js**: Server-side metadata completeness warning
+4. **stripe-webhook.js**: Error response includes `missingFields` array for debugging
 
 ### Cart UI Integration
 - `cart-ui.js` looks for `.nav` element to inject cart icon
@@ -240,8 +254,23 @@ Stripe → Pictorem fulfillment
 - Verify: fetches live `photos.json`, checks `liveData?.photos` array length
 - **Fixed**: verify step now handles `{photos: [...]}` wrapper (was `Array.isArray(liveData)`)
 
+### Studio Pages
+| Page | File | Purpose |
+|------|------|---------|
+| Ingest | ContentIngest.js | Import photos from Lightroom |
+| Manage | ContentManagement.js | Organize portfolios, metadata |
+| Gallery | GalleryPreview.js | Preview gallery layout |
+| Website | WebsiteControl.js | Deploy, service status |
+| Licensing | LicensingManager.js | Run licensing pipeline |
+| Sales | SalesPictorem.js | Pictorem integration |
+| **Promos** | **PromoCodeManager.js** | **Stripe promo code CRUD** |
+| Social | SocialMedia.js | Placeholder |
+| Analytics | Analytics.js | GA4 + Cloudflare + Stripe |
+| Settings | Settings.js | Mode (test/live), API keys |
+
 ### Key IPC Handlers
 - Photo management, portfolio operations, deploy pipeline
+- Stripe promotion codes: list/create/delete coupons, list/create/deactivate promo codes
 - Run with: `cd 05_Studio/app && npm run dev`
 
 ---
@@ -268,6 +297,8 @@ Stripe → Pictorem fulfillment
 
 | Commit | Change |
 |--------|--------|
+| 53dc72f | Add enterprise promo code system: Stripe integration + Studio manager |
+| d2f69fe | Add 4-layer metadata validation to prevent checkout failures |
 | 0ec3676 | Fix lightbox click-blocking + Cover Flow quality/cropping/position |
 | 2507be7 | Enlarge desktop cover flow + fix mobile gallery layout & swipe |
 | 4ba6eaa | Fix lightbox bleed-through + add cart icon to gallery & licensing |
@@ -295,7 +326,7 @@ Stripe → Pictorem fulfillment
 
 ### Backlog
 - [ ] Pictorem API automated order submission
-- [ ] WELCOME10 promo code in Stripe
+- [x] ~~WELCOME10 promo code in Stripe~~ → Full PromoCodeManager built
 - [ ] Stripe webhooks for order fulfillment
 - [ ] Google Drive backup integration in Studio app
 - [ ] SocialMedia.js page (placeholder)
@@ -338,4 +369,4 @@ Stripe → Pictorem fulfillment
 
 ---
 
-*Last updated: 2026-02-10 (Complete session handover — Cover Flow, licensing, navigation, lightbox, cart all deployed)*
+*Last updated: 2026-02-11 (Promo code system, 4-layer metadata validation, Stripe tax, DBA filed)*

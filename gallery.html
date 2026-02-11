@@ -1190,7 +1190,7 @@ document.getElementById('fg-bk').addEventListener('click',closeFg);
 /* ===== LIGHTBOX — uses real full-size images ===== */
 let lG=0,lP=0;
 function openLb(gi,pi){lG=gi;lP=pi;updLb();document.getElementById('fgal').style.visibility='hidden';document.getElementById('lb').classList.add('open');}
-function closeLb(){document.getElementById('lb').classList.remove('open');document.getElementById('fgal').style.visibility='';const staleModal=document.getElementById('product-selector-modal');if(staleModal)staleModal.remove();}
+function closeLb(){document.getElementById('lb').classList.remove('open');document.getElementById('fgal').style.visibility='';document.getElementById('lb-img').style.pointerEvents='';const staleModal=document.getElementById('product-selector-modal');if(staleModal)staleModal.remove();}
 function lbN(d){lP=Math.max(0,Math.min(G[lG].n-1,lP+d));updLb();}
 function updLb(){
   const g=G[lG];

@@ -37,7 +37,9 @@
     images.forEach(function(img) {
       img.style.webkitUserSelect = 'none';
       img.style.userSelect = 'none';
-      img.style.pointerEvents = 'auto';
+      // NOTE: Do NOT set pointer-events here — it overrides inherited pointer-events:none
+      // from parent elements (e.g. closed lightbox at z-index 9999), causing click-blocking.
+      // Images default to pointer-events:auto anyway; the protection comes from event listeners above.
       img.setAttribute('draggable', 'false');
       // iOS specific
       img.style.webkitTouchCallout = 'none';

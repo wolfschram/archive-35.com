@@ -1,0 +1,16 @@
+{
+  "id": "london_",
+  "title": "London ",
+  "slug": "london",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 1
+}

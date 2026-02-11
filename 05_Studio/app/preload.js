@@ -98,6 +98,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
   stripeCreatePromoCode: (data) => ipcRenderer.invoke('stripe-create-promo-code', data),
   stripeDeactivatePromoCode: (promoId) => ipcRenderer.invoke('stripe-deactivate-promo-code', promoId),
 
+  // Folder Sync (iCloud / one-way)
+  getSyncConfig: () => ipcRenderer.invoke('get-sync-config'),
+  saveSyncConfig: (data) => ipcRenderer.invoke('save-sync-config', data),
+  runFolderSync: (data) => ipcRenderer.invoke('run-folder-sync', data),
+  onSyncProgress: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('sync-progress', handler);
+    return () => ipcRenderer.removeListener('sync-progress', handler);
+  },
+
   // Platform info
   platform: process.platform
 });

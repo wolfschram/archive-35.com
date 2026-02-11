@@ -9,6 +9,7 @@ import SocialMedia from './pages/SocialMedia';
 import Analytics from './pages/Analytics';
 import GalleryPreview from './pages/GalleryPreview';
 import PromoCodeManager from './pages/PromoCodeManager';
+import FolderSync from './pages/FolderSync';
 import Settings from './pages/Settings';
 import './styles/App.css';
 
@@ -77,6 +78,9 @@ function App() {
         </TabPanel>
         <TabPanel id="promos" activeTab={activeTab}>
           <PromoCodeManager />
+        </TabPanel>
+        <TabPanel id="sync" activeTab={activeTab}>
+          <FolderSync />
         </TabPanel>
         <TabPanel id="social" activeTab={activeTab}>
           <SocialMedia />

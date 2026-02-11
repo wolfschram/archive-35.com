@@ -9,6 +9,7 @@ const tabs = [
   { id: 'licensing', label: 'Licensing', icon: '📜' },
   { id: 'sales', label: 'Sales', icon: '🛒' },
   { id: 'promos', label: 'Promos', icon: '🏷️' },
+  { id: 'sync', label: 'Sync', icon: '☁️' },
   { id: 'social', label: 'Social', icon: '📱' },
   { id: 'analytics', label: 'Analytics', icon: '📊' },
   { id: 'settings', label: 'Settings', icon: '⚙️' },

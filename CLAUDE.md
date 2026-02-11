@@ -264,6 +264,7 @@ Stripe (with promotion code support) → Pictorem fulfillment
 | Licensing | LicensingManager.js | Run licensing pipeline |
 | Sales | SalesPictorem.js | Pictorem integration |
 | **Promos** | **PromoCodeManager.js** | **Stripe promo code CRUD** |
+| **Sync** | **FolderSync.js** | **One-way folder sync (Source → iCloud)** |
 | Social | SocialMedia.js | Placeholder |
 | Analytics | Analytics.js | GA4 + Cloudflare + Stripe |
 | Settings | Settings.js | Mode (test/live), API keys |
@@ -271,6 +272,7 @@ Stripe (with promotion code support) → Pictorem fulfillment
 ### Key IPC Handlers
 - Photo management, portfolio operations, deploy pipeline
 - Stripe promotion codes: list/create/delete coupons, list/create/deactivate promo codes
+- Folder sync: get/save config, run one-way sync with progress events
 - Run with: `cd 05_Studio/app && npm run dev`
 
 ---
@@ -297,6 +299,7 @@ Stripe (with promotion code support) → Pictorem fulfillment
 
 | Commit | Change |
 |--------|--------|
+| (pending) | Add folder sync: one-way Source→iCloud sync with progress UI |
 | 53dc72f | Add enterprise promo code system: Stripe integration + Studio manager |
 | d2f69fe | Add 4-layer metadata validation to prevent checkout failures |
 | 0ec3676 | Fix lightbox click-blocking + Cover Flow quality/cropping/position |

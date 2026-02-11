@@ -2849,3 +2849,196 @@ ipcMain.handle('stripe-deactivate-promo-code', async (event, promoId) => {
     return { success: false, error: err.message };
   }
 });
+
+// ===========================================
+// FOLDER SYNC (One-way: Source → Destination)
+// ===========================================
+
+const SYNC_CONFIG_FILE = path.join(ARCHIVE_BASE, '.studio-sync-config.json');
+
+function readSyncConfig() {
+  try {
+    if (fsSync.existsSync(SYNC_CONFIG_FILE)) {
+      return JSON.parse(fsSync.readFileSync(SYNC_CONFIG_FILE, 'utf8'));
+    }
+  } catch (err) {
+    console.error('Failed to read sync config:', err.message);
+  }
+  return null;
+}
+
+function writeSyncConfig(config) {
+  fsSync.writeFileSync(SYNC_CONFIG_FILE, JSON.stringify(config, null, 2));
+}
+
+ipcMain.handle('get-sync-config', async () => {
+  return readSyncConfig();
+});
+
+ipcMain.handle('save-sync-config', async (event, data) => {
+  try {
+    const existing = readSyncConfig() || {};
+    const config = {
+      ...existing,
+      sourceFolder: data.sourceFolder,
+      destFolder: data.destFolder,
+      deleteOrphans: data.deleteOrphans || false,
+    };
+    writeSyncConfig(config);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+/**
+ * Recursively walk a directory and return all file paths (relative to root).
+ */
+async function walkDir(dirPath, relativeTo = dirPath) {
+  const entries = [];
+  const items = await fs.readdir(dirPath, { withFileTypes: true });
+  for (const item of items) {
+    // Skip hidden files/folders (., .., .DS_Store, etc.)
+    if (item.name.startsWith('.')) continue;
+    const fullPath = path.join(dirPath, item.name);
+    if (item.isDirectory()) {
+      const subEntries = await walkDir(fullPath, relativeTo);
+      entries.push(...subEntries);
+    } else if (item.isFile()) {
+      entries.push(path.relative(relativeTo, fullPath));
+    }
+  }
+  return entries;
+}
+
+ipcMain.handle('run-folder-sync', async (event, data) => {
+  const { sourceFolder, destFolder, deleteOrphans } = data;
+  const startTime = Date.now();
+
+  // Validate folders
+  if (!sourceFolder || !destFolder) {
+    return { success: false, error: 'Source and destination folders are required.' };
+  }
+  if (!fsSync.existsSync(sourceFolder)) {
+    return { success: false, error: `Source folder not found: ${sourceFolder}` };
+  }
+
+  try {
+    // Phase 1: Scan source
+    mainWindow?.webContents.send('sync-progress', {
+      phase: 'scanning', message: 'Scanning source folder...', percent: 0
+    });
+
+    const sourceFiles = await walkDir(sourceFolder);
+    const totalFiles = sourceFiles.length;
+
+    if (totalFiles === 0) {
+      mainWindow?.webContents.send('sync-progress', {
+        phase: 'complete', message: 'Source folder is empty — nothing to sync.',
+        copied: 0, skipped: 0, deleted: 0, errors: 0, totalFiles: 0,
+        duration: Date.now() - startTime
+      });
+      return { success: true };
+    }
+
+    // Phase 2: Copy new/updated files
+    let copied = 0, skipped = 0, errors = 0;
+
+    for (let i = 0; i < sourceFiles.length; i++) {
+      const relPath = sourceFiles[i];
+      const srcPath = path.join(sourceFolder, relPath);
+      const dstPath = path.join(destFolder, relPath);
+
+      try {
+        const srcStat = await fs.stat(srcPath);
+        let needCopy = false;
+
+        try {
+          const dstStat = await fs.stat(dstPath);
+          // Copy if source is newer or different size
+          if (srcStat.mtimeMs > dstStat.mtimeMs || srcStat.size !== dstStat.size) {
+            needCopy = true;
+          }
+        } catch {
+          // Dest doesn't exist — need copy
+          needCopy = true;
+        }
+
+        if (needCopy) {
+          // Ensure destination directory exists
+          await fs.mkdir(path.dirname(dstPath), { recursive: true });
+          await fs.copyFile(srcPath, dstPath);
+          // Preserve modification time
+          await fs.utimes(dstPath, srcStat.atime, srcStat.mtime);
+          copied++;
+        } else {
+          skipped++;
+        }
+      } catch (err) {
+        console.error(`Sync error for ${relPath}:`, err.message);
+        errors++;
+      }
+
+      // Progress update every 10 files or on last file
+      if (i % 10 === 0 || i === sourceFiles.length - 1) {
+        const percent = Math.round(((i + 1) / totalFiles) * (deleteOrphans ? 80 : 100));
+        mainWindow?.webContents.send('sync-progress', {
+          phase: 'copying',
+          message: `Copying: ${relPath}`,
+          percent,
+          current: i + 1,
+          total: totalFiles,
+        });
+      }
+    }
+
+    // Phase 3: Delete orphans (optional)
+    let deleted = 0;
+    if (deleteOrphans) {
+      mainWindow?.webContents.send('sync-progress', {
+        phase: 'cleanup', message: 'Checking for orphaned files in destination...', percent: 85
+      });
+
+      try {
+        const destFiles = await walkDir(destFolder);
+        const sourceSet = new Set(sourceFiles);
+
+        for (const relPath of destFiles) {
+          if (!sourceSet.has(relPath)) {
+            try {
+              await fs.unlink(path.join(destFolder, relPath));
+              deleted++;
+            } catch (err) {
+              console.error(`Delete error for ${relPath}:`, err.message);
+              errors++;
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Orphan cleanup error:', err.message);
+      }
+    }
+
+    // Save last sync time
+    const config = readSyncConfig() || {};
+    config.lastSync = new Date().toISOString();
+    writeSyncConfig(config);
+
+    // Complete
+    const duration = Date.now() - startTime;
+    mainWindow?.webContents.send('sync-progress', {
+      phase: 'complete',
+      message: `Sync complete. ${copied} copied, ${skipped} up to date${deleted > 0 ? `, ${deleted} deleted` : ''}.`,
+      percent: 100,
+      copied, skipped, deleted, errors, totalFiles, duration
+    });
+
+    return { success: true, copied, skipped, deleted, errors, totalFiles, duration };
+
+  } catch (err) {
+    mainWindow?.webContents.send('sync-progress', {
+      phase: 'error', message: err.message
+    });
+    return { success: false, error: err.message };
+  }
+});

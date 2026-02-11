@@ -934,11 +934,13 @@ const STYLES = `
     align-items: center;
     justify-content: center;
     opacity: 0;
+    pointer-events: none;
     transition: opacity 0.3s ease;
   }
 
   .product-selector-modal.visible {
     opacity: 1;
+    pointer-events: auto;
   }
 
   .product-selector-overlay {

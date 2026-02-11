@@ -145,12 +145,15 @@ gallery.html is **completely self-contained** — all CSS and JS inline, no exte
 
 ### Cover Flow Engine
 - `covSz()`: Card size = `min(50vh, 34vw, 540px)` desktop / `min(32vh, 52vw, 320px)` mobile
+- Cards are **3:2 landscape** ratio (height = cs * 0.667) with `object-fit: contain` and dark background
+- Card face images use **full-res** (`-full.jpg`, 2000px) not thumbnails
 - `VH=9`: Visible cards on each side
 - `sp=S*0.26`: Spacing between side cards
 - `cZ=S*0.6`: Z-depth for center card
 - `bO=S*0.5`: Base offset for first side card
 - Opacity fade: `0.10` per position (slower fade = more visible cards at edges)
 - `SA=68`: Rotation angle for side cards
+- `#cf { top:8vh }` desktop, `12vh` at 768px, `14vh` at 420px
 
 ### Touch/Swipe Sensitivity
 - Desktop: divisor=130, velocity=0.012, fling=3
@@ -255,16 +258,17 @@ Stripe → Pictorem fulfillment
 
 | Issue | Status | Notes |
 |-------|--------|-------|
-| Mobile gallery layout | ⚠️ NEEDS PHONE TEST | CSS deployed, nav pushed down, but can't simulate iPhone viewport in browser automation. Wolf needs to verify on actual phone. |
+| Mobile gallery layout | ✅ VERIFIED | iPhone test passed — nav pushed down, swipe sensitivity reduced, cards sized correctly. |
 | Licensing page "squeezed" layout | ⚠️ OPEN | Wolf wants bigger content layout like About page. Grid is 4-col but may need wider max-width. |
 | Mobile homepage "archive covering archive 35" | ⚠️ NEEDS PHONE TEST | Homepage looked fine in browser test but Wolf reported overlap on iPhone. |
 
 ---
 
-## RECENT CHANGES LOG (February 10, 2026)
+## RECENT CHANGES LOG (February 10-11, 2026)
 
 | Commit | Change |
 |--------|--------|
+| 0ec3676 | Fix lightbox click-blocking + Cover Flow quality/cropping/position |
 | 2507be7 | Enlarge desktop cover flow + fix mobile gallery layout & swipe |
 | 4ba6eaa | Fix lightbox bleed-through + add cart icon to gallery & licensing |
 | f5a136f | Fix lightbox z-index: bump to 9999 |

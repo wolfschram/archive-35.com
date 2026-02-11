@@ -620,12 +620,14 @@ h3 { font-size: clamp(1.125rem, 2vw, 1.5rem); }
   justify-content: center;
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
   transition: all var(--transition);
 }
 
 .lightbox.active {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 .lightbox-content {

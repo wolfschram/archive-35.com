@@ -223,7 +223,7 @@ nav a:hover::after, nav a.active::after { width:100%; }
 /* === COVERFLOW === */
 #cf {
   position:absolute;
-  top:2vh; left:0; right:0;
+  top:8vh; left:0; right:0;
   height:54vh;
   perspective:1600px;
   perspective-origin:50% 50%;
@@ -238,8 +238,9 @@ nav a:hover::after, nav a.active::after { width:100%; }
 
 .c-face {
   position:relative;
-  width:var(--cs); height:var(--cs);
+  width:var(--cs); height:calc(var(--cs) * 0.667);
   border-radius:3px; overflow:hidden;
+  background:#050504;
   border:1px solid rgba(100,90,65,0.2);
   box-shadow:
     0 2px 8px rgba(0,0,0,0.4),
@@ -258,7 +259,7 @@ nav a:hover::after, nav a.active::after { width:100%; }
     0 0 50px rgba(201,168,76,0.03),
     inset 0 1px 0 rgba(255,255,255,0.06);
 }
-.c-face img { width:100%; height:100%; object-fit:cover; display:block; }
+.c-face img { width:100%; height:100%; object-fit:contain; display:block; }
 .c-lbl {
   position:absolute; bottom:0; left:0; right:0;
   padding:30px 12px 8px;
@@ -271,8 +272,8 @@ nav a:hover::after, nav a.active::after { width:100%; }
 /* === REFLECTION === */
 .c-refl {
   position:absolute;
-  top:calc(var(--cs) + 3px); left:0;
-  width:var(--cs); height:var(--cs);
+  top:calc(var(--cs) * 0.667 + 3px); left:0;
+  width:var(--cs); height:calc(var(--cs) * 0.667);
   transform:scaleY(-1);
   overflow:hidden; border-radius:3px;
   mask-image:linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.06) 30%, transparent 55%);
@@ -850,7 +851,7 @@ const cfEl=document.getElementById('cf'),items=[],dotsEl=document.getElementById
 G.forEach((g,i)=>{
   const el=document.createElement('div');el.className='c';
   const face=document.createElement('div');face.className='c-face';
-  face.innerHTML=`<img src="${g.img}" alt="${g.name} — Cover" draggable="false" loading="${i<3?'eager':'lazy'}">`;
+  face.innerHTML=`<img src="${g.img.replace('-thumb.','-full.')}" alt="${g.name} — Cover" draggable="false" loading="${i<3?'eager':'lazy'}">`;
   face.innerHTML+=`<div class="c-lbl">${g.name.toUpperCase()}</div>`;
   el.appendChild(face);
 

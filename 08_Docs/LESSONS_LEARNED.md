@@ -341,6 +341,29 @@ if (staleModal) staleModal.remove();
 
 ---
 
+### LESSON 016: Inline Styles Override CSS Inheritance (image-protection.js Click Blocker)
+**Date:** 2026-02-11
+**Category:** `css` `gallery` `lightbox` `image-protection` `CRITICAL`
+
+**Symptom:** After opening a photo → clicking Buy Print → closing the product selector → gallery images could not be clicked. User was completely stuck — no photo in the gallery grid responded to clicks.
+
+**Root Cause:** `image-protection.js` runs a MutationObserver that sets `img.style.pointerEvents = 'auto'` as an **inline style** on ALL images (including `#lb-img` in the lightbox). gallery.html's lightbox `#lb` uses `pointer-events: none` (when closed) + `opacity: 0` at z-index 9999 to hide without removing from DOM. Child elements should inherit `pointer-events: none`, but the inline style from image-protection.js overrode the inheritance — making `#lb-img` an invisible, full-viewport click interceptor at z-index 9999 that caught every click before it reached the gallery grid below.
+
+**Why It Was Hard to Find:** The DOM inspection showed no orphaned modals, no overlays, no visible blocking elements. `#lb` itself had `pointer-events: none`. The bug was that a *child* of a `pointer-events: none` parent had an inline style override — invisible in normal debugging.
+
+**Fix:**
+1. Removed `img.style.pointerEvents = 'auto'` from `image-protection.js` — it was unnecessary (images default to `pointer-events: auto`, and the actual protection comes from event listeners for contextmenu/dragstart/touch)
+2. Added `document.getElementById('lb-img').style.pointerEvents=''` to `closeLb()` in gallery.html as belt-and-suspenders defense — clears any inline pointer-events when lightbox closes
+
+**Prevention:**
+- **RULE: Never set `pointer-events` via inline styles on images.** It overrides CSS inheritance from parent elements that rely on `pointer-events: none` for hiding.
+- **RULE: When debugging "clicks don't work," check `document.elementFromPoint(x, y)` — it reveals invisible elements intercepting clicks.**
+- Scripts that modify ALL elements via MutationObserver are dangerous — they can override intentional CSS patterns elsewhere
+
+**Related Files:** `js/image-protection.js`, `gallery.html` (inline JS `closeLb()`)
+
+---
+
 ## APPENDIX: QUICK REFERENCE — TOP RULES
 
 These are the highest-impact prevention rules from above. Print these out.
@@ -355,6 +378,7 @@ These are the highest-impact prevention rules from above. Print these out.
 8. **Modals MUST have cleanup on close.** Check for orphaned DOM elements.
 9. **CDN caches for minutes.** Wait before verifying deploys.
 10. **Never delete directly.** Stage in `_files_to_delete/` first.
+11. **Never set `pointer-events` via inline styles on images.** It overrides CSS inheritance and creates invisible click blockers.
 
 ---
 

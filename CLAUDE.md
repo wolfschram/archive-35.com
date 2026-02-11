@@ -301,7 +301,8 @@ Stripe (with promotion code support) → Pictorem fulfillment
 
 | Commit | Change |
 |--------|--------|
-| (pending) | Add LESSONS_LEARNED.md, update ARCHITECTURE.md v2.1, update CLAUDE.md |
+| 1531f82 | Fix gallery click-blocking after Buy Print cancel (image-protection.js pointer-events bug) |
+| 65a0dc6 | Add LESSONS_LEARNED.md, update ARCHITECTURE.md v2.1, update CLAUDE.md |
 | 824dbb3 | Fix gallery: regenerate all 397 photos from photos.json + cleanup |
 | c3ba825 | Add folder sync: one-way Source→iCloud sync with Studio UI |
 | 67705a3 | Fix gallery: position, scroll sensitivity, lightbox click-blocking |

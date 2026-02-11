@@ -38,15 +38,16 @@ If I skip this display, I am drifting. User should say "RESET" to bring me back.
 ## DEPLOYMENT
 
 - **Host**: Cloudflare Pages (NOT GitHub Pages)
-- **Build**: `bash build.sh` copies website files → `_site/` folder
+- **Build**: `bash build.sh` → runs `sync_gallery_data.py` THEN copies files → `_site/`
 - **Deploy**: Push to `main` branch → Cloudflare auto-deploys from `_site/`
 - **CDN Cache**: Changes may take 1-3 minutes to appear. Use `?v=N` cache busters for testing.
 - **Domain**: archive-35.com (CNAME configured)
 - **Studio deploy pipeline**: 05_Studio/app/main.js handles build → git push → verify cycle
+- **CRITICAL**: `sync_gallery_data.py` MUST run before HTML copy — regenerates gallery.html inline data from photos.json. See LESSONS_LEARNED.md Lesson 001.
 
 ---
 
-## COMPLETE PROJECT STRUCTURE (Verified 2026-02-10)
+## COMPLETE PROJECT STRUCTURE (Verified 2026-02-11)
 
 ```
 archive-35.com/                          # GitHub repo root
@@ -110,7 +111,8 @@ archive-35.com/                          # GitHub repo root
 ├── functions/                          # Cloudflare Workers (checkout, etc.)
 │
 ├── *.html                              # Website pages (see below)
-├── build.sh                            # Build script → _site/
+├── build.sh                            # Build script → _site/ (calls sync_gallery_data.py first!)
+├── sync_gallery_data.py                # Regenerates gallery.html inline data from photos.json
 ├── CNAME                               # Domain config
 ├── robots.txt, sitemap.xml, llms.txt
 └── CLAUDE.md                           # THIS FILE
@@ -295,28 +297,23 @@ Stripe (with promotion code support) → Pictorem fulfillment
 
 ---
 
-## RECENT CHANGES LOG (February 10-11, 2026)
+## RECENT CHANGES LOG (February 9-11, 2026)
 
 | Commit | Change |
 |--------|--------|
-| (pending) | Add folder sync: one-way Source→iCloud sync with progress UI |
+| (pending) | Add LESSONS_LEARNED.md, update ARCHITECTURE.md v2.1, update CLAUDE.md |
+| 824dbb3 | Fix gallery: regenerate all 397 photos from photos.json + cleanup |
+| c3ba825 | Add folder sync: one-way Source→iCloud sync with Studio UI |
+| 67705a3 | Fix gallery: position, scroll sensitivity, lightbox click-blocking |
+| dcf55c4 | Deploy: update photos — Feb 11, 2026 |
+| ada52a5 | Launch pricing: 30% margin reduction on prints + licensing |
+| 9040b00 | Update CLAUDE.md: document promo code system, metadata validation |
 | 53dc72f | Add enterprise promo code system: Stripe integration + Studio manager |
 | d2f69fe | Add 4-layer metadata validation to prevent checkout failures |
 | 0ec3676 | Fix lightbox click-blocking + Cover Flow quality/cropping/position |
 | 2507be7 | Enlarge desktop cover flow + fix mobile gallery layout & swipe |
 | 4ba6eaa | Fix lightbox bleed-through + add cart icon to gallery & licensing |
 | f5a136f | Fix lightbox z-index: bump to 9999 |
-| 73e2c71 | Consistent glass-pill nav, licensing image fixes, buy button centered |
-| da50ef7 | Add Buy Print/License button to gallery.html lightbox |
-| db4bde4 | Fix Buy Print/License button + add Licensing to site nav |
-| f5aa980 | Deploy: update photos — Feb 10 |
-| 89d9d54 | Add licensing: 45 real panos, License tab in product selector, Studio Licensing Manager |
-| 0a39e13 | Fix build.sh: copy licensing thumbnails, watermarks, terms to _site |
-| c87cd27 | Add licensing system: pipeline scripts, gallery page, license terms |
-| 31dca33 | Revert gallery links back to gallery.html |
-| dedb382 | Mobile: fix swipe sensitivity + show full images |
-| e0a366e | Wire real photos from photos.json into gallery |
-| d423268 | Wire prototype-v2 as main Gallery across site |
 
 ---
 
@@ -325,15 +322,19 @@ Stripe (with promotion code support) → Pictorem fulfillment
 ### Priority
 - [ ] Verify mobile layout on actual iPhone (gallery nav overlap, homepage text overlap)
 - [ ] Licensing page layout — Wolf wants bigger/wider grid like About page
-- [ ] Apply for additional image licenses (Wolf mentioned pending applications)
+- [ ] Add deduplication check to ingest pipeline (prevent future duplicate photos)
+- [ ] End-to-end test checkout flow in test mode (verify metadata 4-layer defense)
 
 ### Backlog
 - [ ] Pictorem API automated order submission
 - [x] ~~WELCOME10 promo code in Stripe~~ → Full PromoCodeManager built
+- [x] ~~Gallery data goes stale~~ → Automated via sync_gallery_data.py in build.sh
+- [x] ~~Folder sync~~ → FolderSync.js (Source → iCloud)
 - [ ] Stripe webhooks for order fulfillment
 - [ ] Google Drive backup integration in Studio app
 - [ ] SocialMedia.js page (placeholder)
 - [ ] Analytics.js page (placeholder)
+- [ ] Collection name validator in Studio (prevent misspelled folder names)
 
 ---
 
@@ -369,7 +370,14 @@ Stripe (with promotion code support) → Pictorem fulfillment
 4. **Build before deploy** — `build.sh` must run to copy files to `_site/`. The Studio deploy pipeline does this automatically.
 5. **photos.json wraps in object** — Structure is `{photos: [...]}`, NOT a top-level array.
 6. **Cart icon injection** — cart-ui.js needs `.nav` class on the nav element to inject the cart button.
+7. **gallery.html inline data** — `const G=[]` is regenerated by `sync_gallery_data.py` in build.sh. NEVER edit this array manually.
+8. **Preload.js changes** — After modifying preload.js, user MUST quit and restart Studio (Cmd+Q). Hot reload is insufficient.
+9. **Modal cleanup** — Every close handler (closeLb, closeFg, closePrev) must remove orphaned product-selector-modal divs.
+10. **READ 08_Docs/LESSONS_LEARNED.md** — Before any new feature, check the "Do Not Replicate" patterns.
 
 ---
 
-*Last updated: 2026-02-11 (Promo code system, 4-layer metadata validation, Stripe tax, DBA filed)*
+*Last updated: 2026-02-11 (Gallery sync automation, LESSONS_LEARNED.md, folder sync, promo codes, architecture v2.1)*
+
+---
+

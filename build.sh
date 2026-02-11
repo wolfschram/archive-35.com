@@ -10,7 +10,12 @@ echo "Building Archive-35..."
 # Create output directory
 mkdir -p _site
 
-# Copy HTML files
+# CRITICAL: Sync gallery.html inline data from photos.json BEFORE copying
+# This ensures the Cover Flow always has current photo data.
+# See: sync_gallery_data.py and LESSONS_LEARNED.md for why this exists.
+python3 sync_gallery_data.py || echo "WARNING: Gallery data sync failed — gallery.html may be stale"
+
+# Copy HTML files (now includes freshly synced gallery.html)
 cp *.html _site/ 2>/dev/null || true
 
 # Copy CNAME

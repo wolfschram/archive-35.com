@@ -1,5 +1,7 @@
 # Archive-35 System Architecture
-**Version 2.0** | Last Updated: 2026-02-08 | Living Document
+**Version 2.1** | Last Updated: 2026-02-11 | Living Document
+
+> See also: [LESSONS_LEARNED.md](LESSONS_LEARNED.md) — "Do Not Replicate" knowledge base (mistakes, root causes, prevention rules)
 
 ---
 
@@ -19,6 +21,7 @@
 - [Known Issues](#known-issues) - Current limitations & tech debt
 - [Environment Variables](#environment-variables) - All required config
 - [Key Decisions Log](#key-decisions-log) - Why we built it this way
+- [Recent Changes (Feb 9-11)](#recent-changes-feb-9-11-2026) - Latest updates
 
 ---
 
@@ -185,12 +188,22 @@ Copy web images to images/
     ↓
 Git add + commit + push
     ↓
-GitHub Pages rebuild
+build.sh runs (Cloudflare Pages build command):
+    ├─ sync_gallery_data.py → regenerates gallery.html inline data from photos.json
+    ├─ cp *.html _site/     → copies freshly synced gallery.html + all pages
+    ├─ cp -r css js images data logos _site/
+    └─ cp robots.txt sitemap.xml llms.txt _site/
     ↓
-Cloudflare cache invalidate
+Cloudflare Pages deploys _site/
     ↓
-New photos live on archive-35.com (30s delay)
+Cloudflare CDN cache invalidate (1-3 minutes)
+    ↓
+New photos live on archive-35.com
 ```
+
+**CRITICAL (Lesson Learned 001):** `sync_gallery_data.py` MUST run before HTML copy.
+gallery.html has inline `const G=[]` data that goes stale if not regenerated.
+See `08_Docs/LESSONS_LEARNED.md` for full root cause analysis.
 
 **Timing:**
 - Typically 2-5 minutes from Studio push to live
@@ -562,14 +575,16 @@ Archive-35.com/
 | **Authentication** | `BLUESKY_HANDLE`, `BLUESKY_APP_PASSWORD` |
 | **Status** | 🟠 **PLANNED** — Config ready, not yet integrated |
 
-### Google Analytics (Analytics - FUTURE)
+### Google Analytics 4
 
 | Aspect | Details |
 |--------|---------|
 | **What It Does** | Track website traffic, user behavior, conversion funnel |
-| **How We Access It** | Google Analytics 4 measurement ID |
-| **Authentication** | `GOOGLE_ANALYTICS_ID` |
-| **Status** | 🟠 **PLANNED** — Tracking not yet embedded in website |
+| **How We Access It** | Google Analytics 4 measurement ID: `G-SE2WETEK5D` |
+| **Authentication** | GA4 Measurement ID embedded in all pages |
+| **Privacy** | `anonymize_ip: true`, `allow_google_signals: false`, `allow_ad_personalization_signals: false` |
+| **Status** | ✅ **LIVE** — Tracking active on all pages |
+| **Related Files** | `js/analytics.js`, GA4 script tags in all HTML files |
 
 ### Email (Reporting - PLANNED)
 
@@ -870,9 +885,26 @@ Desktop app for Wolf to manage the photography portfolio locally on Mac:
 - **C2PA Signing:** `05_Studio/app/c2pa-sign.js` (calls Python c2pa-python)
 - **R2 Client:** AWS SDK S3Client (PutObjectCommand, DeleteObjectCommand, HeadObjectCommand)
 
+### Studio Pages (05_Studio/app/src/pages/)
+
+| Page | File | Purpose |
+|------|------|---------|
+| Ingest | ContentIngest.js | Import photos from Lightroom |
+| Manage | ContentManagement.js | Organize portfolios, metadata |
+| Gallery | GalleryPreview.js | Preview gallery layout |
+| Website | WebsiteControl.js | Deploy, service status |
+| Licensing | LicensingManager.js | Run licensing pipeline |
+| Sales | SalesPictorem.js | Pictorem integration |
+| **Promos** | **PromoCodeManager.js** | **Stripe promo code CRUD** (added Feb 10) |
+| **Sync** | **FolderSync.js** | **One-way folder sync Source → iCloud** (added Feb 11) |
+| Social | SocialMedia.js | Placeholder |
+| Analytics | Analytics.js | GA4 + Cloudflare + Stripe |
+| Settings | Settings.js | Mode (test/live), API keys |
+
 ### Key IPC Handlers (main.js)
 
 ```javascript
+// --- Core ---
 ipcMain.handle('select-folder')      // Open folder dialog
 ipcMain.handle('select-files')       // Open file dialog (images)
 ipcMain.handle('get-env')            // Read environment variables
@@ -885,6 +917,19 @@ ipcMain.handle('soft-delete-photos') // Move to _files_to_delete + R2 cleanup
 ipcMain.handle('archive-photos')     // Move to _archived/
 ipcMain.handle('git-status')         // Check git status
 ipcMain.handle('git-push')           // Deploy to GitHub
+
+// --- Stripe Promo Codes (added Feb 10) ---
+ipcMain.handle('list-stripe-coupons')       // List Stripe coupons
+ipcMain.handle('create-stripe-coupon')      // Create coupon (% or $ off)
+ipcMain.handle('delete-stripe-coupon')      // Delete coupon
+ipcMain.handle('list-stripe-promo-codes')   // List promotion codes
+ipcMain.handle('create-stripe-promo-code')  // Create promo code for coupon
+ipcMain.handle('deactivate-stripe-promo-code') // Deactivate promo code
+
+// --- Folder Sync (added Feb 11) ---
+ipcMain.handle('get-sync-config')    // Read .studio-sync-config.json
+ipcMain.handle('save-sync-config')   // Write sync config
+ipcMain.handle('run-folder-sync')    // One-way sync with progress events
 ```
 
 ### Workflow: Ingesting Photos
@@ -946,24 +991,28 @@ Step 4: Git Push
 │ git push origin main                    │
 └──────────────────┬──────────────────────┘
                    │
-Step 5: GitHub Pages Build (automatic)
+Step 5: Cloudflare Pages Build (automatic)
 ┌──────────────────▼──────────────────────┐
-│ GitHub detects push                     │
-│ Builds static site                      │
-│ Publishes to github.io                  │
+│ Cloudflare detects push to main         │
+│ Runs: bash build.sh                     │
+│   ├─ sync_gallery_data.py (regen G=[])  │
+│   ├─ cp *.html _site/                   │
+│   ├─ cp -r css js images data logos     │
+│   └─ cp robots.txt sitemap.xml llms.txt │
+│ Deploys _site/ to Cloudflare CDN        │
 └──────────────────┬──────────────────────┘
                    │
-Step 6: Cloudflare Cache (automatic)
+Step 6: Cloudflare CDN Propagation
 ┌──────────────────▼──────────────────────┐
-│ Cloudflare CDN detects new content      │
-│ Invalidates cache                       │
-│ Caches new images globally              │
+│ CDN distributes new content globally    │
+│ 1-3 minutes for full propagation        │
 └──────────────────┬──────────────────────┘
                    │
-Step 7: LIVE (30 seconds total)
+Step 7: LIVE
 ┌──────────────────▼──────────────────────┐
 │ Photos visible on archive-35.com        │
-│ Optimized image delivery worldwide      │
+│ gallery.html has updated Cover Flow     │
+│ All pages have latest data              │
 └──────────────────────────────────────────┘
 ```
 
@@ -1143,9 +1192,12 @@ This tests the entire chain without spending money or creating real print orders
 
 | Issue | Impact | Workaround | Fix Priority |
 |-------|--------|-----------|--------------|
+| ~~gallery.html inline data stale~~ | ~~Missing photos in Cover Flow~~ | ~~Manual regen~~ | ✅ **FIXED** (sync_gallery_data.py) |
+| ~~Duplicate entries in photos.json~~ | ~~Wrong counts, wasted data~~ | ~~Manual cleanup~~ | ✅ **FIXED** (cleaned 82 dupes) |
+| ~~Misspelled image folders~~ | ~~Silent duplicates~~ | ~~Manual move~~ | ✅ **FIXED** (moved to _files_to_delete) |
 | Some originals not yet in R2 | R2 bucket partially populated | Upload remaining via wrangler CLI | 🟠 MEDIUM |
+| No dedup check in ingest pipeline | Duplicate photos can accumulate | Manual review after ingest | 🟠 MEDIUM |
 | Some portfolio folders have trailing underscores (Grand_Teton_) | Naming inconsistency in paths | Manually rename folders | 🟡 LOW |
-| R2 bucket needs originals uploaded | New photos must be uploaded to R2 | Upload via wrangler CLI or dashboard | 🟠 MEDIUM |
 
 ### Automation Gaps
 
@@ -1453,8 +1505,60 @@ archive35_read_file(path='data/photos.json')
 
 ---
 
+---
+
+## RECENT CHANGES (Feb 9-11, 2026)
+
+### Build Pipeline Automation (Feb 11)
+- **`sync_gallery_data.py`** — Regenerates gallery.html inline `const G=[]` from photos.json
+- **`build.sh` updated** — Calls sync script before HTML copy (prevents stale gallery data)
+- Root cause: gallery.html inline data was never regenerated after photo ingest (Lesson 001)
+
+### Data Cleanup (Feb 11)
+- Removed 67 duplicate iceland-ring-road entries from photos.json (identical to iceland)
+- Removed 15 duplicate Grand Teton entries
+- Moved 7 misspelled/duplicate image folders to `_files_to_delete/misspelled_dupes/`
+- photos.json: 479 → 397 entries (27 collections)
+
+### Folder Sync Feature (Feb 11)
+- **FolderSync.js** — New Studio page for one-way Source → iCloud sync
+- Recursive directory walk, mtime+size change detection, optional orphan deletion
+- Config persisted in `.studio-sync-config.json`
+- 4 new IPC handlers + progress events via `sync-progress` channel
+
+### Enterprise Promo Code System (Feb 10)
+- **PromoCodeManager.js** — Studio page for Stripe promo code CRUD
+- 6 new IPC handlers for coupon + promo code lifecycle
+- Presets: 10%, 15%, 20%, 25%, 50%, 100% off + $50, $100, $250 off
+- Metadata: client_name, client_email, notes, tier
+
+### 4-Layer Metadata Validation (Feb 10)
+- cart.js → cart-ui.js → create-checkout-session.js → stripe-webhook.js
+- Each layer validates and falls back independently
+- Prevents Pictorem fulfillment failures from missing metadata
+
+### Launch Pricing (Feb 10)
+- 30% margin reduction across all print sizes and materials
+- Applied to product-selector.js pricing tables
+
+### Gallery Fixes (Feb 9-11)
+- Cover Flow: larger cards, better positioning, full-res images
+- Lightbox: z-index 9999, opaque background, no bleed-through
+- Mobile: reduced swipe sensitivity, proper card sizing at 768px/420px breakpoints
+- closeLb() + closeFg(): orphaned modal cleanup to prevent click-blocking
+
+### Stripe Tax (Feb 10)
+- Stripe Tax activated for automatic tax calculation on checkout
+
+### Documentation (Feb 11)
+- **LESSONS_LEARNED.md** — "Do Not Replicate" knowledge base (15 lessons)
+- ARCHITECTURE.md updated to v2.1
+- CLAUDE.md updated with all recent changes
+
+---
+
 **Document Status:** ✅ Complete — All components documented. Updated as system evolves.
 
-**Last Reviewed:** 2026-02-08
+**Last Reviewed:** 2026-02-11
 
-**Next Review:** 2026-03-08 (monthly)
+**Next Review:** 2026-03-11 (monthly)

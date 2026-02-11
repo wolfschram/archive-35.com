@@ -58,6 +58,7 @@ export async function onRequestPost(context) {
     // Build Stripe API params (form-encoded)
     const params = new URLSearchParams();
     params.append('mode', 'payment');
+    params.append('allow_promotion_codes', 'true');
     params.append('success_url', successUrl || `${origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`);
     params.append('cancel_url', cancelUrl || `${origin}/gallery.html`);
 

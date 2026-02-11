@@ -90,6 +90,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getAnalyticsConfig: () => ipcRenderer.invoke('get-analytics-config'),
   getAnalyticsData: () => ipcRenderer.invoke('get-analytics-data'),
 
+  // Stripe Promotion Code Management
+  stripeListCoupons: () => ipcRenderer.invoke('stripe-list-coupons'),
+  stripeCreateCoupon: (data) => ipcRenderer.invoke('stripe-create-coupon', data),
+  stripeDeleteCoupon: (couponId) => ipcRenderer.invoke('stripe-delete-coupon', couponId),
+  stripeListPromoCodes: () => ipcRenderer.invoke('stripe-list-promo-codes'),
+  stripeCreatePromoCode: (data) => ipcRenderer.invoke('stripe-create-promo-code', data),
+  stripeDeactivatePromoCode: (promoId) => ipcRenderer.invoke('stripe-deactivate-promo-code', promoId),
+
   // Platform info
   platform: process.platform
 });

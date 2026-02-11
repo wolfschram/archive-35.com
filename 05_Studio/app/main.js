@@ -2694,3 +2694,158 @@ ipcMain.handle('get-analytics-data', async () => {
     };
   }
 });
+
+// ===========================================
+// STRIPE PROMOTION CODE MANAGEMENT
+// ===========================================
+
+/**
+ * Makes authenticated requests to the Stripe API.
+ * Automatically selects test or live secret key based on current mode.
+ */
+async function stripeApiRequest(method, endpoint, body = null) {
+  const env = parseEnvFile();
+  const mode = getCurrentMode();
+  const secretKey = mode === 'test'
+    ? (env.STRIPE_TEST_SECRET_KEY || env.STRIPE_SECRET_KEY)
+    : env.STRIPE_SECRET_KEY;
+
+  if (!secretKey) {
+    throw new Error(`No Stripe ${mode} secret key configured. Check .env file.`);
+  }
+
+  const options = {
+    method,
+    headers: {
+      'Authorization': `Bearer ${secretKey}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }
+  };
+
+  if (body && (method === 'POST' || method === 'DELETE')) {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(body)) {
+      if (value !== undefined && value !== null && value !== '') {
+        params.append(key, String(value));
+      }
+    }
+    options.body = params.toString();
+  }
+
+  const url = method === 'GET' && endpoint.includes('?')
+    ? `https://api.stripe.com/v1${endpoint}`
+    : `https://api.stripe.com/v1${endpoint}`;
+
+  const response = await fetch(url, options);
+  const data = await response.json();
+
+  if (data.error) {
+    throw new Error(data.error.message || JSON.stringify(data.error));
+  }
+
+  return data;
+}
+
+// List all coupons
+ipcMain.handle('stripe-list-coupons', async () => {
+  try {
+    return { success: true, data: await stripeApiRequest('GET', '/coupons?limit=100') };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// Create a coupon (the discount definition)
+ipcMain.handle('stripe-create-coupon', async (event, data) => {
+  try {
+    const body = {};
+
+    // Discount type
+    if (data.percentOff) {
+      body.percent_off = data.percentOff;
+    } else if (data.amountOff) {
+      body.amount_off = Math.round(data.amountOff * 100); // Convert dollars to cents
+      body.currency = 'usd';
+    }
+
+    // Duration: once, repeating, or forever
+    body.duration = data.duration || 'once';
+    if (data.duration === 'repeating' && data.durationInMonths) {
+      body.duration_in_months = data.durationInMonths;
+    }
+
+    // Display name
+    if (data.name) body.name = data.name;
+
+    // Max redemptions (total across all promo codes using this coupon)
+    if (data.maxRedemptions) body.max_redemptions = data.maxRedemptions;
+
+    // Expiration (Unix timestamp)
+    if (data.redeemBy) body.redeem_by = data.redeemBy;
+
+    // Internal metadata
+    if (data.clientName) body['metadata[client_name]'] = data.clientName;
+    if (data.clientEmail) body['metadata[client_email]'] = data.clientEmail;
+    if (data.notes) body['metadata[notes]'] = data.notes;
+    if (data.tier) body['metadata[tier]'] = data.tier;
+
+    const result = await stripeApiRequest('POST', '/coupons', body);
+    return { success: true, data: result };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// Delete a coupon (also invalidates all associated promotion codes)
+ipcMain.handle('stripe-delete-coupon', async (event, couponId) => {
+  try {
+    const result = await stripeApiRequest('DELETE', `/coupons/${encodeURIComponent(couponId)}`);
+    return { success: true, data: result };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// List all promotion codes (customer-facing codes)
+ipcMain.handle('stripe-list-promo-codes', async () => {
+  try {
+    const result = await stripeApiRequest('GET', '/promotion_codes?limit=100&expand[]=data.coupon');
+    return { success: true, data: result };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// Create a promotion code (the customer-facing code string linked to a coupon)
+ipcMain.handle('stripe-create-promo-code', async (event, data) => {
+  try {
+    const body = {
+      coupon: data.couponId,
+      code: data.code.toUpperCase().replace(/[^A-Z0-9-_]/g, ''),
+    };
+
+    if (data.maxRedemptions) body.max_redemptions = data.maxRedemptions;
+    if (data.expiresAt) body.expires_at = data.expiresAt;
+    if (data.firstTimeOnly) body['restrictions[first_time_transaction]'] = 'true';
+
+    // Metadata for internal tracking
+    if (data.clientName) body['metadata[client_name]'] = data.clientName;
+    if (data.clientEmail) body['metadata[client_email]'] = data.clientEmail;
+    if (data.notes) body['metadata[notes]'] = data.notes;
+
+    const result = await stripeApiRequest('POST', '/promotion_codes', body);
+    return { success: true, data: result };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// Deactivate a promotion code (cannot be reactivated)
+ipcMain.handle('stripe-deactivate-promo-code', async (event, promoId) => {
+  try {
+    const result = await stripeApiRequest('POST', `/promotion_codes/${promoId}`, { active: 'false' });
+    return { success: true, data: result };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});

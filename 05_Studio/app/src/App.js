@@ -8,6 +8,7 @@ import SalesPictorem from './pages/SalesPictorem';
 import SocialMedia from './pages/SocialMedia';
 import Analytics from './pages/Analytics';
 import GalleryPreview from './pages/GalleryPreview';
+import PromoCodeManager from './pages/PromoCodeManager';
 import Settings from './pages/Settings';
 import './styles/App.css';
 
@@ -73,6 +74,9 @@ function App() {
         </TabPanel>
         <TabPanel id="sales" activeTab={activeTab}>
           <SalesPictorem />
+        </TabPanel>
+        <TabPanel id="promos" activeTab={activeTab}>
+          <PromoCodeManager />
         </TabPanel>
         <TabPanel id="social" activeTab={activeTab}>
           <SocialMedia />

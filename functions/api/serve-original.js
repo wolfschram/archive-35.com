@@ -130,7 +130,7 @@ export async function onRequestGet(context) {
     headers.set('Content-Type', object.httpMetadata?.contentType || 'image/jpeg');
     headers.set('Content-Length', String(object.size));
     headers.set('Cache-Control', 'private, no-store'); // Don't cache originals publicly
-    headers.set('Content-Disposition', `inline; filename="${key.split('/').pop()}"`);
+    headers.set('Content-Disposition', `attachment; filename="${key.split('/').pop()}"`);
 
     return new Response(object.body, { headers });
 

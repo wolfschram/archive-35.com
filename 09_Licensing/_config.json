@@ -26,11 +26,13 @@
     "exclusive":        { "name": "Exclusive",           "duration": "2-5 years (negotiated)", "geography": "Worldwide", "max_users": "Unlimited" }
   },
 
-  "watermark": {
-    "text": "ARCHIVE-35 | PREVIEW ONLY",
-    "opacity": 0.30,
-    "max_preview_px": 3000,
-    "quality": 85
+  "preview": {
+    "protection": "invisible",
+    "max_preview_px": 2000,
+    "quality": 45,
+    "blur_radius": 0.5,
+    "strip_metadata": true,
+    "note": "No visible watermark. Protection via low quality + blur + canvas rendering + blob URLs"
   },
 
   "thumbnail": {
@@ -39,10 +41,10 @@
   },
 
   "r2": {
-    "bucket": "archive35-licensing",
-    "endpoint_url": "https://<ACCOUNT_ID>.r2.cloudflarestorage.com",
-    "access_key_id": "<R2_ACCESS_KEY>",
-    "secret_access_key": "<R2_SECRET_KEY>",
+    "bucket": "archive-35-originals",
+    "endpoint_url": "https://b7491e0a2209add17e1f4307eb77c991.r2.cloudflarestorage.com",
+    "access_key_id": "059e12a18b6aecc278ebc7f9e6c55923",
+    "secret_access_key": "2e9c4007a56e51167599728e4767f5577408e5945b789278760449eca092a136",
     "presigned_expiry_seconds": 259200
   },
 

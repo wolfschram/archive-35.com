@@ -364,6 +364,30 @@ if (staleModal) staleModal.remove();
 
 ---
 
+### LESSON 017: Separate Content Pipelines for Separate Products
+**Date:** 2026-02-12
+**Category:** `architecture` `workflow` `licensing` `gallery`
+
+**Symptom:** Gallery contained 44 images from `large-scale-photography-stitch` that duplicated licensing content. Licensing page showed ugly watermarked previews. No clear separation between "gallery prints" and "licensing images."
+
+**Root Cause:** Same images being ingested through two different paths (gallery ingest AND licensing pipeline) without any guard. Watermark approach was designed for security but destroyed the premium look.
+
+**Fix:**
+1. Removed `large-scale-photography-stitch` from `photos.json` (397 → 353 photos)
+2. Added hardcoded `LICENSING_EXCLUSIONS` to `scan-photography` in main.js — gallery scan auto-skips folders like `Large Scale Photography Stitch` and `Licensing`
+3. Replaced visible watermark with multi-layer invisible protection:
+   - Server: max 2000px, quality 45, 0.5px blur, EXIF stripped
+   - Client: canvas rendering, blob URLs, contextmenu/drag blocked
+4. Updated `LicensingManager.js` with Browse button + force-regen option
+
+**Prevention:**
+- **RULE: Different products need different ingest pipelines.** Gallery photos → gallery ingest. Licensing images → licensing pipeline. Never mix.
+- **RULE: "Protect" doesn't mean "uglify."** Invisible degradation (compression + blur + resolution cap) is more effective than visible watermarks that make your premium art look cheap.
+
+**Related Files:** `data/photos.json`, `05_Studio/app/main.js`, `09_Licensing/generate_watermark.py`, `licensing.html`, `05_Studio/app/src/pages/LicensingManager.js`
+
+---
+
 ## APPENDIX: QUICK REFERENCE — TOP RULES
 
 These are the highest-impact prevention rules from above. Print these out.
@@ -379,6 +403,8 @@ These are the highest-impact prevention rules from above. Print these out.
 9. **CDN caches for minutes.** Wait before verifying deploys.
 10. **Never delete directly.** Stage in `_files_to_delete/` first.
 11. **Never set `pointer-events` via inline styles on images.** It overrides CSS inheritance and creates invisible click blockers.
+12. **Different products need different ingest pipelines.** Gallery → gallery ingest. Licensing → licensing pipeline. Never mix.
+13. **"Protect" doesn't mean "uglify."** Invisible degradation beats visible watermarks for premium content.
 
 ---
 

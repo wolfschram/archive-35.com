@@ -75,7 +75,8 @@ archive-35.com/                          # GitHub repo root
 │   ├── metadata/                       # Per-image metadata JSON files
 │   ├── _catalog.json                   # Master licensing catalog
 │   ├── _config.json                    # Licensing config (tiers, pricing)
-│   ├── process_licensing_images.py     # Full pipeline: scan → thumbnail → watermark → metadata
+│   ├── upload_to_r2.py                 # R2 upload with local verify + HEAD check + backup tracking
+│   ├── process_licensing_images.py     # Full pipeline: scan → thumbnail → watermark → R2 → catalog
 │   ├── generate_thumbnail.py
 │   ├── generate_watermark.py
 │   └── scan_licensing_folder.py
@@ -104,7 +105,7 @@ archive-35.com/                          # GitHub repo root
 │   ├── grand-teton/                    # 48 photos (thumb + full)
 │   ├── iceland-ring-road/              # 67 photos
 │   ├── africa/, tanzania/, etc.
-│   └── large-scale-photography-stitch/ # Panoramic licensing source images
+│   └── (large-scale-photography-stitch removed — licensing only now)
 │
 ├── logos/                              # Brand logos, favicons, OG images
 │
@@ -189,22 +190,44 @@ gallery.html is **completely self-contained** — all CSS and JS inline, no exte
 ## LICENSING SYSTEM
 
 ### Pipeline (09_Licensing/)
-1. Drop high-res panoramic images in `09_Licensing/originals/`
-2. Run `process_licensing_images.py` — generates thumbnails, watermarks, metadata
-3. Output: `data/licensing-catalog.json` with 45 entries
-4. `build.sh` copies thumbnails + watermarked to `_site/09_Licensing/`
+1. Select source folder containing high-res panoramic images (via Studio LicensingManager or CLI)
+2. Run `process_licensing_images.py --source <folder>` — scans, generates previews, thumbnails, metadata
+3. R2 upload: `upload_to_r2.py` uploads originals (PRIVATE) + previews + thumbnails to Cloudflare R2
+   - **Originals MUST exist locally** before upload (hard fail if missing)
+   - Every upload verified via HEAD request (size match)
+   - Backup status tracked in metadata JSON (`r2_backup_status.original.verified`)
+   - Use `--verify-only` to audit backup status without uploading
+4. Output: `data/licensing-catalog.json` with 45 entries
+5. `build.sh` copies thumbnails + previews to `_site/09_Licensing/`
+
+### Copy Protection (Invisible — No Visible Watermark)
+- **Old approach (removed):** Ugly tiled "ARCHIVE-35 | PREVIEW ONLY" text overlay at 30% opacity
+- **New approach (Feb 12, 2026):** Multi-layer invisible protection:
+  1. **Server-side:** Preview images are max 2000px, quality 45 JPEG, slight blur (0.5px), all EXIF stripped
+  2. **Client-side (licensing.html):** Canvas-based rendering (blocks right-click save), blob URLs (no direct image URL), contextmenu/drag blocked on canvas
+  3. **Existing:** image-protection.js blocks right-click/drag/long-press on all images
+  4. **Legal:** C2PA credentials on originals prove ownership cryptographically
+- Result: Clean, premium-looking previews that are commercially useless
+
+### Gallery vs Licensing Separation
+- **Gallery** (photos.json / gallery.html): Regular photography collections — prints for sale
+- **Licensing** (licensing-catalog.json / licensing.html): Ultra-high-res panoramic images — licenses only
+- `large-scale-photography-stitch` collection **removed from gallery** (Feb 12) — these are licensing-only
+- Gallery ingest (`scan-photography` in main.js) auto-excludes: `Large Scale Photography Stitch`, `licensing`
+- Licensing ingest goes through LicensingManager.js → `process_licensing_images.py`
 
 ### Licensing Page (licensing.html)
 - Self-contained with inline CSS
 - Loads `data/licensing-catalog.json` dynamically
 - Filter buttons: ALL, ULTRA, PREMIUM, STANDARD
+- **Modal uses canvas rendering** (not `<img>`) for copy protection
 - Image retry logic (staggered 150ms) handles CDN rate-limiting
 - Title cleanup: strips `.jpg`, converts `IMG_0140-Pano` → `Panoramic IMG 0140`
 - Tiers: Ultra ($500+, 20K+ pixels), Premium ($400+), Standard ($300+)
 
 ### Image Paths
 - Thumbnails: `09_Licensing/thumbnails/A35-{date}-{num}.jpg`
-- Watermarked: `09_Licensing/watermarked/A35-{date}-{num}.jpg`
+- Previews: `09_Licensing/watermarked/A35-{date}-{num}.jpg` (folder name kept for compatibility, but no watermark)
 
 ---
 
@@ -215,17 +238,23 @@ Gallery/Collection → Click photo → Lightbox → BUY PRINT / LICENSE
     ↓
 Product Selector Modal (product-selector.js)
 ├── ORDER PRINT tab: Canvas, Metal, Acrylic, Fine Art Paper, Wood
-├── LICENSE IMAGE tab: Personal, Commercial, Enterprise tiers
-├── Size options calculated from photo dimensions/aspect ratio
-└── Price displayed → ADD TO CART
+│   ├── Size options calculated from photo dimensions/aspect ratio
+│   └── Price displayed → ADD TO CART or BUY NOW → Stripe → Pictorem
+├── LICENSE IMAGE tab: Web/Social, Editorial, Commercial, Billboard, Hospitality, Exclusive
+│   ├── JPEG or TIFF format selection
+│   └── Price displayed → LICENSE THIS IMAGE → Stripe → Download Link (72hr signed URL)
     ↓
-Cart (cart.js + cart-ui.js)
-├── Cart icon in header (auto-injected by cart-ui.js into .nav element)
-├── Slide-out panel from right
-└── CHECKOUT → Stripe
-    ↓
-Stripe (with promotion code support) → Pictorem fulfillment
+PRINT PATH:
+  Stripe checkout (with shipping) → webhook → Pictorem order (R2 original) → customer email + Wolf email
+LICENSE PATH:
+  Stripe checkout (no shipping) → webhook → signed R2 download URL → customer email + Wolf email
 ```
+
+### Two Purchase Flows
+- **Prints**: `metadata[orderType] = 'print'` → webhook sends to Pictorem for fulfillment
+- **Licenses**: `metadata[orderType] = 'license'` → webhook generates HMAC-signed R2 download URL (72hr expiry), emails customer
+- **Collection slug**: Passed explicitly in `metadata[collection]` from frontend → webhook uses it for R2 key lookup
+- **Fallback**: If Stripe checkout fails, both flows fall back to contact form
 
 ### Promotion Code System
 - **Stripe native**: `allow_promotion_codes: true` on all checkout sessions
@@ -297,11 +326,21 @@ Stripe (with promotion code support) → Pictorem fulfillment
 
 ---
 
-## RECENT CHANGES LOG (February 9-11, 2026)
+## RECENT CHANGES LOG (February 9-12, 2026)
 
 | Commit | Change |
 |--------|--------|
-| 1531f82 | Fix gallery click-blocking after Buy Print cancel (image-protection.js pointer-events bug) |
+| (pending) | upload_to_r2.py: guaranteed R2 backup with local verification + HEAD verify + metadata tracking |
+| (pending) | Remove large-scale-photography-stitch from gallery (353 photos, 26 collections) |
+| (pending) | Replace watermark with invisible copy protection (canvas + blob + low-quality) |
+| (pending) | licensing.html: canvas-based rendering + blob URLs for previews |
+| (pending) | Studio: auto-exclude licensing folders from gallery scan |
+| (pending) | LicensingManager.js: Browse button + force-regen previews option |
+| (pending) | Wire licensing purchase to Stripe checkout + signed R2 download delivery |
+| (pending) | Add collection slug to checkout metadata for new gallery support |
+| (pending) | Verify Cloudflare Pages: R2 binding (ORIGINALS) + all webhook secrets confirmed |
+| 6f490b4 | Fix gallery click-blocking (image-protection.js pointer-events) + Lesson 016 |
+| 1531f82 | Fix gallery click-blocking after Buy Print cancel |
 | 65a0dc6 | Add LESSONS_LEARNED.md, update ARCHITECTURE.md v2.1, update CLAUDE.md |
 | 824dbb3 | Fix gallery: regenerate all 397 photos from photos.json + cleanup |
 | c3ba825 | Add folder sync: one-way Source→iCloud sync with Studio UI |
@@ -321,16 +360,25 @@ Stripe (with promotion code support) → Pictorem fulfillment
 ## WHAT STILL NEEDS WORK
 
 ### Priority
+- [ ] **Run `python generate_watermark.py --force` on Mac** to regenerate 45 clean previews (replacing old watermarked ones)
+- [x] ~~Run upload_to_r2.py on Mac~~ → All 45 originals uploaded + verified (135 files total)
+- [x] ~~R2 binding in Cloudflare Pages~~ → ORIGINALS bound to archive-35-originals ✅
+- [x] ~~Webhook secrets~~ → Both STRIPE_WEBHOOK_SECRET and STRIPE_TEST_WEBHOOK_SECRET configured ✅
 - [ ] Verify mobile layout on actual iPhone (gallery nav overlap, homepage text overlap)
 - [ ] Licensing page layout — Wolf wants bigger/wider grid like About page
 - [ ] Add deduplication check to ingest pipeline (prevent future duplicate photos)
-- [ ] End-to-end test checkout flow in test mode (verify metadata 4-layer defense)
+- [ ] End-to-end test checkout flow in test mode (both print AND license paths)
 
 ### Backlog
-- [ ] Pictorem API automated order submission
+- [x] ~~Pictorem API automated order submission~~ → stripe-webhook.js: full auto-fulfillment
+- [x] ~~Licensing Stripe checkout~~ → product-selector.js → create-checkout-session.js → stripe-webhook.js license handler
+- [x] ~~Collection slug hardcoded in webhook~~ → Now passed via metadata[collection] from frontend
 - [x] ~~WELCOME10 promo code in Stripe~~ → Full PromoCodeManager built
 - [x] ~~Gallery data goes stale~~ → Automated via sync_gallery_data.py in build.sh
 - [x] ~~Folder sync~~ → FolderSync.js (Source → iCloud)
+- [x] ~~Large-scale-photography-stitch in gallery~~ → Removed, licensing-only now
+- [x] ~~Ugly watermarks on licensing previews~~ → Invisible protection (canvas + low-quality + blob)
+- [x] ~~R2 backup guarantee for originals~~ → upload_to_r2.py: local verify + HEAD check + metadata tracking
 - [ ] Stripe webhooks for order fulfillment
 - [ ] Google Drive backup integration in Studio app
 - [ ] SocialMedia.js page (placeholder)
@@ -378,7 +426,7 @@ Stripe (with promotion code support) → Pictorem fulfillment
 
 ---
 
-*Last updated: 2026-02-11 (Gallery sync automation, LESSONS_LEARNED.md, folder sync, promo codes, architecture v2.1)*
+*Last updated: 2026-02-12 (Licensing Stripe checkout + download delivery, collection slug in metadata, R2 binding verified, all webhook secrets confirmed)*
 
 ---
 

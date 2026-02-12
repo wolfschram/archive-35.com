@@ -3,11 +3,14 @@ import React, { useState, useCallback } from 'react';
 /**
  * LicensingManager — Studio tab for managing the licensing pipeline.
  *
- * Controls:
- *   - Source folder selection (defaults to Photography/Large Scale Photography Stitch/)
- *   - Pipeline execution: scan → watermark → thumbnail → R2 upload → catalog
- *   - Catalog browser with classification badges
- *   - Metadata editing (title, description, location)
+ * WORKFLOW: Licensing images have their own ingest path, separate from gallery.
+ *   1. Select source folder (Browse button or type path)
+ *   2. Run pipeline: scan → preview (invisible protection) → thumbnail → R2 → catalog
+ *   3. Review catalog, edit metadata (title, description, location)
+ *   4. Deploy via Website Control tab
+ *
+ * NOTE: Gallery ingest (ContentIngest) auto-excludes licensing source folders.
+ * Licensing images should ONLY go through this pipeline, not the gallery.
  */
 
 const CLASSIFICATIONS = {
@@ -18,7 +21,7 @@ const CLASSIFICATIONS = {
 
 const PIPELINE_STEPS = [
   { id: 'scan',      label: 'Scan & Classify',       script: 'scan_licensing_folder.py' },
-  { id: 'watermark', label: 'Generate Watermarks',    script: 'generate_watermark.py' },
+  { id: 'watermark', label: 'Generate Previews',       script: 'generate_watermark.py' },
   { id: 'thumbnail', label: 'Generate Thumbnails',    script: 'generate_thumbnail.py' },
   { id: 'r2',        label: 'Upload to R2',           script: 'upload_to_r2.py' },
   { id: 'catalog',   label: 'Generate Gallery Catalog', script: 'process_licensing_images.py' },
@@ -32,6 +35,7 @@ function LicensingManager() {
   const [catalog, setCatalog] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [editFields, setEditFields] = useState({ title: '', description: '', location: '' });
+  const [forceRegenPreviews, setForceRegenPreviews] = useState(false);
 
   // ── Load catalog ──────────────────────────────────────────────────
   const loadCatalog = useCallback(async () => {
@@ -48,6 +52,21 @@ function LicensingManager() {
       console.error('Failed to load catalog:', e);
     }
   }, []);
+
+  // ── Browse for source folder ─────────────────────────────────────
+  const browseSourceFolder = async () => {
+    if (window.electronAPI?.selectFolder) {
+      const result = await window.electronAPI.selectFolder();
+      if (result) {
+        // Convert absolute path to relative path from Archive-35 root
+        const basePath = await window.electronAPI.getBasePath?.() || '';
+        const relative = result.startsWith(basePath)
+          ? result.slice(basePath.length + 1)  // +1 for trailing /
+          : result;
+        setSourceFolder(relative);
+      }
+    }
+  };
 
   // ── Run pipeline ──────────────────────────────────────────────────
   const runPipeline = async () => {
@@ -69,8 +88,9 @@ function LicensingManager() {
             log(result);
           } else {
             const sourceArg = step.id === 'scan' ? ` --source "../${sourceFolder}"` : '';
+            const forceArg = (step.id === 'watermark' && forceRegenPreviews) ? ' --force' : '';
             const result = await window.electronAPI.runCommand(
-              `cd 09_Licensing && python3 ${step.script} .${sourceArg}`
+              `cd 09_Licensing && python3 ${step.script} .${sourceArg}${forceArg}`
             );
             log(result);
           }
@@ -136,41 +156,69 @@ function LicensingManager() {
         Process ultra-high-resolution images for commercial licensing
       </p>
 
-      {/* Source folder + Run button */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', alignItems: 'center' }}>
-        <label style={{ color: '#999', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+      {/* Source folder selection */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'center' }}>
+        <label style={{ color: '#999', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', whiteSpace: 'nowrap' }}>
           Source Folder:
         </label>
         <input
           type="text"
           value={sourceFolder}
           onChange={(e) => setSourceFolder(e.target.value)}
+          placeholder="Photography/Large Scale Photography Stitch"
           style={{
             flex: 1, padding: '8px 12px', background: '#1a1a1a', border: '1px solid #333',
             borderRadius: '6px', color: '#fff', fontSize: '13px'
           }}
         />
         <button
-          onClick={runPipeline}
-          disabled={pipelineRunning}
+          onClick={browseSourceFolder}
           style={{
-            padding: '8px 20px', background: pipelineRunning ? '#333' : '#c4973b',
-            color: pipelineRunning ? '#666' : '#000', border: 'none', borderRadius: '6px',
-            fontWeight: 700, fontSize: '12px', cursor: pipelineRunning ? 'wait' : 'pointer',
+            padding: '8px 16px', background: '#222', color: '#c4973b', border: '1px solid #333',
+            borderRadius: '6px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap'
+          }}
+        >
+          Browse...
+        </button>
+      </div>
+
+      {/* Pipeline controls */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', alignItems: 'center' }}>
+        <button
+          onClick={runPipeline}
+          disabled={pipelineRunning || !sourceFolder}
+          style={{
+            padding: '8px 20px', background: (pipelineRunning || !sourceFolder) ? '#333' : '#c4973b',
+            color: (pipelineRunning || !sourceFolder) ? '#666' : '#000', border: 'none', borderRadius: '6px',
+            fontWeight: 700, fontSize: '12px', cursor: (pipelineRunning || !sourceFolder) ? 'not-allowed' : 'pointer',
             textTransform: 'uppercase', letterSpacing: '1px'
           }}
         >
           {pipelineRunning ? `Running: ${currentStep || '...'}` : 'Run Pipeline'}
         </button>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#999', fontSize: '12px', cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={forceRegenPreviews}
+            onChange={(e) => setForceRegenPreviews(e.target.checked)}
+            style={{ accentColor: '#c4973b' }}
+          />
+          Regenerate all previews
+        </label>
         <button
           onClick={loadCatalog}
           style={{
             padding: '8px 16px', background: '#222', color: '#c4973b', border: '1px solid #333',
-            borderRadius: '6px', fontSize: '12px', cursor: 'pointer'
+            borderRadius: '6px', fontSize: '12px', cursor: 'pointer', marginLeft: 'auto'
           }}
         >
           Reload Catalog
         </button>
+      </div>
+
+      {/* Workflow note */}
+      <div style={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: '6px', padding: '10px 16px', marginBottom: '24px', fontSize: '11px', color: '#777' }}>
+        <strong style={{ color: '#c4973b' }}>Licensing workflow:</strong> Select a source folder containing high-res panoramic images → Run Pipeline → Images are scanned, classified, and previews are generated with invisible copy protection (no visible watermark). Gallery ingest automatically excludes licensing source folders.
       </div>
 
       {/* Pipeline steps indicator */}

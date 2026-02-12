@@ -578,10 +578,77 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
       const basePrice = LICENSE_PRICING[selectedTier]?.[licenseClass || 'STANDARD'] || 0;
       const total = basePrice + (selectedFormat === 'tiff' ? 100 : 0);
       const tierName = LICENSE_TIERS[selectedTier].name;
-      const msg = encodeURIComponent(
-        `License Request:\n\nPhoto: ${photoData.title}\nTier: ${tierName}\nFormat: ${selectedFormat.toUpperCase()}\nResolution: ${photoData.dimensions.width} × ${photoData.dimensions.height} px\nPrice: $${total.toLocaleString()}\n\nPlease send me the license agreement and payment link.`
-      );
-      window.location.href = `contact.html?message=${msg}`;
+      const priceInCents = total * 100;
+
+      licenseBuyBtn.textContent = 'Processing...';
+      licenseBuyBtn.disabled = true;
+
+      // Detect test mode from Stripe public key prefix
+      const isTestMode = window.STRIPE_PUBLIC_KEY && window.STRIPE_PUBLIC_KEY.startsWith('pk_test_');
+
+      const checkoutData = {
+        lineItems: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `${photoData.title} — ${tierName} License`,
+              description: `${selectedFormat.toUpperCase()} · ${photoData.dimensions.width} × ${photoData.dimensions.height} px`,
+              metadata: {
+                photoId: photoData.id,
+                licenseTier: selectedTier,
+                licenseFormat: selectedFormat,
+                originalWidth: String(photoData.dimensions.width),
+                originalHeight: String(photoData.dimensions.height)
+              }
+            },
+            unit_amount: priceInCents
+          },
+          quantity: 1
+        }],
+        successUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: window.location.href,
+        license: {
+          photoId: photoData.id,
+          photoTitle: photoData.title,
+          photoFilename: photoData.filename || photoData.id,
+          collection: photoData.collection || '',
+          tier: selectedTier,
+          tierName: tierName,
+          format: selectedFormat,
+          classification: licenseClass,
+          resolution: `${photoData.dimensions.width}x${photoData.dimensions.height}`
+        },
+        testMode: isTestMode || false
+      };
+
+      const apiBase = 'https://archive-35-com.pages.dev';
+      fetch(`${apiBase}/api/create-checkout-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(checkoutData)
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('Checkout endpoint not available');
+          return res.json();
+        })
+        .then(data => {
+          if (data.url) {
+            window.location.href = data.url;
+            return;
+          }
+          if (data.sessionId && window.Stripe && window.STRIPE_PUBLIC_KEY) {
+            window.Stripe(window.STRIPE_PUBLIC_KEY).redirectToCheckout({ sessionId: data.sessionId });
+          } else {
+            throw new Error('Stripe not configured');
+          }
+        })
+        .catch(err => {
+          console.warn('License checkout unavailable, falling back to contact form:', err.message);
+          const msg = encodeURIComponent(
+            `License Request:\n\nPhoto: ${photoData.title}\nTier: ${tierName}\nFormat: ${selectedFormat.toUpperCase()}\nResolution: ${photoData.dimensions.width} × ${photoData.dimensions.height} px\nPrice: $${total.toLocaleString()}\n\nPlease send me the license agreement and payment link.`
+          );
+          window.location.href = `contact.html?message=${msg}`;
+        });
     });
   }
 
@@ -804,6 +871,7 @@ function initiateStripeCheckout(photoData, materialKey, size) {
       photoId: id,
       photoTitle: title,
       photoFilename: photoData.filename || id,
+      collection: photoData.collection || '',
       material: materialKey,
       dimensions: {
         width: size.width,

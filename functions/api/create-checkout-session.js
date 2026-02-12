@@ -25,7 +25,7 @@ export async function onRequestPost(context) {
 
   try {
     const body = await request.json();
-    const { lineItems, successUrl, cancelUrl, pictorem, testMode } = body;
+    const { lineItems, successUrl, cancelUrl, pictorem, license, testMode } = body;
 
     // Select appropriate Stripe key based on test mode flag
     const isTestMode = testMode === true;
@@ -82,11 +82,31 @@ export async function onRequestPost(context) {
       }
     });
 
-    // Session-level metadata for Pictorem order processing (first item or explicit)
-    if (pictorem) {
+    // Determine order type: license or print
+    const isLicenseOrder = !!license;
+    params.append('metadata[orderType]', isLicenseOrder ? 'license' : 'print');
+
+    if (isLicenseOrder && license) {
+      // LICENSE ORDER — digital delivery, no shipping needed
+      params.append('metadata[photoId]', license.photoId || '');
+      params.append('metadata[photoTitle]', license.photoTitle || '');
+      params.append('metadata[photoFilename]', license.photoFilename || '');
+      params.append('metadata[collection]', license.collection || '');
+      params.append('metadata[licenseTier]', license.tier || '');
+      params.append('metadata[licenseTierName]', license.tierName || '');
+      params.append('metadata[licenseFormat]', license.format || 'jpeg');
+      params.append('metadata[licenseClassification]', license.classification || '');
+      params.append('metadata[resolution]', license.resolution || '');
+
+      if (!license.photoId) {
+        console.warn('License checkout: missing photoId');
+      }
+    } else if (pictorem) {
+      // PRINT ORDER — physical fulfillment via Pictorem
       params.append('metadata[photoId]', pictorem.photoId || '');
       params.append('metadata[photoTitle]', pictorem.photoTitle || '');
       params.append('metadata[photoFilename]', pictorem.photoFilename || '');
+      params.append('metadata[collection]', pictorem.collection || '');
       params.append('metadata[material]', pictorem.material || '');
       params.append('metadata[printWidth]', String(pictorem.dimensions?.width || ''));
       params.append('metadata[printHeight]', String(pictorem.dimensions?.height || ''));
@@ -104,16 +124,18 @@ export async function onRequestPost(context) {
         console.warn('Checkout session: incomplete Pictorem metadata:', missing.join(', '));
       }
     } else {
-      console.warn('Checkout session: NO pictorem metadata provided — webhook will reject this order');
+      console.warn('Checkout session: NO pictorem or license metadata provided');
     }
     // Store item count for webhook multi-item handling
     params.append('metadata[itemCount]', lineItems.length.toString());
 
-    // Collect shipping address (needed for Pictorem fulfillment)
-    const allowedCountries = ['US', 'CA', 'GB', 'AU', 'DE', 'NZ', 'AT', 'CH', 'FR', 'IT', 'ES', 'NL', 'BE', 'IE', 'JP'];
-    allowedCountries.forEach((country, i) => {
-      params.append(`shipping_address_collection[allowed_countries][${i}]`, country);
-    });
+    // Collect shipping address only for print orders (not needed for digital licenses)
+    if (!isLicenseOrder) {
+      const allowedCountries = ['US', 'CA', 'GB', 'AU', 'DE', 'NZ', 'AT', 'CH', 'FR', 'IT', 'ES', 'NL', 'BE', 'IE', 'JP'];
+      allowedCountries.forEach((country, i) => {
+        params.append(`shipping_address_collection[allowed_countries][${i}]`, country);
+      });
+    }
 
     // Customer email collection
     params.append('customer_creation', 'always');

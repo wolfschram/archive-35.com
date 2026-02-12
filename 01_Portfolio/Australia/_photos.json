@@ -1,45 +1,5 @@
 [
   {
-    "id": "_mg_0052_(1)",
-    "filename": "_MG_0052 (1).jpg",
-    "title": "Tempestuous Cove",
-    "description": "A dramatic coastal landscape where turquoise waters meet rugged sandstone cliffs, their verdant slopes rising majestically above the churning surf. The interplay of light and shadow across the weathered rocks and forested headland creates a powerful sense of untamed natural beauty.",
-    "location": "Bouddi National Park, Central Coast, New South Wales, Australia",
-    "tags": [
-      "australian-coast",
-      "coastal-landscape",
-      "new-south-wales",
-      "headland",
-      "turquoise-water",
-      "rocky-shore",
-      "ocean-waves",
-      "sandstone-cliffs",
-      "coastal-forest",
-      "dramatic-seascape",
-      "nature-photography",
-      "fine-art-landscape",
-      "moody-sky",
-      "overcast-conditions",
-      "azure-waters",
-      "weathered-rocks",
-      "wall-art",
-      "canvas-print",
-      "gallery-worthy",
-      "australian-wilderness"
-    ],
-    "dimensions": {
-      "width": 5430,
-      "height": 2995,
-      "aspectRatio": 1.813,
-      "aspectRatioString": "1086:599",
-      "orientation": "wide",
-      "megapixels": 16.3
-    },
-    "thumbnail": "_MG_0052 (1)-thumb.jpg",
-    "full": "_MG_0052 (1)-full.jpg",
-    "c2pa": true
-  },
-  {
     "id": "_mg_0185",
     "filename": "_MG_0185.jpg",
     "title": "Kangaroo in Native Scrubland",
@@ -77,6 +37,46 @@
     },
     "thumbnail": "_MG_0185-thumb.jpg",
     "full": "_MG_0185-full.jpg",
+    "c2pa": true
+  },
+  {
+    "id": "_mg_0052_(1)",
+    "filename": "_MG_0052 (1).jpg",
+    "title": "Tempestuous Cove",
+    "description": "A dramatic coastal landscape where turquoise waters meet rugged sandstone cliffs, their verdant slopes rising majestically above the churning surf. The interplay of light and shadow across the weathered rocks and forested headland creates a powerful sense of untamed natural beauty.",
+    "location": "Bouddi National Park, Central Coast, New South Wales, Australia",
+    "tags": [
+      "australian-coast",
+      "coastal-landscape",
+      "new-south-wales",
+      "headland",
+      "turquoise-water",
+      "rocky-shore",
+      "ocean-waves",
+      "sandstone-cliffs",
+      "coastal-forest",
+      "dramatic-seascape",
+      "nature-photography",
+      "fine-art-landscape",
+      "moody-sky",
+      "overcast-conditions",
+      "azure-waters",
+      "weathered-rocks",
+      "wall-art",
+      "canvas-print",
+      "gallery-worthy",
+      "australian-wilderness"
+    ],
+    "dimensions": {
+      "width": 5430,
+      "height": 2995,
+      "aspectRatio": 1.813,
+      "aspectRatioString": "1086:599",
+      "orientation": "wide",
+      "megapixels": 16.3
+    },
+    "thumbnail": "_MG_0052 (1)-thumb.jpg",
+    "full": "_MG_0052 (1)-full.jpg",
     "c2pa": true
   },
   {

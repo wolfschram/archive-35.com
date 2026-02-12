@@ -103,6 +103,7 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
 .modal-close:hover{color:var(--gold)}
 .modal-img{border-radius:4px;overflow:hidden;background:var(--raised)}
 .modal-img img{width:100%;display:block}
+.modal-img canvas{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:auto}
 .modal-details{padding:20px 0}
 .modal-details h2{font-size:24px;font-weight:300;letter-spacing:3px;margin-bottom:4px}
 .modal-details .loc{font-size:12px;color:var(--text-dim);margin-bottom:20px}
@@ -204,7 +205,7 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
 <div class="modal-overlay" id="modal">
   <button class="modal-close" onclick="closeModal()">&times;</button>
   <div class="modal">
-    <div class="modal-img"><img id="m-img" src="" alt=""></div>
+    <div class="modal-img"><canvas id="m-canvas" style="width:100%;display:block;border-radius:4px"></canvas></div>
     <div class="modal-details">
       <h2 id="m-title"></h2>
       <div class="loc" id="m-location"></div>
@@ -338,7 +339,8 @@ function openModal(id) {
   currentImage = img;
   currentFormat = 'jpg';
 
-  document.getElementById('m-img').src = img.preview;
+  // Load preview via fetch + blob URL → draw on canvas (no direct image URL to steal)
+  loadProtectedPreview(img.preview);
   document.getElementById('m-title').textContent = img.title || img.id;
   document.getElementById('m-location').textContent = img.location || '';
 
@@ -372,9 +374,47 @@ function openModal(id) {
   document.body.style.overflow = 'hidden';
 }
 
+// ── Protected preview: fetch → blob → canvas (no direct URL to steal) ──
+let currentBlobUrl = null;
+function loadProtectedPreview(previewPath) {
+  const canvas = document.getElementById('m-canvas');
+  const ctx = canvas.getContext('2d');
+
+  // Clear previous
+  if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  fetch(previewPath)
+    .then(r => r.blob())
+    .then(blob => {
+      currentBlobUrl = URL.createObjectURL(blob);
+      const tempImg = new window.Image();
+      tempImg.onload = () => {
+        canvas.width = tempImg.naturalWidth;
+        canvas.height = tempImg.naturalHeight;
+        ctx.drawImage(tempImg, 0, 0);
+        URL.revokeObjectURL(currentBlobUrl);
+        currentBlobUrl = null;
+      };
+      tempImg.src = currentBlobUrl;
+    })
+    .catch(() => {
+      // Fallback: if fetch fails, just show text
+      canvas.width = 800; canvas.height = 400;
+      ctx.fillStyle = '#1C1C1C'; ctx.fillRect(0, 0, 800, 400);
+      ctx.fillStyle = '#555'; ctx.font = '16px Inter, sans-serif';
+      ctx.textAlign = 'center'; ctx.fillText('Preview unavailable', 400, 200);
+    });
+}
+
 function closeModal() {
   document.getElementById('modal').classList.remove('open');
   document.body.style.overflow = '';
+  // Clean up blob URL
+  if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
+  // Clear canvas
+  const canvas = document.getElementById('m-canvas');
+  if (canvas) { const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
   currentImage = null;
 }
 
@@ -464,12 +504,20 @@ function retryFailedImages() {
 // Start retry after initial load attempt
 setTimeout(retryFailedImages, 2000);
 
+// Block right-click and drag on canvas (copy protection)
+document.addEventListener('contextmenu', e => {
+  if (e.target.tagName === 'CANVAS') { e.preventDefault(); return false; }
+});
+document.addEventListener('dragstart', e => {
+  if (e.target.tagName === 'CANVAS') { e.preventDefault(); return false; }
+});
+
 // Init
 loadCatalog();
 </script>
 <link rel="stylesheet" href="css/cart.css">
 <script src="https://js.stripe.com/v3/"></script>
-<script>window.STRIPE_PUBLIC_KEY = 'pk_live_51SxIaWIyLqYsy9lvz6b9LBV2cMBz4JJgFb30aYvbrMxH0hromGU1mFWF2vu6tV97Co8LrczCM3dFJg89a9a4tT0U007cpVXRWM';</script>
+<script>window.STRIPE_PUBLIC_KEY = 'pk_test_51SxIaWIyLqYsy9lvQBUlhX2aj0atlTuHbA1Q0861MUuaUPAaxjtrwh71GqBUMhYcdzyDgCBZQ2TLS2nTaAVNZrgP00OHqZD4OI';</script>
 <script src="js/cart.js"></script>
 <script src="js/cart-ui.js?v=2"></script>
 <script src="js/image-protection.js"></script>

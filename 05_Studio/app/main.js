@@ -2039,6 +2039,17 @@ ipcMain.handle('scan-photography', async () => {
       }
     } catch (e) {}
 
+    // Always exclude licensing source folders from gallery scan
+    // These go through the licensing pipeline (09_Licensing/), not gallery ingest
+    const LICENSING_EXCLUSIONS = [
+      'Large Scale Photography Stitch',
+      'large-scale-photography-stitch',
+      'Licensing',
+      'licensing'
+    ];
+    const userExcludes = config.excludeFolders || [];
+    config.excludeFolders = [...new Set([...userExcludes, ...LICENSING_EXCLUSIONS])];
+
     // Normalize alias map keys
     const aliasMap = {};
     for (const [key, val] of Object.entries(config.aliasMap || {})) {

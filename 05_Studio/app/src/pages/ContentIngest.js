@@ -340,16 +340,26 @@ function ContentIngest() {
   };
 
   const getBatchReviewStats = () => {
-    let total = 0, approved = 0;
+    let total = 0, approved = 0, excluded = 0;
     Object.values(reviewByGallery).forEach(g => {
-      g.photos.forEach(p => { total++; if (p.approved) approved++; });
+      g.photos.forEach(p => { total++; if (p.approved && !p.excluded) approved++; else if (p.excluded) excluded++; });
     });
-    return { total, approved, pending: total - approved, galleries: Object.keys(reviewByGallery).length };
+    return { total, approved, excluded, pending: total - approved - excluded, galleries: Object.keys(reviewByGallery).length };
   };
 
   const allBatchApproved = () => {
     const stats = getBatchReviewStats();
-    return stats.total > 0 && stats.pending === 0;
+    return stats.total > 0 && stats.pending === 0 && stats.approved > 0;
+  };
+
+  const excludeAllInGallery = (folderName) => {
+    setReviewByGallery(prev => ({
+      ...prev,
+      [folderName]: {
+        ...prev[folderName],
+        photos: prev[folderName].photos.map(p => p.approved ? p : { ...p, excluded: true })
+      }
+    }));
   };
 
   // ===================================================================
@@ -362,7 +372,13 @@ function ContentIngest() {
     setProgress(null);
     startTimeRef.current = Date.now();
 
-    const galleryEntries = Object.entries(reviewByGallery);
+    // Filter out excluded photos, skip galleries with zero approved photos
+    const galleryEntries = Object.entries(reviewByGallery)
+      .map(([folderName, galleryData]) => {
+        const approvedPhotos = galleryData.photos.filter(p => p.approved && !p.excluded);
+        return [folderName, { ...galleryData, photos: approvedPhotos }];
+      })
+      .filter(([_, galleryData]) => galleryData.photos.length > 0);
     const results = [];
 
     for (let i = 0; i < galleryEntries.length; i++) {
@@ -514,15 +530,27 @@ function ContentIngest() {
 
   const approveAndNext = () => {
     updateReviewItem(currentReviewIndex, 'approved', true);
+    updateReviewItem(currentReviewIndex, 'excluded', false);
     if (currentReviewIndex < reviewData.length - 1) {
       setCurrentReviewIndex(prev => prev + 1);
     }
   };
 
-  const allApproved = () => reviewData.length > 0 && reviewData.every(item => item.approved);
+  const excludeAndNext = () => {
+    updateReviewItem(currentReviewIndex, 'excluded', true);
+    updateReviewItem(currentReviewIndex, 'approved', false);
+    if (currentReviewIndex < reviewData.length - 1) {
+      setCurrentReviewIndex(prev => prev + 1);
+    }
+  };
+
+  const allApproved = () => reviewData.length > 0
+    && reviewData.every(item => item.approved || item.excluded)
+    && reviewData.some(item => item.approved);
 
   const handleFinalize = async () => {
-    if (!allApproved()) { alert('Please approve all photos before finalizing.'); return; }
+    if (!allApproved()) { alert('Please approve or exclude all photos before finalizing. At least one photo must be approved.'); return; }
+    const approvedPhotos = reviewData.filter(p => p.approved && !p.excluded);
     setProcessing(true);
     setProgress(null);
     startTimeRef.current = Date.now();
@@ -531,16 +559,16 @@ function ContentIngest() {
     try {
       if (window.electronAPI) {
         const result = await window.electronAPI.finalizeIngest({
-          photos: reviewData,
+          photos: approvedPhotos,
           mode: galleryMode,
           portfolioId: galleryMode === 'existing' ? selectedPortfolio : null,
           newGallery: galleryMode === 'new' ? { name: galleryName, country, location } : null
         });
         if (result.success) {
           const gName = galleryMode === 'new' ? galleryName : (existingPortfolios.find(p => p.id === selectedPortfolio)?.name || 'Portfolio');
-          setCompletionState({ photosImported: reviewData.length, galleryName: gName, timestamp: new Date().toLocaleTimeString() });
+          setCompletionState({ photosImported: approvedPhotos.length, galleryName: gName, timestamp: new Date().toLocaleTimeString() });
           setProcessStatus({ step: 5, message: 'Import complete!', success: true });
-          setProgress({ phase: 'done', current: reviewData.length, total: reviewData.length });
+          setProgress({ phase: 'done', current: approvedPhotos.length, total: approvedPhotos.length });
           loadPortfolios();
         } else {
           setProcessStatus({ step: 0, message: result.error, error: true });
@@ -589,6 +617,7 @@ function ContentIngest() {
   // Computed values for manual review
   const currentPhoto = reviewData[currentReviewIndex];
   const approvedCount = reviewData.filter(p => p.approved).length;
+  const excludedCount = reviewData.filter(p => p.excluded).length;
 
   // Computed values for batch review
   const batchStats = unifiedReviewMode ? getBatchReviewStats() : null;
@@ -840,19 +869,20 @@ function ContentIngest() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3>Review All Photos</h3>
               <span className="status-badge pending">
-                {batchStats.approved}/{batchStats.total} Approved
+                {batchStats.approved} approved{batchStats.excluded > 0 ? ` · ${batchStats.excluded} excluded` : ''} / {batchStats.total} total
               </span>
             </div>
             <p style={{ marginTop: '8px', color: 'var(--text-muted)' }}>
-              {batchStats.galleries} galleries — review and approve metadata from AI analysis.
+              {batchStats.galleries} galleries — approve or exclude each photo before finalizing.
             </p>
           </div>
 
           {/* Gallery groups */}
           {Object.entries(reviewByGallery).map(([folderName, galleryData]) => {
             const galleryApproved = galleryData.photos.filter(p => p.approved).length;
+            const galleryExcluded = galleryData.photos.filter(p => p.excluded).length;
             const galleryTotal = galleryData.photos.length;
-            const allDone = galleryApproved === galleryTotal;
+            const allDone = galleryApproved + galleryExcluded === galleryTotal && galleryApproved > 0;
             const isNew = galleryData.config.mode === 'new';
 
             return (
@@ -875,13 +905,19 @@ function ContentIngest() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span style={{ fontSize: '13px', color: allDone ? '#22c55e' : 'var(--text-muted)' }}>
-                      {galleryApproved}/{galleryTotal} {allDone ? '\u2713' : ''}
+                      {galleryApproved}{galleryExcluded > 0 ? `+${galleryExcluded}x` : ''}/{galleryTotal} {allDone ? '\u2713' : ''}
                     </span>
                     {!allDone && !galleryData.collapsed && (
-                      <button className="btn btn-secondary" onClick={e => { e.stopPropagation(); approveAllInGallery(folderName); }}
-                        style={{ fontSize: '11px', padding: '4px 10px' }}>
-                        Approve All
-                      </button>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button className="btn btn-secondary" onClick={e => { e.stopPropagation(); approveAllInGallery(folderName); }}
+                          style={{ fontSize: '11px', padding: '4px 10px' }}>
+                          Approve All
+                        </button>
+                        <button className="btn btn-secondary" onClick={e => { e.stopPropagation(); excludeAllInGallery(folderName); }}
+                          style={{ fontSize: '11px', padding: '4px 10px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}>
+                          Exclude Rest
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -892,9 +928,10 @@ function ContentIngest() {
                     {galleryData.photos.map((photo, photoIdx) => (
                       <div key={photo.id || photoIdx} style={{
                         display: 'flex', gap: '16px', padding: '12px',
-                        background: photo.approved ? 'rgba(34,197,94,0.05)' : 'var(--bg-tertiary)',
+                        background: photo.excluded ? 'rgba(239,68,68,0.05)' : photo.approved ? 'rgba(34,197,94,0.05)' : 'var(--bg-tertiary)',
                         borderRadius: 'var(--radius-sm)',
-                        border: `1px solid ${photo.approved ? 'rgba(34,197,94,0.2)' : 'var(--glass-border)'}`
+                        border: `1px solid ${photo.excluded ? 'rgba(239,68,68,0.2)' : photo.approved ? 'rgba(34,197,94,0.2)' : 'var(--glass-border)'}`,
+                        opacity: photo.excluded ? 0.6 : 1
                       }}>
                         <div style={{ flex: '0 0 120px' }}>
                           <PhotoThumb filePath={photo.path} size={120} />
@@ -903,37 +940,55 @@ function ContentIngest() {
                           </p>
                         </div>
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <div style={{ display: 'flex', gap: '8px' }}>
-                            <div style={{ flex: 1 }}>
-                              <label style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Title</label>
-                              <input type="text" value={photo.title || ''} style={{ width: '100%', fontSize: '13px' }}
-                                onChange={e => updateBatchReviewPhoto(folderName, photoIdx, 'title', e.target.value)} />
-                            </div>
-                            <div style={{ flex: 1 }}>
-                              <label style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Location</label>
-                              <input type="text" value={photo.location || ''} style={{ width: '100%', fontSize: '13px' }}
-                                onChange={e => updateBatchReviewPhoto(folderName, photoIdx, 'location', e.target.value)} />
-                            </div>
-                          </div>
-                          <div>
-                            <label style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Description</label>
-                            <input type="text" value={photo.description || ''} style={{ width: '100%', fontSize: '13px' }}
-                              onChange={e => updateBatchReviewPhoto(folderName, photoIdx, 'description', e.target.value)} />
-                          </div>
+                          {!photo.excluded && (
+                            <>
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Title</label>
+                                  <input type="text" value={photo.title || ''} style={{ width: '100%', fontSize: '13px' }}
+                                    onChange={e => updateBatchReviewPhoto(folderName, photoIdx, 'title', e.target.value)} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <label style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Location</label>
+                                  <input type="text" value={photo.location || ''} style={{ width: '100%', fontSize: '13px' }}
+                                    onChange={e => updateBatchReviewPhoto(folderName, photoIdx, 'location', e.target.value)} />
+                                </div>
+                              </div>
+                              <div>
+                                <label style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Description</label>
+                                <input type="text" value={photo.description || ''} style={{ width: '100%', fontSize: '13px' }}
+                                  onChange={e => updateBatchReviewPhoto(folderName, photoIdx, 'description', e.target.value)} />
+                              </div>
+                            </>
+                          )}
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ flex: 1 }}>
-                              <label style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Tags</label>
-                              <input type="text" value={photo.tags?.join(', ') || ''} style={{ width: '100%', fontSize: '13px' }}
-                                onChange={e => updateBatchReviewPhoto(folderName, photoIdx, 'tags', e.target.value.split(',').map(t => t.trim()))} />
-                            </div>
-                            <div style={{ marginLeft: '12px', flexShrink: 0 }}>
-                              {photo.approved ? (
+                            {!photo.excluded && (
+                              <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Tags</label>
+                                <input type="text" value={photo.tags?.join(', ') || ''} style={{ width: '100%', fontSize: '13px' }}
+                                  onChange={e => updateBatchReviewPhoto(folderName, photoIdx, 'tags', e.target.value.split(',').map(t => t.trim()))} />
+                              </div>
+                            )}
+                            <div style={{ marginLeft: photo.excluded ? '0' : '12px', flexShrink: 0, display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              {photo.excluded ? (
+                                <>
+                                  <span style={{ color: '#ef4444', fontSize: '13px', fontWeight: 600 }}>{'\u2717'} Excluded</span>
+                                  <button className="btn btn-secondary" onClick={() => { updateBatchReviewPhoto(folderName, photoIdx, 'excluded', false); }}
+                                    style={{ fontSize: '11px', padding: '4px 10px' }}>Undo</button>
+                                </>
+                              ) : photo.approved ? (
                                 <span style={{ color: '#22c55e', fontSize: '13px', fontWeight: 600 }}>{'\u2713'} Approved</span>
                               ) : (
-                                <button className="btn btn-primary" onClick={() => updateBatchReviewPhoto(folderName, photoIdx, 'approved', true)}
-                                  style={{ fontSize: '12px', padding: '6px 14px' }}>
-                                  Approve
-                                </button>
+                                <>
+                                  <button className="btn btn-primary" onClick={() => { updateBatchReviewPhoto(folderName, photoIdx, 'approved', true); updateBatchReviewPhoto(folderName, photoIdx, 'excluded', false); }}
+                                    style={{ fontSize: '12px', padding: '6px 14px' }}>
+                                    Approve
+                                  </button>
+                                  <button className="btn btn-secondary" onClick={() => { updateBatchReviewPhoto(folderName, photoIdx, 'excluded', true); updateBatchReviewPhoto(folderName, photoIdx, 'approved', false); }}
+                                    style={{ fontSize: '12px', padding: '6px 14px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}>
+                                    Exclude
+                                  </button>
+                                </>
                               )}
                             </div>
                           </div>
@@ -955,8 +1010,8 @@ function ContentIngest() {
               <button className="btn btn-primary" onClick={startBatchFinalize}
                 disabled={!allBatchApproved()}>
                 {allBatchApproved()
-                  ? `Finalize All (${batchStats.total} photos, ${batchStats.galleries} galleries)`
-                  : `${batchStats.pending} photos still need approval`
+                  ? `Finalize (${batchStats.approved} photo${batchStats.approved !== 1 ? 's' : ''}${batchStats.excluded > 0 ? `, ${batchStats.excluded} excluded` : ''}, ${batchStats.galleries} galleries)`
+                  : batchStats.approved === 0 ? 'Approve at least one photo' : `${batchStats.pending} photo(s) still need approval or exclusion`
                 }
               </button>
             </div>
@@ -1047,10 +1102,10 @@ function ContentIngest() {
           <div className="glass-card full-width">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3>Review AI-Generated Metadata</h3>
-              <span className="status-badge pending">{approvedCount}/{reviewData.length} Approved</span>
+              <span className="status-badge pending">{approvedCount} approved{excludedCount > 0 ? ` · ${excludedCount} excluded` : ''} / {reviewData.length} total</span>
             </div>
             <p style={{ marginTop: '8px', color: 'var(--text-muted)' }}>
-              Review and edit the AI-generated titles, descriptions, and tags below.
+              Review and edit AI-generated metadata. Exclude photos you don't want to import.
             </p>
           </div>
 
@@ -1084,13 +1139,25 @@ function ContentIngest() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--glass-border)' }}>
                 <button className="btn btn-secondary" onClick={() => setCurrentReviewIndex(prev => Math.max(0, prev - 1))} disabled={currentReviewIndex === 0}>← Previous</button>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  {currentPhoto.approved ? (
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  {currentPhoto.excluded ? (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ color: '#ef4444', fontSize: '13px', fontWeight: 600 }}>{'\u2717'} Excluded</span>
+                      <button className="btn btn-secondary" onClick={() => { updateReviewItem(currentReviewIndex, 'excluded', false); }}
+                        style={{ fontSize: '11px', padding: '4px 10px' }}>Undo</button>
+                    </span>
+                  ) : currentPhoto.approved ? (
                     <span className="status-badge online">{'\u2713'} Approved</span>
                   ) : (
-                    <button className="btn btn-primary" onClick={approveAndNext}>
-                      {'\u2713'} Approve {currentReviewIndex < reviewData.length - 1 ? '& Next' : ''}
-                    </button>
+                    <>
+                      <button className="btn btn-primary" onClick={approveAndNext}>
+                        {'\u2713'} Approve {currentReviewIndex < reviewData.length - 1 ? '& Next' : ''}
+                      </button>
+                      <button className="btn btn-secondary" onClick={excludeAndNext}
+                        style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}>
+                        {'\u2717'} Exclude
+                      </button>
+                    </>
                   )}
                   {currentReviewIndex < reviewData.length - 1 && (
                     <button className="btn btn-secondary" onClick={() => setCurrentReviewIndex(prev => prev + 1)}>Skip →</button>
@@ -1104,12 +1171,12 @@ function ContentIngest() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <button className="btn btn-secondary" onClick={cancelReview}>Cancel Import</button>
               <button className="btn btn-primary" onClick={handleFinalize} disabled={!allApproved() || processing}>
-                {processing ? 'Processing...' : `Finalize Import (${approvedCount}/${reviewData.length})`}
+                {processing ? 'Processing...' : `Finalize Import (${approvedCount} photo${approvedCount !== 1 ? 's' : ''}${excludedCount > 0 ? `, ${excludedCount} excluded` : ''})`}
               </button>
             </div>
             {!allApproved() && (
               <p style={{ marginTop: '12px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                Please approve all {reviewData.length} photos before finalizing.
+                {approvedCount === 0 ? 'Approve at least one photo to finalize.' : `${reviewData.length - approvedCount - excludedCount} photo(s) still need approval or exclusion.`}
               </p>
             )}
           </div>

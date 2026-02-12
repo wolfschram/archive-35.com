@@ -435,6 +435,279 @@ async function sendEmail(resendApiKey, { to, subject, html }) {
 }
 
 // ============================================================================
+// LICENSE ORDER HANDLER
+// ============================================================================
+
+function buildLicenseCustomerEmail(details) {
+  const {
+    photoTitle, tierName, format, resolution, price,
+    downloadUrl, customerName, orderRef, expiresIn
+  } = details;
+
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#000;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#000;">
+<tr><td align="center" style="padding:40px 20px;">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+<!-- Header -->
+<tr><td style="padding:24px 0;text-align:center;border-bottom:1px solid #333;">
+  <span style="font-size:28px;font-weight:100;letter-spacing:8px;color:#fff;">ARCHIVE</span><span style="font-size:28px;font-weight:100;letter-spacing:8px;color:#c4973b;">-35</span>
+</td></tr>
+
+<!-- Greeting -->
+<tr><td style="padding:32px 0 16px;color:#fff;font-size:16px;">
+  ${customerName ? `Dear ${customerName},` : 'Hello,'}
+</td></tr>
+
+<tr><td style="padding:0 0 24px;color:#ccc;font-size:15px;line-height:1.6;">
+  Thank you for your license purchase. Your high-resolution image is ready for download.
+</td></tr>
+
+<!-- License Details -->
+<tr><td style="padding:0 0 24px;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#111;border:1px solid #333;border-radius:8px;">
+    <tr><td colspan="2" style="padding:16px 20px 8px;font-size:13px;color:#c4973b;text-transform:uppercase;letter-spacing:2px;font-weight:600;">
+      License Details
+    </td></tr>
+    <tr>
+      <td style="padding:8px 20px;color:#999;font-size:14px;">Image</td>
+      <td style="padding:8px 20px;color:#fff;font-size:14px;text-align:right;">${photoTitle}</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 20px;color:#999;font-size:14px;">License</td>
+      <td style="padding:8px 20px;color:#fff;font-size:14px;text-align:right;">${tierName}</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 20px;color:#999;font-size:14px;">Format</td>
+      <td style="padding:8px 20px;color:#fff;font-size:14px;text-align:right;">${format.toUpperCase()}</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 20px;color:#999;font-size:14px;">Resolution</td>
+      <td style="padding:8px 20px;color:#fff;font-size:14px;text-align:right;">${resolution}</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 20px 16px;color:#999;font-size:14px;border-top:1px solid #333;">Total</td>
+      <td style="padding:8px 20px 16px;color:#c4973b;font-size:18px;font-weight:600;text-align:right;border-top:1px solid #333;">$${price}</td>
+    </tr>
+  </table>
+</td></tr>
+
+<!-- Download Button -->
+<tr><td style="padding:0 0 24px;text-align:center;">
+  <a href="${downloadUrl}" style="display:inline-block;background:#c4973b;color:#000;padding:16px 40px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;letter-spacing:0.5px;">
+    Download Your Image
+  </a>
+</td></tr>
+
+<!-- Expiry Notice -->
+<tr><td style="padding:0 0 24px;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(196,151,59,0.05);border-left:3px solid #c4973b;border-radius:0 8px 8px 0;">
+    <tr><td style="padding:16px 20px;color:#ccc;font-size:13px;line-height:1.8;">
+      <strong style="color:#c4973b;">Important:</strong><br/>
+      This download link expires in ${expiresIn}.<br/>
+      Please download your image promptly and save it securely.<br/>
+      If the link expires, contact us for a new download link.<br/>
+      Your license agreement will be sent separately.
+    </td></tr>
+  </table>
+</td></tr>
+
+<!-- Reference -->
+<tr><td style="padding:0 0 32px;color:#666;font-size:12px;">
+  Order reference: ${orderRef}
+</td></tr>
+
+<!-- Footer -->
+<tr><td style="padding:24px 0;border-top:1px solid #333;text-align:center;">
+  <span style="font-size:14px;font-weight:100;letter-spacing:4px;color:#666;">ARCHIVE</span><span style="font-size:14px;font-weight:100;letter-spacing:4px;color:#c4973b;">-35</span>
+  <br/><span style="color:#666;font-size:12px;">Light. Place. Time.</span>
+  <br/><br/>
+  <a href="https://archive-35.com" style="color:#c4973b;font-size:12px;text-decoration:none;">archive-35.com</a>
+  <span style="color:#333;font-size:12px;"> &middot; </span>
+  <a href="mailto:hello@archive-35.com" style="color:#c4973b;font-size:12px;text-decoration:none;">hello@archive-35.com</a>
+</td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
+function buildLicenseWolfEmail(details) {
+  const {
+    photoId, photoTitle, tierName, tier, format, classification,
+    resolution, price, customerName, customerEmail, orderRef,
+    downloadUrl, imageSource
+  } = details;
+
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:20px;background:#111;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#ccc;">
+
+<h2 style="color:#c4973b;margin:0 0 8px;">New License Sale</h2>
+<p style="color:#666;font-size:13px;margin:0 0 24px;">Archive-35 &middot; ${new Date().toISOString().split('T')[0]}</p>
+
+<table cellpadding="8" cellspacing="0" style="background:#1a1a1a;border:1px solid #333;border-radius:8px;width:100%;max-width:600px;font-size:14px;">
+  <tr><td style="color:#999;">Customer</td><td style="color:#fff;"><strong>${customerName}</strong> &lt;${customerEmail}&gt;</td></tr>
+  <tr><td style="color:#999;">Photo</td><td style="color:#fff;">${photoTitle} (${photoId})</td></tr>
+  <tr><td style="color:#999;">License Tier</td><td style="color:#fff;">${tierName} (${tier})</td></tr>
+  <tr><td style="color:#999;">Classification</td><td style="color:#fff;">${classification}</td></tr>
+  <tr><td style="color:#999;">Format</td><td style="color:#fff;">${format.toUpperCase()}</td></tr>
+  <tr><td style="color:#999;">Resolution</td><td style="color:#fff;">${resolution}</td></tr>
+  <tr><td style="color:#999;">License Fee</td><td style="color:#c4973b;font-weight:600;">$${price}</td></tr>
+  <tr><td colspan="2" style="border-top:1px solid #333;"></td></tr>
+  <tr><td style="color:#999;">Image Source</td><td style="color:${imageSource === 'r2-original' ? '#4caf50' : '#f44336'};">${imageSource === 'r2-original' ? 'R2 Original (high-res)' : '⚠️ ORIGINAL NOT IN R2'}</td></tr>
+  <tr><td style="color:#999;">Download URL</td><td style="color:#fff;font-size:11px;word-break:break-all;">${downloadUrl}</td></tr>
+  <tr><td style="color:#999;">Stripe Ref</td><td style="color:#fff;font-family:monospace;font-size:12px;">${orderRef}</td></tr>
+</table>
+
+<p style="margin:24px 0 0;color:#999;font-size:13px;">
+  <strong>Action needed:</strong> Send the signed license agreement to ${customerEmail} for the ${tierName} tier.
+</p>
+
+</body>
+</html>`;
+}
+
+async function handleLicenseOrder(session, metadata, env, isTestMode, stripeKey, resendApiKey, wolfEmail) {
+  const photoId = metadata.photoId;
+  const photoTitle = metadata.photoTitle || photoId;
+  const photoFilename = metadata.photoFilename || photoId;
+  const collection = metadata.collection || '';
+  const tier = metadata.licenseTier || '';
+  const tierName = metadata.licenseTierName || tier;
+  const format = metadata.licenseFormat || 'jpeg';
+  const classification = metadata.licenseClassification || '';
+  const resolution = metadata.resolution || '';
+
+  if (!photoId) {
+    console.error('License order missing photoId', JSON.stringify(metadata));
+    return new Response(JSON.stringify({ error: 'Missing photoId for license order' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Get customer details from Stripe
+  const fullSession = await getStripeSession(session.id, stripeKey);
+  const customerName = fullSession.customer_details?.name || '';
+  const customerEmail = fullSession.customer_details?.email || '';
+  const amountPaid = fullSession.amount_total ? (fullSession.amount_total / 100).toFixed(2) : '0';
+  const orderRef = `stripe_${session.id}`;
+
+  // Build R2 key for the original — licensing originals are in originals/ prefix
+  const SIGNING_SECRET = env.ORIGINAL_SIGNING_SECRET;
+  const R2_BUCKET = env.ORIGINALS;
+
+  // Try licensing originals first (originals/{filename}), then collection path
+  let r2Key = `originals/${photoFilename}`;
+  if (!r2Key.endsWith('.jpg')) r2Key += '.jpg';
+
+  let downloadUrl = '';
+  let imageSource = 'unknown';
+
+  if (R2_BUCKET && SIGNING_SECRET) {
+    // Check originals/ prefix first (licensing images)
+    let found = false;
+    try {
+      const head = await R2_BUCKET.head(r2Key);
+      if (head) {
+        found = true;
+        console.log(`License R2 original found: ${r2Key} (${(head.size / 1024 / 1024).toFixed(1)}MB)`);
+      }
+    } catch (e) {
+      console.warn('R2 head check for originals/ failed:', e.message);
+    }
+
+    // Fall back to collection path (gallery images)
+    if (!found && collection) {
+      r2Key = `${collection}/${photoFilename}`;
+      if (!r2Key.endsWith('.jpg')) r2Key += '.jpg';
+      try {
+        const head = await R2_BUCKET.head(r2Key);
+        if (head) {
+          found = true;
+          console.log(`License R2 original found via collection: ${r2Key} (${(head.size / 1024 / 1024).toFixed(1)}MB)`);
+        }
+      } catch (e) {
+        console.warn('R2 head check for collection path failed:', e.message);
+      }
+    }
+
+    if (found) {
+      // Generate signed URL — 72 hours for license downloads
+      downloadUrl = await generateSignedOriginalUrl(r2Key, SIGNING_SECRET, 72 * 60 * 60 * 1000);
+      imageSource = 'r2-original';
+    } else {
+      console.error(`⚠️ CRITICAL: License original not found in R2: ${r2Key}`);
+      imageSource = 'not-found';
+    }
+  } else {
+    console.error('⚠️ CRITICAL: R2 or signing secret not configured for license delivery');
+    imageSource = 'not-configured';
+  }
+
+  // Send customer email with download link
+  const licenseDetails = {
+    photoId,
+    photoTitle,
+    tier,
+    tierName,
+    format,
+    classification,
+    resolution: resolution.replace('x', ' × ') + ' px',
+    price: amountPaid,
+    downloadUrl,
+    customerName,
+    customerEmail,
+    orderRef,
+    imageSource,
+    expiresIn: '72 hours',
+  };
+
+  if (downloadUrl && customerEmail) {
+    const customerResult = await sendEmail(resendApiKey, {
+      to: customerEmail,
+      subject: `Your Archive-35 License — ${photoTitle}`,
+      html: buildLicenseCustomerEmail(licenseDetails),
+    });
+    console.log('License customer email:', JSON.stringify(customerResult));
+  } else if (!downloadUrl) {
+    console.error('Cannot send download email — no download URL generated');
+  }
+
+  // Always notify Wolf
+  const wolfResult = await sendEmail(resendApiKey, {
+    to: wolfEmail,
+    subject: `${imageSource !== 'r2-original' ? '⚠️ DELIVERY ISSUE — ' : ''}New License: ${photoTitle} — ${tierName} — $${amountPaid}`,
+    html: buildLicenseWolfEmail(licenseDetails),
+  });
+  console.log('License Wolf notification:', JSON.stringify(wolfResult));
+
+  return new Response(JSON.stringify({
+    received: true,
+    fulfilled: true,
+    orderType: 'license',
+    testMode: isTestMode,
+    imageSource,
+    downloadUrlGenerated: !!downloadUrl,
+    stripeSessionId: session.id,
+    emailsSent: {
+      customer: !!(downloadUrl && customerEmail),
+      wolf: true,
+    },
+  }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+// ============================================================================
 // MAIN WEBHOOK HANDLER
 // ============================================================================
 
@@ -493,6 +766,22 @@ export async function onRequestPost(context) {
     if (isTestMode) {
       console.log('TEST MODE detected — using test key, Pictorem will be mocked');
     }
+
+    // ====================================================================
+    // ROUTE: License vs Print order
+    // ====================================================================
+    const orderType = metadata.orderType || 'print';
+
+    if (orderType === 'license') {
+      // ================================================================
+      // LICENSE ORDER — digital delivery via signed download URL
+      // ================================================================
+      return await handleLicenseOrder(session, metadata, env, isTestMode, STRIPE_SECRET_KEY, RESEND_API_KEY, WOLF_EMAIL);
+    }
+
+    // ================================================================
+    // PRINT ORDER — physical fulfillment via Pictorem (existing flow)
+    // ================================================================
 
     // Extract order info from session metadata
     const photoId = metadata.photoId;
@@ -567,7 +856,8 @@ export async function onRequestPost(context) {
     }
 
     // Step 3: Build image URLs
-    const collection = getCollectionFromPhotoId(photoId);
+    // Prefer explicit collection slug from checkout metadata; fall back to photoId prefix map
+    const collection = metadata.collection || getCollectionFromPhotoId(photoId);
     const photoFilename = metadata.photoFilename || photoId;
 
     // HIGH-RES for Pictorem: Try R2 original first, fall back to web-optimized

@@ -1,28 +1,42 @@
 #!/usr/bin/env python3
 """
-generate_watermark.py — Create watermarked preview images from originals.
+generate_watermark.py — Create copy-protected preview images from originals.
 
 Usage:
-    python generate_watermark.py [--folder /path/to/09_Licensing]
+    python generate_watermark.py [--folder /path/to/09_Licensing] [--force]
 
-Reads metadata/*.json to find originals, resizes to max 3000px,
-applies tiled diagonal "ARCHIVE-35 | PREVIEW ONLY" watermark at 30% opacity,
-saves to watermarked/.
+PROTECTION STRATEGY (invisible — no ugly text overlays):
+  1. Resize to max 2000px (screen-only resolution)
+  2. Aggressive JPEG compression (quality 45) — looks fine on screen, useless for print
+  3. Strip ALL EXIF/metadata — no camera info, GPS, or other data leaks
+  4. Slight Gaussian blur (radius 0.5) — imperceptible on screen, degrades print sharpness
+  5. Combine with client-side protections in licensing.html:
+     - Canvas-based rendering (blocks right-click save)
+     - Blob URLs (no direct image URL to copy)
+     - image-protection.js (blocks drag, long-press)
+     - C2PA credentials on originals prove ownership
+
+Result: Beautiful clean preview that looks premium → but the actual file is
+low-quality, metadata-stripped, slightly softened JPEG with zero commercial value.
 """
 
 import json
-import math
 import os
 import sys
 from pathlib import Path
 
 try:
-    from PIL import Image, ImageDraw, ImageFont, ImageEnhance
+    from PIL import Image, ImageFilter
 except ImportError:
     sys.exit("ERROR: Pillow not installed. Run: pip install Pillow")
 
 # Allow ultra-large panoramic images (up to 500MP)
 Image.MAX_IMAGE_PIXELS = 500_000_000
+
+# Preview protection settings
+PREVIEW_MAX_PX = 2000       # Max dimension — enough for screen, not for print
+PREVIEW_QUALITY = 45         # Aggressive compression — looks OK on screen, garbage for print
+PREVIEW_BLUR_RADIUS = 0.5   # Slight softening — imperceptible on screen, kills print sharpness
 
 
 def load_config(base):
@@ -30,91 +44,38 @@ def load_config(base):
         return json.load(f)
 
 
-def get_font(size):
-    """Try to load a clean sans-serif font, fall back to default."""
-    font_paths = [
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
-        "/System/Library/Fonts/Helvetica.ttc",
-        "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf",
-    ]
-    for fp in font_paths:
-        if os.path.exists(fp):
-            try:
-                return ImageFont.truetype(fp, size)
-            except Exception:
-                continue
-    return ImageFont.load_default()
-
-
-def apply_watermark(img, text, opacity):
-    """Apply tiled diagonal watermark text across the image."""
+def generate_clean_preview(img):
+    """
+    Generate a visually clean but commercially useless preview.
+    No watermark text — protection is invisible.
+    """
     w, h = img.size
 
-    # Create transparent overlay
-    overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(overlay)
+    # 1. Resize to screen-only resolution
+    if max(w, h) > PREVIEW_MAX_PX:
+        ratio = PREVIEW_MAX_PX / max(w, h)
+        img = img.resize((int(w * ratio), int(h * ratio)), Image.LANCZOS)
 
-    # Scale font to image — roughly 2.5% of image width
-    font_size = max(24, int(w * 0.025))
-    font = get_font(font_size)
+    # 2. Strip to RGB (removes alpha, ICC profiles when re-saved)
+    if img.mode != "RGB":
+        img = img.convert("RGB")
 
-    # Measure text
-    bbox = draw.textbbox((0, 0), text, font=font)
-    tw = bbox[2] - bbox[0]
-    th = bbox[3] - bbox[1]
+    # 3. Slight Gaussian blur — imperceptible on screen, kills fine detail for print
+    img = img.filter(ImageFilter.GaussianBlur(radius=PREVIEW_BLUR_RADIUS))
 
-    # Tile spacing
-    x_gap = int(tw * 1.6)
-    y_gap = int(th * 5)
-
-    # Alpha value
-    alpha = int(255 * opacity)
-
-    # Draw tiled at 30-degree angle
-    angle = -30
-    # We need to cover the full diagonal, so extend the tiling area
-    diag = int(math.sqrt(w * w + h * h))
-    tile_overlay = Image.new("RGBA", (diag * 2, diag * 2), (0, 0, 0, 0))
-    tile_draw = ImageDraw.Draw(tile_overlay)
-
-    y = -diag
-    while y < diag * 2:
-        x = -diag
-        row_offset = (y // y_gap) % 2 * (x_gap // 2)  # stagger rows
-        while x < diag * 2:
-            tile_draw.text(
-                (x + row_offset, y),
-                text,
-                fill=(255, 255, 255, alpha),
-                font=font,
-            )
-            x += x_gap
-        y += y_gap
-
-    # Rotate the tile overlay
-    tile_rotated = tile_overlay.rotate(angle, expand=False, resample=Image.BICUBIC)
-
-    # Crop to image size from center
-    cx, cy = tile_rotated.size[0] // 2, tile_rotated.size[1] // 2
-    left = cx - w // 2
-    top = cy - h // 2
-    tile_cropped = tile_rotated.crop((left, top, left + w, top + h))
-
-    # Composite
-    if img.mode != "RGBA":
-        img = img.convert("RGBA")
-    watermarked = Image.alpha_composite(img, tile_cropped)
-    return watermarked.convert("RGB")
+    return img
 
 
-def generate_watermarks(base_path):
+def generate_watermarks(base_path, force=False):
+    """
+    Generate clean preview images (no visible watermark).
+    Set force=True to regenerate ALL previews (replacing old watermarked ones).
+    """
     base = Path(base_path)
     cfg = load_config(base)
-    wm_cfg = cfg["watermark"]
     metadata_dir = base / "metadata"
     originals_dir = base / "originals"
-    output_dir = base / "watermarked"
+    output_dir = base / "watermarked"  # Keep same folder name for compatibility
 
     if not metadata_dir.exists():
         sys.exit(f"ERROR: metadata folder not found at {metadata_dir}")
@@ -133,7 +94,7 @@ def generate_watermarks(base_path):
         original_file = src_dir / meta["original_filename"]
         output_file = output_dir / f"{catalog_id}.jpg"
 
-        if output_file.exists():
+        if output_file.exists() and not force:
             skipped += 1
             continue
 
@@ -144,30 +105,37 @@ def generate_watermarks(base_path):
         try:
             img = Image.open(original_file)
 
-            # Resize to max preview size
-            max_px = wm_cfg["max_preview_px"]
-            w, h = img.size
-            if max(w, h) > max_px:
-                ratio = max_px / max(w, h)
-                img = img.resize((int(w * ratio), int(h * ratio)), Image.LANCZOS)
+            # Generate clean preview (no watermark, invisible protection)
+            preview = generate_clean_preview(img)
 
-            # Apply watermark
-            watermarked = apply_watermark(img, wm_cfg["text"], wm_cfg["opacity"])
+            # Save with aggressive compression and NO metadata (exif=None strips all EXIF)
+            preview.save(
+                output_file,
+                "JPEG",
+                quality=PREVIEW_QUALITY,
+                optimize=True,
+                # Do NOT pass exif — this strips all metadata
+            )
 
-            # Save
-            watermarked.save(output_file, "JPEG", quality=wm_cfg["quality"])
-            out_w, out_h = watermarked.size
+            out_w, out_h = preview.size
             size_kb = output_file.stat().st_size // 1024
-            print(f"  ✓ {catalog_id}  {out_w}x{out_h}  {size_kb}KB")
+            print(f"  ✓ {catalog_id}  {out_w}x{out_h}  {size_kb}KB  (clean preview)")
             created += 1
 
         except Exception as e:
             print(f"  ERROR {catalog_id}: {e}")
 
-    print(f"\n✓ Watermarks: {created} created, {skipped} existing")
+    action = "Regenerated" if force else "Created"
+    print(f"\n✓ Previews: {created} {action.lower()}, {skipped} existing")
 
 
 if __name__ == "__main__":
-    folder = sys.argv[1] if len(sys.argv) > 1 else os.path.dirname(os.path.abspath(__file__))
-    print(f"Generating watermarked previews ...")
-    generate_watermarks(folder)
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate copy-protected preview images")
+    parser.add_argument("folder", nargs="?", default=os.path.dirname(os.path.abspath(__file__)),
+                        help="Path to 09_Licensing directory")
+    parser.add_argument("--force", action="store_true",
+                        help="Regenerate ALL previews (replace existing watermarked ones)")
+    args = parser.parse_args()
+    print(f"Generating clean previews (invisible protection) ...")
+    generate_watermarks(args.folder, force=args.force)

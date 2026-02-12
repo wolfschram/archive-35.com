@@ -605,7 +605,7 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
           },
           quantity: 1
         }],
-        successUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`,
+        successUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}&type=license`,
         cancelUrl: window.location.href,
         license: {
           photoId: photoData.id,

@@ -596,8 +596,10 @@ async function handleLicenseOrder(session, metadata, env, isTestMode, stripeKey,
   // Get customer details from Stripe
   const fullSession = await getStripeSession(session.id, stripeKey);
   const customerName = fullSession.customer_details?.name || '';
-  const customerEmail = fullSession.customer_details?.email || '';
-  const amountPaid = fullSession.amount_total ? (fullSession.amount_total / 100).toFixed(2) : '0';
+  const customerEmail = fullSession.customer_details?.email || fullSession.customer_email || '';
+  const rawAmount = fullSession.amount_total || session.amount_total || 0;
+  const amountPaid = rawAmount ? (rawAmount / 100).toFixed(2) : '0';
+  console.log('License amount:', amountPaid, '(raw:', rawAmount, ') customer:', customerEmail);
   const orderRef = `stripe_${session.id}`;
 
   // Build R2 key for the original — licensing originals are in originals/ prefix

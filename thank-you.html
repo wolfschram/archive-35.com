@@ -135,18 +135,40 @@
       <div class="thank-you-content">
         <div class="thank-you-icon">✓</div>
 
-        <h2>Your order has been received!</h2>
+        <!-- PRINT ORDER (default) -->
+        <div id="print-order-info">
+          <h2>Your order has been received!</h2>
 
-        <p>You'll receive an email confirmation shortly with your order details. Your print will be handcrafted by our professional print partner and shipped directly to you.</p>
+          <p>You'll receive an email confirmation shortly with your order details. Your print will be handcrafted by our professional print partner and shipped directly to you.</p>
 
-        <div class="order-details">
-          <h3>What Happens Next</h3>
-          <ul>
-            <li><strong>Within 24 hours:</strong> Your order enters production</li>
-            <li><strong>5-14 business days:</strong> Your print is carefully crafted</li>
-            <li><strong>Shipping:</strong> Free ground shipping to USA/Canada (5-9 days)</li>
-            <li><strong>Delivery:</strong> Expect your print within 2-4 weeks total</li>
-          </ul>
+          <div class="order-details">
+            <h3>What Happens Next</h3>
+            <ul>
+              <li><strong>Within 24 hours:</strong> Your order enters production</li>
+              <li><strong>5-14 business days:</strong> Your print is carefully crafted</li>
+              <li><strong>Shipping:</strong> Free ground shipping to USA/Canada (5-9 days)</li>
+              <li><strong>Delivery:</strong> Expect your print within 2-4 weeks total</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- LICENSE ORDER -->
+        <div id="license-order-info" style="display:none;">
+          <h2>Your license has been confirmed!</h2>
+
+          <p>Thank you for licensing this image. You'll receive an email shortly with your secure download link and license details.</p>
+
+          <div class="order-details">
+            <h3>What Happens Next</h3>
+            <ul>
+              <li><strong>Within minutes:</strong> Check your email for a secure download link</li>
+              <li><strong>Download link:</strong> Valid for 72 hours — download your high-resolution original</li>
+              <li><strong>License agreement:</strong> A signed license certificate will follow by email</li>
+              <li><strong>Usage rights:</strong> Per your selected license tier — worldwide, as specified</li>
+            </ul>
+          </div>
+
+          <p style="color:var(--accent);font-size:0.9rem;">Didn't receive the email? Check your spam folder, or <a href="contact.html">contact us</a> and we'll resend it immediately.</p>
         </div>
 
         <p>Questions about your order? <a href="contact.html">Contact us</a> and we'll be happy to help.</p>
@@ -155,6 +177,17 @@
           <a href="gallery.html" class="btn btn-primary">Continue Browsing</a>
           <a href="index.html" class="btn">Return Home</a>
         </div>
+
+        <script>
+          // Show license-specific content if type=license in URL
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('type') === 'license') {
+            document.getElementById('print-order-info').style.display = 'none';
+            document.getElementById('license-order-info').style.display = 'block';
+            // Update page header too
+            document.querySelector('.page-header h1').textContent = 'License Confirmed';
+          }
+        </script>
 
       </div>
     </div>

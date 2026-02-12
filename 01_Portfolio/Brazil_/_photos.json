@@ -1,5 +1,45 @@
 [
   {
+    "id": "118a1793",
+    "filename": "118A1793.jpg",
+    "title": "Storm Over Coastal City",
+    "description": "A dramatic landscape where thunderstorms illuminate a vibrant coastal cityscape reflected in calm waters. The interplay of electric light and natural drama creates a compelling study of human settlement against the raw power of nature.",
+    "location": "Benilson, Rio de Janeiro, Brazil",
+    "tags": [
+      "landscape-photography",
+      "fine-art-print",
+      "brazil-coast",
+      "rio-de-janeiro",
+      "coastal-city",
+      "thunderstorm",
+      "lightning",
+      "urban-landscape",
+      "dramatic-sky",
+      "night-photography",
+      "city-lights",
+      "seascape",
+      "stormy-weather",
+      "reflection",
+      "electric-blue",
+      "moody-atmosphere",
+      "nature-photography",
+      "gallery-wall-art",
+      "canvas-print",
+      "wall-decor"
+    ],
+    "dimensions": {
+      "width": 8417,
+      "height": 3959,
+      "aspectRatio": 2.126,
+      "aspectRatioString": "8417:3959",
+      "orientation": "panorama",
+      "megapixels": 33.3
+    },
+    "thumbnail": "118A1793-thumb.jpg",
+    "full": "118A1793-full.jpg",
+    "c2pa": true
+  },
+  {
     "id": "118a1723",
     "filename": "118A1723.jpg",
     "title": "Hillside Community, Brazilian Highlands",
@@ -199,46 +239,6 @@
     },
     "thumbnail": "118A1758-thumb.jpg",
     "full": "118A1758-full.jpg",
-    "c2pa": true
-  },
-  {
-    "id": "118a1793",
-    "filename": "118A1793.jpg",
-    "title": "Storm Over Coastal City",
-    "description": "A dramatic landscape where thunderstorms illuminate a vibrant coastal cityscape reflected in calm waters. The interplay of electric light and natural drama creates a compelling study of human settlement against the raw power of nature.",
-    "location": "Benilson, Rio de Janeiro, Brazil",
-    "tags": [
-      "landscape-photography",
-      "fine-art-print",
-      "brazil-coast",
-      "rio-de-janeiro",
-      "coastal-city",
-      "thunderstorm",
-      "lightning",
-      "urban-landscape",
-      "dramatic-sky",
-      "night-photography",
-      "city-lights",
-      "seascape",
-      "stormy-weather",
-      "reflection",
-      "electric-blue",
-      "moody-atmosphere",
-      "nature-photography",
-      "gallery-wall-art",
-      "canvas-print",
-      "wall-decor"
-    ],
-    "dimensions": {
-      "width": 8417,
-      "height": 3959,
-      "aspectRatio": 2.126,
-      "aspectRatioString": "8417:3959",
-      "orientation": "panorama",
-      "megapixels": 33.3
-    },
-    "thumbnail": "118A1793-thumb.jpg",
-    "full": "118A1793-full.jpg",
     "c2pa": true
   },
   {

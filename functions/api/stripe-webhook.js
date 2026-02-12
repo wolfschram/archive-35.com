@@ -811,9 +811,12 @@ export async function onRequestPost(context) {
     const fullSession = await getStripeSession(session.id, STRIPE_SECRET_KEY);
     const shipping = fullSession.shipping_details || fullSession.customer_details || {};
     const address = shipping.address || {};
-    const customerName = shipping.name || fullSession.customer_details?.name || '';
-    const customerEmail = fullSession.customer_details?.email || '';
-    const amountPaid = fullSession.amount_total ? (fullSession.amount_total / 100).toFixed(2) : '0';
+    const customerName = fullSession.customer_details?.name || shipping.name || '';
+    const customerEmail = fullSession.customer_details?.email || fullSession.customer_email || '';
+    // Get amount from expanded session, fallback to event session, fallback to line items
+    const rawAmount = fullSession.amount_total || session.amount_total || 0;
+    const amountPaid = rawAmount ? (rawAmount / 100).toFixed(2) : '0';
+    console.log('Amount paid:', amountPaid, '(raw:', rawAmount, 'fullSession.amount_total:', fullSession.amount_total, 'session.amount_total:', session.amount_total, ')');
 
     // Split name into first/last
     const nameParts = customerName.split(' ');

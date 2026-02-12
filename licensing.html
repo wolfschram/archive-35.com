@@ -458,10 +458,77 @@ function checkTerms() {
   document.getElementById('m-buy').disabled = !agreed || isExclusive;
 }
 
-function handlePurchase() {
-  // TODO: Create Stripe Checkout session via Supabase Edge Function
-  // For now, show a placeholder message
-  alert('Stripe Checkout integration coming soon.\n\nImage: ' + currentImage.id + '\nTier: ' + document.getElementById('m-tier').value + '\nFormat: ' + currentFormat.toUpperCase());
+async function handlePurchase() {
+  if (!currentImage) return;
+  const tier = document.getElementById('m-tier').value;
+  const tierInfo = catalog.tiers ? catalog.tiers[tier] : {};
+  const tierName = tierInfo.name || tier;
+  let price = currentImage.pricing[tier] || 0;
+  if (currentFormat === 'tiff') price += 100;
+  const priceInCents = price * 100;
+
+  const btn = document.getElementById('m-buy');
+  btn.textContent = 'Processing...';
+  btn.disabled = true;
+
+  const isTestMode = window.STRIPE_PUBLIC_KEY && window.STRIPE_PUBLIC_KEY.startsWith('pk_test_');
+
+  const checkoutData = {
+    lineItems: [{
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: (currentImage.title || currentImage.id) + ' — ' + tierName + ' License',
+          description: currentFormat.toUpperCase() + ' · ' + currentImage.width + ' × ' + currentImage.height + ' px',
+        },
+        unit_amount: priceInCents
+      },
+      quantity: 1
+    }],
+    successUrl: window.location.origin + '/thank-you.html?session_id={CHECKOUT_SESSION_ID}',
+    cancelUrl: window.location.href,
+    license: {
+      photoId: currentImage.id,
+      photoTitle: currentImage.title || currentImage.id,
+      photoFilename: currentImage.filename || currentImage.id,
+      collection: currentImage.collection || 'licensing',
+      tier: tier,
+      tierName: tierName,
+      format: currentFormat,
+      classification: currentImage.classification || '',
+      resolution: currentImage.width + 'x' + currentImage.height
+    },
+    testMode: isTestMode || false
+  };
+
+  try {
+    const apiBase = 'https://archive-35-com.pages.dev';
+    const resp = await fetch(apiBase + '/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(checkoutData)
+    });
+    const data = await resp.json();
+    if (data.error) {
+      alert('Checkout error: ' + data.error);
+      btn.textContent = 'License This Image';
+      btn.disabled = false;
+      return;
+    }
+    if (data.url) {
+      if (isTestMode) console.log('[ARCHIVE-35] Checkout session created in TEST mode');
+      window.location.href = data.url;
+    } else {
+      alert('Failed to create checkout session. Please try again.');
+      btn.textContent = 'License This Image';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    console.error('Checkout error:', err);
+    alert('Connection error. Please try again.');
+    btn.textContent = 'License This Image';
+    btn.disabled = false;
+  }
 }
 
 // Filter buttons

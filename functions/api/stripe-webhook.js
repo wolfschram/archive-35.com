@@ -691,6 +691,27 @@ async function handleLicenseOrder(session, metadata, env, isTestMode, stripeKey,
   });
   console.log('License Wolf notification:', JSON.stringify(wolfResult));
 
+  // Log to Google Sheet (non-blocking)
+  logToGoogleSheet(env.GOOGLE_SHEET_WEBHOOK_URL || '', {
+    orderType: 'license',
+    orderRef,
+    customerName,
+    customerEmail,
+    photoTitle,
+    photoId,
+    collection,
+    material: tierName,
+    size: resolution ? resolution.replace('x', ' × ') + ' px' : '',
+    customerPaid: amountPaid,
+    pictoremCost: 0,
+    imageSource,
+    testMode: isTestMode,
+    status: downloadUrl ? 'completed' : 'issue',
+    notes: !downloadUrl ? 'Download URL not generated' : '',
+    licenseTier: tier,
+    resolution,
+  });
+
   return new Response(JSON.stringify({
     received: true,
     fulfilled: true,
@@ -710,6 +731,30 @@ async function handleLicenseOrder(session, metadata, env, isTestMode, stripeKey,
 }
 
 // ============================================================================
+// GOOGLE SHEETS ORDER LOG
+// ============================================================================
+
+async function logToGoogleSheet(webhookUrl, orderData) {
+  if (!webhookUrl) {
+    console.warn('GOOGLE_SHEET_WEBHOOK_URL not set — skipping sheet log');
+    return { skipped: true };
+  }
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData),
+    });
+    const result = await response.text();
+    console.log('Google Sheet log:', result);
+    return { logged: true };
+  } catch (err) {
+    console.error('Google Sheet log failed (non-blocking):', err.message);
+    return { error: err.message };
+  }
+}
+
+// ============================================================================
 // MAIN WEBHOOK HANDLER
 // ============================================================================
 
@@ -723,6 +768,7 @@ export async function onRequestPost(context) {
   const PICTOREM_API_KEY = env.PICTOREM_API_KEY || 'archive-35';
   const RESEND_API_KEY = env.RESEND_API_KEY || '';
   const WOLF_EMAIL = env.WOLF_EMAIL || 'wolfbroadcast@gmail.com';
+    const GOOGLE_SHEET_WEBHOOK_URL = env.GOOGLE_SHEET_WEBHOOK_URL || '';
 
   try {
     // Read raw body for signature verification
@@ -956,6 +1002,32 @@ export async function onRequestPost(context) {
       html: buildWolfNotificationEmail(orderDetails),
     });
     console.log('Wolf notification result:', JSON.stringify(wolfEmailResult));
+
+    // Log to Google Sheet (non-blocking)
+    logToGoogleSheet(GOOGLE_SHEET_WEBHOOK_URL, {
+      orderType: 'print',
+      orderRef,
+      customerName,
+      customerEmail,
+      photoTitle,
+      photoId,
+      collection,
+      material: materialDisplayName,
+      size: sizeStr,
+      customerPaid: amountPaid,
+      pictoremCost: wholesalePrice || 0,
+      pictoremOrderId: orderResult?.orderId || orderResult?.mock ? 'mock_' + Date.now() : '',
+      pictoremStatus: orderResult?.status || JSON.stringify(orderResult).substring(0, 100),
+      imageSource: originalResult.source,
+      shipCity: address.city || '',
+      shipState: address.state || '',
+      shipCountry: address.country || '',
+      shipAddress: (address.line1 || '') + (address.line2 ? ', ' + address.line2 : ''),
+      shipZip: address.postal_code || '',
+      testMode: isTestMode,
+      status: 'completed',
+      notes: originalResult.source !== 'r2-original' ? 'LOW-RES IMAGE WARNING' : '',
+    });
 
     return new Response(JSON.stringify({
       received: true,

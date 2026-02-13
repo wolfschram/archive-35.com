@@ -1,0 +1,16 @@
+{
+  "id": "utah_national_parks",
+  "title": "Utah National Parks",
+  "slug": "utah-national-parks",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "United States",
+    "region": "Utah",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 4
+}

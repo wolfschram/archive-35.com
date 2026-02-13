@@ -223,9 +223,9 @@ nav a:hover::after, nav a.active::after { width:100%; }
 /* === COVERFLOW === */
 #cf {
   position:absolute;
-  top:13vh; left:0; right:0;
-  height:50vh;
-  perspective:1600px;
+  top:10vh; left:0; right:0;
+  height:60vh;
+  perspective:1800px;
   perspective-origin:50% 50%;
   z-index:10;
 }
@@ -426,8 +426,8 @@ nav a:hover::after, nav a.active::after { width:100%; }
   nav { gap:0.7rem; font-size:0.55rem; letter-spacing:0.08em; }
   .cart-icon-btn { width:30px; height:30px; margin-left:8px; }
   .cart-icon { width:18px; height:18px; }
-  #cf { top:16vh; height:42vh; }
-  #info { bottom:20vh; }
+  #cf { top:12vh; height:55vh; }
+  #info { bottom:15vh; }
   #info-t { font-size:clamp(20px,5vw,32px); letter-spacing:clamp(5px,1.2vw,10px); }
   #info-c { font-size:9px; letter-spacing:2px; }
   #dots { bottom:10px; }
@@ -441,8 +441,8 @@ nav a:hover::after, nav a.active::after { width:100%; }
 @media(max-width:420px){
   nav a { font-size:0.5rem; }
   nav { gap:0.5rem; }
-  #cf { top:18vh; height:38vh; }
-  #info { bottom:18vh; }
+  #cf { top:14vh; height:50vh; }
+  #info { bottom:14vh; }
 }
 </style>
 </head>
@@ -1098,61 +1098,9 @@ const G=[
 ];
 const N=G.length;
 
-function covSz(){const w=window.innerWidth,h=window.innerHeight;if(w<=768)return Math.min(h*0.32,w*0.52,320);return Math.min(h*0.50,w*0.34,540);}
+function covSz(){const w=window.innerWidth,h=window.innerHeight;if(w<=768)return Math.min(h*0.38,w*0.62,384);return Math.min(h*0.60,w*0.41,650);}
 
-/* ===== AUDIO — Für Elise melody ===== */
-const AC=window.AudioContext||window.webkitAudioContext;
-let actx, melodyIdx=0;
-
-const MELODY = [
-  659.25, 622.25, 659.25, 622.25, 659.25, 493.88, 587.33, 523.25,
-  440.00, 261.63, 329.63, 440.00, 493.88, 329.63, 415.30, 493.88,
-  523.25, 329.63, 659.25, 622.25, 659.25, 622.25, 659.25, 493.88,
-  587.33, 523.25, 440.00, 261.63, 329.63, 440.00, 493.88, 329.63,
-  523.25, 493.88, 440.00
-];
-
-function tick() {
-  if (!actx) actx = new AC();
-  const t = actx.currentTime;
-  const freq = MELODY[melodyIdx % MELODY.length];
-  melodyIdx++;
-
-  const master = actx.createGain();
-  master.gain.setValueAtTime(0.00375, t);
-  master.gain.exponentialRampToValueAtTime(0.002, t + 0.08);
-  master.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
-  master.connect(actx.destination);
-
-  const o1 = actx.createOscillator();
-  const g1 = actx.createGain();
-  o1.type = 'sine'; o1.frequency.value = freq;
-  g1.gain.value = 1.0;
-  o1.connect(g1); g1.connect(master);
-  o1.start(t); o1.stop(t + 1.0);
-
-  const o2 = actx.createOscillator();
-  const g2 = actx.createGain();
-  o2.type = 'sine'; o2.frequency.value = freq * 2;
-  g2.gain.value = 0.15;
-  o2.connect(g2); g2.connect(master);
-  o2.start(t); o2.stop(t + 0.8);
-
-  const o3 = actx.createOscillator();
-  const g3 = actx.createGain();
-  o3.type = 'sine'; o3.frequency.value = freq * 3;
-  g3.gain.value = 0.05;
-  o3.connect(g3); g3.connect(master);
-  o3.start(t); o3.stop(t + 0.5);
-
-  const click = actx.createOscillator();
-  const cg = actx.createGain();
-  click.type = 'triangle'; click.frequency.value = freq * 4;
-  cg.gain.setValueAtTime(0.001, t);
-  cg.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
-  click.connect(cg); cg.connect(actx.destination);
-  click.start(t); click.stop(t + 0.03);
-}
+/* Audio removed */
 
 /* ===== BUILD COVERS ===== */
 const cfEl=document.getElementById('cf'),items=[],dotsEl=document.getElementById('dots');
@@ -1186,12 +1134,12 @@ G.forEach((g,i)=>{
 
 /* ===== ENGINE ===== */
 let cur=0,sm=0,lastR=-1;
-const SA=68,VH=9;
+const SA=68,VH=6;
 function wI(i){return((i%N)+N)%N;}
 function cD(a,b){let d=b-a;while(d>N/2)d-=N;while(d<-N/2)d+=N;return d;}
 
 function layout(){
-  const S=covSz(),sp=S*0.26,cZ=S*0.6,sS=0.55;
+  const S=covSz(),sp=S*0.32,cZ=S*0.6,sS=0.55;
   items.forEach((el,i)=>{
     el.style.setProperty('--cs',S+'px');
     let off=cD(Math.round(sm)%N,i)-(sm-Math.round(sm));
@@ -1200,13 +1148,13 @@ function layout(){
     el.style.visibility='visible';
     let tx,tz,ry,sc,op;
     if(abs<0.01){tx=0;tz=cZ;ry=0;sc=1;op=1;}
-    else{const dir=off>0?1:-1,t=Math.min(abs,VH+1),bO=S*0.5;
+    else{const dir=off>0?1:-1,t=Math.min(abs,VH+1),bO=S*0.6;
       tx=dir*(bO*Math.min(t,1)+Math.max(0,t-1)*sp);
       tz=cZ*Math.max(0,1-t);
       ry=-dir*SA*Math.min(t,1);
       sc=1-(1-sS)*Math.min(t,1)-Math.max(0,t-1)*0.03;
       sc=Math.max(0.22,sc);
-      op=Math.max(0,1-Math.max(0,t-1)*0.10);
+      op=Math.max(0,1-Math.max(0,t-1)*0.18);
     }
     el.style.transform=`translateX(${tx-S/2}px) translateZ(${tz}px) rotateY(${ry}deg) scale(${sc})`;
     el.style.opacity=op.toFixed(3);
@@ -1222,7 +1170,7 @@ function updH(){const i=wI(Math.round(sm));if(i===lastH)return;lastH=i;tEl.textC
 
 (function run(){
   const d=cur-sm;sm+=d*0.12;if(Math.abs(d)<0.0005)sm=cur;
-  const r=Math.round(sm);if(r!==lastR){lastR=r;tick();}
+  const r=Math.round(sm);if(r!==lastR){lastR=r;}
   layout();updH();requestAnimationFrame(run);
 })();
 
@@ -1231,11 +1179,11 @@ window.addEventListener('resize',layout);
 /* ===== INPUT ===== */
 function modal(){return document.getElementById('fgal').classList.contains('open')||document.getElementById('lb').classList.contains('open');}
 let sA=0;
-document.addEventListener('wheel',e=>{if(modal())return;e.preventDefault();sA+=(e.deltaY||0)+(e.deltaX||0);if(Math.abs(sA)>=110){cur+=Math.sign(sA);sA=0;closeCP();}},{passive:false});
+document.addEventListener('wheel',e=>{if(modal())return;e.preventDefault();sA+=(e.deltaY||0)+(e.deltaX||0);if(Math.abs(sA)>=180){cur+=Math.sign(sA);sA=0;closeCP();}},{passive:false});
 
 let drag=false,dX0=0,dC0=0,dM=false,dLX=0,dV=0;
 function dS(x){if(modal())return;drag=true;dM=false;dX0=x;dC0=cur;dLX=x;dV=0;}
-const _isTouch='ontouchstart'in window,_swDiv=_isTouch?200:130,_swVel=_isTouch?0.008:0.012,_swFling=_isTouch?2:3;
+const _isTouch='ontouchstart'in window,_swDiv=_isTouch?300:200,_swVel=_isTouch?0.005:0.008,_swFling=_isTouch?1.2:1.8;
 function dMv(x){if(!drag)return;if(Math.abs(x-dX0)>5)dM=true;dV=(dLX-x)*_swVel;dLX=x;cur=dC0+(dX0-x)/_swDiv;}
 function dE(){if(!drag)return;drag=false;dM=false;cur+=dV*_swFling;cur=Math.round(cur);}
 document.addEventListener('mousedown',e=>dS(e.clientX));

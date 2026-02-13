@@ -1,0 +1,409 @@
+# Archive-35 | Complete Catalog for AI Agents
+
+> This is the full machine-readable catalog of Archive-35 fine art photography.
+> Summary version: https://archive-35.com/llms.txt
+
+## Artist
+
+- Name: Wolf
+- Experience: 17+ years, 55+ countries
+- Equipment: Canon EOS professional camera systems
+- Specialties: Landscape, wildlife, street, architectural photography
+- Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
+- Website: https://archive-35.com
+
+## Print Collections (554 photographs, 31 collections)
+
+### Africa (44 photographs)
+- URL: https://archive-35.com/collection.html?id=africa
+- Gallery: https://archive-35.com/gallery.html?collection=africa
+
+  - Sentinel of the Serengeti | Serengeti National Park, Tanzania | 50.3MP | Tags: cheetah, serengeti, tanzania, wildlife-photography, african-predator, big-cat, landscape-photography, fine-art-nature
+  - Zebra Herd in Serengeti Grassland | Serengeti National Park, Tanzania | 50.3MP | Tags: zebra, herd, serengeti, tanzania, wildlife, african-savanna, grassland, landscape-photography
+  - Zebra Family in Serengeti Grassland | Serengeti National Park, Tanzania | 50.3MP | Tags: zebra, serengeti, tanzania, wildlife-photography, african-savanna, landscape-photography, fine-art-print, nature-photography
+  - Giraffe Among Acacia Trees | Serengeti National Park, Tanzania | 41.8MP | Tags: giraffe, serengeti, tanzania, african-wildlife, savanna-landscape, acacia-trees, nature-photography, fine-art-print
+  - Mother and Young in the Serengeti | Serengeti National Park, Tanzania | 50.3MP | Tags: serengeti-wildlife, tanzania-nature, baboon-portrait, african-savanna, maternal-bond, wildlife-photography, fine-art-nature, tanzania-landscape
+  - ... and 39 more photographs
+
+### Antilope Canyon (2 photographs)
+- URL: https://archive-35.com/collection.html?id=antilope-canyon
+- Gallery: https://archive-35.com/gallery.html?collection=antilope-canyon
+
+  - Crimson Passage Through Stone | Antelope Canyon, Arizona, USA | 50.3MP | Tags: slot-canyon, antelope-canyon, arizona, sandstone, red-rock, geological-formation, canyon, southwestern-landscape
+  - Striations of Stone and Shadow | Zion National Park, Utah, USA | 50.3MP | Tags: sandstone, geological-formations, desert-landscape, zion-national-park, utah, layered-rock, erosion-patterns, fine-art-photography
+
+### Argentina (35 photographs)
+- URL: https://archive-35.com/collection.html?id=argentina
+- Gallery: https://archive-35.com/gallery.html?collection=argentina
+
+  - Eagle's Vigil Over the Andes | Patagonian Steppe, near El Calafate, Santa Cruz Province, Argentina | 50.3MP | Tags: bald-eagle, argentina-landscape, andean-mountains, patagonia-steppe, snow-capped-peaks, wildlife-photography, fine-art-landscape, nature-photography
+  - Turquoise Waters of Argentine Highlands | Lerito Moreno Glacier, Los Glaciares National Park, Santa Cruz Province, Argentina | 50.3MP | Tags: argentina-landscape, turquoise-lake, high-altitude-plateau, santa-cruz-province, mountain-scenery, arid-steppe, fine-art-photography, landscape-photography
+  - Caracara Portrait: Argentine Wilderness | erito Moreno Glacier, Los Glaciares National Park, Santa Cruz Province, Argentina | 50.3MP | Tags: caracara, raptor, bird-of-prey, wildlife-photography, nature-portrait, argentina-fauna, fine-art-photography, iberá-wetlands
+  - Glacial Terminus at Lago Argentino | LPerito Moreno Glacier, Los Glaciares National Park, Santa Cruz Province, Argentina | 48.4MP | Tags: glacier, argentina, los-glaciares, lago-argentino, ice-wall, patagonia-argentina, landscape-photography, fine-art-photography
+  - Glacial Face at the Water's Edge | Perito Moreno Glacier, Los Glaciares National Park, Santa Cruz Province, Argentina | 50.3MP | Tags: glacier, perito-moreno, argentina-landscape, ice-formation, glacial-lake, los-glaciares, santa-cruz-province, fine-art-photography
+  - ... and 30 more photographs
+
+### Australia (3 photographs)
+- URL: https://archive-35.com/collection.html?id=australia
+- Gallery: https://archive-35.com/gallery.html?collection=australia
+
+  - Kangaroo in Native Scrubland | Australian Outback, Queensland | 20MP | Tags: kangaroo, australian-wildlife, marsupial, outback, native-vegetation, spinifex-grass, scrubland, landscape-photography
+  - Tempestuous Cove | Bouddi National Park, Central Coast, New South Wales, Australia | 16.3MP | Tags: australian-coast, coastal-landscape, new-south-wales, headland, turquoise-water, rocky-shore, ocean-waves, sandstone-cliffs
+  - Melbourne Twilight Urban Expanse | Melbourne, Victoria, Australia | 16.4MP | Tags: melbourne-skyline, yarra-river, urban-landscape, cityscape-photography, victoria-australia, aerial-view, fine-art-photography, australian-city
+
+### Black and White (39 photographs)
+- URL: https://archive-35.com/collection.html?id=black-and-white
+- Gallery: https://archive-35.com/gallery.html?collection=black-and-white
+
+  - Rickshaw Repair by the Water | Coastal urban promenade, Cuba  | 33.1MP | Tags: rickshaw, urban-labor, street-photography, fine-art-photography, black-and-white, waterfront, human-figure, industrial-vernacular
+  - Elephant Herd Across the Savanna | Serengeti National Park, Tanzania | 38.5MP | Tags: elephant, savanna, african-wildlife, herd, tanzania, serengeti, black-and-white-photography, landscape-photography
+  - Zebra Family in the Grassland | African Savanna | 50.3MP | Tags: zebra, wildlife-photography, african-savanna, black-and-white, fine-art-photography, nature-photography, grassland, animal-portrait
+  - Urban Dance Embrace | Buenos Aires Public plaza or street venue | 50.3MP | Tags: street-photography, dance-photography, urban-dance, black-and-white, fine-art-photography, couple-dance, contemporary-dance, public-performance
+  - Intimate Connection | Studio | 50.3MP | Tags: portrait-photography, black-and-white, fine-art, human-connection, intimate-moment, emotional-depth, monochromatic, studio-portrait
+  - ... and 34 more photographs
+
+### Brazil (14 photographs)
+- URL: https://archive-35.com/collection.html?id=brazil
+- Gallery: https://archive-35.com/gallery.html?collection=brazil
+
+  - Storm Over Coastal City | Benilson, Rio de Janeiro, Brazil | 33.3MP | Tags: landscape-photography, fine-art-print, brazil-coast, rio-de-janeiro, coastal-city, thunderstorm, lightning, urban-landscape
+  - Hillside Community, Brazilian Highlands | Rio de Janeiro, Brazil | 50.3MP | Tags: hillside-settlement, favela, brazilian-architecture, tropical-landscape, dense-vegetation, rio-de-janeiro, community-housing, urban-landscape
+  - Hillside Dwelling: Urban Density | Rio de Janeiro favela district, Brazil | 43.7MP | Tags: favela, rio-de-janeiro, brazil, urban-landscape, hillside-settlement, residential-architecture, densely-populated, tropical-vegetation
+  - Urban Density on the Hillside | Rio de Janeiro, Brazil | 44.4MP | Tags: urban-landscape, brazil-photography, favela, hillside-settlement, rio-de-janeiro, dense-housing, architecture-photography, urban-texture
+  - Emerald Waves Meet Golden Shore | Brazilian Atlantic Coast, Southern Region | 50.3MP | Tags: beach-photography, coastal-landscape, fine-art-photography, brazil-coast, emerald-waters, ocean-waves, sandy-beach, seascape
+  - ... and 9 more photographs
+
+### Chicago (6 photographs)
+- URL: https://archive-35.com/collection.html?id=chicago
+- Gallery: https://archive-35.com/gallery.html?collection=chicago
+
+  - Cloud Gate Reflection at Night | Millennium Park, Chicago, Illinois, USA | 50.3MP | Tags: chicago-sculpture, cloud-gate, millennium-park, urban-landscape, public-art, architectural-photography, fine-art-photography, night-photography
+  - Elevated Rails Through Urban Canyon | Chicago, Illinois, USA | 39.4MP | Tags: chicago-elevated-train, urban-infrastructure, architectural-photography, fine-art-landscape, chicago-skyline, steel-structure, transit-system, geometric-composition
+  - Parisian Balconies in Chicago | Chicago, Illinois, USA | 45.2MP | Tags: urban-architecture, chicago-illinois, fine-art-photography, architectural-design, balconies, historic-buildings, urban-landscape, facade
+  - Chicago Riverfront Urban Landscape | Chicago River, Downtown Chicago, Illinois, USA | 50.3MP | Tags: chicago, chicago-river, urban-landscape, skyline, architecture, cityscape, downtown-chicago, illinois
+  - Chicago Riverfront Urban Canvas | Chicago River, Chicago, Illinois, USA | 50.3MP | Tags: chicago-river, urban-landscape, chicago-skyline, architecture-photography, fine-art-photography, riverfront, illinois, midwest-usa
+  - ... and 1 more photographs
+
+### Colorado (8 photographs)
+- URL: https://archive-35.com/collection.html?id=colorado
+- Gallery: https://archive-35.com/gallery.html?collection=colorado
+
+  - Ancient Stone Vigil Over Green Valley | Colorado Front Range foothills, United States | 41.7MP | Tags: boulder-formations, landscape-photography, fine-art-nature, colorado-foothills, rock-outcropping, vista-view, expansive-landscape, geological-formation
+  - Desert Sentinel | High Desert Region, Southwestern United States | 44.8MP | Tags: ground-squirrel, desert-wildlife, animal-portrait, nature-photography, fine-art-print, rock-formation, arid-landscape, wildlife-photography
+  - Valleys of Pine and Mountain | Central Oregon Cascades, Pacific Northwest USA | 41.8MP | Tags: mountain-landscape, panoramic-vista, oregon-cascades, ponderosa-pine-forest, alpine-valley, fine-art-photography, wilderness-scene, majestic-peaks
+  - Meandering Waters Through Boreal Forest | Boreal Forest Region, Northern Scandinavia | 38.4MP | Tags: boreal-forest, meandering-river, aerial-landscape, finland, sweden, scandinavia, coniferous-forest, wilderness
+  - Mule Deer in Forest Light | Rocky Mountain Region, North America | 35.4MP | Tags: mule-deer, wildlife-photography, forest-portrait, antlers, conifer-forest, north-american-wildlife, deer, woodland
+  - ... and 3 more photographs
+
+### Concerts (5 photographs)
+- URL: https://archive-35.com/collection.html?id=concerts
+- Gallery: https://archive-35.com/gallery.html?collection=concerts
+
+  - Concert Stage Luminescence | Indoor arena venue | 50.3MP | Tags: concert-photography, stage-lighting, arena-performance, event-photography, dramatic-lighting, blue-light, crowd-energy, live-music
+  - Luminous Performance in Darkness | Large indoor concert venue or arena | 50.3MP | Tags: concert-photography, live-performance, stage-lighting, crowd-energy, blue-lighting, dramatic-illumination, performance-art, arena-photography
+  - Collective Luminescence | Large arena or concert venue | 50.3MP | Tags: concert-photography, crowd-gathering, mass-event, arena-lighting, human-connection, collective-energy, night-event, stage-performance
+  - Electric Nights in Motion | Concert venue, arena setting | 50.3MP | Tags: concert-photography, stage-lighting, electric-blue, crowd-gathering, arena-performance, light-installation, event-photography, luminous-spectacle
+  - Crimson Convergence | Large venue or arena setting | 50.3MP | Tags: concert-photography, crowd-energy, red-light, human-gathering, arena-performance, collective-experience, fine-art-photography, dramatic-lighting
+
+### Cuba (32 photographs)
+- URL: https://archive-35.com/collection.html?id=cuba
+- Gallery: https://archive-35.com/gallery.html?collection=cuba
+
+  - Vintage Motors, Urban Street | Havana, Cuba | 22.4MP | Tags: classic-cars, vintage-automobiles, cuban-street, urban-landscape, havana, caribbean, street-photography, fine-art-photography
+  - Green Cart Against Pink Walls | Havana, Cuba | 28.2MP | Tags: utility-vehicle, three-wheeler, cargo-cart, pink-building, green-transport, urban-decay, architectural-contrast, soviet-architecture
+  - Blue Cadillac, Colorful Streets | Havana, Cuba | 35.3MP | Tags: vintage-car, classic-automobile, cuban-street, havana, colonial-architecture, blue-cadillac, colorful-buildings, street-photography
+  - Chromatic Streets of Havana | Havana, Cuba | 33.4MP | Tags: street-photography, urban-landscape, cuba, havana, colonial-architecture, colorful-buildings, cuban-culture, turquoise
+  - Havana's Colorful Street Life | Havana, Cuba | 35.5MP | Tags: cuba, havana, caribbean, urban-photography, street-photography, vintage-cars, classic-automobiles, colonial-architecture
+  - ... and 27 more photographs
+
+### Death Valley (5 photographs)
+- URL: https://archive-35.com/collection.html?id=death-valley
+- Gallery: https://archive-35.com/gallery.html?collection=death-valley
+
+  - Alpine Basin Beneath the Peaks | Southern Alps, New Zealand | 12.9MP | Tags: mountain-landscape, alpine-valley, panoramic-vista, new-zealand, southern-alps, lake-reflection, dramatic-peaks, high-altitude
+  - Mineral Mountains of Ladakh | Ladakh, Jammu and Kashmir, India | 20MP | Tags: ladakh, himalaya, mountain-landscape, geological-formations, mineral-deposits, high-altitude, desert-mountains, turquoise-earth
+  - Desert Highway into Infinity | High Desert Basin, Eastern Sierra Nevada Region, California | 15.6MP | Tags: desert-highway, straight-road, high-desert, sierra-nevada, vanishing-point, landscape-photography, fine-art-photography, american-west
+  - Mineral Waters of the High Desert | Ladakh region, Jammu and Kashmir, India | 20MP | Tags: mountain-landscape, alpine-lake, ladakh, turquoise-water, mineral-lake, high-altitude, desert-mountain, geological-formations
+  - Coyote in Desert Bloom | Desert Southwest, North America | 20MP | Tags: coyote, wildlife-photography, desert-landscape, fine-art-photography, nature-portrait, arid-environment, wildflowers, desert-vegetation
+
+### Desert Dunes (10 photographs)
+- URL: https://archive-35.com/collection.html?id=desert-dunes
+- Gallery: https://archive-35.com/gallery.html?collection=desert-dunes
+
+  - Desert Dunes in Motion | Desert Region, Sahara or Arabian Desert | 36.6MP | Tags: sand-dunes, desert-landscape, erg, dune-patterns, rippled-sand, golden-desert, sahara, arabian-desert
+  - Dunes of Silent Geometry | Desert sand dunes, arid region | 36.6MP | Tags: sand-dunes, desert-landscape, aerial-photography, dune-formations, desert-patterns, fine-art-landscape, nature-photography, minimalist
+  - Volcanoes of the Atacama Desert | Atacama Desert, Northern Chile - San Pedro de Atacama Region | 50.3MP | Tags: volcano, volcanic-landscape, atacama-desert, chile, aerial-photography, mountain-peaks, snow-capped-volcano, arid-landscape
+  - Mineral Pools of Silence | Geothermal hot springs region | 36.6MP | Tags: geothermal-springs, mineral-deposits, abstract-landscape, fine-art-photography, white-landscape, thermal-pools, nature-abstraction, monochromatic
+  - Veiled Mountain Landscape | Alpine mountain region | 36.6MP | Tags: mountain-landscape, mist-photography, fog-clouds, alpine-peaks, minimalist-landscape, fine-art-photography, nature-photography, atmospheric-conditions
+  - ... and 5 more photographs
+
+### Flowers and Leaves (13 photographs)
+- URL: https://archive-35.com/collection.html?id=flowers-and-leaves
+- Gallery: https://archive-35.com/gallery.html?collection=flowers-and-leaves
+
+  - Crimson Blooms Against Urban Stone | Mediterranean urban setting | 50.3MP | Tags: bougainvillea, crimson-flowers, fine-art-photography, nature-detail, urban-landscape, botanical-study, vibrant-red, delicate-blooms
+  - Trumpet Flowers in Vertical Dance | Tropical or subtropical mountainous region | 50.3MP | Tags: trumpet-flowers, botanical-photography, fine-art-nature, red-flowers, tropical-flora, flower-close-up, garden-photography, landscape-photography
+  - Lavender Field Pollinator | Lavender field, Provence region, France | 50.3MP | Tags: lavender-field, bee, pollinator, provence, france, purple-flowers, nature-photography, fine-art-landscape
+  - Purple Blooms with Pollinator | Temperate garden or wildflower meadow | 48.4MP | Tags: purple-flowers, bee-pollinator, floral-photography, nature-detail, botanical-art, fine-art-photography, macro-flora, garden-landscape
+  - Pointe in Stillness | Studio setting | 50.3MP | Tags: ballet, pointe-shoes, dance-photography, classical-ballet, fine-art-photography, soft-focus, ethereal, graceful
+  - ... and 8 more photographs
+
+### Grand Teton (48 photographs)
+- URL: https://archive-35.com/collection.html?id=grand-teton
+- Gallery: https://archive-35.com/gallery.html?collection=grand-teton
+
+  - Teton Range Winter Solitude | Grand Teton National Park, Wyoming, United States | 34MP | Tags: grand-tetons, teton-range, wyoming-landscape, mountain-photography, winter-landscape, snow-covered-peaks, fine-art-landscape, sagebrush-valley
+  - Panoramic Teton Dawn | Oxbow Bend Overlook, Snake River Valley, Grand Teton National Park, Wyoming, United States | 36.6MP | Tags: grand-teton, panoramic, winter-landscape, frozen-wetlands, sagebrush-meadow, mountain-peaks, golden-hour, fine-art-landscape
+  - Teton Peaks Across Frozen Waters | Jackson Lake, Grand Teton National Park, Wyoming, United States | 41.7MP | Tags: grand-teton-national-park, teton-range, jackson-lake, wyoming-landscape, mountain-photography, frozen-lake, snow-peaks, landscape-fine-art
+  - Frozen Lake, Mountain Reflection | Oxbow Bend, Grand Teton National Park, Wyoming, USA | 33.5MP | Tags: grand-teton, wyoming, mountain-landscape, frozen-lake, winter-scenery, snow-peaks, landscape-photography, fine-art-photography
+  - Teton Range Winter Reflection | Grand Teton National Park, Wyoming, United States | 44.8MP | Tags: grand-teton, teton-range, wyoming-landscape, mountain-photography, winter-landscape, alpine-lake, frozen-water, snow-peaks
+  - ... and 43 more photographs
+
+### Iceland (67 photographs)
+- URL: https://archive-35.com/collection.html?id=iceland
+- Gallery: https://archive-35.com/gallery.html?collection=iceland
+
+  - Vestrahorn's Reflection in Still Waters | Stokksnes, Vestrahorn, Southeast Iceland | 36.8MP | Tags: mountain-landscape, iceland-photography, vestrahorn, basalt-peaks, reflection-photography, fine-art-landscape, black-sand-beach, glacial-valley
+  - Turquoise Surge Against Ancient Stone | Iceland, Basalt Coastline | 36.6MP | Tags: iceland, basalt-cliffs, coastal-landscape, aerial-photography, ocean-waves, turquoise-water, moss-covered-rocks, dramatic-coastline
+  - Moss and Stone, Endless Horizon | Iceland, Lava Fields Region | 49.6MP | Tags: iceland, lava-field, volcanic-landscape, moss-covered-terrain, geothermal, dramatic-sky, volcanic-rock, landscape-photography
+  - Volcanic Highland Beneath Stormy Skies | Icelandic Highlands, Iceland | 39.9MP | Tags: iceland, highland-landscape, volcanic-terrain, moss-tundra, mountain-peak, stream, dramatic-sky, storm-clouds
+  - Highland Valley in Ethereal Light | Iceland, Central Highlands or South Iceland | 44.8MP | Tags: iceland, highland-landscape, volcanic-terrain, mountain-vista, braided-stream, moss-covered-ground, dramatic-sky, moody-clouds
+  - ... and 62 more photographs
+
+### Iceland Ring Road (67 photographs)
+- URL: https://archive-35.com/collection.html?id=iceland-ring-road
+- Gallery: https://archive-35.com/gallery.html?collection=iceland-ring-road
+
+  - Turquoise river on Dark Stone | Southern Iceland Coastline, Ring Road | 36.6MP | Tags: iceland-, basalt-shore, turquoise-waves, volcanic-rock, coastal-landscape, wave-action, moss-covered-stone, atlantic-coast
+  - Moss-Covered Lava Fields | Eldhraun Lava Field, South Iceland | 49.6MP | Tags: lava-field, moss-covered, iceland-landscape, volcanic-terrain, south-iceland, dramatic-sky, geological-formation, basalt
+  - Storm Light Over Moorland | Central Iceland Highlands, near Kjölur or Sprengisandur region | 39.9MP | Tags: iceland-landscape, moorland, highlands, mountain-vista, dramatic-sky, fine-art-photography, nature-print, emerald-slopes
+  - Glacial Valley Under Dramatic Skies | Landmannalaugar Region, Central Iceland | 44.8MP | Tags: landscape-photography, fine-art-print, iceland-scenery, glacial-stream, volcanic-mountains, moss-covered-terrain, dramatic-sky, nature-photography
+  - Moss-Draped Lava Canyon |  South Iceland | 49.6MP | Tags: lava-field, moss-covered, basalt, geological-formation, volcanic-landscape, iceland-interior, south-iceland, emerald-green
+  - ... and 62 more photographs
+
+### Lake Powell (7 photographs)
+- URL: https://archive-35.com/collection.html?id=lake-powell
+- Gallery: https://archive-35.com/gallery.html?collection=lake-powell
+
+  - Desert Monument Reflection | Lake Powell, Arizona-Utah Border | 16.7MP | Tags: butte, sandstone, lake-powell, desert-landscape, arizona, utah, rock-formation, reflection
+  - Horseshoe Bend's Eternal Embrace | Horseshoe Bend, Colorado River, Arizona | 50.3MP | Tags: horseshoe-bend, colorado-river, arizona-landscape, river-meander, red-rock-canyon, geological-formations, sandstone-cliffs, southwestern-landscape
+  - Horseshoe Bend's Emerald Waters | Horseshoe Bend, Colorado River, Arizona | 50.3MP | Tags: horseshoe-bend, colorado-river, arizona, landscape-photography, fine-art-print, canyon-landscape, geological-formation, sandstone
+  - Horseshoe Bend's Turquoise Embrace | Horseshoe Bend, Colorado River, Page, Arizona, USA | 50.3MP | Tags: horseshoe-bend, colorado-river, arizona, page-arizona, canyon, meander, river-bend, turquoise-water
+  - Canyon Portal: Stone's Silent Gateway | Canyon Country, Southwest USA - likely Utah or Arizona region | 12.3MP | Tags: natural-arch, canyon-landscape, sandstone-formation, desert-photography, arches-national-park, utah-landscape, arizona-desert, geological-formation
+  - ... and 2 more photographs
+
+### Large Scale Photography Stitch (44 photographs)
+- URL: https://archive-35.com/collection.html?id=large-scale-photography-stitch
+- Gallery: https://archive-35.com/gallery.html?collection=large-scale-photography-stitch
+
+  - Desert Dunes in Golden Light | Gobi Desert, Mongolia | 250.8MP | Tags: desert-landscape, sand-dunes, gobi-desert, mongolia, arid-landscape, golden-sand, dune-formations, desert-photography
+  - Alpine Lake Mountain Reflections | Pacific Northwest Alpine Region, Cascade Mountains | 122.7MP | Tags: mountain-lake, alpine-landscape, evergreen-forest, cascade-mountains, pacific-northwest, landscape-photography, fine-art-print, nature-photography
+  - Mountain Valley Wilderness | Cascade Range, Oregon, Pacific Northwest USA | 41.8MP | Tags: mountain-landscape, valley-vista, coniferous-forest, snow-capped-peaks, wilderness-photography, fine-art-landscape, nature-photography, cascade-range
+  - Geothermal Valley in Repose | Iceland, Geothermal Region (likely Myvatn or Central Highlands) | 70.2MP | Tags: iceland, lava-field, geothermal, volcanic-landscape, mountain, steam, moss-covered, dramatic-sky
+  - Volcanic Moorland Under Gathering Storms | Iceland - Highland Region, likely Landmannalaugar or Mývatn area | 89.6MP | Tags: iceland, volcanic-landscape, moorland, mountain, lava-field, dramatic-sky, storm-clouds, tundra
+  - ... and 39 more photographs
+
+### London (1 photographs)
+- URL: https://archive-35.com/collection.html?id=london
+- Gallery: https://archive-35.com/gallery.html?collection=london
+
+  - London Eye Illuminated Reflection | South Bank, London, England | 50.3MP | Tags: london-eye, millennium-wheel, south-bank, thames-river, london-england, urban-landscape, architectural-photography, neon-lights
+
+### Los Angeles (1 photographs)
+- URL: https://archive-35.com/collection.html?id=los-angeles
+- Gallery: https://archive-35.com/gallery.html?collection=los-angeles
+
+  - Sailboats in Golden Harbor Light | San Diego Harbor, California, USA | 15.7MP | Tags: sailboats, harbor, maritime, coastal-landscape, moored-vessels, san-diego, california, pacific-coast
+
+### Mexico city (5 photographs)
+- URL: https://archive-35.com/collection.html?id=mexico-city
+- Gallery: https://archive-35.com/gallery.html?collection=mexico-city
+
+  - Ancient Pyramids of Teotihuacan | Teotihuacan, State of Mexico | 50.3MP | Tags: teotihuacan, pyramid, ancient-architecture, mesoamerican, mexico, archaeological-site, stone-structure, pre-columbian
+  - Pyramid's Shadow: Sacred Valley | Teotihuacán, Mexico City, Valley of Mexico | 47.5MP | Tags: teotihuacan, pyramid-of-the-sun, mexico, mesoamerica, aerial-photography, ancient-ruins, archaeological-site, mexico-city
+  - Chromatic Density | Mexico City, | 37.1MP | Tags: urban-landscape, hillside-settlement, dense-housing, architectural-pattern, colorful-buildings, middle-east, levant, amman
+  - Hillside Cemetery, Vibrant Passage | Guanajuato, Mexico | 50.3MP | Tags: cemetery, hillside, guanajuato, mexico, urban-landscape, architectural-layers, colorful-buildings, jacaranda-blossoms
+  - Chromatic Hillside Tapestry | Mexico City, Mexico - Iztapalapa District hillside settlement | 44.3MP | Tags: hillside-settlement, urban-landscape, architecture-photography, mexico-city, informal-housing, colorful-facades, dense-urban, magenta-houses
+
+### Monument Valley (1 photographs)
+- URL: https://archive-35.com/collection.html?id=monument-valley
+- Gallery: https://archive-35.com/gallery.html?collection=monument-valley
+
+  - Sentinels of the Desert | Monument Valley, Arizona-Utah Border | 12.2MP | Tags: butte, desert-landscape, monument-valley, arizona, utah, geological-formation, sandstone, arid-landscape
+
+### New Zealand (24 photographs)
+- URL: https://archive-35.com/collection.html?id=new-zealand
+- Gallery: https://archive-35.com/gallery.html?collection=new-zealand
+
+  - Alpine Meadow with Mountain Stream | Mount Aspiring National Park, Otago Region, New Zealand | 11.6MP | Tags: new-zealand-landscape, mount-aspiring-national-park, alpine-valley, mountain-stream, southern-alps, wildflowers, purple-flowers, otago-region
+  - Geothermal Mineral Pools | Rotorua Geothermal Area, Bay of Plenty, New Zealand | 16.7MP | Tags: geothermal, hot-springs, mineral-pools, rotorua, new-zealand, thermal-features, chromatic-landscape, geothermal-art
+  - Geothermal Waters of Rotorua | Rotorua Geothermal Area, Bay of Plenty, New Zealand | 16.7MP | Tags: geothermal-hot-spring, rotorua, new-zealand, thermal-waters, mineral-deposits, steam-and-mist, geothermal-landscape, jade-green-water
+  - Solitary Island in Turbid Waters | Waikato River, Waikato Region, New Zealand | 14.7MP | Tags: new-zealand, waikato-river, landscape-photography, fine-art-photography, island, floodwater, water-feature, dramatic-nature
+  - Waterfall Through Native Forest |  New Zealand | 16.7MP | Tags: waterfall, new-zealand, native-forest, landscape-photography, fine-art-print, cascade, beech-forest, ferns
+  - ... and 19 more photographs
+
+### Paris (1 photographs)
+- URL: https://archive-35.com/collection.html?id=paris
+- Gallery: https://archive-35.com/gallery.html?collection=paris
+
+  - Iron Lattice Against Sky | Paris, France | 20MP | Tags: eiffel-tower, paris, france, iron-lattice, architectural-photography, fine-art-photography, geometric-composition, wrought-iron
+
+### Planes (4 photographs)
+- URL: https://archive-35.com/collection.html?id=planes
+- Gallery: https://archive-35.com/gallery.html?collection=planes
+
+  - Tarmac Geometry and Flight | Commercial Airport Tarmac | 50.3MP | Tags: airport-photography, aviation-art, tarmac-landscape, selective-focus, geometric-composition, infrastructure-photography, fine-art-photography, industrial-landscape
+  - Runway Geometry at Rest | Commercial Airport Terminal | 50.3MP | Tags: airport-runway, industrial-landscape, aircraft-parked, geometric-composition, tarmac-lines, aviation-infrastructure, urban-landscape, commercial-aviation
+  - Horizon's Golden Threshold | Aerial view, high altitude | 43.2MP | Tags: aerial-photography, horizon-line, airplane-wing, atmospheric-light, golden-hour, earth-curvature, stratosphere, fine-art-landscape
+  - Horizon's Golden Threshold | Aerial perspective, high altitude | 46.6MP | Tags: aerial-photography, horizon-line, atmospheric-landscape, fine-art-print, golden-hour-light, earth-from-above, sky-art, contemplative
+
+### Random Stuff (4 photographs)
+- URL: https://archive-35.com/collection.html?id=random-stuff
+- Gallery: https://archive-35.com/gallery.html?collection=random-stuff
+
+  - Unity in Motion | Open field venue, festival grounds | 16.7MP | Tags: crowd, celebration, hands-raised, community, gathering, unity, festival, people
+  - Desert Currents in Sand | Desert Region - Sand Dunes | 13.6MP | Tags: sand-dunes, desert-landscape, fine-art-photography, nature-photography, sand-patterns, wind-erosion, golden-tones, minimalist-landscape
+  - Weathered Wood's Spiral Memory | Weathered wood detail | 37.9MP | Tags: wood-grain, macro-photography, nature-abstract, aged-wood, fine-art-photography, texture-detail, organic-patterns, natural-composition
+  - Chromatic Journey Through Urban Space | Central Europe, urban plaza | 12.3MP | Tags: vintage-automobile, street-art, color-field, urban-landscape, trabant, contemporary-art, geometric-patterns, colorful-stripes
+
+### South Africa (8 photographs)
+- URL: https://archive-35.com/collection.html?id=south-africa
+- Gallery: https://archive-35.com/gallery.html?collection=south-africa
+
+  - Ostrich Portrait | South Africa | 20MP | Tags: ostrich, wildlife-portrait, south-africa, bird-photography, game-reserve, safari, bokeh, nature-photography
+  - Lion Cub on the Lookout | South Africa | 20MP | Tags: lion-cub, wildlife-portrait, south-africa, big-five, safari, low-angle, dramatic-sky, predator
+  - White Lion Cub | South Africa | 20MP | Tags: white-lion, lion-cub, wildlife-portrait, south-africa, rare-animal, big-five, close-up, golden-eyes
+  - African Penguin on the Beach | South Africa | 15.1MP | Tags: african-penguin, boulders-beach, simons-town, cape-town, cape-peninsula, wildlife, beach, coastal
+  - Penguin Pair at Boulders Beach | South Africa | 20MP | Tags: african-penguin, penguin-pair, boulders-beach, simons-town, cape-town, cape-peninsula, ocean, granite-boulders
+  - ... and 3 more photographs
+
+### South America (5 photographs)
+- URL: https://archive-35.com/collection.html?id=south-america
+- Gallery: https://archive-35.com/gallery.html?collection=south-america
+
+  - Lama on the Street | South America | 43.7MP | Tags: south-america, urban-photography, street-photography, fine-art-photography, documentary-style, portrait, cultural-moment, character-study
+  - South America | South America | 41.4MP | Tags: south-america, travel-photography, fine-art-photography
+  - South America | South America | 50.3MP | Tags: south-america, travel-photography, fine-art-photography
+  - South America | South America | 50.3MP | Tags: south-america, travel-photography, fine-art-photography
+  - Urban Solitude on the Rooftop | South America | 37.6MP | Tags: south-america, urban-photography, rooftop, solitude, architectural, fine-art-photography, urban-decay, brick-building
+
+### Tanzania (44 photographs)
+- URL: https://archive-35.com/collection.html?id=tanzania
+- Gallery: https://archive-35.com/gallery.html?collection=tanzania
+
+  - Zebra Congregation in African Savanna | East African Savanna, likely Tanzania or Kenya | 50.3MP | Tags: zebra, wildlife-photography, african-savanna, herd-behavior, fine-art-photography, nature-photography, landscape-photography, tanzania
+  - Zebra Family in African Grassland | African Savanna, likely Tanzania or Kenya | 50.3MP | Tags: zebra, african-wildlife, savanna-landscape, grassland, nature-photography, fine-art-photography, wildlife-portrait, serene
+  - Giraffe Crossing the Savanna | African Savanna, likely Zambia or Zimbabwe | 41.8MP | Tags: giraffe, african-wildlife, savanna-landscape, zambia, zimbabwe, africa, wildlife-photography, nature-photography
+  - Mother and Child in Motion | African Savanna | 50.3MP | Tags: baboon, primate, wildlife-photography, mother-and-child, african-wildlife, savanna, nature-photography, animal-behavior
+  - Ascent Through Golden Clouds | Sky | 50.3MP | Tags: hot-air-balloon, balloon-photography, sky-art, clouds, flight, aerial-view, fine-art-photography, landscape-photography
+  - ... and 39 more photographs
+
+### Utah National Parks (4 photographs)
+- URL: https://archive-35.com/collection.html?id=utah-national-parks
+- Gallery: https://archive-35.com/gallery.html?collection=utah-national-parks
+
+  - Crimson Waves Across Stone | Zion National Park, Utah, United States | 50.3MP | Tags: sandstone, desert-landscape, geological-patterns, utah, zion-national-park, erosion, rock-formations, fine-art-photography
+  - Weathered Wood Grain Study | Wood cross-section detail | 50.3MP | Tags: wood-grain, tree-rings, natural-texture, wood-detail, organic-pattern, macro-photography, abstract-nature, timber-study
+  - Dunes and Distant Plateaus | Colorado Plateau Region, Southwestern United States | 43.9MP | Tags: sand-dunes, desert-landscape, mesa, plateaus, high-desert, colorado-plateau, arid-terrain, geological-formations
+  - Ridgeline Through Verdant Canyons | Blue Mountains, New South Wales, Australia | 50.3MP | Tags: blue-mountains, new-south-wales, australia, canyon-landscape, sandstone-formations, aerial-photography, dramatic-ridgeline, forest-canopy
+
+### Valley of Fire (3 photographs)
+- URL: https://archive-35.com/collection.html?id=valley-of-fire
+- Gallery: https://archive-35.com/gallery.html?collection=valley-of-fire
+
+  - Desert Ridges and Russet Plateaus | Southern African arid region, semi-desert plateau | 13.1MP | Tags: desert-landscape, arid-terrain, rust-colored-earth, rocky-plateau, sparse-vegetation, dunes, semi-arid, fine-art-landscape
+  - Layered Desert Canyons in Stillness | Serranía del Hornocal region, Jujuy Province, Argentina | 13.5MP | Tags: desert-canyon, geological-formations, argentina, jujuy, hornocal, stratified-rock, arid-landscape, mountain-terrain
+  - Desert Boulders and Stone Formations | Joshua Tree National Park, California | 16.7MP | Tags: desert-landscape, boulder-formations, rock-formations, joshua-tree, california-desert, geological-landscape, fine-art-photography, nature-photography
+
+## Commercial Licensing (45 ultra-high-resolution panoramic images)
+
+Available for commercial use. Originals up to 27,985 x 11,199 pixels (313 megapixels).
+
+### Pricing Tiers
+- Web & Social Media: from $350
+- Editorial: from $700
+- Commercial Print: from $1,400
+- Billboard / Out-of-Home: from $2,450
+- Hospitality / Interior Design: from $3,500
+- Exclusive Rights: from $7,000
+
+### Available Images
+
+- A35-20260210-0001: ULTRA | 27985x11199 (313.4MP) | from $350
+- A35-20260210-0002: ULTRA | 31714x7907 (250.8MP) | from $350
+- A35-20260210-0003: ULTRA | 19396x6324 (122.7MP) | from $350
+- A35-20260210-0004: PREMIUM | 10000x4183 (41.8MP) | from $280
+- A35-20260210-0005: PREMIUM | 11901x5900 (70.2MP) | from $280
+- A35-20260210-0006: PREMIUM | 14989x5976 (89.6MP) | from $280
+- A35-20260210-0007: ULTRA | 15917x7892 (125.6MP) | from $350
+- A35-20260210-0008: PREMIUM | 12969x8096 (105.0MP) | from $280
+- A35-20260210-0009: PREMIUM | 10802x4689 (50.7MP) | from $280
+- A35-20260210-0010: PREMIUM | 13107x5464 (71.6MP) | from $280
+- A35-20260210-0011: PREMIUM | 11365x4806 (54.6MP) | from $280
+- A35-20260210-0012: ULTRA | 16259x6659 (108.3MP) | from $350
+- A35-20260210-0013: ULTRA | 20078x9955 (199.9MP) | from $350
+- A35-20260210-0014: PREMIUM | 11640x6694 (77.9MP) | from $280
+- A35-20260210-0015: PREMIUM | 13107x5464 (71.6MP) | from $280
+- A35-20260210-0016: PREMIUM | 13107x5464 (71.6MP) | from $280
+- A35-20260210-0017: ULTRA | 23883x7355 (175.7MP) | from $350
+- A35-20260210-0018: ULTRA | 27149x7654 (207.8MP) | from $350
+- A35-20260210-0019: ULTRA | 18927x6421 (121.5MP) | from $350
+- A35-20260210-0020: ULTRA | 22895x7812 (178.9MP) | from $350
+- A35-20260210-0021: ULTRA | 16818x7989 (134.4MP) | from $350
+- A35-20260210-0022: PREMIUM | 13107x5464 (71.6MP) | from $280
+- A35-20260210-0023: PREMIUM | 13107x5464 (71.6MP) | from $280
+- A35-20260210-0024: ULTRA | 15496x5781 (89.6MP) | from $350
+- A35-20260210-0025: PREMIUM | 12989x6635 (86.2MP) | from $280
+- A35-20260210-0026: ULTRA | 15210x6815 (103.7MP) | from $350
+- A35-20260210-0027: ULTRA | 25677x6636 (170.4MP) | from $350
+- A35-20260210-0028: PREMIUM | 12115x4819 (58.4MP) | from $280
+- A35-20260210-0029: ULTRA | 15317x6661 (102.0MP) | from $350
+- A35-20260210-0030: ULTRA | 19907x8032 (159.9MP) | from $350
+- A35-20260210-0031: PREMIUM | 11876x6220 (73.9MP) | from $280
+- A35-20260210-0032: ULTRA | 23885x7307 (174.5MP) | from $350
+- A35-20260210-0033: PREMIUM | 8134x3510 (28.6MP) | from $280
+- A35-20260210-0034: ULTRA | 19791x7247 (143.4MP) | from $350
+- A35-20260210-0035: PREMIUM | 13107x5464 (71.6MP) | from $280
+- A35-20260210-0036: ULTRA | 23832x10894 (259.6MP) | from $350
+- A35-20260210-0037: ULTRA | 16402x4639 (76.1MP) | from $350
+- A35-20260210-0038: PREMIUM | 11877x4973 (59.1MP) | from $280
+- A35-20260210-0039: PREMIUM | 13560x6197 (84.0MP) | from $280
+- A35-20260210-0040: ULTRA | 18300x8992 (164.6MP) | from $350
+- A35-20260210-0041: PREMIUM | 13107x5464 (71.6MP) | from $280
+- A35-20260210-0042: PREMIUM | 11224x4797 (53.8MP) | from $280
+- A35-20260210-0043: PREMIUM | 13107x5464 (71.6MP) | from $280
+- A35-20260210-0044: PREMIUM | 13107x5464 (71.6MP) | from $280
+- A35-20260210-0045: PREMIUM | 13107x5464 (71.6MP) | from $280
+
+## Print Materials & Pricing
+
+| Material | Starting Price | Description |
+|----------|---------------|-------------|
+| Canvas | $105 | Gallery-wrapped, 1.5" depth |
+| Metal | $130 | HD aluminum coating, float mount |
+| Acrylic | $195 | 1/4" premium acrylic, depth effect |
+| Fine Art Paper | $60 | Archival matte, museum grade |
+| Wood | $120 | Rustic plywood, natural grain |
+
+Sizes: 12"x8" to 60"x40" (varies by aspect ratio)
+Shipping: Free to USA and Canada
+Fulfillment: Pictorem Premium with Certificate of Authenticity
+
+## Content Authenticity (C2PA)
+
+Every photograph is signed with C2PA Content Credentials:
+- Algorithm: ES256 (ECDSA P-256)
+- Claim generator: Archive-35/1.0
+- Schema: stds.schema-org.CreativeWork
+- Assertions: author (Wolf), copyrightHolder (Archive-35), locationCreated, dateCreated
+- Software agent: Canon EOS camera system
+- Verification: https://contentcredentials.org/verify
+
+This proves: (1) real camera capture, (2) identified photographer, (3) unmodified original, (4) established copyright chain
+
+## Copyright
+
+All images copyright Wolf / Archive-35.
+NOT licensed for AI training, scraping, or reproduction.
+Print purchase = personal display rights.
+Commercial use requires explicit license purchase.

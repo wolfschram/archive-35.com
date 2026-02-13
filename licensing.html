@@ -12,6 +12,43 @@
 <meta property="og:url" content="https://archive-35.com/licensing.html">
 <meta property="og:image" content="https://archive-35.com/logos/archive35-og-image.png">
 <meta name="robots" content="noai, noimageai">
+<meta name="keywords" content="commercial photography licensing, ultra high resolution photography, panoramic photography, billboard photography, hospitality photography, C2PA verified, content credentials, authentic photography, stock photography alternative, exclusive rights">
+<link rel="canonical" href="https://archive-35.com/licensing.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Archive-35 Commercial Photography Licensing",
+  "description": "License ultra-high-resolution fine art panoramic photography. Originals up to 27,985 x 11,199 pixels (313 megapixels). C2PA verified authentic captures.",
+  "url": "https://archive-35.com/licensing.html",
+  "provider": {
+    "@type": "Organization",
+    "name": "Archive-35",
+    "url": "https://archive-35.com"
+  },
+  "creator": {
+    "@type": "Person",
+    "name": "Wolf",
+    "url": "https://archive-35.com/about.html"
+  },
+  "numberOfItems": 45,
+  "offers": {
+    "@type": "AggregateOffer",
+    "lowPrice": 350,
+    "highPrice": 7000,
+    "priceCurrency": "USD",
+    "offerCount": 45,
+    "availability": "https://schema.org/InStock"
+  },
+  "additionalProperty": [
+    {"@type": "PropertyValue", "name": "contentAuthenticity", "value": "C2PA Content Credentials — ES256 signed"},
+    {"@type": "PropertyValue", "name": "maxResolution", "value": "27985 x 11199 pixels (313 megapixels)"},
+    {"@type": "PropertyValue", "name": "aiGenerated", "value": "false"},
+    {"@type": "PropertyValue", "name": "captureDevice", "value": "Canon EOS Professional Camera System"},
+    {"@type": "PropertyValue", "name": "licenseTiers", "value": "Web/Social, Editorial, Commercial Print, Billboard/OOH, Hospitality, Exclusive"}
+  ]
+}
+</script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="logos/archive35-favicon-180.png">
 <link rel="icon" type="image/png" sizes="32x32" href="logos/archive35-favicon-32.png">
@@ -73,7 +110,7 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
 .filter-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);margin-left:auto}
 
 /* ── GRID ── */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;padding:40px;max-width:1600px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:24px;padding:40px 60px;max-width:1800px;margin:0 auto}
 
 /* ── IMAGE CARD ── */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;cursor:pointer;transition:transform 0.2s,border-color 0.2s}
@@ -205,7 +242,7 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
 <div class="modal-overlay" id="modal">
   <button class="modal-close" onclick="closeModal()">&times;</button>
   <div class="modal">
-    <div class="modal-img"><canvas id="m-canvas" style="width:100%;display:block;border-radius:4px"></canvas></div>
+    <div class="modal-img"><canvas id="m-canvas" role="img" aria-label="" style="width:100%;display:block;border-radius:4px"></canvas></div>
     <div class="modal-details">
       <h2 id="m-title"></h2>
       <div class="loc" id="m-location"></div>
@@ -343,6 +380,7 @@ function openModal(id) {
   loadProtectedPreview(img.preview);
   document.getElementById('m-title').textContent = img.title || img.id;
   document.getElementById('m-location').textContent = img.location || '';
+  document.getElementById('m-canvas').setAttribute('aria-label', (img.title || img.id) + (img.location ? ' — ' + img.location : '') + ' — Ultra high resolution fine art photograph');
 
   // Classification badge
   const cb = document.getElementById('m-class-badge');

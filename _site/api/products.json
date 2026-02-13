@@ -1,0 +1,1387 @@
+{
+  "store": {
+    "name": "Archive-35",
+    "url": "https://archive-35.com",
+    "description": "Fine art landscape and wildlife photography prints and commercial licensing by Wolf",
+    "contentAuthenticity": "C2PA Content Credentials on all photographs \u2014 ES256 signed, verifiable at contentcredentials.org",
+    "aiGenerated": false,
+    "currency": "USD",
+    "shipping": "Free to USA and Canada",
+    "fulfillment": "Pictorem Premium with Certificate of Authenticity"
+  },
+  "prints": {
+    "total": 554,
+    "materials": [
+      {
+        "name": "Canvas",
+        "startingPrice": 105,
+        "description": "Gallery-wrapped, 1.5 inch depth"
+      },
+      {
+        "name": "Metal",
+        "startingPrice": 130,
+        "description": "HD aluminum coating, float mount"
+      },
+      {
+        "name": "Acrylic",
+        "startingPrice": 195,
+        "description": "1/4 inch premium acrylic, depth effect"
+      },
+      {
+        "name": "Fine Art Paper",
+        "startingPrice": 60,
+        "description": "Archival matte, museum grade"
+      },
+      {
+        "name": "Wood",
+        "startingPrice": 120,
+        "description": "Rustic plywood, natural grain"
+      }
+    ],
+    "collections": {
+      "africa": {
+        "title": "Africa",
+        "count": 44,
+        "url": "https://archive-35.com/gallery.html?collection=africa",
+        "samplePhotos": [
+          {
+            "title": "Sentinel of the Serengeti",
+            "location": "Serengeti National Park, Tanzania",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Zebra Herd in Serengeti Grassland",
+            "location": "Serengeti National Park, Tanzania",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Zebra Family in Serengeti Grassland",
+            "location": "Serengeti National Park, Tanzania",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "antilope-canyon": {
+        "title": "Antilope Canyon",
+        "count": 2,
+        "url": "https://archive-35.com/gallery.html?collection=antilope-canyon",
+        "samplePhotos": [
+          {
+            "title": "Crimson Passage Through Stone",
+            "location": "Antelope Canyon, Arizona, USA",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Striations of Stone and Shadow",
+            "location": "Zion National Park, Utah, USA",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "argentina": {
+        "title": "Argentina",
+        "count": 35,
+        "url": "https://archive-35.com/gallery.html?collection=argentina",
+        "samplePhotos": [
+          {
+            "title": "Eagle's Vigil Over the Andes",
+            "location": "Patagonian Steppe, near El Calafate, Santa Cruz Province, Argentina",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Turquoise Waters of Argentine Highlands",
+            "location": "Lerito Moreno Glacier, Los Glaciares National Park, Santa Cruz Province, Argentina",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Caracara Portrait: Argentine Wilderness",
+            "location": "erito Moreno Glacier, Los Glaciares National Park, Santa Cruz Province, Argentina",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "australia": {
+        "title": "Australia",
+        "count": 3,
+        "url": "https://archive-35.com/gallery.html?collection=australia",
+        "samplePhotos": [
+          {
+            "title": "Kangaroo in Native Scrubland",
+            "location": "Australian Outback, Queensland",
+            "dimensions": {
+              "width": 5472,
+              "height": 3648,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 20
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Tempestuous Cove",
+            "location": "Bouddi National Park, Central Coast, New South Wales, Australia",
+            "dimensions": {
+              "width": 5430,
+              "height": 2995,
+              "aspectRatio": 1.813,
+              "aspectRatioString": "1086:599",
+              "orientation": "wide",
+              "megapixels": 16.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Melbourne Twilight Urban Expanse",
+            "location": "Melbourne, Victoria, Australia",
+            "dimensions": {
+              "width": 5417,
+              "height": 3036,
+              "aspectRatio": 1.784,
+              "aspectRatioString": "5417:3036",
+              "orientation": "wide",
+              "megapixels": 16.4
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "black-and-white": {
+        "title": "Black and White",
+        "count": 39,
+        "url": "https://archive-35.com/gallery.html?collection=black-and-white",
+        "samplePhotos": [
+          {
+            "title": "Rickshaw Repair by the Water",
+            "location": "Coastal urban promenade, Cuba ",
+            "dimensions": {
+              "width": 8688,
+              "height": 3809,
+              "aspectRatio": 2.281,
+              "aspectRatioString": "8688:3809",
+              "orientation": "panorama",
+              "megapixels": 33.1
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Elephant Herd Across the Savanna",
+            "location": "Serengeti National Park, Tanzania",
+            "dimensions": {
+              "width": 8588,
+              "height": 4486,
+              "aspectRatio": 1.914,
+              "aspectRatioString": "4294:2243",
+              "orientation": "wide",
+              "megapixels": 38.5
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Zebra Family in the Grassland",
+            "location": "African Savanna",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "brazil": {
+        "title": "Brazil",
+        "count": 14,
+        "url": "https://archive-35.com/gallery.html?collection=brazil",
+        "samplePhotos": [
+          {
+            "title": "Storm Over Coastal City",
+            "location": "Benilson, Rio de Janeiro, Brazil",
+            "dimensions": {
+              "width": 8417,
+              "height": 3959,
+              "aspectRatio": 2.126,
+              "aspectRatioString": "8417:3959",
+              "orientation": "panorama",
+              "megapixels": 33.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Hillside Community, Brazilian Highlands",
+            "location": "Rio de Janeiro, Brazil",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Hillside Dwelling: Urban Density",
+            "location": "Rio de Janeiro favela district, Brazil",
+            "dimensions": {
+              "width": 8092,
+              "height": 5395,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "8092:5395",
+              "orientation": "landscape",
+              "megapixels": 43.7
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "chicago": {
+        "title": "Chicago",
+        "count": 6,
+        "url": "https://archive-35.com/gallery.html?collection=chicago",
+        "samplePhotos": [
+          {
+            "title": "Cloud Gate Reflection at Night",
+            "location": "Millennium Park, Chicago, Illinois, USA",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Elevated Rails Through Urban Canyon",
+            "location": "Chicago, Illinois, USA",
+            "dimensions": {
+              "width": 8600,
+              "height": 4581,
+              "aspectRatio": 1.877,
+              "aspectRatioString": "8600:4581",
+              "orientation": "wide",
+              "megapixels": 39.4
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Parisian Balconies in Chicago",
+            "location": "Chicago, Illinois, USA",
+            "dimensions": {
+              "width": 8613,
+              "height": 5251,
+              "aspectRatio": 1.64,
+              "aspectRatioString": "8613:5251",
+              "orientation": "wide",
+              "megapixels": 45.2
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "colorado": {
+        "title": "Colorado",
+        "count": 8,
+        "url": "https://archive-35.com/gallery.html?collection=colorado",
+        "samplePhotos": [
+          {
+            "title": "Ancient Stone Vigil Over Green Valley",
+            "location": "Colorado Front Range foothills, United States",
+            "dimensions": {
+              "width": 10000,
+              "height": 4169,
+              "aspectRatio": 2.399,
+              "aspectRatioString": "10000:4169",
+              "orientation": "panorama",
+              "megapixels": 41.7
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Desert Sentinel",
+            "location": "High Desert Region, Southwestern United States",
+            "dimensions": {
+              "width": 8192,
+              "height": 5464,
+              "aspectRatio": 1.499,
+              "aspectRatioString": "1024:683",
+              "orientation": "landscape",
+              "megapixels": 44.8
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Valleys of Pine and Mountain",
+            "location": "Central Oregon Cascades, Pacific Northwest USA",
+            "dimensions": {
+              "width": 10000,
+              "height": 4183,
+              "aspectRatio": 2.391,
+              "aspectRatioString": "10000:4183",
+              "orientation": "panorama",
+              "megapixels": 41.8
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "concerts": {
+        "title": "Concerts",
+        "count": 5,
+        "url": "https://archive-35.com/gallery.html?collection=concerts",
+        "samplePhotos": [
+          {
+            "title": "Concert Stage Luminescence",
+            "location": "Indoor arena venue",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Luminous Performance in Darkness",
+            "location": "Large indoor concert venue or arena",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Collective Luminescence",
+            "location": "Large arena or concert venue",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "cuba": {
+        "title": "Cuba",
+        "count": 32,
+        "url": "https://archive-35.com/gallery.html?collection=cuba",
+        "samplePhotos": [
+          {
+            "title": "Vintage Motors, Urban Street",
+            "location": "Havana, Cuba",
+            "dimensions": {
+              "width": 8197,
+              "height": 2734,
+              "aspectRatio": 2.998,
+              "aspectRatioString": "8197:2734",
+              "orientation": "panorama",
+              "megapixels": 22.4
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Green Cart Against Pink Walls",
+            "location": "Havana, Cuba",
+            "dimensions": {
+              "width": 8688,
+              "height": 3244,
+              "aspectRatio": 2.678,
+              "aspectRatioString": "2172:811",
+              "orientation": "panorama",
+              "megapixels": 28.2
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Blue Cadillac, Colorful Streets",
+            "location": "Havana, Cuba",
+            "dimensions": {
+              "width": 8668,
+              "height": 4067,
+              "aspectRatio": 2.131,
+              "aspectRatioString": "8668:4067",
+              "orientation": "panorama",
+              "megapixels": 35.3
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "death-valley": {
+        "title": "Death Valley",
+        "count": 5,
+        "url": "https://archive-35.com/gallery.html?collection=death-valley",
+        "samplePhotos": [
+          {
+            "title": "Alpine Basin Beneath the Peaks",
+            "location": "Southern Alps, New Zealand",
+            "dimensions": {
+              "width": 5000,
+              "height": 2584,
+              "aspectRatio": 1.935,
+              "aspectRatioString": "625:323",
+              "orientation": "wide",
+              "megapixels": 12.9
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Mineral Mountains of Ladakh",
+            "location": "Ladakh, Jammu and Kashmir, India",
+            "dimensions": {
+              "width": 5472,
+              "height": 3648,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 20
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Desert Highway into Infinity",
+            "location": "High Desert Basin, Eastern Sierra Nevada Region, California",
+            "dimensions": {
+              "width": 5379,
+              "height": 2897,
+              "aspectRatio": 1.857,
+              "aspectRatioString": "5379:2897",
+              "orientation": "wide",
+              "megapixels": 15.6
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "desert-dunes": {
+        "title": "Desert Dunes",
+        "count": 10,
+        "url": "https://archive-35.com/gallery.html?collection=desert-dunes",
+        "samplePhotos": [
+          {
+            "title": "Desert Dunes in Motion",
+            "location": "Desert Region, Sahara or Arabian Desert",
+            "dimensions": {
+              "width": 8064,
+              "height": 4536,
+              "aspectRatio": 1.778,
+              "aspectRatioString": "16:9",
+              "orientation": "wide",
+              "megapixels": 36.6
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Dunes of Silent Geometry",
+            "location": "Desert sand dunes, arid region",
+            "dimensions": {
+              "width": 8064,
+              "height": 4536,
+              "aspectRatio": 1.778,
+              "aspectRatioString": "16:9",
+              "orientation": "wide",
+              "megapixels": 36.6
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Volcanoes of the Atacama Desert",
+            "location": "Atacama Desert, Northern Chile - San Pedro de Atacama Region",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "flowers-and-leaves": {
+        "title": "Flowers and Leaves",
+        "count": 13,
+        "url": "https://archive-35.com/gallery.html?collection=flowers-and-leaves",
+        "samplePhotos": [
+          {
+            "title": "Crimson Blooms Against Urban Stone",
+            "location": "Mediterranean urban setting",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Trumpet Flowers in Vertical Dance",
+            "location": "Tropical or subtropical mountainous region",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Lavender Field Pollinator",
+            "location": "Lavender field, Provence region, France",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "grand-teton": {
+        "title": "Grand Teton",
+        "count": 48,
+        "url": "https://archive-35.com/gallery.html?collection=grand-teton",
+        "samplePhotos": [
+          {
+            "title": "Teton Range Winter Solitude",
+            "location": "Grand Teton National Park, Wyoming, United States",
+            "dimensions": {
+              "width": 8165,
+              "height": 4164,
+              "aspectRatio": 1.961,
+              "aspectRatioString": "8165:4164",
+              "orientation": "wide",
+              "megapixels": 34
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Panoramic Teton Dawn",
+            "location": "Oxbow Bend Overlook, Snake River Valley, Grand Teton National Park, Wyoming, United States",
+            "dimensions": {
+              "width": 10000,
+              "height": 3663,
+              "aspectRatio": 2.73,
+              "aspectRatioString": "10000:3663",
+              "orientation": "panorama",
+              "megapixels": 36.6
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Teton Peaks Across Frozen Waters",
+            "location": "Jackson Lake, Grand Teton National Park, Wyoming, United States",
+            "dimensions": {
+              "width": 10000,
+              "height": 4169,
+              "aspectRatio": 2.399,
+              "aspectRatioString": "10000:4169",
+              "orientation": "panorama",
+              "megapixels": 41.7
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "iceland": {
+        "title": "Iceland",
+        "count": 67,
+        "url": "https://archive-35.com/gallery.html?collection=iceland",
+        "samplePhotos": [
+          {
+            "title": "Vestrahorn's Reflection in Still Waters",
+            "location": "Stokksnes, Vestrahorn, Southeast Iceland",
+            "dimensions": {
+              "width": 8120,
+              "height": 4536,
+              "aspectRatio": 1.79,
+              "aspectRatioString": "145:81",
+              "orientation": "wide",
+              "megapixels": 36.8
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Turquoise Surge Against Ancient Stone",
+            "location": "Iceland, Basalt Coastline",
+            "dimensions": {
+              "width": 8064,
+              "height": 4536,
+              "aspectRatio": 1.778,
+              "aspectRatioString": "16:9",
+              "orientation": "wide",
+              "megapixels": 36.6
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Moss and Stone, Endless Horizon",
+            "location": "Iceland, Lava Fields Region",
+            "dimensions": {
+              "width": 10000,
+              "height": 4958,
+              "aspectRatio": 2.017,
+              "aspectRatioString": "5000:2479",
+              "orientation": "panorama",
+              "megapixels": 49.6
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "iceland-ring-road": {
+        "title": "Iceland Ring Road",
+        "count": 67,
+        "url": "https://archive-35.com/gallery.html?collection=iceland-ring-road",
+        "samplePhotos": [
+          {
+            "title": "Turquoise river on Dark Stone",
+            "location": "Southern Iceland Coastline, Ring Road",
+            "dimensions": {
+              "width": 8064,
+              "height": 4536,
+              "aspectRatio": 1.778,
+              "aspectRatioString": "16:9",
+              "orientation": "wide",
+              "megapixels": 36.6
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Moss-Covered Lava Fields",
+            "location": "Eldhraun Lava Field, South Iceland",
+            "dimensions": {
+              "width": 10000,
+              "height": 4958,
+              "aspectRatio": 2.017,
+              "aspectRatioString": "5000:2479",
+              "orientation": "panorama",
+              "megapixels": 49.6
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Storm Light Over Moorland",
+            "location": "Central Iceland Highlands, near Kj\u00f6lur or Sprengisandur region",
+            "dimensions": {
+              "width": 10000,
+              "height": 3987,
+              "aspectRatio": 2.508,
+              "aspectRatioString": "10000:3987",
+              "orientation": "panorama",
+              "megapixels": 39.9
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "lake-powell": {
+        "title": "Lake Powell",
+        "count": 7,
+        "url": "https://archive-35.com/gallery.html?collection=lake-powell",
+        "samplePhotos": [
+          {
+            "title": "Desert Monument Reflection",
+            "location": "Lake Powell, Arizona-Utah Border",
+            "dimensions": {
+              "width": 5000,
+              "height": 3333,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "5000:3333",
+              "orientation": "wide",
+              "megapixels": 16.7
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Horseshoe Bend's Eternal Embrace",
+            "location": "Horseshoe Bend, Colorado River, Arizona",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Horseshoe Bend's Emerald Waters",
+            "location": "Horseshoe Bend, Colorado River, Arizona",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "large-scale-photography-stitch": {
+        "title": "Large Scale Photography Stitch",
+        "count": 44,
+        "url": "https://archive-35.com/gallery.html?collection=large-scale-photography-stitch",
+        "samplePhotos": [
+          {
+            "title": "Desert Dunes in Golden Light",
+            "location": "Gobi Desert, Mongolia",
+            "dimensions": {
+              "width": 31714,
+              "height": 7907,
+              "aspectRatio": 4.011,
+              "aspectRatioString": "31714:7907",
+              "orientation": "panorama",
+              "megapixels": 250.8
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Alpine Lake Mountain Reflections",
+            "location": "Pacific Northwest Alpine Region, Cascade Mountains",
+            "dimensions": {
+              "width": 19396,
+              "height": 6324,
+              "aspectRatio": 3.067,
+              "aspectRatioString": "4849:1581",
+              "orientation": "panorama",
+              "megapixels": 122.7
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Mountain Valley Wilderness",
+            "location": "Cascade Range, Oregon, Pacific Northwest USA",
+            "dimensions": {
+              "width": 10000,
+              "height": 4183,
+              "aspectRatio": 2.391,
+              "aspectRatioString": "10000:4183",
+              "orientation": "panorama",
+              "megapixels": 41.8
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "london": {
+        "title": "London",
+        "count": 1,
+        "url": "https://archive-35.com/gallery.html?collection=london",
+        "samplePhotos": [
+          {
+            "title": "London Eye Illuminated Reflection",
+            "location": "South Bank, London, England",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "los-angeles": {
+        "title": "Los Angeles",
+        "count": 1,
+        "url": "https://archive-35.com/gallery.html?collection=los-angeles",
+        "samplePhotos": [
+          {
+            "title": "Sailboats in Golden Harbor Light",
+            "location": "San Diego Harbor, California, USA",
+            "dimensions": {
+              "width": 5000,
+              "height": 3140,
+              "aspectRatio": 1.592,
+              "aspectRatioString": "250:157",
+              "orientation": "wide",
+              "megapixels": 15.7
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "mexico-city": {
+        "title": "Mexico city",
+        "count": 5,
+        "url": "https://archive-35.com/gallery.html?collection=mexico-city",
+        "samplePhotos": [
+          {
+            "title": "Ancient Pyramids of Teotihuacan",
+            "location": "Teotihuacan, State of Mexico",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Pyramid's Shadow: Sacred Valley",
+            "location": "Teotihuac\u00e1n, Mexico City, Valley of Mexico",
+            "dimensions": {
+              "width": 8442,
+              "height": 5628,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 47.5
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Chromatic Density",
+            "location": "Mexico City,",
+            "dimensions": {
+              "width": 8679,
+              "height": 4279,
+              "aspectRatio": 2.028,
+              "aspectRatioString": "789:389",
+              "orientation": "panorama",
+              "megapixels": 37.1
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "monument-valley": {
+        "title": "Monument Valley",
+        "count": 1,
+        "url": "https://archive-35.com/gallery.html?collection=monument-valley",
+        "samplePhotos": [
+          {
+            "title": "Sentinels of the Desert",
+            "location": "Monument Valley, Arizona-Utah Border",
+            "dimensions": {
+              "width": 5000,
+              "height": 2438,
+              "aspectRatio": 2.051,
+              "aspectRatioString": "2500:1219",
+              "orientation": "panorama",
+              "megapixels": 12.2
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "new-zealand": {
+        "title": "New Zealand",
+        "count": 24,
+        "url": "https://archive-35.com/gallery.html?collection=new-zealand",
+        "samplePhotos": [
+          {
+            "title": "Alpine Meadow with Mountain Stream",
+            "location": "Mount Aspiring National Park, Otago Region, New Zealand",
+            "dimensions": {
+              "width": 5000,
+              "height": 2316,
+              "aspectRatio": 2.159,
+              "aspectRatioString": "1250:579",
+              "orientation": "panorama",
+              "megapixels": 11.6
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Geothermal Mineral Pools",
+            "location": "Rotorua Geothermal Area, Bay of Plenty, New Zealand",
+            "dimensions": {
+              "width": 5000,
+              "height": 3333,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "5000:3333",
+              "orientation": "wide",
+              "megapixels": 16.7
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Geothermal Waters of Rotorua",
+            "location": "Rotorua Geothermal Area, Bay of Plenty, New Zealand",
+            "dimensions": {
+              "width": 5000,
+              "height": 3333,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "5000:3333",
+              "orientation": "wide",
+              "megapixels": 16.7
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "paris": {
+        "title": "Paris",
+        "count": 1,
+        "url": "https://archive-35.com/gallery.html?collection=paris",
+        "samplePhotos": [
+          {
+            "title": "Iron Lattice Against Sky",
+            "location": "Paris, France",
+            "dimensions": {
+              "width": 5472,
+              "height": 3648,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 20
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "planes": {
+        "title": "Planes",
+        "count": 4,
+        "url": "https://archive-35.com/gallery.html?collection=planes",
+        "samplePhotos": [
+          {
+            "title": "Tarmac Geometry and Flight",
+            "location": "Commercial Airport Tarmac",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Runway Geometry at Rest",
+            "location": "Commercial Airport Terminal",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Horizon's Golden Threshold",
+            "location": "Aerial view, high altitude",
+            "dimensions": {
+              "width": 8051,
+              "height": 5367,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "8051:5367",
+              "orientation": "wide",
+              "megapixels": 43.2
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "random-stuff": {
+        "title": "Random Stuff",
+        "count": 4,
+        "url": "https://archive-35.com/gallery.html?collection=random-stuff",
+        "samplePhotos": [
+          {
+            "title": "Unity in Motion",
+            "location": "Open field venue, festival grounds",
+            "dimensions": {
+              "width": 5000,
+              "height": 3333,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "5000:3333",
+              "orientation": "wide",
+              "megapixels": 16.7
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Desert Currents in Sand",
+            "location": "Desert Region - Sand Dunes",
+            "dimensions": {
+              "width": 5000,
+              "height": 2721,
+              "aspectRatio": 1.838,
+              "aspectRatioString": "5000:2721",
+              "orientation": "wide",
+              "megapixels": 13.6
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Weathered Wood's Spiral Memory",
+            "location": "Weathered wood detail",
+            "dimensions": {
+              "width": 8192,
+              "height": 4630,
+              "aspectRatio": 1.769,
+              "aspectRatioString": "4096:2315",
+              "orientation": "wide",
+              "megapixels": 37.9
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "south-africa": {
+        "title": "South Africa",
+        "count": 8,
+        "url": "https://archive-35.com/gallery.html?collection=south-africa",
+        "samplePhotos": [
+          {
+            "title": "Ostrich Portrait",
+            "location": "South Africa",
+            "dimensions": {
+              "width": 5472,
+              "height": 3648,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "5472:3648",
+              "orientation": "landscape",
+              "megapixels": 20
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Lion Cub on the Lookout",
+            "location": "South Africa",
+            "dimensions": {
+              "width": 5472,
+              "height": 3648,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "5472:3648",
+              "orientation": "landscape",
+              "megapixels": 20
+            },
+            "c2pa": true
+          },
+          {
+            "title": "White Lion Cub",
+            "location": "South Africa",
+            "dimensions": {
+              "width": 5472,
+              "height": 3648,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "5472:3648",
+              "orientation": "landscape",
+              "megapixels": 20
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "south-america": {
+        "title": "South America",
+        "count": 5,
+        "url": "https://archive-35.com/gallery.html?collection=south-america",
+        "samplePhotos": [
+          {
+            "title": "Lama on the Street",
+            "location": "South America",
+            "dimensions": {
+              "width": 8517,
+              "height": 5128,
+              "aspectRatio": 1.661,
+              "aspectRatioString": "8517:5128",
+              "orientation": "wide",
+              "megapixels": 43.7
+            },
+            "c2pa": true
+          },
+          {
+            "title": "South America",
+            "location": "South America",
+            "dimensions": {
+              "width": 8122,
+              "height": 5102,
+              "aspectRatio": 1.592,
+              "aspectRatioString": "4061:2551",
+              "orientation": "wide",
+              "megapixels": 41.4
+            },
+            "c2pa": true
+          },
+          {
+            "title": "South America",
+            "location": "South America",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "tanzania": {
+        "title": "Tanzania",
+        "count": 44,
+        "url": "https://archive-35.com/gallery.html?collection=tanzania",
+        "samplePhotos": [
+          {
+            "title": "Zebra Congregation in African Savanna",
+            "location": "East African Savanna, likely Tanzania or Kenya",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Zebra Family in African Grassland",
+            "location": "African Savanna, likely Tanzania or Kenya",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Giraffe Crossing the Savanna",
+            "location": "African Savanna, likely Zambia or Zimbabwe",
+            "dimensions": {
+              "width": 8688,
+              "height": 4809,
+              "aspectRatio": 1.807,
+              "aspectRatioString": "2896:1603",
+              "orientation": "wide",
+              "megapixels": 41.8
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "utah-national-parks": {
+        "title": "Utah National Parks",
+        "count": 4,
+        "url": "https://archive-35.com/gallery.html?collection=utah-national-parks",
+        "samplePhotos": [
+          {
+            "title": "Crimson Waves Across Stone",
+            "location": "Zion National Park, Utah, United States",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Weathered Wood Grain Study",
+            "location": "Wood cross-section detail",
+            "dimensions": {
+              "width": 8688,
+              "height": 5792,
+              "aspectRatio": 1.5,
+              "aspectRatioString": "3:2",
+              "orientation": "landscape",
+              "megapixels": 50.3
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Dunes and Distant Plateaus",
+            "location": "Colorado Plateau Region, Southwestern United States",
+            "dimensions": {
+              "width": 8223,
+              "height": 5339,
+              "aspectRatio": 1.54,
+              "aspectRatioString": "8223:5339",
+              "orientation": "wide",
+              "megapixels": 43.9
+            },
+            "c2pa": true
+          }
+        ]
+      },
+      "valley-of-fire": {
+        "title": "Valley of Fire",
+        "count": 3,
+        "url": "https://archive-35.com/gallery.html?collection=valley-of-fire",
+        "samplePhotos": [
+          {
+            "title": "Desert Ridges and Russet Plateaus",
+            "location": "Southern African arid region, semi-desert plateau",
+            "dimensions": {
+              "width": 5000,
+              "height": 2611,
+              "aspectRatio": 1.915,
+              "aspectRatioString": "5000:2611",
+              "orientation": "wide",
+              "megapixels": 13.1
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Layered Desert Canyons in Stillness",
+            "location": "Serran\u00eda del Hornocal region, Jujuy Province, Argentina",
+            "dimensions": {
+              "width": 5000,
+              "height": 2708,
+              "aspectRatio": 1.846,
+              "aspectRatioString": "1250:677",
+              "orientation": "wide",
+              "megapixels": 13.5
+            },
+            "c2pa": true
+          },
+          {
+            "title": "Desert Boulders and Stone Formations",
+            "location": "Joshua Tree National Park, California",
+            "dimensions": {
+              "width": 3333,
+              "height": 5000,
+              "aspectRatio": 0.667,
+              "aspectRatioString": "3333:5000",
+              "orientation": "portrait",
+              "megapixels": 16.7
+            },
+            "c2pa": true
+          }
+        ]
+      }
+    }
+  },
+  "licensing": {
+    "total": 45,
+    "tiers": {
+      "web_social": {
+        "startingPrice": 350,
+        "description": "Web and social media use"
+      },
+      "editorial": {
+        "startingPrice": 700,
+        "description": "Editorial publications"
+      },
+      "commercial_print": {
+        "startingPrice": 1400,
+        "description": "Commercial print materials"
+      },
+      "billboard_ooh": {
+        "startingPrice": 2450,
+        "description": "Billboard and out-of-home advertising"
+      },
+      "hospitality": {
+        "startingPrice": 3500,
+        "description": "Hospitality and interior design"
+      },
+      "exclusive": {
+        "startingPrice": 7000,
+        "description": "Exclusive rights"
+      }
+    },
+    "maxResolution": "27985 x 11199 pixels (313 megapixels)",
+    "formats": [
+      "JPEG",
+      "TIFF"
+    ]
+  }
+}

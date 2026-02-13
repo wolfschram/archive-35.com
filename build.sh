@@ -37,10 +37,14 @@ cp -r licensing/* _site/licensing/ 2>/dev/null || true
 # Copy favicon
 cp favicon.svg _site/ 2>/dev/null || true
 
-# Copy root-level text files and sitemap (robots.txt, llms.txt, sitemap.xml)
+# Copy root-level text files and sitemap (robots.txt, llms.txt, llms-full.txt, sitemap.xml)
 cp robots.txt _site/ 2>/dev/null || true
 cp llms.txt _site/ 2>/dev/null || true
+cp llms-full.txt _site/ 2>/dev/null || true
 cp sitemap.xml _site/ 2>/dev/null || true
+
+# Copy API endpoint (machine-readable product feed for AI agents)
+cp -r api _site/ 2>/dev/null || true
 
 echo "Build complete! Output in _site/"
 ls -la _site/

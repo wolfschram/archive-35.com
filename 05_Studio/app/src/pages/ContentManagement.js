@@ -394,6 +394,43 @@ function ContentManagement() {
     else if (e.key === 'Escape') cancelRename();
   };
 
+  // ===== DELETE PORTFOLIO =====
+  const handleDeletePortfolio = async (portfolio, e) => {
+    e.stopPropagation();
+    const confirmed = window.confirm(`Are you sure you want to delete "${portfolio.name}"? This cannot be undone.`);
+    if (!confirmed) return;
+
+    setLoading(true);
+    try {
+      if (window.electronAPI && window.electronAPI.deletePortfolio) {
+        const result = await window.electronAPI.deletePortfolio({
+          portfolioName: portfolio.name
+        });
+        if (result.success) {
+          // Clear selection if deleted portfolio was selected
+          if (selectedPortfolio === portfolio.id) {
+            setSelectedPortfolio(null);
+            setPhotos([]);
+          }
+          await loadPortfolios();
+        } else {
+          alert('Delete failed: ' + (result.error || 'Unknown error'));
+        }
+      } else {
+        // Demo mode
+        setPortfolios(prev => prev.filter(p => p.id !== portfolio.id));
+        if (selectedPortfolio === portfolio.id) {
+          setSelectedPortfolio(null);
+          setPhotos([]);
+        }
+      }
+    } catch (err) {
+      console.error('Delete portfolio failed:', err);
+      alert('Delete failed: ' + err.message);
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="page">
       <header className="page-header">
@@ -438,6 +475,13 @@ function ContentManagement() {
                       title="Rename portfolio"
                     >
                       ✏️
+                    </button>
+                    <button
+                      className="delete-btn"
+                      onClick={(e) => handleDeletePortfolio(portfolio, e)}
+                      title="Delete portfolio"
+                    >
+                      🗑️
                     </button>
                   </>
                 )}

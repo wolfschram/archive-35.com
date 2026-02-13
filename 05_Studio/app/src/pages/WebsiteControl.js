@@ -166,8 +166,8 @@ function WebsiteControl() {
           data: { complete: true, active: false },
           git: { complete: true, active: false },
           push: { complete: true, active: false },
-          verify: { complete: result.verified !== false, active: !result.verified },
-          done: { complete: result.verified !== false, active: false }
+          verify: { complete: true, active: false, warned: result.verified === false },
+          done: { complete: true, active: false, warned: result.verified === false }
         });
       }
       await checkStatus();
@@ -329,11 +329,11 @@ function WebsiteControl() {
             {Object.entries(deployStages).map(([stage, stageData], idx) => (
               <React.Fragment key={stage}>
                 <div
-                  className={`pipeline-stage ${stageData.active ? 'active' : ''} ${stageData.complete ? 'complete' : ''} ${deployResult && !deployResult.success && stageData.active ? 'failed' : ''}`}
+                  className={`pipeline-stage ${stageData.active ? 'active' : ''} ${stageData.complete ? 'complete' : ''} ${stageData.warned ? 'warned' : ''} ${deployResult && !deployResult.success && stageData.active ? 'failed' : ''}`}
                   title={stageLabels[stage]}
                 >
                   <div className="stage-content">
-                    {stageData.complete ? '✓' : stageData.active ? (deployResult && !deployResult.success ? '✗' : '◉') : '○'}
+                    {stageData.complete ? (stageData.warned ? '⚠' : '✓') : stageData.active ? (deployResult && !deployResult.success ? '✗' : '◉') : '○'}
                   </div>
                   <span className="stage-label">{stageLabels[stage]}</span>
                 </div>

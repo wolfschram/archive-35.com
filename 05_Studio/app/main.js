@@ -1334,6 +1334,60 @@ ipcMain.handle('rename-portfolio', async (event, { portfolioId, newName }) => {
   }
 });
 
+// ===== DELETE PORTFOLIO =====
+ipcMain.handle('delete-portfolio', async (event, { portfolioName }) => {
+  try {
+    if (!portfolioName || !portfolioName.trim()) {
+      return { success: false, error: 'Portfolio name cannot be empty' };
+    }
+
+    const cleanName = portfolioName.trim();
+    const portfolioId = cleanName.toLowerCase().replace(/\s+/g, '_');
+    const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    // Find the portfolio folder in 01_Portfolio
+    const entries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
+    const portfolioFolder = entries.find(e =>
+      e.isDirectory() && e.name.toLowerCase().replace(/\s+/g, '_') === portfolioId
+    );
+
+    if (!portfolioFolder) {
+      return { success: false, error: 'Portfolio not found' };
+    }
+
+    const portfolioPath = path.join(PORTFOLIO_DIR, portfolioFolder.name);
+
+    // Delete the portfolio folder from 01_Portfolio
+    await fs.rm(portfolioPath, { recursive: true, force: true });
+    console.log(`Portfolio deleted: ${portfolioFolder.name}`);
+
+    // Also try to delete corresponding images folder
+    const IMAGES_DIR = path.join(ARCHIVE_BASE, 'images');
+    if (fsSync.existsSync(IMAGES_DIR)) {
+      try {
+        const imageEntries = await fs.readdir(IMAGES_DIR, { withFileTypes: true });
+        // Match images folder by slug (case-insensitive)
+        const imageFolder = imageEntries.find(e => {
+          if (!e.isDirectory()) return false;
+          return e.name.toLowerCase() === slug;
+        });
+        if (imageFolder) {
+          const imageFolderPath = path.join(IMAGES_DIR, imageFolder.name);
+          await fs.rm(imageFolderPath, { recursive: true, force: true });
+          console.log(`Images folder deleted: ${imageFolder.name}`);
+        }
+      } catch (imgErr) {
+        console.warn('Images folder delete skipped:', imgErr.message);
+      }
+    }
+
+    return { success: true, deleted: portfolioFolder.name };
+  } catch (err) {
+    console.error('Delete portfolio failed:', err);
+    return { success: false, error: err.message };
+  }
+});
+
 // Get/set portfolio display order
 ipcMain.handle('get-portfolio-order', async () => {
   try {

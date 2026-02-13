@@ -283,7 +283,7 @@ function updateLightboxContent() {
   const location = lightbox.querySelector('.lightbox-location');
   const buyBtn = lightbox.querySelector('.lightbox-buy');
 
-  if (img) img.src = photo.full;
+  if (img) { img.src = photo.full; img.alt = photo.title + (photo.location ? ' — ' + photo.location : ''); }
   if (title) title.textContent = photo.title;
   if (location) location.textContent = photo.location;
   // Note: Buy button href NOT set here - handled by product-selector.js

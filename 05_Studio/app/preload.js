@@ -29,6 +29,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Portfolio rename
   renamePortfolio: (data) => ipcRenderer.invoke('rename-portfolio', data),
 
+  // Portfolio delete
+  deletePortfolio: (data) => ipcRenderer.invoke('delete-portfolio', data),
+
   // Metadata editing
   updatePhotoMetadata: (data) => ipcRenderer.invoke('update-photo-metadata', data),
 

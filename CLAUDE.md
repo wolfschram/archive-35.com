@@ -22,7 +22,13 @@ If I skip this display, I am drifting. User should say "RESET" to bring me back.
 **Archive-35** is a fine art landscape photography business by Wolf Schram.
 - Website: archive-35.com (Cloudflare Pages via GitHub)
 - Studio: Electron + React app for content/sales management (05_Studio/app/)
-- Print fulfillment: **Pictorem** (PRO account, 15% rebate, API token: "archive-35")
+- Print fulfillment: **Pictorem** (PRO + Premium account, 15% rebate, 0% commission, API token: "archive-35")
+  - Domain verified (archive-35.com): DNS OK, SSL OK
+  - Certificate of Authenticity: enabled for ALL artwork (free with Premium)
+  - Step-by-step order notifications: ON
+  - Artist Profile: intro, bio, website URL all configured
+  - Payment: PayPal Business account needed (30-day terms after customer receives artwork)
+  - Go-live: Monday Feb 17, 2026 (48hr DNS propagation from Feb 13 upgrade)
 - Payments: Stripe (live keys configured)
 - Backups: Google Drive
 - Photo source: Adobe Lightroom exports → Photography/ folder
@@ -321,15 +327,19 @@ LICENSE PATH:
 | Issue | Status | Notes |
 |-------|--------|-------|
 | Mobile gallery layout | ✅ VERIFIED | iPhone test passed — nav pushed down, swipe sensitivity reduced, cards sized correctly. |
-| Licensing page "squeezed" layout | ⚠️ OPEN | Wolf wants bigger content layout like About page. Grid is 4-col but may need wider max-width. |
-| Mobile homepage "archive covering archive 35" | ⚠️ NEEDS PHONE TEST | Homepage looked fine in browser test but Wolf reported overlap on iPhone. |
+| Licensing page layout | ✅ WIDENED | Grid min 320→380px, padding 40→60px, max-width 1600→1800px. Needs visual verification. |
+| Mobile homepage layout | ✅ VERIFIED | Wolf verified on actual iPhone Feb 13 — looks good. |
 
 ---
 
-## RECENT CHANGES LOG (February 9-12, 2026)
+## RECENT CHANGES LOG (February 9-13, 2026)
 
 | Commit | Change |
 |--------|--------|
+| (pending) | AI agent optimization: alt text, llms.txt rewrite, llms-full.txt, enhanced schema (Photograph+C2PA+license), licensing JSON-LD, canonical URLs, meta keywords, /api/products.json, build.sh updated |
+| (pending) | Studio: deploy verify amber warning state, delete portfolio feature (IPC + UI + preload) |
+| (pending) | Licensing page wider layout: grid min 380px, padding 60px, max-width 1800px |
+| (pending) | Pictorem: PayPal email (wolfbroadcast@gmail.com) saved in Sales History |
 | 8c4e8ce | Regenerate 45 licensing previews: clean, no watermark (2000px, q45, blur) |
 | (thumb)  | Regenerate 45 licensing thumbnails from clean previews (800px) |
 | 021232b | Remove large-scale-photography-stitch from gallery (44 photos), fix licensing nav z-index |
@@ -375,10 +385,18 @@ LICENSE PATH:
 - [x] ~~Print checkout end-to-end test~~ → Stripe → webhook → Pictorem mock → seller email ✅
 - [x] ~~License checkout end-to-end test~~ → Stripe → webhook → R2 signed URL → download works ✅
 - [x] ~~Serve-original inline display~~ → Changed to Content-Disposition: attachment ✅
-- [ ] Verify mobile layout on actual iPhone (gallery nav overlap, homepage text overlap)
-- [ ] Licensing page layout — Wolf wants bigger/wider grid like About page
+- [x] ~~Pictorem Premium upgrade + portal audit~~ → All tabs reviewed, profile optimized, CoA enabled, notifications on ✅
+- [x] ~~Upload images to Pictorem~~ → Profile Pic (wolf-profile.jpg), Gallery Logo (wordmark-600.png), Bio image all uploaded via Claude ✅
+- [x] ~~PayPal setup for Pictorem~~ → Personal account (wolfbroadcast@gmail.com) entered in Pictorem Sales History, credit card linked + set as preferred ✅
+- [x] ~~Verify mobile layout on actual iPhone~~ → Wolf verified Feb 13, looks good ✅
+- [x] ~~Licensing page layout~~ → Grid widened: min 380px, padding 60px, max-width 1800px ✅
+- [x] ~~AI agent optimization~~ → Alt text, llms.txt + llms-full.txt, schema (Photograph+C2PA+license), canonical URLs, meta keywords, /api/products.json ✅
+- [x] ~~Studio deploy verification UI~~ → Amber warning state for CDN propagation delay ✅
+- [x] ~~Delete Portfolio in Studio~~ → IPC handler + UI button + confirmation dialog ✅
+- [ ] **Wolf manual: Create Google Sheet** → paste `08_Docs/setup/google-sheets-order-log.js` as Apps Script, deploy as Web App, add `GOOGLE_SHEET_WEBHOOK_URL` to Cloudflare env
 - [ ] Add deduplication check to ingest pipeline (prevent future duplicate photos)
 - [ ] Re-test checkout: verify customer email + amount show in notification emails (fixes deployed but not re-tested)
+- [ ] End-to-end live checkout test (print + license) after Monday go-live
 
 ### Backlog
 - [x] ~~Pictorem API automated order submission~~ → stripe-webhook.js: full auto-fulfillment
@@ -437,7 +455,7 @@ LICENSE PATH:
 
 ---
 
-*Last updated: 2026-02-13 (Clean watermarks, stitch removed, licensing nav fixed, serve-original download, checkout e2e tested)*
+*Last updated: 2026-02-13 (Pictorem Premium upgrade + full portal audit, artist profile optimized, CoA enabled, Google Sheet order log script created, operations guide created)*
 
 ---
 

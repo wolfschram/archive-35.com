@@ -1228,6 +1228,21 @@
   font-weight: 600;
 }
 
+.pipeline-stage.warned .stage-content {
+  background: #d4a017;
+  border-color: #d4a017;
+  color: white;
+}
+
+.pipeline-stage.warned .stage-label {
+  color: #d4a017;
+  font-weight: 600;
+}
+
+.pipeline-stage.warned + .pipeline-arrow {
+  color: #d4a017;
+}
+
 .pipeline-arrow {
   font-size: 24px;
   color: var(--text-muted);

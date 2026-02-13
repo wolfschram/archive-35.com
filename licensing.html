@@ -42,7 +42,7 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
 .mono{font-family:'JetBrains Mono',monospace}
 
 /* ── NAV (shared glass pill style) ── */
-.header{position:fixed;top:1.5rem;left:50%;transform:translateX(-50%);z-index:100;width:calc(100% - 3rem);max-width:1200px}
+.header{position:fixed;top:1.5rem;left:50%;transform:translateX(-50%);z-index:300;width:calc(100% - 3rem);max-width:1200px}
 .header-inner{display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;background:rgba(10,10,10,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:100px}
 .logo-a{font-size:1rem;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;color:var(--text);text-decoration:none;transition:all 0.3s}
 .logo-a .gold{color:var(--gold)}
@@ -99,7 +99,7 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
 .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.92);opacity:0;pointer-events:none;transition:opacity 0.3s;overflow-y:auto}
 .modal-overlay.open{opacity:1;pointer-events:auto}
 .modal{max-width:1100px;margin:40px auto;padding:0 24px;display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:start}
-.modal-close{position:fixed;top:20px;right:28px;background:none;border:none;color:var(--text-dim);font-size:28px;cursor:pointer;z-index:210;transition:color 0.2s}
+.modal-close{position:fixed;top:20px;right:28px;background:none;border:none;color:var(--text-dim);font-size:28px;cursor:pointer;z-index:310;transition:color 0.2s}
 .modal-close:hover{color:var(--gold)}
 .modal-img{border-radius:4px;overflow:hidden;background:var(--raised)}
 .modal-img img{width:100%;display:block}

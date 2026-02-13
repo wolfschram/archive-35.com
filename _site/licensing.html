@@ -313,7 +313,7 @@ function renderGrid() {
     return `
       <div class="card" onclick="openModal('${img.id}')">
         <div class="card-img">
-          <img src="${img.thumbnail}" alt="${cleanTitle(img.title)}" loading="lazy">
+          <img src="${img.thumbnail}?v=2" alt="${cleanTitle(img.title)}" loading="lazy">
           <div class="card-badges">
             <span class="badge ${badgeClass}">${img.classification}</span>
             <span class="badge badge-res mono">${img.width.toLocaleString()} × ${img.height.toLocaleString()}</span>
@@ -384,7 +384,7 @@ function loadProtectedPreview(previewPath) {
   if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  fetch(previewPath)
+  fetch(previewPath + '?v=2')
     .then(r => r.blob())
     .then(blob => {
       currentBlobUrl = URL.createObjectURL(blob);

@@ -330,6 +330,12 @@ LICENSE PATH:
 
 | Commit | Change |
 |--------|--------|
+| 8c4e8ce | Regenerate 45 licensing previews: clean, no watermark (2000px, q45, blur) |
+| (thumb)  | Regenerate 45 licensing thumbnails from clean previews (800px) |
+| 021232b | Remove large-scale-photography-stitch from gallery (44 photos), fix licensing nav z-index |
+| 7607ae8 | Fix: serve-original forces download instead of inline display |
+| befec8a | Fix thank-you page: license vs print content, customer email fallback |
+| 67ff012 | Fix: licensing Stripe checkout (was stub), customer email extraction, amount logging |
 | (pending) | upload_to_r2.py: guaranteed R2 backup with local verification + HEAD verify + metadata tracking |
 | (pending) | Remove large-scale-photography-stitch from gallery (353 photos, 26 collections) |
 | (pending) | Replace watermark with invisible copy protection (canvas + blob + low-quality) |
@@ -360,14 +366,19 @@ LICENSE PATH:
 ## WHAT STILL NEEDS WORK
 
 ### Priority
-- [ ] **Run `python generate_watermark.py --force` on Mac** to regenerate 45 clean previews (replacing old watermarked ones)
+- [x] ~~Run `python generate_watermark.py --force` on Mac~~ → 45 clean previews + thumbnails regenerated, no watermarks ✅
 - [x] ~~Run upload_to_r2.py on Mac~~ → All 45 originals uploaded + verified (135 files total)
 - [x] ~~R2 binding in Cloudflare Pages~~ → ORIGINALS bound to archive-35-originals ✅
 - [x] ~~Webhook secrets~~ → Both STRIPE_WEBHOOK_SECRET and STRIPE_TEST_WEBHOOK_SECRET configured ✅
+- [x] ~~Remove large-scale-photography-stitch from gallery~~ → 44 photos removed, 515 photos across 29 collections ✅
+- [x] ~~Licensing page nav blocked by modal~~ → Header z-index bumped to 300 (above modal 200) ✅
+- [x] ~~Print checkout end-to-end test~~ → Stripe → webhook → Pictorem mock → seller email ✅
+- [x] ~~License checkout end-to-end test~~ → Stripe → webhook → R2 signed URL → download works ✅
+- [x] ~~Serve-original inline display~~ → Changed to Content-Disposition: attachment ✅
 - [ ] Verify mobile layout on actual iPhone (gallery nav overlap, homepage text overlap)
 - [ ] Licensing page layout — Wolf wants bigger/wider grid like About page
 - [ ] Add deduplication check to ingest pipeline (prevent future duplicate photos)
-- [ ] End-to-end test checkout flow in test mode (both print AND license paths)
+- [ ] Re-test checkout: verify customer email + amount show in notification emails (fixes deployed but not re-tested)
 
 ### Backlog
 - [x] ~~Pictorem API automated order submission~~ → stripe-webhook.js: full auto-fulfillment
@@ -426,7 +437,7 @@ LICENSE PATH:
 
 ---
 
-*Last updated: 2026-02-12 (Licensing Stripe checkout + download delivery, collection slug in metadata, R2 binding verified, all webhook secrets confirmed)*
+*Last updated: 2026-02-13 (Clean watermarks, stitch removed, licensing nav fixed, serve-original download, checkout e2e tested)*
 
 ---
 

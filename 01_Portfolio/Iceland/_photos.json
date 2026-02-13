@@ -1,5 +1,45 @@
 [
   {
+    "id": "wolf4556",
+    "filename": "WOLF4556.jpg",
+    "title": "Vestrahorn's Reflection in Still Waters",
+    "description": "A dramatic Icelandic landscape where towering basalt peaks meet their mirror image in glassy tidal flats, creating a meditation on the sublime power of untamed nature. The striking interplay of black sand, crystalline water, and weathered mountain faces speaks to the raw beauty of Iceland's southeastern coast.",
+    "location": "Stokksnes, Vestrahorn, Southeast Iceland",
+    "tags": [
+      "mountain-landscape",
+      "iceland-photography",
+      "vestrahorn",
+      "basalt-peaks",
+      "reflection-photography",
+      "fine-art-landscape",
+      "black-sand-beach",
+      "glacial-valley",
+      "dramatic-mountains",
+      "tidal-flats",
+      "nature-photography",
+      "wall-art-print",
+      "serene-landscape",
+      "nordic-scenery",
+      "moody-skies",
+      "geological-formation",
+      "southeast-iceland",
+      "canvas-print-worthy",
+      "gallery-quality",
+      "adventure-landscape"
+    ],
+    "dimensions": {
+      "width": 8120,
+      "height": 4536,
+      "aspectRatio": 1.79,
+      "aspectRatioString": "145:81",
+      "orientation": "wide",
+      "megapixels": 36.8
+    },
+    "thumbnail": "WOLF4556-thumb.jpg",
+    "full": "WOLF4556-full.jpg",
+    "c2pa": true
+  },
+  {
     "id": "dji_20250802232350_0025_d",
     "filename": "DJI_20250802232350_0025_D.jpg",
     "title": "Turquoise Surge Against Ancient Stone",
@@ -1986,46 +2026,6 @@
     },
     "thumbnail": "WOLF4530-Pano-thumb.jpg",
     "full": "WOLF4530-Pano-full.jpg",
-    "c2pa": true
-  },
-  {
-    "id": "wolf4556",
-    "filename": "WOLF4556.jpg",
-    "title": "Vestrahorn's Reflection in Still Waters",
-    "description": "A dramatic Icelandic landscape where towering basalt peaks meet their mirror image in glassy tidal flats, creating a meditation on the sublime power of untamed nature. The striking interplay of black sand, crystalline water, and weathered mountain faces speaks to the raw beauty of Iceland's southeastern coast.",
-    "location": "Stokksnes, Vestrahorn, Southeast Iceland",
-    "tags": [
-      "mountain-landscape",
-      "iceland-photography",
-      "vestrahorn",
-      "basalt-peaks",
-      "reflection-photography",
-      "fine-art-landscape",
-      "black-sand-beach",
-      "glacial-valley",
-      "dramatic-mountains",
-      "tidal-flats",
-      "nature-photography",
-      "wall-art-print",
-      "serene-landscape",
-      "nordic-scenery",
-      "moody-skies",
-      "geological-formation",
-      "southeast-iceland",
-      "canvas-print-worthy",
-      "gallery-quality",
-      "adventure-landscape"
-    ],
-    "dimensions": {
-      "width": 8120,
-      "height": 4536,
-      "aspectRatio": 1.79,
-      "aspectRatioString": "145:81",
-      "orientation": "wide",
-      "megapixels": 36.8
-    },
-    "thumbnail": "WOLF4556-thumb.jpg",
-    "full": "WOLF4556-full.jpg",
     "c2pa": true
   },
   {

@@ -223,7 +223,7 @@ nav a:hover::after, nav a.active::after { width:100%; }
 /* === COVERFLOW === */
 #cf {
   position:absolute;
-  top:10vh; left:0; right:0;
+  top:14vh; left:0; right:0;
   height:60vh;
   perspective:1800px;
   perspective-origin:50% 50%;
@@ -426,8 +426,8 @@ nav a:hover::after, nav a.active::after { width:100%; }
   nav { gap:0.7rem; font-size:0.55rem; letter-spacing:0.08em; }
   .cart-icon-btn { width:30px; height:30px; margin-left:8px; }
   .cart-icon { width:18px; height:18px; }
-  #cf { top:12vh; height:55vh; }
-  #info { bottom:15vh; }
+  #cf { top:16vh; height:55vh; }
+  #info { bottom:12vh; }
   #info-t { font-size:clamp(20px,5vw,32px); letter-spacing:clamp(5px,1.2vw,10px); }
   #info-c { font-size:9px; letter-spacing:2px; }
   #dots { bottom:10px; }
@@ -441,8 +441,8 @@ nav a:hover::after, nav a.active::after { width:100%; }
 @media(max-width:420px){
   nav a { font-size:0.5rem; }
   nav { gap:0.5rem; }
-  #cf { top:14vh; height:50vh; }
-  #info { bottom:14vh; }
+  #cf { top:18vh; height:52vh; }
+  #info { bottom:10vh; }
 }
 </style>
 </head>
@@ -1098,7 +1098,7 @@ const G=[
 ];
 const N=G.length;
 
-function covSz(){const w=window.innerWidth,h=window.innerHeight;if(w<=768)return Math.min(h*0.38,w*0.62,384);return Math.min(h*0.60,w*0.41,650);}
+function covSz(){const w=window.innerWidth,h=window.innerHeight;if(w<=768)return Math.min(h*0.42,w*0.68,420);return Math.min(h*0.60,w*0.41,650);}
 
 /* Audio removed */
 

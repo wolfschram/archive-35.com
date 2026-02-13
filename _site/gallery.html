@@ -200,13 +200,21 @@ html, body {
 
 /* === HEADER === */
 header {
-  position:fixed; top:1.2rem; left:50%; transform:translateX(-50%); z-index:100;
-  width:calc(100% - 3rem); max-width:1200px; pointer-events:none;
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  pointer-events:none;
+}
+header::before {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height:calc(1.2rem + 3.2rem + 1.2rem);
+  background:linear-gradient(to bottom, #0a0a0a 70%, rgba(10,10,10,0.95) 85%, transparent 100%);
+  pointer-events:none;
 }
 header > .h-inner {
+  position:relative;
   display:flex; align-items:center; justify-content:space-between;
-  padding:0.8rem 2rem;
-  background:rgba(10,10,10,0.75);
+  max-width:1200px; margin:1.2rem auto; padding:0.8rem 2rem;
+  width:calc(100% - 3rem);
+  background:rgba(10,10,10,0.85);
   backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
   border:1px solid rgba(255,255,255,0.06);
   border-radius:100px;
@@ -219,6 +227,27 @@ nav a { color:rgba(255,255,255,0.45); text-decoration:none; transition:all .3s; 
 nav a::after { content:''; position:absolute; bottom:-3px; left:0; width:0; height:1px; background:var(--gold); transition:width .3s; }
 nav a:hover, nav a.active { color:var(--gold); }
 nav a:hover::after, nav a.active::after { width:100%; }
+
+/* === GALLERY DROPDOWN === */
+.nav-gallery { position:relative; }
+.nav-gallery .gal-drop {
+  display:none; position:absolute; top:calc(100% + 12px); left:50%; transform:translateX(-50%);
+  background:rgba(10,10,10,0.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.08); border-radius:12px;
+  padding:10px 0; min-width:240px; max-height:60vh; overflow-y:auto;
+  box-shadow:0 12px 40px rgba(0,0,0,0.6);
+  pointer-events:auto; z-index:110;
+}
+.nav-gallery:hover .gal-drop { display:block; }
+.gal-drop a {
+  display:block; padding:7px 20px; color:rgba(255,255,255,0.55); font-size:0.65rem;
+  letter-spacing:0.1em; text-transform:uppercase; text-decoration:none;
+  transition:all .2s; white-space:nowrap;
+}
+.gal-drop a:hover { color:var(--gold); background:rgba(201,168,76,0.08); }
+.gal-drop a::after { display:none; }
+.gal-drop::-webkit-scrollbar { width:4px; }
+.gal-drop::-webkit-scrollbar-thumb { background:rgba(201,168,76,0.3); border-radius:2px; }
 
 /* === COVERFLOW === */
 #cf {
@@ -420,8 +449,8 @@ nav a:hover::after, nav a.active::after { width:100%; }
 
 /* === MOBILE === */
 @media(max-width:768px){
-  header { top:0.6rem; width:calc(100% - 1.2rem); }
-  header > .h-inner { padding:0.5rem 1rem; }
+  header::before { height:calc(0.6rem + 2.6rem + 0.6rem); }
+  header > .h-inner { margin:0.6rem auto; padding:0.5rem 1rem; width:calc(100% - 1.2rem); }
   .logo { font-size:16px; letter-spacing:5px; }
   nav { gap:0.7rem; font-size:0.55rem; letter-spacing:0.08em; }
   .cart-icon-btn { width:30px; height:30px; margin-left:8px; }
@@ -481,7 +510,7 @@ nav a:hover::after, nav a.active::after { width:100%; }
     <a href="index.html" class="logo">ARCHIVE<em>-35</em></a>
     <nav class="nav">
       <a href="index.html">Home</a>
-      <a href="gallery.html" class="active">Gallery</a>
+      <span class="nav-gallery"><a href="gallery.html" class="active">Gallery</a><div class="gal-drop" id="gal-drop"></div></span>
       <a href="licensing.html">Licensing</a>
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
@@ -1175,6 +1204,17 @@ function updH(){const i=wI(Math.round(sm));if(i===lastH)return;lastH=i;tEl.textC
 })();
 
 window.addEventListener('resize',layout);
+
+/* ===== GALLERY DROPDOWN ===== */
+(function(){
+  const dd=document.getElementById('gal-drop');if(!dd)return;
+  const sorted=G.map((g,i)=>({name:g.name,idx:i})).sort((a,b)=>a.name.localeCompare(b.name));
+  sorted.forEach(g=>{
+    const a=document.createElement('a');a.href='#';a.textContent=g.name;
+    a.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();cur=g.idx;closeCP();dd.style.display='none';setTimeout(()=>dd.style.display='',300);});
+    dd.appendChild(a);
+  });
+})();
 
 /* ===== INPUT ===== */
 function modal(){return document.getElementById('fgal').classList.contains('open')||document.getElementById('lb').classList.contains('open');}

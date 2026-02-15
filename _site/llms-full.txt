@@ -12,18 +12,7 @@
 - Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
 - Website: https://archive-35.com
 
-## Print Collections (554 photographs, 31 collections)
-
-### Africa (44 photographs)
-- URL: https://archive-35.com/collection.html?id=africa
-- Gallery: https://archive-35.com/gallery.html?collection=africa
-
-  - Sentinel of the Serengeti | Serengeti National Park, Tanzania | 50.3MP | Tags: cheetah, serengeti, tanzania, wildlife-photography, african-predator, big-cat, landscape-photography, fine-art-nature
-  - Zebra Herd in Serengeti Grassland | Serengeti National Park, Tanzania | 50.3MP | Tags: zebra, herd, serengeti, tanzania, wildlife, african-savanna, grassland, landscape-photography
-  - Zebra Family in Serengeti Grassland | Serengeti National Park, Tanzania | 50.3MP | Tags: zebra, serengeti, tanzania, wildlife-photography, african-savanna, landscape-photography, fine-art-print, nature-photography
-  - Giraffe Among Acacia Trees | Serengeti National Park, Tanzania | 41.8MP | Tags: giraffe, serengeti, tanzania, african-wildlife, savanna-landscape, acacia-trees, nature-photography, fine-art-print
-  - Mother and Young in the Serengeti | Serengeti National Park, Tanzania | 50.3MP | Tags: serengeti-wildlife, tanzania-nature, baboon-portrait, african-savanna, maternal-bond, wildlife-photography, fine-art-nature, tanzania-landscape
-  - ... and 39 more photographs
+## Print Collections (483 photographs, 29 collections)
 
 ### Antilope Canyon (2 photographs)
 - URL: https://archive-35.com/collection.html?id=antilope-canyon
@@ -43,7 +32,7 @@
   - Glacial Face at the Water's Edge | Perito Moreno Glacier, Los Glaciares National Park, Santa Cruz Province, Argentina | 50.3MP | Tags: glacier, perito-moreno, argentina-landscape, ice-formation, glacial-lake, los-glaciares, santa-cruz-province, fine-art-photography
   - ... and 30 more photographs
 
-### Australia (3 photographs)
+### Australia (8 photographs)
 - URL: https://archive-35.com/collection.html?id=australia
 - Gallery: https://archive-35.com/gallery.html?collection=australia
 
@@ -95,7 +84,7 @@
   - Mule Deer in Forest Light | Rocky Mountain Region, North America | 35.4MP | Tags: mule-deer, wildlife-photography, forest-portrait, antlers, conifer-forest, north-american-wildlife, deer, woodland
   - ... and 3 more photographs
 
-### Concerts (5 photographs)
+### Concerts (9 photographs)
 - URL: https://archive-35.com/collection.html?id=concerts
 - Gallery: https://archive-35.com/gallery.html?collection=concerts
 
@@ -192,17 +181,6 @@
   - Canyon Portal: Stone's Silent Gateway | Canyon Country, Southwest USA - likely Utah or Arizona region | 12.3MP | Tags: natural-arch, canyon-landscape, sandstone-formation, desert-photography, arches-national-park, utah-landscape, arizona-desert, geological-formation
   - ... and 2 more photographs
 
-### Large Scale Photography Stitch (44 photographs)
-- URL: https://archive-35.com/collection.html?id=large-scale-photography-stitch
-- Gallery: https://archive-35.com/gallery.html?collection=large-scale-photography-stitch
-
-  - Desert Dunes in Golden Light | Gobi Desert, Mongolia | 250.8MP | Tags: desert-landscape, sand-dunes, gobi-desert, mongolia, arid-landscape, golden-sand, dune-formations, desert-photography
-  - Alpine Lake Mountain Reflections | Pacific Northwest Alpine Region, Cascade Mountains | 122.7MP | Tags: mountain-lake, alpine-landscape, evergreen-forest, cascade-mountains, pacific-northwest, landscape-photography, fine-art-print, nature-photography
-  - Mountain Valley Wilderness | Cascade Range, Oregon, Pacific Northwest USA | 41.8MP | Tags: mountain-landscape, valley-vista, coniferous-forest, snow-capped-peaks, wilderness-photography, fine-art-landscape, nature-photography, cascade-range
-  - Geothermal Valley in Repose | Iceland, Geothermal Region (likely Myvatn or Central Highlands) | 70.2MP | Tags: iceland, lava-field, geothermal, volcanic-landscape, mountain, steam, moss-covered, dramatic-sky
-  - Volcanic Moorland Under Gathering Storms | Iceland - Highland Region, likely Landmannalaugar or Mývatn area | 89.6MP | Tags: iceland, volcanic-landscape, moorland, mountain, lava-field, dramatic-sky, storm-clouds, tundra
-  - ... and 39 more photographs
-
 ### London (1 photographs)
 - URL: https://archive-35.com/collection.html?id=london
 - Gallery: https://archive-35.com/gallery.html?collection=london
@@ -231,7 +209,7 @@
 
   - Sentinels of the Desert | Monument Valley, Arizona-Utah Border | 12.2MP | Tags: butte, desert-landscape, monument-valley, arizona, utah, geological-formation, sandstone, arid-landscape
 
-### New Zealand (24 photographs)
+### New Zealand (27 photographs)
 - URL: https://archive-35.com/collection.html?id=new-zealand
 - Gallery: https://archive-35.com/gallery.html?collection=new-zealand
 
@@ -277,7 +255,7 @@
   - Penguin Pair at Boulders Beach | South Africa | 20MP | Tags: african-penguin, penguin-pair, boulders-beach, simons-town, cape-town, cape-peninsula, ocean, granite-boulders
   - ... and 3 more photographs
 
-### South America (5 photographs)
+### South America (10 photographs)
 - URL: https://archive-35.com/collection.html?id=south-america
 - Gallery: https://archive-35.com/gallery.html?collection=south-america
 

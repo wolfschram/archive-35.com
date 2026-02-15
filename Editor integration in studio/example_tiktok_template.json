@@ -1,0 +1,229 @@
+{
+  "version": "1.0",
+  "name": "TikTok Gallery — Dark Cinematic",
+  "platform": "tiktok",
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "background": "#0a0a0a"
+  },
+  "layers": [
+    {
+      "id": "photo_main",
+      "type": "photo",
+      "x": 43,
+      "y": 154,
+      "width": 994,
+      "height": 1574,
+      "locked": false,
+      "visible": true,
+      "opacity": 1,
+      "animation": {
+        "style": "kenburns_fade",
+        "zoomRange": [1.0, 1.4],
+        "panDirection": "random"
+      }
+    },
+    {
+      "id": "photo_border",
+      "type": "shape",
+      "x": 41,
+      "y": 152,
+      "width": 998,
+      "height": 1578,
+      "locked": true,
+      "visible": true,
+      "opacity": 1,
+      "shape": {
+        "shapeType": "rect",
+        "stroke": "#1a1a1a",
+        "strokeWidth": 2,
+        "fill": "transparent"
+      }
+    },
+    {
+      "id": "gold_line_top",
+      "type": "accent_line",
+      "x": 43,
+      "y": 139,
+      "width": 994,
+      "height": 1,
+      "locked": true,
+      "visible": true,
+      "opacity": 0.4,
+      "shape": {
+        "shapeType": "line",
+        "stroke": "#FFD700",
+        "strokeWidth": 1
+      }
+    },
+    {
+      "id": "gold_line_bottom",
+      "type": "accent_line",
+      "x": 43,
+      "y": 1743,
+      "width": 994,
+      "height": 1,
+      "locked": true,
+      "visible": true,
+      "opacity": 0.4,
+      "shape": {
+        "shapeType": "line",
+        "stroke": "#FFD700",
+        "strokeWidth": 1
+      }
+    },
+    {
+      "id": "wordmark_archive",
+      "type": "text",
+      "x": 370,
+      "y": 55,
+      "width": 200,
+      "height": 50,
+      "locked": true,
+      "visible": true,
+      "opacity": 1,
+      "text": {
+        "content": "ARCHIVE",
+        "fontFamily": "Helvetica Neue",
+        "fontSize": 24,
+        "fontWeight": "200",
+        "letterSpacing": 10,
+        "color": "#f5f5f5",
+        "align": "right",
+        "dynamic": false
+      }
+    },
+    {
+      "id": "wordmark_separator",
+      "type": "accent_line",
+      "x": 475,
+      "y": 38,
+      "width": 1,
+      "height": 55,
+      "locked": true,
+      "visible": true,
+      "opacity": 0.6,
+      "shape": {
+        "shapeType": "line",
+        "stroke": "#FFD700",
+        "strokeWidth": 1.5
+      }
+    },
+    {
+      "id": "wordmark_35",
+      "type": "text",
+      "x": 490,
+      "y": 45,
+      "width": 120,
+      "height": 60,
+      "locked": true,
+      "visible": true,
+      "opacity": 1,
+      "text": {
+        "content": "35",
+        "fontFamily": "Helvetica Neue",
+        "fontSize": 43,
+        "fontWeight": "900",
+        "letterSpacing": -1,
+        "color": "#FFD700",
+        "align": "left",
+        "dynamic": false
+      }
+    },
+    {
+      "id": "gallery_name",
+      "type": "text",
+      "x": 54,
+      "y": 1760,
+      "width": 400,
+      "height": 40,
+      "locked": false,
+      "visible": true,
+      "opacity": 0.75,
+      "text": {
+        "content": "GALLERY NAME",
+        "fontFamily": "Helvetica Neue",
+        "fontSize": 18,
+        "fontWeight": "300",
+        "letterSpacing": 4,
+        "color": "#f5f5f5",
+        "align": "left",
+        "dynamic": true,
+        "dynamicField": "gallery_name"
+      }
+    },
+    {
+      "id": "slogan",
+      "type": "text",
+      "x": 580,
+      "y": 1760,
+      "width": 460,
+      "height": 40,
+      "locked": false,
+      "visible": true,
+      "opacity": 0.65,
+      "text": {
+        "content": "FINE ART PHOTOGRAPHY",
+        "fontFamily": "Helvetica Neue",
+        "fontSize": 20,
+        "fontWeight": "200",
+        "letterSpacing": 4,
+        "color": "#FFD700",
+        "align": "right",
+        "dynamic": true,
+        "dynamicField": "slogan"
+      }
+    },
+    {
+      "id": "url_cta",
+      "type": "text",
+      "x": 300,
+      "y": 1870,
+      "width": 480,
+      "height": 40,
+      "locked": false,
+      "visible": true,
+      "opacity": 0.85,
+      "text": {
+        "content": "ARCHIVE-35.COM",
+        "fontFamily": "Helvetica Neue",
+        "fontSize": 26,
+        "fontWeight": "600",
+        "letterSpacing": 4,
+        "color": "#FFD700",
+        "align": "center",
+        "dynamic": false
+      }
+    }
+  ],
+  "timeline": {
+    "introDuration": 4,
+    "photoDuration": 3,
+    "outroDuration": 0,
+    "transition": {
+      "type": "fade",
+      "duration": 1
+    },
+    "fps": 30,
+    "maxPhotos": 8
+  },
+  "audio": {
+    "enabled": false,
+    "src": "",
+    "volume": 0.7,
+    "fadeIn": 1.5,
+    "fadeOut": 2
+  },
+  "encoding": {
+    "codec": "libx264",
+    "crf": 18,
+    "preset": "medium"
+  },
+  "metadata": {
+    "createdAt": "2026-02-12T22:00:00Z",
+    "updatedAt": "2026-02-12T22:00:00Z",
+    "author": "Wolf Schram",
+    "notes": "Dark cinematic TikTok template with Archive-35 branding. Gold accents, large CTA."
+  }
+}

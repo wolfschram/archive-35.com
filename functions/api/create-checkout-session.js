@@ -53,6 +53,52 @@ export async function onRequestPost(context) {
       );
     }
 
+    // ================================================================
+    // PRE-FLIGHT CHECK: Verify R2 original exists BEFORE creating
+    // the Stripe session. This prevents charging customers for items
+    // that cannot be fulfilled (prints) or delivered (licenses).
+    // See: Pipeline Audit Risk A — "Too Late" validation fix.
+    // ================================================================
+    const R2_BUCKET = env.ORIGINALS;
+    if (R2_BUCKET) {
+      const orderMeta = pictorem || license || {};
+      const collection = orderMeta.collection || '';
+      const photoFilename = orderMeta.photoFilename || orderMeta.photoId || '';
+
+      if (photoFilename) {
+        // Determine R2 key based on order type
+        const isLicense = !!license;
+        let r2Key;
+        if (isLicense) {
+          // Licensing originals stored under originals/ prefix
+          r2Key = `originals/${photoFilename}`;
+        } else {
+          // Gallery originals stored under {collection}/ prefix
+          r2Key = collection ? `${collection}/${photoFilename}` : photoFilename;
+        }
+        if (!r2Key.endsWith('.jpg')) r2Key += '.jpg';
+
+        try {
+          const headResult = await R2_BUCKET.head(r2Key);
+          if (!headResult) {
+            console.error(`PRE-FLIGHT BLOCK: R2 original missing: ${r2Key}`);
+            return new Response(
+              JSON.stringify({
+                error: 'This product is temporarily unavailable. Please try again later or contact us.',
+                detail: 'Original image not found in storage',
+                missingKey: r2Key,
+              }),
+              { status: 400, headers: corsHeaders }
+            );
+          }
+          console.log(`PRE-FLIGHT OK: R2 original verified: ${r2Key} (${headResult.size} bytes)`);
+        } catch (r2Err) {
+          // R2 check failed but don't block if it's a transient error
+          console.warn(`PRE-FLIGHT WARNING: R2 check failed (${r2Err.message}) — allowing checkout to proceed`);
+        }
+      }
+    }
+
     const origin = new URL(request.url).origin;
 
     // Build Stripe API params (form-encoded)

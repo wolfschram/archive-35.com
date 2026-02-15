@@ -50,7 +50,7 @@ signer_info = c2pa.C2paSignerInfo.__new__(c2pa.C2paSignerInfo)
 ctypes.Structure.__init__(signer_info, b'es256', cert_chain, key_pem, None)
 
 # Find all full-size images
-collections = ['africa', 'grand-teton', 'iceland-ring-road', 'new-zealand', 'south-africa']
+collections = ['grand-teton', 'iceland-ring-road', 'new-zealand', 'south-africa']
 full_images = []
 for collection in collections:
     collection_dir = os.path.join(IMAGES_DIR, collection)

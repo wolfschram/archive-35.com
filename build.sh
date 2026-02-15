@@ -21,8 +21,17 @@ cp *.html _site/ 2>/dev/null || true
 # Copy CNAME
 cp CNAME _site/ 2>/dev/null || true
 
-# Copy static assets (includes analytics.js)
+# Clean stale _site/ subdirectories that may contain orphan data from previous builds
+# (e.g., removed collections like "africa" or typo directories)
+rm -rf _site/images _site/data _site/css _site/js _site/logos 2>/dev/null || true
+
+# Copy static assets (fresh copy eliminates orphans)
 cp -r css js images data logos _site/ 2>/dev/null || true
+
+# Remove orphan image folders that exist on disk but are NOT in photos.json
+# (e.g., deleted collections whose source images couldn't be removed due to permissions)
+rm -rf _site/images/large-scale-photography-stitch 2>/dev/null || true
+rm -rf _site/images/africa 2>/dev/null || true
 
 # Copy prototype gallery assets (thumbs, labels, textures)
 cp -r prototype _site/ 2>/dev/null || true

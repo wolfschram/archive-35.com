@@ -111,6 +111,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('sync-progress', handler);
   },
 
+  // R2 Batch Upload (backfill originals)
+  batchUploadR2: () => ipcRenderer.invoke('batch-upload-r2'),
+  onR2UploadProgress: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('r2-upload-progress', handler);
+    return () => ipcRenderer.removeListener('r2-upload-progress', handler);
+  },
+
+  // Stripe-to-Sheet Reconciliation
+  reconcileStripeOrders: (opts) => ipcRenderer.invoke('reconcile-stripe-orders', opts),
+
   // Platform info
   platform: process.platform
 });

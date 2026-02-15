@@ -642,8 +642,10 @@ async function handleLicenseOrder(session, metadata, env, isTestMode, stripeKey,
     }
 
     if (found) {
-      // Generate signed URL — 72 hours for license downloads
-      downloadUrl = await generateSignedOriginalUrl(r2Key, SIGNING_SECRET, 72 * 60 * 60 * 1000);
+      // Generate signed URL — 30 minutes for license downloads
+      // Short expiry minimizes exposure if email is compromised or link is shared
+      // Customer can contact us for a fresh link if they miss the window
+      downloadUrl = await generateSignedOriginalUrl(r2Key, SIGNING_SECRET, 30 * 60 * 1000);
       imageSource = 'r2-original';
     } else {
       console.error(`⚠️ CRITICAL: License original not found in R2: ${r2Key}`);
@@ -669,7 +671,7 @@ async function handleLicenseOrder(session, metadata, env, isTestMode, stripeKey,
     customerEmail,
     orderRef,
     imageSource,
-    expiresIn: '72 hours',
+    expiresIn: '30 minutes',
   };
 
   if (downloadUrl && customerEmail) {
@@ -911,10 +913,37 @@ export async function onRequestPost(context) {
     const collection = metadata.collection || getCollectionFromPhotoId(photoId);
     const photoFilename = metadata.photoFilename || photoId;
 
-    // HIGH-RES for Pictorem: Try R2 original first, fall back to web-optimized
+    // HIGH-RES for Pictorem: Try R2 original first
     const originalResult = await getOriginalImageUrl(env, collection, photoFilename);
-    const pictoremImageUrl = originalResult.url;
     console.log(`Image for Pictorem: ${originalResult.source}${originalResult.size ? ` (${(originalResult.size / 1024 / 1024).toFixed(1)}MB)` : ''}`);
+
+    // HARD BLOCK: If R2 original is missing, do NOT send garbage to Pictorem
+    if (originalResult.source !== 'r2-original') {
+      console.error(`BLOCKED: Cannot fulfill print order — R2 original missing for ${collection}/${photoFilename}`);
+      // Send alert email to Wolf
+      try {
+        await sendEmail(RESEND_API_KEY, {
+          to: 'wolfbroadcast@gmail.com',
+          subject: `URGENT: Print order BLOCKED — R2 original missing`,
+          html: `<h2>Print Order Blocked</h2>
+            <p><strong>Reason:</strong> High-res original not found in R2 bucket</p>
+            <p><strong>Missing file:</strong> ${collection}/${photoFilename}.jpg</p>
+            <p><strong>Customer:</strong> ${customerEmail}</p>
+            <p><strong>Order amount:</strong> $${(session.amount_total / 100).toFixed(2)}</p>
+            <p><strong>Stripe Session:</strong> ${session.id}</p>
+            <p><strong>Action needed:</strong> Upload the original to R2 via Studio > Website Control > R2 Original Backup, then manually submit order to Pictorem.</p>`
+        });
+      } catch (emailErr) {
+        console.error('Failed to send R2 missing alert email:', emailErr.message);
+      }
+      return new Response(JSON.stringify({
+        received: true,
+        warning: 'Print order BLOCKED — R2 original missing. Alert email sent to seller.',
+        missingFile: `${collection}/${photoFilename}.jpg`
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+
+    const pictoremImageUrl = originalResult.url;
 
     // WEB-OPTIMIZED for emails: Always use the web version (smaller, loads fast in email)
     const emailImageUrl = `https://archive-35.com/images/${collection}/${photoFilename}-full.jpg`;

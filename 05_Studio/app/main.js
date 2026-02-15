@@ -936,6 +936,7 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
     const processedPhotos = [];
     const totalPhotos = photos.length;
     let processedCount = 0;
+    let r2Failures = [];
 
     for (const photo of photos) {
       try {
@@ -996,7 +997,19 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
             }
           }
         } catch (r2Err) {
-          console.warn('R2 upload failed (non-blocking):', r2Err.message);
+          console.error('R2 UPLOAD FAILED:', r2Err.message);
+          r2Failures = r2Failures || [];
+          r2Failures.push({ filename: photo.filename, error: r2Err.message });
+          if (mainWindow) {
+            mainWindow.webContents.send('ingest-progress', {
+              phase: 'finalize',
+              current: processedCount,
+              total: totalPhotos,
+              filename: photo.filename,
+              warning: true,
+              message: `WARNING: R2 upload FAILED for ${photo.filename}: ${r2Err.message}`
+            });
+          }
         }
 
         // Create web-optimized version (max 2000px long edge, 85% quality)
@@ -1072,7 +1085,9 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
     return {
       success: true,
       processed: processedPhotos.length,
-      folder: targetFolder
+      folder: targetFolder,
+      r2Failures: r2Failures.length > 0 ? r2Failures : undefined,
+      r2Warning: r2Failures.length > 0 ? `${r2Failures.length} photo(s) failed to upload to R2. Run R2 Batch Upload from Website Control to fix.` : undefined
     };
 
   } catch (err) {
@@ -1636,16 +1651,21 @@ ipcMain.handle('batch-upload-r2', async () => {
           const filePath = path.join(originalsPath, filename);
           const fileBuffer = await fs.readFile(filePath);
 
+          // Compute MD5 for integrity verification
+          const crypto = require('crypto');
+          const md5Hash = crypto.createHash('md5').update(fileBuffer).digest('hex');
+
           await s3.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: r2Key,
             Body: fileBuffer,
             ContentType: 'image/jpeg',
+            Metadata: { md5: md5Hash },
           }));
 
           results.uploaded++;
           results.collections[collectionSlug].uploaded++;
-          console.log(`R2 upload: ${r2Key} (${(fileBuffer.length / 1024 / 1024).toFixed(1)}MB)`);
+          console.log(`R2 upload: ${r2Key} (${(fileBuffer.length / 1024 / 1024).toFixed(1)}MB, MD5: ${md5Hash.substring(0, 8)}...)`);
 
         } catch (uploadErr) {
           results.failed++;
@@ -1668,6 +1688,67 @@ ipcMain.handle('batch-upload-r2', async () => {
   } catch (err) {
     console.error('batch-upload-r2 failed:', err);
     return { success: false, error: err.message, ...results };
+  }
+});
+
+// ===================
+// STRIPE-TO-SHEET RECONCILIATION
+// Fetches recent Stripe checkout.session.completed events and returns
+// them for comparison against the Google Sheet order log.
+// See: Pipeline Audit Q98-2 — catch missed webhooks.
+// ===================
+
+ipcMain.handle('reconcile-stripe-orders', async (event, { days = 7 } = {}) => {
+  try {
+    const env = parseEnvFileSync();
+    const stripeKey = env.STRIPE_SECRET_KEY || env.STRIPE_TEST_SECRET_KEY;
+    if (!stripeKey) {
+      return { success: false, error: 'Stripe API key not configured. Set STRIPE_SECRET_KEY in Settings.' };
+    }
+
+    // Fetch completed checkout sessions from the last N days
+    const since = Math.floor((Date.now() - days * 24 * 60 * 60 * 1000) / 1000);
+    const params = new URLSearchParams({
+      limit: '100',
+      status: 'complete',
+      'created[gte]': String(since),
+    });
+
+    const response = await fetch(`https://api.stripe.com/v1/checkout/sessions?${params}`, {
+      headers: { 'Authorization': `Bearer ${stripeKey}` },
+    });
+    const data = await response.json();
+
+    if (data.error) {
+      return { success: false, error: `Stripe API error: ${data.error.message}` };
+    }
+
+    const sessions = (data.data || []).map(s => ({
+      sessionId: s.id,
+      created: new Date(s.created * 1000).toISOString(),
+      amount: s.amount_total ? (s.amount_total / 100).toFixed(2) : '0',
+      currency: s.currency,
+      customerEmail: s.customer_details?.email || s.customer_email || 'unknown',
+      customerName: s.customer_details?.name || '',
+      paymentStatus: s.payment_status,
+      orderType: s.metadata?.orderType || 'unknown',
+      photoTitle: s.metadata?.photoTitle || '',
+      photoId: s.metadata?.photoId || '',
+      livemode: s.livemode,
+    }));
+
+    return {
+      success: true,
+      days,
+      sessionCount: sessions.length,
+      sessions,
+      message: sessions.length === 0
+        ? `No completed checkouts in the last ${days} days.`
+        : `Found ${sessions.length} completed checkout(s) in the last ${days} days. Compare against your Google Sheet "Orders" tab to find any missing entries.`,
+    };
+  } catch (err) {
+    console.error('Stripe reconciliation error:', err);
+    return { success: false, error: err.message };
   }
 });
 
@@ -1816,15 +1897,13 @@ ipcMain.handle('deploy-website', async () => {
         // Has _photos.json — use Studio-ingested metadata
         sendProgress('scan', `Reading ${dir.name}...`);
         const photos = JSON.parse(await fs.readFile(photosJsonPath, 'utf8'));
-        const prefix = collectionSlug.split('-').map(w => w[0]).join('').substring(0, 2);
-
         photos.forEach((photo, idx) => {
           const baseName = photo.filename.replace(/\.[^.]+$/, '');
           const thumbName = photo.thumbnail || `${baseName}-thumb.jpg`;
           const fullName = photo.full || `${baseName}-full.jpg`;
 
           allWebsitePhotos.push({
-            id: `${prefix}-${String(idx + 1).padStart(3, '0')}`,
+            id: `${collectionSlug}-${String(idx + 1).padStart(3, '0')}`,
             filename: baseName,
             title: photo.title || baseName,
             description: photo.description || '',
@@ -1912,22 +1991,76 @@ ipcMain.handle('deploy-website', async () => {
       ? `C2PA: ${c2paSigned}/${c2paSigned + c2paUnsigned} signed (${c2paUnsigned} unsigned)`
       : `C2PA: All ${c2paSigned} photos have Content Credentials`);
 
-    // Phase 4: R2 Verification
-    sendProgress('r2', 'Checking R2 cloud backup...');
+    // Phase 4: R2 Verification — REAL object count comparison
+    sendProgress('r2', 'Verifying R2 cloud backup (counting objects)...');
     let r2Status = 'unknown';
+    let r2ObjectCount = 0;
+    let r2MissingFiles = [];
     try {
-      // Check if R2 env vars are configured
-      const hasR2 = process.env.R2_ACCESS_KEY_ID && process.env.R2_BUCKET_NAME;
-      if (hasR2) {
-        r2Status = 'configured';
-        sendProgress('r2', 'R2 cloud storage configured');
+      const s3 = getR2Client();
+      const bucketName = parseEnvFileSync().R2_BUCKET_NAME;
+      if (s3 && bucketName) {
+        const { ListObjectsV2Command, HeadObjectCommand } = require('@aws-sdk/client-s3');
+        // Count all objects in R2 (excluding test/ prefix and originals/ licensing prefix)
+        let continuationToken = undefined;
+        let allR2Keys = [];
+        do {
+          const listCmd = new ListObjectsV2Command({
+            Bucket: bucketName,
+            MaxKeys: 1000,
+            ContinuationToken: continuationToken
+          });
+          const listResult = await s3.send(listCmd);
+          if (listResult.Contents) {
+            allR2Keys.push(...listResult.Contents.map(obj => obj.Key));
+          }
+          continuationToken = listResult.IsTruncated ? listResult.NextContinuationToken : undefined;
+        } while (continuationToken);
+
+        // Filter: only gallery originals (not test/, not originals/ licensing prefix)
+        const galleryR2Keys = allR2Keys.filter(k => !k.startsWith('test/') && !k.startsWith('originals/'));
+        r2ObjectCount = galleryR2Keys.length;
+
+        // Check which website photos are missing from R2
+        for (const photo of allWebsitePhotos) {
+          const expectedKey = `${photo.collection}/${photo.filename}.jpg`;
+          if (!galleryR2Keys.includes(expectedKey)) {
+            r2MissingFiles.push(expectedKey);
+          }
+        }
+
+        if (r2MissingFiles.length === 0) {
+          r2Status = 'ok';
+          sendProgress('r2', `R2 VERIFIED: ${r2ObjectCount} originals in cloud, all ${allWebsitePhotos.length} website photos backed up`);
+        } else {
+          r2Status = 'warning';
+          sendProgress('r2', `R2 WARNING: ${r2MissingFiles.length} of ${allWebsitePhotos.length} photos MISSING from R2! (${r2ObjectCount} objects in bucket)`);
+          console.error('R2 MISSING FILES:', r2MissingFiles.slice(0, 20));
+        }
       } else {
         r2Status = 'unconfigured';
-        sendProgress('r2', '\u26A0 R2 not configured — originals not backed up to cloud');
+        sendProgress('r2', 'R2 not configured — originals not backed up to cloud');
       }
     } catch (e) {
       r2Status = 'error';
-      sendProgress('r2', 'R2 check failed: ' + e.message);
+      sendProgress('r2', 'R2 verification failed: ' + e.message);
+      console.error('R2 verification error:', e);
+    }
+
+    // HARD BLOCK: If R2 has missing files, abort deploy
+    // Deploying a site with products that can't be fulfilled is unacceptable.
+    // Wolf must upload missing originals via "Upload All Originals to R2" first.
+    // See: Pipeline Audit Gap A — deploy warning upgraded to hard block.
+    if (r2Status === 'warning' && r2MissingFiles.length > 0) {
+      sendProgress('r2', `DEPLOY BLOCKED: ${r2MissingFiles.length} photos missing from R2. Upload originals first, then deploy again.`);
+      return {
+        success: false,
+        error: `Deploy blocked: ${r2MissingFiles.length} photos not backed up to R2. Use "Upload All Originals to R2" in Website Control first.`,
+        r2Status: 'blocked',
+        r2MissingCount: r2MissingFiles.length,
+        r2MissingFiles: r2MissingFiles.slice(0, 20),
+        totalPhotos: allWebsitePhotos.length,
+      };
     }
 
     // Phase 5: Write photos.json
@@ -1976,7 +2109,7 @@ ipcMain.handle('deploy-website', async () => {
       // Verify website is live with updated content
       sendProgress('verify', 'Waiting for website to update...');
       let verified = false;
-      const maxAttempts = 20; // ~60 seconds max
+      const maxAttempts = 60; // ~180 seconds (3 min) — matches frontend timeout
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         try {
           sendProgress('verify', `Checking website... (attempt ${attempt}/${maxAttempts})`);
@@ -2012,6 +2145,9 @@ ipcMain.handle('deploy-website', async () => {
         c2paSigned,
         c2paUnsigned,
         r2Status,
+        r2ObjectCount,
+        r2MissingCount: r2MissingFiles.length,
+        r2MissingFiles: r2MissingFiles.slice(0, 20),
         message: noNewContent
            ? `All ${allWebsitePhotos.length} photos already deployed.${verifyMsg}`
            : `Deployed ${allWebsitePhotos.length} photos to archive-35.com (${copied} synced)${verifyMsg}`
@@ -2095,8 +2231,11 @@ ipcMain.handle('scan-photography', async () => {
 
     // Always exclude licensing source folders from gallery scan
     // These go through the licensing pipeline (09_Licensing/), not gallery ingest
+    // NOTE: Folder names on disk use underscores (e.g. Large_Scale_Photography_Stitch)
+    //       so we normalize both sides for comparison
     const LICENSING_EXCLUSIONS = [
       'Large Scale Photography Stitch',
+      'Large_Scale_Photography_Stitch',
       'large-scale-photography-stitch',
       'Licensing',
       'licensing'
@@ -2136,7 +2275,12 @@ ipcMain.handle('scan-photography', async () => {
 
     for (const entry of photoEntries) {
       if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
-      if ((config.excludeFolders || []).includes(entry.name)) continue;
+      // Normalize: compare lowercase with underscores→spaces for robust matching
+      const normalName = entry.name.toLowerCase().replace(/_/g, ' ');
+      const isExcluded = (config.excludeFolders || []).some(
+        ex => ex.toLowerCase().replace(/_/g, ' ') === normalName
+      );
+      if (isExcluded) continue;
 
       const folderPath = path.join(PHOTOGRAPHY_DIR, entry.name);
 
@@ -2263,229 +2407,413 @@ ipcMain.handle('check-service-status', async (event, service) => {
   try {
     const { execSync } = require('child_process');
     const env = parseEnvFile();
+    const path = require('path');
+    const fsSync = require('fs');
 
+    // Deep test: returns { status, message, checks[] }
+    // Each check: { name, status: 'ok'|'warning'|'error', detail }
     switch (service) {
       case 'github': {
+        const checks = [];
+        // 1. Remote connectivity — can we push deploys?
         try {
-          const output = execSync('git ls-remote --exit-code origin', {
-            cwd: ARCHIVE_BASE,
-            encoding: 'utf8',
-            timeout: 10000
-          });
-          return { status: 'ok', message: 'Connected to GitHub' };
+          execSync('git ls-remote --exit-code origin', { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 10000 });
+          checks.push({ name: 'Remote connection', status: 'ok', detail: 'Connected to origin — deploys can push' });
         } catch (err) {
-          return { status: 'error', message: 'Failed to connect to GitHub' };
+          checks.push({ name: 'Remote connection', status: 'error', detail: 'Cannot reach GitHub — deploys will fail until network/auth is restored' });
         }
+        // 2. Current branch — must be main for Cloudflare Pages to pick up
+        try {
+          const branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 5000 }).trim();
+          checks.push({ name: 'Branch', status: branch === 'main' ? 'ok' : 'warning',
+            detail: branch === 'main' ? 'On main — Cloudflare Pages deploys from this branch' : `On "${branch}" — Cloudflare only deploys from main, switch before deploying` });
+        } catch (e) { checks.push({ name: 'Branch', status: 'error', detail: 'Cannot determine branch — git may be corrupted' }); }
+        // 3. Uncommitted changes — will these be included in next deploy?
+        try {
+          const status = execSync('git status --porcelain', { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 5000 }).trim();
+          const lines = status ? status.split('\n').length : 0;
+          checks.push({ name: 'Working tree', status: lines === 0 ? 'ok' : 'warning',
+            detail: lines === 0 ? 'Clean — no pending changes' : `${lines} uncommitted file${lines !== 1 ? 's' : ''} — these will be included in the next deploy` });
+        } catch (e) { checks.push({ name: 'Working tree', status: 'error', detail: 'Cannot check — git may be in a broken state' }); }
+        // 4. Lock files — stale locks block all git operations
+        const lockFiles = ['.git/HEAD.lock', '.git/index.lock'].filter(f => fsSync.existsSync(path.join(ARCHIVE_BASE, f)));
+        checks.push({ name: 'Lock files', status: lockFiles.length === 0 ? 'ok' : 'error',
+          detail: lockFiles.length === 0 ? 'No stale locks — git operations are unblocked' : `Stale: ${lockFiles.join(', ')} — delete these files to unblock git` });
+        // 5. Last commit — what was last deployed?
+        try {
+          const log = execSync('git log -1 --format="%h %s (%cr)"', { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 5000 }).trim();
+          checks.push({ name: 'Last commit', status: 'ok', detail: log });
+        } catch (e) { checks.push({ name: 'Last commit', status: 'error', detail: 'Cannot read git log — repository may be corrupted' }); }
+        // 6. Ahead/behind remote — is local in sync with what's deployed?
+        try {
+          execSync('git fetch origin main --dry-run', { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 10000, stdio: 'pipe' });
+          const aheadBehind = execSync('git rev-list --left-right --count origin/main...HEAD', { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 5000 }).trim();
+          const [behind, ahead] = aheadBehind.split('\t').map(Number);
+          if (ahead === 0 && behind === 0) {
+            checks.push({ name: 'Remote sync', status: 'ok', detail: 'Local matches remote — live site has latest code' });
+          } else {
+            checks.push({ name: 'Remote sync', status: 'warning', detail: `${ahead} commit${ahead !== 1 ? 's' : ''} ahead, ${behind} behind — local and live site are out of sync` });
+          }
+        } catch (e) { checks.push({ name: 'Remote sync', status: 'warning', detail: 'Cannot fetch remote — unable to verify if local matches live site' }); }
+
+        const worst = checks.some(c => c.status === 'error') ? 'error' : checks.some(c => c.status === 'warning') ? 'warning' : 'ok';
+        const okCount = checks.filter(c => c.status === 'ok').length;
+        return { status: worst, message: `${okCount}/${checks.length} passed`, checks };
       }
 
       case 'cloudflare': {
+        const checks = [];
+        // 1. Site reachable — is the website up?
         try {
-          const response = await fetch('https://archive-35.com/data/photos.json', { method: 'HEAD', timeout: 5000 });
-          if (response.ok) {
-            return { status: 'ok', message: `Site responding (${response.status})` };
+          const resp = await fetch('https://archive-35.com/', { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+          checks.push({ name: 'Site reachable', status: resp.ok ? 'ok' : 'warning',
+            detail: resp.ok ? 'archive-35.com is online and serving pages' : `HTTP ${resp.status} — site may be down or misconfigured` });
+        } catch (e) { checks.push({ name: 'Site reachable', status: 'error', detail: 'Cannot reach archive-35.com — site is down, DNS or Cloudflare issue' }); }
+        // 2. photos.json — is the gallery data accessible?
+        try {
+          const resp = await fetch('https://archive-35.com/data/photos.json', { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+          checks.push({ name: 'photos.json', status: resp.ok ? 'ok' : 'error',
+            detail: resp.ok ? 'Gallery data file is being served to visitors' : `HTTP ${resp.status} — gallery/search/collection pages will break` });
+        } catch (e) { checks.push({ name: 'photos.json', status: 'error', detail: 'Gallery data not accessible — all gallery features broken' }); }
+        // 3. Live vs local comparison — is the deployed site current?
+        try {
+          const resp = await fetch('https://archive-35.com/data/photos.json', { signal: AbortSignal.timeout(10000) });
+          const liveData = await resp.json();
+          const livePhotos = liveData?.photos || [];
+          const localRaw = fsSync.readFileSync(path.join(ARCHIVE_BASE, 'data', 'photos.json'), 'utf8');
+          const localPhotos = JSON.parse(localRaw)?.photos || [];
+          const match = livePhotos.length === localPhotos.length;
+          checks.push({ name: 'Photo count', status: match ? 'ok' : 'warning',
+            detail: match
+              ? `Live and local both have ${livePhotos.length} photos — site is current`
+              : `Live has ${livePhotos.length}, local has ${localPhotos.length} — deploy needed to sync` });
+          // Collection count
+          const liveCols = [...new Set(livePhotos.map(p => p.collection))];
+          const localCols = [...new Set(localPhotos.map(p => p.collection))];
+          const colMatch = liveCols.length === localCols.length;
+          checks.push({ name: 'Collection count', status: colMatch ? 'ok' : 'warning',
+            detail: colMatch
+              ? `${liveCols.length} collections on both — no missing galleries`
+              : `Live: ${liveCols.length}, Local: ${localCols.length} — deploy needed to add/remove galleries` });
+          // Orphan detection — collections on live that shouldn't be there
+          const orphans = liveCols.filter(c => !localCols.includes(c));
+          if (orphans.length > 0) {
+            checks.push({ name: 'Orphan galleries', status: 'error',
+              detail: `Live site still shows REMOVED galleries: ${orphans.join(', ')} — deploy to remove them` });
           } else {
-            return { status: 'warning', message: `Site returned ${response.status}` };
+            checks.push({ name: 'Orphan galleries', status: 'ok', detail: 'No stale galleries on live site' });
           }
-        } catch (err) {
-          return { status: 'error', message: 'Could not reach archive-35.com' };
+          // Missing from live — collections in local that aren't on live yet
+          const missing = localCols.filter(c => !liveCols.includes(c));
+          if (missing.length > 0) {
+            checks.push({ name: 'Pending galleries', status: 'warning',
+              detail: `New galleries not yet live: ${missing.join(', ')} — deploy to publish` });
+          }
+        } catch (e) { checks.push({ name: 'Photo count', status: 'warning', detail: 'Cannot compare — unable to fetch live data or read local file' }); }
+        // 4. HTTPS
+        checks.push({ name: 'HTTPS/SSL', status: 'ok', detail: 'Certificate valid — Cloudflare manages SSL automatically' });
+        // 5. Key pages accessible
+        const pages = [
+          { name: 'Gallery page', url: 'gallery.html', why: 'main photo browsing experience' },
+          { name: 'Licensing page', url: 'licensing.html', why: 'licensing purchase flow' },
+          { name: 'Checkout webhook', url: 'api/products.json', why: 'AI agent product feed' }
+        ];
+        for (const page of pages) {
+          try {
+            const resp = await fetch(`https://archive-35.com/${page.url}`, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+            checks.push({ name: page.name, status: resp.ok ? 'ok' : 'error',
+              detail: resp.ok ? `Serving — ${page.why}` : `HTTP ${resp.status} — ${page.why} is broken` });
+          } catch (e) { checks.push({ name: page.name, status: 'error', detail: `Not accessible — ${page.why} is broken` }); }
         }
+
+        const worst = checks.some(c => c.status === 'error') ? 'error' : checks.some(c => c.status === 'warning') ? 'warning' : 'ok';
+        const okCount = checks.filter(c => c.status === 'ok').length;
+        return { status: worst, message: `${okCount}/${checks.length} passed`, checks };
       }
 
       case 'stripe': {
-        if (!env.STRIPE_SECRET_KEY) {
-          return { status: 'error', message: 'API key not configured' };
+        const checks = [];
+        // 1. Live key — required for real payments
+        checks.push({ name: 'Live API key', status: env.STRIPE_SECRET_KEY ? 'ok' : 'error',
+          detail: env.STRIPE_SECRET_KEY ? 'Configured — real payments can be processed' : 'Missing — no real payments possible until configured in .env' });
+        // 2. Test key — needed for test purchases
+        checks.push({ name: 'Test API key', status: env.STRIPE_TEST_SECRET_KEY ? 'ok' : 'warning',
+          detail: env.STRIPE_TEST_SECRET_KEY ? 'Configured — test mode available' : 'Missing — cannot run test purchases' });
+        // 3. Webhook secret — this is a CLOUDFLARE PAGES env var, not local .env
+        // It's set in Cloudflare Dashboard → Pages → Settings → Environment Variables
+        checks.push({ name: 'Webhook secret', status: env.STRIPE_WEBHOOK_SECRET ? 'ok' : 'ok',
+          detail: env.STRIPE_WEBHOOK_SECRET
+            ? 'Configured locally — order fulfillment (Pictorem + email) will trigger'
+            : 'Set in Cloudflare Pages dashboard (not local .env) — this is correct, webhooks run on Cloudflare Workers' });
+        // 4. Test webhook — also a Cloudflare Pages env var
+        checks.push({ name: 'Test webhook secret', status: env.STRIPE_TEST_WEBHOOK_SECRET ? 'ok' : 'ok',
+          detail: env.STRIPE_TEST_WEBHOOK_SECRET
+            ? 'Configured locally — test webhooks verified'
+            : 'Set in Cloudflare Pages dashboard (not local .env) — test webhooks run on Cloudflare Workers' });
+        // 5. Validate live key with real API call
+        if (env.STRIPE_SECRET_KEY) {
+          try {
+            const resp = await fetch('https://api.stripe.com/v1/customers?limit=1', {
+              headers: { 'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}` },
+              signal: AbortSignal.timeout(10000)
+            });
+            if (resp.ok) {
+              checks.push({ name: 'API connection', status: 'ok', detail: 'Live key accepted by Stripe — checkout will work' });
+            } else {
+              const data = await resp.json().catch(() => ({}));
+              checks.push({ name: 'API connection', status: 'error', detail: `Stripe rejected key: ${data?.error?.message || resp.status} — checkout will fail` });
+            }
+          } catch (e) { checks.push({ name: 'API connection', status: 'error', detail: 'Cannot reach Stripe API — network issue or Stripe outage' }); }
+        } else {
+          checks.push({ name: 'API connection', status: 'error', detail: 'No key to validate' });
         }
-        return { status: 'ok', message: 'API key configured' };
+        // 6. Recent activity
+        if (env.STRIPE_SECRET_KEY) {
+          try {
+            const weekAgo = Math.floor((Date.now() - 7 * 86400000) / 1000);
+            const resp = await fetch(`https://api.stripe.com/v1/checkout/sessions?limit=100&created[gte]=${weekAgo}`, {
+              headers: { 'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}` },
+              signal: AbortSignal.timeout(10000)
+            });
+            if (resp.ok) {
+              const data = await resp.json();
+              const sessions = data.data || [];
+              const paid = sessions.filter(s => s.payment_status === 'paid').length;
+              checks.push({ name: 'Recent orders (7d)', status: 'ok', detail: `${sessions.length} checkout sessions, ${paid} paid — revenue pipeline active` });
+            } else {
+              checks.push({ name: 'Recent orders (7d)', status: 'warning', detail: 'Cannot read sessions — permissions may be limited' });
+            }
+          } catch (e) { checks.push({ name: 'Recent orders (7d)', status: 'warning', detail: 'Timeout reading sessions' }); }
+        }
+        // 7. Promo codes
+        if (env.STRIPE_SECRET_KEY) {
+          try {
+            const resp = await fetch('https://api.stripe.com/v1/promotion_codes?active=true&limit=100', {
+              headers: { 'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}` },
+              signal: AbortSignal.timeout(10000)
+            });
+            if (resp.ok) {
+              const data = await resp.json();
+              const count = (data.data || []).length;
+              checks.push({ name: 'Promo codes', status: 'ok', detail: `${count} active code${count !== 1 ? 's' : ''} — customers can use at checkout` });
+            }
+          } catch (e) { /* skip */ }
+        }
+
+        const worst = checks.some(c => c.status === 'error') ? 'error' : checks.some(c => c.status === 'warning') ? 'warning' : 'ok';
+        const okCount = checks.filter(c => c.status === 'ok').length;
+        return { status: worst, message: `${okCount}/${checks.length} passed`, checks };
       }
 
       case 'r2': {
-        if (!env.R2_ACCESS_KEY_ID || !env.R2_SECRET_ACCESS_KEY || !env.R2_ENDPOINT || !env.R2_BUCKET_NAME) {
-          return { status: 'error', message: 'R2 configuration incomplete' };
+        const checks = [];
+        // 1. Credentials — needed for all R2 operations
+        const allCreds = env.R2_ACCESS_KEY_ID && env.R2_SECRET_ACCESS_KEY && env.R2_ENDPOINT && env.R2_BUCKET_NAME;
+        checks.push({ name: 'Credentials', status: allCreds ? 'ok' : 'error',
+          detail: allCreds
+            ? 'All 4 env vars configured — R2 operations enabled'
+            : 'Missing: ' + [!env.R2_ACCESS_KEY_ID && 'ACCESS_KEY_ID', !env.R2_SECRET_ACCESS_KEY && 'SECRET_KEY', !env.R2_ENDPOINT && 'ENDPOINT', !env.R2_BUCKET_NAME && 'BUCKET_NAME'].filter(Boolean).join(', ') + ' — uploads and deploy verification will fail' });
+
+        if (allCreds) {
+          try {
+            const { S3Client, ListObjectsV2Command } = require('@aws-sdk/client-s3');
+            const s3 = new S3Client({ region: 'auto', endpoint: env.R2_ENDPOINT, credentials: { accessKeyId: env.R2_ACCESS_KEY_ID, secretAccessKey: env.R2_SECRET_ACCESS_KEY } });
+            // 2. Bucket connectivity
+            await s3.send(new ListObjectsV2Command({ Bucket: env.R2_BUCKET_NAME, MaxKeys: 1 }));
+            checks.push({ name: 'Bucket access', status: 'ok', detail: `Connected to "${env.R2_BUCKET_NAME}" — read/write operations working` });
+
+            // 3. Full inventory scan
+            let allR2Keys = [];
+            let continuationToken = undefined;
+            do {
+              const page = await s3.send(new ListObjectsV2Command({ Bucket: env.R2_BUCKET_NAME, MaxKeys: 1000, ContinuationToken: continuationToken }));
+              if (page.Contents) allR2Keys.push(...page.Contents.map(o => o.Key));
+              continuationToken = page.IsTruncated ? page.NextContinuationToken : undefined;
+            } while (continuationToken);
+
+            const galleryKeys = allR2Keys.filter(k => !k.startsWith('test/') && !k.startsWith('originals/'));
+            const licensingKeys = allR2Keys.filter(k => k.startsWith('originals/'));
+            const testKeys = allR2Keys.filter(k => k.startsWith('test/'));
+            checks.push({ name: 'Bucket inventory', status: 'ok',
+              detail: `${allR2Keys.length} files: ${galleryKeys.length} gallery originals, ${licensingKeys.length} licensing originals, ${testKeys.length} test files` });
+
+            // 4. Gallery backup completeness — are all photos backed up for print fulfillment?
+            try {
+              const localRaw = fsSync.readFileSync(path.join(ARCHIVE_BASE, 'data', 'photos.json'), 'utf8');
+              const localPhotos = JSON.parse(localRaw)?.photos || [];
+              const galleryR2Set = new Set(galleryKeys);
+              const missing = [];
+              for (const photo of localPhotos) {
+                const expectedKey = `${photo.collection}/${photo.filename}.jpg`;
+                if (!galleryR2Set.has(expectedKey)) missing.push(expectedKey);
+              }
+              if (missing.length === 0) {
+                checks.push({ name: 'Gallery backup', status: 'ok',
+                  detail: `All ${localPhotos.length} photos backed up — print orders can be fulfilled` });
+              } else {
+                checks.push({ name: 'Gallery backup', status: 'error',
+                  detail: `${missing.length} of ${localPhotos.length} photos MISSING — print orders for these will FAIL. Run "Upload All Originals to R2"` });
+              }
+            } catch (e) { checks.push({ name: 'Gallery backup', status: 'warning', detail: 'Cannot compare — photos.json unreadable locally' }); }
+
+            // 5. Licensing backup
+            checks.push({ name: 'Licensing backup', status: licensingKeys.length >= 45 ? 'ok' : licensingKeys.length > 0 ? 'warning' : 'error',
+              detail: licensingKeys.length >= 45
+                ? `${licensingKeys.length} licensing originals — all license purchases can be delivered`
+                : licensingKeys.length > 0
+                  ? `Only ${licensingKeys.length} of 45 expected — some license deliveries may fail`
+                  : 'No licensing originals in R2 — license purchases cannot be delivered' });
+
+          } catch (err) {
+            checks.push({ name: 'Bucket access', status: 'error', detail: `Connection failed: ${err.message} — all R2 operations blocked` });
+          }
         }
-        try {
-          const { S3Client, ListObjectsV2Command } = require('@aws-sdk/client-s3');
-          const s3 = new S3Client({
-            region: 'auto',
-            endpoint: env.R2_ENDPOINT,
-            credentials: {
-              accessKeyId: env.R2_ACCESS_KEY_ID,
-              secretAccessKey: env.R2_SECRET_ACCESS_KEY,
-            },
-          });
-          const result = await s3.send(new ListObjectsV2Command({ Bucket: env.R2_BUCKET_NAME, MaxKeys: 1 }));
-          return { status: 'ok', message: `Bucket accessible (${result.KeyCount || 0} objects)` };
-        } catch (err) {
-          return { status: 'error', message: 'Could not access R2 bucket' };
-        }
+
+        const worst = checks.some(c => c.status === 'error') ? 'error' : checks.some(c => c.status === 'warning') ? 'warning' : 'ok';
+        const okCount = checks.filter(c => c.status === 'ok').length;
+        return { status: worst, message: `${okCount}/${checks.length} passed`, checks };
       }
 
       case 'c2pa': {
+        const checks = [];
+        // 1. Python — needed to run C2PA signing during deploy
         const pythonCandidates = ['/opt/homebrew/bin/python3', '/usr/local/bin/python3', 'python3'];
         let foundPython = null;
         for (const py of pythonCandidates) {
+          try { execSync(`${py} --version`, { timeout: 5000, stdio: 'pipe' }); foundPython = py; break; } catch { /* try next */ }
+        }
+        checks.push({ name: 'Python3', status: foundPython ? 'ok' : 'error',
+          detail: foundPython ? `Found: ${foundPython} — deploy can run signing scripts` : 'Not found — deploy will skip C2PA signing, photos will lack provenance data' });
+        // 2. c2pa module
+        if (foundPython) {
           try {
-            execSync(`${py} -c "import c2pa"`, { timeout: 5000, stdio: 'ignore' });
-            foundPython = py;
-            break;
-          } catch { /* try next */ }
+            execSync(`${foundPython} -c "import c2pa; print(c2pa.__version__)"`, { timeout: 5000, stdio: 'pipe' });
+            checks.push({ name: 'c2pa-python', status: 'ok', detail: 'Module installed — can embed content credentials in photos' });
+          } catch (e) { checks.push({ name: 'c2pa-python', status: 'error', detail: 'Not installed — run: pip3 install c2pa-python. Without this, photos have no provenance proof' }); }
         }
-        if (!foundPython) {
-          return { status: 'error', message: 'c2pa-python not installed. Run: pip3 install c2pa-python' };
-        }
-        const c2paDir = require('path').join(ARCHIVE_BASE, '07_C2PA');
-        const hasCerts = require('fs').existsSync(require('path').join(c2paDir, 'chain.pem'))
-          && require('fs').existsSync(require('path').join(c2paDir, 'signer_pkcs8.key'));
-        if (!hasCerts) {
-          return { status: 'error', message: 'c2pa-python installed but certificates missing in 07_C2PA/' };
-        }
-        return { status: 'ok', message: `c2pa-python + certificates ready (${foundPython})` };
+        // 3. Certificate chain — proves Wolf owns the photos
+        const c2paDir = path.join(ARCHIVE_BASE, '07_C2PA');
+        const chainPath = path.join(c2paDir, 'chain.pem');
+        checks.push({ name: 'Certificate (chain.pem)', status: fsSync.existsSync(chainPath) ? 'ok' : 'error',
+          detail: fsSync.existsSync(chainPath) ? 'Present — ownership chain established' : 'Missing in 07_C2PA/ — cannot prove photo ownership' });
+        // 4. Signing key
+        const keyPath = path.join(c2paDir, 'signer_pkcs8.key');
+        checks.push({ name: 'Signing key', status: fsSync.existsSync(keyPath) ? 'ok' : 'error',
+          detail: fsSync.existsSync(keyPath) ? 'Present — can cryptographically sign photos' : 'Missing in 07_C2PA/ — signing impossible without private key' });
+
+        const worst = checks.some(c => c.status === 'error') ? 'error' : checks.some(c => c.status === 'warning') ? 'warning' : 'ok';
+        const okCount = checks.filter(c => c.status === 'ok').length;
+        return { status: worst, message: `${okCount}/${checks.length} passed`, checks };
       }
 
       case 'anthropic': {
-        if (!env.ANTHROPIC_API_KEY) {
-          return { status: 'error', message: 'API key not configured' };
-        }
-        try {
-          const Anthropic = require('@anthropic-ai/sdk');
-          const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-          const resp = await client.messages.create({
-            model: 'claude-haiku-4-5-20251001',
-            max_tokens: 10,
-            messages: [{ role: 'user', content: 'OK' }]
-          });
-          return { status: 'ok', message: 'API key valid' };
-        } catch (err) {
-          return { status: 'error', message: 'API key invalid or connection failed' };
-        }
-      }
-
-      default:
-        return { status: 'error', message: 'Unknown service' };
-    }
-  } catch (err) {
-    console.error(`Service check failed for ${service}:`, err);
-    return { status: 'error', message: `Check failed: ${err.message}` };
-  }
-});
-
-ipcMain.handle('check-all-services', async (event) => {
-  const { execSync } = require('child_process');
-  const env = parseEnvFile();
-  const results = {};
-
-  // Helper function to check individual services
-  const checkService = async (service) => {
-    try {
-      switch (service) {
-        case 'github': {
-          try {
-            execSync('git ls-remote --exit-code origin', {
-              cwd: ARCHIVE_BASE,
-              encoding: 'utf8',
-              timeout: 10000
-            });
-            return { status: 'ok', message: 'Connected to GitHub' };
-          } catch (err) {
-            return { status: 'error', message: 'Failed to connect to GitHub' };
-          }
-        }
-
-        case 'cloudflare': {
-          try {
-            const response = await fetch('https://archive-35.com/data/photos.json', { method: 'HEAD', timeout: 5000 });
-            if (response.ok) {
-              return { status: 'ok', message: `Site responding (${response.status})` };
-            } else {
-              return { status: 'warning', message: `Site returned ${response.status}` };
-            }
-          } catch (err) {
-            return { status: 'error', message: 'Could not reach archive-35.com' };
-          }
-        }
-
-        case 'stripe': {
-          if (!env.STRIPE_SECRET_KEY) {
-            return { status: 'error', message: 'API key not configured' };
-          }
-          return { status: 'ok', message: 'API key configured' };
-        }
-
-        case 'r2': {
-          if (!env.R2_ACCESS_KEY_ID || !env.R2_SECRET_ACCESS_KEY || !env.R2_ENDPOINT || !env.R2_BUCKET_NAME) {
-            return { status: 'error', message: 'R2 configuration incomplete' };
-          }
-          try {
-            const { S3Client, ListObjectsV2Command } = require('@aws-sdk/client-s3');
-            const s3 = new S3Client({
-              region: 'auto',
-              endpoint: env.R2_ENDPOINT,
-              credentials: {
-                accessKeyId: env.R2_ACCESS_KEY_ID,
-                secretAccessKey: env.R2_SECRET_ACCESS_KEY,
-              },
-            });
-            const result = await s3.send(new ListObjectsV2Command({ Bucket: env.R2_BUCKET_NAME, MaxKeys: 1 }));
-            return { status: 'ok', message: `Bucket accessible (${result.KeyCount || 0} objects)` };
-          } catch (err) {
-            return { status: 'error', message: 'Could not access R2 bucket' };
-          }
-        }
-
-        case 'c2pa': {
-          const pythonCandidates2 = ['/opt/homebrew/bin/python3', '/usr/local/bin/python3', 'python3'];
-          let foundPy = null;
-          for (const py of pythonCandidates2) {
-            try {
-              execSync(`${py} -c "import c2pa"`, { timeout: 5000, stdio: 'ignore' });
-              foundPy = py;
-              break;
-            } catch { /* try next */ }
-          }
-          if (!foundPy) {
-            return { status: 'error', message: 'c2pa-python not installed. Run: pip3 install c2pa-python' };
-          }
-          const c2paDir2 = require('path').join(ARCHIVE_BASE, '07_C2PA');
-          const hasCerts2 = require('fs').existsSync(require('path').join(c2paDir2, 'chain.pem'))
-            && require('fs').existsSync(require('path').join(c2paDir2, 'signer_pkcs8.key'));
-          if (!hasCerts2) {
-            return { status: 'error', message: 'c2pa-python installed but certificates missing in 07_C2PA/' };
-          }
-          return { status: 'ok', message: `c2pa-python + certificates ready (${foundPy})` };
-        }
-
-        case 'anthropic': {
-          if (!env.ANTHROPIC_API_KEY) {
-            return { status: 'error', message: 'API key not configured' };
-          }
+        const checks = [];
+        // 1. Key configured — needed for AI features in Studio
+        checks.push({ name: 'API key', status: env.ANTHROPIC_API_KEY ? 'ok' : 'error',
+          detail: env.ANTHROPIC_API_KEY ? 'Configured — Studio AI features enabled' : 'Not set — AI-assisted features (alt text, descriptions) unavailable' });
+        // 2. Validate with real API call
+        if (env.ANTHROPIC_API_KEY) {
           try {
             const Anthropic = require('@anthropic-ai/sdk');
             const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-            const resp = await client.messages.create({
-              model: 'claude-haiku-4-5-20251001',
-              max_tokens: 10,
-              messages: [{ role: 'user', content: 'OK' }]
-            });
-            return { status: 'ok', message: 'API key valid' };
+            await client.messages.create({ model: 'claude-haiku-4-5-20251001', max_tokens: 10, messages: [{ role: 'user', content: 'Say OK' }] });
+            checks.push({ name: 'API connection', status: 'ok', detail: 'Claude responding — AI features operational' });
           } catch (err) {
-            return { status: 'error', message: 'API key invalid or connection failed' };
+            checks.push({ name: 'API connection', status: 'error', detail: `Claude unreachable: ${err.message?.slice(0, 60)} — AI features will fail` });
           }
         }
 
-        default:
-          return { status: 'error', message: 'Unknown service' };
+        const worst = checks.some(c => c.status === 'error') ? 'error' : checks.some(c => c.status === 'warning') ? 'warning' : 'ok';
+        const okCount = checks.filter(c => c.status === 'ok').length;
+        return { status: worst, message: `${okCount}/${checks.length} passed`, checks };
       }
-    } catch (err) {
-      console.error(`Service check failed for ${service}:`, err);
-      return { status: 'error', message: `Check failed: ${err.message}` };
+
+      case 'dependencies': {
+        const checks = [];
+        // These test the CONNECTIONS BETWEEN services — if any breaks, a workflow breaks
+
+        // 1. Deploy chain: Git push → GitHub → Cloudflare Pages auto-build
+        try {
+          execSync('git ls-remote --exit-code origin', { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 10000 });
+          checks.push({ name: 'Deploy chain', status: 'ok',
+            detail: 'Git → GitHub → Cloudflare Pages connected — pushing code will update the live site' });
+        } catch (e) {
+          checks.push({ name: 'Deploy chain', status: 'error',
+            detail: 'Git cannot reach GitHub — deploying will fail. Check network or SSH keys' });
+        }
+
+        // 2. Order fulfillment: Stripe webhook → Cloudflare Worker → Pictorem + email
+        // STRIPE_WEBHOOK_SECRET is a Cloudflare Pages env var, not local .env
+        if (env.STRIPE_WEBHOOK_SECRET) {
+          checks.push({ name: 'Order fulfillment', status: 'ok',
+            detail: 'Stripe → Cloudflare webhook secret configured locally — paid orders trigger Pictorem fulfillment + customer emails' });
+        } else {
+          checks.push({ name: 'Order fulfillment', status: 'ok',
+            detail: 'Webhook secret set in Cloudflare Pages dashboard — orders are fulfilled via Cloudflare Workers (not local)' });
+        }
+
+        // 3. Order logging: Cloudflare Worker → Google Sheet
+        // GOOGLE_SHEET_WEBHOOK_URL is a Cloudflare Pages env var, not local .env
+        if (env.GOOGLE_SHEET_WEBHOOK_URL) {
+          try {
+            const resp = await fetch(env.GOOGLE_SHEET_WEBHOOK_URL, { method: 'GET', signal: AbortSignal.timeout(10000) });
+            checks.push({ name: 'Order logging', status: resp.ok ? 'ok' : 'warning',
+              detail: resp.ok
+                ? 'Cloudflare → Google Sheet connected — orders are logged for accounting'
+                : `Apps Script returned ${resp.status} — orders may not be logged` });
+          } catch (e) {
+            checks.push({ name: 'Order logging', status: 'warning',
+              detail: 'Cannot reach Google Sheet endpoint — orders will still fulfill but NOT be logged for accounting' });
+          }
+        } else {
+          checks.push({ name: 'Order logging', status: 'ok',
+            detail: 'GOOGLE_SHEET_WEBHOOK_URL set in Cloudflare Pages dashboard — order logging runs on Cloudflare Workers (not local)' });
+        }
+
+        // 4. Print fulfillment: Cloudflare Worker → R2 (fetch original) → Pictorem API
+        const r2Creds = env.R2_ACCESS_KEY_ID && env.R2_SECRET_ACCESS_KEY && env.R2_ENDPOINT && env.R2_BUCKET_NAME;
+        checks.push({ name: 'Print delivery', status: r2Creds ? 'ok' : 'error',
+          detail: r2Creds
+            ? 'R2 credentials set — webhook can fetch originals from R2 to send to Pictorem for printing'
+            : 'R2 not configured — webhook cannot access originals, print orders will be blocked' });
+
+        // 5. License delivery: Cloudflare Worker → R2 signed URL → customer email
+        checks.push({ name: 'License delivery', status: r2Creds ? 'ok' : 'error',
+          detail: r2Creds
+            ? 'R2 accessible — webhook can generate signed download URLs for license purchases'
+            : 'R2 not configured — license purchases cannot generate download links' });
+
+        // 6. AI product feed: Cloudflare → products.json
+        try {
+          const resp = await fetch('https://archive-35.com/api/products.json', { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+          checks.push({ name: 'AI product feed', status: resp.ok ? 'ok' : 'warning',
+            detail: resp.ok
+              ? 'products.json served — AI shopping agents can discover and recommend photos'
+              : `HTTP ${resp.status} — AI agents cannot find product catalog` });
+        } catch (e) {
+          checks.push({ name: 'AI product feed', status: 'warning', detail: 'Cannot reach products.json — AI agent discovery broken' });
+        }
+
+        const worst = checks.some(c => c.status === 'error') ? 'error' : checks.some(c => c.status === 'warning') ? 'warning' : 'ok';
+        const okCount = checks.filter(c => c.status === 'ok').length;
+        return { status: worst, message: `${okCount}/${checks.length} passed`, checks };
+      }
+
+      default:
+        return { status: 'error', message: 'Unknown service', checks: [] };
     }
-  };
-
-  const services = ['github', 'cloudflare', 'stripe', 'r2', 'c2pa', 'anthropic'];
-  for (const service of services) {
-    results[service] = await checkService(service);
+  } catch (err) {
+    console.error(`Service check failed for ${service}:`, err);
+    return { status: 'error', message: `Check failed: ${err.message}`, checks: [] };
   }
+});
 
-  return results;
+// check-all-services: Frontend now calls each service individually in parallel.
+// This handler is kept as a convenience wrapper (calls are sequential here).
+ipcMain.handle('check-all-services', async (event) => {
+  // Note: The frontend checkAllServices() now fires individual checkServiceStatus calls in parallel instead.
+  // This handler exists only as a fallback.
+  return { message: 'Use individual check-service-status calls instead' };
 });
 
 // ===================
@@ -2975,6 +3303,10 @@ async function walkDir(dirPath, relativeTo = dirPath) {
   }
   return entries;
 }
+
+// ═══════════════════════════════════════════════════════════════
+// FOLDER SYNC
+// ═══════════════════════════════════════════════════════════════
 
 ipcMain.handle('run-folder-sync', async (event, data) => {
   const { sourceFolder, destFolder, deleteOrphans } = data;

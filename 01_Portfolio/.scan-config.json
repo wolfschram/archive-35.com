@@ -1,9 +1,9 @@
 {
   "excludeFolders": [
-    "Large scale Photograpohy : stitch"
+    "Large Scale Photography Stitch",
+    "Large_Scale_Photography_Stitch"
   ],
   "aliasMap": {
-    "tansania": "Africa_",
     "south africa": "south_africa",
     "grant teton": "Grand_Teton",
     "new zealand": "New_Zealand_",

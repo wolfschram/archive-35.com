@@ -10,7 +10,7 @@
     "fulfillment": "Pictorem Premium with Certificate of Authenticity"
   },
   "prints": {
-    "total": 554,
+    "total": 483,
     "materials": [
       {
         "name": "Canvas",
@@ -39,52 +39,6 @@
       }
     ],
     "collections": {
-      "africa": {
-        "title": "Africa",
-        "count": 44,
-        "url": "https://archive-35.com/gallery.html?collection=africa",
-        "samplePhotos": [
-          {
-            "title": "Sentinel of the Serengeti",
-            "location": "Serengeti National Park, Tanzania",
-            "dimensions": {
-              "width": 8688,
-              "height": 5792,
-              "aspectRatio": 1.5,
-              "aspectRatioString": "3:2",
-              "orientation": "landscape",
-              "megapixels": 50.3
-            },
-            "c2pa": true
-          },
-          {
-            "title": "Zebra Herd in Serengeti Grassland",
-            "location": "Serengeti National Park, Tanzania",
-            "dimensions": {
-              "width": 8688,
-              "height": 5792,
-              "aspectRatio": 1.5,
-              "aspectRatioString": "3:2",
-              "orientation": "landscape",
-              "megapixels": 50.3
-            },
-            "c2pa": true
-          },
-          {
-            "title": "Zebra Family in Serengeti Grassland",
-            "location": "Serengeti National Park, Tanzania",
-            "dimensions": {
-              "width": 8688,
-              "height": 5792,
-              "aspectRatio": 1.5,
-              "aspectRatioString": "3:2",
-              "orientation": "landscape",
-              "megapixels": 50.3
-            },
-            "c2pa": true
-          }
-        ]
-      },
       "antilope-canyon": {
         "title": "Antilope Canyon",
         "count": 2,
@@ -166,7 +120,7 @@
       },
       "australia": {
         "title": "Australia",
-        "count": 3,
+        "count": 8,
         "url": "https://archive-35.com/gallery.html?collection=australia",
         "samplePhotos": [
           {
@@ -396,7 +350,7 @@
       },
       "concerts": {
         "title": "Concerts",
-        "count": 5,
+        "count": 9,
         "url": "https://archive-35.com/gallery.html?collection=concerts",
         "samplePhotos": [
           {
@@ -808,52 +762,6 @@
           }
         ]
       },
-      "large-scale-photography-stitch": {
-        "title": "Large Scale Photography Stitch",
-        "count": 44,
-        "url": "https://archive-35.com/gallery.html?collection=large-scale-photography-stitch",
-        "samplePhotos": [
-          {
-            "title": "Desert Dunes in Golden Light",
-            "location": "Gobi Desert, Mongolia",
-            "dimensions": {
-              "width": 31714,
-              "height": 7907,
-              "aspectRatio": 4.011,
-              "aspectRatioString": "31714:7907",
-              "orientation": "panorama",
-              "megapixels": 250.8
-            },
-            "c2pa": true
-          },
-          {
-            "title": "Alpine Lake Mountain Reflections",
-            "location": "Pacific Northwest Alpine Region, Cascade Mountains",
-            "dimensions": {
-              "width": 19396,
-              "height": 6324,
-              "aspectRatio": 3.067,
-              "aspectRatioString": "4849:1581",
-              "orientation": "panorama",
-              "megapixels": 122.7
-            },
-            "c2pa": true
-          },
-          {
-            "title": "Mountain Valley Wilderness",
-            "location": "Cascade Range, Oregon, Pacific Northwest USA",
-            "dimensions": {
-              "width": 10000,
-              "height": 4183,
-              "aspectRatio": 2.391,
-              "aspectRatioString": "10000:4183",
-              "orientation": "panorama",
-              "megapixels": 41.8
-            },
-            "c2pa": true
-          }
-        ]
-      },
       "london": {
         "title": "London",
         "count": 1,
@@ -962,7 +870,7 @@
       },
       "new-zealand": {
         "title": "New Zealand",
-        "count": 24,
+        "count": 27,
         "url": "https://archive-35.com/gallery.html?collection=new-zealand",
         "samplePhotos": [
           {
@@ -1166,7 +1074,7 @@
       },
       "south-america": {
         "title": "South America",
-        "count": 5,
+        "count": 10,
         "url": "https://archive-35.com/gallery.html?collection=south-america",
         "samplePhotos": [
           {

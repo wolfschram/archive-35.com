@@ -1,7 +1,7 @@
 # Archive-35 Development Protocol
 
 <operational_principles>
-## DISPLAY THESE 8 RULES AT THE START OF EVERY RESPONSE
+## DISPLAY THESE 10 RULES AT THE START OF EVERY RESPONSE
 
 1. I will verify the EXISTING folder structure before ANY action — check `05_Studio/app/` for Studio code
 2. I will grep/search BEFORE writing — never create duplicate files or functionality
@@ -11,6 +11,8 @@
 6. I will run the app (`cd 05_Studio/app && npm run dev`) and verify after changes
 7. I will NEVER create new apps/folders when existing ones serve the purpose
 8. I will update this CLAUDE.md after every significant change
+9. **NEVER GUESS. NEVER ASSUME.** Before claiming something is fixed, I MUST grep/search ALL files for the thing I'm removing. If I say "Africa is removed" I must prove it by searching every file type (HTML, JSON, XML, TXT, PY) — not just the one file I edited. A fix is not done until a project-wide search returns ZERO results.
+10. **VERIFY MY OWN WORK.** After every change, I will run a verification search to confirm the change actually took effect. "I edited photos.json" is not proof — I must READ the file back and confirm. If a user reports something isn't fixed, my FIRST action is a full project search, not another guess at what might be wrong.
 
 If I skip this display, I am drifting. User should say "RESET" to bring me back.
 </operational_principles>
@@ -332,10 +334,63 @@ LICENSE PATH:
 
 ---
 
-## RECENT CHANGES LOG (February 9-13, 2026)
+## HANDOVER: SESSION STATUS (Feb 14, 2026)
+
+### What Just Happened (Pipeline Audit Session)
+A test purchase revealed that NO gallery originals were in the R2 bucket. This triggered a full pipeline audit that found:
+- **Africa gallery was a duplicate of Tanzania** (44 identical photos) — DELETED
+- **large-scale-photography-stitch still in photos.json** (44 licensing-only photos) — PURGED
+- **49 duplicate photo IDs** across collections (prefix collision) — FIXED (now uses full slug: `grand-teton-001`)
+- **R2 batch upload was dead code** (handler existed but never wired to UI) — WIRED to preload.js + WebsiteControl
+- **Deploy R2 check was fake** (only checked env vars, never counted objects) — REPLACED with real ListObjectsV2 comparison
+- **R2 upload failures were silent** (console.warn only) — NOW sends UI warnings + tracks in return object
+- **Webhook sent garbage to Pictorem** when R2 original missing — NOW hard blocks order + emails Wolf
+- **Compositor Editor was built then removed** — FULLY cleaned from all files
+
+### What Wolf Needs To Do RIGHT NOW
+1. **Restart Studio** (Cmd+Q, relaunch) — preload.js was modified
+2. **Website Control → "Upload All Originals to R2"** — backfills all 466 photos to R2
+3. **Website Control → "Deploy to Website"** — pushes clean data, Africa disappears, R2 verification runs
+4. **Verify live site** — Africa gallery gone, 466 photos, 29 collections
+
+### What's Coming Next (External AI Audit)
+Wolf sent `Archive-35_Pipeline_Audit.docx` to ChatGPT and Gemini for independent review. Their reports will come back with questions/recommendations. The next session should:
+- Read the audit document: `Archive-35_Pipeline_Audit.docx` (in repo root)
+- Address any gaps identified by the external auditors
+- Run end-to-end checkout tests (print + license) after R2 backfill
+- Consider implementing the 7 known gaps listed in the audit doc Part 3
+
+### Current State: Data
+- **photos.json**: 483 photos, 29 collections, 483 unique IDs (zero collisions)
+- **large-scale-photography-stitch**: REMOVED from photos.json (44 entries purged Feb 14)
+- **R2 bucket**: Licensing originals (45) confirmed. Gallery originals need backfill via Studio UI button
+- **Live website**: Still shows old data — DEPLOY NEEDED
+- **build.sh**: Now explicitly removes orphan folders (_site/images/large-scale-photography-stitch, _site/images/africa)
+
+### Files Changed This Session
+| File | Change |
+|------|--------|
+| `05_Studio/app/main.js` | Removed compositor handlers, fixed ID generator, real R2 verification, R2 failures loud, DEEP SERVICE TESTS (6 services + dependencies, each returns checks[] array) |
+| `05_Studio/app/preload.js` | Removed compositor bridges, added batchUploadR2 + onR2UploadProgress |
+| `05_Studio/app/src/App.js` | Removed compositor import + TabPanel |
+| `05_Studio/app/src/components/Sidebar.js` | Removed compositor tab |
+| `05_Studio/app/src/pages/WebsiteControl.js` | REWRITTEN: permanent cards, deep service health tests (7 services w/ sub-checks), always-visible reset buttons, deploy Done stage fix, Dependencies service |
+| `05_Studio/app/src/pages/CompositorEditor.js` | DELETED |
+| `05_Studio/app/src/styles/CompositorEditor.css` | DELETED |
+| `functions/api/stripe-webhook.js` | Added hard block: if R2 original missing, order blocked + alert email to Wolf |
+| `data/photos.json` | Removed 88 phantom photos (44 Africa + 44 LSP), regenerated all IDs with full slug prefix |
+| `01_Portfolio/Africa/` | DELETED (duplicate of Tanzania) |
+| `images/africa/` | DELETED |
+| `images/large-scale-photography-stitch/` | DELETED |
+
+---
+
+## RECENT CHANGES LOG (February 9-14, 2026)
 
 | Commit | Change |
 |--------|--------|
+| (pending) | PIPELINE AUDIT: Africa dupe deleted, LSP purged, IDs fixed (full slug), R2 batch upload wired, R2 deploy verification (ListObjectsV2), R2 failures loud, webhook hard block, compositor removed |
+| (pending) | Google Sheet Order Log: Apps Script deployed as Web App, GOOGLE_SHEET_WEBHOOK_URL added to Cloudflare env vars, Cloudflare redeployed |
 | (pending) | AI agent optimization: alt text, llms.txt rewrite, llms-full.txt, enhanced schema (Photograph+C2PA+license), licensing JSON-LD, canonical URLs, meta keywords, /api/products.json, build.sh updated |
 | (pending) | Studio: deploy verify amber warning state, delete portfolio feature (IPC + UI + preload) |
 | (pending) | Licensing page wider layout: grid min 380px, padding 60px, max-width 1800px |
@@ -393,10 +448,16 @@ LICENSE PATH:
 - [x] ~~AI agent optimization~~ → Alt text, llms.txt + llms-full.txt, schema (Photograph+C2PA+license), canonical URLs, meta keywords, /api/products.json ✅
 - [x] ~~Studio deploy verification UI~~ → Amber warning state for CDN propagation delay ✅
 - [x] ~~Delete Portfolio in Studio~~ → IPC handler + UI button + confirmation dialog ✅
-- [ ] **Wolf manual: Create Google Sheet** → paste `08_Docs/setup/google-sheets-order-log.js` as Apps Script, deploy as Web App, add `GOOGLE_SHEET_WEBHOOK_URL` to Cloudflare env
+- [x] ~~Google Sheet Order Log~~ → Apps Script deployed as Web App, GOOGLE_SHEET_WEBHOOK_URL added to Cloudflare env, auto-creates Orders/Clients/Issues tabs ✅
+- [x] ~~Pipeline Audit~~ → Africa dupe removed, LSP purged, 49 ID collisions fixed, R2 batch upload wired, R2 deploy verification, R2 failures loud, webhook hard block ✅
+- [x] ~~Compositor Editor~~ → Built then fully removed (all references cleaned) ✅
+- [ ] **RUN R2 BATCH UPLOAD** — Wolf must click "Upload All Originals to R2" in Studio after restart
+- [ ] **DEPLOY TO WEBSITE** — Push clean data (Africa removed, IDs fixed, 466 photos)
 - [ ] Add deduplication check to ingest pipeline (prevent future duplicate photos)
-- [ ] Re-test checkout: verify customer email + amount show in notification emails (fixes deployed but not re-tested)
+- [ ] Add cross-gallery duplicate detection (hash-based comparison)
+- [ ] Re-test checkout: verify customer email + amount show in notification emails
 - [ ] End-to-end live checkout test (print + license) after Monday go-live
+- [ ] Address external AI audit findings (ChatGPT + Gemini reports pending)
 
 ### Backlog
 - [x] ~~Pictorem API automated order submission~~ → stripe-webhook.js: full auto-fulfillment
@@ -452,10 +513,12 @@ LICENSE PATH:
 8. **Preload.js changes** — After modifying preload.js, user MUST quit and restart Studio (Cmd+Q). Hot reload is insufficient.
 9. **Modal cleanup** — Every close handler (closeLb, closeFg, closePrev) must remove orphaned product-selector-modal divs.
 10. **READ 08_Docs/LESSONS_LEARNED.md** — Before any new feature, check the "Do Not Replicate" patterns.
+11. **index.html has HARDCODED collection cards** — The homepage collections grid is static HTML, NOT generated from photos.json. Adding/removing a collection requires editing index.html directly. gallery.html is dynamic (from sync_gallery_data.py), but index.html is NOT.
+12. **Removing a collection requires editing ALL these files** — photos.json, index.html (HTML + JSON-LD schema), api/products.json, sitemap.xml, llms.txt, llms-full.txt, 07_C2PA/sign_all.py. A grep for the collection slug across the entire project is MANDATORY.
 
 ---
 
-*Last updated: 2026-02-13 (Pictorem Premium upgrade + full portal audit, artist profile optimized, CoA enabled, Google Sheet order log script created, operations guide created)*
+*Last updated: 2026-02-14 (Added never-guess rules 9+10, documented hardcoded index.html collections, Africa removal checklist)*
 
 ---
 

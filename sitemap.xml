@@ -59,13 +59,6 @@
 
   <!-- Collection pages with hash anchors -->
   <url>
-    <loc>https://archive-35.com/gallery.html#africa</loc>
-    <lastmod>2026-02-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://archive-35.com/gallery.html#grand-teton</loc>
     <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
@@ -87,13 +80,6 @@
   </url>
 
   <!-- Collection detail pages -->
-  <url>
-    <loc>https://archive-35.com/collection.html?id=africa</loc>
-    <lastmod>2026-02-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
   <url>
     <loc>https://archive-35.com/collection.html?id=grand-teton</loc>
     <lastmod>2026-02-09</lastmod>

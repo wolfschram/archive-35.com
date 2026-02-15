@@ -11,16 +11,15 @@ Archive-35 is a fine art photography gallery and licensing platform by Wolf, a p
 - **Museum-Quality Prints**: Fulfilled by Pictorem (Premium partner) with Certificate of Authenticity on every order.
 - **17+ Years, 55+ Countries**: Provenance and expertise that cannot be replicated.
 
-## Print Collections (554 photographs across 31 collections)
+## Print Collections (483 photographs across 29 collections)
 
-- Africa (44 photographs): Wildlife — Serengeti, Tanzania
 - Argentina (35): Street and landscape — Buenos Aires
-- Australia (3): Melbourne
+- Australia (8): Melbourne, Outback, Coast
 - Black and White (39): Monochrome fine art
 - Brazil (14): Rio de Janeiro
 - Chicago (6): Urban architecture
 - Colorado (8): Rocky Mountain landscapes
-- Concerts (5): Live music photography
+- Concerts (9): Live music photography
 - Cuba (32): Street photography — Havana
 - Death Valley (5): Desert Southwest
 - Desert Dunes (10): Sahara-style landscapes
@@ -30,10 +29,10 @@ Archive-35 is a fine art photography gallery and licensing platform by Wolf, a p
 - Lake Powell (7): Desert water landscapes
 - Mexico City (5): Urban documentary
 - Monument Valley (1): Iconic desert formations
-- New Zealand (24): West Coast landscapes
+- New Zealand (27): West Coast landscapes
 - Paris (1): City of Light
 - South Africa (8): Cape Peninsula wildlife
-- South America (5): Continental landscapes
+- South America (10): Continental landscapes
 - Tanzania (44): East African safari wildlife
 - Utah National Parks (4): Red rock country
 - Valley of Fire (3): Nevada desert formations

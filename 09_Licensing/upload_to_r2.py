@@ -19,6 +19,7 @@ SAFETY:
 NOTE: Requires R2 credentials in _config.json and boto3 installed.
 """
 
+import hashlib
 import json
 import os
 import sys
@@ -80,29 +81,47 @@ def resolve_original_path(base, meta):
     return None
 
 
-def verify_r2_object(s3, bucket, r2_key, expected_size=None):
+def verify_r2_object(s3, bucket, r2_key, expected_size=None, expected_md5=None):
     """
     Verify an object exists on R2 via HEAD request.
-    Optionally checks file size matches.
+    Checks file size and MD5 hash match if provided.
     Returns True if verified, False otherwise.
     """
     try:
         resp = s3.head_object(Bucket=bucket, Key=r2_key)
         if expected_size and resp.get("ContentLength") != expected_size:
             return False
+        if expected_md5:
+            stored_md5 = resp.get("Metadata", {}).get("md5", "")
+            if stored_md5 and stored_md5 != expected_md5:
+                return False
         return True
     except Exception:
         return False
 
 
+def compute_md5(filepath):
+    """Compute MD5 hash of a local file."""
+    h = hashlib.md5()
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
 def upload_file(s3, bucket, local_path, r2_key, content_type="image/jpeg"):
-    """Upload a single file to R2."""
+    """Upload a single file to R2 with MD5 hash in custom metadata."""
+    md5_hash = compute_md5(local_path)
     s3.upload_file(
         str(local_path),
         bucket,
         r2_key,
-        ExtraArgs={"ContentType": content_type},
+        ExtraArgs={
+            "ContentType": content_type,
+            "Metadata": {"md5": md5_hash},
+        },
     )
+    return md5_hash
 
 
 def update_metadata_backup_status(meta_file, meta, r2_key, file_type):
@@ -251,17 +270,20 @@ def upload_to_r2(base_path):
             # Upload original
             try:
                 ct = get_content_type(original_path)
-                upload_file(s3, bucket, original_path, keys["original"], ct)
+                md5_hash = upload_file(s3, bucket, original_path, keys["original"], ct)
 
-                # VERIFY upload succeeded
+                # VERIFY upload succeeded (size + MD5 integrity check)
                 local_size = original_path.stat().st_size
-                if verify_r2_object(s3, bucket, keys["original"], local_size):
+                if verify_r2_object(s3, bucket, keys["original"], local_size, md5_hash):
                     update_metadata_backup_status(mf, meta, keys["original"], "original")
-                    print(f"  ✅ {catalog_id}: original uploaded + verified ({meta.get('file_size_mb', '?')}MB)")
+                    meta["r2_backup_status"]["original"]["md5"] = md5_hash
+                    with open(mf, "w") as f:
+                        json.dump(meta, f, indent=2, default=str)
+                    print(f"  ✅ {catalog_id}: original uploaded + verified ({meta.get('file_size_mb', '?')}MB, MD5: {md5_hash[:8]}...)")
                     uploaded += 1
                     verified += 1
                 else:
-                    print(f"  ⚠️  {catalog_id}: uploaded but verification FAILED — size mismatch!")
+                    print(f"  ⚠️  {catalog_id}: uploaded but verification FAILED — size or MD5 mismatch!")
                     errors += 1
             except Exception as e:
                 print(f"  ❌ {catalog_id}: upload ERROR — {e}")

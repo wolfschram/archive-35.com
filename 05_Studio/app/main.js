@@ -1759,7 +1759,9 @@ ipcMain.handle('reconcile-stripe-orders', async (event, { days = 7 } = {}) => {
 ipcMain.handle('check-deploy-status', async () => {
   try {
     const entries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
-    const portfolioDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_'));
+    // Exclude hidden, underscore-prefixed, and licensing-only folders (same exclusions as scan-photography)
+    const EXCLUDED_PORTFOLIOS = ['Large_Scale_Photography_Stitch', 'Large Scale Photography Stitch', 'licensing'];
+    const portfolioDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_') && !EXCLUDED_PORTFOLIOS.includes(e.name));
 
     let portfolioPhotoCount = 0;
     const portfolioCollections = [];

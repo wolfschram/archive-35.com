@@ -252,10 +252,7 @@ Archive-35.com/
 │   │       ├── gt-001.json             ← Individual photo metadata
 │   │       ├── gt-002.json
 │   │       └── ...
-│   ├── Africa/
-│   │   ├── originals/
-│   │   ├── metadata.json
-│   │   └── photos/
+│   ├── (Africa/ — REMOVED Feb 2026, was duplicate of Tanzania)
 │   └── [Other galleries...]
 │
 ├── 02_Social/
@@ -362,10 +359,7 @@ Archive-35.com/
 │                   └── cancel.js       ← ACP checkout cancel
 │
 ├── images/
-│   ├── africa/
-│   │   ├── a-001-full.jpg              ← Web-optimized (300-800KB)
-│   │   ├── a-001-thumb.jpg             ← Thumbnail (30-75KB)
-│   │   └── ...
+│   ├── (africa/ — REMOVED Feb 2026, was duplicate of Tanzania)
 │   ├── grand-teton/
 │   └── [Other collections...]
 │
@@ -806,7 +800,7 @@ When new photos are ingested via Studio:
 
 ### Batch Signing
 
-All 181 existing full-size images were batch-signed using `07_C2PA/sign_all.py` (covers all 5 collections: Africa, Grand Teton, Iceland Ring Road, New Zealand, South Africa). Each image gained ~171KB of embedded credential data.
+All 181 existing full-size images were batch-signed using `07_C2PA/sign_all.py` (covers 4 collections: Grand Teton, Iceland Ring Road, New Zealand, South Africa). Each image gained ~171KB of embedded credential data.
 
 **Related Files:**
 - `05_Studio/app/c2pa-sign.js` — Node.js signing utility (used during ingest)
@@ -935,7 +929,7 @@ ipcMain.handle('run-folder-sync')    // One-way sync with progress events
 ### Workflow: Ingesting Photos
 
 1. **Select folder** → `05_Studio/app` opens file dialog
-2. **Choose gallery** → Select which portfolio folder (Grand Teton, Africa, etc.)
+2. **Choose gallery** → Select which portfolio folder (Grand Teton, Tanzania, etc.)
 3. **Import images** → Copy originals to `01_Portfolio/{gallery}/originals/`
 4. **Upload to R2** → High-res original backed up to Cloudflare R2
 5. **Generate web images** → 2000px full + 400px thumbnail

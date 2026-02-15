@@ -561,9 +561,16 @@ nav a:hover::after, nav a.active::after { width:100%; }
 <script>
 /* ===== GALLERY DATA (from photos.json) ===== */
 const G=[
-  {name:"Antilope Canyon",slug:"antilope-canyon",n:2,img:"images/antilope-canyon/118A6286-thumb.jpg",p:[
-    {t:"images/antilope-canyon/118A6286-thumb.jpg",f:"images/antilope-canyon/118A6286-full.jpg",n:"Crimson Passage Through Stone",ar:1.5},
-    {t:"images/antilope-canyon/118A6607-thumb.jpg",f:"images/antilope-canyon/118A6607-full.jpg",n:"Striations of Stone and Shadow",ar:1.5}
+  {name:"Antelope Canyon",slug:"antelope-canyon",n:9,img:"images/antelope-canyon/118A6286-thumb.jpg",p:[
+    {t:"images/antelope-canyon/118A6286-thumb.jpg",f:"images/antelope-canyon/118A6286-full.jpg",n:"Crimson Passage Through Stone",ar:1.5},
+    {t:"images/antelope-canyon/118A6607-thumb.jpg",f:"images/antelope-canyon/118A6607-full.jpg",n:"Striations of Stone and Shadow",ar:1.5},
+    {t:"images/antelope-canyon/Wolf 540-thumb.jpg",f:"images/antelope-canyon/Wolf 540-full.jpg",n:"Luminous Passage Through Stone",ar:1.5},
+    {t:"images/antelope-canyon/Wolf 542-thumb.jpg",f:"images/antelope-canyon/Wolf 542-full.jpg",n:"Flowing Dreams in Stone",ar:1.5},
+    {t:"images/antelope-canyon/Wolf 543-thumb.jpg",f:"images/antelope-canyon/Wolf 543-full.jpg",n:"Crimson Passage: Canyon's Embrace",ar:1.5},
+    {t:"images/antelope-canyon/Wolf 547-thumb.jpg",f:"images/antelope-canyon/Wolf 547-full.jpg",n:"Luminous Flow Through Canyon Walls",ar:1.5},
+    {t:"images/antelope-canyon/Wolf 550-thumb.jpg",f:"images/antelope-canyon/Wolf 550-full.jpg",n:"Luminous Canyon Passage",ar:1.5},
+    {t:"images/antelope-canyon/Wolf 551-thumb.jpg",f:"images/antelope-canyon/Wolf 551-full.jpg",n:"Canyon Light and Shadow",ar:0.667},
+    {t:"images/antelope-canyon/Wolf 552-thumb.jpg",f:"images/antelope-canyon/Wolf 552-full.jpg",n:"Light Through Stone Canyon",ar:1.5}
   ]},
   {name:"Argentina",slug:"argentina",n:35,img:"images/argentina/118A1515-thumb.jpg",p:[
     {t:"images/argentina/118A1515-thumb.jpg",f:"images/argentina/118A1515-full.jpg",n:"Eagle's Vigil Over the Andes",ar:1.5},
@@ -962,14 +969,21 @@ const G=[
     {t:"images/iceland-ring-road/WOLF5060-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF5060-Pano-full.jpg",n:"Iconic Mountain Road Through Iceland",ar:2.219},
     {t:"images/iceland-ring-road/WOLF5076-thumb.jpg",f:"images/iceland-ring-road/WOLF5076-full.jpg",n:"Tidal Marshlands Under Dramatic Sky",ar:1.499}
   ]},
-  {name:"Lake Powell",slug:"lake-powell",n:7,img:"images/lake-powell/IMG_0075-4-thumb.jpg",p:[
+  {name:"Lake Powell",slug:"lake-powell",n:14,img:"images/lake-powell/IMG_0075-4-thumb.jpg",p:[
     {t:"images/lake-powell/IMG_0075-4-thumb.jpg",f:"images/lake-powell/IMG_0075-4-full.jpg",n:"Desert Monument Reflection",ar:1.5},
     {t:"images/lake-powell/118A6183-Enhanced-NR-thumb.jpg",f:"images/lake-powell/118A6183-Enhanced-NR-full.jpg",n:"Horseshoe Bend's Eternal Embrace",ar:1.5},
     {t:"images/lake-powell/118A6194-thumb.jpg",f:"images/lake-powell/118A6194-full.jpg",n:"Horseshoe Bend's Emerald Waters",ar:1.5},
     {t:"images/lake-powell/118A6204-thumb.jpg",f:"images/lake-powell/118A6204-full.jpg",n:"Horseshoe Bend's Turquoise Embrace",ar:1.5},
     {t:"images/lake-powell/IMG_0156-2-thumb.jpg",f:"images/lake-powell/IMG_0156-2-full.jpg",n:"Canyon Portal: Stone's Silent Gateway",ar:2.034},
     {t:"images/lake-powell/IMG_0175-2-thumb.jpg",f:"images/lake-powell/IMG_0175-2-full.jpg",n:"Desert Arch in Golden Stone",ar:1.756},
-    {t:"images/lake-powell/IMG_0179-2-thumb.jpg",f:"images/lake-powell/IMG_0179-2-full.jpg",n:"Desert Arch and Ancient Stone",ar:1.5}
+    {t:"images/lake-powell/IMG_0179-2-thumb.jpg",f:"images/lake-powell/IMG_0179-2-full.jpg",n:"Desert Arch and Ancient Stone",ar:1.5},
+    {t:"images/lake-powell/Wolf 527-thumb.jpg",f:"images/lake-powell/Wolf 527-full.jpg",n:"Painted Walls of Stone",ar:1.5},
+    {t:"images/lake-powell/Wolf 533-thumb.jpg",f:"images/lake-powell/Wolf 533-full.jpg",n:"Desert Stone Meets Water",ar:1.5},
+    {t:"images/lake-powell/Wolf 534-thumb.jpg",f:"images/lake-powell/Wolf 534-full.jpg",n:"Desert Cliffs Meet Still Waters",ar:1.5},
+    {t:"images/lake-powell/Wolf 535-thumb.jpg",f:"images/lake-powell/Wolf 535-full.jpg",n:"Emerald Waters Meet Stone",ar:1.5},
+    {t:"images/lake-powell/Wolf 536-thumb.jpg",f:"images/lake-powell/Wolf 536-full.jpg",n:"Sentinel Rocks of Lake Powell",ar:1.5},
+    {t:"images/lake-powell/Wolf 537-thumb.jpg",f:"images/lake-powell/Wolf 537-full.jpg",n:"Emerald Waters of Stone Canyon",ar:1.5},
+    {t:"images/lake-powell/Wolf 538-thumb.jpg",f:"images/lake-powell/Wolf 538-full.jpg",n:"Emerald Waters, Sandstone Sentinel",ar:1.5}
   ]},
   {name:"Large Scale Photography Stitch",slug:"large-scale-photography-stitch",n:44,img:"images/large-scale-photography-stitch/WOLF1974-Pano-thumb.jpg",p:[
     {t:"images/large-scale-photography-stitch/WOLF1974-Pano-thumb.jpg",f:"images/large-scale-photography-stitch/WOLF1974-Pano-full.jpg",n:"Desert Dunes in Golden Light",ar:4.011},
@@ -1030,8 +1044,16 @@ const G=[
     {t:"images/mexico-city/118A2570-thumb.jpg",f:"images/mexico-city/118A2570-full.jpg",n:"Hillside Cemetery, Vibrant Passage",ar:1.5},
     {t:"images/mexico-city/118A2640-thumb.jpg",f:"images/mexico-city/118A2640-full.jpg",n:"Chromatic Hillside Tapestry",ar:1.704}
   ]},
-  {name:"Monument Valley",slug:"monument-valley",n:1,img:"images/monument-valley/IMG_0208 (1)-thumb.jpg",p:[
-    {t:"images/monument-valley/IMG_0208 (1)-thumb.jpg",f:"images/monument-valley/IMG_0208 (1)-full.jpg",n:"Sentinels of the Desert",ar:2.051}
+  {name:"Monument Valley",slug:"monument-valley",n:9,img:"images/monument-valley/IMG_0208 (1)-thumb.jpg",p:[
+    {t:"images/monument-valley/IMG_0208 (1)-thumb.jpg",f:"images/monument-valley/IMG_0208 (1)-full.jpg",n:"Sentinels of the Desert",ar:2.051},
+    {t:"images/monument-valley/Wolf 503-thumb.jpg",f:"images/monument-valley/Wolf 503-full.jpg",n:"West Mitten Monument Valley Stillness",ar:2.082},
+    {t:"images/monument-valley/Wolf 504-thumb.jpg",f:"images/monument-valley/Wolf 504-full.jpg",n:"Monument Valley's Eternal Expanse",ar:1.5},
+    {t:"images/monument-valley/Wolf 508-thumb.jpg",f:"images/monument-valley/Wolf 508-full.jpg",n:"Monoliths of the Red Desert",ar:1.5},
+    {t:"images/monument-valley/Wolf 509-thumb.jpg",f:"images/monument-valley/Wolf 509-full.jpg",n:"Monument Valley's Eternal Sentinels",ar:1.5},
+    {t:"images/monument-valley/Wolf 512-thumb.jpg",f:"images/monument-valley/Wolf 512-full.jpg",n:"Balanced Stone Desert Monolith",ar:2.083},
+    {t:"images/monument-valley/Wolf 513-thumb.jpg",f:"images/monument-valley/Wolf 513-full.jpg",n:"Desert Sentinels",ar:1.5},
+    {t:"images/monument-valley/Wolf 514-thumb.jpg",f:"images/monument-valley/Wolf 514-full.jpg",n:"Solitude in the Red Desert",ar:1.5},
+    {t:"images/monument-valley/Wolf 515-thumb.jpg",f:"images/monument-valley/Wolf 515-full.jpg",n:"Monument Valley's Sentinel Towers",ar:1.959}
   ]},
   {name:"New Zealand",slug:"new-zealand",n:27,img:"images/new-zealand/118A2696-thumb.jpg",p:[
     {t:"images/new-zealand/118A2696-thumb.jpg",f:"images/new-zealand/118A2696-full.jpg",n:"Alpine Meadow with Mountain Stream",ar:2.159},
@@ -1157,7 +1179,7 @@ const G=[
     {t:"images/tanzania/Wolf 226-thumb.jpg",f:"images/tanzania/Wolf 226-full.jpg",n:"Giraffe in Acacia Wilderness",ar:1.714},
     {t:"images/tanzania/Wolf 282-thumb.jpg",f:"images/tanzania/Wolf 282-full.jpg",n:"Giraffe's Gentle Reach",ar:1.5}
   ]},
-  {name:"Utah National Parks",slug:"utah-national-parks",n:11,img:"images/utah-national-parks/118A6607-thumb.jpg",p:[
+  {name:"Utah National Parks",slug:"utah-national-parks",n:22,img:"images/utah-national-parks/118A6607-thumb.jpg",p:[
     {t:"images/utah-national-parks/118A6607-thumb.jpg",f:"images/utah-national-parks/118A6607-full.jpg",n:"Crimson Waves Across Stone",ar:1.5},
     {t:"images/utah-national-parks/118A6652-thumb.jpg",f:"images/utah-national-parks/118A6652-full.jpg",n:"Weathered Wood Grain Study",ar:1.5},
     {t:"images/utah-national-parks/118A7121-thumb.jpg",f:"images/utah-national-parks/118A7121-full.jpg",n:"Dunes and Distant Plateaus",ar:1.54},
@@ -1168,7 +1190,18 @@ const G=[
     {t:"images/utah-national-parks/Wolf 450-thumb.jpg",f:"images/utah-national-parks/Wolf 450-full.jpg",n:"Balanced Rock at Golden Hour",ar:1.5},
     {t:"images/utah-national-parks/Wolf 458-thumb.jpg",f:"images/utah-national-parks/Wolf 458-full.jpg",n:"Desert Spires at Golden Hour",ar:1.5},
     {t:"images/utah-national-parks/Wolf 459-thumb.jpg",f:"images/utah-national-parks/Wolf 459-full.jpg",n:"Desert Stone Cathedral at Dusk",ar:1.5},
-    {t:"images/utah-national-parks/Wolf 463-thumb.jpg",f:"images/utah-national-parks/Wolf 463-full.jpg",n:"Desert Rocks at Golden Hour",ar:1.5}
+    {t:"images/utah-national-parks/Wolf 463-thumb.jpg",f:"images/utah-national-parks/Wolf 463-full.jpg",n:"Desert Rocks at Golden Hour",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 464-thumb.jpg",f:"images/utah-national-parks/Wolf 464-full.jpg",n:"Desert Monuments in Ethereal Light",ar:2.012},
+    {t:"images/utah-national-parks/Wolf 466-thumb.jpg",f:"images/utah-national-parks/Wolf 466-full.jpg",n:"Desert Sentinels at Golden Hour",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 468-thumb.jpg",f:"images/utah-national-parks/Wolf 468-full.jpg",n:"Delicate Arch Golden Hour",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 469-thumb.jpg",f:"images/utah-national-parks/Wolf 469-full.jpg",n:"Desert Arch in Golden Light",ar:1.799},
+    {t:"images/utah-national-parks/Wolf 476-thumb.jpg",f:"images/utah-national-parks/Wolf 476-full.jpg",n:"Balanced Rock Desert Sentinel",ar:2.073},
+    {t:"images/utah-national-parks/Wolf 478-thumb.jpg",f:"images/utah-national-parks/Wolf 478-full.jpg",n:"Desert Sentinels of Monument Valley",ar:1.764},
+    {t:"images/utah-national-parks/Wolf 479-thumb.jpg",f:"images/utah-national-parks/Wolf 479-full.jpg",n:"Sentinel Rock Desert Monolith",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 480-thumb.jpg",f:"images/utah-national-parks/Wolf 480-full.jpg",n:"Desert Sentinel",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 482-thumb.jpg",f:"images/utah-national-parks/Wolf 482-full.jpg",n:"Desert Serpent: Canyon Road Curves",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 488-thumb.jpg",f:"images/utah-national-parks/Wolf 488-full.jpg",n:"Desert Portal: Canyonlands Frame",ar:1.81},
+    {t:"images/utah-national-parks/Wolf 490-thumb.jpg",f:"images/utah-national-parks/Wolf 490-full.jpg",n:"Desert Gateway: Canyonlands Vista",ar:1.886}
   ]},
   {name:"Valley of Fire",slug:"valley-of-fire",n:3,img:"images/valley-of-fire/IMG_0102-2-thumb.jpg",p:[
     {t:"images/valley-of-fire/IMG_0102-2-thumb.jpg",f:"images/valley-of-fire/IMG_0102-2-full.jpg",n:"Desert Ridges and Russet Plateaus",ar:1.915},

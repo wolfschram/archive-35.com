@@ -2068,7 +2068,111 @@ ipcMain.handle('deploy-website', async () => {
     await fs.mkdir(DATA_DIR, { recursive: true });
     await fs.writeFile(photosJsonWebPath, JSON.stringify({ photos: allWebsitePhotos }, null, 2));
 
-    // Phase 4: Git operations
+    // Phase 5b: Sync gallery.html inline data from photos.json
+    // CRITICAL: Studio deploy previously skipped this — gallery.html had stale const G=[]
+    // See LESSONS_LEARNED.md Lesson 001 and Lesson 018
+    sendProgress('sync', 'Syncing gallery.html inline data...');
+    try {
+      const { execSync: execSyncEarly } = require('child_process');
+      execSyncEarly('python3 sync_gallery_data.py', { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 30000 });
+      sendProgress('sync', 'Gallery data synced from photos.json');
+    } catch (syncErr) {
+      console.error('Gallery sync failed:', syncErr.message);
+      sendProgress('sync', `WARNING: Gallery sync failed — gallery.html may be stale: ${syncErr.message}`);
+    }
+
+    // Phase 5c: Pre-deploy validation — catches data problems BEFORE they reach production
+    // This is the safety net that prevents deploying broken/stale/orphaned data
+    sendProgress('validate', 'Running pre-deploy validation...');
+    let deployWarnings = [];
+    {
+      const valErrors = [];
+      const valWarnings = [];
+
+      // CHECK 1: Schema — every photo has required fields
+      const requiredFields = ['id', 'collection', 'filename', 'thumbnail', 'full', 'title'];
+      for (const photo of allWebsitePhotos) {
+        const missing = requiredFields.filter(f => !photo[f]);
+        if (missing.length > 0) {
+          valErrors.push(`Photo "${photo.id || photo.filename || '???'}" missing fields: ${missing.join(', ')}`);
+        }
+      }
+
+      // CHECK 2: Duplicate photo IDs
+      const allIds = allWebsitePhotos.map(p => p.id);
+      const dupeIds = allIds.filter((id, i) => allIds.indexOf(id) !== i);
+      if (dupeIds.length > 0) {
+        valErrors.push(`${dupeIds.length} duplicate photo ID(s): ${[...new Set(dupeIds)].slice(0, 5).join(', ')}`);
+      }
+
+      // CHECK 3: No empty/null collection slugs
+      const allSlugs = [...new Set(allWebsitePhotos.map(p => p.collection))];
+      if (allSlugs.includes(undefined) || allSlugs.includes(null) || allSlugs.includes('')) {
+        valErrors.push('Some photos have empty/null collection slug');
+      }
+
+      // CHECK 4: Orphan references in hardcoded files
+      const filesToCheck = ['index.html', 'sitemap.xml', 'llms.txt', 'llms-full.txt'];
+      for (const file of filesToCheck) {
+        const filePath = path.join(ARCHIVE_BASE, file);
+        if (fsSync.existsSync(filePath)) {
+          const content = fsSync.readFileSync(filePath, 'utf8');
+          // Find collection slug references (gallery.html#slug or collection=slug)
+          const refs = content.match(/(?:gallery\.html[#?](?:collection=)?|collection\.html\?id=)([a-z0-9-]+)/g) || [];
+          const fileSlugs = refs.map(r => r.replace(/.*[#=]/, ''));
+          for (const slug of fileSlugs) {
+            if (slug && !allSlugs.includes(slug)) {
+              valWarnings.push(`"${file}" references collection "${slug}" which is NOT in photos.json — orphan reference`);
+            }
+          }
+        }
+      }
+
+      // CHECK 5: Photo count sanity — warn if dropping >20%
+      try {
+        const liveResp = await fetch('https://archive-35.com/data/photos.json', { signal: AbortSignal.timeout(8000) });
+        if (liveResp.ok) {
+          const liveData = await liveResp.json();
+          const liveCount = liveData?.photos?.length || 0;
+          const localCount = allWebsitePhotos.length;
+          if (liveCount > 0 && localCount < liveCount * 0.8) {
+            valWarnings.push(`Photo count dropping ${liveCount} → ${localCount} (${Math.round((1 - localCount / liveCount) * 100)}% decrease) — verify this is intentional`);
+          }
+        }
+      } catch (e) { /* skip if can't reach live site */ }
+
+      // CHECK 6: Gallery.html freshness — does inline data match photos.json?
+      const galleryPath = path.join(ARCHIVE_BASE, 'gallery.html');
+      if (fsSync.existsSync(galleryPath)) {
+        const galleryContent = fsSync.readFileSync(galleryPath, 'utf8');
+        const inlineSlugs = (galleryContent.match(/slug:"([^"]+)"/g) || []).map(s => s.replace('slug:"', '').replace('"', ''));
+        if (inlineSlugs.length !== allSlugs.length) {
+          valErrors.push(`gallery.html has ${inlineSlugs.length} collections but photos.json has ${allSlugs.length} — data out of sync even after gallery sync`);
+        }
+      }
+
+      // DECISION: Block or proceed
+      if (valErrors.length > 0) {
+        sendProgress('error', `DEPLOY BLOCKED: ${valErrors.length} validation error(s)`);
+        return {
+          success: false,
+          error: `Pre-deploy validation failed:\n• ${valErrors.join('\n• ')}`,
+          warnings: valWarnings,
+          validationErrors: valErrors,
+          photosPublished: allWebsitePhotos.length,
+        };
+      }
+
+      if (valWarnings.length > 0) {
+        sendProgress('validate', `${valWarnings.length} warning(s) — proceeding with deploy`);
+        console.warn('Pre-deploy warnings:', valWarnings);
+      } else {
+        sendProgress('validate', `All ${allWebsitePhotos.length} photos passed validation`);
+      }
+      deployWarnings = valWarnings;
+    }
+
+    // Phase 6: Git operations
     sendProgress('git', 'Committing changes...');
     const { execSync } = require('child_process');
     const gitOpts = { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 30000 };
@@ -2090,7 +2194,8 @@ ipcMain.handle('deploy-website', async () => {
     }
 
     try {
-      execSync('git add data/photos.json images/', gitOpts);
+      // Stage photos.json, images, AND gallery.html (freshly synced by sync_gallery_data.py)
+      execSync('git add data/photos.json images/ gallery.html', gitOpts);
 
       // Check if there are staged changes before committing
       const gitStatus = execSync('git diff --cached --stat', gitOpts).trim();
@@ -2148,6 +2253,7 @@ ipcMain.handle('deploy-website', async () => {
         r2ObjectCount,
         r2MissingCount: r2MissingFiles.length,
         r2MissingFiles: r2MissingFiles.slice(0, 20),
+        warnings: deployWarnings,
         message: noNewContent
            ? `All ${allWebsitePhotos.length} photos already deployed.${verifyMsg}`
            : `Deployed ${allWebsitePhotos.length} photos to archive-35.com (${copied} synced)${verifyMsg}`

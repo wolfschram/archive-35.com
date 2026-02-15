@@ -191,7 +191,7 @@ function WebsiteControl() {
         if (data.step) {
           setDeployStages(prev => {
             const newStages = { ...prev };
-            const stageOrder = ['scan', 'images', 'c2pa', 'r2', 'data', 'git', 'push', 'verify', 'done'];
+            const stageOrder = ['scan', 'images', 'c2pa', 'r2', 'data', 'sync', 'validate', 'git', 'push', 'verify', 'done'];
             const currentIndex = stageOrder.indexOf(data.step);
             stageOrder.forEach((stage, idx) => {
               if (idx < currentIndex) {
@@ -248,7 +248,7 @@ function WebsiteControl() {
         setDeployStages(prev => {
           const newStages = { ...prev };
           let foundActive = false;
-          const stageOrder = ['scan', 'images', 'c2pa', 'r2', 'data', 'git', 'push', 'verify', 'done'];
+          const stageOrder = ['scan', 'images', 'c2pa', 'r2', 'data', 'sync', 'validate', 'git', 'push', 'verify', 'done'];
           for (const stage of stageOrder) {
             if (newStages[stage].active) foundActive = true;
           }
@@ -286,7 +286,7 @@ function WebsiteControl() {
         // Mark the currently active stage as the failure point
         setDeployStages(prev => {
           const newStages = { ...prev };
-          const stageOrder = ['scan', 'images', 'c2pa', 'r2', 'data', 'git', 'push', 'verify', 'done'];
+          const stageOrder = ['scan', 'images', 'c2pa', 'r2', 'data', 'sync', 'validate', 'git', 'push', 'verify', 'done'];
           let lastActiveStage = null;
           for (const stage of stageOrder) {
             if (newStages[stage].active) lastActiveStage = stage;
@@ -390,7 +390,7 @@ function WebsiteControl() {
     return { color: 'rgba(255,255,255,0.3)', symbol: '\u25CB' };
   };
 
-  const stageLabels = { scan: 'Scan', images: 'Images', c2pa: 'C2PA', r2: 'R2', data: 'Data', git: 'Git', push: 'Push', verify: 'Verify', done: 'Done' };
+  const stageLabels = { scan: 'Scan', images: 'Images', c2pa: 'C2PA', r2: 'R2', data: 'Data', sync: 'Sync', validate: 'Check', git: 'Git', push: 'Push', verify: 'Verify', done: 'Done' };
 
   // === Health indicators for card headers ===
   const getDeployHealth = () => {
@@ -683,6 +683,28 @@ function WebsiteControl() {
                         ? 'R2: Not configured'
                         : 'R2: Check failed'}
                 </span>
+              </div>
+            )}
+            {/* Validation warnings (deploy succeeded but had warnings) */}
+            {deployResult.success && deployResult.warnings && deployResult.warnings.length > 0 && (
+              <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(251, 191, 36, 0.1)', borderRadius: '6px', border: '1px solid rgba(251, 191, 36, 0.3)' }}>
+                <div style={{ fontSize: '12px', color: '#fbbf24', fontWeight: 600, marginBottom: '4px' }}>
+                  {'\u26A0'} {deployResult.warnings.length} validation warning{deployResult.warnings.length !== 1 ? 's' : ''}:
+                </div>
+                {deployResult.warnings.map((w, i) => (
+                  <div key={i} style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '12px' }}>{'•'} {w}</div>
+                ))}
+              </div>
+            )}
+            {/* Validation errors (deploy was blocked) */}
+            {!deployResult.success && deployResult.validationErrors && deployResult.validationErrors.length > 0 && (
+              <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                <div style={{ fontSize: '12px', color: '#ef4444', fontWeight: 600, marginBottom: '4px' }}>
+                  {'\u274C'} Deploy blocked by {deployResult.validationErrors.length} validation error{deployResult.validationErrors.length !== 1 ? 's' : ''}:
+                </div>
+                {deployResult.validationErrors.map((e, i) => (
+                  <div key={i} style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '12px' }}>{'•'} {e}</div>
+                ))}
               </div>
             )}
           </div>

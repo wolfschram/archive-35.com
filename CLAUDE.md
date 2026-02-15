@@ -112,7 +112,8 @@ archive-35.com/                          # GitHub repo root
 ├── images/                             # Website images (30+ collection folders)
 │   ├── grand-teton/                    # 48 photos (thumb + full)
 │   ├── iceland-ring-road/              # 67 photos
-│   ├── africa/, tanzania/, etc.
+│   ├── tanzania/, etc.
+│   └── (africa/ REMOVED Feb 2026 — was duplicate of Tanzania)
 │   └── (large-scale-photography-stitch removed — licensing only now)
 │
 ├── logos/                              # Brand logos, favicons, OG images
@@ -287,11 +288,30 @@ LICENSE PATH:
 
 ## STUDIO APP (05_Studio/app/)
 
-### Deploy Pipeline (main.js)
-- Build: runs `build.sh`
-- Push: `git add _site && git commit && git push`
-- Verify: fetches live `photos.json`, checks `liveData?.photos` array length
-- **Fixed**: verify step now handles `{photos: [...]}` wrapper (was `Array.isArray(liveData)`)
+### Deploy Pipeline (main.js) — 11-Stage with Safety Net
+Pipeline stages: **Scan → Images → C2PA → R2 → Data → Sync → Validate → Git → Push → Verify → Done**
+
+| Stage | What | Safety Level |
+|-------|------|-------------|
+| Scan | Read all portfolios | Info only |
+| Images | Copy thumb + full to images/ | Warn on failure |
+| C2PA | Count signed vs unsigned | Info only |
+| R2 | Verify originals in R2 bucket | **HARD BLOCK** if missing |
+| Data | Write photos.json | Required |
+| **Sync** | Run sync_gallery_data.py (gallery.html inline data) | **NEW Feb 15** — prevents stale Cover Flow |
+| **Validate** | 6 pre-deploy checks (see below) | **HARD BLOCK** on errors, WARN on warnings |
+| Git | Stage + commit | Required |
+| Push | git push origin main | Required |
+| Verify | Poll live site for 3min | Timeout = amber warning |
+| Done | Summary | Shows warnings + results |
+
+### Pre-Deploy Validation Checks (Validate stage)
+1. **Schema**: Every photo has id, collection, filename, thumbnail, full, title
+2. **Duplicate IDs**: No two photos share the same id → **BLOCK**
+3. **Empty slugs**: No null/empty collection slugs → **BLOCK**
+4. **Orphan references**: index.html, sitemap.xml, llms.txt reference a collection not in photos.json → **WARN**
+5. **Photo count sanity**: >20% drop vs live site → **WARN**
+6. **Gallery freshness**: gallery.html inline collection count ≠ photos.json → **BLOCK**
 
 ### Studio Pages
 | Page | File | Purpose |
@@ -348,10 +368,11 @@ A test purchase revealed that NO gallery originals were in the R2 bucket. This t
 - **Compositor Editor was built then removed** — FULLY cleaned from all files
 
 ### What Wolf Needs To Do RIGHT NOW
-1. **Restart Studio** (Cmd+Q, relaunch) — preload.js was modified
-2. **Website Control → "Upload All Originals to R2"** — backfills all 466 photos to R2
-3. **Website Control → "Deploy to Website"** — pushes clean data, Africa disappears, R2 verification runs
-4. **Verify live site** — Africa gallery gone, 466 photos, 29 collections
+1. **Restart Studio** (Cmd+Q, relaunch) — main.js and WebsiteControl.js were modified
+2. **Website Control → "Upload All Originals to R2"** — backfills all 483 photos to R2
+3. **Website Control → "Deploy to Website"** — now includes Sync + Validate stages automatically
+4. **Verify live site** — Africa gone, 483 photos, 29 collections (DEPLOYED Feb 15 ✅)
+5. **Delete orphan folder locally**: `rm -rf images/large-scale-photography-stitch/`
 
 ### What's Coming Next (External AI Audit)
 Wolf sent `Archive-35_Pipeline_Audit.docx` to ChatGPT and Gemini for independent review. Their reports will come back with questions/recommendations. The next session should:
@@ -385,11 +406,12 @@ Wolf sent `Archive-35_Pipeline_Audit.docx` to ChatGPT and Gemini for independent
 
 ---
 
-## RECENT CHANGES LOG (February 9-14, 2026)
+## RECENT CHANGES LOG (February 9-15, 2026)
 
 | Commit | Change |
 |--------|--------|
-| (pending) | PIPELINE AUDIT: Africa dupe deleted, LSP purged, IDs fixed (full slug), R2 batch upload wired, R2 deploy verification (ListObjectsV2), R2 failures loud, webhook hard block, compositor removed |
+| dd2cbc0 | SAFETY NET: Pre-deploy validation (6 checks), gallery sync in deploy pipeline, pipeline stages Sync+Validate, JSX Unicode fixes, health check Cloudflare env var fix, Africa fully removed from all 8+ files |
+| 6380c5d | PIPELINE AUDIT: Africa dupe deleted, LSP purged (527→483), IDs fixed (full slug), R2 batch upload wired, R2 deploy verification (ListObjectsV2), R2 failures loud, webhook hard block, compositor removed |
 | (pending) | Google Sheet Order Log: Apps Script deployed as Web App, GOOGLE_SHEET_WEBHOOK_URL added to Cloudflare env vars, Cloudflare redeployed |
 | (pending) | AI agent optimization: alt text, llms.txt rewrite, llms-full.txt, enhanced schema (Photograph+C2PA+license), licensing JSON-LD, canonical URLs, meta keywords, /api/products.json, build.sh updated |
 | (pending) | Studio: deploy verify amber warning state, delete portfolio feature (IPC + UI + preload) |
@@ -452,8 +474,10 @@ Wolf sent `Archive-35_Pipeline_Audit.docx` to ChatGPT and Gemini for independent
 - [x] ~~Pipeline Audit~~ → Africa dupe removed, LSP purged, 49 ID collisions fixed, R2 batch upload wired, R2 deploy verification, R2 failures loud, webhook hard block ✅
 - [x] ~~Compositor Editor~~ → Built then fully removed (all references cleaned) ✅
 - [ ] **RUN R2 BATCH UPLOAD** — Wolf must click "Upload All Originals to R2" in Studio after restart
-- [ ] **DEPLOY TO WEBSITE** — Push clean data (Africa removed, IDs fixed, 466 photos)
-- [ ] Add deduplication check to ingest pipeline (prevent future duplicate photos)
+- [x] ~~**DEPLOY TO WEBSITE**~~ → Deployed Feb 15: 483 photos, 29 collections, Africa removed, live site verified ✅
+- [x] ~~Add deduplication check~~ → Pre-deploy validation catches duplicate IDs automatically ✅
+- [x] ~~Pre-deploy safety net~~ → 6-check validation (schema, dupes, orphans, count, freshness) BLOCKS bad deploys ✅
+- [x] ~~Gallery sync in deploy pipeline~~ → sync_gallery_data.py now runs automatically during Studio deploy ✅
 - [ ] Add cross-gallery duplicate detection (hash-based comparison)
 - [ ] Re-test checkout: verify customer email + amount show in notification emails
 - [ ] End-to-end live checkout test (print + license) after Monday go-live
@@ -518,7 +542,7 @@ Wolf sent `Archive-35_Pipeline_Audit.docx` to ChatGPT and Gemini for independent
 
 ---
 
-*Last updated: 2026-02-14 (Added never-guess rules 9+10, documented hardcoded index.html collections, Africa removal checklist)*
+*Last updated: 2026-02-15 (Safety net: pre-deploy validation + gallery sync in pipeline, Africa fully removed + deployed, health check Cloudflare env var fix, JSX Unicode fix, Lessons 018-021)*
 
 ---
 

@@ -296,26 +296,47 @@ ipcMain.handle('get-mode', async () => {
 });
 
 // Set mode (test or live)
-// AUTO-DEPLOYS stripe-config.json so the website switches immediately.
-// No manual deploy needed — toggle is the deploy.
+// AUTO-DEPLOYS stripe-config.json with step-by-step verified feedback.
+// Each step is confirmed before proceeding to the next.
 ipcMain.handle('set-mode', async (event, mode) => {
   if (mode !== 'test' && mode !== 'live') {
     return { success: false, error: 'Invalid mode. Use "test" or "live".' };
   }
+
+  const sendModeProgress = (step, status, message) => {
+    if (mainWindow) {
+      mainWindow.webContents.send('mode-deploy-progress', { step, status, message, mode });
+    }
+  };
+
+  const steps = [];
   try {
-    setCurrentMode(mode);
-    console.log(`Mode switched to: ${mode.toUpperCase()}`);
-
-    // Auto-deploy stripe-config.json to website
+    // Step 1: Read environment keys
+    sendModeProgress('keys', 'running', `Reading ${mode} Stripe keys from .env...`);
     const env = parseEnvFile();
-    const stripeConfig = {
-      mode: mode,
-      publishableKey: mode === 'test'
-        ? (env.STRIPE_TEST_PUBLISHABLE_KEY || '')
-        : (env.STRIPE_PUBLISHABLE_KEY || ''),
-    };
+    const pubKey = mode === 'test'
+      ? (env.STRIPE_TEST_PUBLISHABLE_KEY || '')
+      : (env.STRIPE_PUBLISHABLE_KEY || '');
+    const secretKeyConfigured = mode === 'test'
+      ? !!env.STRIPE_TEST_SECRET_KEY
+      : !!env.STRIPE_SECRET_KEY;
 
-    // Write to both source and _site
+    if (!pubKey) {
+      sendModeProgress('keys', 'error', `No ${mode} publishable key found in .env — add ${mode === 'test' ? 'STRIPE_TEST_PUBLISHABLE_KEY' : 'STRIPE_PUBLISHABLE_KEY'} in Settings`);
+      return { success: false, error: `No ${mode} publishable key configured` };
+    }
+    if (!secretKeyConfigured) {
+      sendModeProgress('keys', 'error', `No ${mode} secret key found in .env — add ${mode === 'test' ? 'STRIPE_TEST_SECRET_KEY' : 'STRIPE_SECRET_KEY'} in Settings`);
+      return { success: false, error: `No ${mode} secret key configured` };
+    }
+
+    const keyPrefix = pubKey.startsWith('pk_test_') ? 'pk_test_' : 'pk_live_';
+    sendModeProgress('keys', 'ok', `${mode.toUpperCase()} keys verified — publishable: ${keyPrefix}...${pubKey.slice(-4)}, secret: configured`);
+    steps.push('keys');
+
+    // Step 2: Write stripe-config.json
+    sendModeProgress('config', 'running', 'Writing stripe-config.json...');
+    const stripeConfig = { mode: mode, publishableKey: pubKey };
     const dataDir = path.join(ARCHIVE_BASE, 'data');
     const siteDataDir = path.join(ARCHIVE_BASE, '_site', 'data');
     const configContent = JSON.stringify(stripeConfig, null, 2) + '\n';
@@ -324,7 +345,23 @@ ipcMain.handle('set-mode', async (event, mode) => {
       fsSync.writeFileSync(path.join(siteDataDir, 'stripe-config.json'), configContent);
     }
 
-    // Git add, commit, push — deploy to Cloudflare automatically
+    // Verify the file was written correctly
+    const verifyConfig = JSON.parse(fsSync.readFileSync(path.join(dataDir, 'stripe-config.json'), 'utf8'));
+    if (verifyConfig.mode !== mode || verifyConfig.publishableKey !== pubKey) {
+      sendModeProgress('config', 'error', 'stripe-config.json verification failed — file contents do not match');
+      return { success: false, error: 'Config file verification failed' };
+    }
+    sendModeProgress('config', 'ok', `stripe-config.json written and verified — mode: ${mode}, key: ${keyPrefix}...${pubKey.slice(-4)}`);
+    steps.push('config');
+
+    // Step 3: Save mode setting
+    sendModeProgress('mode', 'running', `Setting Studio mode to ${mode.toUpperCase()}...`);
+    setCurrentMode(mode);
+    sendModeProgress('mode', 'ok', `Studio mode set to ${mode.toUpperCase()}`);
+    steps.push('mode');
+
+    // Step 4: Git commit and push
+    sendModeProgress('git', 'running', 'Committing and pushing to GitHub...');
     const { execSync } = require('child_process');
     const gitOpts = { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 30000 };
     try {
@@ -333,19 +370,61 @@ ipcMain.handle('set-mode', async (event, mode) => {
       if (status) {
         execSync(`git commit -m "Switch Stripe to ${mode.toUpperCase()} mode"`, gitOpts);
         execSync('git push', gitOpts);
-        console.log(`Stripe ${mode.toUpperCase()} mode deployed to website`);
+        sendModeProgress('git', 'ok', `Pushed to GitHub — Cloudflare deploy triggered`);
+      } else {
+        sendModeProgress('git', 'ok', 'Already on correct mode — no changes needed');
       }
     } catch (gitErr) {
-      console.warn('Auto-deploy of stripe config failed (non-fatal):', gitErr.message);
+      sendModeProgress('git', 'error', `Git push failed: ${gitErr.message}`);
+      return { success: false, error: `Git push failed: ${gitErr.message}`, steps };
     }
+    steps.push('git');
+
+    // Step 5: Verify live site (poll stripe-config.json on archive-35.com)
+    sendModeProgress('verify', 'running', 'Waiting for Cloudflare deploy (~60s)...');
+    let verified = false;
+    const https = require('https');
+    const fetchConfig = () => new Promise((resolve) => {
+      const url = `https://archive-35.com/data/stripe-config.json?_t=${Date.now()}`;
+      https.get(url, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          try { resolve(JSON.parse(data)); } catch { resolve(null); }
+        });
+      }).on('error', () => resolve(null));
+    });
+
+    // Poll every 10 seconds for up to 2 minutes
+    for (let attempt = 1; attempt <= 12; attempt++) {
+      await new Promise(r => setTimeout(r, 10000));
+      sendModeProgress('verify', 'running', `Checking live site... attempt ${attempt}/12`);
+      const liveConfig = await fetchConfig();
+      if (liveConfig && liveConfig.mode === mode && liveConfig.publishableKey === pubKey) {
+        verified = true;
+        break;
+      }
+    }
+
+    if (verified) {
+      sendModeProgress('verify', 'ok', `CONFIRMED — archive-35.com is now in ${mode.toUpperCase()} mode`);
+      steps.push('verify');
+    } else {
+      sendModeProgress('verify', 'warning', `Push completed but live site not yet updated — Cloudflare may still be deploying. Check back in a few minutes.`);
+      steps.push('verify-pending');
+    }
+
+    // Step 6: Final summary
+    sendModeProgress('done', 'ok', `${mode.toUpperCase()} MODE ACTIVE — all systems switched`);
 
     // Notify all windows
     if (mainWindow) {
       mainWindow.webContents.send('mode-changed', mode);
     }
-    return { success: true, mode, deployed: true };
+    return { success: true, mode, deployed: true, verified, steps };
   } catch (err) {
-    return { success: false, error: err.message };
+    sendModeProgress('error', 'error', err.message);
+    return { success: false, error: err.message, steps };
   }
 });
 

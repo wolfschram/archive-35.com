@@ -67,6 +67,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('mode-changed', handler);
     return () => ipcRenderer.removeListener('mode-changed', handler);
   },
+  onModeDeployProgress: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('mode-deploy-progress', handler);
+    return () => ipcRenderer.removeListener('mode-deploy-progress', handler);
+  },
 
   // Website deploy
   deployWebsite: () => ipcRenderer.invoke('deploy-website'),

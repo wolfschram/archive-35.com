@@ -12,12 +12,29 @@ function Settings({ mode, setMode }) {
   const [showValue, setShowValue] = useState({});
   const [modeConfig, setModeConfig] = useState(null);
   const [switching, setSwitching] = useState(false);
+  const [deploySteps, setDeploySteps] = useState([]);
 
   useEffect(() => {
     if (window.electronAPI) {
       window.electronAPI.getBasePath().then(setBasePath);
       loadApiKeys();
       loadModeConfig();
+
+      // Listen for mode deploy progress
+      if (window.electronAPI.onModeDeployProgress) {
+        const cleanup = window.electronAPI.onModeDeployProgress((data) => {
+          setDeploySteps(prev => {
+            const existing = prev.findIndex(s => s.step === data.step);
+            if (existing >= 0) {
+              const updated = [...prev];
+              updated[existing] = data;
+              return updated;
+            }
+            return [...prev, data];
+          });
+        });
+        return cleanup;
+      }
     }
   }, []);
 
@@ -42,6 +59,7 @@ function Settings({ mode, setMode }) {
   const toggleMode = async () => {
     const newMode = mode === 'live' ? 'test' : 'live';
     setSwitching(true);
+    setDeploySteps([]);
     try {
       const result = await window.electronAPI.setMode(newMode);
       if (result.success) {
@@ -205,6 +223,42 @@ function Settings({ mode, setMode }) {
                   {modeConfig.r2?.prefix ? 'test/ prefix' : 'Production path'}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Deploy Progress Steps — shown during mode switch */}
+          {deploySteps.length > 0 && (
+            <div style={{
+              marginTop: '16px',
+              padding: '12px 16px',
+              background: 'var(--bg-tertiary)',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--glass-border)',
+            }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>
+                Deploy Progress
+              </div>
+              {deploySteps.map((s, i) => (
+                <div key={i} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '4px 0',
+                  fontSize: '13px',
+                  color: s.status === 'ok' ? 'var(--success)'
+                       : s.status === 'error' ? '#f44336'
+                       : s.status === 'warning' ? '#ff9800'
+                       : 'var(--text-secondary)',
+                }}>
+                  <span style={{ fontSize: '16px', width: '20px', textAlign: 'center' }}>
+                    {s.status === 'ok' ? '\u2713'
+                     : s.status === 'error' ? '\u2717'
+                     : s.status === 'warning' ? '\u26A0'
+                     : '\u25CF'}
+                  </span>
+                  <span>{s.message}</span>
+                </div>
+              ))}
             </div>
           )}
         </div>

@@ -388,8 +388,11 @@ class CartUI {
           console.log(`[ARCHIVE-35] Checkout session created in ${data.mode.toUpperCase()} mode`);
         }
         if (data.url) {
+          // Clear cart before redirecting to Stripe — order is submitted
+          if (window.cart) window.cart.clearCart();
           window.location.href = data.url;
         } else if (data.sessionId && window.Stripe && window.STRIPE_PUBLIC_KEY) {
+          if (window.cart) window.cart.clearCart();
           window.Stripe(window.STRIPE_PUBLIC_KEY).redirectToCheckout({ sessionId: data.sessionId });
         } else {
           throw new Error('No checkout URL returned');

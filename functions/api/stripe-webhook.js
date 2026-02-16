@@ -89,6 +89,7 @@ function buildPreorderCode(material, printWidth, printHeight) {
 
   const orientation = printWidth >= printHeight ? 'horizontal' : 'vertical';
 
+  // Build base code: qty|material|type|orientation|width|height
   const parts = [
     '1',
     mapping.material,
@@ -96,8 +97,13 @@ function buildPreorderCode(material, printWidth, printHeight) {
     orientation,
     String(printWidth),
     String(printHeight),
-    ...mapping.additionals,
   ];
+
+  // Only append additionals that aren't all 'none'
+  // Pictorem sanitizes trailing none values and rejects codes with unnecessary ones
+  if (mapping.additionals && mapping.additionals.some(a => a !== 'none')) {
+    parts.push(...mapping.additionals);
+  }
 
   return parts.join('|');
 }

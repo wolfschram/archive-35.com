@@ -1,0 +1,16 @@
+{
+  "id": "moscow_",
+  "title": "Moscow ",
+  "slug": "moscow",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 12
+}

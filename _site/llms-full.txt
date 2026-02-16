@@ -12,9 +12,9 @@
 - Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
 - Website: https://archive-35.com
 
-## Print Collections (474 photographs, 29 collections)
+## Print Collections (539 photographs, 33 collections)
 
-### Antelope Canyon (9 photographs)
+### Antelope Canyon (11 photographs)
 - URL: https://archive-35.com/collection.html?id=antelope-canyon
 - Gallery: https://archive-35.com/gallery.html?collection=antelope-canyon
 
@@ -23,7 +23,7 @@
   - Luminous Passage Through Stone | Antelope Canyon, Arizona | 50.3MP | Tags: slot-canyon, antelope-canyon, arizona, sandstone, geological-formation, fine-art-landscape, nature-photography, desert-landscape
   - Flowing Dreams in Stone | Lower Antelope Canyon, Arizona | 50.3MP | Tags: antelope-canyon, slot-canyon, sandstone, arizona, geological-formations, erosion, flowing-rock, striated-walls
   - Crimson Passage: Canyon's Embrace | Lower Antelope Canyon, Arizona, USA | 50.3MP | Tags: slot-canyon, antelope-canyon, sandstone-formations, desert-landscape, geological-erosion, arizona, southwestern-usa, sculpted-rock
-  - ... and 4 more photographs
+  - ... and 6 more photographs
 
 ### Argentina (35 photographs)
 - URL: https://archive-35.com/collection.html?id=argentina
@@ -47,7 +47,7 @@
   - Coastal Art Installation by Turquoise Waters | New South Wales Coast, Australia | 13.4MP | Tags: art-installation, coastal-landscape, new-south-wales, australia-coast, turquoise-water, fine-art-photography, rocky-shore, artistic-intervention
   - ... and 3 more photographs
 
-### Black and White (40 photographs)
+### Black and White (41 photographs)
 - URL: https://archive-35.com/collection.html?id=black-and-white
 - Gallery: https://archive-35.com/gallery.html?collection=black-and-white
 
@@ -56,7 +56,7 @@
   - Zebra Family in the Grassland | African Savanna | 50.3MP | Tags: zebra, wildlife-photography, african-savanna, black-and-white, fine-art-photography, nature-photography, grassland, animal-portrait
   - Urban Dance Embrace | Buenos Aires Public plaza or street venue | 50.3MP | Tags: street-photography, dance-photography, urban-dance, black-and-white, fine-art-photography, couple-dance, contemporary-dance, public-performance
   - Intimate Connection | Studio | 50.3MP | Tags: portrait-photography, black-and-white, fine-art, human-connection, intimate-moment, emotional-depth, monochromatic, studio-portrait
-  - ... and 35 more photographs
+  - ... and 36 more photographs
 
 ### Brazil (14 photographs)
 - URL: https://archive-35.com/collection.html?id=brazil
@@ -69,6 +69,17 @@
   - Emerald Waves Meet Golden Shore | Brazilian Atlantic Coast, Southern Region | 50.3MP | Tags: beach-photography, coastal-landscape, fine-art-photography, brazil-coast, emerald-waters, ocean-waves, sandy-beach, seascape
   - ... and 9 more photographs
 
+### Canada (23 photographs)
+- URL: https://archive-35.com/collection.html?id=canada
+- Gallery: https://archive-35.com/gallery.html?collection=canada
+
+  - Vancouver Skyline Reflected in Stillness | Burrard Inlet, Vancouver, British Columbia, Canada | 38.4MP | Tags: vancouver, british-columbia, urban-landscape, skyline, water-reflection, burrard-inlet, fine-art-photography, landscape-photography
+  - Mountain Stream Through Ancient Forest | British Columbia Interior, Canada | 50.3MP | Tags: mountain-stream, forest-landscape, coniferous-forest, british-columbia, canadian-wilderness, flowing-water, turquoise-water, evergreen-trees
+  - Emerald Waters, Boreal Sanctuary | British Columbia, Canada - Likely Garibaldi Lake or similar alpine lake region | 50.3MP | Tags: emerald-lake, turquoise-water, boreal-forest, coniferous-trees, glacial-lake, british-columbia, canadian-landscape, forest-reflection
+  - Glacial Fracture, Canadian Rockies | British Columbia, Canada  | 50.3MP | Tags: glacier, canadian-rockies, ice-formation, crevasse, serac, jasper-national-park, alberta, canada
+  - Glacial Peak Above Alpine Forest | British Columbia, Canada  | 50.3MP | Tags: canadian-landscape, glacier, snow-capped-mountain, coniferous-forest, british-columbia, alpine-scenery, mountain-photography, dramatic-landscape
+  - ... and 18 more photographs
+
 ### Chicago (6 photographs)
 - URL: https://archive-35.com/collection.html?id=chicago
 - Gallery: https://archive-35.com/gallery.html?collection=chicago
@@ -78,6 +89,17 @@
   - Parisian Balconies in Chicago | Chicago, Illinois, USA | 45.2MP | Tags: urban-architecture, chicago-illinois, fine-art-photography, architectural-design, balconies, historic-buildings, urban-landscape, facade
   - Chicago Riverfront Urban Landscape | Chicago River, Downtown Chicago, Illinois, USA | 50.3MP | Tags: chicago, chicago-river, urban-landscape, skyline, architecture, cityscape, downtown-chicago, illinois
   - Chicago Riverfront Urban Canvas | Chicago River, Chicago, Illinois, USA | 50.3MP | Tags: chicago-river, urban-landscape, chicago-skyline, architecture-photography, fine-art-photography, riverfront, illinois, midwest-usa
+  - ... and 1 more photographs
+
+### Coast of California (6 photographs)
+- URL: https://archive-35.com/collection.html?id=coast-of-california
+- Gallery: https://archive-35.com/gallery.html?collection=coast-of-california
+
+  - Driftwood and Marshland Reflection | Northern California Coastal Marshes | 50.3MP | Tags: coastal-marshland, driftwood, landscape-photography, fine-art-nature, california-coast, wetlands, marsh-ecosystem, still-water
+  - Sculptured Cliffs Meet Turquoise Tide | Big Sur Coast, California | 50.3MP | Tags: coastal-rocks, california-coast, big-sur, ocean-cliffs, turquoise-water, rock-formations, seaside-landscape, geological-sculpture
+  - Coastal Scrubland Guardian | California Coastal Sage Scrub, Central Coast | 42.6MP | Tags: california-coast, coastal-wildlife, sage-scrub, terrestrial-animal, california-central-coast, landscape-photography, fine-art-nature, scrubland-habitat
+  - Coastal Squirrel Among Native Scrub | California Coast, Coastal Sage Scrub Region | 50.3MP | Tags: california-squirrel, coastal-wildlife, native-vegetation, california-coast, wildlife-portrait, nature-photography, landscape-photography, fine-art-nature
+  - Kelp and Stone at California's Edge | Northern California Coast, rocky shoreline | 29.9MP | Tags: california-coast, kelp-forest, rocky-shore, coastal-landscape, seaweed, tidal-zone, ocean-waves, fine-art-photography
   - ... and 1 more photographs
 
 ### Colorado (8 photographs)
@@ -91,7 +113,7 @@
   - Mule Deer in Forest Light | Rocky Mountain Region, North America | 35.4MP | Tags: mule-deer, wildlife-photography, forest-portrait, antlers, conifer-forest, north-american-wildlife, deer, woodland
   - ... and 3 more photographs
 
-### Concerts (9 photographs)
+### Concerts (17 photographs)
 - URL: https://archive-35.com/collection.html?id=concerts
 - Gallery: https://archive-35.com/gallery.html?collection=concerts
 
@@ -100,7 +122,7 @@
   - Collective Luminescence | Large arena or concert venue | 50.3MP | Tags: concert-photography, crowd-gathering, mass-event, arena-lighting, human-connection, collective-energy, night-event, stage-performance
   - Electric Nights in Motion | Concert venue, arena setting | 50.3MP | Tags: concert-photography, stage-lighting, electric-blue, crowd-gathering, arena-performance, light-installation, event-photography, luminous-spectacle
   - Crimson Convergence | Large venue or arena setting | 50.3MP | Tags: concert-photography, crowd-energy, red-light, human-gathering, arena-performance, collective-experience, fine-art-photography, dramatic-lighting
-  - ... and 4 more photographs
+  - ... and 12 more photographs
 
 ### Cuba (32 photographs)
 - URL: https://archive-35.com/collection.html?id=cuba
@@ -220,6 +242,17 @@
   - Monument Valley's Eternal Sentinels | Monument Valley, Arizona-Utah Border | 48.1MP | Tags: monument-valley, buttes, desert-landscape, southwestern-usa, arizona, utah, red-rock, sandstone-formations
   - ... and 4 more photographs
 
+### Moscow (12 photographs)
+- URL: https://archive-35.com/collection.html?id=moscow
+- Gallery: https://archive-35.com/gallery.html?collection=moscow
+
+  - Kotelnicheskaya Embankment Palace | Kotelnicheskaya Embankment, Moscow River, Red October District | 50.3MP | Tags: moscow-architecture, stalinist-building, moscow-river, kotelnicheskaya-palace, architectural-photography, soviet-design, waterfront-landscape, fine-art-photography
+  - Cathedral of Christ the Savior | Moscow River, Kremlin District, Moscow | 40.6MP | Tags: cathedral, christ-the-savior, moscow-river, religious-architecture, golden-domes, orthodox-church, kremlin-district, moscow-skyline
+  - Industrial Symmetry on the Moscow River | Moscow River, Moscow | 37.1MP | Tags: moscow-river, industrial-architecture, power-plant, moscow-landscape, symmetry, urban-photography, fine-art-print, wall-art
+  - Moscow Skyline: Urban Geometry at Dusk | Moscow River, Moscow City Business District, Moscow | 50.3MP | Tags: moscow-skyline, moscow-city, urban-landscape, architecture-photography, moscow-river, contemporary-architecture, fine-art-photography, cityscape
+  - Russian Flag Over Moscow Waters | Moscow River, Central Moscow | 50.3MP | Tags: moscow-river, russian-flag, moscow-landscape, urban-photography, fine-art-photography, river-reflections, moscow-cityscape, architectural-landscape
+  - ... and 7 more photographs
+
 ### New Zealand (27 photographs)
 - URL: https://archive-35.com/collection.html?id=new-zealand
 - Gallery: https://archive-35.com/gallery.html?collection=new-zealand
@@ -246,6 +279,15 @@
   - Horizon's Golden Threshold | Aerial view, high altitude | 43.2MP | Tags: aerial-photography, horizon-line, airplane-wing, atmospheric-light, golden-hour, earth-curvature, stratosphere, fine-art-landscape
   - Horizon's Golden Threshold | Aerial perspective, high altitude | 46.6MP | Tags: aerial-photography, horizon-line, atmospheric-landscape, fine-art-print, golden-hour-light, earth-from-above, sky-art, contemplative
 
+### Prague (4 photographs)
+- URL: https://archive-35.com/collection.html?id=prague
+- Gallery: https://archive-35.com/gallery.html?collection=prague
+
+  - Umbrella Man Suspended in Prague | Old Town Square vicinity, Prague 1 | 30.2MP | Tags: prague-street-art, public-sculpture, surreal-photography, urban-landscape, prague-architecture, contemporary-art, old-town-prague, architectural-detail
+  - Architectural Splendor of Old Town Prague | Old Town Square, Prague 1, Czech Republic | 39.9MP | Tags: prague-architecture, old-town-square, belle-epoque, neo-renaissance, urban-landscape, fine-art-photography, architectural-photography, prague-skyline
+  - Legionnaires Bridge Passage | Most Legií (Legionnaires Bridge), Prague 1, Vltava River | 38.1MP | Tags: prague-bridge, most-legii, architectural-perspective, urban-landscape, vltava-river, tramway-tracks, prague-old-town, symmetrical-composition
+  - Vltava Reflections at Prague | Vltava Riverfront, Prague Old Town | 39.8MP | Tags: prague-landscape, vltava-river, urban-waterfront, czech-republic, old-town-prague, riverscape, architectural-reflection, fine-art-photography
+
 ### Random Stuff (6 photographs)
 - URL: https://archive-35.com/collection.html?id=random-stuff
 - Gallery: https://archive-35.com/gallery.html?collection=random-stuff
@@ -257,7 +299,7 @@
   - Geometric Rhythms in Green | Urban Metropolitan Area | 49.2MP | Tags: architecture-photography, urban-landscape, fine-art-photography, geometric-patterns, modern-buildings, residential-architecture, green-facade, contemporary-design
   - ... and 1 more photographs
 
-### South Africa (8 photographs)
+### South Africa (17 photographs)
 - URL: https://archive-35.com/collection.html?id=south-africa
 - Gallery: https://archive-35.com/gallery.html?collection=south-africa
 
@@ -266,7 +308,7 @@
   - White Lion Cub | South Africa | 20.0MP | Tags: white-lion, lion-cub, wildlife-portrait, south-africa, rare-animal, big-five, close-up, golden-eyes
   - African Penguin on the Beach | South Africa | 15.1MP | Tags: african-penguin, boulders-beach, simons-town, cape-town, cape-peninsula, wildlife, beach, coastal
   - Penguin Pair at Boulders Beach | South Africa | 20.0MP | Tags: african-penguin, penguin-pair, boulders-beach, simons-town, cape-town, cape-peninsula, ocean, granite-boulders
-  - ... and 3 more photographs
+  - ... and 12 more photographs
 
 ### South America (10 photographs)
 - URL: https://archive-35.com/collection.html?id=south-america

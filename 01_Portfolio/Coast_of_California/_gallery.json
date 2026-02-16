@@ -1,0 +1,16 @@
+{
+  "id": "coast_of_california",
+  "title": "Coast of California",
+  "slug": "coast-of-california",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 6
+}

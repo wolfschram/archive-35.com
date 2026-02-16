@@ -1615,5 +1615,45 @@
     "thumbnail": "Wolf 207-thumb.jpg",
     "full": "Wolf 207-full.jpg",
     "c2pa": true
+  },
+  {
+    "id": "wolf_773",
+    "filename": "Wolf 773.jpg",
+    "title": "Passage Through Urban Geometry",
+    "description": "A striking composition exploring the threshold between intimate interior space and expansive urban landscape. Ornate doorways frame a solitary figure crossing a sunlit street, creating a meditation on passage, perspective, and the contrast between architectural detail and modernist facades.",
+    "location": "Black and White urban district",
+    "tags": [
+      "urban-photography",
+      "black-and-white",
+      "architectural-frame",
+      "street-photography",
+      "fine-art-photography",
+      "monochrome",
+      "geometric-composition",
+      "doorway-passage",
+      "urban-landscape",
+      "contrast-light-shadow",
+      "figure-in-landscape",
+      "symmetry",
+      "interior-exterior",
+      "gallery-wall",
+      "minimalist-aesthetic",
+      "architectural-detail",
+      "wall-art",
+      "contemplative-mood",
+      "urban-geometry",
+      "composition-study"
+    ],
+    "dimensions": {
+      "width": 8438,
+      "height": 5211,
+      "aspectRatio": 1.619,
+      "aspectRatioString": "8438:5211",
+      "orientation": "wide",
+      "megapixels": 44
+    },
+    "thumbnail": "Wolf 773-thumb.jpg",
+    "full": "Wolf 773-full.jpg",
+    "c2pa": true
   }
 ]

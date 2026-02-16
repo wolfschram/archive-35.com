@@ -192,13 +192,13 @@ async function pictoremRequest(endpoint, apiKey, body) {
 
 async function validatePreorder(apiKey, preorderCode) {
   return pictoremRequest('validatepreorder', apiKey, {
-    preOrderCode: preorderCode,
+    preordercode: preorderCode,
   });
 }
 
 async function getPrice(apiKey, preorderCode) {
   return pictoremRequest('getprice', apiKey, {
-    preOrderCode: preorderCode,
+    preordercode: preorderCode,
   });
 }
 
@@ -916,8 +916,23 @@ export async function onRequestPost(context) {
       validation = await validatePreorder(PICTOREM_API_KEY, preorderCode);
       console.log('Pictorem validation:', JSON.stringify(validation));
 
-      if (validation.error || validation.valid === false) {
-        console.error('Pictorem validation failed:', validation);
+      // Check validation: status must be true AND data.preordercode must not be false
+      const validationFailed = !validation.status ||
+        (validation.data && validation.data.preordercode === false) ||
+        (validation.data && validation.data.errorlist && validation.data.errorlist.length > 0);
+
+      if (validationFailed) {
+        console.error('Pictorem validation failed:', JSON.stringify(validation));
+        // Send alert to Wolf about failed validation
+        await sendEmail(RESEND_API_KEY, {
+          to: WOLF_EMAIL,
+          subject: `⚠️ Pictorem validation FAILED — manual fulfillment needed`,
+          html: `<h2>Pictorem Validation Failed</h2>
+            <p><strong>Preorder code:</strong> ${preorderCode}</p>
+            <p><strong>Validation response:</strong> ${JSON.stringify(validation)}</p>
+            <p><strong>Stripe Session:</strong> ${session.id}</p>
+            <p><strong>Action needed:</strong> Manually submit this order to Pictorem.</p>`
+        });
         return new Response(JSON.stringify({
           received: true,
           warning: 'Pictorem validation failed — needs manual fulfillment',
@@ -932,7 +947,7 @@ export async function onRequestPost(context) {
       // Step 2: Get Pictorem price (for logging/verification)
       const priceResult = await getPrice(PICTOREM_API_KEY, preorderCode);
       console.log('Pictorem price:', JSON.stringify(priceResult));
-      wholesalePrice = priceResult?.price || priceResult?.totalPrice || null;
+      wholesalePrice = priceResult?.worksheet?.price?.total || priceResult?.price || priceResult?.totalPrice || null;
     }
 
     // Step 3: Build image URLs
@@ -987,19 +1002,19 @@ export async function onRequestPost(context) {
 
     // Step 4: Submit order to Pictorem
     const orderPayload = {
-      'orderList[0][preOrderCode]': preorderCode,
+      'orderList[0][code]': preorderCode,
       'orderList[0][fileurl]': pictoremImageUrl,
-      'orderList[0][clientRef]': `stripe_${session.id}`,
-      'delivery[firstname]': firstName,
-      'delivery[lastname]': lastName,
-      'delivery[address1]': address.line1 || '',
-      'delivery[address2]': address.line2 || '',
-      'delivery[city]': address.city || '',
-      'delivery[province]': address.state || '',
-      'delivery[country]': address.country || 'US',
-      'delivery[cp]': address.postal_code || '',
-      'delivery[email]': customerEmail,
-      'delivery[phone]': '',
+      'orderList[0][filetype]': 'jpg',
+      'deliveryInfo[firstname]': firstName,
+      'deliveryInfo[lastname]': lastName,
+      'deliveryInfo[address1]': address.line1 || '',
+      'deliveryInfo[address2]': address.line2 || '',
+      'deliveryInfo[city]': address.city || '',
+      'deliveryInfo[province]': address.state || '',
+      'deliveryInfo[country]': address.country || 'US',
+      'deliveryInfo[cp]': address.postal_code || '',
+      'deliveryInfo[phone]': '',
+      'ordercomment': `Stripe ref: stripe_${session.id} | Customer: ${customerEmail}`,
     };
 
     let orderResult;

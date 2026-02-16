@@ -58,10 +58,11 @@ export async function onRequestPost(context) {
     // the Stripe session. This prevents charging customers for items
     // that cannot be fulfilled (prints) or delivered (licenses).
     // For mixed orders, check BOTH print and license originals.
+    // SKIP in test mode — test items may not have R2 originals.
     // See: Pipeline Audit Risk A — "Too Late" validation fix.
     // ================================================================
     const R2_BUCKET = env.ORIGINALS;
-    if (R2_BUCKET) {
+    if (R2_BUCKET && !isTestMode) {
       // Build list of R2 keys to verify
       const r2Checks = [];
 

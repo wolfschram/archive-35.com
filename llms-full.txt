@@ -12,7 +12,7 @@
 - Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
 - Website: https://archive-35.com
 
-## Print Collections (585 photographs, 31 collections)
+## Print Collections (474 photographs, 29 collections)
 
 ### Antelope Canyon (9 photographs)
 - URL: https://archive-35.com/collection.html?id=antelope-canyon
@@ -176,17 +176,6 @@
   - Highland Valley in Ethereal Light | Iceland, Central Highlands or South Iceland | 44.8MP | Tags: iceland, highland-landscape, volcanic-terrain, mountain-vista, braided-stream, moss-covered-ground, dramatic-sky, moody-clouds
   - ... and 62 more photographs
 
-### Iceland Ring Road (67 photographs)
-- URL: https://archive-35.com/collection.html?id=iceland-ring-road
-- Gallery: https://archive-35.com/gallery.html?collection=iceland-ring-road
-
-  - Turquoise river on Dark Stone | Southern Iceland Coastline, Ring Road | 36.6MP | Tags: iceland-, basalt-shore, turquoise-waves, volcanic-rock, coastal-landscape, wave-action, moss-covered-stone, atlantic-coast
-  - Moss-Covered Lava Fields | Eldhraun Lava Field, South Iceland | 49.6MP | Tags: lava-field, moss-covered, iceland-landscape, volcanic-terrain, south-iceland, dramatic-sky, geological-formation, basalt
-  - Storm Light Over Moorland | Central Iceland Highlands, near Kjölur or Sprengisandur region | 39.9MP | Tags: iceland-landscape, moorland, highlands, mountain-vista, dramatic-sky, fine-art-photography, nature-print, emerald-slopes
-  - Glacial Valley Under Dramatic Skies | Landmannalaugar Region, Central Iceland | 44.8MP | Tags: landscape-photography, fine-art-print, iceland-scenery, glacial-stream, volcanic-mountains, moss-covered-terrain, dramatic-sky, nature-photography
-  - Moss-Draped Lava Canyon |  South Iceland | 49.6MP | Tags: lava-field, moss-covered, basalt, geological-formation, volcanic-landscape, iceland-interior, south-iceland, emerald-green
-  - ... and 62 more photographs
-
 ### Lake Powell (14 photographs)
 - URL: https://archive-35.com/collection.html?id=lake-powell
 - Gallery: https://archive-35.com/gallery.html?collection=lake-powell
@@ -197,17 +186,6 @@
   - Horseshoe Bend's Turquoise Embrace | Horseshoe Bend, Colorado River, Page, Arizona, USA | 50.3MP | Tags: horseshoe-bend, colorado-river, arizona, page-arizona, canyon, meander, river-bend, turquoise-water
   - Canyon Portal: Stone's Silent Gateway | Canyon Country, Southwest USA - likely Utah or Arizona region | 12.3MP | Tags: natural-arch, canyon-landscape, sandstone-formation, desert-photography, arches-national-park, utah-landscape, arizona-desert, geological-formation
   - ... and 9 more photographs
-
-### Large Scale Photography Stitch (44 photographs)
-- URL: https://archive-35.com/collection.html?id=large-scale-photography-stitch
-- Gallery: https://archive-35.com/gallery.html?collection=large-scale-photography-stitch
-
-  - Desert Dunes in Golden Light | Gobi Desert, Mongolia | 250.8MP | Tags: desert-landscape, sand-dunes, gobi-desert, mongolia, arid-landscape, golden-sand, dune-formations, desert-photography
-  - Alpine Lake Mountain Reflections | Pacific Northwest Alpine Region, Cascade Mountains | 122.7MP | Tags: mountain-lake, alpine-landscape, evergreen-forest, cascade-mountains, pacific-northwest, landscape-photography, fine-art-print, nature-photography
-  - Mountain Valley Wilderness | Cascade Range, Oregon, Pacific Northwest USA | 41.8MP | Tags: mountain-landscape, valley-vista, coniferous-forest, snow-capped-peaks, wilderness-photography, fine-art-landscape, nature-photography, cascade-range
-  - Geothermal Valley in Repose | Iceland, Geothermal Region (likely Myvatn or Central Highlands) | 70.2MP | Tags: iceland, lava-field, geothermal, volcanic-landscape, mountain, steam, moss-covered, dramatic-sky
-  - Volcanic Moorland Under Gathering Storms | Iceland - Highland Region, likely Landmannalaugar or Mývatn area | 89.6MP | Tags: iceland, volcanic-landscape, moorland, mountain, lava-field, dramatic-sky, storm-clouds, tundra
-  - ... and 39 more photographs
 
 ### London (1 photographs)
 - URL: https://archive-35.com/collection.html?id=london

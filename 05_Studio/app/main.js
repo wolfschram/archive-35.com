@@ -296,6 +296,8 @@ ipcMain.handle('get-mode', async () => {
 });
 
 // Set mode (test or live)
+// AUTO-DEPLOYS stripe-config.json so the website switches immediately.
+// No manual deploy needed — toggle is the deploy.
 ipcMain.handle('set-mode', async (event, mode) => {
   if (mode !== 'test' && mode !== 'live') {
     return { success: false, error: 'Invalid mode. Use "test" or "live".' };
@@ -303,11 +305,45 @@ ipcMain.handle('set-mode', async (event, mode) => {
   try {
     setCurrentMode(mode);
     console.log(`Mode switched to: ${mode.toUpperCase()}`);
+
+    // Auto-deploy stripe-config.json to website
+    const env = parseEnvFile();
+    const stripeConfig = {
+      mode: mode,
+      publishableKey: mode === 'test'
+        ? (env.STRIPE_TEST_PUBLISHABLE_KEY || '')
+        : (env.STRIPE_PUBLISHABLE_KEY || ''),
+    };
+
+    // Write to both source and _site
+    const dataDir = path.join(ARCHIVE_BASE, 'data');
+    const siteDataDir = path.join(ARCHIVE_BASE, '_site', 'data');
+    const configContent = JSON.stringify(stripeConfig, null, 2) + '\n';
+    fsSync.writeFileSync(path.join(dataDir, 'stripe-config.json'), configContent);
+    if (fsSync.existsSync(siteDataDir)) {
+      fsSync.writeFileSync(path.join(siteDataDir, 'stripe-config.json'), configContent);
+    }
+
+    // Git add, commit, push — deploy to Cloudflare automatically
+    const { execSync } = require('child_process');
+    const gitOpts = { cwd: ARCHIVE_BASE, encoding: 'utf8', timeout: 30000 };
+    try {
+      execSync('git add data/stripe-config.json _site/data/stripe-config.json', gitOpts);
+      const status = execSync('git diff --cached --stat', gitOpts).trim();
+      if (status) {
+        execSync(`git commit -m "Switch Stripe to ${mode.toUpperCase()} mode"`, gitOpts);
+        execSync('git push', gitOpts);
+        console.log(`Stripe ${mode.toUpperCase()} mode deployed to website`);
+      }
+    } catch (gitErr) {
+      console.warn('Auto-deploy of stripe config failed (non-fatal):', gitErr.message);
+    }
+
     // Notify all windows
     if (mainWindow) {
       mainWindow.webContents.send('mode-changed', mode);
     }
-    return { success: true, mode };
+    return { success: true, mode, deployed: true };
   } catch (err) {
     return { success: false, error: err.message };
   }

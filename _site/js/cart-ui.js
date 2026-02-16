@@ -360,6 +360,10 @@ class CartUI {
       checkoutBtn.textContent = 'Processing...';
     }
 
+    // Detect order types in cart
+    const hasLicense = items.some(i => i.metadata?.material === 'license' || i.metadata?.licenseTier);
+    const hasPrint = items.some(i => i.metadata?.material && i.metadata.material !== 'license');
+
     // Detect test mode from Stripe public key prefix
     const isTestMode = window.STRIPE_PUBLIC_KEY && window.STRIPE_PUBLIC_KEY.startsWith('pk_test_');
     if (isTestMode) {
@@ -373,7 +377,7 @@ class CartUI {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         lineItems,
-        successUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`,
+        successUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}&type=${hasLicense && hasPrint ? 'mixed' : hasLicense ? 'license' : 'print'}`,
         cancelUrl: window.location.href,
         pictorem,
         testMode: isTestMode || undefined

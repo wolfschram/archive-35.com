@@ -136,9 +136,9 @@
       <div class="thank-you-content">
         <div class="thank-you-icon">✓</div>
 
-        <!-- PRINT ORDER (default) -->
-        <div id="print-order-info">
-          <h2>Your order has been received!</h2>
+        <!-- PRINT ORDER -->
+        <div id="print-order-info" style="display:none;">
+          <h2>Your print order has been received!</h2>
 
           <p>You'll receive an email confirmation shortly with your order details. Your print will be handcrafted by our professional print partner and shipped directly to you.</p>
 
@@ -172,6 +172,31 @@
           <p style="color:var(--accent);font-size:0.9rem;">Didn't receive the email? Check your spam folder, or <a href="contact.html">contact us</a> and we'll resend it immediately.</p>
         </div>
 
+        <!-- MIXED ORDER (prints + licenses) -->
+        <div id="mixed-order-info" style="display:none;">
+          <h2>Your order has been received!</h2>
+
+          <p>Your order includes both prints and licenses. Here's what to expect for each:</p>
+
+          <div class="order-details">
+            <h3>Your Prints</h3>
+            <ul>
+              <li><strong>Within 24 hours:</strong> Your print order enters production</li>
+              <li><strong>5-14 business days:</strong> Your print is carefully crafted</li>
+              <li><strong>Delivery:</strong> Free ground shipping — expect within 2-4 weeks total</li>
+            </ul>
+          </div>
+
+          <div class="order-details" style="margin-top:1rem;">
+            <h3>Your Licenses</h3>
+            <ul>
+              <li><strong>Within minutes:</strong> Check your email for a secure download link</li>
+              <li><strong>Download link:</strong> Valid for 72 hours</li>
+              <li><strong>License certificate:</strong> Will follow by email</li>
+            </ul>
+          </div>
+        </div>
+
         <p>Questions about your order? <a href="contact.html">Contact us</a> and we'll be happy to help.</p>
 
         <div class="cta-buttons">
@@ -180,13 +205,17 @@
         </div>
 
         <script>
-          // Show license-specific content if type=license in URL
+          // Show correct content based on order type
           const urlParams = new URLSearchParams(window.location.search);
-          if (urlParams.get('type') === 'license') {
-            document.getElementById('print-order-info').style.display = 'none';
+          const orderType = urlParams.get('type') || 'print';
+          if (orderType === 'license') {
             document.getElementById('license-order-info').style.display = 'block';
-            // Update page header too
             document.querySelector('.page-header h1').textContent = 'License Confirmed';
+          } else if (orderType === 'mixed') {
+            document.getElementById('mixed-order-info').style.display = 'block';
+            document.querySelector('.page-header h1').textContent = 'Order Confirmed';
+          } else {
+            document.getElementById('print-order-info').style.display = 'block';
           }
         </script>
 

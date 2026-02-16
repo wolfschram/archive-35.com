@@ -54,48 +54,54 @@ export async function onRequestPost(context) {
     }
 
     // ================================================================
-    // PRE-FLIGHT CHECK: Verify R2 original exists BEFORE creating
+    // PRE-FLIGHT CHECK: Verify R2 originals exist BEFORE creating
     // the Stripe session. This prevents charging customers for items
     // that cannot be fulfilled (prints) or delivered (licenses).
+    // For mixed orders, check BOTH print and license originals.
     // See: Pipeline Audit Risk A — "Too Late" validation fix.
     // ================================================================
     const R2_BUCKET = env.ORIGINALS;
     if (R2_BUCKET) {
-      const orderMeta = pictorem || license || {};
-      const collection = orderMeta.collection || '';
-      const photoFilename = orderMeta.photoFilename || orderMeta.photoId || '';
+      // Build list of R2 keys to verify
+      const r2Checks = [];
 
-      if (photoFilename) {
-        // Determine R2 key based on order type
-        const isLicense = !!license;
-        let r2Key;
-        if (isLicense) {
-          // Licensing originals stored under originals/ prefix
-          r2Key = `originals/${photoFilename}`;
-        } else {
-          // Gallery originals stored under {collection}/ prefix
-          r2Key = collection ? `${collection}/${photoFilename}` : photoFilename;
+      if (pictorem) {
+        const fn = pictorem.photoFilename || pictorem.photoId || '';
+        const col = pictorem.collection || '';
+        if (fn) {
+          let key = col ? `${col}/${fn}` : fn;
+          if (!key.match(/\.(jpg|jpeg|png|tiff?)$/i)) key += '.jpg';
+          r2Checks.push({ key, type: 'print' });
         }
-        // Normalize extension — avoid double .jpg.jpg
-        if (!r2Key.match(/\.(jpg|jpeg|png|tiff?)$/i)) r2Key += '.jpg';
+      }
 
+      if (license) {
+        const fn = license.photoFilename || license.photoId || '';
+        if (fn) {
+          let key = `originals/${fn}`;
+          if (!key.match(/\.(jpg|jpeg|png|tiff?)$/i)) key += '.jpg';
+          r2Checks.push({ key, type: 'license' });
+        }
+      }
+
+      for (const check of r2Checks) {
         try {
-          const headResult = await R2_BUCKET.head(r2Key);
+          const headResult = await R2_BUCKET.head(check.key);
           if (!headResult) {
-            console.error(`PRE-FLIGHT BLOCK: R2 original missing: ${r2Key}`);
+            console.error(`PRE-FLIGHT BLOCK: R2 original missing (${check.type}): ${check.key}`);
             return new Response(
               JSON.stringify({
                 error: 'This product is temporarily unavailable. Please try again later or contact us.',
-                detail: 'Original image not found in storage',
-                missingKey: r2Key,
+                detail: `Original image not found in storage (${check.type})`,
+                missingKey: check.key,
               }),
               { status: 400, headers: corsHeaders }
             );
           }
-          console.log(`PRE-FLIGHT OK: R2 original verified: ${r2Key} (${headResult.size} bytes)`);
+          console.log(`PRE-FLIGHT OK: R2 original verified (${check.type}): ${check.key} (${headResult.size} bytes)`);
         } catch (r2Err) {
           // R2 check failed but don't block if it's a transient error
-          console.warn(`PRE-FLIGHT WARNING: R2 check failed (${r2Err.message}) — allowing checkout to proceed`);
+          console.warn(`PRE-FLIGHT WARNING: R2 check failed for ${check.type} (${r2Err.message}) — allowing checkout to proceed`);
         }
       }
     }

@@ -2285,6 +2285,21 @@ ${collectionsText}${staticFooter}`;
       deployWarnings = valWarnings;
     }
 
+    // Phase 5d: Write Stripe config based on current mode (test/live)
+    // This is the SINGLE SOURCE OF TRUTH for which Stripe key the website uses.
+    // Studio's test/live toggle controls this — no code changes needed to switch.
+    const currentMode = getCurrentMode();
+    const envKeys = parseEnvFile();
+    const stripeConfig = {
+      mode: currentMode,
+      publishableKey: currentMode === 'test'
+        ? (envKeys.STRIPE_TEST_PUBLISHABLE_KEY || '')
+        : (envKeys.STRIPE_PUBLISHABLE_KEY || ''),
+    };
+    const stripeConfigPath = path.join(DATA_DIR, 'stripe-config.json');
+    await fs.writeFile(stripeConfigPath, JSON.stringify(stripeConfig, null, 2) + '\n');
+    sendProgress('config', `Stripe mode: ${currentMode.toUpperCase()} — publishable key written to stripe-config.json`);
+
     // Phase 6: Git operations
     sendProgress('git', 'Committing changes...');
     const { execSync } = require('child_process');

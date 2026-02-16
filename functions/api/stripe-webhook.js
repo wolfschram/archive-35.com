@@ -941,36 +941,46 @@ export async function onRequestPost(context) {
     const photoFilename = metadata.photoFilename || photoId;
 
     // HIGH-RES for Pictorem: Try R2 original first
-    const originalResult = await getOriginalImageUrl(env, collection, photoFilename);
-    console.log(`Image for Pictorem: ${originalResult.source}${originalResult.size ? ` (${(originalResult.size / 1024 / 1024).toFixed(1)}MB)` : ''}`);
+    let originalResult;
+    let pictoremImageUrl;
 
-    // HARD BLOCK: If R2 original is missing, do NOT send garbage to Pictorem
-    if (originalResult.source !== 'r2-original') {
-      console.error(`BLOCKED: Cannot fulfill print order — R2 original missing for ${collection}/${photoFilename}`);
-      // Send alert email to Wolf
-      try {
-        await sendEmail(RESEND_API_KEY, {
-          to: 'wolfbroadcast@gmail.com',
-          subject: `URGENT: Print order BLOCKED — R2 original missing`,
-          html: `<h2>Print Order Blocked</h2>
-            <p><strong>Reason:</strong> High-res original not found in R2 bucket</p>
-            <p><strong>Missing file:</strong> ${collection}/${photoFilename}.jpg</p>
-            <p><strong>Customer:</strong> ${customerEmail}</p>
-            <p><strong>Order amount:</strong> $${(session.amount_total / 100).toFixed(2)}</p>
-            <p><strong>Stripe Session:</strong> ${session.id}</p>
-            <p><strong>Action needed:</strong> Upload the original to R2 via Studio > Website Control > R2 Original Backup, then manually submit order to Pictorem.</p>`
-        });
-      } catch (emailErr) {
-        console.error('Failed to send R2 missing alert email:', emailErr.message);
+    if (isTestMode) {
+      // MOCK: Skip R2 check in test mode — test items may not have originals
+      originalResult = { source: 'r2-original', url: `https://archive-35.com/images/${collection}/${photoFilename}-full.jpg`, size: 0, mock: true };
+      pictoremImageUrl = originalResult.url;
+      console.log('TEST: Mocked R2 original check (skipped real R2 lookup)');
+    } else {
+      originalResult = await getOriginalImageUrl(env, collection, photoFilename);
+      console.log(`Image for Pictorem: ${originalResult.source}${originalResult.size ? ` (${(originalResult.size / 1024 / 1024).toFixed(1)}MB)` : ''}`);
+
+      // HARD BLOCK: If R2 original is missing, do NOT send garbage to Pictorem
+      if (originalResult.source !== 'r2-original') {
+        console.error(`BLOCKED: Cannot fulfill print order — R2 original missing for ${collection}/${photoFilename}`);
+        // Send alert email to Wolf
+        try {
+          await sendEmail(RESEND_API_KEY, {
+            to: 'wolfbroadcast@gmail.com',
+            subject: `URGENT: Print order BLOCKED — R2 original missing`,
+            html: `<h2>Print Order Blocked</h2>
+              <p><strong>Reason:</strong> High-res original not found in R2 bucket</p>
+              <p><strong>Missing file:</strong> ${collection}/${photoFilename}.jpg</p>
+              <p><strong>Customer:</strong> ${customerEmail}</p>
+              <p><strong>Order amount:</strong> $${(session.amount_total / 100).toFixed(2)}</p>
+              <p><strong>Stripe Session:</strong> ${session.id}</p>
+              <p><strong>Action needed:</strong> Upload the original to R2 via Studio > Website Control > R2 Original Backup, then manually submit order to Pictorem.</p>`
+          });
+        } catch (emailErr) {
+          console.error('Failed to send R2 missing alert email:', emailErr.message);
+        }
+        return new Response(JSON.stringify({
+          received: true,
+          warning: 'Print order BLOCKED — R2 original missing. Alert email sent to seller.',
+          missingFile: `${collection}/${photoFilename}.jpg`
+        }), { status: 200, headers: { 'Content-Type': 'application/json' } });
       }
-      return new Response(JSON.stringify({
-        received: true,
-        warning: 'Print order BLOCKED — R2 original missing. Alert email sent to seller.',
-        missingFile: `${collection}/${photoFilename}.jpg`
-      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-    }
 
-    const pictoremImageUrl = originalResult.url;
+      pictoremImageUrl = originalResult.url;
+    }
 
     // WEB-OPTIMIZED for emails: Always use the web version (smaller, loads fast in email)
     const emailImageUrl = `https://archive-35.com/images/${collection}/${photoFilename}-full.jpg`;

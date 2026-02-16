@@ -11,6 +11,7 @@ import GalleryPreview from './pages/GalleryPreview';
 import PromoCodeManager from './pages/PromoCodeManager';
 import FolderSync from './pages/FolderSync';
 import Settings from './pages/Settings';
+import AboutEditor from './pages/AboutEditor';
 import './styles/App.css';
 
 /**
@@ -87,6 +88,9 @@ function App() {
         </TabPanel>
         <TabPanel id="analytics" activeTab={activeTab}>
           <Analytics />
+        </TabPanel>
+        <TabPanel id="about" activeTab={activeTab}>
+          <AboutEditor />
         </TabPanel>
         <TabPanel id="settings" activeTab={activeTab}>
           <Settings mode={mode} setMode={setMode} />

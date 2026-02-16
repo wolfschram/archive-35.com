@@ -134,6 +134,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Stripe-to-Sheet Reconciliation
   reconcileStripeOrders: (opts) => ipcRenderer.invoke('reconcile-stripe-orders', opts),
 
+  // About Page Editor
+  loadAboutContent: () => ipcRenderer.invoke('load-about-content'),
+  saveAboutContent: (data) => ipcRenderer.invoke('save-about-content', data),
+  selectAboutPhoto: () => ipcRenderer.invoke('select-about-photo'),
+  onAboutDeployProgress: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('about-deploy-progress', handler);
+    return () => ipcRenderer.removeListener('about-deploy-progress', handler);
+  },
+
   // Platform info
   platform: process.platform
 });

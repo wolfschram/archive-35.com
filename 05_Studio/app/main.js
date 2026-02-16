@@ -3782,3 +3782,103 @@ ipcMain.handle('run-folder-sync', async (event, data) => {
     return { success: false, error: err.message };
   }
 });
+
+// ================================================================
+// ABOUT PAGE EDITOR
+// ================================================================
+
+ipcMain.handle('load-about-content', async () => {
+  try {
+    const aboutPath = path.join(ARCHIVE_BASE, 'data', 'about.json');
+    const raw = await fs.readFile(aboutPath, 'utf-8');
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error('Failed to load about.json:', err.message);
+    return null;
+  }
+});
+
+ipcMain.handle('select-about-photo', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Select Portrait Photo',
+    filters: [{ name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'webp'] }],
+    properties: ['openFile'],
+  });
+  if (result.canceled || !result.filePaths.length) return null;
+  return { filePath: result.filePaths[0] };
+});
+
+ipcMain.handle('save-about-content', async (event, data) => {
+  const send = (step, status, message) => {
+    mainWindow?.webContents.send('about-deploy-progress', { step, status, message });
+  };
+
+  try {
+    // Step 1: Process photo if new one selected
+    send('photo', 'running', 'Processing photo...');
+    let photoPath = data.photoPath;
+
+    if (data.newPhotoPath) {
+      // Copy new photo to images/about/ folder
+      const aboutImgDir = path.join(ARCHIVE_BASE, 'images', 'about');
+      await fs.mkdir(aboutImgDir, { recursive: true });
+
+      const ext = path.extname(data.newPhotoPath).toLowerCase();
+      const destFilename = `wolf-portrait${ext}`;
+      const destPath = path.join(aboutImgDir, destFilename);
+
+      await fs.copyFile(data.newPhotoPath, destPath);
+      photoPath = `images/about/${destFilename}`;
+      send('photo', 'ok', `Photo copied: ${destFilename}`);
+    } else {
+      send('photo', 'ok', 'Photo unchanged');
+    }
+
+    // Step 2: Write about.json
+    send('json', 'running', 'Writing about.json...');
+    const aboutData = {
+      shortBio: data.shortBio || '',
+      longBio: data.longBio || [],
+      artistQuote: data.artistQuote || '',
+      printsInfo: data.printsInfo || [],
+      photoPath: photoPath,
+    };
+    const aboutPath = path.join(ARCHIVE_BASE, 'data', 'about.json');
+    await fs.writeFile(aboutPath, JSON.stringify(aboutData, null, 2) + '\n');
+
+    // Verify write
+    const verify = await fs.readFile(aboutPath, 'utf-8');
+    const parsed = JSON.parse(verify);
+    if (parsed.shortBio !== aboutData.shortBio) throw new Error('Write verification failed');
+    send('json', 'ok', 'about.json saved and verified');
+
+    // Step 3: Run build
+    send('build', 'running', 'Running build...');
+    const { execSync } = require('child_process');
+    execSync('bash build.sh', { cwd: ARCHIVE_BASE, timeout: 60000 });
+    send('build', 'ok', 'Build complete');
+
+    // Step 4: Git commit + push
+    send('git', 'running', 'Committing and pushing...');
+    try {
+      execSync('git add data/about.json images/about/', { cwd: ARCHIVE_BASE });
+      execSync('git add _site/data/about.json', { cwd: ARCHIVE_BASE });
+      if (data.newPhotoPath) {
+        execSync('git add _site/images/about/', { cwd: ARCHIVE_BASE });
+      }
+      execSync(`git commit -m "Update about page content via Studio" --allow-empty`, { cwd: ARCHIVE_BASE });
+      execSync('git push origin main', { cwd: ARCHIVE_BASE, timeout: 30000 });
+      send('git', 'ok', 'Pushed to GitHub');
+    } catch (gitErr) {
+      send('git', 'warning', 'Git push issue: ' + gitErr.message);
+    }
+
+    // Step 5: Done
+    send('done', 'ok', 'About page updated and deployed!');
+    return { success: true };
+
+  } catch (err) {
+    send('error', 'error', 'Failed: ' + err.message);
+    return { success: false, error: err.message };
+  }
+});

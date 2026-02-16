@@ -12,6 +12,7 @@ const tabs = [
   { id: 'sync', label: 'Sync', icon: '☁️' },
   { id: 'social', label: 'Social', icon: '📱' },
   { id: 'analytics', label: 'Analytics', icon: '📊' },
+  { id: 'about', label: 'About', icon: '👤' },
   { id: 'settings', label: 'Settings', icon: '⚙️' },
 ];
 

@@ -32,6 +32,8 @@ cp -r css js images data logos _site/ 2>/dev/null || true
 # (e.g., deleted collections whose source images couldn't be removed due to permissions)
 rm -rf _site/images/large-scale-photography-stitch 2>/dev/null || true
 rm -rf _site/images/africa 2>/dev/null || true
+rm -rf _site/images/iceland-ring-road 2>/dev/null || true
+rm -rf _site/images/antilope-canyon 2>/dev/null || true
 
 # Copy prototype gallery assets (thumbs, labels, textures)
 cp -r prototype _site/ 2>/dev/null || true

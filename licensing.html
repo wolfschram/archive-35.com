@@ -133,10 +133,10 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
 .card-licenses{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted)}
 
 /* ── DETAIL MODAL ── */
-.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.92);opacity:0;pointer-events:none;transition:opacity 0.3s;overflow-y:auto}
+.modal-overlay{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.92);opacity:0;pointer-events:none;transition:opacity 0.3s;overflow-y:auto}
 .modal-overlay.open{opacity:1;pointer-events:auto}
 .modal{max-width:1100px;margin:40px auto;padding:0 24px;display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:start}
-.modal-close{position:fixed;top:20px;right:28px;background:none;border:none;color:var(--text-dim);font-size:28px;cursor:pointer;z-index:310;transition:color 0.2s}
+.modal-close{position:fixed;top:20px;right:28px;background:none;border:none;color:var(--text-dim);font-size:28px;cursor:pointer;z-index:410;transition:color 0.2s}
 .modal-close:hover{color:var(--gold)}
 .modal-img{border-radius:4px;overflow:hidden;background:var(--raised)}
 .modal-img img{width:100%;display:block}
@@ -279,7 +279,10 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
         <input type="checkbox" id="m-agree" onchange="checkTerms()">
         <label for="m-agree">I have read and agree to the <a href="licensing/terms.html" target="_blank">Image License Agreement</a></label>
       </div>
-      <button class="btn-license" id="m-buy" disabled onclick="handlePurchase()">License This Image</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <button class="btn-license" id="m-add-cart" disabled onclick="handleAddToCart()" style="background:var(--gold);color:var(--bg)">Add to Cart</button>
+        <button class="btn-license" id="m-buy" disabled onclick="handlePurchase()">License Now</button>
+      </div>
     </div>
   </div>
 </div>
@@ -481,11 +484,13 @@ function updatePrice() {
 
   const isExclusive = currentImage.status === 'exclusively_licensed';
   const btn = document.getElementById('m-buy');
+  const cartBtn = document.getElementById('m-add-cart');
   if (isExclusive) {
     btn.textContent = 'EXCLUSIVELY LICENSED';
     btn.disabled = true;
+    cartBtn.disabled = true;
   } else {
-    btn.textContent = 'License This Image';
+    btn.textContent = 'License Now';
     checkTerms();
   }
 }
@@ -494,6 +499,47 @@ function checkTerms() {
   const agreed = document.getElementById('m-agree').checked;
   const isExclusive = currentImage && currentImage.status === 'exclusively_licensed';
   document.getElementById('m-buy').disabled = !agreed || isExclusive;
+  document.getElementById('m-add-cart').disabled = !agreed || isExclusive;
+}
+
+function handleAddToCart() {
+  if (!currentImage) return;
+  const tier = document.getElementById('m-tier').value;
+  const tierInfo = catalog.tiers ? catalog.tiers[tier] : {};
+  const tierName = tierInfo.name || tier;
+  let price = currentImage.pricing[tier] || 0;
+  if (currentFormat === 'tiff') price += 100;
+
+  const cartItem = {
+    photoId: currentImage.id,
+    title: (currentImage.title || currentImage.id) + ' — ' + tierName + ' License',
+    material: tierName + ' License',
+    size: currentFormat.toUpperCase(),
+    price: price,
+    thumbnail: currentImage.thumbnail,
+    metadata: {
+      photoId: currentImage.id,
+      photoFilename: currentImage.filename || currentImage.id,
+      collection: currentImage.collection || 'licensing',
+      material: 'license',
+      width: '0',
+      height: '0',
+      licenseTier: tier,
+      licenseFormat: currentFormat,
+      originalPhotoWidth: String(currentImage.width),
+      originalPhotoHeight: String(currentImage.height)
+    }
+  };
+
+  if (window.cart && window.cart.addToCart) {
+    window.cart.addToCart(cartItem);
+    if (window.cartUI && window.cartUI.showToast) {
+      window.cartUI.showToast('Added license to cart');
+    }
+    closeModal();
+  } else {
+    alert('Cart not available. Please refresh the page.');
+  }
 }
 
 async function handlePurchase() {
@@ -622,7 +668,7 @@ loadCatalog();
 </script>
 <link rel="stylesheet" href="css/cart.css">
 <script src="https://js.stripe.com/v3/"></script>
-<script>window.STRIPE_PUBLIC_KEY = 'pk_test_51SxIaWIyLqYsy9lvQBUlhX2aj0atlTuHbA1Q0861MUuaUPAaxjtrwh71GqBUMhYcdzyDgCBZQ2TLS2nTaAVNZrgP00OHqZD4OI';</script>
+<script>window.STRIPE_PUBLIC_KEY = 'pk_live_51SxIaWIyLqYsy9lvz6b9LBV2cMBz4JJgFb30aYvbrMxH0hromGU1mFWF2vu6tV97Co8LrczCM3dFJg89a9a4tT0U007cpVXRWM';</script>
 <script src="js/cart.js"></script>
 <script src="js/cart-ui.js?v=2"></script>
 <script src="js/image-protection.js"></script>

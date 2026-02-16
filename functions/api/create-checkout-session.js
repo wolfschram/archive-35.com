@@ -76,7 +76,8 @@ export async function onRequestPost(context) {
           // Gallery originals stored under {collection}/ prefix
           r2Key = collection ? `${collection}/${photoFilename}` : photoFilename;
         }
-        if (!r2Key.endsWith('.jpg')) r2Key += '.jpg';
+        // Normalize extension — avoid double .jpg.jpg
+        if (!r2Key.match(/\.(jpg|jpeg|png|tiff?)$/i)) r2Key += '.jpg';
 
         try {
           const headResult = await R2_BUCKET.head(r2Key);

@@ -829,6 +829,33 @@ export async function onRequestPost(context) {
       return await handleLicenseOrder(session, metadata, env, isTestMode, STRIPE_SECRET_KEY, RESEND_API_KEY, WOLF_EMAIL);
     }
 
+    if (orderType === 'mixed') {
+      // ================================================================
+      // MIXED ORDER — process license delivery first (non-blocking),
+      // then continue with print fulfillment below.
+      // License metadata is prefixed with 'license_' to avoid collision.
+      // ================================================================
+      const licenseMeta = {
+        photoId: metadata.licensePhotoId || '',
+        photoTitle: metadata.licensePhotoTitle || '',
+        photoFilename: metadata.licensePhotoFilename || '',
+        collection: metadata.licenseCollection || '',
+        licenseTier: metadata.licenseTier || '',
+        licenseTierName: metadata.licenseTierName || '',
+        licenseFormat: metadata.licenseFormat || 'jpeg',
+        licenseClassification: metadata.licenseClassification || '',
+        resolution: metadata.resolution || '',
+        orderType: 'license',
+      };
+      try {
+        await handleLicenseOrder(session, licenseMeta, env, isTestMode, STRIPE_SECRET_KEY, RESEND_API_KEY, WOLF_EMAIL);
+        console.log('Mixed order: license fulfillment completed, proceeding to print...');
+      } catch (licenseErr) {
+        console.error('Mixed order: license fulfillment failed (continuing with print):', licenseErr.message);
+      }
+      // Fall through to print fulfillment below
+    }
+
     // ================================================================
     // PRINT ORDER — physical fulfillment via Pictorem (existing flow)
     // ================================================================

@@ -309,49 +309,64 @@ class CartUI {
       quantity: 1
     }));
 
-    // Build Pictorem metadata with robust fallbacks (never null)
-    const firstItem = items[0];
-    const meta = firstItem.metadata || {};
-    const photoId = meta.photoId || firstItem.photoId || 'unknown';
+    // Separate print items and license items
+    const printItems = items.filter(i => !i.metadata?.licenseTier && i.metadata?.material !== 'license');
+    const licenseItems = items.filter(i => i.metadata?.licenseTier || i.metadata?.material === 'license');
 
-    // Enrich from photos.json if metadata is incomplete
-    const photoRecord = photosLookup[photoId] || {};
+    // Build Pictorem metadata from first PRINT item (if any)
+    let pictorem = null;
+    if (printItems.length > 0) {
+      const firstPrint = printItems[0];
+      const meta = firstPrint.metadata || {};
+      const photoId = meta.photoId || firstPrint.photoId || 'unknown';
+      const photoRecord = photosLookup[photoId] || {};
 
-    // Parse size string (e.g., "24 × 16") for fallback dimensions
-    let fallbackWidth = 0, fallbackHeight = 0;
-    if (firstItem.size) {
-      const sizeParts = firstItem.size.replace(/["\s]/g, '').split(/[x×]/i);
-      if (sizeParts.length === 2) {
-        fallbackWidth = parseInt(sizeParts[0]) || 0;
-        fallbackHeight = parseInt(sizeParts[1]) || 0;
+      let fallbackWidth = 0, fallbackHeight = 0;
+      if (firstPrint.size) {
+        const sizeParts = firstPrint.size.replace(/["\s]/g, '').split(/[x×]/i);
+        if (sizeParts.length === 2) {
+          fallbackWidth = parseInt(sizeParts[0]) || 0;
+          fallbackHeight = parseInt(sizeParts[1]) || 0;
+        }
       }
+
+      pictorem = {
+        photoId: photoId,
+        photoTitle: firstPrint.title || 'Untitled',
+        photoFilename: meta.photoFilename || photoRecord.filename || photoId,
+        collection: meta.collection || photoRecord.collection || '',
+        material: meta.material || firstPrint.material || '',
+        dimensions: {
+          width: parseInt(meta.width) || fallbackWidth,
+          height: parseInt(meta.height) || fallbackHeight,
+          originalWidth: parseInt(meta.originalPhotoWidth) || 0,
+          originalHeight: parseInt(meta.originalPhotoHeight) || 0,
+          dpi: parseInt(meta.dpi) || 0
+        }
+      };
+      console.log('[ARCHIVE-35] Print checkout metadata:', pictorem.photoId, pictorem.material);
     }
 
-    const pictorem = {
-      photoId: photoId,
-      photoTitle: firstItem.title || 'Untitled',
-      photoFilename: meta.photoFilename || photoRecord.filename || photoId,
-      collection: meta.collection || photoRecord.collection || '',
-      material: meta.material || firstItem.material || '',
-      dimensions: {
-        width: parseInt(meta.width) || fallbackWidth,
-        height: parseInt(meta.height) || fallbackHeight,
-        originalWidth: parseInt(meta.originalPhotoWidth) || 0,
-        originalHeight: parseInt(meta.originalPhotoHeight) || 0,
-        dpi: parseInt(meta.dpi) || 0
-      }
-    };
+    // Build license metadata from first LICENSE item (if any)
+    let license = null;
+    if (licenseItems.length > 0) {
+      const firstLicense = licenseItems[0];
+      const meta = firstLicense.metadata || {};
+      const photoId = meta.photoId || firstLicense.photoId || 'unknown';
+      const photoRecord = photosLookup[photoId] || {};
 
-    // Pre-checkout validation — log warnings for missing critical fields
-    const missingFields = [];
-    if (!pictorem.photoId || pictorem.photoId === 'unknown') missingFields.push('photoId');
-    if (!pictorem.material) missingFields.push('material');
-    if (!pictorem.dimensions.width) missingFields.push('printWidth');
-    if (!pictorem.dimensions.height) missingFields.push('printHeight');
-    if (missingFields.length > 0) {
-      console.warn('[ARCHIVE-35] Checkout metadata incomplete:', missingFields.join(', '), pictorem);
-    } else {
-      console.log('[ARCHIVE-35] Checkout metadata validated OK:', pictorem.photoId, pictorem.material);
+      license = {
+        photoId: photoId,
+        photoTitle: firstLicense.title || 'Untitled',
+        photoFilename: meta.photoFilename || photoRecord.filename || photoId,
+        collection: meta.collection || photoRecord.collection || '',
+        tier: meta.licenseTier || '',
+        tierName: meta.licenseTier || '',
+        format: meta.licenseFormat || 'jpeg',
+        classification: meta.licenseClassification || 'STANDARD',
+        resolution: `${meta.originalPhotoWidth || 0}x${meta.originalPhotoHeight || 0}`,
+      };
+      console.log('[ARCHIVE-35] License checkout metadata:', license.photoId, license.tier);
     }
 
     const checkoutBtn = document.getElementById('cart-checkout-btn');
@@ -359,10 +374,6 @@ class CartUI {
       checkoutBtn.disabled = true;
       checkoutBtn.textContent = 'Processing...';
     }
-
-    // Detect order types in cart
-    const hasLicense = items.some(i => i.metadata?.material === 'license' || i.metadata?.licenseTier);
-    const hasPrint = items.some(i => i.metadata?.material && i.metadata.material !== 'license');
 
     // Detect test mode from Stripe public key prefix
     const isTestMode = window.STRIPE_PUBLIC_KEY && window.STRIPE_PUBLIC_KEY.startsWith('pk_test_');
@@ -377,9 +388,10 @@ class CartUI {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         lineItems,
-        successUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}&type=${hasLicense && hasPrint ? 'mixed' : hasLicense ? 'license' : 'print'}`,
+        successUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}&type=${license && pictorem ? 'mixed' : license ? 'license' : 'print'}`,
         cancelUrl: window.location.href,
-        pictorem,
+        pictorem: pictorem || undefined,
+        license: license || undefined,
         testMode: isTestMode || undefined
       })
     })

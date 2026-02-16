@@ -129,27 +129,14 @@ export async function onRequestPost(context) {
       }
     });
 
-    // Determine order type: license or print
-    const isLicenseOrder = !!license;
-    params.append('metadata[orderType]', isLicenseOrder ? 'license' : 'print');
+    // Determine order type: print, license, or mixed
+    const hasPrint = !!pictorem;
+    const hasLicense = !!license;
+    const orderType = hasPrint && hasLicense ? 'mixed' : hasLicense ? 'license' : 'print';
+    params.append('metadata[orderType]', orderType);
 
-    if (isLicenseOrder && license) {
-      // LICENSE ORDER — digital delivery, no shipping needed
-      params.append('metadata[photoId]', license.photoId || '');
-      params.append('metadata[photoTitle]', license.photoTitle || '');
-      params.append('metadata[photoFilename]', license.photoFilename || '');
-      params.append('metadata[collection]', license.collection || '');
-      params.append('metadata[licenseTier]', license.tier || '');
-      params.append('metadata[licenseTierName]', license.tierName || '');
-      params.append('metadata[licenseFormat]', license.format || 'jpeg');
-      params.append('metadata[licenseClassification]', license.classification || '');
-      params.append('metadata[resolution]', license.resolution || '');
-
-      if (!license.photoId) {
-        console.warn('License checkout: missing photoId');
-      }
-    } else if (pictorem) {
-      // PRINT ORDER — physical fulfillment via Pictorem
+    if (pictorem) {
+      // PRINT metadata — physical fulfillment via Pictorem
       params.append('metadata[photoId]', pictorem.photoId || '');
       params.append('metadata[photoTitle]', pictorem.photoTitle || '');
       params.append('metadata[photoFilename]', pictorem.photoFilename || '');
@@ -160,24 +147,30 @@ export async function onRequestPost(context) {
       params.append('metadata[originalWidth]', String(pictorem.dimensions?.originalWidth || ''));
       params.append('metadata[originalHeight]', String(pictorem.dimensions?.originalHeight || ''));
       params.append('metadata[dpi]', String(pictorem.dimensions?.dpi || ''));
+    }
 
-      // Server-side validation checkpoint
-      const missing = [];
-      if (!pictorem.photoId) missing.push('photoId');
-      if (!pictorem.material) missing.push('material');
-      if (!pictorem.dimensions?.width) missing.push('printWidth');
-      if (!pictorem.dimensions?.height) missing.push('printHeight');
-      if (missing.length > 0) {
-        console.warn('Checkout session: incomplete Pictorem metadata:', missing.join(', '));
-      }
-    } else {
+    if (license) {
+      // LICENSE metadata — digital delivery
+      // Prefix with 'license_' to avoid collision with print metadata
+      params.append('metadata[licensePhotoId]', license.photoId || '');
+      params.append('metadata[licensePhotoTitle]', license.photoTitle || '');
+      params.append('metadata[licensePhotoFilename]', license.photoFilename || '');
+      params.append('metadata[licenseCollection]', license.collection || '');
+      params.append('metadata[licenseTier]', license.tier || '');
+      params.append('metadata[licenseTierName]', license.tierName || '');
+      params.append('metadata[licenseFormat]', license.format || 'jpeg');
+      params.append('metadata[licenseClassification]', license.classification || '');
+      params.append('metadata[resolution]', license.resolution || '');
+    }
+
+    if (!pictorem && !license) {
       console.warn('Checkout session: NO pictorem or license metadata provided');
     }
     // Store item count for webhook multi-item handling
     params.append('metadata[itemCount]', lineItems.length.toString());
 
-    // Collect shipping address only for print orders (not needed for digital licenses)
-    if (!isLicenseOrder) {
+    // Collect shipping address when prints are involved (needed for fulfillment)
+    if (hasPrint) {
       const allowedCountries = ['US', 'CA', 'GB', 'AU', 'DE', 'NZ', 'AT', 'CH', 'FR', 'IT', 'ES', 'NL', 'BE', 'IE', 'JP'];
       allowedCountries.forEach((country, i) => {
         params.append(`shipping_address_collection[allowed_countries][${i}]`, country);

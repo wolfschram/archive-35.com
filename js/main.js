@@ -216,7 +216,23 @@ function renderCollectionGallery() {
 function renderFeatured(container) {
   // Show first 6 photos as featured
   const featured = window.photosData.photos.slice(0, 6);
-  renderGallery(container, featured);
+
+  container.innerHTML = featured.map((photo) => `
+    <a href="collection.html?id=${photo.collection}" class="gallery-item" data-id="${photo.id}">
+      <img
+        data-src="${photo.thumbnail}"
+        alt="${photo.title}"
+        class="lazy"
+      >
+      <div class="gallery-item-overlay">
+        <h4 class="gallery-item-title">${photo.title}</h4>
+        <p class="gallery-item-location">${photo.location}</p>
+      </div>
+    </a>
+  `).join('');
+
+  // Re-init lazy loading for new images
+  initLazyLoading();
 }
 
 // ===== Lightbox =====

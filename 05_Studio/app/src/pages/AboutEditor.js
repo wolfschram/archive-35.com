@@ -6,9 +6,9 @@ function AboutEditor() {
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState(null);
   const [shortBio, setShortBio] = useState('');
-  const [longBio, setLongBio] = useState([]);
+  const [longBioText, setLongBioText] = useState('');
   const [artistQuote, setArtistQuote] = useState('');
-  const [printsInfo, setPrintsInfo] = useState([]);
+  const [printsInfoText, setPrintsInfoText] = useState('');
   const [photoPath, setPhotoPath] = useState('');
   const [newPhotoPath, setNewPhotoPath] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
@@ -47,9 +47,10 @@ function AboutEditor() {
         const data = await window.electronAPI.loadAboutContent();
         if (data) {
           setShortBio(data.shortBio || '');
-          setLongBio(data.longBio || []);
+          // Join array paragraphs into single text with blank line separators
+          setLongBioText(Array.isArray(data.longBio) ? data.longBio.join('\n\n') : (data.longBio || ''));
           setArtistQuote(data.artistQuote || '');
-          setPrintsInfo(data.printsInfo || []);
+          setPrintsInfoText(Array.isArray(data.printsInfo) ? data.printsInfo.join('\n\n') : (data.printsInfo || ''));
           setPhotoPath(data.photoPath || '');
           setPhotoPreview(data.photoPath || '');
         }
@@ -65,7 +66,7 @@ function AboutEditor() {
       const result = await window.electronAPI.selectAboutPhoto();
       if (result && result.filePath) {
         setNewPhotoPath(result.filePath);
-        setPhotoPreview(result.preview || result.filePath);
+        setPhotoPreview(result.filePath);
       }
     }
   };
@@ -75,6 +76,10 @@ function AboutEditor() {
     setStatus(null);
     setDeploySteps([]);
     try {
+      // Split text back into paragraph arrays (split on double newlines)
+      const longBio = longBioText.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+      const printsInfo = printsInfoText.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+
       await window.electronAPI.saveAboutContent({
         shortBio,
         longBio,
@@ -89,38 +94,23 @@ function AboutEditor() {
     }
   };
 
-  const updateLongBioParagraph = (index, value) => {
-    const updated = [...longBio];
-    updated[index] = value;
-    setLongBio(updated);
-  };
-
-  const addLongBioParagraph = () => {
-    setLongBio([...longBio, '']);
-  };
-
-  const removeLongBioParagraph = (index) => {
-    setLongBio(longBio.filter((_, i) => i !== index));
-  };
-
-  const updatePrintsInfoParagraph = (index, value) => {
-    const updated = [...printsInfo];
-    updated[index] = value;
-    setPrintsInfo(updated);
-  };
-
-  const addPrintsInfoParagraph = () => {
-    setPrintsInfo([...printsInfo, '']);
-  };
-
-  const removePrintsInfoParagraph = (index) => {
-    setPrintsInfo(printsInfo.filter((_, i) => i !== index));
-  };
-
   const openAboutPage = () => {
     if (window.electronAPI?.openExternal) {
       window.electronAPI.openExternal('https://archive-35.com/about.html');
     }
+  };
+
+  const textareaStyle = {
+    width: '100%',
+    background: '#1a1a2e',
+    color: '#e0e0e0',
+    border: '1px solid #333',
+    borderRadius: '6px',
+    padding: '12px',
+    fontSize: '0.95em',
+    fontFamily: 'inherit',
+    resize: 'vertical',
+    lineHeight: '1.6',
   };
 
   if (loading) {
@@ -143,7 +133,7 @@ function AboutEditor() {
 
       {status && (
         <div className={`status-banner ${status.type}`}>
-          {status.type === 'success' ? '\u2713' : '\u2717'} {status.message}
+          {status.type === 'success' ? String.fromCharCode(10003) : String.fromCharCode(10007)} {status.message}
         </div>
       )}
 
@@ -179,75 +169,49 @@ function AboutEditor() {
       {/* Short Bio */}
       <div className="card">
         <h3>The Short Version</h3>
+        <p style={{ color: '#999', fontSize: '0.85em', marginBottom: '8px' }}>One-liner intro shown at the top of the about page.</p>
         <textarea
           value={shortBio}
           onChange={(e) => setShortBio(e.target.value)}
-          rows={3}
-          style={{ width: '100%', background: '#1a1a2e', color: '#e0e0e0', border: '1px solid #333', borderRadius: '6px', padding: '12px', fontSize: '0.95em', fontFamily: 'inherit', resize: 'vertical' }}
+          rows={2}
+          style={textareaStyle}
         />
       </div>
 
       {/* Long Bio */}
       <div className="card">
         <h3>The Longer Story</h3>
-        <p style={{ color: '#999', fontSize: '0.85em', marginBottom: '12px' }}>Each text area is one paragraph on the website.</p>
-        {longBio.map((para, i) => (
-          <div key={i} style={{ marginBottom: '12px', display: 'flex', gap: '8px' }}>
-            <textarea
-              value={para}
-              onChange={(e) => updateLongBioParagraph(i, e.target.value)}
-              rows={3}
-              style={{ flex: 1, background: '#1a1a2e', color: '#e0e0e0', border: '1px solid #333', borderRadius: '6px', padding: '12px', fontSize: '0.95em', fontFamily: 'inherit', resize: 'vertical' }}
-            />
-            <button
-              onClick={() => removeLongBioParagraph(i)}
-              style={{ background: 'transparent', border: '1px solid #555', color: '#999', borderRadius: '6px', padding: '0 10px', cursor: 'pointer', fontSize: '1.1em' }}
-              title="Remove paragraph"
-            >
-              \u2715
-            </button>
-          </div>
-        ))}
-        <button className="btn btn-secondary" onClick={addLongBioParagraph} style={{ marginTop: '4px' }}>
-          + Add Paragraph
-        </button>
+        <p style={{ color: '#999', fontSize: '0.85em', marginBottom: '8px' }}>Your full bio. Separate paragraphs with a blank line.</p>
+        <textarea
+          value={longBioText}
+          onChange={(e) => setLongBioText(e.target.value)}
+          rows={16}
+          style={textareaStyle}
+        />
       </div>
 
       {/* Artist Quote */}
       <div className="card">
         <h3>Artist Statement</h3>
+        <p style={{ color: '#999', fontSize: '0.85em', marginBottom: '8px' }}>Displayed as a quote block on the about page.</p>
         <textarea
           value={artistQuote}
           onChange={(e) => setArtistQuote(e.target.value)}
           rows={3}
-          style={{ width: '100%', background: '#1a1a2e', color: '#e0e0e0', border: '1px solid #333', borderRadius: '6px', padding: '12px', fontSize: '0.95em', fontFamily: 'inherit', fontStyle: 'italic', resize: 'vertical' }}
+          style={{ ...textareaStyle, fontStyle: 'italic' }}
         />
       </div>
 
       {/* Prints Info */}
       <div className="card">
         <h3>About the Prints</h3>
-        <p style={{ color: '#999', fontSize: '0.85em', marginBottom: '12px' }}>Each text area is one paragraph. HTML links are allowed.</p>
-        {printsInfo.map((para, i) => (
-          <div key={i} style={{ marginBottom: '12px', display: 'flex', gap: '8px' }}>
-            <textarea
-              value={para}
-              onChange={(e) => updatePrintsInfoParagraph(i, e.target.value)}
-              rows={2}
-              style={{ flex: 1, background: '#1a1a2e', color: '#e0e0e0', border: '1px solid #333', borderRadius: '6px', padding: '12px', fontSize: '0.95em', fontFamily: 'inherit', resize: 'vertical' }}
-            />
-            <button
-              onClick={() => removePrintsInfoParagraph(i)}
-              style={{ background: 'transparent', border: '1px solid #555', color: '#999', borderRadius: '6px', padding: '0 10px', cursor: 'pointer', fontSize: '1.1em' }}
-              title="Remove paragraph"
-            >
-              \u2715
-            </button>
-          </div>
-        ))}
-        <button className="btn btn-secondary" onClick={addPrintsInfoParagraph} style={{ marginTop: '4px' }}>
-          + Add Paragraph
-        </button>
+        <p style={{ color: '#999', fontSize: '0.85em', marginBottom: '8px' }}>Separate paragraphs with a blank line. HTML links are allowed.</p>
+        <textarea
+          value={printsInfoText}
+          onChange={(e) => setPrintsInfoText(e.target.value)}
+          rows={6}
+          style={textareaStyle}
+        />
       </div>
 
       {/* Deploy Progress */}
@@ -257,7 +221,7 @@ function AboutEditor() {
           {deploySteps.map((step, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 0', borderBottom: '1px solid #222' }}>
               <span style={{ width: '20px', textAlign: 'center' }}>
-                {step.status === 'ok' ? '\u2713' : step.status === 'error' ? '\u2717' : step.status === 'running' ? '\u25CF' : '\u25CB'}
+                {step.status === 'ok' ? String.fromCharCode(10003) : step.status === 'error' ? String.fromCharCode(10007) : step.status === 'running' ? String.fromCharCode(9679) : String.fromCharCode(9675)}
               </span>
               <span style={{ color: step.status === 'error' ? '#ff6b6b' : step.status === 'ok' ? '#51cf66' : '#e0e0e0' }}>
                 {step.message}

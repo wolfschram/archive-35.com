@@ -483,4 +483,141 @@ These are the highest-impact prevention rules from above. Print these out.
 
 ---
 
+### LESSON 022: Deploy Pipeline git add Must Stage ALL Website Files
+**Date:** 2026-02-16
+**Category:** `deploy` `git` `pipeline` `CATASTROPHIC` `ROOT-CAUSE`
+
+**Symptom:** Every fix made across multiple sessions kept "not working" on the live site. Stripe checkout still broken (test key). Licensing modal still covered by nav. Iceland Ring Road still showing. Bugs that were "fixed" kept coming back. Wolf reported: "Fuck all is working."
+
+**Root Cause:** The deploy pipeline in `05_Studio/app/main.js` had:
+```javascript
+execSync('git add data/photos.json images/ gallery.html', gitOpts);
+```
+This ONLY staged 3 paths: `data/photos.json`, `images/`, and `gallery.html`. Every other file — ALL 10 HTML pages, `css/`, `js/`, `functions/`, `build.sh`, `llms*.txt`, `sitemap.xml`, `robots.txt` — was NEVER committed or pushed by the deploy pipeline. Fixes were saved locally but silently ignored during deploy.
+
+**Why It Wasn't Caught For DAYS:**
+- Each session focused on individual symptoms (Stripe key, z-index, duplicates) rather than asking: "Why do ALL my fixes fail to reach production?"
+- The deploy pipeline reported success because photos.json and images DID deploy correctly
+- The verification step only checked photos.json photo count — it never verified HTML or JS content
+- Multiple sessions fixed the same files repeatedly, each time assuming the previous deploy must have had a different problem
+
+**The Systemic Failure:** I kept fixing details without stepping back to trace the full deploy pipeline end-to-end. When Wolf reported "old bugs coming back," I should have immediately asked: "Are my file changes actually reaching the server?" Instead, I re-investigated each bug individually, found the same fixes needed again, applied them again, and deployed again — through the same broken pipeline.
+
+**Fix:**
+```javascript
+execSync('git add data/ images/ *.html css/ js/ functions/ build.sh llms*.txt sitemap.xml robots.txt logos/ 09_Licensing/thumbnails/ 09_Licensing/watermarked/ api/ licensing/', gitOpts);
+```
+
+**Prevention:**
+- **RULE: When a fix "doesn't work" on the live site, the FIRST thing to check is: did the changed files actually get deployed?** Run `git log --name-only` on the remote or check Cloudflare's deploy log for the specific files.
+- **RULE: The deploy pipeline must stage ALL website-relevant files, not a hardcoded subset.** If you add a new file type to the website, update the git add command.
+- **RULE: When the same class of bug appears more than once ("fixes not sticking"), STOP fixing symptoms. Trace the full pipeline from edit → commit → push → build → deploy → CDN → browser.** The bug is in the pipeline, not in the code.
+- **RULE: Deploy verification should check at least one HTML file's content (hash or version), not just data file counts.**
+
+**Related Files:** `05_Studio/app/main.js` (deploy pipeline, ~line 2297)
+
+---
+
+### LESSON 023: Step Back Before Diving In — The "Why Is This Still Broken?" Protocol
+**Date:** 2026-02-16
+**Category:** `process` `workflow` `mindset` `CRITICAL`
+
+**Symptom:** Over 3 sessions, I fixed the same bugs repeatedly. Each session found new individual issues, applied fixes, and reported success. The next session, the same bugs were back — plus new ones.
+
+**Root Cause:** I have a strong bias toward ACTION — find a bug, fix the bug, move on. This works great for isolated issues. But when multiple bugs share a common root cause, fixing them individually is wasted effort. I needed to step back and ask "WHY are all these fixes failing?" instead of "WHAT is the next bug to fix?"
+
+**The Pattern I Fell Into:**
+1. Wolf reports bug → I find the code issue → I fix it → deploy → report success
+2. Wolf reports same bug still exists → I assume I missed something → fix again → deploy
+3. Repeat 3-4 times across sessions before finally asking: "Wait, are ANY of my changes reaching production?"
+
+**The Protocol I Should Have Followed:**
+1. **First regression report**: Fix normally, could be a one-off
+2. **Second regression report**: STOP. Don't fix the individual bug. Instead:
+   - Check: did the previous fix actually deploy? (`git log --name-only`, check Cloudflare deploy log)
+   - Check: is the fix present in the live site source? (View Source / curl)
+   - Check: is the deploy pipeline complete? (trace every stage)
+3. **If the fix isn't on the server**: The problem is the PIPELINE, not the CODE
+
+**Prevention:**
+- **RULE: Two regression reports on "fixed" bugs = STOP and audit the deploy pipeline end-to-end.** Do NOT fix a third individual bug.
+- **RULE: After every deploy, spot-check ONE changed file on the live site** (not just data files — check an HTML or JS file too)
+- **RULE: When Wolf says "it's still broken," the first response should be `curl https://archive-35.com/[file] | grep [expected-change]` — verify the fix is live before re-investigating the bug**
+
+**Wolf's Wisdom:** "If I ask you now to figure out why we're stuck you will find another reason and you will find what is wrong but the bigger picture is why did you not figure that out before?" — This is the core lesson. Finding individual bugs is easy. Identifying systemic failure requires stepping back.
+
+**Related Files:** All of them. This is a process lesson, not a code lesson.
+
+---
+
+### LESSON 024: Stripe Test Keys vs Live Keys — Silent Checkout Failure
+**Date:** 2026-02-16
+**Category:** `e-commerce` `stripe` `checkout` `CRITICAL`
+
+**Symptom:** Checkout showed "Checkout failed. Please try again." on every purchase attempt.
+
+**Root Cause:** All 10 HTML pages had `pk_test_51SxIaW...` (Stripe TEST public key) while the backend Cloudflare Worker used `sk_live_...` (Stripe LIVE secret key). When the frontend creates a checkout session with a test public key, Stripe flags it as test mode. The backend then tries to create the session with a live secret key — Stripe rejects this mismatch.
+
+**Fix:** Changed all 10 HTML source files from `pk_test_` to `pk_live_` key (documented in CLAUDE.md line 341).
+
+**Prevention:**
+- **RULE: Stripe public and secret keys must be from the SAME mode (both test OR both live).** Mixing modes = silent checkout failure.
+- **RULE: When switching from test to live, grep the ENTIRE project for `pk_test_` and replace ALL instances.**
+- The live key is documented in CLAUDE.md — always reference it rather than guessing.
+
+**Related Files:** All 10 HTML files, `functions/api/create-checkout-session.js`
+
+---
+
+### LESSON 025: Modal Z-Index Must Exceed Header Z-Index
+**Date:** 2026-02-16
+**Category:** `css` `z-index` `licensing` `modal`
+
+**Symptom:** Navigation bar covered the licensing modal image. Users couldn't interact with the modal properly — the nav was on top.
+
+**Root Cause:** Licensing modal overlay had `z-index: 200`, but the header had `z-index: 300`. Modal was literally behind the nav.
+
+**Fix:** Modal overlay → `z-index: 400`, close button → `z-index: 410`.
+
+**Prevention:**
+- **RULE: Any modal/overlay that covers the full page MUST have z-index higher than the header.** Check the z-index stack map in CLAUDE.md.
+- Licensing.html and gallery.html have DIFFERENT z-index stacks because they're self-contained — check BOTH when adjusting layers.
+
+**Related Files:** `licensing.html` (inline CSS)
+
+---
+
+### LESSON 026: Editing photos.json Is Pointless — Deploy Rebuilds It From Source
+**Date:** 2026-02-16
+**Category:** `deploy` `pipeline` `data-sync` `CRITICAL`
+
+**Symptom:** Removed iceland-ring-road and LSP from photos.json manually. After next deploy, both were back — 585 photos, 31 collections, exactly as before.
+
+**Root Cause:** The deploy pipeline's SCAN step reads `01_Portfolio/` and rebuilds `data/photos.json` from scratch. Manual edits to photos.json are overwritten every deploy. The scan had NO exclusion list — it included EVERY portfolio folder.
+
+**The Deeper Failure:** This is the SAME pattern as Lesson 022 — fixing a SYMPTOM (editing photos.json) instead of fixing the SOURCE (portfolio folders + scan exclusions). The deploy pipeline is the source of truth, not the JSON file.
+
+**Fix:** Created a single shared `EXCLUDED_PORTFOLIO_FOLDERS` constant at the top of main.js, applied to ALL 4 scan locations (deploy scan, check-deploy-status, scan-photography, R2 batch upload). Added Iceland_Ring_Road, Antilope_Canyon_, LSP, and Licensing variants.
+
+**Prevention:**
+- **RULE: photos.json is a GENERATED file.** Never edit it directly. Change the SOURCE (portfolios + exclusion list) instead.
+- **RULE: Exclusion lists must be shared, not duplicated.** One constant, used everywhere. Adding to 4 separate lists guarantees they'll drift.
+- **RULE: When you remove a collection, you must either delete the source portfolio folder OR add it to the exclusion list.** Just editing the JSON output is useless.
+
+**Related Files:** `05_Studio/app/main.js` (EXCLUDED_PORTFOLIO_FOLDERS constant, ~line 17)
+
+---
+
+18. **Deploy pipeline must stage ALL files.** If `git add` only names specific paths, new file types will be silently ignored.
+19. **Two regression reports = audit the pipeline.** Don't fix a third individual bug — the problem is systemic.
+20. **Verify fixes on the live site, not just locally.** `curl` the live URL and grep for your change.
+21. **Stripe keys must match modes.** Test public + live secret = broken checkout.
+22. **Modals must out-z-index the header.** Always check the stack map.
+23. **photos.json is GENERATED.** Never edit it directly — change the source portfolios or exclusion list.
+24. **One exclusion list, used everywhere.** EXCLUDED_PORTFOLIO_FOLDERS in main.js, line ~17.
+25. **Header is ALWAYS the top layer (z-index 10000).** Nothing covers the nav. Ever. Like Excel's frozen top row.
+26. **Bump cache busters after every JS/CSS change.** `?v=N` → `?v=N+1` on ALL HTML pages that reference the changed file. Without this, browsers serve old cached code and fixes appear to not work.
+
+---
+
 *This is a living document. Add new lessons as they're discovered. Every bug is a gift — it teaches us something we didn't know.*

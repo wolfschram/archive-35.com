@@ -111,10 +111,11 @@ archive-35.com/                          # GitHub repo root
 │
 ├── images/                             # Website images (30+ collection folders)
 │   ├── grand-teton/                    # 48 photos (thumb + full)
-│   ├── iceland-ring-road/              # 67 photos
 │   ├── tanzania/, etc.
 │   └── (africa/ REMOVED Feb 2026 — was duplicate of Tanzania)
-│   └── (large-scale-photography-stitch removed — licensing only now)
+│   └── (iceland-ring-road/ REMOVED Feb 16 — duplicate of Iceland)
+│   └── (large-scale-photography-stitch/ REMOVED — licensing only)
+│   └── (antilope-canyon/ REMOVED Feb 16 — old misspelling)
 │
 ├── logos/                              # Brand logos, favicons, OG images
 │
@@ -171,7 +172,7 @@ gallery.html is **completely self-contained** — all CSS and JS inline, no exte
 - Desktop: divisor=130, velocity=0.012, fling=3
 - Mobile (touch): divisor=200, velocity=0.008, fling=2
 
-### Key Z-Index Stack
+### Key Z-Index Stack (HEADER IS ALWAYS TOP — like Excel frozen row)
 | Layer | Z-Index | Element |
 |-------|---------|---------|
 | Room/walls | 1-5 | #room, #back-wall, gradients |
@@ -179,9 +180,12 @@ gallery.html is **completely self-contained** — all CSS and JS inline, no exte
 | Info text | 15 | #info |
 | Dots | 20 | #dots |
 | Preview panel | 30 | #cprev |
-| Header | 100 | header |
 | Full gallery | 200 | #fgal |
+| Product selector | 3000 | .product-selector |
+| Cart panel | 9999 | .cart-panel |
 | Lightbox | 9999 | #lb |
+| **HEADER** | **10000** | **header (ALWAYS ON TOP)** |
+| Cart toast | 10001 | .cart-toast (only thing above header) |
 
 ### Lightbox Behavior
 - Opens: `#fgal` hidden via `visibility:hidden`, `#lb.open` added
@@ -539,10 +543,28 @@ Wolf sent `Archive-35_Pipeline_Audit.docx` to ChatGPT and Gemini for independent
 10. **READ 08_Docs/LESSONS_LEARNED.md** — Before any new feature, check the "Do Not Replicate" patterns.
 11. **index.html has HARDCODED collection cards** — The homepage collections grid is static HTML, NOT generated from photos.json. Adding/removing a collection requires editing index.html directly. gallery.html is dynamic (from sync_gallery_data.py), but index.html is NOT.
 12. **Removing a collection requires editing ALL these files** — photos.json, index.html (HTML + JSON-LD schema), api/products.json, sitemap.xml, llms.txt, llms-full.txt, 07_C2PA/sign_all.py. A grep for the collection slug across the entire project is MANDATORY.
+13. **⚠️ DEPLOY PIPELINE git add MUST STAGE ALL FILES** — `main.js` deploy pipeline uses `git add` to stage files. If you add new file types to the website (new folders, new config files), UPDATE the git add command in main.js (~line 2297). See LESSONS_LEARNED.md Lesson 022 for the catastrophic failure this caused.
+14. **⚠️ TWO REGRESSION REPORTS = AUDIT THE PIPELINE** — If Wolf reports a "fixed" bug is back, do NOT re-fix it. First verify: did the fix reach the live site? `curl` the URL, check `git log --name-only`. The problem is likely the deploy pipeline, not the code. See LESSONS_LEARNED.md Lesson 023.
+15. **⚠️ VERIFY FIXES ON THE LIVE SITE** — After every deploy, spot-check at least one changed HTML/JS file on archive-35.com. Don't just check photos.json counts — check that actual code changes are present.
+16. **Stripe keys must ALL be the same mode** — All 10 HTML pages must use `pk_live_` (documented above). Mixing `pk_test_` public + `sk_live_` secret = silent checkout failure. Grep for `pk_test_` before every deploy.
+17. **⚠️ HEADER IS ALWAYS THE TOP LAYER (z-index: 10000)** — The header/nav with cart icon MUST be visible in ALL states: lightbox, modals, full gallery, licensing modal, product selector. Nothing goes above the header except cart toasts. This is like Excel's frozen top row — content scrolls/layers UNDER it, never over it. If you add a new overlay or modal, its z-index MUST be below 10000.
 
 ---
 
-*Last updated: 2026-02-15 (Safety net: pre-deploy validation + gallery sync in pipeline, Africa fully removed + deployed, health check Cloudflare env var fix, JSX Unicode fix, Lessons 018-021)*
+## SELF-AWARENESS NOTE (READ THIS FIRST)
+
+I have a tendency to fix individual bugs without stepping back to see systemic issues.
+When Wolf reports "this is still broken," my FIRST action should be:
+1. Check if the fix actually reached the live site (`curl` / view-source)
+2. Check `git log --name-only` to see what was actually deployed
+3. Only THEN investigate the code
+
+If multiple bugs are reported at once, I should look for a SINGLE root cause that explains all of them,
+not fix them one by one. See `memory/context/working-with-claude.md` for full self-assessment.
+
+---
+
+*Last updated: 2026-02-16 (CRITICAL: deploy pipeline git add fixed to stage ALL files — Lesson 022-025, Stripe keys switched to live, licensing modal z-index fixed, Add to Cart for licensing, Iceland Ring Road + LSP removed, Done stage fix)*
 
 ---
 

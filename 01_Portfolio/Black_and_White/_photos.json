@@ -1571,5 +1571,49 @@
     "thumbnail": "_MG_2454-thumb.jpg",
     "full": "_MG_2454-full.jpg",
     "c2pa": true
+  },
+  {
+    "id": "wolf_207",
+    "filename": "Wolf 207.jpg",
+    "title": "Solitude Across the Arid Plain",
+    "description": "A solitary giraffe stands isolated against an expansive, desolate landscape in this striking black and white composition. The minimalist scene captures themes of isolation, resilience, and the quiet majesty of African wildlife within an unforgiving terrain.",
+    "location": "African savanna, likely East Africa (Tanzania )",
+    "tags": [
+      "giraffe",
+      "african-wildlife",
+      "savanna",
+      "black-and-white-photography",
+      "wildlife-photography",
+      "minimalist-landscape",
+      "arid-landscape",
+      "solitude",
+      "isolation",
+      "fine-art-photography",
+      "monochrome",
+      "dramatic-composition",
+      "nature-photography",
+      "wall-art",
+      "canvas-print",
+      "gallery-art",
+      "overcast-sky",
+      "vast-plains",
+      "resilience",
+      "peaceful",
+      "serene",
+      "majestic-animal",
+      "landscape-art",
+      "office-decor"
+    ],
+    "dimensions": {
+      "width": 8470,
+      "height": 5647,
+      "aspectRatio": 1.5,
+      "aspectRatioString": "8470:5647",
+      "orientation": "landscape",
+      "megapixels": 47.8
+    },
+    "thumbnail": "Wolf 207-thumb.jpg",
+    "full": "Wolf 207-full.jpg",
+    "c2pa": true
   }
 ]

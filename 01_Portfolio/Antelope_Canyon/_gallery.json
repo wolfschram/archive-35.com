@@ -1,0 +1,16 @@
+{
+  "id": "antelope_canyon",
+  "title": "Antelope Canyon",
+  "slug": "antelope-canyon",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 2
+}

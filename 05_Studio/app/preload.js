@@ -111,6 +111,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('sync-progress', handler);
   },
 
+  // Cross-page events — ingest completion triggers WebsiteControl refresh
+  onIngestComplete: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('ingest-complete', handler);
+    return () => ipcRenderer.removeListener('ingest-complete', handler);
+  },
+
   // R2 Batch Upload (backfill originals)
   batchUploadR2: () => ipcRenderer.invoke('batch-upload-r2'),
   onR2UploadProgress: (callback) => {

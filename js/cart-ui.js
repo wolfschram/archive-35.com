@@ -271,13 +271,28 @@ class CartUI {
 
   /**
    * Handle checkout with Stripe
+   * Fetches photos.json to enrich any missing metadata (collection, filename)
+   * so even legacy cart items (added before metadata fix) will work.
    */
-  handleCheckout() {
+  async handleCheckout() {
     const items = window.cart.getCart();
 
     if (items.length === 0) {
       this.showToast('Your cart is empty');
       return;
+    }
+
+    // Fetch photos.json to fill in any missing metadata (collection, filename)
+    let photosLookup = {};
+    try {
+      const resp = await fetch('data/photos.json');
+      if (resp.ok) {
+        const data = await resp.json();
+        const photos = data.photos || data;
+        photos.forEach(p => { photosLookup[p.id] = p; });
+      }
+    } catch (e) {
+      console.warn('[ARCHIVE-35] Could not fetch photos.json for metadata enrichment:', e.message);
     }
 
     // Build line items with dynamic price_data (server-side checkout)
@@ -297,6 +312,10 @@ class CartUI {
     // Build Pictorem metadata with robust fallbacks (never null)
     const firstItem = items[0];
     const meta = firstItem.metadata || {};
+    const photoId = meta.photoId || firstItem.photoId || 'unknown';
+
+    // Enrich from photos.json if metadata is incomplete
+    const photoRecord = photosLookup[photoId] || {};
 
     // Parse size string (e.g., "24 × 16") for fallback dimensions
     let fallbackWidth = 0, fallbackHeight = 0;
@@ -309,10 +328,10 @@ class CartUI {
     }
 
     const pictorem = {
-      photoId: meta.photoId || firstItem.photoId || 'unknown',
+      photoId: photoId,
       photoTitle: firstItem.title || 'Untitled',
-      photoFilename: meta.photoFilename || meta.photoId || firstItem.photoId || 'unknown',
-      collection: meta.collection || '',
+      photoFilename: meta.photoFilename || photoRecord.filename || photoId,
+      collection: meta.collection || photoRecord.collection || '',
       material: meta.material || firstItem.material || '',
       dimensions: {
         width: parseInt(meta.width) || fallbackWidth,

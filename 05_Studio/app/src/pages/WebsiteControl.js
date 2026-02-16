@@ -55,6 +55,17 @@ function WebsiteControl() {
     };
   }, []);
 
+  // Cross-page: refresh status when ingest completes (even if this tab is hidden)
+  useEffect(() => {
+    if (window.electronAPI?.onIngestComplete) {
+      const cleanup = window.electronAPI.onIngestComplete((data) => {
+        console.log(`Ingest complete: ${data.processed} photos — refreshing deploy status`);
+        checkStatus();
+      });
+      return cleanup;
+    }
+  }, []);
+
   const checkStatus = async () => {
     setLoading(true);
     try {
@@ -245,7 +256,7 @@ function WebsiteControl() {
           git: { complete: true, active: false },
           push: { complete: true, active: false },
           verify: { complete: true, active: false, warned: result.verified === false },
-          done: { complete: true, active: false, warned: result.verified === false }
+          done: { complete: true, active: false }
         });
       } else {
         // Mark the failed stage properly

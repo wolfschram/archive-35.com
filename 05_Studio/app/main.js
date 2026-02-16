@@ -15,6 +15,22 @@ const PORTFOLIO_DIR = path.join(ARCHIVE_BASE, '01_Portfolio');
 const DELETE_DIR = path.join(ARCHIVE_BASE, '_files_to_delete');
 const ARCHIVE_DIR = path.join(ARCHIVE_BASE, '_archived');
 
+// SHARED EXCLUSION LIST — portfolios that should NEVER appear in the gallery website
+// Used by: deploy scan, check-deploy-status, scan-photography, R2 batch upload
+// Add new exclusions HERE, not in individual handlers
+// See LESSONS_LEARNED.md Lesson 022, 026 for why this matters
+const EXCLUDED_PORTFOLIO_FOLDERS = [
+  'Large_Scale_Photography_Stitch',
+  'Large Scale Photography Stitch',
+  'large-scale-photography-stitch',
+  'Iceland_Ring_Road',
+  'Iceland Ring Road',
+  'iceland-ring-road',
+  'Antilope_Canyon_',
+  'Licensing',
+  'licensing',
+];
+
 // ===================
 // R2 UPLOAD CLIENT (lazy-initialized)
 // ===================
@@ -657,18 +673,20 @@ function buildAIPrompt(galleryContext, filename) {
   const c = galleryContext?.country || '';
   const n = galleryContext?.name || '';
   const l = galleryContext?.location || '';
+  // Derive geographic context: country field first, then gallery/folder name as fallback
+  const geoContext = c || n;
 
   let prompt = 'You are a fine art photography metadata assistant for Archive-35, a landscape photography brand by Wolfgang Schram.\n\n';
 
-  if (c) {
+  if (geoContext) {
     prompt += '=== MANDATORY GEOGRAPHIC CONSTRAINT ===\n';
-    prompt += `These photos were taken in ${c}. Gallery: "${n}".${l ? ' Region: ' + l + '.' : ''}\n`;
+    prompt += `These photos were taken in ${geoContext}.${c ? ` Gallery: "${n}".` : ''}${l ? ' Region: ' + l + '.' : ''}\n`;
     prompt += 'RULES:\n';
-    prompt += `- EVERY tag, description, and location MUST be consistent with ${c}\n`;
-    prompt += `- NEVER use tags or words like "Antarctica", "polar", "Arctic", "Alpine", "Patagonia", "Iceland", "Norway", "Scandinavia", or ANY country/region that is NOT ${c}\n`;
-    prompt += `- Even if a scene has glaciers, snow, or ice, it is in ${c}. Describe it as ${c} scenery.\n`;
-    prompt += `- The location field MUST be a real place within ${c}\n`;
-    prompt += `- Geography tags MUST reference ${c} and regions within ${c} ONLY\n`;
+    prompt += `- EVERY tag, description, and location MUST be consistent with ${geoContext}\n`;
+    prompt += `- NEVER use tags or words like "Antarctica", "polar", "Arctic", "Alpine", "Patagonia", "Iceland", "Norway", "Scandinavia", or ANY country/region that is NOT ${geoContext}\n`;
+    prompt += `- Even if a scene has glaciers, snow, or ice, it is in ${geoContext}. Describe it as ${geoContext} scenery.\n`;
+    prompt += `- The location field MUST be a real place within ${geoContext}\n`;
+    prompt += `- Geography tags MUST reference ${geoContext} and regions within ${geoContext} ONLY\n`;
     prompt += '=== END CONSTRAINT ===\n\n';
   }
 
@@ -676,13 +694,13 @@ function buildAIPrompt(galleryContext, filename) {
   prompt += '{\n';
   prompt += '  "title": "short evocative title (3-6 words)",\n';
   prompt += `  "description": "1-2 sentence art description for fine art print buyers. Timeless tone. No time-of-day references (no sunrise, sunset, morning, evening).",\n`;
-  prompt += `  "location": "specific place or region in ${c || 'the photographed area'}",\n`;
+  prompt += `  "location": "specific place or region in ${geoContext || 'the photographed area'}",\n`;
   prompt += '  "tags": ["15-20 tags for maximum discoverability"]\n';
   prompt += '}\n\n';
 
   prompt += 'TAG STRATEGY (generate 15-20 tags across ALL these categories):\n';
   prompt += '- Subject: what is in the photo (mountain, glacier, waterfall, forest, lake, etc.)\n';
-  prompt += `- Geography: ${c || 'country'}, region, specific place names ONLY from ${c || 'the area'}\n`;
+  prompt += `- Geography: ${geoContext || 'country'}, region, specific place names ONLY from ${geoContext || 'the area'}\n`;
   prompt += '- Mood/emotion: serene, dramatic, majestic, tranquil, powerful, etc.\n';
   prompt += '- Style: landscape-photography, fine-art, nature-photography, wall-art, etc.\n';
   prompt += '- Physical features: geological terms, water features, vegetation types\n';
@@ -691,8 +709,8 @@ function buildAIPrompt(galleryContext, filename) {
   prompt += '- Weather: mist, fog, clouds, clear-sky, overcast, etc.\n\n';
 
   prompt += 'REMINDER: Timeless tone. No time-of-day. Tags lowercase and hyphenated.';
-  if (c) {
-    prompt += ` ALL geographic references MUST be ${c}. NEVER reference any other country or polar region.`;
+  if (geoContext) {
+    prompt += ` ALL geographic references MUST be ${geoContext}. NEVER reference any other country or polar region.`;
   }
   prompt += `\nFilename: ${filename}`;
 
@@ -976,8 +994,9 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
               collectionSlug = (portfolioId || (newGallery?.name || 'unknown').toLowerCase())
                 .replace(/[_\s]+/g, '-').replace(/-+$/, '');
             }
-            const modePrefix = getCurrentMode() === 'test' ? 'test/' : '';
-            const r2Key = `${modePrefix}${collectionSlug}/${baseName}.jpg`;
+            // Originals always go to production path — no mode prefix
+            // Mode separation is for website data, not source files
+            const r2Key = `${collectionSlug}/${baseName}.jpg`;
             const fileBuffer = await fs.readFile(photo.path);
             await s3.send(new PutObjectCommand({
               Bucket: bucketName,
@@ -1081,6 +1100,15 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
 
     const allPhotos = [...existingPhotos, ...processedPhotos];
     await fs.writeFile(photosJsonPath, JSON.stringify(allPhotos, null, 2));
+
+    // Notify all pages that ingest completed — WebsiteControl uses this to refresh status
+    if (mainWindow) {
+      mainWindow.webContents.send('ingest-complete', {
+        processed: processedPhotos.length,
+        folder: targetFolder,
+        portfolioId: portfolioId || null
+      });
+    }
 
     return {
       success: true,
@@ -1578,7 +1606,7 @@ ipcMain.handle('batch-upload-r2', async () => {
     const { PutObjectCommand, HeadObjectCommand } = require('@aws-sdk/client-s3');
 
     const entries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
-    const portfolioDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_'));
+    const portfolioDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_') && !EXCLUDED_PORTFOLIO_FOLDERS.includes(e.name));
 
     let totalFiles = 0;
     let processedFiles = 0;
@@ -1760,8 +1788,7 @@ ipcMain.handle('check-deploy-status', async () => {
   try {
     const entries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
     // Exclude hidden, underscore-prefixed, and licensing-only folders (same exclusions as scan-photography)
-    const EXCLUDED_PORTFOLIOS = ['Large_Scale_Photography_Stitch', 'Large Scale Photography Stitch', 'licensing'];
-    const portfolioDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_') && !EXCLUDED_PORTFOLIOS.includes(e.name));
+    const portfolioDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_') && !EXCLUDED_PORTFOLIO_FOLDERS.includes(e.name));
 
     let portfolioPhotoCount = 0;
     const portfolioCollections = [];
@@ -1862,7 +1889,7 @@ ipcMain.handle('deploy-website', async () => {
     sendProgress('scan', 'Scanning portfolios...');
 
     const entries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
-    const portfolioDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_'));
+    const portfolioDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_') && !EXCLUDED_PORTFOLIO_FOLDERS.includes(e.name));
 
     // Read existing photos.json for fallback (hand-curated legacy data)
     let existingPhotosData = { photos: [] };
@@ -2019,14 +2046,16 @@ ipcMain.handle('deploy-website', async () => {
           continuationToken = listResult.IsTruncated ? listResult.NextContinuationToken : undefined;
         } while (continuationToken);
 
-        // Filter: only gallery originals (not test/, not originals/ licensing prefix)
-        const galleryR2Keys = allR2Keys.filter(k => !k.startsWith('test/') && !k.startsWith('originals/'));
+        // Filter out non-gallery keys (originals/ licensing prefix)
+        const galleryR2Keys = allR2Keys.filter(k => !k.startsWith('originals/'));
         r2ObjectCount = galleryR2Keys.length;
 
         // Check which website photos are missing from R2
+        // Accept both production path and test/ path (for backward compat)
         for (const photo of allWebsitePhotos) {
           const expectedKey = `${photo.collection}/${photo.filename}.jpg`;
-          if (!galleryR2Keys.includes(expectedKey)) {
+          const testKey = `test/${photo.collection}/${photo.filename}.jpg`;
+          if (!galleryR2Keys.includes(expectedKey) && !galleryR2Keys.includes(testKey)) {
             r2MissingFiles.push(expectedKey);
           }
         }
@@ -2069,6 +2098,88 @@ ipcMain.handle('deploy-website', async () => {
     sendProgress('data', 'Writing photo data...');
     await fs.mkdir(DATA_DIR, { recursive: true });
     await fs.writeFile(photosJsonWebPath, JSON.stringify({ photos: allWebsitePhotos }, null, 2));
+
+    // Phase 5a: Auto-generate llms-full.txt from photos.json data
+    // Ensures collection names, counts, and photo listings stay in sync after renames/additions
+    sendProgress('data', 'Regenerating llms-full.txt...');
+    try {
+      // Group photos by collection
+      const collectionMap = {};
+      for (const photo of allWebsitePhotos) {
+        if (!collectionMap[photo.collection]) {
+          collectionMap[photo.collection] = {
+            title: photo.collectionTitle,
+            slug: photo.collection,
+            photos: []
+          };
+        }
+        collectionMap[photo.collection].photos.push(photo);
+      }
+      const collections = Object.values(collectionMap).sort((a, b) => a.title.localeCompare(b.title));
+      const totalPhotos = allWebsitePhotos.length;
+      const totalCollections = collections.length;
+
+      // Build collections section
+      let collectionsText = '';
+      for (const col of collections) {
+        collectionsText += `### ${col.title} (${col.photos.length} photographs)\n`;
+        collectionsText += `- URL: https://archive-35.com/collection.html?id=${col.slug}\n`;
+        collectionsText += `- Gallery: https://archive-35.com/gallery.html?collection=${col.slug}\n\n`;
+        // Show up to 5 sample photos, then "... and N more"
+        const maxSamples = 5;
+        const samples = col.photos.slice(0, maxSamples);
+        for (const p of samples) {
+          const mp = p.dimensions ? `${(p.dimensions.megapixels || 0).toFixed(1)}MP` : '';
+          const tags = (p.tags || []).slice(0, 8).join(', ');
+          collectionsText += `  - ${p.title} | ${p.location || 'Unknown'} | ${mp} | Tags: ${tags}\n`;
+        }
+        if (col.photos.length > maxSamples) {
+          collectionsText += `  - ... and ${col.photos.length - maxSamples} more photographs\n`;
+        }
+        collectionsText += '\n';
+      }
+
+      // Read existing file to extract static footer sections
+      const llmsFullPath = path.join(ARCHIVE_BASE, 'llms-full.txt');
+      let staticFooter = '';
+      try {
+        const existing = await fs.readFile(llmsFullPath, 'utf8');
+        // Extract everything from "## Commercial Licensing" onward
+        const footerIdx = existing.indexOf('## Commercial Licensing');
+        if (footerIdx !== -1) {
+          staticFooter = existing.substring(footerIdx);
+        }
+      } catch (e) {
+        // No existing file — use minimal footer
+        staticFooter = '## Copyright\n\nAll images copyright Wolf / Archive-35.\nNOT licensed for AI training, scraping, or reproduction.\nPrint purchase = personal display rights.\nCommercial use requires explicit license purchase.';
+      }
+
+      // Assemble full file
+      const llmsContent = `# Archive-35 | Complete Catalog for AI Agents
+
+> This is the full machine-readable catalog of Archive-35 fine art photography.
+> Summary version: https://archive-35.com/llms.txt
+
+## Artist
+
+- Name: Wolf
+- Experience: 17+ years, 55+ countries
+- Equipment: Canon EOS professional camera systems
+- Specialties: Landscape, wildlife, street, architectural photography
+- Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
+- Website: https://archive-35.com
+
+## Print Collections (${totalPhotos} photographs, ${totalCollections} collections)
+
+${collectionsText}${staticFooter}`;
+
+      await fs.writeFile(llmsFullPath, llmsContent);
+      console.log(`llms-full.txt regenerated: ${totalPhotos} photos, ${totalCollections} collections`);
+      sendProgress('data', `llms-full.txt regenerated (${totalPhotos} photos, ${totalCollections} collections)`);
+    } catch (llmsErr) {
+      console.error('llms-full.txt generation failed:', llmsErr.message);
+      sendProgress('data', `WARNING: llms-full.txt generation failed: ${llmsErr.message}`);
+    }
 
     // Phase 5b: Sync gallery.html inline data from photos.json
     // CRITICAL: Studio deploy previously skipped this — gallery.html had stale const G=[]
@@ -2196,8 +2307,9 @@ ipcMain.handle('deploy-website', async () => {
     }
 
     try {
-      // Stage photos.json, images, AND gallery.html (freshly synced by sync_gallery_data.py)
-      execSync('git add data/photos.json images/ gallery.html', gitOpts);
+      // Stage ALL website-relevant files (photos, HTML pages, JS, CSS, functions, config)
+      // Previously only staged photos.json + images + gallery.html — other changes never deployed!
+      execSync('git add data/ images/ *.html css/ js/ functions/ build.sh llms*.txt sitemap.xml robots.txt logos/ 09_Licensing/thumbnails/ 09_Licensing/watermarked/ api/ licensing/', gitOpts);
 
       // Check if there are staged changes before committing
       const gitStatus = execSync('git diff --cached --stat', gitOpts).trim();
@@ -2341,15 +2453,8 @@ ipcMain.handle('scan-photography', async () => {
     // These go through the licensing pipeline (09_Licensing/), not gallery ingest
     // NOTE: Folder names on disk use underscores (e.g. Large_Scale_Photography_Stitch)
     //       so we normalize both sides for comparison
-    const LICENSING_EXCLUSIONS = [
-      'Large Scale Photography Stitch',
-      'Large_Scale_Photography_Stitch',
-      'large-scale-photography-stitch',
-      'Licensing',
-      'licensing'
-    ];
     const userExcludes = config.excludeFolders || [];
-    config.excludeFolders = [...new Set([...userExcludes, ...LICENSING_EXCLUSIONS])];
+    config.excludeFolders = [...new Set([...userExcludes, ...EXCLUDED_PORTFOLIO_FOLDERS])];
 
     // Normalize alias map keys
     const aliasMap = {};

@@ -202,7 +202,7 @@ html, body {
 
 /* === HEADER === */
 header {
-  position:fixed; top:0; left:0; right:0; z-index:100;
+  position:fixed; top:0; left:0; right:0; z-index:10000;
   pointer-events:none;
 }
 header::before {
@@ -408,13 +408,13 @@ nav a:hover::after, nav a.active::after { width:100%; }
 }
 #fgal.open { opacity:1; pointer-events:auto; }
 #fg-bk {
-  position:fixed; top:22px; left:36px; z-index:210;
+  position:fixed; top:80px; left:36px; z-index:210;
   font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px; color:var(--gold);
   background:rgba(13,12,10,0.85); border:1px solid var(--gold-dim);
   padding:10px 24px; cursor:pointer; transition:all .3s; backdrop-filter:blur(8px);
 }
 #fg-bk:hover { background:var(--gold); color:#000; }
-#fg-hd { text-align:center; padding:80px 40px 30px; }
+#fg-hd { text-align:center; padding:100px 40px 30px; }
 #fg-ti { font-family:'Bebas Neue',sans-serif; font-size:48px; letter-spacing:14px; }
 #fg-ct { font-family:'Courier Prime',monospace; font-size:11px; color:var(--gold); letter-spacing:3px; margin-top:8px; }
 #fg-ru { width:80px; height:1px; background:var(--gold); margin:16px auto 0; opacity:.3; }
@@ -442,7 +442,7 @@ nav a:hover::after, nav a.active::after { width:100%; }
 .lb-a { position:absolute; top:50%; transform:translateY(-50%); font-size:32px; color:rgba(255,255,255,0.2); cursor:pointer; background:none; border:none; padding:30px; transition:color .3s; }
 .lb-a:hover { color:var(--gold); }
 #lb-p{left:10px}#lb-n{right:10px}
-#lb-x { position:absolute; top:20px; right:28px; font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px; color:var(--gold); background:none; border:1px solid var(--gold-dim); padding:8px 18px; cursor:pointer; transition:all .3s; }
+#lb-x { position:absolute; top:80px; right:28px; font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px; color:var(--gold); background:none; border:1px solid var(--gold-dim); padding:8px 18px; cursor:pointer; transition:all .3s; }
 #lb-x:hover { background:var(--gold); color:#000; }
 #lb-buy { position:absolute; bottom:75px; left:50%; transform:translateX(-50%); font-family:'Courier Prime',monospace; font-size:11px; letter-spacing:3px; color:var(--gold); background:rgba(0,0,0,0.7); border:1px solid var(--gold-dim); padding:12px 32px; cursor:pointer; transition:all .3s; z-index:310; text-transform:uppercase; white-space:nowrap; }
 #lb-buy:hover { background:var(--gold); color:#000; border-color:var(--gold); }
@@ -553,17 +553,24 @@ nav a:hover::after, nav a.active::after { width:100%; }
 <link rel="stylesheet" href="css/cart.css">
 <link rel="stylesheet" href="css/product-selector.css">
 <script src="https://js.stripe.com/v3/"></script>
-<script>window.STRIPE_PUBLIC_KEY = 'pk_test_51SxIaWIyLqYsy9lvQBUlhX2aj0atlTuHbA1Q0861MUuaUPAaxjtrwh71GqBUMhYcdzyDgCBZQ2TLS2nTaAVNZrgP00OHqZD4OI';</script>
+<script>window.STRIPE_PUBLIC_KEY = 'pk_live_51SxIaWIyLqYsy9lvz6b9LBV2cMBz4JJgFb30aYvbrMxH0hromGU1mFWF2vu6tV97Co8LrczCM3dFJg89a9a4tT0U007cpVXRWM';</script>
 <script src="js/cart.js"></script>
-<script src="js/cart-ui.js?v=2"></script>
-<script src="js/product-selector.js?v=7"></script>
+<script src="js/cart-ui.js?v=4"></script>
+<script src="js/product-selector.js?v=8"></script>
 <script src="js/image-protection.js"></script>
 <script>
 /* ===== GALLERY DATA (from photos.json) ===== */
 const G=[
-  {name:"Antilope Canyon",slug:"antilope-canyon",n:2,img:"images/antilope-canyon/118A6286-thumb.jpg",p:[
-    {t:"images/antilope-canyon/118A6286-thumb.jpg",f:"images/antilope-canyon/118A6286-full.jpg",n:"Crimson Passage Through Stone",ar:1.5},
-    {t:"images/antilope-canyon/118A6607-thumb.jpg",f:"images/antilope-canyon/118A6607-full.jpg",n:"Striations of Stone and Shadow",ar:1.5}
+  {name:"Antelope Canyon",slug:"antelope-canyon",n:9,img:"images/antelope-canyon/118A6286-thumb.jpg",p:[
+    {t:"images/antelope-canyon/118A6286-thumb.jpg",f:"images/antelope-canyon/118A6286-full.jpg",n:"Crimson Passage Through Stone",ar:1.5},
+    {t:"images/antelope-canyon/118A6607-thumb.jpg",f:"images/antelope-canyon/118A6607-full.jpg",n:"Striations of Stone and Shadow",ar:1.5},
+    {t:"images/antelope-canyon/Wolf 540-thumb.jpg",f:"images/antelope-canyon/Wolf 540-full.jpg",n:"Luminous Passage Through Stone",ar:1.5},
+    {t:"images/antelope-canyon/Wolf 542-thumb.jpg",f:"images/antelope-canyon/Wolf 542-full.jpg",n:"Flowing Dreams in Stone",ar:1.5},
+    {t:"images/antelope-canyon/Wolf 543-thumb.jpg",f:"images/antelope-canyon/Wolf 543-full.jpg",n:"Crimson Passage: Canyon's Embrace",ar:1.5},
+    {t:"images/antelope-canyon/Wolf 547-thumb.jpg",f:"images/antelope-canyon/Wolf 547-full.jpg",n:"Luminous Flow Through Canyon Walls",ar:1.5},
+    {t:"images/antelope-canyon/Wolf 550-thumb.jpg",f:"images/antelope-canyon/Wolf 550-full.jpg",n:"Luminous Canyon Passage",ar:1.5},
+    {t:"images/antelope-canyon/Wolf 551-thumb.jpg",f:"images/antelope-canyon/Wolf 551-full.jpg",n:"Canyon Light and Shadow",ar:0.667},
+    {t:"images/antelope-canyon/Wolf 552-thumb.jpg",f:"images/antelope-canyon/Wolf 552-full.jpg",n:"Light Through Stone Canyon",ar:1.5}
   ]},
   {name:"Argentina",slug:"argentina",n:35,img:"images/argentina/118A1515-thumb.jpg",p:[
     {t:"images/argentina/118A1515-thumb.jpg",f:"images/argentina/118A1515-full.jpg",n:"Eagle's Vigil Over the Andes",ar:1.5},
@@ -612,7 +619,7 @@ const G=[
     {t:"images/australia/_MG_0013-thumb.jpg",f:"images/australia/_MG_0013-full.jpg",n:"Eucalyptus Reaching Skyward",ar:1.5},
     {t:"images/australia/_MG_0094-thumb.jpg",f:"images/australia/_MG_0094-full.jpg",n:"Pelican Colony in Flight",ar:2.293}
   ]},
-  {name:"Black and White",slug:"black-and-white",n:39,img:"images/black-and-white/118A2878-thumb.jpg",p:[
+  {name:"Black and White",slug:"black-and-white",n:40,img:"images/black-and-white/118A2878-thumb.jpg",p:[
     {t:"images/black-and-white/118A2878-thumb.jpg",f:"images/black-and-white/118A2878-full.jpg",n:"Rickshaw Repair by the Water",ar:2.281},
     {t:"images/black-and-white/118A0498-Enhanced-NR-thumb.jpg",f:"images/black-and-white/118A0498-Enhanced-NR-full.jpg",n:"Elephant Herd Across the Savanna",ar:1.914},
     {t:"images/black-and-white/118A0416-thumb.jpg",f:"images/black-and-white/118A0416-full.jpg",n:"Zebra Family in the Grassland",ar:1.5},
@@ -651,7 +658,8 @@ const G=[
     {t:"images/black-and-white/DJI_20250518090918_0169_D-thumb.jpg",f:"images/black-and-white/DJI_20250518090918_0169_D-full.jpg",n:"Dunes and Shadow",ar:1.945},
     {t:"images/black-and-white/WOLF3446-Edit-thumb.jpg",f:"images/black-and-white/WOLF3446-Edit-full.jpg",n:"Shipwreck's Final Embrace",ar:2.399},
     {t:"images/black-and-white/_MG_1881-thumb.jpg",f:"images/black-and-white/_MG_1881-full.jpg",n:"Alpine Peaks in Monochrome",ar:1.5},
-    {t:"images/black-and-white/_MG_2454-thumb.jpg",f:"images/black-and-white/_MG_2454-full.jpg",n:"Lion's Gaze",ar:1.5}
+    {t:"images/black-and-white/_MG_2454-thumb.jpg",f:"images/black-and-white/_MG_2454-full.jpg",n:"Lion's Gaze",ar:1.5},
+    {t:"images/black-and-white/Wolf 207-thumb.jpg",f:"images/black-and-white/Wolf 207-full.jpg",n:"Solitude Across the Arid Plain",ar:1.5}
   ]},
   {name:"Brazil",slug:"brazil",n:14,img:"images/brazil/118A1793-thumb.jpg",p:[
     {t:"images/brazil/118A1793-thumb.jpg",f:"images/brazil/118A1793-full.jpg",n:"Storm Over Coastal City",ar:2.126},
@@ -751,7 +759,7 @@ const G=[
     {t:"images/desert-dunes/DJI_20250518090918_0169_D-thumb.jpg",f:"images/desert-dunes/DJI_20250518090918_0169_D-full.jpg",n:"Dunes and Shadow Play",ar:1.945},
     {t:"images/desert-dunes/DJI_20250518090918_0169_D-Enhanced-NR-thumb.jpg",f:"images/desert-dunes/DJI_20250518090918_0169_D-Enhanced-NR-full.jpg",n:"Dunes in Monochromatic Grace",ar:2.478}
   ]},
-  {name:"Flowers and Leaves",slug:"flowers-and-leaves",n:13,img:"images/flowers-and-leaves/118A4115-thumb.jpg",p:[
+  {name:"Flowers and Leaves",slug:"flowers-and-leaves",n:14,img:"images/flowers-and-leaves/118A4115-thumb.jpg",p:[
     {t:"images/flowers-and-leaves/118A4115-thumb.jpg",f:"images/flowers-and-leaves/118A4115-full.jpg",n:"Crimson Blooms Against Urban Stone",ar:1.5},
     {t:"images/flowers-and-leaves/118A2320-thumb.jpg",f:"images/flowers-and-leaves/118A2320-full.jpg",n:"Trumpet Flowers in Vertical Dance",ar:1.5},
     {t:"images/flowers-and-leaves/118A2339-thumb.jpg",f:"images/flowers-and-leaves/118A2339-full.jpg",n:"Lavender Field Pollinator",ar:1.5},
@@ -764,7 +772,8 @@ const G=[
     {t:"images/flowers-and-leaves/IMG_0026 (4)-thumb.jpg",f:"images/flowers-and-leaves/IMG_0026 (4)-full.jpg",n:"Dandelion Seed Head in Green",ar:1.5},
     {t:"images/flowers-and-leaves/_MG_0502-thumb.jpg",f:"images/flowers-and-leaves/_MG_0502-full.jpg",n:"Emergence: New Life Among Decay",ar:1.5},
     {t:"images/flowers-and-leaves/118A1493-thumb.jpg",f:"images/flowers-and-leaves/118A1493-full.jpg",n:"Verdant Fronds in Shadow",ar:1.5},
-    {t:"images/flowers-and-leaves/118A1511-thumb.jpg",f:"images/flowers-and-leaves/118A1511-full.jpg",n:"Ancient Fern in Temperate Forest",ar:1.5}
+    {t:"images/flowers-and-leaves/118A1511-thumb.jpg",f:"images/flowers-and-leaves/118A1511-full.jpg",n:"Ancient Fern in Temperate Forest",ar:1.5},
+    {t:"images/flowers-and-leaves/Wolf 56-thumb.jpg",f:"images/flowers-and-leaves/Wolf 56-full.jpg",n:"Papaya Golden Abundance",ar:1.5}
   ]},
   {name:"Grand Teton",slug:"grand-teton",n:48,img:"images/grand-teton/WOLF6767-thumb.jpg",p:[
     {t:"images/grand-teton/WOLF6767-thumb.jpg",f:"images/grand-teton/WOLF6767-full.jpg",n:"Teton Range Winter Solitude",ar:1.961},
@@ -815,6 +824,12 @@ const G=[
     {t:"images/grand-teton/WOLF7471-thumb.jpg",f:"images/grand-teton/WOLF7471-full.jpg",n:"Homestead in the Tetons",ar:2.399},
     {t:"images/grand-teton/WOLF7489-thumb.jpg",f:"images/grand-teton/WOLF7489-full.jpg",n:"Infinite Road Through Winter Valley",ar:2.21},
     {t:"images/grand-teton/WOLF7514-thumb.jpg",f:"images/grand-teton/WOLF7514-full.jpg",n:"Moose in Sagebrush Solitude",ar:1.798}
+  ]},
+  {name:"Hawaii",slug:"hawaii",n:4,img:"images/hawaii/Wolf 57-thumb.jpg",p:[
+    {t:"images/hawaii/Wolf 57-thumb.jpg",f:"images/hawaii/Wolf 57-full.jpg",n:"Turquoise Shores Meet Ancient Stone",ar:1.762},
+    {t:"images/hawaii/Wolf 63-thumb.jpg",f:"images/hawaii/Wolf 63-full.jpg",n:"Cascading Whitecaps and Turquoise Depths",ar:1.5},
+    {t:"images/hawaii/Wolf 65-thumb.jpg",f:"images/hawaii/Wolf 65-full.jpg",n:"Kalalau Valley's Emerald Majesty",ar:2.258},
+    {t:"images/hawaii/Wolf 67-thumb.jpg",f:"images/hawaii/Wolf 67-full.jpg",n:"Mist-Veiled Mountain Wilderness",ar:1.5}
   ]},
   {name:"Iceland",slug:"iceland",n:67,img:"images/iceland/WOLF4556-thumb.jpg",p:[
     {t:"images/iceland/WOLF4556-thumb.jpg",f:"images/iceland/WOLF4556-full.jpg",n:"Vestrahorn's Reflection in Still Waters",ar:1.79},
@@ -885,83 +900,21 @@ const G=[
     {t:"images/iceland/WOLF5060-Pano-thumb.jpg",f:"images/iceland/WOLF5060-Pano-full.jpg",n:"Kirkjufell's Verdant Dominion",ar:2.219},
     {t:"images/iceland/WOLF5076-thumb.jpg",f:"images/iceland/WOLF5076-full.jpg",n:"Tidal Marshes Under Dramatic Skies",ar:1.499}
   ]},
-  {name:"Iceland Ring Road",slug:"iceland-ring-road",n:67,img:"images/iceland-ring-road/DJI_20250802232350_0025_D-thumb.jpg",p:[
-    {t:"images/iceland-ring-road/DJI_20250802232350_0025_D-thumb.jpg",f:"images/iceland-ring-road/DJI_20250802232350_0025_D-full.jpg",n:"Turquoise river on Dark Stone",ar:1.778},
-    {t:"images/iceland-ring-road/WOLF2901-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF2901-Pano-full.jpg",n:"Moss-Covered Lava Fields",ar:2.017},
-    {t:"images/iceland-ring-road/WOLF2943-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF2943-Pano-full.jpg",n:"Storm Light Over Moorland",ar:2.508},
-    {t:"images/iceland-ring-road/WOLF2970-thumb.jpg",f:"images/iceland-ring-road/WOLF2970-full.jpg",n:"Glacial Valley Under Dramatic Skies",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF2997-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF2997-Pano-full.jpg",n:"Moss-Draped Lava Canyon",ar:2.017},
-    {t:"images/iceland-ring-road/WOLF3043-thumb.jpg",f:"images/iceland-ring-road/WOLF3043-full.jpg",n:"Cascading Waters Through Stone",ar:1.822},
-    {t:"images/iceland-ring-road/WOLF3044-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF3044-Pano-full.jpg",n:"Turquoise Cascade Through Basalt",ar:1.602},
-    {t:"images/iceland-ring-road/WOLF3058-thumb.jpg",f:"images/iceland-ring-road/WOLF3058-full.jpg",n:"Cascading Waters Through Moss-Clad Stone",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF3088-thumb.jpg",f:"images/iceland-ring-road/WOLF3088-full.jpg",n:"Geothermal Eruption in Mist",ar:2.051},
-    {t:"images/iceland-ring-road/WOLF3245-thumb.jpg",f:"images/iceland-ring-road/WOLF3245-full.jpg",n:"Gullfoss Cascades Through Emerald",ar:1.663},
-    {t:"images/iceland-ring-road/WOLF3249-thumb.jpg",f:"images/iceland-ring-road/WOLF3249-full.jpg",n:"Waterfall Cascades Over Emerald Cliffs",ar:2.287},
-    {t:"images/iceland-ring-road/WOLF3293-thumb.jpg",f:"images/iceland-ring-road/WOLF3293-full.jpg",n:"Storm Over Black Sand Shores",ar:2.324},
-    {t:"images/iceland-ring-road/WOLF3700-thumb.jpg",f:"images/iceland-ring-road/WOLF3700-full.jpg",n:"Emerald Valleys Under Dramatic Skies",ar:2.652},
-    {t:"images/iceland-ring-road/WOLF3710-thumb.jpg",f:"images/iceland-ring-road/WOLF3710-full.jpg",n:"Abandoned Aircraft on Black Sands",ar:1.93},
-    {t:"images/iceland-ring-road/WOLF3746-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF3746-Edit-full.jpg",n:"Solitude on the Black Sand Plain",ar:2.399},
-    {t:"images/iceland-ring-road/WOLF3753-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF3753-Edit-full.jpg",n:"Abandoned Aircraft on Black Sand",ar:2.399},
-    {t:"images/iceland-ring-road/WOLF3768-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF3768-Pano-full.jpg",n:"Glacier Lake's Emerald Sentinel",ar:3.247},
-    {t:"images/iceland-ring-road/WOLF3850-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF3850-Pano-full.jpg",n:"Glacier Lake and Moss Mountain",ar:3.547},
-    {t:"images/iceland-ring-road/WOLF3859-thumb.jpg",f:"images/iceland-ring-road/WOLF3859-full.jpg",n:"Glacier Meets Moss-Clad Cliffs",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF3921-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF3921-Pano-full.jpg",n:"Mirrored Reflection in Shallow Waters",ar:2.947},
-    {t:"images/iceland-ring-road/WOLF3950-thumb.jpg",f:"images/iceland-ring-road/WOLF3950-full.jpg",n:"Puffin Portrait on Coastal Grassland",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF3955-thumb.jpg",f:"images/iceland-ring-road/WOLF3955-full.jpg",n:"Puffin on Coastal Grassland",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF3963-thumb.jpg",f:"images/iceland-ring-road/WOLF3963-full.jpg",n:"Puffin on Coastal Grass",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF3969-thumb.jpg",f:"images/iceland-ring-road/WOLF3969-full.jpg",n:"Puffin Among Coastal Grasses",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF3972-thumb.jpg",f:"images/iceland-ring-road/WOLF3972-full.jpg",n:"Puffin in Flight, Coastal Iceland",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF3979-thumb.jpg",f:"images/iceland-ring-road/WOLF3979-full.jpg",n:"Puffin Portrait, Westman Islands",ar:1.621},
-    {t:"images/iceland-ring-road/WOLF4025-thumb.jpg",f:"images/iceland-ring-road/WOLF4025-full.jpg",n:"Lava Fields and Distant Peaks",ar:1.9},
-    {t:"images/iceland-ring-road/WOLF4086-thumb.jpg",f:"images/iceland-ring-road/WOLF4086-full.jpg",n:"Road Through Stone and Moss",ar:1.766},
-    {t:"images/iceland-ring-road/WOLF4120-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4120-Edit-full.jpg",n:"Moss-Draped Canyon and Stream",ar:2.399},
-    {t:"images/iceland-ring-road/WOLF4122-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4122-Edit-full.jpg",n:"Emerald Canyon with Cascading Waters",ar:2.399},
-    {t:"images/iceland-ring-road/WOLF4123-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4123-Edit-full.jpg",n:"Emerald Canyon and Flowing Waters",ar:2.399},
-    {t:"images/iceland-ring-road/WOLF4127-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4127-Edit-full.jpg",n:"Emerald Canyon's Secret Stream",ar:2.399},
-    {t:"images/iceland-ring-road/WOLF4132-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4132-Edit-full.jpg",n:"Vast Plateau Beneath Mountain Sentinels",ar:2.477},
-    {t:"images/iceland-ring-road/WOLF4133-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4133-Edit-full.jpg",n:"Kirkjufell's Moss-Draped Majesty",ar:2.399},
-    {t:"images/iceland-ring-road/WOLF4163-thumb.jpg",f:"images/iceland-ring-road/WOLF4163-full.jpg",n:"Glacier Cathedral in Stone",ar:2.315},
-    {t:"images/iceland-ring-road/WOLF4187-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4187-Pano-full.jpg",n:"Glacier-Crowned Coast and Tundra",ar:2.931},
-    {t:"images/iceland-ring-road/WOLF4228-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4228-Pano-full.jpg",n:"Vatnajökull's Icy Expanse",ar:4.049},
-    {t:"images/iceland-ring-road/WOLF4298-thumb.jpg",f:"images/iceland-ring-road/WOLF4298-full.jpg",n:"Glacial Ice on Black Sand",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF4306-thumb.jpg",f:"images/iceland-ring-road/WOLF4306-full.jpg",n:"Glacial Ice Meets Coastal Surge",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF4324-thumb.jpg",f:"images/iceland-ring-road/WOLF4324-full.jpg",n:"Ice Fragment in Motion",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF4365-thumb.jpg",f:"images/iceland-ring-road/WOLF4365-full.jpg",n:"Glacial Ice Fragment on Black Sand",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF4389-thumb.jpg",f:"images/iceland-ring-road/WOLF4389-full.jpg",n:"Glacial Ice on Black Sand",ar:2.148},
-    {t:"images/iceland-ring-road/WOLF4418-thumb.jpg",f:"images/iceland-ring-road/WOLF4418-full.jpg",n:"Glacial Sculpture in Turquoise Waters",ar:2.117},
-    {t:"images/iceland-ring-road/WOLF4419-thumb.jpg",f:"images/iceland-ring-road/WOLF4419-full.jpg",n:"Glacial Perch",ar:2.124},
-    {t:"images/iceland-ring-road/WOLF4427-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4427-Pano-full.jpg",n:"Glacial Lagoon's Turquoise Expanse",ar:2.105},
-    {t:"images/iceland-ring-road/WOLF4438-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4438-Edit-full.jpg",n:"Glacial Waters at Jökulsárlón",ar:2.399},
-    {t:"images/iceland-ring-road/WOLF4448-Edit-thumb.jpg",f:"images/iceland-ring-road/WOLF4448-Edit-full.jpg",n:"Stokksnes Mountain's Dark Reflection",ar:2.399},
-    {t:"images/iceland-ring-road/WOLF4460-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4460-Pano-full.jpg",n:"Vestrahorn's Reflection",ar:2.032},
-    {t:"images/iceland-ring-road/WOLF4530-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4530-Pano-full.jpg",n:"Vestrahorn's Black Sand Majesty",ar:1.958},
-    {t:"images/iceland-ring-road/WOLF4556-thumb.jpg",f:"images/iceland-ring-road/WOLF4556-full.jpg",n:"Mountain Reflection at Vestrahorn",ar:1.79},
-    {t:"images/iceland-ring-road/WOLF4557-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4557-Pano-full.jpg",n:"Mountain Reflection in Still Waters",ar:2.232},
-    {t:"images/iceland-ring-road/WOLF4569-thumb.jpg",f:"images/iceland-ring-road/WOLF4569-full.jpg",n:"Settlements Beneath the Mountain",ar:2.334},
-    {t:"images/iceland-ring-road/WOLF4631-thumb.jpg",f:"images/iceland-ring-road/WOLF4631-full.jpg",n:"Wooden Portal to Stillness",ar:1.739},
-    {t:"images/iceland-ring-road/WOLF4635-thumb.jpg",f:"images/iceland-ring-road/WOLF4635-full.jpg",n:"Moss-Draped Basalt Canyons",ar:1.76},
-    {t:"images/iceland-ring-road/WOLF4663-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4663-Pano-full.jpg",n:"Vast Lava Plain Under Shifting Skies",ar:2.542},
-    {t:"images/iceland-ring-road/WOLF4712-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4712-Pano-full.jpg",n:"Geothermal Wilderness in Mist",ar:2.514},
-    {t:"images/iceland-ring-road/WOLF4745-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4745-Pano-full.jpg",n:"Geothermal Steam Rising",ar:2.299},
-    {t:"images/iceland-ring-road/WOLF4749-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4749-Pano-full.jpg",n:"Geothermal Basin and Striped Mountain",ar:1.746},
-    {t:"images/iceland-ring-road/WOLF4775-thumb.jpg",f:"images/iceland-ring-road/WOLF4775-full.jpg",n:"Geothermal Ravine in Mineral Colors",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF4783-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4783-Pano-full.jpg",n:"Crater's Shadow, Volcanic Basin",ar:2.478},
-    {t:"images/iceland-ring-road/WOLF4838-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4838-Pano-full.jpg",n:"Emerald Waters of Godafoss",ar:2.111},
-    {t:"images/iceland-ring-road/WOLF4872-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4872-Pano-full.jpg",n:"Green Valleys Beneath Distant Peaks",ar:3.269},
-    {t:"images/iceland-ring-road/WOLF4890-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF4890-Pano-full.jpg",n:"Emerald Vastness Beneath Shifting Clouds",ar:2.317},
-    {t:"images/iceland-ring-road/WOLF4924-thumb.jpg",f:"images/iceland-ring-road/WOLF4924-full.jpg",n:"Kirkjufell's Emerald Sentinel",ar:2.317},
-    {t:"images/iceland-ring-road/WOLF4944-thumb.jpg",f:"images/iceland-ring-road/WOLF4944-full.jpg",n:"Moss-Cloaked Valley of Waterfalls",ar:1.499},
-    {t:"images/iceland-ring-road/WOLF5060-Pano-thumb.jpg",f:"images/iceland-ring-road/WOLF5060-Pano-full.jpg",n:"Iconic Mountain Road Through Iceland",ar:2.219},
-    {t:"images/iceland-ring-road/WOLF5076-thumb.jpg",f:"images/iceland-ring-road/WOLF5076-full.jpg",n:"Tidal Marshlands Under Dramatic Sky",ar:1.499}
-  ]},
-  {name:"Lake Powell",slug:"lake-powell",n:7,img:"images/lake-powell/IMG_0075-4-thumb.jpg",p:[
+  {name:"Lake Powell",slug:"lake-powell",n:14,img:"images/lake-powell/IMG_0075-4-thumb.jpg",p:[
     {t:"images/lake-powell/IMG_0075-4-thumb.jpg",f:"images/lake-powell/IMG_0075-4-full.jpg",n:"Desert Monument Reflection",ar:1.5},
     {t:"images/lake-powell/118A6183-Enhanced-NR-thumb.jpg",f:"images/lake-powell/118A6183-Enhanced-NR-full.jpg",n:"Horseshoe Bend's Eternal Embrace",ar:1.5},
     {t:"images/lake-powell/118A6194-thumb.jpg",f:"images/lake-powell/118A6194-full.jpg",n:"Horseshoe Bend's Emerald Waters",ar:1.5},
     {t:"images/lake-powell/118A6204-thumb.jpg",f:"images/lake-powell/118A6204-full.jpg",n:"Horseshoe Bend's Turquoise Embrace",ar:1.5},
     {t:"images/lake-powell/IMG_0156-2-thumb.jpg",f:"images/lake-powell/IMG_0156-2-full.jpg",n:"Canyon Portal: Stone's Silent Gateway",ar:2.034},
     {t:"images/lake-powell/IMG_0175-2-thumb.jpg",f:"images/lake-powell/IMG_0175-2-full.jpg",n:"Desert Arch in Golden Stone",ar:1.756},
-    {t:"images/lake-powell/IMG_0179-2-thumb.jpg",f:"images/lake-powell/IMG_0179-2-full.jpg",n:"Desert Arch and Ancient Stone",ar:1.5}
+    {t:"images/lake-powell/IMG_0179-2-thumb.jpg",f:"images/lake-powell/IMG_0179-2-full.jpg",n:"Desert Arch and Ancient Stone",ar:1.5},
+    {t:"images/lake-powell/Wolf 527-thumb.jpg",f:"images/lake-powell/Wolf 527-full.jpg",n:"Painted Walls of Stone",ar:1.5},
+    {t:"images/lake-powell/Wolf 533-thumb.jpg",f:"images/lake-powell/Wolf 533-full.jpg",n:"Desert Stone Meets Water",ar:1.5},
+    {t:"images/lake-powell/Wolf 534-thumb.jpg",f:"images/lake-powell/Wolf 534-full.jpg",n:"Desert Cliffs Meet Still Waters",ar:1.5},
+    {t:"images/lake-powell/Wolf 535-thumb.jpg",f:"images/lake-powell/Wolf 535-full.jpg",n:"Emerald Waters Meet Stone",ar:1.5},
+    {t:"images/lake-powell/Wolf 536-thumb.jpg",f:"images/lake-powell/Wolf 536-full.jpg",n:"Sentinel Rocks of Lake Powell",ar:1.5},
+    {t:"images/lake-powell/Wolf 537-thumb.jpg",f:"images/lake-powell/Wolf 537-full.jpg",n:"Emerald Waters of Stone Canyon",ar:1.5},
+    {t:"images/lake-powell/Wolf 538-thumb.jpg",f:"images/lake-powell/Wolf 538-full.jpg",n:"Emerald Waters, Sandstone Sentinel",ar:1.5}
   ]},
   {name:"London",slug:"london",n:1,img:"images/london/118A8990-thumb.jpg",p:[
     {t:"images/london/118A8990-thumb.jpg",f:"images/london/118A8990-full.jpg",n:"London Eye Illuminated Reflection",ar:1.5}
@@ -976,8 +929,16 @@ const G=[
     {t:"images/mexico-city/118A2570-thumb.jpg",f:"images/mexico-city/118A2570-full.jpg",n:"Hillside Cemetery, Vibrant Passage",ar:1.5},
     {t:"images/mexico-city/118A2640-thumb.jpg",f:"images/mexico-city/118A2640-full.jpg",n:"Chromatic Hillside Tapestry",ar:1.704}
   ]},
-  {name:"Monument Valley",slug:"monument-valley",n:1,img:"images/monument-valley/IMG_0208 (1)-thumb.jpg",p:[
-    {t:"images/monument-valley/IMG_0208 (1)-thumb.jpg",f:"images/monument-valley/IMG_0208 (1)-full.jpg",n:"Sentinels of the Desert",ar:2.051}
+  {name:"Monument Valley",slug:"monument-valley",n:9,img:"images/monument-valley/IMG_0208 (1)-thumb.jpg",p:[
+    {t:"images/monument-valley/IMG_0208 (1)-thumb.jpg",f:"images/monument-valley/IMG_0208 (1)-full.jpg",n:"Sentinels of the Desert",ar:2.051},
+    {t:"images/monument-valley/Wolf 503-thumb.jpg",f:"images/monument-valley/Wolf 503-full.jpg",n:"West Mitten Monument Valley Stillness",ar:2.082},
+    {t:"images/monument-valley/Wolf 504-thumb.jpg",f:"images/monument-valley/Wolf 504-full.jpg",n:"Monument Valley's Eternal Expanse",ar:1.5},
+    {t:"images/monument-valley/Wolf 508-thumb.jpg",f:"images/monument-valley/Wolf 508-full.jpg",n:"Monoliths of the Red Desert",ar:1.5},
+    {t:"images/monument-valley/Wolf 509-thumb.jpg",f:"images/monument-valley/Wolf 509-full.jpg",n:"Monument Valley's Eternal Sentinels",ar:1.5},
+    {t:"images/monument-valley/Wolf 512-thumb.jpg",f:"images/monument-valley/Wolf 512-full.jpg",n:"Balanced Stone Desert Monolith",ar:2.083},
+    {t:"images/monument-valley/Wolf 513-thumb.jpg",f:"images/monument-valley/Wolf 513-full.jpg",n:"Desert Sentinels",ar:1.5},
+    {t:"images/monument-valley/Wolf 514-thumb.jpg",f:"images/monument-valley/Wolf 514-full.jpg",n:"Solitude in the Red Desert",ar:1.5},
+    {t:"images/monument-valley/Wolf 515-thumb.jpg",f:"images/monument-valley/Wolf 515-full.jpg",n:"Monument Valley's Sentinel Towers",ar:1.959}
   ]},
   {name:"New Zealand",slug:"new-zealand",n:27,img:"images/new-zealand/118A2696-thumb.jpg",p:[
     {t:"images/new-zealand/118A2696-thumb.jpg",f:"images/new-zealand/118A2696-full.jpg",n:"Alpine Meadow with Mountain Stream",ar:2.159},
@@ -1017,11 +978,13 @@ const G=[
     {t:"images/planes/118A0118-thumb.jpg",f:"images/planes/118A0118-full.jpg",n:"Horizon's Golden Threshold",ar:1.5},
     {t:"images/planes/118A0122-thumb.jpg",f:"images/planes/118A0122-full.jpg",n:"Horizon's Golden Threshold",ar:1.5}
   ]},
-  {name:"Random Stuff",slug:"random-stuff",n:4,img:"images/random-stuff/IMG_0051-thumb.jpg",p:[
+  {name:"Random Stuff",slug:"random-stuff",n:6,img:"images/random-stuff/IMG_0051-thumb.jpg",p:[
     {t:"images/random-stuff/IMG_0051-thumb.jpg",f:"images/random-stuff/IMG_0051-full.jpg",n:"Unity in Motion",ar:1.5},
     {t:"images/random-stuff/IMG_0151 (2)-thumb.jpg",f:"images/random-stuff/IMG_0151 (2)-full.jpg",n:"Desert Currents in Sand",ar:1.838},
     {t:"images/random-stuff/WOLF2432-thumb.jpg",f:"images/random-stuff/WOLF2432-full.jpg",n:"Weathered Wood's Spiral Memory",ar:1.769},
-    {t:"images/random-stuff/_MG_0508-thumb.jpg",f:"images/random-stuff/_MG_0508-full.jpg",n:"Chromatic Journey Through Urban Space",ar:2.407}
+    {t:"images/random-stuff/_MG_0508-thumb.jpg",f:"images/random-stuff/_MG_0508-full.jpg",n:"Chromatic Journey Through Urban Space",ar:2.407},
+    {t:"images/random-stuff/Wolf 1646-thumb.jpg",f:"images/random-stuff/Wolf 1646-full.jpg",n:"Geometric Rhythms in Green",ar:1.513},
+    {t:"images/random-stuff/Wolf 183-thumb.jpg",f:"images/random-stuff/Wolf 183-full.jpg",n:"Unity Across Difference",ar:1.5}
   ]},
   {name:"South Africa",slug:"south-africa",n:8,img:"images/south-africa/_MG_2190-thumb.jpg",p:[
     {t:"images/south-africa/_MG_2190-thumb.jpg",f:"images/south-africa/_MG_2190-full.jpg",n:"Ostrich Portrait",ar:1.5},
@@ -1045,7 +1008,7 @@ const G=[
     {t:"images/south-america/118A2361-thumb.jpg",f:"images/south-america/118A2361-full.jpg",n:"Bogotá Street Art Chronicle",ar:1.5},
     {t:"images/south-america/118A2411-thumb.jpg",f:"images/south-america/118A2411-full.jpg",n:"Urban Solitude at the Roofline",ar:1.934}
   ]},
-  {name:"Tanzania",slug:"tanzania",n:44,img:"images/tanzania/118A0002-thumb.jpg",p:[
+  {name:"Tanzania",slug:"tanzania",n:54,img:"images/tanzania/118A0002-thumb.jpg",p:[
     {t:"images/tanzania/118A0002-thumb.jpg",f:"images/tanzania/118A0002-full.jpg",n:"Zebra Congregation in African Savanna",ar:1.5},
     {t:"images/tanzania/118A0007-thumb.jpg",f:"images/tanzania/118A0007-full.jpg",n:"Zebra Family in African Grassland",ar:1.5},
     {t:"images/tanzania/118A0018 1-thumb.jpg",f:"images/tanzania/118A0018 1-full.jpg",n:"Giraffe Crossing the Savanna",ar:1.807},
@@ -1089,13 +1052,41 @@ const G=[
     {t:"images/tanzania/118A0548-thumb.jpg",f:"images/tanzania/118A0548-full.jpg",n:"Mother and Child in the Savanna",ar:1.5},
     {t:"images/tanzania/118A0672-thumb.jpg",f:"images/tanzania/118A0672-full.jpg",n:"Mother and Calf in the Savanna",ar:1.5},
     {t:"images/tanzania/118A0676-thumb.jpg",f:"images/tanzania/118A0676-full.jpg",n:"Elephant in Golden Grassland",ar:1.5},
-    {t:"images/tanzania/118A0694-thumb.jpg",f:"images/tanzania/118A0694-full.jpg",n:"Elephants on the Savanna Path",ar:1.5}
+    {t:"images/tanzania/118A0694-thumb.jpg",f:"images/tanzania/118A0694-full.jpg",n:"Elephants on the Savanna Path",ar:1.5},
+    {t:"images/tanzania/Wolf 128-thumb.jpg",f:"images/tanzania/Wolf 128-full.jpg",n:"Goats Among the Stubble",ar:2.12},
+    {t:"images/tanzania/Wolf 134-thumb.jpg",f:"images/tanzania/Wolf 134-full.jpg",n:"Life Among the Fields",ar:2.268},
+    {t:"images/tanzania/Wolf 173-thumb.jpg",f:"images/tanzania/Wolf 173-full.jpg",n:"Avenue of Ancient Sentinels",ar:1.812},
+    {t:"images/tanzania/Wolf 188-thumb.jpg",f:"images/tanzania/Wolf 188-full.jpg",n:"Village Life Among the Trees",ar:1.996},
+    {t:"images/tanzania/Wolf 207-thumb.jpg",f:"images/tanzania/Wolf 207-full.jpg",n:"Solitary Stride Across the Savanna",ar:1.5},
+    {t:"images/tanzania/Wolf 213-thumb.jpg",f:"images/tanzania/Wolf 213-full.jpg",n:"Secretary Bird in Motion",ar:1.5},
+    {t:"images/tanzania/Wolf 216-thumb.jpg",f:"images/tanzania/Wolf 216-full.jpg",n:"Lioness in the Grassland",ar:1.5},
+    {t:"images/tanzania/Wolf 225-thumb.jpg",f:"images/tanzania/Wolf 225-full.jpg",n:"Solitary Elephant by the Water",ar:2.237},
+    {t:"images/tanzania/Wolf 226-thumb.jpg",f:"images/tanzania/Wolf 226-full.jpg",n:"Giraffe in Acacia Wilderness",ar:1.714},
+    {t:"images/tanzania/Wolf 282-thumb.jpg",f:"images/tanzania/Wolf 282-full.jpg",n:"Giraffe's Gentle Reach",ar:1.5}
   ]},
-  {name:"Utah National Parks",slug:"utah-national-parks",n:4,img:"images/utah-national-parks/118A6607-thumb.jpg",p:[
+  {name:"Utah National Parks",slug:"utah-national-parks",n:22,img:"images/utah-national-parks/118A6607-thumb.jpg",p:[
     {t:"images/utah-national-parks/118A6607-thumb.jpg",f:"images/utah-national-parks/118A6607-full.jpg",n:"Crimson Waves Across Stone",ar:1.5},
     {t:"images/utah-national-parks/118A6652-thumb.jpg",f:"images/utah-national-parks/118A6652-full.jpg",n:"Weathered Wood Grain Study",ar:1.5},
     {t:"images/utah-national-parks/118A7121-thumb.jpg",f:"images/utah-national-parks/118A7121-full.jpg",n:"Dunes and Distant Plateaus",ar:1.54},
-    {t:"images/utah-national-parks/118A7177-thumb.jpg",f:"images/utah-national-parks/118A7177-full.jpg",n:"Ridgeline Through Verdant Canyons",ar:1.5}
+    {t:"images/utah-national-parks/118A7177-thumb.jpg",f:"images/utah-national-parks/118A7177-full.jpg",n:"Ridgeline Through Verdant Canyons",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 433-thumb.jpg",f:"images/utah-national-parks/Wolf 433-full.jpg",n:"Desert Highway Through Red Rock Canyon",ar:2.039},
+    {t:"images/utah-national-parks/Wolf 435-thumb.jpg",f:"images/utah-national-parks/Wolf 435-full.jpg",n:"Organ Pipes Desert Cathedral",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 439-thumb.jpg",f:"images/utah-national-parks/Wolf 439-full.jpg",n:"Solitary Tree in Desert Expanse",ar:1.838},
+    {t:"images/utah-national-parks/Wolf 450-thumb.jpg",f:"images/utah-national-parks/Wolf 450-full.jpg",n:"Balanced Rock at Golden Hour",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 458-thumb.jpg",f:"images/utah-national-parks/Wolf 458-full.jpg",n:"Desert Spires at Golden Hour",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 459-thumb.jpg",f:"images/utah-national-parks/Wolf 459-full.jpg",n:"Desert Stone Cathedral at Dusk",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 463-thumb.jpg",f:"images/utah-national-parks/Wolf 463-full.jpg",n:"Desert Rocks at Golden Hour",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 464-thumb.jpg",f:"images/utah-national-parks/Wolf 464-full.jpg",n:"Desert Monuments in Ethereal Light",ar:2.012},
+    {t:"images/utah-national-parks/Wolf 466-thumb.jpg",f:"images/utah-national-parks/Wolf 466-full.jpg",n:"Desert Sentinels at Golden Hour",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 468-thumb.jpg",f:"images/utah-national-parks/Wolf 468-full.jpg",n:"Delicate Arch Golden Hour",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 469-thumb.jpg",f:"images/utah-national-parks/Wolf 469-full.jpg",n:"Desert Arch in Golden Light",ar:1.799},
+    {t:"images/utah-national-parks/Wolf 476-thumb.jpg",f:"images/utah-national-parks/Wolf 476-full.jpg",n:"Balanced Rock Desert Sentinel",ar:2.073},
+    {t:"images/utah-national-parks/Wolf 478-thumb.jpg",f:"images/utah-national-parks/Wolf 478-full.jpg",n:"Desert Sentinels of Monument Valley",ar:1.764},
+    {t:"images/utah-national-parks/Wolf 479-thumb.jpg",f:"images/utah-national-parks/Wolf 479-full.jpg",n:"Sentinel Rock Desert Monolith",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 480-thumb.jpg",f:"images/utah-national-parks/Wolf 480-full.jpg",n:"Desert Sentinel",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 482-thumb.jpg",f:"images/utah-national-parks/Wolf 482-full.jpg",n:"Desert Serpent: Canyon Road Curves",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 488-thumb.jpg",f:"images/utah-national-parks/Wolf 488-full.jpg",n:"Desert Portal: Canyonlands Frame",ar:1.81},
+    {t:"images/utah-national-parks/Wolf 490-thumb.jpg",f:"images/utah-national-parks/Wolf 490-full.jpg",n:"Desert Gateway: Canyonlands Vista",ar:1.886}
   ]},
   {name:"Valley of Fire",slug:"valley-of-fire",n:3,img:"images/valley-of-fire/IMG_0102-2-thumb.jpg",p:[
     {t:"images/valley-of-fire/IMG_0102-2-thumb.jpg",f:"images/valley-of-fire/IMG_0102-2-full.jpg",n:"Desert Ridges and Russet Plateaus",ar:1.915},

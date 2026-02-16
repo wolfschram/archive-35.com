@@ -134,7 +134,7 @@ h3 { font-size: clamp(1.125rem, 2vw, 1.5rem); }
   top: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
+  z-index: 10000;
   width: calc(100% - 3rem);
   max-width: 1200px;
 }

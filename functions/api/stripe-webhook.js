@@ -922,8 +922,11 @@ export async function onRequestPost(context) {
       validation = await validatePreorder(PICTOREM_API_KEY, preorderCode);
       console.log('Pictorem validation:', JSON.stringify(validation));
 
-      // Check validation: status must be true AND data.preordercode must not be false
-      const validationFailed = !validation.status ||
+      // Check validation: status must be boolean true (not just truthy like an HTTP status code)
+      // If Pictorem returns an error (wrong API key, server error), pictoremRequest returns
+      // { raw: "...", status: 401 } — where status is the HTTP code, NOT boolean true.
+      // Using strict === true prevents false-positive validation on error responses.
+      const validationFailed = validation.status !== true ||
         (validation.data && validation.data.preordercode === false) ||
         (validation.data && validation.data.errorlist && validation.data.errorlist.length > 0);
 
@@ -1024,6 +1027,7 @@ export async function onRequestPost(context) {
     };
 
     let orderResult;
+    let orderSucceeded = false;
     if (isTestMode) {
       // MOCK: Don't submit real order to Pictorem in test mode
       orderResult = {
@@ -1032,11 +1036,19 @@ export async function onRequestPost(context) {
         message: 'TEST MODE — no real Pictorem order created',
         orderId: `mock_${Date.now()}`,
       };
+      orderSucceeded = true;
       console.log('TEST: Mocked Pictorem order (no real order placed)');
     } else {
       console.log('Submitting Pictorem order:', JSON.stringify(orderPayload));
       orderResult = await sendOrder(PICTOREM_API_KEY, orderPayload);
       console.log('Pictorem order result:', JSON.stringify(orderResult));
+      // Verify Pictorem actually accepted the order
+      // Success: { status: true, data: { orderId: "..." } } or similar
+      // Failure: { raw: "...", status: 401 } or { status: false, ... }
+      orderSucceeded = orderResult.status === true || !!orderResult.orderId;
+      if (!orderSucceeded) {
+        console.error('PICTOREM ORDER REJECTED:', JSON.stringify(orderResult));
+      }
     }
 
     // ====================================================================
@@ -1074,21 +1086,42 @@ export async function onRequestPost(context) {
       wholesalePrice,
     };
 
-    // Send customer confirmation email
-    const customerEmailResult = await sendEmail(RESEND_API_KEY, {
-      to: customerEmail,
-      subject: `Your Archive-35 Print Order — ${photoTitle}`,
-      html: buildCustomerEmail(orderDetails),
-    });
-    console.log('Customer email result:', JSON.stringify(customerEmailResult));
+    // Only send customer confirmation if Pictorem actually accepted the order
+    let customerEmailResult, wolfEmailResult;
+    if (orderSucceeded) {
+      customerEmailResult = await sendEmail(RESEND_API_KEY, {
+        to: customerEmail,
+        subject: `Your Archive-35 Print Order — ${photoTitle}`,
+        html: buildCustomerEmail(orderDetails),
+      });
+      console.log('Customer email result:', JSON.stringify(customerEmailResult));
 
-    // Send Wolf notification email
-    const wolfEmailResult = await sendEmail(RESEND_API_KEY, {
-      to: WOLF_EMAIL,
-      subject: `${originalResult.source !== 'r2-original' ? '⚠️ LOW-RES ALERT — ' : ''}New Order: ${photoTitle} — ${materialDisplayName} ${sizeStr} — $${amountPaid}`,
-      html: buildWolfNotificationEmail(orderDetails),
-    });
-    console.log('Wolf notification result:', JSON.stringify(wolfEmailResult));
+      // Send Wolf notification email
+      wolfEmailResult = await sendEmail(RESEND_API_KEY, {
+        to: WOLF_EMAIL,
+        subject: `${originalResult.source !== 'r2-original' ? '⚠️ LOW-RES ALERT — ' : ''}New Order: ${photoTitle} — ${materialDisplayName} ${sizeStr} — $${amountPaid}`,
+        html: buildWolfNotificationEmail(orderDetails),
+      });
+      console.log('Wolf notification result:', JSON.stringify(wolfEmailResult));
+    } else {
+      // Order failed — send URGENT alert to Wolf, do NOT send customer fake confirmation
+      console.error('ORDER FAILED — sending urgent alert to Wolf, withholding customer email');
+      wolfEmailResult = await sendEmail(RESEND_API_KEY, {
+        to: WOLF_EMAIL,
+        subject: `🚨 ORDER FAILED — Pictorem rejected: ${photoTitle} — $${amountPaid}`,
+        html: `<h2 style="color:#f44336;">Pictorem Order REJECTED</h2>
+          <p><strong>Customer charged but order NOT submitted to Pictorem.</strong></p>
+          <p><strong>Customer:</strong> ${customerName} &lt;${customerEmail}&gt;</p>
+          <p><strong>Photo:</strong> ${photoTitle} (${photoId})</p>
+          <p><strong>Material:</strong> ${materialDisplayName} ${sizeStr}</p>
+          <p><strong>Amount charged:</strong> $${amountPaid}</p>
+          <p><strong>Preorder code:</strong> ${preorderCode}</p>
+          <p><strong>Pictorem response:</strong> <pre>${JSON.stringify(orderResult, null, 2)}</pre></p>
+          <p><strong>Stripe session:</strong> ${session.id}</p>
+          <p><strong>Action needed:</strong> Manually submit to Pictorem or refund the customer.</p>`,
+      });
+      console.log('Wolf urgent alert result:', JSON.stringify(wolfEmailResult));
+    }
 
     // Log to Google Sheet (non-blocking)
     logToGoogleSheet(GOOGLE_SHEET_WEBHOOK_URL, {
@@ -1112,20 +1145,20 @@ export async function onRequestPost(context) {
       shipAddress: (address.line1 || '') + (address.line2 ? ', ' + address.line2 : ''),
       shipZip: address.postal_code || '',
       testMode: isTestMode,
-      status: 'completed',
-      notes: originalResult.source !== 'r2-original' ? 'LOW-RES IMAGE WARNING' : '',
+      status: orderSucceeded ? 'completed' : 'FAILED',
+      notes: !orderSucceeded ? 'Pictorem rejected order: ' + JSON.stringify(orderResult).substring(0, 200) : (originalResult.source !== 'r2-original' ? 'LOW-RES IMAGE WARNING' : ''),
     });
 
     return new Response(JSON.stringify({
       received: true,
-      fulfilled: true,
+      fulfilled: orderSucceeded,
       testMode: isTestMode,
       preorderCode,
       imageSource: originalResult.source,
       pictoremOrder: orderResult,
       stripeSessionId: session.id,
       emailsSent: {
-        customer: customerEmailResult?.id ? true : false,
+        customer: orderSucceeded && customerEmailResult?.id ? true : false,
         wolf: wolfEmailResult?.id ? true : false,
       },
     }), {
@@ -1135,12 +1168,30 @@ export async function onRequestPost(context) {
 
   } catch (err) {
     console.error('Webhook handler error:', err);
-    // Always return 200 to Stripe to prevent retries on our errors
+    // Send emergency email to Wolf — wrapped in its own try/catch so it can't throw
+    try {
+      const RESEND_KEY = env.RESEND_API_KEY || '';
+      const WOLF = env.WOLF_EMAIL || 'wolfbroadcast@gmail.com';
+      if (RESEND_KEY) {
+        await sendEmail(RESEND_KEY, {
+          to: WOLF,
+          subject: '🚨 WEBHOOK CRASH — Order may be lost',
+          html: `<h2 style="color:#f44336;">Stripe Webhook Crashed</h2>
+            <p><strong>Error:</strong> ${err.message}</p>
+            <p><strong>Stack:</strong> <pre>${err.stack || 'no stack'}</pre></p>
+            <p><strong>Action:</strong> Check Stripe Dashboard → Developers → Webhooks for the failed event. Stripe will retry automatically.</p>`,
+        });
+      }
+    } catch (emailErr) {
+      console.error('Failed to send crash alert email:', emailErr.message);
+    }
+    // Return 500 so Stripe retries the webhook (up to ~7 times over 72 hours)
+    // This is better than returning 200 and silently losing the order
     return new Response(JSON.stringify({
       received: true,
       error: err.message,
     }), {
-      status: 200,
+      status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
   }

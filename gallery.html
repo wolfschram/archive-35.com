@@ -202,7 +202,7 @@ html, body {
 
 /* === HEADER === */
 header {
-  position:fixed; top:0; left:0; right:0; z-index:100;
+  position:fixed; top:0; left:0; right:0; z-index:10000;
   pointer-events:none;
 }
 header::before {
@@ -408,13 +408,13 @@ nav a:hover::after, nav a.active::after { width:100%; }
 }
 #fgal.open { opacity:1; pointer-events:auto; }
 #fg-bk {
-  position:fixed; top:22px; left:36px; z-index:210;
+  position:fixed; top:80px; left:36px; z-index:210;
   font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px; color:var(--gold);
   background:rgba(13,12,10,0.85); border:1px solid var(--gold-dim);
   padding:10px 24px; cursor:pointer; transition:all .3s; backdrop-filter:blur(8px);
 }
 #fg-bk:hover { background:var(--gold); color:#000; }
-#fg-hd { text-align:center; padding:80px 40px 30px; }
+#fg-hd { text-align:center; padding:100px 40px 30px; }
 #fg-ti { font-family:'Bebas Neue',sans-serif; font-size:48px; letter-spacing:14px; }
 #fg-ct { font-family:'Courier Prime',monospace; font-size:11px; color:var(--gold); letter-spacing:3px; margin-top:8px; }
 #fg-ru { width:80px; height:1px; background:var(--gold); margin:16px auto 0; opacity:.3; }
@@ -442,7 +442,7 @@ nav a:hover::after, nav a.active::after { width:100%; }
 .lb-a { position:absolute; top:50%; transform:translateY(-50%); font-size:32px; color:rgba(255,255,255,0.2); cursor:pointer; background:none; border:none; padding:30px; transition:color .3s; }
 .lb-a:hover { color:var(--gold); }
 #lb-p{left:10px}#lb-n{right:10px}
-#lb-x { position:absolute; top:20px; right:28px; font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px; color:var(--gold); background:none; border:1px solid var(--gold-dim); padding:8px 18px; cursor:pointer; transition:all .3s; }
+#lb-x { position:absolute; top:80px; right:28px; font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px; color:var(--gold); background:none; border:1px solid var(--gold-dim); padding:8px 18px; cursor:pointer; transition:all .3s; }
 #lb-x:hover { background:var(--gold); color:#000; }
 #lb-buy { position:absolute; bottom:75px; left:50%; transform:translateX(-50%); font-family:'Courier Prime',monospace; font-size:11px; letter-spacing:3px; color:var(--gold); background:rgba(0,0,0,0.7); border:1px solid var(--gold-dim); padding:12px 32px; cursor:pointer; transition:all .3s; z-index:310; text-transform:uppercase; white-space:nowrap; }
 #lb-buy:hover { background:var(--gold); color:#000; border-color:var(--gold); }

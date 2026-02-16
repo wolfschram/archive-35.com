@@ -312,6 +312,7 @@ class CartUI {
       photoId: meta.photoId || firstItem.photoId || 'unknown',
       photoTitle: firstItem.title || 'Untitled',
       photoFilename: meta.photoFilename || meta.photoId || firstItem.photoId || 'unknown',
+      collection: meta.collection || '',
       material: meta.material || firstItem.material || '',
       dimensions: {
         width: parseInt(meta.width) || fallbackWidth,

@@ -479,9 +479,12 @@ function createProductSelectorModal(photoData) {
         </div>
 
         <!-- License Action -->
-        <div class="product-actions" style="grid-template-columns:1fr;">
+        <div class="product-actions">
+          <button class="add-to-cart-button" id="license-add-cart-button" disabled>
+            Add to Cart
+          </button>
           <button class="add-to-cart-button" id="license-buy-button" disabled>
-            License This Image
+            License Now
           </button>
         </div>
       </div>
@@ -530,6 +533,7 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
   // ── Licensing tier events ────────────────────────────────────────
   const tierOptions = modal.querySelectorAll('.license-tier-option');
   const licenseBuyBtn = modal.querySelector('#license-buy-button');
+  const licenseAddCartBtn = modal.querySelector('#license-add-cart-button');
   const licenseTermsCheckbox = modal.querySelector('#license-terms-checkbox');
   const formatInputs = modal.querySelectorAll('input[name="license-format"]');
   let selectedTier = null;
@@ -546,6 +550,7 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
     modal.querySelector('#license-summary-duration').textContent = LICENSE_TIERS[selectedTier].duration;
     modal.querySelector('#license-summary-price').textContent = '$' + total.toLocaleString();
     licenseBuyBtn.disabled = !(selectedTier && licenseTermsAccepted);
+    if (licenseAddCartBtn) licenseAddCartBtn.disabled = !(selectedTier && licenseTermsAccepted);
   }
 
   tierOptions.forEach(opt => {
@@ -569,6 +574,47 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
     licenseTermsCheckbox.addEventListener('change', () => {
       licenseTermsAccepted = licenseTermsCheckbox.checked;
       licenseBuyBtn.disabled = !(selectedTier && licenseTermsAccepted);
+      if (licenseAddCartBtn) licenseAddCartBtn.disabled = !(selectedTier && licenseTermsAccepted);
+    });
+  }
+
+  // License Add to Cart
+  if (licenseAddCartBtn) {
+    licenseAddCartBtn.addEventListener('click', () => {
+      if (!selectedTier || !licenseTermsAccepted) return;
+      const tierName = LICENSE_TIERS[selectedTier].name;
+      const basePrice = LICENSE_PRICING[selectedTier]?.[licenseClass || 'STANDARD'] || 0;
+      const formatSurcharge = selectedFormat === 'tiff' ? 100 : 0;
+      const total = basePrice + formatSurcharge;
+
+      const cartItem = {
+        photoId: photoData.id,
+        title: `${photoData.title} — ${tierName} License`,
+        material: `${tierName} License`,
+        size: selectedFormat.toUpperCase(),
+        price: total,
+        thumbnail: photoData.thumbnail,
+        metadata: {
+          photoId: photoData.id,
+          photoFilename: photoData.filename || photoData.id,
+          collection: photoData.collection || '',
+          material: 'license',
+          width: '0',
+          height: '0',
+          licenseTier: selectedTier,
+          licenseFormat: selectedFormat,
+          originalPhotoWidth: String(photoData.dimensions?.width || 0),
+          originalPhotoHeight: String(photoData.dimensions?.height || 0)
+        }
+      };
+
+      if (window.cart && window.cart.addToCart) {
+        window.cart.addToCart(cartItem);
+        if (window.cartUI && window.cartUI.showToast) {
+          window.cartUI.showToast('License added to cart');
+        }
+        closeModal();
+      }
     });
   }
 
@@ -797,6 +843,8 @@ function addToCart(photoData, materialKey, size) {
     stripePrice: null,
     metadata: {
       photoId: id,
+      photoFilename: photoData.filename || id,
+      collection: photoData.collection || '',
       material: materialKey,
       width: size.width.toString(),
       height: size.height.toString(),

@@ -3979,3 +3979,32 @@ ipcMain.handle('save-about-content', async (event, data) => {
     return { success: false, error: err.message };
   }
 });
+
+// ── Licensing Manager: file I/O and command execution ──────────────────────
+
+ipcMain.handle('read-file', async (event, relativePath) => {
+  // Read a file relative to ARCHIVE_BASE — used by LicensingManager for catalog/metadata
+  const safePath = path.resolve(ARCHIVE_BASE, relativePath);
+  if (!safePath.startsWith(ARCHIVE_BASE)) throw new Error('Path outside archive');
+  return await fs.readFile(safePath, 'utf-8');
+});
+
+ipcMain.handle('write-file', async (event, relativePath, data) => {
+  // Write a file relative to ARCHIVE_BASE — used by LicensingManager for metadata edits
+  const safePath = path.resolve(ARCHIVE_BASE, relativePath);
+  if (!safePath.startsWith(ARCHIVE_BASE)) throw new Error('Path outside archive');
+  await fs.writeFile(safePath, data, 'utf-8');
+  return { success: true };
+});
+
+ipcMain.handle('run-command', async (event, command) => {
+  // Execute a shell command in ARCHIVE_BASE — used by LicensingManager pipeline
+  const { execSync } = require('child_process');
+  const result = execSync(command, {
+    cwd: ARCHIVE_BASE,
+    timeout: 300000,  // 5 min — licensing images are huge
+    encoding: 'utf-8',
+    maxBuffer: 10 * 1024 * 1024,
+  });
+  return result;
+});

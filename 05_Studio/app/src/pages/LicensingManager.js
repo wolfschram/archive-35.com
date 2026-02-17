@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 /**
  * LicensingManager — Studio tab for managing the licensing pipeline.
@@ -52,6 +52,9 @@ function LicensingManager() {
       console.error('Failed to load catalog:', e);
     }
   }, []);
+
+  // ── Auto-load catalog on mount ──────────────────────────────────
+  useEffect(() => { loadCatalog(); }, [loadCatalog]);
 
   // ── Browse for source folder ─────────────────────────────────────
   const browseSourceFolder = async () => {

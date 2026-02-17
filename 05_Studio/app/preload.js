@@ -144,6 +144,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('about-deploy-progress', handler);
   },
 
+  // Licensing Manager: file I/O and command execution
+  readFile: (relativePath) => ipcRenderer.invoke('read-file', relativePath),
+  writeFile: (relativePath, data) => ipcRenderer.invoke('write-file', relativePath, data),
+  runCommand: (command) => ipcRenderer.invoke('run-command', command),
+
   // Platform info
   platform: process.platform
 });

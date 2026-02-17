@@ -136,6 +136,30 @@ def scan(base_path, source_folder=None):
     existing_files = {img["original_filename"] for img in catalog["images"]}
     next_idx = len(catalog["images"]) + 1
 
+    # ── Cross-reference guard ──────────────────────────────────────
+    # Check gallery photos.json to avoid pulling portfolio images into licensing.
+    # Images already on the website gallery should NOT be re-ingested here.
+    gallery_filenames = set()
+    gallery_json = base.parent / "data" / "photos.json"
+    if gallery_json.exists():
+        try:
+            with open(gallery_json) as gf:
+                gallery_data = json.load(gf)
+            for photo in gallery_data.get("photos", []):
+                # Gallery stores filename without extension
+                fn = photo.get("filename", "")
+                gallery_filenames.add(fn + ".jpg")
+                gallery_filenames.add(fn + ".jpeg")
+                gallery_filenames.add(fn + ".tif")
+                gallery_filenames.add(fn + ".tiff")
+                gallery_filenames.add(fn + ".png")
+            print(f"  Gallery cross-ref loaded: {len(gallery_data.get('photos', []))} website photos")
+        except Exception as e:
+            print(f"  WARNING: Could not load gallery cross-ref: {e}")
+
+    # Also check R2 bucket keys to avoid naming collisions
+    # (handled at upload time, but good to flag early)
+
     files = sorted([
         f for f in originals.iterdir()
         if f.is_file() and f.suffix.lower() in SUPPORTED_EXT
@@ -144,10 +168,17 @@ def scan(base_path, source_folder=None):
     new_count = 0
     skipped = 0
     below_min = 0
+    gallery_dupes = 0
 
     for f in files:
         if f.name in existing_files:
             skipped += 1
+            continue
+
+        # Guard: skip images already in the website gallery
+        if f.name in gallery_filenames:
+            print(f"  ⚠ SKIP {f.name}: already in website gallery (use Gallery Ingest instead)")
+            gallery_dupes += 1
             continue
 
         try:
@@ -230,7 +261,9 @@ def scan(base_path, source_folder=None):
     with open(catalog_path, "w") as cf:
         json.dump(catalog, cf, indent=2, default=str)
 
-    print(f"\n✓ Scan complete: {new_count} new, {skipped} existing, {below_min} below minimum")
+    if gallery_dupes > 0:
+        print(f"\n⚠ {gallery_dupes} images skipped — already in website gallery (not licensing candidates)")
+    print(f"\n✓ Scan complete: {new_count} new, {skipped} existing, {below_min} below minimum, {gallery_dupes} gallery dupes skipped")
     return catalog
 
 

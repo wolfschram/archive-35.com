@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account | ARCHIVE-35</title>
+  <meta name="description" content="View your order history and manage your Archive-35 account.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ARCHIVE-35">
+  <meta property="og:title" content="My Account | ARCHIVE-35">
+  <meta property="og:url" content="https://archive-35.com/account.html">
+  <meta property="og:image" content="https://archive-35.com/logos/archive35-og-image.png">
+  <meta name="robots" content="noindex, noai, noimageai">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="logos/archive35-favicon-180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="logos/archive35-favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="logos/archive35-favicon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/account.css">
+  <link rel="stylesheet" href="css/cart.css">
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SE2WETEK5D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-SE2WETEK5D', { 'anonymize_ip': true, 'allow_google_signals': false, 'allow_ad_personalization_signals': false });
+  </script>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "CLOUDFLARE_BEACON_TOKEN"}'></script>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-white">ARCHIVE</span><span class="logo-gold">-35</span>
+      </a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="licensing.html">Licensing</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="search.html">Search</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container">
+      <h1>My Account</h1>
+      <p id="account-greeting">Loading...</p>
+    </div>
+  </div>
+
+  <!-- Account Content -->
+  <section class="page-content">
+    <div class="container">
+
+      <!-- Loading State -->
+      <div id="account-loading" class="account-loading">
+        <div class="spinner"></div>
+        <p>Loading your account...</p>
+      </div>
+
+      <!-- Account Dashboard (hidden until loaded) -->
+      <div id="account-dashboard" style="display:none;">
+
+        <!-- Account Details Card -->
+        <div class="account-card">
+          <div class="account-card-header">
+            <h2>Account Details</h2>
+          </div>
+          <div class="account-card-body">
+            <div class="account-detail">
+              <span class="detail-label">Email</span>
+              <span class="detail-value" id="account-email">—</span>
+            </div>
+            <div class="account-detail">
+              <span class="detail-label">Name</span>
+              <span class="detail-value" id="account-name">—</span>
+            </div>
+            <div class="account-detail">
+              <span class="detail-label">Member Since</span>
+              <span class="detail-value" id="account-since">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order History Card -->
+        <div class="account-card">
+          <div class="account-card-header">
+            <h2>Order History</h2>
+          </div>
+          <div class="account-card-body">
+            <!-- Empty state -->
+            <div id="orders-empty" class="orders-empty" style="display:none;">
+              <p>No orders yet.</p>
+              <a href="gallery.html" class="btn btn-primary">Browse the Gallery</a>
+            </div>
+
+            <!-- Orders list -->
+            <div id="orders-list" class="orders-list"></div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="account-actions">
+          <a href="gallery.html" class="btn btn-primary">Continue Shopping</a>
+          <button class="btn btn-secondary" id="logout-btn">Sign Out</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <span class="logo-white">ARCHIVE</span><span class="logo-gold">-35</span>
+          </a>
+          <p>Fine art landscape photography prints. Light. Place. Time.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Explore</h4>
+          <a href="gallery.html">Gallery</a>
+          <a href="licensing.html">Licensing</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-links">
+          <h4>Legal</h4>
+          <a href="terms.html">Terms of Sale</a>
+          <a href="privacy.html">Privacy Policy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Archive-35. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/cart-ui.js?v=6"></script>
+  <script src="js/auth.js?v=1"></script>
+  <script>
+    // Account page logic
+    const loading = document.getElementById('account-loading');
+    const dashboard = document.getElementById('account-dashboard');
+    const greeting = document.getElementById('account-greeting');
+    const emailEl = document.getElementById('account-email');
+    const nameEl = document.getElementById('account-name');
+    const sinceEl = document.getElementById('account-since');
+    const ordersEmpty = document.getElementById('orders-empty');
+    const ordersList = document.getElementById('orders-list');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    // Check auth and load account data
+    async function loadAccount() {
+      try {
+        const sessionResp = await fetch('/api/auth/session', { credentials: 'include' });
+        const session = await sessionResp.json();
+
+        if (!session.loggedIn) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        // Populate account details
+        const name = session.name || '';
+        greeting.textContent = name ? `Welcome back, ${name}` : 'Welcome to your account';
+        emailEl.textContent = session.email || '—';
+        nameEl.textContent = name || 'Not set';
+        sinceEl.textContent = 'Active';
+
+        // Load order history
+        const ordersResp = await fetch('/api/account/orders', { credentials: 'include' });
+        const ordersData = await ordersResp.json();
+
+        if (ordersData.orders && ordersData.orders.length > 0) {
+          renderOrders(ordersData.orders);
+        } else {
+          ordersEmpty.style.display = 'block';
+        }
+
+        // Show dashboard
+        loading.style.display = 'none';
+        dashboard.style.display = 'block';
+
+      } catch (err) {
+        console.error('Account load error:', err);
+        window.location.href = '/login.html';
+      }
+    }
+
+    function renderOrders(orders) {
+      ordersList.innerHTML = orders.map(order => {
+        const date = new Date(order.date);
+        const dateStr = date.toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        const amount = `$${order.amount}`;
+        const typeLabel = order.orderType === 'license' ? 'License' :
+                         order.orderType === 'mixed' ? 'Print + License' : 'Print';
+        const statusClass = order.status === 'paid' ? 'status-paid' : 'status-pending';
+        const statusLabel = order.status === 'paid' ? 'Paid' : order.status;
+
+        return `
+          <div class="order-item">
+            <div class="order-main">
+              <div class="order-info">
+                <h4 class="order-description">${escapeHtml(order.description)}</h4>
+                <span class="order-date">${dateStr}</span>
+                <span class="order-type">${typeLabel}</span>
+              </div>
+              <div class="order-meta">
+                <span class="order-amount">${amount}</span>
+                <span class="order-status ${statusClass}">${statusLabel}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(text) {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Logout handler
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        // Use form POST for logout (handles cookie clearing server-side)
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/api/auth/logout';
+        document.body.appendChild(form);
+        form.submit();
+      } catch (err) {
+        window.location.href = '/';
+      }
+    });
+
+    // Initialize
+    loadAccount();
+  </script>
+</body>
+</html>

@@ -551,11 +551,13 @@ nav a:hover::after, nav a.active::after { width:100%; }
 <div class="vf vf-tl"></div><div class="vf vf-tr"></div><div class="vf vf-bl"></div><div class="vf vf-br"></div>
 
 <link rel="stylesheet" href="css/cart.css">
+<link rel="stylesheet" href="css/account.css">
 <link rel="stylesheet" href="css/product-selector.css">
 <script src="https://js.stripe.com/v3/"></script>
 <script>fetch('data/stripe-config.json').then(r=>r.json()).then(c=>{window.STRIPE_PUBLIC_KEY=c.publishableKey;window.STRIPE_MODE=c.mode;}).catch(()=>{console.warn('Stripe config not found — checkout disabled');});</script>
 <script src="js/cart.js"></script>
 <script src="js/cart-ui.js?v=6"></script>
+<script src="js/auth.js?v=1"></script>
 <script src="js/product-selector.js?v=8"></script>
 <script src="js/image-protection.js"></script>
 <script>

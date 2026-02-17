@@ -25,7 +25,7 @@ export async function onRequestPost(context) {
 
   try {
     const body = await request.json();
-    const { lineItems, successUrl, cancelUrl, pictorem, license, testMode } = body;
+    const { lineItems, successUrl, cancelUrl, pictorem, license, testMode, stripeCustomerId } = body;
 
     // Select appropriate Stripe key based on test mode flag
     const isTestMode = testMode === true;
@@ -184,8 +184,12 @@ export async function onRequestPost(context) {
       });
     }
 
-    // Customer email collection
-    params.append('customer_creation', 'always');
+    // Customer: use existing Stripe customer if logged in, otherwise create new
+    if (stripeCustomerId) {
+      params.append('customer', stripeCustomerId);
+    } else {
+      params.append('customer_creation', 'always');
+    }
 
     // Create Stripe Checkout Session
     const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {

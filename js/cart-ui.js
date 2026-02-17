@@ -382,6 +382,10 @@ class CartUI {
     }
 
     // Use server-side checkout via create-checkout-session API
+    // Pass Stripe customer ID if user is logged in (auto-fills email/shipping)
+    const authState = window.getAuthState ? window.getAuthState() : {};
+    const customerIdForCheckout = authState.loggedIn ? authState.stripeCustomerId : undefined;
+
     const apiBase = 'https://archive-35-com.pages.dev';
     fetch(`${apiBase}/api/create-checkout-session`, {
       method: 'POST',
@@ -392,7 +396,8 @@ class CartUI {
         cancelUrl: window.location.href,
         pictorem: pictorem || undefined,
         license: license || undefined,
-        testMode: isTestMode || undefined
+        testMode: isTestMode || undefined,
+        stripeCustomerId: customerIdForCheckout || undefined,
       })
     })
       .then((res) => {

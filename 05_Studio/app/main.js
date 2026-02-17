@@ -595,12 +595,15 @@ ipcMain.handle('get-portfolio-photos', async (event, portfolioId) => {
 
     const photos = [];
 
-    // Try to read _photos.json for metadata
+    // Try to read _photos.json for metadata AND ordering
+    // _photos.json array order = display order (set by Save Photo Order in Gallery Preview)
+    let photosJsonData = [];
     let photoMetadata = {};
     try {
       if (fsSync.existsSync(photosJsonPath)) {
         const data = JSON.parse(await fs.readFile(photosJsonPath, 'utf8'));
         if (Array.isArray(data)) {
+          photosJsonData = data;
           data.forEach(p => { photoMetadata[p.filename] = p; });
         }
       }
@@ -608,13 +611,41 @@ ipcMain.handle('get-portfolio-photos', async (event, portfolioId) => {
       // Ignore JSON errors
     }
 
-    // Read photos from originals folder
+    // Determine source path for image file paths
     const sourcePath = fsSync.existsSync(originalsPath) ? originalsPath : webPath;
+
+    // Build photo list using _photos.json order as primary source
+    // This preserves the order Wolf set in Gallery Preview → Save Photo Order
+    const addedFilenames = new Set();
+
+    // First: add all photos from _photos.json in their saved order
+    for (const meta of photosJsonData) {
+      const filename = meta.filename;
+      if (!filename) continue;
+      addedFilenames.add(filename);
+      photos.push({
+        id: filename.replace(/\.[^.]+$/, '').toLowerCase().replace(/\s+/g, '_'),
+        filename,
+        path: sourcePath ? path.join(sourcePath, filename) : '',
+        title: meta.title || filename.replace(/\.[^.]+$/, '').replace(/_/g, ' '),
+        description: meta.description || '',
+        location: formatLocation(meta.location) || '',
+        tags: meta.tags || [],
+        timeOfDay: meta.timeOfDay || '',
+        dimensions: meta.dimensions || null,
+        inWebsite: meta.inWebsite ?? true,
+        inPictorem: meta.inPictorem ?? false,
+        inSocialQueue: meta.inSocialQueue ?? false
+      });
+    }
+
+    // Then: append any filesystem photos NOT in _photos.json (new/untracked files)
     if (fsSync.existsSync(sourcePath)) {
       const files = await fs.readdir(sourcePath);
       const imageFiles = files.filter(f => /\.(jpg|jpeg|tiff|tif|png|webp)$/i.test(f));
 
       for (const filename of imageFiles) {
+        if (addedFilenames.has(filename)) continue; // Already added from _photos.json
         const meta = photoMetadata[filename] || {};
         photos.push({
           id: filename.replace(/\.[^.]+$/, '').toLowerCase().replace(/\s+/g, '_'),
@@ -2004,7 +2035,27 @@ ipcMain.handle('deploy-website', async () => {
     sendProgress('scan', 'Scanning portfolios...');
 
     const entries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
-    const portfolioDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_') && !EXCLUDED_PORTFOLIO_FOLDERS.includes(e.name));
+    let portfolioDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_') && !EXCLUDED_PORTFOLIO_FOLDERS.includes(e.name));
+
+    // Respect saved portfolio order from _portfolio-order.json
+    // This ensures collections appear on the website in the order Wolf set in Studio
+    const portfolioOrderPath = path.join(PORTFOLIO_DIR, '_portfolio-order.json');
+    try {
+      if (fsSync.existsSync(portfolioOrderPath)) {
+        const savedOrder = JSON.parse(fsSync.readFileSync(portfolioOrderPath, 'utf8'));
+        if (Array.isArray(savedOrder) && savedOrder.length > 0) {
+          const orderMap = new Map(savedOrder.map((name, idx) => [name, idx]));
+          portfolioDirs.sort((a, b) => {
+            const posA = orderMap.has(a.name) ? orderMap.get(a.name) : 9999;
+            const posB = orderMap.has(b.name) ? orderMap.get(b.name) : 9999;
+            return posA - posB;
+          });
+          sendProgress('scan', `Portfolio order: using saved order (${savedOrder.length} collections)`);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not read portfolio order:', e.message);
+    }
 
     // Read existing photos.json for fallback (hand-curated legacy data)
     let existingPhotosData = { photos: [] };

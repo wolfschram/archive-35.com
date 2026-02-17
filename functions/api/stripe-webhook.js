@@ -415,25 +415,30 @@ function buildWolfNotificationEmail(orderDetails) {
 // SEND EMAILS VIA RESEND
 // ============================================================================
 
-async function sendEmail(resendApiKey, { to, subject, html }) {
+async function sendEmail(resendApiKey, { to, subject, html, bcc, from }) {
   if (!resendApiKey) {
     console.warn('RESEND_API_KEY not set — skipping email to', to);
     return { skipped: true };
   }
 
   try {
+    const payload = {
+      from: from || 'Archive-35 <orders@archive-35.com>',
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      html,
+    };
+    if (bcc) {
+      payload.bcc = Array.isArray(bcc) ? bcc : [bcc];
+    }
+
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${resendApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        from: 'Archive-35 <orders@archive-35.com>',
-        to: Array.isArray(to) ? to : [to],
-        subject,
-        html,
-      }),
+      body: JSON.stringify(payload),
     });
 
     const result = await response.json();
@@ -690,6 +695,7 @@ async function handleLicenseOrder(session, metadata, env, isTestMode, stripeKey,
   if (downloadUrl && customerEmail) {
     const customerResult = await sendEmail(resendApiKey, {
       to: customerEmail,
+      bcc: wolfEmail,
       subject: `Your Archive-35 License — ${photoTitle}`,
       html: buildLicenseCustomerEmail(licenseDetails),
     });
@@ -782,7 +788,7 @@ export async function onRequestPost(context) {
   const STRIPE_TEST_WEBHOOK_SECRET = env.STRIPE_TEST_WEBHOOK_SECRET || '';
   const PICTOREM_API_KEY = env.PICTOREM_API_KEY || 'archive-35';
   const RESEND_API_KEY = env.RESEND_API_KEY || '';
-  const WOLF_EMAIL = env.WOLF_EMAIL || 'wolfbroadcast@gmail.com';
+  const WOLF_EMAIL = env.WOLF_EMAIL || 'wolf@archive-35.com';
     const GOOGLE_SHEET_WEBHOOK_URL = env.GOOGLE_SHEET_WEBHOOK_URL || '';
 
   try {
@@ -998,7 +1004,7 @@ export async function onRequestPost(context) {
         // Send alert email to Wolf
         try {
           await sendEmail(RESEND_API_KEY, {
-            to: 'wolfbroadcast@gmail.com',
+            to: WOLF_EMAIL,
             subject: `URGENT: Print order BLOCKED — R2 original missing`,
             html: `<h2>Print Order Blocked</h2>
               <p><strong>Reason:</strong> High-res original not found in R2 bucket</p>
@@ -1106,6 +1112,7 @@ export async function onRequestPost(context) {
     if (orderSucceeded) {
       customerEmailResult = await sendEmail(RESEND_API_KEY, {
         to: customerEmail,
+        bcc: WOLF_EMAIL,
         subject: `Your Archive-35 Print Order — ${photoTitle}`,
         html: buildCustomerEmail(orderDetails),
       });
@@ -1186,7 +1193,7 @@ export async function onRequestPost(context) {
     // Send emergency email to Wolf — wrapped in its own try/catch so it can't throw
     try {
       const RESEND_KEY = env.RESEND_API_KEY || '';
-      const WOLF = env.WOLF_EMAIL || 'wolfbroadcast@gmail.com';
+      const WOLF = env.WOLF_EMAIL || 'wolf@archive-35.com';
       if (RESEND_KEY) {
         await sendEmail(RESEND_KEY, {
           to: WOLF,

@@ -1258,8 +1258,8 @@ const cfEl=document.getElementById('cf'),items=[],dotsEl=document.getElementById
 G.forEach((g,i)=>{
   const el=document.createElement('div');el.className='c';
   const face=document.createElement('div');face.className='c-face';
-  /* Use thumbnail for cover — full-size is wasteful on mobile */
-  face.innerHTML=`<img src="${g.img}" alt="${g.name} — Cover" draggable="false" loading="${i<3?'eager':'lazy'}">`;
+  /* Use full-size for cover quality; lazy-load off-screen covers for perf */
+  face.innerHTML=`<img src="${g.img.replace('-thumb.','-full.')}" alt="${g.name} — Cover" draggable="false" loading="${i<3?'eager':'lazy'}">`;
   face.innerHTML+=`<div class="c-lbl">${g.name.toUpperCase()}</div>`;
   el.appendChild(face);
 

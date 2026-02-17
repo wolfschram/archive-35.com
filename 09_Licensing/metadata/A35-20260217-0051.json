@@ -1,0 +1,85 @@
+{
+  "catalog_id": "A35-20260217-0051",
+  "original_filename": "Wolf 4541.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "title": "",
+  "description": "",
+  "location": "",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 23117,
+    "height": 4782
+  },
+  "megapixels": 110.5,
+  "aspect_ratio": 4.834,
+  "file_size_bytes": 38859219,
+  "file_size_mb": 37.1,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 77.1,
+    "height_in": 15.9,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 154.1,
+    "height_in": 31.9,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2021:12:19 16:32:28",
+    "FocalLength": "70.0",
+    "ExposureTime": "0.002",
+    "FNumber": "2.8",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF70-200mm F2.8 L IS USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260217-0051.jpg",
+    "preview": "previews/A35-20260217-0051.jpg",
+    "thumbnail": "thumbnails/A35-20260217-0051.jpg"
+  },
+  "scanned_at": "2026-02-17T16:58:47.408134+00:00"
+}

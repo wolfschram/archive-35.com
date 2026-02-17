@@ -4081,7 +4081,9 @@ ipcMain.handle('analyze-licensing-photos', async (event, { catalogIds }) => {
         } catch (e) { /* no metadata file yet */ }
 
         // Find the source image file
-        const sourcePath = metaData.source_path || path.join(licensingDir, 'originals');
+        // source_path in metadata is relative to 09_Licensing/ (e.g. "../Photography/Large Scale Photography Stitch")
+        const rawSourcePath = metaData.source_path || 'originals';
+        const sourcePath = path.resolve(licensingDir, rawSourcePath);
         const imagePath = path.join(sourcePath, img.original_filename);
 
         // Create a small thumbnail for API (these are 100+ MP images, need to shrink a lot)

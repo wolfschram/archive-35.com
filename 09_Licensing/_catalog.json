@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2026-02-10T20:51:12.836325+00:00",
+  "last_updated": "2026-02-17T16:58:57.791511+00:00",
   "images": [
     {
       "catalog_id": "A35-20260210-0001",
@@ -539,6 +539,114 @@
       "height": 5464,
       "megapixels": 71.6,
       "file_size_mb": 33.9,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0046",
+      "original_filename": "Wolf 3303.jpg",
+      "title": "",
+      "classification": "PREMIUM",
+      "width": 13556,
+      "height": 3840,
+      "megapixels": 52.1,
+      "file_size_mb": 12.6,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0047",
+      "original_filename": "Wolf 3343.jpg",
+      "title": "",
+      "classification": "ULTRA",
+      "width": 20064,
+      "height": 4172,
+      "megapixels": 83.7,
+      "file_size_mb": 30.6,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0048",
+      "original_filename": "Wolf 3375-Pano.jpg",
+      "title": "",
+      "classification": "PREMIUM",
+      "width": 10607,
+      "height": 5041,
+      "megapixels": 53.5,
+      "file_size_mb": 13.9,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0049",
+      "original_filename": "Wolf 4390.jpg",
+      "title": "",
+      "classification": "PREMIUM",
+      "width": 10000,
+      "height": 3596,
+      "megapixels": 36.0,
+      "file_size_mb": 10.6,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0050",
+      "original_filename": "Wolf 4538.jpg",
+      "title": "",
+      "classification": "ULTRA",
+      "width": 48767,
+      "height": 6959,
+      "megapixels": 339.4,
+      "file_size_mb": 93.4,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0051",
+      "original_filename": "Wolf 4541.jpg",
+      "title": "",
+      "classification": "ULTRA",
+      "width": 23117,
+      "height": 4782,
+      "megapixels": 110.5,
+      "file_size_mb": 37.1,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0052",
+      "original_filename": "Wolf 4549.jpg",
+      "title": "",
+      "classification": "ULTRA",
+      "width": 19994,
+      "height": 6745,
+      "megapixels": 134.9,
+      "file_size_mb": 36.9,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0053",
+      "original_filename": "Wolf 4551.jpg",
+      "title": "",
+      "classification": "ULTRA",
+      "width": 17872,
+      "height": 6071,
+      "megapixels": 108.5,
+      "file_size_mb": 34.7,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0054",
+      "original_filename": "Wolf 4552.jpg",
+      "title": "",
+      "classification": "ULTRA",
+      "width": 22673,
+      "height": 6642,
+      "megapixels": 150.6,
+      "file_size_mb": 48.8,
       "status": "available",
       "license_count": 0
     }

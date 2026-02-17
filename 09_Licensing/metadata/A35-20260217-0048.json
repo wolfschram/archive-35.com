@@ -1,0 +1,85 @@
+{
+  "catalog_id": "A35-20260217-0048",
+  "original_filename": "Wolf 3375-Pano.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "title": "",
+  "description": "",
+  "location": "",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 10607,
+    "height": 5041
+  },
+  "megapixels": 53.5,
+  "aspect_ratio": 2.104,
+  "file_size_bytes": 14526529,
+  "file_size_mb": 13.9,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 35.4,
+    "height_in": 16.8,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 70.7,
+    "height_in": 33.6,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2021:06:12 06:48:16",
+    "FocalLength": "400.0",
+    "ExposureTime": "0.004",
+    "FNumber": "5.6",
+    "ISOSpeedRatings": 100,
+    "LensModel": "EF100-400mm f/4.5-5.6L IS II USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260217-0048.jpg",
+    "preview": "previews/A35-20260217-0048.jpg",
+    "thumbnail": "thumbnails/A35-20260217-0048.jpg"
+  },
+  "scanned_at": "2026-02-17T16:58:47.405614+00:00"
+}

@@ -4008,3 +4008,176 @@ ipcMain.handle('run-command', async (event, command) => {
   });
   return result;
 });
+
+// ── Licensing AI Analysis: name/describe/locate licensing images ────────────
+
+function buildLicensingAIPrompt(filename, exifData) {
+  let prompt = 'You are a fine art photography metadata assistant for Archive-35, a landscape and nature photography brand by Wolfgang Schram.\n\n';
+  prompt += 'This is a LICENSING image — ultra-high-resolution panoramic or large-format fine art photography.\n\n';
+
+  if (exifData?.gps) {
+    prompt += `GPS coordinates: ${exifData.gps.lat}, ${exifData.gps.lon}\n`;
+    prompt += 'Use these coordinates to determine the EXACT location. Be specific (e.g., "Zabriskie Point, Death Valley" not just "California").\n\n';
+  }
+
+  prompt += 'Respond with ONLY valid JSON (no markdown):\n';
+  prompt += '{\n';
+  prompt += '  "title": "short evocative title (3-6 words, fine art print style)",\n';
+  prompt += '  "description": "1-2 sentence art description for commercial licensing buyers. Emphasize the scale, detail, and print potential of this ultra-high-res image.",\n';
+  prompt += '  "location": "specific place name — be as precise as possible (park name, landmark, region, country)"\n';
+  prompt += '}\n\n';
+
+  prompt += 'RULES:\n';
+  prompt += '- Title should be evocative, timeless, suitable for high-end commercial use\n';
+  prompt += '- No time-of-day references (no sunrise, sunset, morning, evening)\n';
+  prompt += '- Location must be a real, verifiable place\n';
+  prompt += '- If GPS is provided, use it to determine the exact location\n';
+  prompt += '- Description should mention the exceptional resolution/detail available\n';
+  prompt += `\nFilename: ${filename}`;
+
+  return prompt;
+}
+
+ipcMain.handle('analyze-licensing-photos', async (event, { catalogIds }) => {
+  try {
+    const sharp = require('sharp');
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      return { success: false, error: 'No ANTHROPIC_API_KEY configured. Add it in Settings > API Keys.' };
+    }
+
+    const Anthropic = require('@anthropic-ai/sdk');
+    const client = new Anthropic({ apiKey });
+
+    const licensingDir = path.join(ARCHIVE_BASE, '09_Licensing');
+    const catalogPath = path.join(licensingDir, '_catalog.json');
+    const metadataDir = path.join(licensingDir, 'metadata');
+    const catalog = JSON.parse(await fs.readFile(catalogPath, 'utf-8'));
+
+    // Filter to requested catalog IDs (or all untitled if none specified)
+    const targetImages = catalogIds
+      ? catalog.images.filter(img => catalogIds.includes(img.catalog_id))
+      : catalog.images.filter(img => !img.title || img.title.trim() === '');
+
+    const results = [];
+    const total = targetImages.length;
+    let done = 0;
+
+    for (const img of targetImages) {
+      done++;
+      if (mainWindow) {
+        mainWindow.webContents.send('licensing-ai-progress', {
+          current: done, total, filename: img.original_filename,
+          message: `AI analyzing ${done} of ${total}: ${img.original_filename}`
+        });
+      }
+
+      try {
+        // Load per-image metadata for source path and GPS
+        let metaData = {};
+        const metaPath = path.join(metadataDir, `${img.catalog_id}.json`);
+        try {
+          metaData = JSON.parse(await fs.readFile(metaPath, 'utf-8'));
+        } catch (e) { /* no metadata file yet */ }
+
+        // Find the source image file
+        const sourcePath = metaData.source_path || path.join(licensingDir, 'originals');
+        const imagePath = path.join(sourcePath, img.original_filename);
+
+        // Create a small thumbnail for API (these are 100+ MP images, need to shrink a lot)
+        const thumbBuffer = await sharp(imagePath)
+          .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+          .jpeg({ quality: 70 })
+          .toBuffer();
+        const base64Image = thumbBuffer.toString('base64');
+
+        const response = await client.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 500,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64Image } },
+              { type: 'text', text: buildLicensingAIPrompt(img.original_filename, metaData) }
+            ]
+          }]
+        });
+
+        let text = response.content[0]?.text || '';
+        text = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
+        const parsed = JSON.parse(text);
+
+        results.push({
+          catalog_id: img.catalog_id,
+          original_filename: img.original_filename,
+          classification: img.classification,
+          width: img.width,
+          height: img.height,
+          ai_title: parsed.title || '',
+          ai_description: parsed.description || '',
+          ai_location: parsed.location || '',
+          status: 'pending_review'  // user must approve
+        });
+
+      } catch (aiErr) {
+        console.warn('AI analysis failed for', img.original_filename, aiErr.message);
+        results.push({
+          catalog_id: img.catalog_id,
+          original_filename: img.original_filename,
+          classification: img.classification,
+          width: img.width,
+          height: img.height,
+          ai_title: '',
+          ai_description: '',
+          ai_location: '',
+          error: aiErr.message,
+          status: 'error'
+        });
+      }
+    }
+
+    return { success: true, results };
+
+  } catch (err) {
+    console.error('analyze-licensing-photos failed:', err);
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('save-licensing-metadata', async (event, { updates }) => {
+  // Batch-save approved AI metadata to catalog + per-image JSON
+  try {
+    const licensingDir = path.join(ARCHIVE_BASE, '09_Licensing');
+    const catalogPath = path.join(licensingDir, '_catalog.json');
+    const metadataDir = path.join(licensingDir, 'metadata');
+    const catalog = JSON.parse(await fs.readFile(catalogPath, 'utf-8'));
+
+    for (const update of updates) {
+      // Update catalog entry
+      const catEntry = catalog.images.find(img => img.catalog_id === update.catalog_id);
+      if (catEntry) {
+        catEntry.title = update.title;
+      }
+
+      // Update per-image metadata
+      const metaPath = path.join(metadataDir, `${update.catalog_id}.json`);
+      try {
+        const meta = JSON.parse(await fs.readFile(metaPath, 'utf-8'));
+        meta.title = update.title;
+        meta.description = update.description;
+        meta.location = update.location;
+        await fs.writeFile(metaPath, JSON.stringify(meta, null, 2), 'utf-8');
+      } catch (e) {
+        console.warn('Could not update metadata for', update.catalog_id, e.message);
+      }
+    }
+
+    // Save updated catalog
+    catalog.last_updated = new Date().toISOString();
+    await fs.writeFile(catalogPath, JSON.stringify(catalog, null, 2), 'utf-8');
+
+    return { success: true, count: updates.length };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});

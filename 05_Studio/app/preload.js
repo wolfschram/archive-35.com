@@ -149,6 +149,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   writeFile: (relativePath, data) => ipcRenderer.invoke('write-file', relativePath, data),
   runCommand: (command) => ipcRenderer.invoke('run-command', command),
 
+  // Licensing AI analysis
+  analyzeLicensingPhotos: (data) => ipcRenderer.invoke('analyze-licensing-photos', data),
+  saveLicensingMetadata: (data) => ipcRenderer.invoke('save-licensing-metadata', data),
+  onLicensingAIProgress: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('licensing-ai-progress', handler);
+    return () => ipcRenderer.removeListener('licensing-ai-progress', handler);
+  },
+
   // Platform info
   platform: process.platform
 });

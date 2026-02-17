@@ -2,9 +2,9 @@
   "catalog_id": "A35-20260210-0040",
   "original_filename": "WOLF7271-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "Alpine Lake in Winter Silence",
+  "description": "A serene panoramic vista capturing a pristine frozen alpine lake framed by snow-laden conifers and dramatic peak formations. This ultra-high-resolution image reveals exceptional detail across the entire composition—from the delicate frost patterns on foreground vegetation to the intricate textures of distant mountain ridges—making it ideal for large-scale fine art prints and premium commercial licensing applications.",
+  "location": "Jackson Lake, Grand Teton National Park, Wyoming, USA",
   "classification": "ULTRA",
   "resolution": {
     "width": 18300,
@@ -21,12 +21,12 @@
     "300.0"
   ],
   "max_print_300dpi": {
-    "width_in": 61.0,
-    "height_in": 30.0,
+    "width_in": 61,
+    "height_in": 30,
     "dpi": 300
   },
   "max_print_150dpi": {
-    "width_in": 122.0,
+    "width_in": 122,
     "height_in": 59.9,
     "dpi": 150
   },

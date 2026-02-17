@@ -131,6 +131,8 @@ export async function onRequestGet(context) {
     headers.set('Content-Length', String(object.size));
     headers.set('Cache-Control', 'private, no-store'); // Don't cache originals publicly
     headers.set('Content-Disposition', `attachment; filename="${key.split('/').pop()}"`);
+    // CORS: Allow Pictorem (and other print fulfillment partners) to fetch originals
+    headers.set('Access-Control-Allow-Origin', '*');
 
     return new Response(object.body, { headers });
 

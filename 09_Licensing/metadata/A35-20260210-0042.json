@@ -2,9 +2,9 @@
   "catalog_id": "A35-20260210-0042",
   "original_filename": "WOLF7406-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "Mormon Row Winter Silhouette",
+  "description": "An expansive panoramic vista capturing the iconic weathered homestead structures set against the snow-capped Teton Range, rendered in museum-quality ultra-high resolution. The exceptional detail in this large-format image preserves the subtle textures of frost-laden fields, architectural elements, and the dramatic mountain landscape—ideal for significant wall installations and fine art publication.",
+  "location": "Mormon Row Historic District, Grand Teton National Park, Wyoming, USA",
   "classification": "PREMIUM",
   "resolution": {
     "width": 11224,
@@ -22,12 +22,12 @@
   ],
   "max_print_300dpi": {
     "width_in": 37.4,
-    "height_in": 16.0,
+    "height_in": 16,
     "dpi": 300
   },
   "max_print_150dpi": {
     "width_in": 74.8,
-    "height_in": 32.0,
+    "height_in": 32,
     "dpi": 150
   },
   "exif": {

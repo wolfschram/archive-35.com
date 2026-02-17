@@ -2,9 +2,9 @@
   "catalog_id": "A35-20260210-0018",
   "original_filename": "WOLF3850-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "Glacier and Moss-Clad Mountain",
+  "description": "A breathtaking panoramic vista capturing the raw majesty of Iceland's glacial landscape, where verdant moss-covered peaks frame a pristine glacial lake and retreating ice formations. This ultra-high-resolution panoramic capture reveals extraordinary detail throughout the composition—from the delicate lichen patterns on distant mountainsides to the intricate crevasse formations of the glacier—making it ideal for large-format fine art prints and immersive commercial applications.",
+  "location": "Skaftafell, Vatnajökull National Park, Iceland",
   "classification": "ULTRA",
   "resolution": {
     "width": 27149,
@@ -26,8 +26,8 @@
     "dpi": 300
   },
   "max_print_150dpi": {
-    "width_in": 181.0,
-    "height_in": 51.0,
+    "width_in": 181,
+    "height_in": 51,
     "dpi": 150
   },
   "exif": {

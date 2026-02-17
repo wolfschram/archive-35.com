@@ -2,9 +2,9 @@
   "catalog_id": "A35-20260210-0006",
   "original_filename": "WOLF2943-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "Light and Shadow",
+  "description": "A sweeping panoramic vista of windswept moorland beneath dramatic storm clouds, captured in ultra-high resolution to reveal extraordinary detail across the expansive landscape. The layered atmospheric conditions and verdant terrain provide exceptional tonal range and print potential for large-format fine art applications.",
+  "location": "Iceland ",
   "classification": "PREMIUM",
   "resolution": {
     "width": 14989,
@@ -21,7 +21,7 @@
     "200.0"
   ],
   "max_print_300dpi": {
-    "width_in": 50.0,
+    "width_in": 50,
     "height_in": 19.9,
     "dpi": 300
   },

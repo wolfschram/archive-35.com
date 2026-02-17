@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "last_updated": "2026-02-17T17:04:13.364141+00:00",
+  "last_updated": "2026-02-17T20:33:20.556599+00:00",
   "images": [
     {
       "catalog_id": "A35-20260210-0001",
       "original_filename": "IMG_0140-Pano.jpg",
-      "title": "",
+      "title": "Central Park: Urban Green Sanctuary",
       "classification": "ULTRA",
       "width": 27985,
       "height": 11199,
@@ -17,7 +17,7 @@
     {
       "catalog_id": "A35-20260210-0002",
       "original_filename": "WOLF1974-Pano.jpg",
-      "title": "",
+      "title": "Desert Dunes: Vast Solitude ",
       "classification": "ULTRA",
       "width": 31714,
       "height": 7907,
@@ -29,7 +29,7 @@
     {
       "catalog_id": "A35-20260210-0003",
       "original_filename": "WOLF2375-Pano.jpg",
-      "title": "",
+      "title": "Alpine Lake with Granite Peak",
       "classification": "ULTRA",
       "width": 19396,
       "height": 6324,
@@ -41,7 +41,7 @@
     {
       "catalog_id": "A35-20260210-0004",
       "original_filename": "WOLF2492-Pano.jpg",
-      "title": "",
+      "title": "Mountain Valley in Perpetual Green",
       "classification": "PREMIUM",
       "width": 10000,
       "height": 4183,
@@ -53,7 +53,7 @@
     {
       "catalog_id": "A35-20260210-0005",
       "original_filename": "WOLF2901-Pano.jpg",
-      "title": "",
+      "title": "Lava Fields Under Dramatic Sky",
       "classification": "PREMIUM",
       "width": 11901,
       "height": 5900,
@@ -65,7 +65,7 @@
     {
       "catalog_id": "A35-20260210-0006",
       "original_filename": "WOLF2943-Pano.jpg",
-      "title": "",
+      "title": "Light and Shadow",
       "classification": "PREMIUM",
       "width": 14989,
       "height": 5976,
@@ -77,7 +77,7 @@
     {
       "catalog_id": "A35-20260210-0007",
       "original_filename": "WOLF2997-Pano.jpg",
-      "title": "",
+      "title": "Moss-Draped Lava Fields",
       "classification": "ULTRA",
       "width": 15917,
       "height": 7892,
@@ -89,11 +89,11 @@
     {
       "catalog_id": "A35-20260210-0008",
       "original_filename": "WOLF3044-Pano.jpg",
-      "title": "",
+      "title": "Glacial Torrent Through Primordial Landscape",
       "classification": "PREMIUM",
       "width": 12969,
       "height": 8096,
-      "megapixels": 105.0,
+      "megapixels": 105,
       "file_size_mb": 83.2,
       "status": "available",
       "license_count": 0
@@ -101,7 +101,7 @@
     {
       "catalog_id": "A35-20260210-0009",
       "original_filename": "WOLF3219-Pano.jpg",
-      "title": "",
+      "title": "Gullfoss: Power and Verdant Silence",
       "classification": "PREMIUM",
       "width": 10802,
       "height": 4689,
@@ -113,7 +113,7 @@
     {
       "catalog_id": "A35-20260210-0010",
       "original_filename": "WOLF3446-Edit.jpg",
-      "title": "",
+      "title": "Shipwreck's Silent Testament",
       "classification": "PREMIUM",
       "width": 13107,
       "height": 5464,
@@ -125,7 +125,7 @@
     {
       "catalog_id": "A35-20260210-0011",
       "original_filename": "WOLF3501-Pano.jpg",
-      "title": "",
+      "title": "Seljalandsfoss in Emerald Stillness",
       "classification": "PREMIUM",
       "width": 11365,
       "height": 4806,
@@ -137,7 +137,7 @@
     {
       "catalog_id": "A35-20260210-0012",
       "original_filename": "WOLF3537-Pano.jpg",
-      "title": "",
+      "title": "Seljalandsfoss: Behind the Veil",
       "classification": "ULTRA",
       "width": 16259,
       "height": 6659,
@@ -149,7 +149,7 @@
     {
       "catalog_id": "A35-20260210-0013",
       "original_filename": "WOLF3565-Pano.jpg",
-      "title": "",
+      "title": "Seljalandsfoss: Veil of Stone",
       "classification": "ULTRA",
       "width": 20078,
       "height": 9955,
@@ -161,7 +161,7 @@
     {
       "catalog_id": "A35-20260210-0014",
       "original_filename": "WOLF3592-Pano.jpg",
-      "title": "",
+      "title": "Sk\u00f3gafoss: Moss and Cascade",
       "classification": "PREMIUM",
       "width": 11640,
       "height": 6694,
@@ -173,7 +173,7 @@
     {
       "catalog_id": "A35-20260210-0015",
       "original_filename": "WOLF3746-Edit.jpg",
-      "title": "",
+      "title": "Solitude Across the Black Sand",
       "classification": "PREMIUM",
       "width": 13107,
       "height": 5464,
@@ -185,7 +185,7 @@
     {
       "catalog_id": "A35-20260210-0016",
       "original_filename": "WOLF3753-Edit.jpg",
-      "title": "",
+      "title": "Abandoned Aircraft on Black Sand",
       "classification": "PREMIUM",
       "width": 13107,
       "height": 5464,
@@ -197,7 +197,7 @@
     {
       "catalog_id": "A35-20260210-0017",
       "original_filename": "WOLF3768-Pano.jpg",
-      "title": "",
+      "title": "Glacier Lagoon's Silent Witnesses",
       "classification": "ULTRA",
       "width": 23883,
       "height": 7355,
@@ -209,7 +209,7 @@
     {
       "catalog_id": "A35-20260210-0018",
       "original_filename": "WOLF3850-Pano.jpg",
-      "title": "",
+      "title": "Glacier and Moss-Clad Mountain",
       "classification": "ULTRA",
       "width": 27149,
       "height": 7654,
@@ -221,19 +221,19 @@
     {
       "catalog_id": "A35-20260210-0019",
       "original_filename": "WOLF3921-Pano.jpg",
-      "title": "",
+      "title": "Iceland's Mirrored Wilderness",
       "classification": "ULTRA",
       "width": 18927,
       "height": 6421,
       "megapixels": 121.5,
-      "file_size_mb": 45.0,
+      "file_size_mb": 45,
       "status": "available",
       "license_count": 0
     },
     {
       "catalog_id": "A35-20260210-0020",
       "original_filename": "WOLF4187-Pano.jpg",
-      "title": "",
+      "title": "Vatnaj\u00f6kull's Distant Reign",
       "classification": "ULTRA",
       "width": 22895,
       "height": 7812,
@@ -245,7 +245,7 @@
     {
       "catalog_id": "A35-20260210-0021",
       "original_filename": "WOLF4427-Pano.jpg",
-      "title": "",
+      "title": "Glacial Lagoon with Floating Ice",
       "classification": "ULTRA",
       "width": 16818,
       "height": 7989,
@@ -257,7 +257,7 @@
     {
       "catalog_id": "A35-20260210-0022",
       "original_filename": "WOLF4438-Edit.jpg",
-      "title": "",
+      "title": "Glacial Lake with Icebergs",
       "classification": "PREMIUM",
       "width": 13107,
       "height": 5464,
@@ -269,19 +269,19 @@
     {
       "catalog_id": "A35-20260210-0023",
       "original_filename": "WOLF4448-Edit.jpg",
-      "title": "",
+      "title": "Vestrahorn: Black Sand Cathedral",
       "classification": "PREMIUM",
       "width": 13107,
       "height": 5464,
       "megapixels": 71.6,
-      "file_size_mb": 30.0,
+      "file_size_mb": 30,
       "status": "available",
       "license_count": 0
     },
     {
       "catalog_id": "A35-20260210-0024",
       "original_filename": "WOLF4460-Pano.jpg",
-      "title": "",
+      "title": "Vestrahorn: Mountain and Reflection",
       "classification": "ULTRA",
       "width": 15496,
       "height": 5781,
@@ -293,7 +293,7 @@
     {
       "catalog_id": "A35-20260210-0025",
       "original_filename": "WOLF4530-Pano.jpg",
-      "title": "",
+      "title": "Stokksnes: Black Sand Solitude",
       "classification": "PREMIUM",
       "width": 12989,
       "height": 6635,
@@ -305,7 +305,7 @@
     {
       "catalog_id": "A35-20260210-0026",
       "original_filename": "WOLF4557-Pano.jpg",
-      "title": "",
+      "title": "Vestrahorn's Reflection",
       "classification": "ULTRA",
       "width": 15210,
       "height": 6815,
@@ -317,7 +317,7 @@
     {
       "catalog_id": "A35-20260210-0027",
       "original_filename": "WOLF4675-Pano.jpg",
-      "title": "",
+      "title": "Volcanic Wilderness Under Storm",
       "classification": "ULTRA",
       "width": 25677,
       "height": 6636,
@@ -329,7 +329,7 @@
     {
       "catalog_id": "A35-20260210-0028",
       "original_filename": "WOLF4712-Pano.jpg",
-      "title": "",
+      "title": "Geothermal Vast: Iceland's Steam",
       "classification": "PREMIUM",
       "width": 12115,
       "height": 4819,
@@ -341,19 +341,19 @@
     {
       "catalog_id": "A35-20260210-0029",
       "original_filename": "WOLF4745-Pano.jpg",
-      "title": "",
+      "title": "Geothermal Basin in Repose",
       "classification": "ULTRA",
       "width": 15317,
       "height": 6661,
-      "megapixels": 102.0,
-      "file_size_mb": 62.0,
+      "megapixels": 102,
+      "file_size_mb": 62,
       "status": "available",
       "license_count": 0
     },
     {
       "catalog_id": "A35-20260210-0030",
       "original_filename": "WOLF4783-Pano.jpg",
-      "title": "",
+      "title": "Crater's Shadow: Volcanic Geometry",
       "classification": "ULTRA",
       "width": 19907,
       "height": 8032,
@@ -365,7 +365,7 @@
     {
       "catalog_id": "A35-20260210-0031",
       "original_filename": "WOLF4838-Pano.jpg",
-      "title": "",
+      "title": "Godafoss: Where Gods Fall",
       "classification": "PREMIUM",
       "width": 11876,
       "height": 6220,
@@ -377,7 +377,7 @@
     {
       "catalog_id": "A35-20260210-0032",
       "original_filename": "WOLF4872-Pano.jpg",
-      "title": "",
+      "title": "Distant Mountain Solitude",
       "classification": "ULTRA",
       "width": 23885,
       "height": 7307,
@@ -389,7 +389,7 @@
     {
       "catalog_id": "A35-20260210-0033",
       "original_filename": "WOLF4924.jpg",
-      "title": "",
+      "title": "Kirkjufell: Iceland's Iconic Mountain",
       "classification": "PREMIUM",
       "width": 8134,
       "height": 3510,
@@ -401,7 +401,7 @@
     {
       "catalog_id": "A35-20260210-0034",
       "original_filename": "WOLF6535-Pano.jpg",
-      "title": "",
+      "title": "Teton Range Winter Expanse",
       "classification": "ULTRA",
       "width": 19791,
       "height": 7247,
@@ -413,7 +413,7 @@
     {
       "catalog_id": "A35-20260210-0035",
       "original_filename": "WOLF6651.jpg",
-      "title": "",
+      "title": "Teton Range Frozen Expanse",
       "classification": "PREMIUM",
       "width": 13107,
       "height": 5464,
@@ -425,7 +425,7 @@
     {
       "catalog_id": "A35-20260210-0036",
       "original_filename": "WOLF6698-Pano.jpg",
-      "title": "",
+      "title": "Alpine Sanctuary in Winter Stillness",
       "classification": "ULTRA",
       "width": 23832,
       "height": 10894,
@@ -437,7 +437,7 @@
     {
       "catalog_id": "A35-20260210-0037",
       "original_filename": "WOLF6797-Pano.jpg",
-      "title": "",
+      "title": "Grand Teton Winter Vastness",
       "classification": "ULTRA",
       "width": 16402,
       "height": 4639,
@@ -449,7 +449,7 @@
     {
       "catalog_id": "A35-20260210-0038",
       "original_filename": "WOLF6872-Pano.jpg",
-      "title": "",
+      "title": "Stop Before the Peaks",
       "classification": "PREMIUM",
       "width": 11877,
       "height": 4973,
@@ -461,11 +461,11 @@
     {
       "catalog_id": "A35-20260210-0039",
       "original_filename": "WOLF7261-Pano.jpg",
-      "title": "",
+      "title": "Alpine Lake in Winter Silence",
       "classification": "PREMIUM",
       "width": 13560,
       "height": 6197,
-      "megapixels": 84.0,
+      "megapixels": 84,
       "file_size_mb": 41.7,
       "status": "available",
       "license_count": 0
@@ -473,7 +473,7 @@
     {
       "catalog_id": "A35-20260210-0040",
       "original_filename": "WOLF7271-Pano.jpg",
-      "title": "",
+      "title": "Alpine Lake in Winter Silence",
       "classification": "ULTRA",
       "width": 18300,
       "height": 8992,
@@ -485,7 +485,7 @@
     {
       "catalog_id": "A35-20260210-0041",
       "original_filename": "WOLF7301.jpg",
-      "title": "",
+      "title": "Alpine Peaks Over Frozen Waters",
       "classification": "PREMIUM",
       "width": 13107,
       "height": 5464,
@@ -497,7 +497,7 @@
     {
       "catalog_id": "A35-20260210-0042",
       "original_filename": "WOLF7406-Pano.jpg",
-      "title": "",
+      "title": "Mormon Row Winter Silhouette",
       "classification": "PREMIUM",
       "width": 11224,
       "height": 4797,
@@ -509,7 +509,7 @@
     {
       "catalog_id": "A35-20260210-0043",
       "original_filename": "WOLF7450.jpg",
-      "title": "",
+      "title": "Homestead Beneath the Tetons",
       "classification": "PREMIUM",
       "width": 13107,
       "height": 5464,
@@ -521,7 +521,7 @@
     {
       "catalog_id": "A35-20260210-0044",
       "original_filename": "WOLF7451.jpg",
-      "title": "",
+      "title": "Tetons: Homestead in Winter",
       "classification": "PREMIUM",
       "width": 13107,
       "height": 5464,
@@ -533,7 +533,7 @@
     {
       "catalog_id": "A35-20260210-0045",
       "original_filename": "WOLF7470.jpg",
-      "title": "",
+      "title": "Winter Expanse, Tetons Beyond",
       "classification": "PREMIUM",
       "width": 13107,
       "height": 5464,
@@ -545,7 +545,7 @@
     {
       "catalog_id": "A35-20260217-0046",
       "original_filename": "Wolf 3303.jpg",
-      "title": "",
+      "title": "Desert Lake Horizon",
       "classification": "PREMIUM",
       "width": 13556,
       "height": 3840,
@@ -557,7 +557,7 @@
     {
       "catalog_id": "A35-20260217-0047",
       "original_filename": "Wolf 3343.jpg",
-      "title": "",
+      "title": "Lava Fields Beneath Sierra Blanca",
       "classification": "ULTRA",
       "width": 20064,
       "height": 4172,
@@ -569,7 +569,7 @@
     {
       "catalog_id": "A35-20260217-0048",
       "original_filename": "Wolf 3375-Pano.jpg",
-      "title": "",
+      "title": "Mesquite Dunes: Shadow and Light",
       "classification": "PREMIUM",
       "width": 10607,
       "height": 5041,
@@ -585,7 +585,7 @@
       "classification": "PREMIUM",
       "width": 10000,
       "height": 3596,
-      "megapixels": 36.0,
+      "megapixels": 36,
       "file_size_mb": 10.6,
       "status": "available",
       "license_count": 0
@@ -593,7 +593,7 @@
     {
       "catalog_id": "A35-20260217-0050",
       "original_filename": "Wolf 4538.jpg",
-      "title": "",
+      "title": "Desert Road Toward Mountain Light",
       "classification": "ULTRA",
       "width": 48767,
       "height": 6959,
@@ -605,7 +605,7 @@
     {
       "catalog_id": "A35-20260217-0051",
       "original_filename": "Wolf 4541.jpg",
-      "title": "",
+      "title": "Alpine Lake in Winter Silence",
       "classification": "ULTRA",
       "width": 23117,
       "height": 4782,
@@ -617,7 +617,7 @@
     {
       "catalog_id": "A35-20260217-0052",
       "original_filename": "Wolf 4549.jpg",
-      "title": "",
+      "title": "Alpine Mirror: Snow and Reflection",
       "classification": "ULTRA",
       "width": 19994,
       "height": 6745,
@@ -629,7 +629,7 @@
     {
       "catalog_id": "A35-20260217-0053",
       "original_filename": "Wolf 4551.jpg",
-      "title": "",
+      "title": "Alpine Reflection, Winter Stillness",
       "classification": "ULTRA",
       "width": 17872,
       "height": 6071,
@@ -641,7 +641,7 @@
     {
       "catalog_id": "A35-20260217-0054",
       "original_filename": "Wolf 4552.jpg",
-      "title": "",
+      "title": "Alpine Reflection: Perfect Symmetry",
       "classification": "ULTRA",
       "width": 22673,
       "height": 6642,

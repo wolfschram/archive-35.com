@@ -2,9 +2,9 @@
   "catalog_id": "A35-20260210-0009",
   "original_filename": "WOLF3219-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "Gullfoss: Power and Verdant Silence",
+  "description": "This panoramic fine art photograph captures Iceland's Gullfoss waterfall in its full cascading majesty, where milky glacial waters plunge between moss-draped basalt cliffs. The ultra-high-resolution capture reveals extraordinary detail across the sweeping landscape—from the delicate texture of moss-covered terrain to the turbulent dynamics of falling water—making this image exceptional for large-format fine art prints and immersive commercial installations.",
+  "location": "Gullfoss, Hvítá River, Golden Circle, South Iceland",
   "classification": "PREMIUM",
   "resolution": {
     "width": 10802,
@@ -21,12 +21,12 @@
     "200.0"
   ],
   "max_print_300dpi": {
-    "width_in": 36.0,
+    "width_in": 36,
     "height_in": 15.6,
     "dpi": 300
   },
   "max_print_150dpi": {
-    "width_in": 72.0,
+    "width_in": 72,
     "height_in": 31.3,
     "dpi": 150
   },

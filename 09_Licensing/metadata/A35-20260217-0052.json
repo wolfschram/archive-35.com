@@ -2,9 +2,9 @@
   "catalog_id": "A35-20260217-0052",
   "original_filename": "Wolf 4549.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "Alpine Mirror: Snow and Reflection",
+  "description": "A breathtaking panoramic landscape capturing pristine snow-covered peaks mirrored in crystalline alpine waters, rendered in exceptional ultra-high-resolution detail. This fine art photograph reveals extraordinary clarity across the entire composition—ideal for large-format gallery prints and premium commercial licensing applications.",
+  "location": "Mammoth, California, USA",
   "classification": "ULTRA",
   "resolution": {
     "width": 19994,
@@ -27,7 +27,7 @@
   },
   "max_print_150dpi": {
     "width_in": 133.3,
-    "height_in": 45.0,
+    "height_in": 45,
     "dpi": 150
   },
   "exif": {

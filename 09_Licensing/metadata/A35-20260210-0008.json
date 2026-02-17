@@ -2,15 +2,15 @@
   "catalog_id": "A35-20260210-0008",
   "original_filename": "WOLF3044-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "Glacial Torrent Through Primordial Landscape",
+  "description": "This ultra-high-resolution panoramic capture showcases the raw power of geothermal waters cutting through Iceland's untamed wilderness, revealing exceptional detail in the vivid glacial blue waters, basalt formations, and moss-covered terrain. The expansive format and exceptional clarity make this an ideal candidate for large-scale fine art prints and immersive commercial installations.",
+  "location": "Áfangaskógur area, Skaftafell region, Vatnajökull National Park, Iceland",
   "classification": "PREMIUM",
   "resolution": {
     "width": 12969,
     "height": 8096
   },
-  "megapixels": 105.0,
+  "megapixels": 105,
   "aspect_ratio": 1.602,
   "file_size_bytes": 87208883,
   "file_size_mb": 83.2,
@@ -22,12 +22,12 @@
   ],
   "max_print_300dpi": {
     "width_in": 43.2,
-    "height_in": 27.0,
+    "height_in": 27,
     "dpi": 300
   },
   "max_print_150dpi": {
     "width_in": 86.5,
-    "height_in": 54.0,
+    "height_in": 54,
     "dpi": 150
   },
   "exif": {

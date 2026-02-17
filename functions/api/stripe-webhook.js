@@ -217,15 +217,22 @@ async function sendOrder(apiKey, orderData) {
 // ============================================================================
 
 async function getStripeSession(sessionId, stripeKey) {
+  // Only expand line_items — customer_details and shipping_details are included by default.
+  // Expanding non-expandable fields causes invalid_request_error in newer Stripe API versions
+  // (e.g., 2026-01-28.clover), which returns an error instead of session data.
   const response = await fetch(
-    `https://api.stripe.com/v1/checkout/sessions/${sessionId}?expand[]=customer_details&expand[]=line_items&expand[]=shipping_details`,
+    `https://api.stripe.com/v1/checkout/sessions/${sessionId}?expand[]=line_items`,
     {
       headers: {
         'Authorization': `Bearer ${stripeKey}`,
       },
     }
   );
-  return response.json();
+  const data = await response.json();
+  if (data.error) {
+    console.error('Stripe API error fetching session:', JSON.stringify(data.error));
+  }
+  return data;
 }
 
 // ============================================================================
@@ -599,10 +606,10 @@ async function handleLicenseOrder(session, metadata, env, isTestMode, stripeKey,
     });
   }
 
-  // Get customer details from Stripe
+  // Get customer details from Stripe (with fallback to event payload)
   const fullSession = await getStripeSession(session.id, stripeKey);
-  const customerName = fullSession.customer_details?.name || '';
-  const customerEmail = fullSession.customer_details?.email || fullSession.customer_email || '';
+  const customerName = fullSession.customer_details?.name || session.customer_details?.name || '';
+  const customerEmail = fullSession.customer_details?.email || session.customer_details?.email || fullSession.customer_email || session.customer_email || '';
   const rawAmount = fullSession.amount_total || session.amount_total || 0;
   const amountPaid = rawAmount ? (rawAmount / 100).toFixed(2) : '0';
   console.log('License amount:', amountPaid, '(raw:', rawAmount, ') customer:', customerEmail);
@@ -891,11 +898,19 @@ export async function onRequestPost(context) {
     }
 
     // Get full session details (shipping address, customer info)
+    // Fall back to event payload data if Stripe API call fails
     const fullSession = await getStripeSession(session.id, STRIPE_SECRET_KEY);
-    const shipping = fullSession.shipping_details || fullSession.customer_details || {};
+    const hasApiData = !fullSession.error;
+    if (!hasApiData) {
+      console.warn('Stripe session fetch failed — falling back to event payload data');
+    }
+    // Prefer API data, fall back to event payload (session = event.data.object)
+    const shipping = fullSession.shipping_details || session.shipping_details || fullSession.customer_details || session.customer_details || {};
     const address = shipping.address || {};
-    const customerName = fullSession.customer_details?.name || shipping.name || '';
-    const customerEmail = fullSession.customer_details?.email || fullSession.customer_email || '';
+    const customerName = fullSession.customer_details?.name || session.customer_details?.name || shipping.name || '';
+    const customerEmail = fullSession.customer_details?.email || session.customer_details?.email || fullSession.customer_email || session.customer_email || '';
+    console.log('Shipping address:', JSON.stringify(address));
+    console.log('Customer:', customerName, customerEmail);
     // Get amount from expanded session, fallback to event session, fallback to line items
     const rawAmount = fullSession.amount_total || session.amount_total || 0;
     const amountPaid = rawAmount ? (rawAmount / 100).toFixed(2) : '0';

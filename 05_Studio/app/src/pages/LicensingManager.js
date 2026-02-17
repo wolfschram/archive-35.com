@@ -106,10 +106,11 @@ function LicensingManager() {
             );
             log(result);
           } else {
-            const sourceArg = step.id === 'scan' ? ` --source "../${sourceFolder}"` : '';
+            const sourceArg = step.id === 'scan' ? ` . --source "../${sourceFolder}"` : '';
+            const folderArg = (step.id !== 'scan' && step.id !== 'r2') ? ' .' : '';
             const forceArg = (step.id === 'watermark' && forceRegenPreviews) ? ' --force' : '';
             const result = await window.electronAPI.runCommand(
-              `cd 09_Licensing && python3 ${step.script} .${sourceArg}${forceArg}`
+              `cd 09_Licensing && python3 ${step.script}${folderArg}${sourceArg}${forceArg}`
             );
             log(result);
           }

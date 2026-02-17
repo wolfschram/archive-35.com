@@ -4086,8 +4086,9 @@ ipcMain.handle('analyze-licensing-photos', async (event, { catalogIds }) => {
         const sourcePath = path.resolve(licensingDir, rawSourcePath);
         const imagePath = path.join(sourcePath, img.original_filename);
 
-        // Create a small thumbnail for API (these are 100+ MP images, need to shrink a lot)
-        const thumbBuffer = await sharp(imagePath)
+        // Create a small thumbnail for API (these are 100-300+ MP images, need to shrink a lot)
+        // Must disable pixel limit — these panoramics can be 28000x11000+ (313 MP)
+        const thumbBuffer = await sharp(imagePath, { limitInputPixels: false })
           .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
           .jpeg({ quality: 70 })
           .toBuffer();

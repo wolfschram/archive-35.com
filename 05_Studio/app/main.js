@@ -1058,34 +1058,58 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
       }
       targetFolder = path.join(PORTFOLIO_DIR, portfolio.name);
     } else if (mode === 'new' && newGallery) {
-      // Create new portfolio folder
+      // Check for near-duplicate existing portfolios before creating new folder
       const folderName = newGallery.name.replace(/\s+/g, '_');
-      targetFolder = path.join(PORTFOLIO_DIR, folderName);
-      await fs.mkdir(targetFolder, { recursive: true });
-      await fs.mkdir(path.join(targetFolder, 'originals'), { recursive: true });
-      await fs.mkdir(path.join(targetFolder, 'web'), { recursive: true });
+      const existingEntries = await fs.readdir(PORTFOLIO_DIR, { withFileTypes: true });
+      const existingFolders = existingEntries.filter(e => e.isDirectory()).map(e => e.name);
+      let matchedFolder = null;
+      for (const existing of existingFolders) {
+        const existingName = existing.replace(/_/g, ' ').replace(/\s+$/, '');
+        const newName = newGallery.name.replace(/\s+$/, '');
+        // Use geo-suffix-aware matching: strip suffixes, then compare cores
+        const coreExisting = stripGeoSuffix(existingName);
+        const coreNew = stripGeoSuffix(newName);
+        let score;
+        if (coreExisting.length > 0 && coreNew.length > 0) {
+          score = calculateSimilarity(coreExisting, coreNew);
+          // If geo cores match at >=80%, trust it; otherwise use full name at higher threshold
+          if (score >= 80) { matchedFolder = existing; break; }
+        }
+        score = calculateSimilarity(existingName, newName);
+        if (score >= 90) { matchedFolder = existing; break; }
+      }
+      if (matchedFolder) {
+        // Use existing portfolio instead of creating a misspelled duplicate
+        console.log(`[DEDUP] "${newGallery.name}" matched existing folder "${matchedFolder}" — using existing`);
+        targetFolder = path.join(PORTFOLIO_DIR, matchedFolder);
+      } else {
+        targetFolder = path.join(PORTFOLIO_DIR, folderName);
+        await fs.mkdir(targetFolder, { recursive: true });
+        await fs.mkdir(path.join(targetFolder, 'originals'), { recursive: true });
+        await fs.mkdir(path.join(targetFolder, 'web'), { recursive: true });
 
-      // Create _gallery.json
-      const galleryJson = {
-        id: folderName.toLowerCase(),
-        title: newGallery.name,
-        slug: folderName.toLowerCase().replace(/[_\s]+/g, '-').replace(/-+$/, ''),
-        status: 'draft',
-        dates: {
-          published: null
-        },
-        location: {
-          country: newGallery.country || '',
-          region: '',
-          place: newGallery.location || '',
-          coordinates: null
-        },
-        photo_count: photos.length
-      };
-      await fs.writeFile(
-        path.join(targetFolder, '_gallery.json'),
-        JSON.stringify(galleryJson, null, 2)
-      );
+        // Create _gallery.json
+        const galleryJson = {
+          id: folderName.toLowerCase(),
+          title: newGallery.name,
+          slug: folderName.toLowerCase().replace(/[_\s]+/g, '-').replace(/-+$/, ''),
+          status: 'draft',
+          dates: {
+            published: null
+          },
+          location: {
+            country: newGallery.country || '',
+            region: '',
+            place: newGallery.location || '',
+            coordinates: null
+          },
+          photo_count: photos.length
+        };
+        await fs.writeFile(
+          path.join(targetFolder, '_gallery.json'),
+          JSON.stringify(galleryJson, null, 2)
+        );
+      }
     } else {
       return { success: false, error: 'Invalid mode or missing gallery info' };
     }

@@ -12,7 +12,7 @@
 - Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
 - Website: https://archive-35.com
 
-## Print Collections (609 photographs, 37 collections)
+## Print Collections (587 photographs, 36 collections)
 
 ### Antelope Canyon (11 photographs)
 - URL: https://archive-35.com/collection.html?id=antelope-canyon
@@ -322,9 +322,9 @@
 
   - Above the San Francisco Fog | Mount Tamalpais, Marin County, San Francisco Bay Area | 40.1MP | Tags: san-francisco-landscape, mount-tamalpais, marin-county, fog-above-clouds, mountain-ridge, bay-area-nature, fine-art-photography, landscape-photography
 
-### Seqoia National Park (8 photographs)
-- URL: https://archive-35.com/collection.html?id=seqoia-national-park
-- Gallery: https://archive-35.com/gallery.html?collection=seqoia-national-park
+### Sequoia National Park (8 photographs)
+- URL: https://archive-35.com/collection.html?id=sequoia-national-park
+- Gallery: https://archive-35.com/gallery.html?collection=sequoia-national-park
 
   - Forest Road Through the Sierra | Sequoia National Park, Sierra Nevada Forest Road | 50.3MP | Tags: sequoia-national-park, sierra-nevada, forest-road, landscape-photography, fine-art-photography, nature-photography, coniferous-forest, tall-trees
   - Giants of the Sierra Forest | Giant Forest, Sequoia National Park | 47.6MP | Tags: giant-sequoia, sequoia-national-park, old-growth-forest, forest-cathedral, sierra-nevada, ancient-trees, giant-forest, woodland-landscape
@@ -375,17 +375,6 @@
   - Dunes and Distant Plateaus | Colorado Plateau Region, Southwestern United States | 43.9MP | Tags: sand-dunes, desert-landscape, mesa, plateaus, high-desert, colorado-plateau, arid-terrain, geological-formations
   - Ridgeline Through Verdant Canyons | Blue Mountains, New South Wales, Australia | 50.3MP | Tags: blue-mountains, new-south-wales, australia, canyon-landscape, sandstone-formations, aerial-photography, dramatic-ridgeline, forest-canopy
   - Desert Highway Through Red Rock Canyon | Utah Canyon Country, Utah, United States | 36.4MP | Tags: utah-landscape, red-rock-canyon, desert-highway, southwest-usa, landscape-photography, fine-art-print, canyon-scenery, geological-formations
-  - ... and 17 more photographs
-
-### Utha National Parks (22 photographs)
-- URL: https://archive-35.com/collection.html?id=utha-national-parks
-- Gallery: https://archive-35.com/gallery.html?collection=utha-national-parks
-
-  - Striations in Stone Canyon | Zion National Park, Utah | 50.3MP | Tags: zion-national-park, utah-landscape, sandstone-formations, desert-canyon, geological-patterns, red-rock-country, canyon-walls, fine-art-landscape
-  - Canyonlands Stone Grain Detail | Canyonlands National Park, Utah | 50.3MP | Tags: canyonlands-national-park, utah-landscape, sandstone-texture, geological-formations, canyon-country, fine-art-photography, nature-photography, earth-tones
-  - Sand Dunes of the Red Canyon | Coral Pink Sand Dunes State Park, Utah | 43.9MP | Tags: sand-dunes, desert-landscape, red-rock-formations, utah-national-parks, fine-art-photography, nature-photography, landscape-art, golden-dunes
-  - Bryce Canyon's Sculptured Ridges | Bryce Canyon National Park, Utah | 50.3MP | Tags: bryce-canyon, hoodoos, utah-national-parks, aerial-landscape, red-rock-formations, geological-formations, fine-art-photography, nature-photography
-  - Desert Highway Through Red Stone | Utah canyon country, likely San Rafael Swell or eastern Utah plateau region | 36.4MP | Tags: utah-national-parks, desert-highway, red-rock-formations, landscape-photography, geological-drama, arid-landscape, canyon-country, utah-plateau
   - ... and 17 more photographs
 
 ### Valley of Fire (3 photographs)

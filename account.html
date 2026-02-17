@@ -79,19 +79,48 @@
         <div class="account-card">
           <div class="account-card-header">
             <h2>Account Details</h2>
+            <button class="edit-toggle-btn" id="edit-toggle-btn" title="Edit profile">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              <span>Edit</span>
+            </button>
           </div>
           <div class="account-card-body">
-            <div class="account-detail">
-              <span class="detail-label">Email</span>
-              <span class="detail-value" id="account-email">—</span>
+            <!-- View mode -->
+            <div id="account-view-mode">
+              <div class="account-detail">
+                <span class="detail-label">Email</span>
+                <span class="detail-value" id="account-email">—</span>
+              </div>
+              <div class="account-detail">
+                <span class="detail-label">Name</span>
+                <span class="detail-value" id="account-name">—</span>
+              </div>
+              <div class="account-detail">
+                <span class="detail-label">Member Since</span>
+                <span class="detail-value" id="account-since">—</span>
+              </div>
             </div>
-            <div class="account-detail">
-              <span class="detail-label">Name</span>
-              <span class="detail-value" id="account-name">—</span>
-            </div>
-            <div class="account-detail">
-              <span class="detail-label">Member Since</span>
-              <span class="detail-value" id="account-since">—</span>
+
+            <!-- Edit mode (hidden by default) -->
+            <div id="account-edit-mode" style="display:none;">
+              <form id="edit-profile-form" class="edit-profile-form">
+                <div class="account-detail">
+                  <span class="detail-label">Email</span>
+                  <span class="detail-value" id="edit-email-display">—</span>
+                </div>
+                <div class="account-detail edit-field">
+                  <label class="detail-label" for="edit-name">Name</label>
+                  <input type="text" id="edit-name" class="edit-input" placeholder="Your name" autocomplete="name">
+                </div>
+                <div class="edit-actions">
+                  <button type="submit" class="btn btn-primary btn-sm" id="save-profile-btn">Save</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="cancel-edit-btn">Cancel</button>
+                </div>
+                <div class="edit-message" id="edit-message" style="display:none;"></div>
+              </form>
             </div>
           </div>
         </div>
@@ -241,10 +270,75 @@
       return text.replace(/[&<>"']/g, m => map[m]);
     }
 
+    // Edit profile handlers
+    const editToggleBtn = document.getElementById('edit-toggle-btn');
+    const viewMode = document.getElementById('account-view-mode');
+    const editMode = document.getElementById('account-edit-mode');
+    const editNameInput = document.getElementById('edit-name');
+    const editEmailDisplay = document.getElementById('edit-email-display');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const editForm = document.getElementById('edit-profile-form');
+    const editMessage = document.getElementById('edit-message');
+    const saveBtn = document.getElementById('save-profile-btn');
+
+    editToggleBtn.addEventListener('click', () => {
+      viewMode.style.display = 'none';
+      editMode.style.display = 'block';
+      editNameInput.value = nameEl.textContent === 'Not set' ? '' : nameEl.textContent;
+      editEmailDisplay.textContent = emailEl.textContent;
+      editMessage.style.display = 'none';
+      editToggleBtn.style.display = 'none';
+      editNameInput.focus();
+    });
+
+    cancelEditBtn.addEventListener('click', () => {
+      editMode.style.display = 'none';
+      viewMode.style.display = 'block';
+      editToggleBtn.style.display = 'inline-flex';
+    });
+
+    editForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const newName = editNameInput.value.trim();
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+      editMessage.style.display = 'none';
+
+      try {
+        const resp = await fetch('/api/account/update', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newName }),
+        });
+        const data = await resp.json();
+
+        if (resp.ok && data.success) {
+          // Update display
+          nameEl.textContent = newName || 'Not set';
+          greeting.textContent = newName ? `Welcome back, ${newName}` : 'Welcome to your account';
+          // Switch back to view mode
+          editMode.style.display = 'none';
+          viewMode.style.display = 'block';
+          editToggleBtn.style.display = 'inline-flex';
+        } else {
+          editMessage.textContent = data.error || 'Update failed. Please try again.';
+          editMessage.className = 'edit-message edit-error';
+          editMessage.style.display = 'block';
+        }
+      } catch (err) {
+        editMessage.textContent = 'Network error. Please try again.';
+        editMessage.className = 'edit-message edit-error';
+        editMessage.style.display = 'block';
+      }
+
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save';
+    });
+
     // Logout handler
     logoutBtn.addEventListener('click', async () => {
       try {
-        // Use form POST for logout (handles cookie clearing server-side)
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '/api/auth/logout';

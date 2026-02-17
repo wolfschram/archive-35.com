@@ -1,0 +1,85 @@
+{
+  "catalog_id": "A35-20260217-0056",
+  "original_filename": "Wolf 3987.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "title": "Los Angeles Skyline Panorama",
+  "description": "An expansive ultra-high-resolution panoramic capture of the Los Angeles downtown skyline showcasing the full architectural complexity of the city's urban landscape. The exceptional detail and scale of this fine art print reveals individual building facades, atmospheric depth, and dramatic cloud formations—ideal for large-format commercial installations and gallery presentations.",
+  "location": "Los Angeles, California, United States",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 17345,
+    "height": 5101
+  },
+  "megapixels": 88.5,
+  "aspect_ratio": 3.4,
+  "file_size_bytes": 6404067,
+  "file_size_mb": 6.1,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 57.8,
+    "height_in": 17,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 115.6,
+    "height_in": 34,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2021:10:04 15:49:06",
+    "FocalLength": "70.0",
+    "ExposureTime": "0.00625",
+    "FNumber": "2.8",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF70-200mm F2.8 L IS USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260217-0056.jpg",
+    "preview": "previews/A35-20260217-0056.jpg",
+    "thumbnail": "thumbnails/A35-20260217-0056.jpg"
+  },
+  "scanned_at": "2026-02-17T21:40:58.701429+00:00"
+}

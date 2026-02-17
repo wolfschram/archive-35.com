@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2026-02-17T20:33:20.556599+00:00",
+  "last_updated": "2026-02-17T21:43:25.343Z",
   "images": [
     {
       "catalog_id": "A35-20260210-0001",
@@ -161,7 +161,7 @@
     {
       "catalog_id": "A35-20260210-0014",
       "original_filename": "WOLF3592-Pano.jpg",
-      "title": "Sk\u00f3gafoss: Moss and Cascade",
+      "title": "Skógafoss: Moss and Cascade",
       "classification": "PREMIUM",
       "width": 11640,
       "height": 6694,
@@ -233,7 +233,7 @@
     {
       "catalog_id": "A35-20260210-0020",
       "original_filename": "WOLF4187-Pano.jpg",
-      "title": "Vatnaj\u00f6kull's Distant Reign",
+      "title": "Vatnajökull's Distant Reign",
       "classification": "ULTRA",
       "width": 22895,
       "height": 7812,
@@ -581,12 +581,12 @@
     {
       "catalog_id": "A35-20260217-0049",
       "original_filename": "Wolf 4390.jpg",
-      "title": "",
+      "title": "Golden Hour Over Still Waters",
       "classification": "PREMIUM",
-      "width": 10000,
-      "height": 3596,
-      "megapixels": 36,
-      "file_size_mb": 10.6,
+      "width": 11977,
+      "height": 4307,
+      "megapixels": 52,
+      "file_size_mb": 14.6,
       "status": "available",
       "license_count": 0
     },
@@ -647,6 +647,78 @@
       "height": 6642,
       "megapixels": 150.6,
       "file_size_mb": 48.8,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0055",
+      "original_filename": "LA Flip.jpeg",
+      "title": "Symmetry of Urban Dreams",
+      "classification": "PREMIUM",
+      "width": 14577,
+      "height": 9662,
+      "megapixels": 140.8,
+      "file_size_mb": 99.4,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0056",
+      "original_filename": "Wolf 3987.jpg",
+      "title": "Los Angeles Skyline Panorama",
+      "classification": "ULTRA",
+      "width": 17345,
+      "height": 5101,
+      "megapixels": 88.5,
+      "file_size_mb": 6.1,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0057",
+      "original_filename": "Wolf 3989.jpg",
+      "title": "Los Angeles Skyline Panorama",
+      "classification": "ULTRA",
+      "width": 24189,
+      "height": 5060,
+      "megapixels": 122.4,
+      "file_size_mb": 8.3,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0058",
+      "original_filename": "Wolf 4001.jpg",
+      "title": "Los Angeles  Skyline",
+      "classification": "ULTRA",
+      "width": 22727,
+      "height": 5035,
+      "megapixels": 114.4,
+      "file_size_mb": 8.7,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0059",
+      "original_filename": "Wolf 4011.jpg",
+      "title": "Los Angeles  Skyline",
+      "classification": "ULTRA",
+      "width": 31504,
+      "height": 6565,
+      "megapixels": 206.8,
+      "file_size_mb": 16.2,
+      "status": "available",
+      "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0060",
+      "original_filename": "Wolf 4017.jpg",
+      "title": "Los Angeles  Skyline",
+      "classification": "ULTRA",
+      "width": 24786,
+      "height": 5939,
+      "megapixels": 147.2,
+      "file_size_mb": 14.4,
       "status": "available",
       "license_count": 0
     }

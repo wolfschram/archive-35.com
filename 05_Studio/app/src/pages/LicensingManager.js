@@ -174,6 +174,20 @@ function LicensingManager() {
     setAiResults(prev => prev.filter(r => r.catalog_id !== catalogId));
   };
 
+  // After approval, regenerate the gallery catalog so titles appear on the website
+  const regenerateGalleryCatalog = async () => {
+    if (!window.electronAPI?.runCommand) return;
+    try {
+      setPipelineLog(prev => prev + '\n── Regenerating Gallery Catalog (post-approval) ──\n');
+      const result = await window.electronAPI.runCommand(
+        `cd 09_Licensing && python3 process_licensing_images.py . --source "../${sourceFolder}"`
+      );
+      setPipelineLog(prev => prev + result + '\n✓ Gallery catalog updated with approved titles.\n');
+    } catch (e) {
+      setPipelineLog(prev => prev + 'Catalog regen error: ' + e.message + '\n');
+    }
+  };
+
   const approveAll = async () => {
     if (!window.electronAPI?.saveLicensingMetadata) return;
     const updates = aiResults.filter(r => r.status !== 'error').map(r => ({
@@ -187,6 +201,7 @@ function LicensingManager() {
     if (result.success) {
       setAiResults([]);
       setShowAiReview(false);
+      await regenerateGalleryCatalog();
       await loadCatalog();
     } else {
       alert('Save failed: ' + result.error);
@@ -208,8 +223,12 @@ function LicensingManager() {
     });
     if (result.success) {
       removeAiResult(catalogId);
+      // When last item approved, regenerate gallery catalog
+      if (aiResults.length <= 1) {
+        setShowAiReview(false);
+        await regenerateGalleryCatalog();
+      }
       await loadCatalog();
-      if (aiResults.length <= 1) setShowAiReview(false);
     }
   };
 

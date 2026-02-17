@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-17T20:33:20.562571+00:00",
-  "total_images": 54,
+  "generated_at": "2026-02-17T21:41:07.700792+00:00",
+  "total_images": 60,
   "classifications": {
     "ULTRA": {
       "min_width": 15000,
@@ -1645,10 +1645,10 @@
       "id": "A35-20260217-0049",
       "title": "Wolf 4390.jpg",
       "classification": "PREMIUM",
-      "width": 10000,
-      "height": 3596,
-      "megapixels": 36,
-      "file_size_mb": 10.6,
+      "width": 11977,
+      "height": 4307,
+      "megapixels": 52,
+      "file_size_mb": 14.6,
       "location": "",
       "thumbnail": "09_Licensing/thumbnails/A35-20260217-0049.jpg",
       "preview": "09_Licensing/watermarked/A35-20260217-0049.jpg",
@@ -1836,6 +1836,204 @@
       "max_print_150dpi": {
         "width_in": 151.2,
         "height_in": 44.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260217-0055",
+      "title": "LA Flip.jpeg",
+      "classification": "PREMIUM",
+      "width": 14577,
+      "height": 9662,
+      "megapixels": 140.8,
+      "file_size_mb": 99.4,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260217-0055.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260217-0055.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 48.6,
+        "height_in": 32.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 97.2,
+        "height_in": 64.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260217-0056",
+      "title": "Wolf 3987.jpg",
+      "classification": "ULTRA",
+      "width": 17345,
+      "height": 5101,
+      "megapixels": 88.5,
+      "file_size_mb": 6.1,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260217-0056.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260217-0056.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 57.8,
+        "height_in": 17.0,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 115.6,
+        "height_in": 34.0,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260217-0057",
+      "title": "Wolf 3989.jpg",
+      "classification": "ULTRA",
+      "width": 24189,
+      "height": 5060,
+      "megapixels": 122.4,
+      "file_size_mb": 8.3,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260217-0057.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260217-0057.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 80.6,
+        "height_in": 16.9,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 161.3,
+        "height_in": 33.7,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260217-0058",
+      "title": "Wolf 4001.jpg",
+      "classification": "ULTRA",
+      "width": 22727,
+      "height": 5035,
+      "megapixels": 114.4,
+      "file_size_mb": 8.7,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260217-0058.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260217-0058.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 75.8,
+        "height_in": 16.8,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 151.5,
+        "height_in": 33.6,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260217-0059",
+      "title": "Wolf 4011.jpg",
+      "classification": "ULTRA",
+      "width": 31504,
+      "height": 6565,
+      "megapixels": 206.8,
+      "file_size_mb": 16.2,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260217-0059.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260217-0059.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 105.0,
+        "height_in": 21.9,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 210.0,
+        "height_in": 43.8,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260217-0060",
+      "title": "Wolf 4017.jpg",
+      "classification": "ULTRA",
+      "width": 24786,
+      "height": 5939,
+      "megapixels": 147.2,
+      "file_size_mb": 14.4,
+      "location": "",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260217-0060.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260217-0060.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 82.6,
+        "height_in": 19.8,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 165.2,
+        "height_in": 39.6,
         "dpi": 150
       }
     }

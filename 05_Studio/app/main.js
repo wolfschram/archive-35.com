@@ -4176,6 +4176,8 @@ ipcMain.handle('save-licensing-metadata', async (event, { updates }) => {
       const catEntry = catalog.images.find(img => img.catalog_id === update.catalog_id);
       if (catEntry) {
         catEntry.title = update.title;
+        if (update.description) catEntry.description = update.description;
+        if (update.location) catEntry.location = update.location;
       }
 
       // Update per-image metadata

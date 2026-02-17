@@ -1,0 +1,78 @@
+{
+  "catalog_id": "A35-20260217-0055",
+  "original_filename": "LA Flip.jpeg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "title": "Symmetry of Urban Dreams",
+  "description": "A breathtaking panoramic composition capturing Los Angeles's iconic skyline in mirror-perfect reflection, revealing the intricate architectural tapestry and urban density with exceptional clarity. This ultra-high-resolution image showcases stunning detail across the entire frame, ideal for large-format fine art prints and premium commercial licensing applications.",
+  "location": "Los Angeles, California, USA",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 14577,
+    "height": 9662
+  },
+  "megapixels": 140.8,
+  "aspect_ratio": 1.509,
+  "file_size_bytes": 104207864,
+  "file_size_mb": 99.4,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "72.0",
+    "72.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 48.6,
+    "height_in": 32.2,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 97.2,
+    "height_in": 64.4,
+    "dpi": 150
+  },
+  "exif": {
+    "DateTimeOriginal": "2021:11:28 17:17:16"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260217-0055.jpeg",
+    "preview": "previews/A35-20260217-0055.jpg",
+    "thumbnail": "thumbnails/A35-20260217-0055.jpg"
+  },
+  "scanned_at": "2026-02-17T21:40:58.699809+00:00"
+}

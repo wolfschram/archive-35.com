@@ -1,19 +1,19 @@
 {
-  "catalog_id": "A35-20260217-0049",
-  "original_filename": "Wolf 4390.jpg",
+  "catalog_id": "A35-20260217-0059",
+  "original_filename": "Wolf 4011.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
-  "title": "Golden Hour Over Still Waters",
-  "description": "A serene panoramic composition capturing the interplay of light and reflection across calm waters, framed by silhouetted palms and distant hills. This ultra-high-resolution image offers exceptional detail and tonal range, ideal for large-format fine art prints and commercial licensing applications requiring museum-quality landscape imagery.",
-  "location": "Los Angeles CA",
-  "classification": "PREMIUM",
+  "title": "Los Angeles  Skyline",
+  "description": "A sweeping panoramic vista of San Francisco's iconic skyline captured in ultra-high resolution, revealing exceptional architectural detail across the urban landscape. The dramatic cloud formations and dynamic lighting conditions showcase the city's vertical grandeur, with sufficient resolution for large-format fine art printing and commercial licensing applications.",
+  "location": "Los Angeles, California, USA",
+  "classification": "ULTRA",
   "resolution": {
-    "width": 10000,
-    "height": 3596
+    "width": 31504,
+    "height": 6565
   },
-  "megapixels": 52,
-  "aspect_ratio": 2.781,
-  "file_size_bytes": 11146623,
-  "file_size_mb": 14.6,
+  "megapixels": 206.8,
+  "aspect_ratio": 4.799,
+  "file_size_bytes": 16955677,
+  "file_size_mb": 16.2,
   "color_space": "RGB",
   "format": "JPEG",
   "dpi": [
@@ -21,23 +21,23 @@
     "300.0"
   ],
   "max_print_300dpi": {
-    "width_in": 33.3,
-    "height_in": 12,
+    "width_in": 105,
+    "height_in": 21.9,
     "dpi": 300
   },
   "max_print_150dpi": {
-    "width_in": 66.7,
-    "height_in": 24,
+    "width_in": 210,
+    "height_in": 43.8,
     "dpi": 150
   },
   "exif": {
     "Make": "Canon",
     "Model": "Canon EOS R5",
-    "DateTimeOriginal": "2021:11:14 05:56:59",
-    "FocalLength": "28.0",
+    "DateTimeOriginal": "2021:10:04 17:26:51",
+    "FocalLength": "70.0",
     "ExposureTime": "0.016666666666666666",
     "FNumber": "2.0",
-    "ISOSpeedRatings": 400,
+    "ISOSpeedRatings": 100,
     "LensModel": "RF28-70mm F2 L USM"
   },
   "gps": null,
@@ -77,11 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260217-0049.jpg",
-    "preview": "previews/A35-20260217-0049.jpg",
-    "thumbnail": "thumbnails/A35-20260217-0049.jpg"
+    "original": "originals/A35-20260217-0059.jpg",
+    "preview": "previews/A35-20260217-0059.jpg",
+    "thumbnail": "thumbnails/A35-20260217-0059.jpg"
   },
-  "scanned_at": "2026-02-17T16:58:47.406518+00:00",
-  "width": 11977,
-  "height": 4307
+  "scanned_at": "2026-02-17T21:40:58.704549+00:00"
 }

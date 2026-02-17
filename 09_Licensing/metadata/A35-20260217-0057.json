@@ -1,0 +1,85 @@
+{
+  "catalog_id": "A35-20260217-0057",
+  "original_filename": "Wolf 3989.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "title": "Los Angeles Skyline Panorama",
+  "description": "A sweeping ultra-high-resolution panoramic capture of the Los Angeles downtown skyline, showcasing the dense urban sprawl and architectural complexity of one of America's largest metropolitan centers. The exceptional detail and tonal range throughout this large-format image reveal the layered depth of the city's geography, making it ideal for oversized fine art prints and commercial licensing applications.",
+  "location": "Los Angeles, California, United States",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 24189,
+    "height": 5060
+  },
+  "megapixels": 122.4,
+  "aspect_ratio": 4.78,
+  "file_size_bytes": 8738138,
+  "file_size_mb": 8.3,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 80.6,
+    "height_in": 16.9,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 161.3,
+    "height_in": 33.7,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2021:10:04 15:52:30",
+    "FocalLength": "85.0",
+    "ExposureTime": "0.005",
+    "FNumber": "2.8",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF85mm F1.2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260217-0057.jpg",
+    "preview": "previews/A35-20260217-0057.jpg",
+    "thumbnail": "thumbnails/A35-20260217-0057.jpg"
+  },
+  "scanned_at": "2026-02-17T21:40:58.702396+00:00"
+}

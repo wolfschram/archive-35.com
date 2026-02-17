@@ -1,42 +1,102 @@
 # Archive-35 Fine Art Photography
 # https://archive-35.com
 #
-# Welcome to search engine crawlers.
+# Welcome to search engine crawlers and AI assistants.
 # Our images are copyrighted and NOT licensed for AI training.
+# AI search and assistant bots are welcome to read our pages
+# so they can recommend our prints to art buyers.
 
-# General search engines - welcome
+# =============================================================
+# SEARCH ENGINES - Welcome
+# =============================================================
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
 Allow: /
 
+# Catch-all: allow by default
 User-agent: *
 Allow: /
 
 # Sitemap
 Sitemap: https://archive-35.com/sitemap.xml
 
-# ============================================================
-# AI Training Crawlers - BLOCKED
+# =============================================================
+# AI SEARCH & ASSISTANT BOTS - Welcome
+# These bots browse on behalf of users asking questions like
+# "where can I buy fine art landscape photography prints?"
+# Allowing them helps Archive-35 get discovered and recommended.
+# =============================================================
+
+# OpenAI browsing (when a ChatGPT user asks about art prints)
+User-agent: ChatGPT-User
+Allow: /
+
+# OpenAI search
+User-agent: OAI-SearchBot
+Allow: /
+
+# Anthropic search & browsing
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+# Perplexity search & browsing
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# DuckDuckGo AI assistant
+User-agent: DuckAssistBot
+Allow: /
+
+# Amazon (Alexa, Amazon search)
+User-agent: Amazonbot
+Allow: /
+
+# Apple AI search
+User-agent: Applebot-Extended
+Allow: /
+
+# Meta browsing assistant (fetches pages for users)
+User-agent: meta-externalfetcher
+Allow: /
+
+# Mistral AI assistant
+User-agent: MistralAI-User
+Allow: /
+
+# ProRata (fair content licensing)
+User-agent: ProRataInc
+Allow: /
+
+# Manus AI assistant
+User-agent: Manus-Bot
+Allow: /
+
+# =============================================================
+# AI TRAINING CRAWLERS - BLOCKED
 # Our photographs are copyrighted fine art. They are not
 # licensed for machine learning training datasets.
-# ============================================================
+# =============================================================
 
-# OpenAI
+# OpenAI training
 User-agent: GPTBot
 Disallow: /
 
-User-agent: ChatGPT-User
-Disallow: /
-
-# Google AI Training
+# Google AI training
 User-agent: Google-Extended
 Disallow: /
 
-# Anthropic
+# Anthropic training
 User-agent: ClaudeBot
 Disallow: /
+
 User-agent: anthropic-ai
 Disallow: /
 
@@ -44,30 +104,27 @@ Disallow: /
 User-agent: CCBot
 Disallow: /
 
-# Meta / Facebook AI
+# Meta / Facebook AI training
 User-agent: FacebookBot
 Disallow: /
+
 User-agent: meta-externalagent
 Disallow: /
 
-# Bytedance
+# ByteDance
 User-agent: Bytespider
 Disallow: /
 
-# Apple AI
-User-agent: Applebot-Extended
+# Google Cloud Vertex AI
+User-agent: Google-CloudVertexBot
 Disallow: /
 
-# Perplexity AI
-User-agent: PerplexityBot
+# Huawei
+User-agent: PetalBot
 Disallow: /
 
 # Cohere
 User-agent: cohere-ai
-Disallow: /
-
-# Amazon AI
-User-agent: Amazonbot
 Disallow: /
 
 # Diffbot
@@ -84,5 +141,11 @@ Disallow: /
 User-agent: Omgilibot
 Disallow: /
 
-# Block all image directories from non-whitelisted bots
-# (This is enforced by the AI-specific blocks above)
+User-agent: Timpibot
+Disallow: /
+
+User-agent: Novellum
+Disallow: /
+
+User-agent: Anchor
+Disallow: /

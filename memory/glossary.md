@@ -28,9 +28,24 @@ Workplace shorthand, acronyms, and internal language for Archive-35.
 | CDTFA | CA Dept of Tax and Fee Administration | Sales tax |
 | EDD | Employment Development Dept | Unemployment |
 | FTB | Franchise Tax Board | CA income tax |
+| KV | Cloudflare Workers KV | Key-value store for sessions/magic links |
+| BCC | Blind Carbon Copy | Wolf gets BCC on all customer emails |
 
 ## Project Codenames
 | Name | What |
 |------|------|
-| Archive-35 | Fine art landscape photography business |
-| Studio | Electron + React app for content/sales management |
+| Archive-35 | Fine art landscape photography business — LIVE as of Feb 2026 |
+| Studio | Electron + React app for content/sales management (future) |
+
+## Key People (Signups/Friends)
+| Name | Context |
+|------|--------|
+| Nate Hoeft | Early signup, friend of Wolf |
+| Lucy | Early signup, friend of Wolf |
+
+## Site Status
+| Milestone | Date |
+|-----------|------|
+| Site went live | Feb 16, 2026 |
+| First real order | TBD |
+| LinkedIn announcement | Feb 17, 2026 |

@@ -1,0 +1,16 @@
+{
+  "id": "san_francisco",
+  "title": "San Francisco",
+  "slug": "san-francisco",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 1
+}

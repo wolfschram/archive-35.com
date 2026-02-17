@@ -1925,5 +1925,45 @@
     "thumbnail": "WOLF7514-thumb.jpg",
     "full": "WOLF7514-full.jpg",
     "c2pa": true
+  },
+  {
+    "id": "wolf7356",
+    "filename": "WOLF7356.jpg",
+    "title": "Mountain Peaks Through Winter Mist",
+    "description": "Majestic snow-capped peaks emerge from a luminous veil of mist and clouds, their summits piercing a pale sky above a frozen landscape. The composition captures the raw grandeur of the Tetons in their winter stillness, with evergreen forests anchoring the composition beneath layers of atmospheric mystery.",
+    "location": "Grand Teton National Park, Wyoming, USA",
+    "tags": [
+      "grand-teton",
+      "teton-range",
+      "wyoming-landscape",
+      "mountain-photography",
+      "snow-peaks",
+      "winter-landscape",
+      "misty-mountains",
+      "fine-art-photography",
+      "nature-photography",
+      "landscape-art",
+      "frozen-lake",
+      "evergreen-forest",
+      "atmospheric-clouds",
+      "glacier-mountains",
+      "serene-wilderness",
+      "dramatic-peaks",
+      "moody-sky",
+      "wall-art",
+      "canvas-print",
+      "nature-wall-decor"
+    ],
+    "dimensions": {
+      "width": 8192,
+      "height": 5464,
+      "aspectRatio": 1.499,
+      "aspectRatioString": "1024:683",
+      "orientation": "landscape",
+      "megapixels": 44.8
+    },
+    "thumbnail": "WOLF7356-thumb.jpg",
+    "full": "WOLF7356-full.jpg",
+    "c2pa": true
   }
 ]

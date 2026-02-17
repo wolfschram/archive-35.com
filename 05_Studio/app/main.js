@@ -2539,6 +2539,14 @@ function normalizeForMatch(str) {
     .replace(/[ùúüû]/g, 'u').replace(/ñ/g, 'n').replace(/ç/g, 'c');
 }
 
+// Strip common geographic suffixes that inflate fuzzy scores
+// between unrelated locations (e.g. "Sequoia National Park" vs "Utah National Parks")
+function stripGeoSuffix(str) {
+  return str.toLowerCase().trim()
+    .replace(/\b(national\s*parks?|national\s*forests?|national\s*monuments?|state\s*parks?|national\s*recreation\s*areas?)\b/gi, '')
+    .replace(/\s+/g, ' ').trim();
+}
+
 function levenshteinDistance(a, b) {
   const m = a.length, n = b.length;
   const dp = Array.from({ length: m + 1 }, (_, i) => {
@@ -2669,13 +2677,27 @@ ipcMain.handle('scan-photography', async () => {
         let bestScore = 0;
         let bestMatch = null;
         for (const p of portfolios) {
-          const score = calculateSimilarity(entry.name, p.folderName);
+          // Score the full names
+          const fullScore = calculateSimilarity(entry.name, p.folderName);
+          // Also score with geographic suffixes stripped to avoid
+          // false matches like "Sequoia National Park" → "Utah National Parks"
+          const strippedA = stripGeoSuffix(entry.name);
+          const strippedB = stripGeoSuffix(p.folderName);
+          const coreScore = (strippedA && strippedB)
+            ? calculateSimilarity(strippedA, strippedB) : 0;
+          // If core names match well (>=80%), trust that even if full names
+          // differ in length (e.g. "Grand Teton" vs "Grand Teton National Park").
+          // If core names DON'T match, don't let shared suffixes like
+          // "National Park" inflate the score (Sequoia vs Utah).
+          const score = (coreScore >= 80)
+            ? Math.max(fullScore, coreScore)
+            : Math.min(fullScore, coreScore + 30);
           if (score > bestScore) {
             bestScore = score;
             bestMatch = p;
           }
         }
-        if (bestMatch && bestScore >= 60) {
+        if (bestMatch && bestScore >= 75) {
           matchedPortfolio = bestMatch;
           matchConfidence = Math.round(bestScore);
           matchMethod = 'fuzzy';

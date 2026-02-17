@@ -158,5 +158,45 @@
     "thumbnail": "118A0122-thumb.jpg",
     "full": "118A0122-full.jpg",
     "c2pa": true
+  },
+  {
+    "id": "wolf_2263",
+    "filename": "Wolf 2263.jpg",
+    "title": "Aerial Rescue Over Planes",
+    "description": "A dramatic aerial perspective captures a red and white rescue helicopter executing a precision water drop operation across the Planes landscape. The crystalline spray suspended against the deep blue sky creates a striking contrast, embodying human skill and environmental stewardship in this vast terrain.",
+    "location": "Planes Airspace",
+    "tags": [
+      "helicopter",
+      "rescue-operation",
+      "aerial-photography",
+      "water-drop",
+      "Planes",
+      "aviation",
+      "dramatic-sky",
+      "azure-sky",
+      "fine-art-photography",
+      "landscape-photography",
+      "emergency-services",
+      "aircraft",
+      "high-altitude",
+      "dynamic-composition",
+      "nature-photography",
+      "industrial-landscape",
+      "clear-sky",
+      "red-white-aircraft",
+      "spray-effect",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 8688,
+      "height": 5792,
+      "aspectRatio": 1.5,
+      "aspectRatioString": "3:2",
+      "orientation": "landscape",
+      "megapixels": 50.3
+    },
+    "thumbnail": "Wolf 2263-thumb.jpg",
+    "full": "Wolf 2263-full.jpg",
+    "c2pa": true
   }
 ]

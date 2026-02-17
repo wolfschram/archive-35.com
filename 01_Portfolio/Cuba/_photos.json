@@ -1,5 +1,45 @@
 [
   {
+    "id": "118a2889",
+    "filename": "118A2889.jpg",
+    "title": "Yellow Cadillac, Havana Street",
+    "description": "A luminous yellow vintage automobile rests against weathered colonial architecture, its bold chromatic presence creating a striking contrast with the faded red and turquoise facades. This composition captures the enduring character of Caribbean urban life, where decades-old industrial design persists as both functional transport and visual testament to cultural continuity.",
+    "location": "Havana, Cuba",
+    "tags": [
+      "vintage-automobile",
+      "yellow-car",
+      "cadillac",
+      "havana",
+      "cuba",
+      "street-photography",
+      "colonial-architecture",
+      "urban-landscape",
+      "caribbean",
+      "fine-art-photography",
+      "architectural-contrast",
+      "vintage-vehicles",
+      "saturated-color",
+      "cultural-documentation",
+      "wall-art",
+      "home-decor",
+      "gallery-print",
+      "weathered-facades",
+      "vibrant-yellow",
+      "retro-aesthetic"
+    ],
+    "dimensions": {
+      "width": 8688,
+      "height": 5792,
+      "aspectRatio": 1.5,
+      "aspectRatioString": "3:2",
+      "orientation": "landscape",
+      "megapixels": 50.3
+    },
+    "thumbnail": "118A2889-thumb.jpg",
+    "full": "118A2889-full.jpg",
+    "c2pa": true
+  },
+  {
     "id": "118a2840",
     "filename": "118A2840.jpg",
     "title": "Vintage Motors, Urban Street",
@@ -201,46 +241,6 @@
     },
     "thumbnail": "118A2876-thumb.jpg",
     "full": "118A2876-full.jpg",
-    "c2pa": true
-  },
-  {
-    "id": "118a2889",
-    "filename": "118A2889.jpg",
-    "title": "Yellow Cadillac, Havana Street",
-    "description": "A luminous yellow vintage automobile rests against weathered colonial architecture, its bold chromatic presence creating a striking contrast with the faded red and turquoise facades. This composition captures the enduring character of Caribbean urban life, where decades-old industrial design persists as both functional transport and visual testament to cultural continuity.",
-    "location": "Havana, Cuba",
-    "tags": [
-      "vintage-automobile",
-      "yellow-car",
-      "cadillac",
-      "havana",
-      "cuba",
-      "street-photography",
-      "colonial-architecture",
-      "urban-landscape",
-      "caribbean",
-      "fine-art-photography",
-      "architectural-contrast",
-      "vintage-vehicles",
-      "saturated-color",
-      "cultural-documentation",
-      "wall-art",
-      "home-decor",
-      "gallery-print",
-      "weathered-facades",
-      "vibrant-yellow",
-      "retro-aesthetic"
-    ],
-    "dimensions": {
-      "width": 8688,
-      "height": 5792,
-      "aspectRatio": 1.5,
-      "aspectRatioString": "3:2",
-      "orientation": "landscape",
-      "megapixels": 50.3
-    },
-    "thumbnail": "118A2889-thumb.jpg",
-    "full": "118A2889-full.jpg",
     "c2pa": true
   },
   {

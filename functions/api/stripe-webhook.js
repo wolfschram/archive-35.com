@@ -620,32 +620,20 @@ async function handleLicenseOrder(session, metadata, env, isTestMode, stripeKey,
   console.log('License amount:', amountPaid, '(raw:', rawAmount, ') customer:', customerEmail);
   const orderRef = `stripe_${session.id}`;
 
-  // Build R2 key for the original — licensing originals are in originals/ prefix
+  // Build R2 key for the original — prefer collection path (single source of truth)
   const SIGNING_SECRET = env.ORIGINAL_SIGNING_SECRET;
   const R2_BUCKET = env.ORIGINALS;
 
-  // Try licensing originals first (originals/{filename}), then collection path
-  let r2Key = `originals/${photoFilename}`;
-  if (!r2Key.endsWith('.jpg')) r2Key += '.jpg';
-
+  let r2Key = '';
   let downloadUrl = '';
   let imageSource = 'unknown';
 
   if (R2_BUCKET && SIGNING_SECRET) {
-    // Check originals/ prefix first (licensing images)
     let found = false;
-    try {
-      const head = await R2_BUCKET.head(r2Key);
-      if (head) {
-        found = true;
-        console.log(`License R2 original found: ${r2Key} (${(head.size / 1024 / 1024).toFixed(1)}MB)`);
-      }
-    } catch (e) {
-      console.warn('R2 head check for originals/ failed:', e.message);
-    }
 
-    // Fall back to collection path (gallery images)
-    if (!found && collection) {
+    // Try collection-based path FIRST (single source of truth)
+    // This is the canonical key shared with gallery/print system
+    if (collection && collection !== 'licensing') {
       r2Key = `${collection}/${photoFilename}`;
       if (!r2Key.endsWith('.jpg')) r2Key += '.jpg';
       try {
@@ -656,6 +644,21 @@ async function handleLicenseOrder(session, metadata, env, isTestMode, stripeKey,
         }
       } catch (e) {
         console.warn('R2 head check for collection path failed:', e.message);
+      }
+    }
+
+    // Fall back to originals/ prefix (legacy licensing-only images)
+    if (!found) {
+      r2Key = `originals/${photoFilename}`;
+      if (!r2Key.endsWith('.jpg')) r2Key += '.jpg';
+      try {
+        const head = await R2_BUCKET.head(r2Key);
+        if (head) {
+          found = true;
+          console.log(`License R2 original found via originals/ prefix: ${r2Key} (${(head.size / 1024 / 1024).toFixed(1)}MB)`);
+        }
+      } catch (e) {
+        console.warn('R2 head check for originals/ failed:', e.message);
       }
     }
 

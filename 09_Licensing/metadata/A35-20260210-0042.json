@@ -3,7 +3,7 @@
   "original_filename": "WOLF7406-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Mormon Row Winter Silhouette",
-  "description": "An expansive panoramic vista capturing the iconic weathered homestead structures set against the snow-capped Teton Range, rendered in museum-quality ultra-high resolution. The exceptional detail in this large-format image preserves the subtle textures of frost-laden fields, architectural elements, and the dramatic mountain landscape—ideal for significant wall installations and fine art publication.",
+  "description": "An expansive panoramic vista capturing the iconic weathered homestead structures set against the snow-capped Teton Range, rendered in museum-quality ultra-high resolution. The exceptional detail in this large-format image preserves the subtle textures of frost-laden fields, architectural elements, and the dramatic mountain landscape\u2014ideal for significant wall installations and fine art publication.",
   "location": "Mormon Row Historic District, Grand Teton National Park, Wyoming, USA",
   "classification": "PREMIUM",
   "resolution": {
@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0042.jpg",
-    "preview": "previews/A35-20260210-0042.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0042.jpg"
+    "original": "grand-teton/WOLF7406-Pano.jpg",
+    "preview": "previews/grand-teton/WOLF7406-Pano.jpg",
+    "thumbnail": "thumbnails/grand-teton/WOLF7406-Pano.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.830937+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0042.jpg",
       "backed_up_at": "2026-02-12T17:47:23.397324+00:00"
     }
-  }
+  },
+  "collection": "grand-teton"
 }

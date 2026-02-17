@@ -3,7 +3,7 @@
   "original_filename": "WOLF6698-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Alpine Sanctuary in Winter Stillness",
-  "description": "A sweeping panoramic vista capturing the serene intersection of frozen alpine lake, coniferous forest, and snow-draped peaks. This ultra-high-resolution image reveals exceptional detail across the entire composition—from delicate shoreline textures to distant mountain definition—offering museum-quality print potential at monumental scales.",
+  "description": "A sweeping panoramic vista capturing the serene intersection of frozen alpine lake, coniferous forest, and snow-draped peaks. This ultra-high-resolution image reveals exceptional detail across the entire composition\u2014from delicate shoreline textures to distant mountain definition\u2014offering museum-quality print potential at monumental scales.",
   "location": "Oxbow Bend, Snake River, Grand Teton National Park, Wyoming, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0036.jpg",
-    "preview": "previews/A35-20260210-0036.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0036.jpg"
+    "original": "grand-teton/WOLF6698-Pano.jpg",
+    "preview": "previews/grand-teton/WOLF6698-Pano.jpg",
+    "thumbnail": "thumbnails/grand-teton/WOLF6698-Pano.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.820541+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0036.jpg",
       "backed_up_at": "2026-02-12T17:46:24.022188+00:00"
     }
-  }
+  },
+  "collection": "grand-teton"
 }

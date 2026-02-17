@@ -48,7 +48,8 @@
       "megapixels": 41.8,
       "file_size_mb": 33.4,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "colorado"
     },
     {
       "catalog_id": "A35-20260210-0005",
@@ -60,7 +61,8 @@
       "megapixels": 70.2,
       "file_size_mb": 45.5,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0006",
@@ -72,7 +74,8 @@
       "megapixels": 89.6,
       "file_size_mb": 54.2,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0007",
@@ -84,7 +87,8 @@
       "megapixels": 125.6,
       "file_size_mb": 76.8,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0008",
@@ -96,7 +100,8 @@
       "megapixels": 105,
       "file_size_mb": 83.2,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0009",
@@ -120,7 +125,8 @@
       "megapixels": 71.6,
       "file_size_mb": 22.3,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "black-and-white"
     },
     {
       "catalog_id": "A35-20260210-0011",
@@ -161,7 +167,7 @@
     {
       "catalog_id": "A35-20260210-0014",
       "original_filename": "WOLF3592-Pano.jpg",
-      "title": "Skógafoss: Moss and Cascade",
+      "title": "Sk\u00f3gafoss: Moss and Cascade",
       "classification": "PREMIUM",
       "width": 11640,
       "height": 6694,
@@ -180,7 +186,8 @@
       "megapixels": 71.6,
       "file_size_mb": 21.6,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0016",
@@ -192,7 +199,8 @@
       "megapixels": 71.6,
       "file_size_mb": 24.2,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0017",
@@ -204,7 +212,8 @@
       "megapixels": 175.7,
       "file_size_mb": 97.9,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0018",
@@ -216,7 +225,8 @@
       "megapixels": 207.8,
       "file_size_mb": 102.3,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0019",
@@ -228,19 +238,21 @@
       "megapixels": 121.5,
       "file_size_mb": 45,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0020",
       "original_filename": "WOLF4187-Pano.jpg",
-      "title": "Vatnajökull's Distant Reign",
+      "title": "Vatnaj\u00f6kull's Distant Reign",
       "classification": "ULTRA",
       "width": 22895,
       "height": 7812,
       "megapixels": 178.9,
       "file_size_mb": 107.3,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0021",
@@ -252,7 +264,8 @@
       "megapixels": 134.4,
       "file_size_mb": 61.8,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0022",
@@ -264,7 +277,8 @@
       "megapixels": 71.6,
       "file_size_mb": 25.6,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0023",
@@ -276,7 +290,8 @@
       "megapixels": 71.6,
       "file_size_mb": 30,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0024",
@@ -288,7 +303,8 @@
       "megapixels": 89.6,
       "file_size_mb": 52.1,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0025",
@@ -300,7 +316,8 @@
       "megapixels": 86.2,
       "file_size_mb": 47.4,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0026",
@@ -312,7 +329,8 @@
       "megapixels": 103.7,
       "file_size_mb": 56.6,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0027",
@@ -336,7 +354,8 @@
       "megapixels": 58.4,
       "file_size_mb": 31.4,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0029",
@@ -348,7 +367,8 @@
       "megapixels": 102,
       "file_size_mb": 62,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0030",
@@ -360,7 +380,8 @@
       "megapixels": 159.9,
       "file_size_mb": 74.8,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0031",
@@ -372,7 +393,8 @@
       "megapixels": 73.9,
       "file_size_mb": 37.7,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0032",
@@ -384,7 +406,8 @@
       "megapixels": 174.5,
       "file_size_mb": 107.3,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0033",
@@ -396,7 +419,8 @@
       "megapixels": 28.6,
       "file_size_mb": 10.8,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "iceland"
     },
     {
       "catalog_id": "A35-20260210-0034",
@@ -408,7 +432,8 @@
       "megapixels": 143.4,
       "file_size_mb": 72.8,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "grand-teton"
     },
     {
       "catalog_id": "A35-20260210-0035",
@@ -420,7 +445,8 @@
       "megapixels": 71.6,
       "file_size_mb": 31.2,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "grand-teton"
     },
     {
       "catalog_id": "A35-20260210-0036",
@@ -432,7 +458,8 @@
       "megapixels": 259.6,
       "file_size_mb": 125.5,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "grand-teton"
     },
     {
       "catalog_id": "A35-20260210-0037",
@@ -444,7 +471,8 @@
       "megapixels": 76.1,
       "file_size_mb": 47.8,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "grand-teton"
     },
     {
       "catalog_id": "A35-20260210-0038",
@@ -456,7 +484,8 @@
       "megapixels": 59.1,
       "file_size_mb": 28.9,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "grand-teton"
     },
     {
       "catalog_id": "A35-20260210-0039",
@@ -492,7 +521,8 @@
       "megapixels": 71.6,
       "file_size_mb": 33.7,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "grand-teton"
     },
     {
       "catalog_id": "A35-20260210-0042",
@@ -504,7 +534,8 @@
       "megapixels": 53.8,
       "file_size_mb": 21.1,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "grand-teton"
     },
     {
       "catalog_id": "A35-20260210-0043",
@@ -516,7 +547,8 @@
       "megapixels": 71.6,
       "file_size_mb": 29.5,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "grand-teton"
     },
     {
       "catalog_id": "A35-20260210-0044",
@@ -540,7 +572,8 @@
       "megapixels": 71.6,
       "file_size_mb": 33.9,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "grand-teton"
     },
     {
       "catalog_id": "A35-20260217-0046",
@@ -576,7 +609,8 @@
       "megapixels": 53.5,
       "file_size_mb": 13.9,
       "status": "available",
-      "license_count": 0
+      "license_count": 0,
+      "collection": "death-valley"
     },
     {
       "catalog_id": "A35-20260217-0049",

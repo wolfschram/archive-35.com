@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Godafoss: Where Gods Fall",
   "description": "This panoramic fine art capture of Iceland's iconic Godafoss waterfall showcases the monumental scale and raw geological drama of the North Atlantic landscape. Shot in ultra-high resolution, the image preserves extraordinary detail across the cascading waters, basalt formations, and distant mountain ranges, delivering museum-quality print potential for large-scale commercial and editorial licensing.",
-  "location": "Godafoss Waterfall, Skagaströnd District, North Iceland",
+  "location": "Godafoss Waterfall, Skagastr\u00f6nd District, North Iceland",
   "classification": "PREMIUM",
   "resolution": {
     "width": 11876,
@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0031.jpg",
-    "preview": "previews/A35-20260210-0031.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0031.jpg"
+    "original": "iceland/WOLF4838-Pano.jpg",
+    "preview": "previews/iceland/WOLF4838-Pano.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF4838-Pano.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.812019+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0031.jpg",
       "backed_up_at": "2026-02-12T17:45:04.473363+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

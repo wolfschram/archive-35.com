@@ -3,8 +3,8 @@
   "original_filename": "WOLF4438-Edit.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Glacial Lake with Icebergs",
-  "description": "A sweeping panoramic vista of a pristine glacial lake dotted with luminous blue icebergs, captured in ultra-high resolution. The exceptional detail throughout this expansive composition—from the intricate ice formations and mirror-like water surface to the distant mountain peaks beneath dramatic cloud formations—makes it ideal for large-format fine art printing and premium commercial licensing applications.",
-  "location": "Jökulsárlón Glacial Lagoon, Vatnajökull National Park, Iceland",
+  "description": "A sweeping panoramic vista of a pristine glacial lake dotted with luminous blue icebergs, captured in ultra-high resolution. The exceptional detail throughout this expansive composition\u2014from the intricate ice formations and mirror-like water surface to the distant mountain peaks beneath dramatic cloud formations\u2014makes it ideal for large-format fine art printing and premium commercial licensing applications.",
+  "location": "J\u00f6kuls\u00e1rl\u00f3n Glacial Lagoon, Vatnaj\u00f6kull National Park, Iceland",
   "classification": "PREMIUM",
   "resolution": {
     "width": 13107,
@@ -74,9 +74,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0022.jpg",
-    "preview": "previews/A35-20260210-0022.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0022.jpg"
+    "original": "iceland/WOLF4438-Edit.jpg",
+    "preview": "previews/iceland/WOLF4438-Edit.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF4438-Edit.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.796190+00:00",
   "r2_backup_status": {
@@ -95,5 +95,6 @@
       "r2_key": "thumbnails/A35-20260210-0022.jpg",
       "backed_up_at": "2026-02-12T17:43:14.871527+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

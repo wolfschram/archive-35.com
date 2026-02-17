@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Solitude Across the Black Sand",
   "description": "A striking panoramic vista of Iceland's vast black sand plains, where a lone vehicle traverses the desolate landscape beneath towering cumulus clouds. This ultra-high-resolution image captures exceptional tonal gradation and atmospheric depth across the expansive terrain, rendering with extraordinary detail for large-format fine art printing and commercial licensing applications.",
-  "location": "Mývatn region, North Iceland (black sand plains near Lake Mývatn)",
+  "location": "M\u00fdvatn region, North Iceland (black sand plains near Lake M\u00fdvatn)",
   "classification": "PREMIUM",
   "resolution": {
     "width": 13107,
@@ -74,9 +74,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0015.jpg",
-    "preview": "previews/A35-20260210-0015.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0015.jpg"
+    "original": "iceland/WOLF3746-Edit.jpg",
+    "preview": "previews/iceland/WOLF3746-Edit.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF3746-Edit.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.784176+00:00",
   "r2_backup_status": {
@@ -95,5 +95,6 @@
       "r2_key": "thumbnails/A35-20260210-0015.jpg",
       "backed_up_at": "2026-02-12T17:41:27.371286+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

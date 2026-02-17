@@ -74,9 +74,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0010.jpg",
-    "preview": "previews/A35-20260210-0010.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0010.jpg"
+    "original": "black-and-white/WOLF3446-Edit.jpg",
+    "preview": "previews/black-and-white/WOLF3446-Edit.jpg",
+    "thumbnail": "thumbnails/black-and-white/WOLF3446-Edit.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.774484+00:00",
   "r2_backup_status": {
@@ -95,5 +95,6 @@
       "r2_key": "thumbnails/A35-20260210-0010.jpg",
       "backed_up_at": "2026-02-12T17:40:23.956590+00:00"
     }
-  }
+  },
+  "collection": "black-and-white"
 }

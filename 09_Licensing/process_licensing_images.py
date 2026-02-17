@@ -62,10 +62,19 @@ def generate_gallery_catalog(base_path):
         }
         starting_price = min(tier_prices.values())
 
+        # collection + original_filename for unified R2 key resolution at checkout
+        collection = entry.get("collection", "") or meta.get("collection", "")
+        original_filename = entry.get("original_filename", "")
+        # filename without extension (matches gallery convention)
+        filename_stem = Path(original_filename).stem if original_filename else ""
+
         gallery_images.append({
             "id": catalog_id,
-            "title": entry.get("title", "") or entry.get("original_filename", ""),
+            "title": entry.get("title", "") or original_filename,
             "classification": classification,
+            "collection": collection,  # gallery collection slug for R2 key
+            "filename": filename_stem,  # original filename without extension
+            "original_filename": original_filename,  # full original filename
             "width": entry.get("width", meta.get("resolution", {}).get("width", 0)),
             "height": entry.get("height", meta.get("resolution", {}).get("height", 0)),
             "megapixels": entry.get("megapixels", 0),

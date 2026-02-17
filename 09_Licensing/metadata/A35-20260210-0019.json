@@ -3,8 +3,8 @@
   "original_filename": "WOLF3921-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Iceland's Mirrored Wilderness",
-  "description": "A breathtaking panoramic composition capturing Iceland's pristine wetlands with mirror-like reflections and towering cumulus clouds. This ultra-high-resolution image reveals extraordinary detail across the entire frame—from foreground sedge and submerged rocks to distant mountains—making it ideal for large-scale fine art prints and immersive commercial installations.",
-  "location": "Húsavík region, North Iceland",
+  "description": "A breathtaking panoramic composition capturing Iceland's pristine wetlands with mirror-like reflections and towering cumulus clouds. This ultra-high-resolution image reveals extraordinary detail across the entire frame\u2014from foreground sedge and submerged rocks to distant mountains\u2014making it ideal for large-scale fine art prints and immersive commercial installations.",
+  "location": "H\u00fasav\u00edk region, North Iceland",
   "classification": "ULTRA",
   "resolution": {
     "width": 18927,
@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0019.jpg",
-    "preview": "previews/A35-20260210-0019.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0019.jpg"
+    "original": "iceland/WOLF3921-Pano.jpg",
+    "preview": "previews/iceland/WOLF3921-Pano.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF3921-Pano.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.791079+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0019.jpg",
       "backed_up_at": "2026-02-12T17:42:28.336688+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

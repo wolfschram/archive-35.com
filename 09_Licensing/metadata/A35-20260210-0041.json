@@ -3,7 +3,7 @@
   "original_filename": "WOLF7301.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Alpine Peaks Over Frozen Waters",
-  "description": "A breathtaking panoramic vista capturing snow-capped mountain peaks rising majestically above a pristine frozen lake, with golden light illuminating the dramatic alpine landscape. This ultra-high-resolution image reveals exceptional detail throughout—from the crystalline ice formations and forested shorelines to the towering peaks and atmospheric cloud formations—making it ideal for large-format fine art prints and premium commercial licensing applications.",
+  "description": "A breathtaking panoramic vista capturing snow-capped mountain peaks rising majestically above a pristine frozen lake, with golden light illuminating the dramatic alpine landscape. This ultra-high-resolution image reveals exceptional detail throughout\u2014from the crystalline ice formations and forested shorelines to the towering peaks and atmospheric cloud formations\u2014making it ideal for large-format fine art prints and premium commercial licensing applications.",
   "location": "Colter Bay, Grand Teton National Park, Wyoming, USA",
   "classification": "PREMIUM",
   "resolution": {
@@ -74,9 +74,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0041.jpg",
-    "preview": "previews/A35-20260210-0041.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0041.jpg"
+    "original": "grand-teton/WOLF7301.jpg",
+    "preview": "previews/grand-teton/WOLF7301.jpg",
+    "thumbnail": "thumbnails/grand-teton/WOLF7301.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.829214+00:00",
   "r2_backup_status": {
@@ -95,5 +95,6 @@
       "r2_key": "thumbnails/A35-20260210-0041.jpg",
       "backed_up_at": "2026-02-12T17:47:17.663538+00:00"
     }
-  }
+  },
+  "collection": "grand-teton"
 }

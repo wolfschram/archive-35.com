@@ -3,7 +3,7 @@
   "original_filename": "WOLF6535-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Teton Range Winter Expanse",
-  "description": "A monumental panoramic study of the snow-laden Teton Range rising dramatically above the frost-covered valley floor, captured in ultra-high resolution to reveal exceptional detail across the entire composition—from delicate ice-laden vegetation in the foreground to the sculptural peaks piercing the luminous sky. This expansive landscape offers exceptional print potential for large-scale fine art installations.",
+  "description": "A monumental panoramic study of the snow-laden Teton Range rising dramatically above the frost-covered valley floor, captured in ultra-high resolution to reveal exceptional detail across the entire composition\u2014from delicate ice-laden vegetation in the foreground to the sculptural peaks piercing the luminous sky. This expansive landscape offers exceptional print potential for large-scale fine art installations.",
   "location": "Grand Teton National Park, Jackson Hole Valley, Wyoming, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0034.jpg",
-    "preview": "previews/A35-20260210-0034.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0034.jpg"
+    "original": "grand-teton/WOLF6535-Pano.jpg",
+    "preview": "previews/grand-teton/WOLF6535-Pano.jpg",
+    "thumbnail": "thumbnails/grand-teton/WOLF6535-Pano.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.817201+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0034.jpg",
       "backed_up_at": "2026-02-12T17:45:48.723820+00:00"
     }
-  }
+  },
+  "collection": "grand-teton"
 }

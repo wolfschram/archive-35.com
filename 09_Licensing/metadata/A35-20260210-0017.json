@@ -3,8 +3,8 @@
   "original_filename": "WOLF3768-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Glacier Lagoon's Silent Witnesses",
-  "description": "A monumental panoramic study of Iceland's Jökulsárlón glacier lagoon, where icebergs drift across pristine waters beneath moss-draped volcanic peaks. This ultra-high-resolution capture reveals extraordinary detail in the glacial ice formations, atmospheric texture, and chromatic nuance—delivering exceptional print potential for large-scale fine art installations and premium commercial licensing.",
-  "location": "Jökulsárlón Glacier Lagoon, Vatnajökull National Park, Iceland",
+  "description": "A monumental panoramic study of Iceland's J\u00f6kuls\u00e1rl\u00f3n glacier lagoon, where icebergs drift across pristine waters beneath moss-draped volcanic peaks. This ultra-high-resolution capture reveals extraordinary detail in the glacial ice formations, atmospheric texture, and chromatic nuance\u2014delivering exceptional print potential for large-scale fine art installations and premium commercial licensing.",
+  "location": "J\u00f6kuls\u00e1rl\u00f3n Glacier Lagoon, Vatnaj\u00f6kull National Park, Iceland",
   "classification": "ULTRA",
   "resolution": {
     "width": 23883,
@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0017.jpg",
-    "preview": "previews/A35-20260210-0017.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0017.jpg"
+    "original": "iceland/WOLF3768-Pano.jpg",
+    "preview": "previews/iceland/WOLF3768-Pano.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF3768-Pano.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.787752+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0017.jpg",
       "backed_up_at": "2026-02-12T17:41:55.545345+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

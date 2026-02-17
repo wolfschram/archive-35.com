@@ -196,6 +196,7 @@ def scan(base_path, source_folder=None):
         prefilled_title = gallery_info.get("title", "")
         prefilled_desc = gallery_info.get("description", "")
         prefilled_loc = gallery_info.get("location", "")
+        prefilled_collection = gallery_info.get("collection", "")
         if prefilled_title:
             gallery_matched += 1
 
@@ -204,6 +205,7 @@ def scan(base_path, source_folder=None):
             "catalog_id": catalog_id,
             "original_filename": f.name,
             "source_path": str(originals),  # where the original lives
+            "collection": prefilled_collection,  # gallery collection slug (for unified R2 key)
             "title": prefilled_title,  # pre-filled from gallery or empty
             "description": prefilled_desc,
             "location": prefilled_loc,
@@ -225,9 +227,11 @@ def scan(base_path, source_folder=None):
             "licenses": [],
             "status": "available",
             "r2_keys": {
-                "original": f"originals/{catalog_id}{f.suffix.lower()}",
-                "preview": f"previews/{catalog_id}.jpg",
-                "thumbnail": f"thumbnails/{catalog_id}.jpg",
+                # Use collection-based key when gallery match exists (single source of truth);
+                # fall back to originals/ prefix for licensing-only images without a gallery collection
+                "original": f"{prefilled_collection}/{f.name}" if prefilled_collection else f"originals/{catalog_id}{f.suffix.lower()}",
+                "preview": f"previews/{prefilled_collection}/{f.name.rsplit('.', 1)[0]}.jpg" if prefilled_collection else f"previews/{catalog_id}.jpg",
+                "thumbnail": f"thumbnails/{prefilled_collection}/{f.name.rsplit('.', 1)[0]}.jpg" if prefilled_collection else f"thumbnails/{catalog_id}.jpg",
             },
             "scanned_at": datetime.now(timezone.utc).isoformat(),
         }
@@ -242,6 +246,7 @@ def scan(base_path, source_folder=None):
             "catalog_id": catalog_id,
             "original_filename": f.name,
             "source_path": str(originals),
+            "collection": prefilled_collection,
             "title": meta["title"],
             "classification": classification,
             "width": width,

@@ -78,8 +78,10 @@ export async function onRequestPost(context) {
 
       if (license) {
         const fn = license.photoFilename || license.photoId || '';
+        const col = license.collection || '';
         if (fn) {
-          let key = `originals/${fn}`;
+          // Prefer collection-based key (single source of truth), fall back to originals/ prefix
+          let key = col && col !== 'licensing' ? `${col}/${fn}` : `originals/${fn}`;
           if (!key.match(/\.(jpg|jpeg|png|tiff?)$/i)) key += '.jpg';
           r2Checks.push({ key, type: 'license' });
         }

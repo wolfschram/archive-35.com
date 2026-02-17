@@ -3,7 +3,7 @@
   "original_filename": "WOLF4448-Edit.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Vestrahorn: Black Sand Cathedral",
-  "description": "An awe-inspiring ultra-high-resolution panoramic capture of Iceland's iconic Vestrahorn mountain rising dramatically from pristine black sand beaches and tidal marshlands. The exceptional detail and dynamic range of this large-format image reveals every geological striation, textured grass blade, and atmospheric nuance—ideal for museum-quality fine art prints and premium commercial applications.",
+  "description": "An awe-inspiring ultra-high-resolution panoramic capture of Iceland's iconic Vestrahorn mountain rising dramatically from pristine black sand beaches and tidal marshlands. The exceptional detail and dynamic range of this large-format image reveals every geological striation, textured grass blade, and atmospheric nuance\u2014ideal for museum-quality fine art prints and premium commercial applications.",
   "location": "Vestrahorn (Stokksnes), Southeast Iceland",
   "classification": "PREMIUM",
   "resolution": {
@@ -74,9 +74,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0023.jpg",
-    "preview": "previews/A35-20260210-0023.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0023.jpg"
+    "original": "iceland/WOLF4448-Edit.jpg",
+    "preview": "previews/iceland/WOLF4448-Edit.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF4448-Edit.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.797913+00:00",
   "r2_backup_status": {
@@ -95,5 +95,6 @@
       "r2_key": "thumbnails/A35-20260210-0023.jpg",
       "backed_up_at": "2026-02-12T17:43:22.533986+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

@@ -3,8 +3,8 @@
   "original_filename": "WOLF3753-Edit.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Abandoned Aircraft on Black Sand",
-  "description": "A haunting study of industrial decay set against Iceland's vast, barren landscape. This ultra-high-resolution panoramic image captures extraordinary architectural and textural detail—from the weathered fuselage to the granular black sand—making it ideal for large-format fine art printing and immersive gallery installations.",
-  "location": "Sólheimasandur Black Sand Beach, South Coast, Iceland",
+  "description": "A haunting study of industrial decay set against Iceland's vast, barren landscape. This ultra-high-resolution panoramic image captures extraordinary architectural and textural detail\u2014from the weathered fuselage to the granular black sand\u2014making it ideal for large-format fine art printing and immersive gallery installations.",
+  "location": "S\u00f3lheimasandur Black Sand Beach, South Coast, Iceland",
   "classification": "PREMIUM",
   "resolution": {
     "width": 13107,
@@ -74,9 +74,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0016.jpg",
-    "preview": "previews/A35-20260210-0016.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0016.jpg"
+    "original": "iceland/WOLF3753-Edit.jpg",
+    "preview": "previews/iceland/WOLF3753-Edit.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF3753-Edit.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.786032+00:00",
   "r2_backup_status": {
@@ -95,5 +95,6 @@
       "r2_key": "thumbnails/A35-20260210-0016.jpg",
       "backed_up_at": "2026-02-12T17:41:33.992626+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

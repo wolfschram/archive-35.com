@@ -77,9 +77,10 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260217-0048.jpg",
-    "preview": "previews/A35-20260217-0048.jpg",
-    "thumbnail": "thumbnails/A35-20260217-0048.jpg"
+    "original": "death-valley/Wolf 3375-Pano.jpg",
+    "preview": "previews/death-valley/Wolf 3375-Pano.jpg",
+    "thumbnail": "thumbnails/death-valley/Wolf 3375-Pano.jpg"
   },
-  "scanned_at": "2026-02-17T16:58:47.405614+00:00"
+  "scanned_at": "2026-02-17T16:58:47.405614+00:00",
+  "collection": "death-valley"
 }

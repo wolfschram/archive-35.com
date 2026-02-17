@@ -74,9 +74,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0035.jpg",
-    "preview": "previews/A35-20260210-0035.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0035.jpg"
+    "original": "grand-teton/WOLF6651.jpg",
+    "preview": "previews/grand-teton/WOLF6651.jpg",
+    "thumbnail": "thumbnails/grand-teton/WOLF6651.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.818835+00:00",
   "r2_backup_status": {
@@ -95,5 +95,6 @@
       "r2_key": "thumbnails/A35-20260210-0035.jpg",
       "backed_up_at": "2026-02-12T17:45:56.770466+00:00"
     }
-  }
+  },
+  "collection": "grand-teton"
 }

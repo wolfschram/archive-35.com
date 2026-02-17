@@ -3,8 +3,8 @@
   "original_filename": "WOLF2901-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Lava Fields Under Dramatic Sky",
-  "description": "A sweeping panoramic vista across Iceland's vast lava plateau, where moss-covered basalt terrain stretches to distant volcanic peaks beneath towering clouds. This ultra-high-resolution image captures extraordinary detail across the entire composition, revealing the intricate texture of the landscape—ideal for large-format fine art prints and immersive commercial installations.",
-  "location": "Eldhraun or Mývatn lava fields, Iceland",
+  "description": "A sweeping panoramic vista across Iceland's vast lava plateau, where moss-covered basalt terrain stretches to distant volcanic peaks beneath towering clouds. This ultra-high-resolution image captures extraordinary detail across the entire composition, revealing the intricate texture of the landscape\u2014ideal for large-format fine art prints and immersive commercial installations.",
+  "location": "Eldhraun or M\u00fdvatn lava fields, Iceland",
   "classification": "PREMIUM",
   "resolution": {
     "width": 11901,
@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0005.jpg",
-    "preview": "previews/A35-20260210-0005.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0005.jpg"
+    "original": "iceland/WOLF2901-Pano.jpg",
+    "preview": "previews/iceland/WOLF2901-Pano.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF2901-Pano.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.765474+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0005.jpg",
       "backed_up_at": "2026-02-12T17:39:19.126588+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

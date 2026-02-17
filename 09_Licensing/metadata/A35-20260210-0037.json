@@ -3,7 +3,7 @@
   "original_filename": "WOLF6797-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Grand Teton Winter Vastness",
-  "description": "An expansive panoramic vista capturing the frozen majesty of the Grand Teton Range rising dramatically above the snow-blanketed sagebrush plains. This ultra-high-resolution image reveals extraordinary detail across the entire composition—from delicate frost-covered vegetation in the foreground to the intricate alpine ridgelines—making it ideal for large-format fine art prints and immersive commercial installations.",
+  "description": "An expansive panoramic vista capturing the frozen majesty of the Grand Teton Range rising dramatically above the snow-blanketed sagebrush plains. This ultra-high-resolution image reveals extraordinary detail across the entire composition\u2014from delicate frost-covered vegetation in the foreground to the intricate alpine ridgelines\u2014making it ideal for large-format fine art prints and immersive commercial installations.",
   "location": "Grand Teton National Park, Wyoming, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0037.jpg",
-    "preview": "previews/A35-20260210-0037.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0037.jpg"
+    "original": "grand-teton/WOLF6797-Pano.jpg",
+    "preview": "previews/grand-teton/WOLF6797-Pano.jpg",
+    "thumbnail": "thumbnails/grand-teton/WOLF6797-Pano.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.822441+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0037.jpg",
       "backed_up_at": "2026-02-12T17:46:35.364604+00:00"
     }
-  }
+  },
+  "collection": "grand-teton"
 }

@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Distant Mountain Solitude",
   "description": "A sweeping panoramic vista capturing the raw grandeur of Iceland's volcanic landscape, with lush green valleys and dramatic peaked mountains rendered in exceptional ultra-high-resolution detail. The fine art panoramic format reveals extraordinary tonal gradation and geological texture throughout the composition, offering exceptional print potential for large-scale installations.",
-  "location": "Eastern Iceland, near Skaftafell or Öræfi region, Vatnajökull National Park area Iceland ",
+  "location": "Eastern Iceland, near Skaftafell or \u00d6r\u00e6fi region, Vatnaj\u00f6kull National Park area Iceland ",
   "classification": "ULTRA",
   "resolution": {
     "width": 23885,
@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0032.jpg",
-    "preview": "previews/A35-20260210-0032.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0032.jpg"
+    "original": "iceland/WOLF4872-Pano.jpg",
+    "preview": "previews/iceland/WOLF4872-Pano.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF4872-Pano.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.813706+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0032.jpg",
       "backed_up_at": "2026-02-12T17:45:28.529499+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

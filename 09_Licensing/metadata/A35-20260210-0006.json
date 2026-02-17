@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0006.jpg",
-    "preview": "previews/A35-20260210-0006.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0006.jpg"
+    "original": "iceland/WOLF2943-Pano.jpg",
+    "preview": "previews/iceland/WOLF2943-Pano.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF2943-Pano.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.767372+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0006.jpg",
       "backed_up_at": "2026-02-12T17:39:31.767732+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

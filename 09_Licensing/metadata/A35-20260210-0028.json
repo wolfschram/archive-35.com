@@ -3,8 +3,8 @@
   "original_filename": "WOLF4712-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Geothermal Vast: Iceland's Steam",
-  "description": "A sweeping panoramic vista of Iceland's geothermal plateau, where mineral-rich hot springs and steam vents punctuate an otherworldly landscape of ochre earth and distant table mountains. This ultra-high-resolution image captures extraordinary fine detail across an expansive composition, revealing the intricate mineral deposits, thermal features, and dramatic cloud formations—perfect for monumental large-format fine art printing.",
-  "location": "Námafjall geothermal area, Mývatn region, North Iceland",
+  "description": "A sweeping panoramic vista of Iceland's geothermal plateau, where mineral-rich hot springs and steam vents punctuate an otherworldly landscape of ochre earth and distant table mountains. This ultra-high-resolution image captures extraordinary fine detail across an expansive composition, revealing the intricate mineral deposits, thermal features, and dramatic cloud formations\u2014perfect for monumental large-format fine art printing.",
+  "location": "N\u00e1mafjall geothermal area, M\u00fdvatn region, North Iceland",
   "classification": "PREMIUM",
   "resolution": {
     "width": 12115,
@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0028.jpg",
-    "preview": "previews/A35-20260210-0028.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0028.jpg"
+    "original": "iceland/WOLF4712-Pano.jpg",
+    "preview": "previews/iceland/WOLF4712-Pano.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF4712-Pano.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.806760+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0028.jpg",
       "backed_up_at": "2026-02-12T17:44:23.611327+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

@@ -249,7 +249,17 @@ def upload_to_r2(base_path):
             meta = json.load(f)
 
         catalog_id = meta["catalog_id"]
-        keys = meta["r2_keys"]
+        keys = dict(meta["r2_keys"])  # copy so we don't mutate cached version
+
+        # ── PREFER COLLECTION-BASED R2 KEYS (single source of truth) ──
+        collection = meta.get("collection", "")
+        orig_filename = meta.get("original_filename", "")
+        if collection and orig_filename:
+            # Override to collection-based key: {collection}/{filename}
+            keys["original"] = f"{collection}/{orig_filename}"
+            stem = Path(orig_filename).stem
+            keys["preview"] = f"previews/{collection}/{stem}.jpg"
+            keys["thumbnail"] = f"thumbnails/{collection}/{stem}.jpg"
 
         # ── ORIGINAL: resolve path from source_path ──
         original_path = resolve_original_path(base, meta)
@@ -346,9 +356,17 @@ def generate_presigned_url(base_path, catalog_id):
     with open(meta_file) as f:
         meta = json.load(f)
 
+    # Prefer collection-based key (single source of truth)
+    collection = meta.get("collection", "")
+    orig_filename = meta.get("original_filename", "")
+    if collection and orig_filename:
+        r2_key = f"{collection}/{orig_filename}"
+    else:
+        r2_key = meta["r2_keys"]["original"]
+
     url = s3.generate_presigned_url(
         "get_object",
-        Params={"Bucket": r2_cfg["bucket"], "Key": meta["r2_keys"]["original"]},
+        Params={"Bucket": r2_cfg["bucket"], "Key": r2_key},
         ExpiresIn=r2_cfg["presigned_expiry_seconds"],
     )
     return url

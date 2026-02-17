@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Kirkjufell: Iceland's Iconic Mountain",
   "description": "This ultra-high-resolution panoramic capture of Kirkjufell reveals the dramatic cone-shaped peak in exquisite detail, with moss-covered slopes and surrounding tidal flats rendered with exceptional clarity. The expansive composition and exceptional resolution make this image ideal for large-scale fine art prints and commercial licensing applications requiring premium landscape imagery.",
-  "location": "Kirkjufell, Snæfellsnes Peninsula, Iceland",
+  "location": "Kirkjufell, Sn\u00e6fellsnes Peninsula, Iceland",
   "classification": "PREMIUM",
   "resolution": {
     "width": 8134,
@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0033.jpg",
-    "preview": "previews/A35-20260210-0033.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0033.jpg"
+    "original": "iceland/WOLF4924.jpg",
+    "preview": "previews/iceland/WOLF4924.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF4924.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.815425+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0033.jpg",
       "backed_up_at": "2026-02-12T17:45:32.206592+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

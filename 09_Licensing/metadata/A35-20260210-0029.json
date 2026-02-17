@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Geothermal Basin in Repose",
   "description": "This expansive panoramic capture reveals the intricate geological drama of an active geothermal field, with steaming vents, mineral-rich pools, and layered earth tones rendered in extraordinary detail. The ultra-high-resolution format preserves every nuance of the thermal landscape, making it ideal for large-scale fine art prints and immersive commercial installations.",
-  "location": "Námafjall Geothermal Area, Mývatn Region, Iceland",
+  "location": "N\u00e1mafjall Geothermal Area, M\u00fdvatn Region, Iceland",
   "classification": "ULTRA",
   "resolution": {
     "width": 15317,
@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0029.jpg",
-    "preview": "previews/A35-20260210-0029.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0029.jpg"
+    "original": "iceland/WOLF4745-Pano.jpg",
+    "preview": "previews/iceland/WOLF4745-Pano.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF4745-Pano.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.808575+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0029.jpg",
       "backed_up_at": "2026-02-12T17:44:38.074437+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

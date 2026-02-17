@@ -3,8 +3,8 @@
   "original_filename": "WOLF3850-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Glacier and Moss-Clad Mountain",
-  "description": "A breathtaking panoramic vista capturing the raw majesty of Iceland's glacial landscape, where verdant moss-covered peaks frame a pristine glacial lake and retreating ice formations. This ultra-high-resolution panoramic capture reveals extraordinary detail throughout the composition—from the delicate lichen patterns on distant mountainsides to the intricate crevasse formations of the glacier—making it ideal for large-format fine art prints and immersive commercial applications.",
-  "location": "Skaftafell, Vatnajökull National Park, Iceland",
+  "description": "A breathtaking panoramic vista capturing the raw majesty of Iceland's glacial landscape, where verdant moss-covered peaks frame a pristine glacial lake and retreating ice formations. This ultra-high-resolution panoramic capture reveals extraordinary detail throughout the composition\u2014from the delicate lichen patterns on distant mountainsides to the intricate crevasse formations of the glacier\u2014making it ideal for large-format fine art prints and immersive commercial applications.",
+  "location": "Skaftafell, Vatnaj\u00f6kull National Park, Iceland",
   "classification": "ULTRA",
   "resolution": {
     "width": 27149,
@@ -77,9 +77,9 @@
   "licenses": [],
   "status": "available",
   "r2_keys": {
-    "original": "originals/A35-20260210-0018.jpg",
-    "preview": "previews/A35-20260210-0018.jpg",
-    "thumbnail": "thumbnails/A35-20260210-0018.jpg"
+    "original": "iceland/WOLF3850-Pano.jpg",
+    "preview": "previews/iceland/WOLF3850-Pano.jpg",
+    "thumbnail": "thumbnails/iceland/WOLF3850-Pano.jpg"
   },
   "scanned_at": "2026-02-10T20:51:12.789371+00:00",
   "r2_backup_status": {
@@ -98,5 +98,6 @@
       "r2_key": "thumbnails/A35-20260210-0018.jpg",
       "backed_up_at": "2026-02-12T17:42:17.789558+00:00"
     }
-  }
+  },
+  "collection": "iceland"
 }

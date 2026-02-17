@@ -200,6 +200,9 @@
 }
 
 .account-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--glass-border);
 }
@@ -218,11 +221,6 @@
 }
 
 /* Edit Profile */
-.account-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
 
 .edit-toggle-btn {
   display: inline-flex;
@@ -247,9 +245,15 @@
   color: var(--accent);
 }
 
-.edit-profile-form .account-detail.edit-field {
+.edit-profile-form .account-detail {
   flex-direction: column;
   align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.edit-profile-form .account-detail.edit-field {
+  flex-direction: column;
+  align-items: stretch;
   gap: 0.5rem;
 }
 

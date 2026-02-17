@@ -136,29 +136,27 @@ def scan(base_path, source_folder=None):
     existing_files = {img["original_filename"] for img in catalog["images"]}
     next_idx = len(catalog["images"]) + 1
 
-    # ── Cross-reference guard ──────────────────────────────────────
-    # Check gallery photos.json to avoid pulling portfolio images into licensing.
-    # Images already on the website gallery should NOT be re-ingested here.
-    gallery_filenames = set()
+    # ── Gallery cross-reference ────────────────────────────────────
+    # Load gallery photos.json so we can pre-populate title/description/location
+    # for images that already exist on the website. This avoids redundant AI naming.
+    gallery_by_filename = {}  # filename.jpg → {title, description, location, collection}
     gallery_json = base.parent / "data" / "photos.json"
     if gallery_json.exists():
         try:
             with open(gallery_json) as gf:
                 gallery_data = json.load(gf)
             for photo in gallery_data.get("photos", []):
-                # Gallery stores filename without extension
                 fn = photo.get("filename", "")
-                gallery_filenames.add(fn + ".jpg")
-                gallery_filenames.add(fn + ".jpeg")
-                gallery_filenames.add(fn + ".tif")
-                gallery_filenames.add(fn + ".tiff")
-                gallery_filenames.add(fn + ".png")
+                for ext in (".jpg", ".jpeg", ".tif", ".tiff", ".png"):
+                    gallery_by_filename[fn + ext] = {
+                        "title": photo.get("title", ""),
+                        "description": photo.get("description", ""),
+                        "location": photo.get("location", ""),
+                        "collection": photo.get("collection", ""),
+                    }
             print(f"  Gallery cross-ref loaded: {len(gallery_data.get('photos', []))} website photos")
         except Exception as e:
             print(f"  WARNING: Could not load gallery cross-ref: {e}")
-
-    # Also check R2 bucket keys to avoid naming collisions
-    # (handled at upload time, but good to flag early)
 
     files = sorted([
         f for f in originals.iterdir()
@@ -168,17 +166,11 @@ def scan(base_path, source_folder=None):
     new_count = 0
     skipped = 0
     below_min = 0
-    gallery_dupes = 0
+    gallery_matched = 0
 
     for f in files:
         if f.name in existing_files:
             skipped += 1
-            continue
-
-        # Guard: skip images already in the website gallery
-        if f.name in gallery_filenames:
-            print(f"  ⚠ SKIP {f.name}: already in website gallery (use Gallery Ingest instead)")
-            gallery_dupes += 1
             continue
 
         try:
@@ -199,14 +191,22 @@ def scan(base_path, source_folder=None):
         gps = gps_to_decimal(exif.get("GPSInfo", {})) if "GPSInfo" in exif else None
         file_size = f.stat().st_size
 
+        # Pre-populate from gallery if this image already has metadata there
+        gallery_info = gallery_by_filename.get(f.name, {})
+        prefilled_title = gallery_info.get("title", "")
+        prefilled_desc = gallery_info.get("description", "")
+        prefilled_loc = gallery_info.get("location", "")
+        if prefilled_title:
+            gallery_matched += 1
+
         # Build metadata
         meta = {
             "catalog_id": catalog_id,
             "original_filename": f.name,
             "source_path": str(originals),  # where the original lives
-            "title": "",  # user fills in later
-            "description": "",
-            "location": "",
+            "title": prefilled_title,  # pre-filled from gallery or empty
+            "description": prefilled_desc,
+            "location": prefilled_loc,
             "classification": classification,
             "resolution": {"width": width, "height": height},
             "megapixels": round(width * height / 1_000_000, 1),
@@ -241,6 +241,7 @@ def scan(base_path, source_folder=None):
         catalog["images"].append({
             "catalog_id": catalog_id,
             "original_filename": f.name,
+            "source_path": str(originals),
             "title": meta["title"],
             "classification": classification,
             "width": width,
@@ -254,16 +255,17 @@ def scan(base_path, source_folder=None):
         next_idx += 1
         new_count += 1
         badge = {"ULTRA": "🥇", "PREMIUM": "🥈", "STANDARD": "🥉"}[classification]
-        print(f"  {badge} {catalog_id}  {classification:8s}  {width}x{height}  {meta['file_size_mb']}MB  {f.name}")
+        gallery_tag = " [gallery✓]" if prefilled_title else ""
+        print(f"  {badge} {catalog_id}  {classification:8s}  {width}x{height}  {meta['file_size_mb']}MB  {f.name}{gallery_tag}")
 
     # Save catalog
     catalog["last_updated"] = datetime.now(timezone.utc).isoformat()
     with open(catalog_path, "w") as cf:
         json.dump(catalog, cf, indent=2, default=str)
 
-    if gallery_dupes > 0:
-        print(f"\n⚠ {gallery_dupes} images skipped — already in website gallery (not licensing candidates)")
-    print(f"\n✓ Scan complete: {new_count} new, {skipped} existing, {below_min} below minimum, {gallery_dupes} gallery dupes skipped")
+    if gallery_matched > 0:
+        print(f"\n✓ {gallery_matched} images pre-populated with titles from website gallery (no AI naming needed)")
+    print(f"\n✓ Scan complete: {new_count} new, {skipped} existing, {below_min} below minimum")
     return catalog
 
 

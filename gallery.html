@@ -1186,7 +1186,8 @@ const cfEl=document.getElementById('cf'),items=[],dotsEl=document.getElementById
 G.forEach((g,i)=>{
   const el=document.createElement('div');el.className='c';
   const face=document.createElement('div');face.className='c-face';
-  face.innerHTML=`<img src="${g.img.replace('-thumb.','-full.')}" alt="${g.name} — Cover" draggable="false" loading="${i<3?'eager':'lazy'}">`;
+  /* Use thumbnail for cover — full-size is wasteful on mobile */
+  face.innerHTML=`<img src="${g.img}" alt="${g.name} — Cover" draggable="false" loading="${i<3?'eager':'lazy'}">`;
   face.innerHTML+=`<div class="c-lbl">${g.name.toUpperCase()}</div>`;
   el.appendChild(face);
 
@@ -1248,10 +1249,15 @@ function layout(){
 const tEl=document.getElementById('info-t'),cEl=document.getElementById('info-c');let lastH=-1;
 function updH(){const i=wI(Math.round(sm));if(i===lastH)return;lastH=i;tEl.textContent=G[i].name.toUpperCase();cEl.textContent=G[i].n+' photograph'+(G[i].n!==1?'s':'');}
 
+/* Idle-aware animation loop — pauses when settled to save CPU/battery */
+let _idleFrames=0;
 (function run(){
-  const d=cur-sm;sm+=d*0.12;if(Math.abs(d)<0.0005)sm=cur;
+  const d=cur-sm;sm+=d*0.12;if(Math.abs(d)<0.0005){sm=cur;_idleFrames++;}else{_idleFrames=0;}
   const r=Math.round(sm);if(r!==lastR){lastR=r;}
-  layout();updH();requestAnimationFrame(run);
+  layout();updH();
+  /* After 60 idle frames (~1 sec), slow to 4fps instead of stopping completely */
+  if(_idleFrames>60){setTimeout(()=>requestAnimationFrame(run),250);return;}
+  requestAnimationFrame(run);
 })();
 
 window.addEventListener('resize',layout);
@@ -1302,7 +1308,11 @@ function openCP(idx){
   cpI=idx;const g=G[idx];
   document.getElementById('cprev-t').textContent=g.name.toUpperCase();
   document.getElementById('cprev-c').textContent='  '+g.n+' photographs';
-  const grid=document.getElementById('cprev-g');grid.innerHTML='';
+  const grid=document.getElementById('cprev-g');
+  /* Clean up old event listeners by replacing the grid node */
+  const newGrid=grid.cloneNode(false);
+  grid.parentNode.replaceChild(newGrid,grid);
+  newGrid.id='cprev-g';
   const max=Math.min(g.n,16);
   for(let i=0;i<max;i++){
     const th=document.createElement('div');th.className='cp-th';
@@ -1312,14 +1322,14 @@ function openCP(idx){
     im.loading='lazy';
     th.appendChild(im);
     th.addEventListener('click',e=>{e.stopPropagation();openFg(idx,i);});
-    grid.appendChild(th);
+    newGrid.appendChild(th);
   }
   if(g.n>16){
     const m=document.createElement('div');m.className='cp-th';
     m.style.cssText='display:flex;align-items:center;justify-content:center;background:rgba(201,168,76,0.03);font-family:"Courier Prime",monospace;font-size:11px;color:#c9a84c;letter-spacing:1px;cursor:pointer';
     m.textContent=`+${g.n-16}`;
     m.addEventListener('click',e=>{e.stopPropagation();openFg(idx);});
-    grid.appendChild(m);
+    newGrid.appendChild(m);
   }
   document.getElementById('cprev').classList.add('open');
   document.getElementById('info-h').style.opacity='0';
@@ -1331,16 +1341,21 @@ document.getElementById('cprev-btn').addEventListener('click',()=>{if(cpI>=0)ope
 function openFg(idx,scrollToPhoto){
   const g=G[idx];document.getElementById('fg-ti').textContent=g.name.toUpperCase();
   document.getElementById('fg-ct').textContent=g.n+' photograph'+(g.n!==1?'s':'');
-  const grid=document.getElementById('fg-gr');grid.innerHTML='';
+  const grid=document.getElementById('fg-gr');
+  /* Clean up old event listeners by replacing the grid node */
+  const newGrid=grid.cloneNode(false);
+  grid.parentNode.replaceChild(newGrid,grid);
+  newGrid.id='fg-gr';
   for(let i=0;i<g.n;i++){
     const img=document.createElement('img');img.className='fg-im';
     img.src=g.p[i].f;
     img.alt=g.p[i].n||`${g.name} — ${i+1}`;
     img.loading='lazy';
     img.addEventListener('click',()=>openLb(idx,i));
-    grid.appendChild(img);
+    newGrid.appendChild(img);
   }
   closeCP();document.getElementById('fgal').classList.add('open');document.getElementById('fgal').scrollTop=0;
+  if(typeof scrollToPhoto==='number'){setTimeout(()=>{const imgs=newGrid.querySelectorAll('.fg-im');if(imgs[scrollToPhoto])imgs[scrollToPhoto].scrollIntoView({behavior:'smooth',block:'center'});},100);}
 }
 function closeFg(){document.getElementById('fgal').classList.remove('open');const staleModal=document.getElementById('product-selector-modal');if(staleModal)staleModal.remove();}
 document.getElementById('fg-bk').addEventListener('click',closeFg);
@@ -1384,9 +1399,10 @@ document.getElementById('lb-buy').addEventListener('click',async(e)=>{
   }
 });
 
-/* ===== GRAIN ANIMATION ===== */
+/* ===== GRAIN ANIMATION (reduced on mobile to save battery) ===== */
 const noiseEl=document.getElementById('noise');
-setInterval(()=>{noiseEl.style.transform=`translate(${Math.random()*200-100}px,${Math.random()*200-100}px)`;},120);
+const _grainMs=window.innerWidth<=768?500:120; /* 2fps on mobile, 8fps on desktop */
+setInterval(()=>{noiseEl.style.transform=`translate(${Math.random()*200-100}px,${Math.random()*200-100}px)`;},_grainMs);
 </script>
 </body>
 </html>

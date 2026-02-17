@@ -4119,11 +4119,26 @@ ipcMain.handle('analyze-licensing-photos', async (event, { catalogIds }) => {
           ai_title: parsed.title || '',
           ai_description: parsed.description || '',
           ai_location: parsed.location || '',
+          thumbnail: `data:image/jpeg;base64,${base64Image}`,  // reuse the Haiku thumbnail for UI preview
           status: 'pending_review'  // user must approve
         });
 
       } catch (aiErr) {
         console.warn('AI analysis failed for', img.original_filename, aiErr.message);
+        // Still try to generate a preview thumbnail even if AI failed
+        let errorThumb = null;
+        try {
+          const rawSourcePath = metaData.source_path || 'originals';
+          const srcPath = path.resolve(licensingDir, rawSourcePath);
+          const imgPath = path.join(srcPath, img.original_filename);
+          const tb = await sharp(imgPath, { limitInputPixels: false })
+            .resize(400, 400, { fit: 'inside', withoutEnlargement: true })
+            .jpeg({ quality: 60 })
+            .toBuffer();
+          errorThumb = `data:image/jpeg;base64,${tb.toString('base64')}`;
+        } catch (thumbErr) {
+          // Can't even make a thumbnail — truly broken image
+        }
         results.push({
           catalog_id: img.catalog_id,
           original_filename: img.original_filename,
@@ -4133,6 +4148,7 @@ ipcMain.handle('analyze-licensing-photos', async (event, { catalogIds }) => {
           ai_title: '',
           ai_description: '',
           ai_location: '',
+          thumbnail: errorThumb,
           error: aiErr.message,
           status: 'error'
         });

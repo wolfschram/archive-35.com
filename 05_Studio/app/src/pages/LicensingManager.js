@@ -467,40 +467,68 @@ function LicensingManager() {
                   </div>
                 </div>
 
-                {r.status === 'error' ? (
-                  <div style={{ color: '#c44', fontSize: '11px' }}>AI analysis failed: {r.error}</div>
-                ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '6px 10px', fontSize: '12px' }}>
-                    <label style={{ color: '#777', textAlign: 'right', paddingTop: '4px' }}>Title:</label>
-                    <input
-                      value={r.title}
-                      onChange={(e) => updateAiResult(r.catalog_id, 'title', e.target.value)}
-                      style={{
-                        background: '#222', border: '1px solid #444', color: '#fff',
-                        padding: '4px 8px', borderRadius: '3px', fontSize: '12px'
-                      }}
-                    />
-                    <label style={{ color: '#777', textAlign: 'right', paddingTop: '4px' }}>Location:</label>
-                    <input
-                      value={r.location}
-                      onChange={(e) => updateAiResult(r.catalog_id, 'location', e.target.value)}
-                      style={{
-                        background: '#222', border: '1px solid #444', color: '#fff',
-                        padding: '4px 8px', borderRadius: '3px', fontSize: '12px'
-                      }}
-                    />
-                    <label style={{ color: '#777', textAlign: 'right', paddingTop: '4px' }}>Description:</label>
-                    <textarea
-                      value={r.description}
-                      onChange={(e) => updateAiResult(r.catalog_id, 'description', e.target.value)}
-                      rows={2}
-                      style={{
-                        background: '#222', border: '1px solid #444', color: '#fff',
-                        padding: '4px 8px', borderRadius: '3px', fontSize: '12px', resize: 'vertical'
-                      }}
-                    />
+                <div style={{ display: 'flex', gap: '16px' }}>
+                  {/* Image preview */}
+                  {r.thumbnail ? (
+                    <div style={{ flexShrink: 0 }}>
+                      <img
+                        src={r.thumbnail}
+                        alt={r.original_filename}
+                        style={{
+                          width: '180px', height: '120px', objectFit: 'cover',
+                          borderRadius: '4px', border: '1px solid #333'
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{
+                      width: '180px', height: '120px', flexShrink: 0,
+                      background: '#222', borderRadius: '4px', border: '1px solid #333',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: '#555', fontSize: '10px'
+                    }}>
+                      No preview
+                    </div>
+                  )}
+
+                  {/* Metadata fields */}
+                  <div style={{ flex: 1 }}>
+                    {r.status === 'error' ? (
+                      <div style={{ color: '#c44', fontSize: '11px' }}>AI analysis failed: {r.error}</div>
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '6px 10px', fontSize: '12px' }}>
+                        <label style={{ color: '#777', textAlign: 'right', paddingTop: '4px' }}>Title:</label>
+                        <input
+                          value={r.title}
+                          onChange={(e) => updateAiResult(r.catalog_id, 'title', e.target.value)}
+                          style={{
+                            background: '#222', border: '1px solid #444', color: '#fff',
+                            padding: '4px 8px', borderRadius: '3px', fontSize: '12px'
+                          }}
+                        />
+                        <label style={{ color: '#777', textAlign: 'right', paddingTop: '4px' }}>Location:</label>
+                        <input
+                          value={r.location}
+                          onChange={(e) => updateAiResult(r.catalog_id, 'location', e.target.value)}
+                          style={{
+                            background: '#222', border: '1px solid #444', color: '#fff',
+                            padding: '4px 8px', borderRadius: '3px', fontSize: '12px'
+                          }}
+                        />
+                        <label style={{ color: '#777', textAlign: 'right', paddingTop: '4px' }}>Description:</label>
+                        <textarea
+                          value={r.description}
+                          onChange={(e) => updateAiResult(r.catalog_id, 'description', e.target.value)}
+                          rows={2}
+                          style={{
+                            background: '#222', border: '1px solid #444', color: '#fff',
+                            padding: '4px 8px', borderRadius: '3px', fontSize: '12px', resize: 'vertical'
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             );
           })}

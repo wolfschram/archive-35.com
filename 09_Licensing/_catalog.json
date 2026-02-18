@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2026-02-18T16:40:15.438731+00:00",
+  "last_updated": "2026-02-18T19:48:57.433481+00:00",
   "images": [
     {
       "catalog_id": "A35-20260210-0001",
@@ -883,6 +883,38 @@
       "license_count": 0,
       "description": "A sweeping panoramic vista capturing the raw majesty of an alpine valley, with driftwood-strewn foreground, pristine wetlands, and dramatic mountain peaks rising beyond. This ultra-high-resolution image reveals exceptional detail throughout\u2014from weathered timber textures to distant forest gradation\u2014making it ideal for museum-quality large-format fine art prints and immersive commercial installations.",
       "location": "Glacier National Park, Montana, USA"
+    },
+    {
+      "catalog_id": "A35-20260218-0069",
+      "original_filename": "Wolf 5115.jpg",
+      "source_path": "../Photography/Large Scale Photography Stitch",
+      "collection": "",
+      "title": "Mount Jackson's Glacial Dominion",
+      "classification": "PREMIUM",
+      "width": 14375,
+      "height": 4142,
+      "megapixels": 59.5,
+      "file_size_mb": 15.6,
+      "status": "available",
+      "license_count": 0,
+      "description": "A commanding panoramic study of Mount Jackson rising majestically above Swiftcurrent Lake, capturing the monumental scale of the Northern Rockies with exceptional detail across the full frame. This ultra-high-resolution image reveals intricate cloud formations, forest texture, and water surface detail throughout\u2014ideal for large-format fine art prints and immersive commercial applications.",
+      "location": "Swiftcurrent Lake, Glacier National Park, Montana, USA"
+    },
+    {
+      "catalog_id": "A35-20260218-0070",
+      "original_filename": "Wolf 5132-Pano-2.jpg",
+      "source_path": "../Photography/Large Scale Photography Stitch",
+      "collection": "",
+      "title": "Alpine Valley Stillness",
+      "classification": "ULTRA",
+      "width": 17082,
+      "height": 9241,
+      "megapixels": 157.9,
+      "file_size_mb": 40.9,
+      "status": "available",
+      "license_count": 0,
+      "description": "A pristine panoramic vista of a crystalline alpine lake framed by towering glacier-carved peaks and dense coniferous forests. This ultra-high-resolution image captures extraordinary detail across the entire composition\u2014from the delicate reflection of clouds on mirror-still water to the textured geology of distant mountainsides\u2014making it ideal for large-format fine art prints and immersive commercial installations.",
+      "location": "Lake McDonald, Glacier National Park, Montana, USA"
     }
   ]
 }

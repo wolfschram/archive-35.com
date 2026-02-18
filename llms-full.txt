@@ -12,7 +12,7 @@
 - Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
 - Website: https://archive-35.com
 
-## Print Collections (623 photographs, 37 collections)
+## Print Collections (670 photographs, 38 collections)
 
 ### Antelope Canyon (11 photographs)
 - URL: https://archive-35.com/collection.html?id=antelope-canyon
@@ -168,13 +168,16 @@
   - Pointe in Stillness | Studio setting | 50.3MP | Tags: ballet, pointe-shoes, dance-photography, classical-ballet, fine-art-photography, soft-focus, ethereal, graceful
   - ... and 9 more photographs
 
-### Glacier National Park (3 photographs)
+### Glacier National Park (17 photographs)
 - URL: https://archive-35.com/collection.html?id=glacier-national-park
 - Gallery: https://archive-35.com/gallery.html?collection=glacier-national-park
 
   - Lake McDonald Reflection and Peaks | Lake McDonald, Glacier National Park, Montana | 34.8MP | Tags: lake-mcdonald, glacier-national-park, mountain-lake, glacial-water, rocky-shore, reflection, coniferous-forest, peaks
   - Mountain Road into Wilderness | Going-to-the-Sun Road, Glacier National Park, Montana | 44.8MP | Tags: glacier-national-park, going-to-the-sun-road, mountain-road, coniferous-forest, rocky-mountains, dramatic-peaks, wilderness-landscape, fine-art-photography
   - Carved Through Stone | Going-to-the-Sun Road, Glacier National Park | 44.8MP | Tags: glacier-national-park, going-to-the-sun-road, mountain-road, cliff-face, dramatic-landscape, coniferous-forest, rocky-mountains, alpine-scenery
+  - Lake McDonald Stillness | Lake McDonald, Glacier National Park, Montana | 34.8MP | Tags: lake-mcdonald, glacier-national-park, mountain-lake, landscape-photography, fine-art-photography, turquoise-water, glacial-lake, montana-landscape
+  - Road to the Continental Divide | Going-to-the-Sun Road, Glacier National Park | 44.8MP | Tags: glacier-national-park, going-to-the-sun-road, montana-landscape, mountain-road, perspective-photography, coniferous-forest, peak-vista, fine-art-landscape
+  - ... and 12 more photographs
 
 ### Grand Teton (49 photographs)
 - URL: https://archive-35.com/collection.html?id=grand-teton
@@ -330,7 +333,7 @@
 
   - Above the San Francisco Fog | Mount Tamalpais, Marin County, San Francisco Bay Area | 40.1MP | Tags: san-francisco-landscape, mount-tamalpais, marin-county, fog-above-clouds, mountain-ridge, bay-area-nature, fine-art-photography, landscape-photography
 
-### Sequoia National Park (16 photographs)
+### Sequoia National Park (24 photographs)
 - URL: https://archive-35.com/collection.html?id=sequoia-national-park
 - Gallery: https://archive-35.com/gallery.html?collection=sequoia-national-park
 
@@ -339,9 +342,9 @@
   - Giants' Cathedral | Giant Forest, Sequoia National Park | 50.3MP | Tags: giant-sequoia, sequoia-national-park, old-growth-forest, ancient-trees, forest-canopy, vertical-perspective, landscape-photography, fine-art-nature
   - Giant Among Giants | Giant Forest, Sequoia National Park | 50.3MP | Tags: giant-sequoia, sequoia-national-park, ancient-forest, old-growth, massive-trees, forest-landscape, nature-photography, fine-art-landscape
   - Giant Sentinels Looking Skyward | Giant Forest, Sequoia National Park | 50.3MP | Tags: giant-sequoia, sequoia-national-park, ancient-forest, old-growth, forest-canopy, woodland-perspective, majestic-trees, nature-photography
-  - ... and 11 more photographs
+  - ... and 19 more photographs
 
-### South Africa (17 photographs)
+### South Africa (20 photographs)
 - URL: https://archive-35.com/collection.html?id=south-africa
 - Gallery: https://archive-35.com/gallery.html?collection=south-africa
 
@@ -350,7 +353,7 @@
   - White Lion Cub | South Africa | 20.0MP | Tags: white-lion, lion-cub, wildlife-portrait, south-africa, rare-animal, big-five, close-up, golden-eyes
   - African Penguin on the Beach | South Africa | 15.1MP | Tags: african-penguin, boulders-beach, simons-town, cape-town, cape-peninsula, wildlife, beach, coastal
   - Penguin Pair at Boulders Beach | South Africa | 20.0MP | Tags: african-penguin, penguin-pair, boulders-beach, simons-town, cape-town, cape-peninsula, ocean, granite-boulders
-  - ... and 12 more photographs
+  - ... and 15 more photographs
 
 ### South America (10 photographs)
 - URL: https://archive-35.com/collection.html?id=south-america
@@ -383,6 +386,17 @@
   - Dunes and Distant Plateaus | Colorado Plateau Region, Southwestern United States | 43.9MP | Tags: sand-dunes, desert-landscape, mesa, plateaus, high-desert, colorado-plateau, arid-terrain, geological-formations
   - Ridgeline Through Verdant Canyons | Blue Mountains, New South Wales, Australia | 50.3MP | Tags: blue-mountains, new-south-wales, australia, canyon-landscape, sandstone-formations, aerial-photography, dramatic-ridgeline, forest-canopy
   - Desert Highway Through Red Rock Canyon | Utah Canyon Country, Utah, United States | 36.4MP | Tags: utah-landscape, red-rock-canyon, desert-highway, southwest-usa, landscape-photography, fine-art-print, canyon-scenery, geological-formations
+  - ... and 17 more photographs
+
+### Utha National Parks (22 photographs)
+- URL: https://archive-35.com/collection.html?id=utha-national-parks
+- Gallery: https://archive-35.com/gallery.html?collection=utha-national-parks
+
+  - Striations of Stone and Shadow | Zion National Park, Utah | 50.3MP | Tags: sandstone, utah-landscape, desert-formation, geological-patterns, fine-art-photography, nature-photography, zion-national-park, layered-rock
+  - Ancient Wood Grain Study | Utah National Parks Region | 50.3MP | Tags: wood-grain, texture-study, natural-patterns, fine-art-photography, utah-landscape, weathered-wood, earth-tones, abstract-nature
+  - Sand Dunes Meet Desert Valley | Grand Staircase-Escalante National Monument, Utah | 43.9MP | Tags: sand-dunes, desert-landscape, utah-national-parks, grand-staircase-escalante, high-desert, golden-hour-light, landscape-photography, fine-art-photography
+  - Canyon Ridges and Forest Valley | Bryce Canyon National Park, Utah | 50.3MP | Tags: bryce-canyon, utah-national-parks, canyon-landscape, aerial-photography, sandstone-formations, desert-geology, fine-art-landscape, nature-photography
+  - Desert Highway Through Red Stone Canyon | San Rafael Swell, Utah | 36.4MP | Tags: utah-landscape, desert-highway, sandstone-cliffs, red-rock-formation, canyon-road, fine-art-photography, landscape-photography, desert-scenery
   - ... and 17 more photographs
 
 ### Valley of Fire (3 photographs)

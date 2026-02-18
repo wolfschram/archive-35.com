@@ -699,27 +699,64 @@ execSync('git add data/ images/ *.html css/ js/ functions/ build.sh llms*.txt si
 
 ---
 
-### LESSON 030: Notification Emails Need a Real Mailbox
+### LESSON 030: Cloudflare Workers Kill Fire-and-Forget Fetches (context.waitUntil)
 **Date:** 2026-02-18
-**Category:** `email` `notifications` `infrastructure` `CRITICAL`
+**Category:** `cloudflare` `workers` `async` `notifications` `CRITICAL`
 
-**Symptom:** New customer signed up, received welcome email, but Wolf was never notified. No idea the signup happened.
+**Symptom:** New customer signed up, received their magic link email, but Wolf was never notified. Signup was not logged to Google Sheet. No idea the signup happened.
 
-**Root Cause:** All notification emails (signup alerts, order alerts, webhook crash alerts) were sent TO `wolf@archive-35.com`. But Cloudflare Email Routing was never configured for that domain — the address was a dead end. Emails sent FROM `wolf@archive-35.com` via Resend worked fine (Resend handles sending). But emails sent TO that address had no mailbox or forwarding rule.
+**Root Cause:** In `send-magic-link.js`, the magic link email used `await fetch(...)` — it waited for delivery and worked fine. But ALL three background operations were fire-and-forget `fetch()` WITHOUT `await`:
+- Welcome email BCC'd to Wolf
+- Signup notification to Wolf
+- Google Sheet logging
+
+In Cloudflare Workers, once the Response is returned to the client, the Worker runtime can terminate the execution context at any time. Fire-and-forget `fetch()` calls have no guarantee of completion — they are killed when the Worker shuts down.
+
+**Previous Wrong Fix (reverted):** Initially misdiagnosed as an email routing issue — changed recipient addresses from `wolf@archive-35.com` to `wolfbroadcast@gmail.com`. This was wrong: both addresses work fine in Wolf's inbox (both configured on his mail client). The real issue was the Worker being killed before the fetches completed.
 
 **Fix:**
-1. Changed all notification recipient addresses to use `env.WOLF_EMAIL` with fallback to `wolfbroadcast@gmail.com`
-2. Added `WOLF_EMAIL=wolfbroadcast@gmail.com` to Cloudflare Pages environment variables
-3. Both `send-magic-link.js` (signup notifications) and `stripe-webhook.js` (order + crash notifications) updated
+1. Collected all background tasks into a `backgroundTasks` array
+2. Used `context.waitUntil(Promise.allSettled(backgroundTasks))` to keep the Worker alive until all background operations complete
+3. Each fetch wrapped in `.catch()` for error isolation
+4. Reverted all email addresses back to `wolf@archive-35.com` (the business email)
 
 **Prevention:**
-- **RULE: Before using an email address as a RECIPIENT, verify it can receive email.** Sending FROM an address (via API like Resend) and receiving AT an address are completely different infrastructure.
-- **RULE: Use env vars for notification recipients.** Never hardcode — makes it easy to change without redeploying code.
+- **RULE: In Cloudflare Workers, NEVER use fire-and-forget `fetch()` for important operations.** Either `await` them before returning the Response, or use `context.waitUntil()` to keep the Worker alive.
+- **RULE: `context.waitUntil(promise)` tells Cloudflare to keep the Worker running until the promise settles** — even after the Response has been sent to the client.
+- **RULE: When background tasks fail silently, suspect the Worker runtime being killed.** Check if promises are properly awaited or registered with `waitUntil`.
+- **RULE: `wolf@archive-35.com` is the business email. Both `wolf@archive-35.com` and `wolfbroadcast@gmail.com` arrive in Wolf's inbox.** No email forwarding is needed between them.
+
+**Related Files:** `functions/api/auth/send-magic-link.js`
+
+---
+
+### LESSON 031: Google Apps Script Needs Signup Routing
+**Date:** 2026-02-18
+**Category:** `google-sheets` `apps-script` `signups` `accountability`
+
+**Symptom:** Even after fixing the Worker-side fetch issue, signups were not being captured in Google Sheet because the Apps Script had no handler for signup data.
+
+**Root Cause:** The Google Apps Script `doPost()` function only handled order data — it called `logOrder()` + `updateClient()` for every POST. When the Worker sent signup data with `orderType: 'signup'`, the script tried to log it as an order, which either failed or created garbage entries.
+
+**Fix:**
+1. Added a `Signups` tab with headers: Signup Date, Customer Name, Customer Email, Status, Source, Notes
+2. Added routing in `doPost()`: if `data.orderType === 'signup'` → `logSignup(data)`, else → `logOrder()` + `updateClient()`
+3. `logSignup()` includes duplicate email detection (won't re-log existing signups)
+4. Deployed as Version 2 of the Apps Script Web App
+
+**Prevention:**
+- **RULE: When adding a new data type to the Worker→Sheet pipeline, update BOTH the Worker sender AND the Apps Script receiver.** They must agree on the payload schema.
+- **RULE: Every customer interaction (signup, order, issue) must be logged in the Google Sheet.** This is Wolf's audit trail for disputes.
+- **RULE: The Apps Script must route by `orderType` field, not assume everything is an order.**
+
+**Related Files:** `08_Docs/setup/google-sheets-order-log.js`, `functions/api/auth/send-magic-link.js`
 
 ---
 
 31. **Misspelled source folders survive every downstream fix.** Trace back to the earliest pipeline entry point.
-32. **Verify email recipients can actually receive.** Sending FROM ≠ receiving AT. Check routing.
+32. **Cloudflare Workers kill fire-and-forget fetches.** Use `context.waitUntil()` for ALL background operations.
+33. **`wolf@archive-35.com` is the business email.** Both addresses work in Wolf's inbox — no forwarding needed.
+34. **Apps Script must route by `orderType`.** Don't assume every POST is an order — signups need their own handler.
 
 ---
 

@@ -161,60 +161,75 @@ export async function onRequestPost(context) {
     }
 
     // For new customers: send welcome email + notify Wolf + log to Google Sheet
+    // CRITICAL: Use context.waitUntil() so Cloudflare keeps the Worker alive
+    // until all background operations complete. Without this, fire-and-forget
+    // fetch() calls can be killed when the Response is returned.
     if (isNewCustomer) {
       const RESEND_KEY2 = env.RESEND_API_KEY;
-      const WOLF_BIZ = env.WOLF_EMAIL || 'wolfbroadcast@gmail.com';
+      const WOLF_BIZ = 'wolf@archive-35.com';
+      const backgroundTasks = [];
 
-      // Send welcome email from Wolf with BCC to Wolf (non-blocking)
+      // Send welcome email from Wolf with BCC to Wolf
       if (RESEND_KEY2) {
-        fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${RESEND_KEY2}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: 'Wolf Schram <wolf@archive-35.com>',
-            to: [normalizedEmail],
-            bcc: [WOLF_BIZ],
-            subject: 'Welcome to Archive-35',
-            html: buildWelcomeEmail(customerName),
-          }),
-        }).catch(err => console.error('Welcome email error:', err));
+        backgroundTasks.push(
+          fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${RESEND_KEY2}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              from: 'Wolf Schram <wolf@archive-35.com>',
+              to: [normalizedEmail],
+              bcc: [WOLF_BIZ],
+              subject: 'Welcome to Archive-35',
+              html: buildWelcomeEmail(customerName),
+            }),
+          }).catch(err => console.error('Welcome email error:', err))
+        );
       }
 
-      // Send signup notification to Wolf (non-blocking)
+      // Send signup notification to Wolf
       if (RESEND_KEY2) {
-        fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${RESEND_KEY2}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: 'Archive-35 <orders@archive-35.com>',
-            to: [WOLF_BIZ],
-            subject: `[New Signup] ${customerName || normalizedEmail}`,
-            html: buildSignupNotificationEmail(customerName, normalizedEmail),
-          }),
-        }).catch(err => console.error('Signup notification error:', err));
+        backgroundTasks.push(
+          fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${RESEND_KEY2}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              from: 'Archive-35 <orders@archive-35.com>',
+              to: [WOLF_BIZ],
+              subject: `[New Signup] ${customerName || normalizedEmail}`,
+              html: buildSignupNotificationEmail(customerName, normalizedEmail),
+            }),
+          }).catch(err => console.error('Signup notification error:', err))
+        );
       }
 
-      // Log new signup to Google Sheet (non-blocking)
+      // Log new signup to Google Sheet
       const SHEET_URL = env.GOOGLE_SHEET_WEBHOOK_URL;
       if (SHEET_URL) {
-        fetch(SHEET_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderType: 'signup',
-            customerName: customerName,
-            customerEmail: normalizedEmail,
-            customerPaid: 0,
-            status: 'active',
-            notes: 'Account signup via magic link',
-          }),
-        }).catch(err => console.error('Google Sheet log error:', err));
+        backgroundTasks.push(
+          fetch(SHEET_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              orderType: 'signup',
+              customerName: customerName,
+              customerEmail: normalizedEmail,
+              customerPaid: 0,
+              status: 'active',
+              notes: 'Account signup via magic link',
+            }),
+          }).catch(err => console.error('Google Sheet log error:', err))
+        );
+      }
+
+      // Keep Worker alive until all background tasks complete
+      if (backgroundTasks.length > 0) {
+        context.waitUntil(Promise.allSettled(backgroundTasks));
       }
     }
 

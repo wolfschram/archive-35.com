@@ -22,6 +22,7 @@
 const ORDERS_TAB = 'Orders';
 const CLIENTS_TAB = 'Clients';
 const ISSUES_TAB = 'Issues';
+const SIGNUPS_TAB = 'Signups';
 
 // Column headers for Orders tab (Row 1)
 const ORDER_HEADERS = [
@@ -81,6 +82,16 @@ const ISSUE_HEADERS = [
   'Resolved Date'      // I
 ];
 
+// Column headers for Signups tab (Row 1)
+const SIGNUP_HEADERS = [
+  'Signup Date',       // A
+  'Customer Name',     // B
+  'Customer Email',    // C
+  'Status',            // D (active / unsubscribed)
+  'Source',            // E (magic link / manual)
+  'Notes'              // F
+];
+
 // ============================================================================
 // WEB APP ENTRY POINT
 // ============================================================================
@@ -92,11 +103,17 @@ function doPost(e) {
     // Initialize sheets if needed
     ensureHeaders();
 
-    // Log the order
-    logOrder(data);
+    // Route based on type
+    if (data.orderType === 'signup') {
+      // Log new account signup
+      logSignup(data);
+    } else {
+      // Log the order
+      logOrder(data);
 
-    // Update client database
-    updateClient(data);
+      // Update client database
+      updateClient(data);
+    }
 
     return ContentService.createTextOutput(JSON.stringify({
       success: true,
@@ -116,7 +133,7 @@ function doGet(e) {
   ensureHeaders();
   return ContentService.createTextOutput(JSON.stringify({
     status: 'Archive-35 Order Log is active',
-    tabs: ['Orders', 'Clients', 'Issues'],
+    tabs: ['Orders', 'Clients', 'Issues', 'Signups'],
     timestamp: new Date().toISOString()
   })).setMimeType(ContentService.MimeType.JSON);
 }
@@ -177,6 +194,24 @@ function ensureHeaders() {
       .setFontColor('#c4973b')
       .setFontSize(10);
     issuesSheet.setFrozenRows(1);
+  }
+
+  // Signups tab
+  let signupsSheet = ss.getSheetByName(SIGNUPS_TAB);
+  if (!signupsSheet) {
+    signupsSheet = ss.insertSheet(SIGNUPS_TAB);
+  }
+  if (signupsSheet.getRange('A1').getValue() === '') {
+    signupsSheet.getRange(1, 1, 1, SIGNUP_HEADERS.length).setValues([SIGNUP_HEADERS]);
+    signupsSheet.getRange(1, 1, 1, SIGNUP_HEADERS.length)
+      .setFontWeight('bold')
+      .setBackground('#1a1a1a')
+      .setFontColor('#c4973b')
+      .setFontSize(10);
+    signupsSheet.setFrozenRows(1);
+    signupsSheet.setColumnWidth(1, 140);  // Date
+    signupsSheet.setColumnWidth(2, 180);  // Name
+    signupsSheet.setColumnWidth(3, 240);  // Email
   }
 }
 
@@ -305,6 +340,43 @@ function updateClient(data) {
     const lastRow = sheet.getLastRow();
     sheet.getRange(lastRow, 6).setNumberFormat('$#,##0.00');
   }
+}
+
+// ============================================================================
+// LOG SIGNUP
+// ============================================================================
+
+function logSignup(data) {
+  if (!data.customerEmail) return;
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SIGNUPS_TAB);
+
+  const email = data.customerEmail.toLowerCase().trim();
+  const allData = sheet.getDataRange().getValues();
+
+  // Check for duplicate email (column C = index 2)
+  for (let i = 1; i < allData.length; i++) {
+    if (allData[i][2] && allData[i][2].toString().toLowerCase().trim() === email) {
+      // Already logged — skip duplicate
+      return;
+    }
+  }
+
+  const row = [
+    new Date().toISOString().split('T')[0] + ' ' + new Date().toTimeString().split(' ')[0], // Signup Date
+    data.customerName || '',                 // Customer Name
+    email,                                   // Customer Email
+    data.status || 'active',                 // Status
+    'magic link',                            // Source
+    data.notes || ''                         // Notes
+  ];
+
+  sheet.appendRow(row);
+
+  // Green highlight for active signups
+  const lastRow = sheet.getLastRow();
+  sheet.getRange(lastRow, 4).setBackground('#e8f5e9').setFontColor('#2e7d32');
 }
 
 // ============================================================================

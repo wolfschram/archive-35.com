@@ -791,7 +791,7 @@ export async function onRequestPost(context) {
   const STRIPE_TEST_WEBHOOK_SECRET = env.STRIPE_TEST_WEBHOOK_SECRET || '';
   const PICTOREM_API_KEY = env.PICTOREM_API_KEY || 'archive-35';
   const RESEND_API_KEY = env.RESEND_API_KEY || '';
-  const WOLF_EMAIL = env.WOLF_EMAIL || 'wolfbroadcast@gmail.com';
+  const WOLF_EMAIL = 'wolf@archive-35.com';
     const GOOGLE_SHEET_WEBHOOK_URL = env.GOOGLE_SHEET_WEBHOOK_URL || '';
 
   try {
@@ -1196,7 +1196,7 @@ export async function onRequestPost(context) {
     // Send emergency email to Wolf — wrapped in its own try/catch so it can't throw
     try {
       const RESEND_KEY = env.RESEND_API_KEY || '';
-      const WOLF = env.WOLF_EMAIL || 'wolfbroadcast@gmail.com';
+      const WOLF = 'wolf@archive-35.com';
       if (RESEND_KEY) {
         await sendEmail(RESEND_KEY, {
           to: WOLF,

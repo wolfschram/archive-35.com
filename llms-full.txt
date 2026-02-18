@@ -12,7 +12,7 @@
 - Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
 - Website: https://archive-35.com
 
-## Print Collections (645 photographs, 38 collections)
+## Print Collections (623 photographs, 37 collections)
 
 ### Antelope Canyon (11 photographs)
 - URL: https://archive-35.com/collection.html?id=antelope-canyon
@@ -383,17 +383,6 @@
   - Dunes and Distant Plateaus | Colorado Plateau Region, Southwestern United States | 43.9MP | Tags: sand-dunes, desert-landscape, mesa, plateaus, high-desert, colorado-plateau, arid-terrain, geological-formations
   - Ridgeline Through Verdant Canyons | Blue Mountains, New South Wales, Australia | 50.3MP | Tags: blue-mountains, new-south-wales, australia, canyon-landscape, sandstone-formations, aerial-photography, dramatic-ridgeline, forest-canopy
   - Desert Highway Through Red Rock Canyon | Utah Canyon Country, Utah, United States | 36.4MP | Tags: utah-landscape, red-rock-canyon, desert-highway, southwest-usa, landscape-photography, fine-art-print, canyon-scenery, geological-formations
-  - ... and 17 more photographs
-
-### Utha National Parks (22 photographs)
-- URL: https://archive-35.com/collection.html?id=utha-national-parks
-- Gallery: https://archive-35.com/gallery.html?collection=utha-national-parks
-
-  - Striations of Stone and Sand | Zion National Park, Utah | 50.3MP | Tags: sandstone-formations, desert-landscape, geological-stratification, utah-national-parks, zion-national-park, fine-art-photography, landscape-photography, erosion-patterns
-  - Ancient Wood Grain Patterns | Petrified Forest, Utah National Parks | 50.3MP | Tags: wood-grain, texture-photography, petrified-wood, utah-national-parks, natural-patterns, abstract-landscape, geological-detail, fine-art-photography
-  - Sand Dunes Meet Red Rock | Coral Pink Sand Dunes State Park, Utah | 43.9MP | Tags: sand-dunes, red-rock-utah, utah-landscape, desert-photography, fine-art-landscape, nature-photography, geological-formations, golden-sand
-  - Bryce Canyon's Sculptured Ridges | Bryce Canyon National Park, Utah | 50.3MP | Tags: bryce-canyon, hoodoos, utah-national-parks, sandstone, aerial-landscape, canyon-landscape, geological-formations, red-rock
-  - Desert Highway Through Red Canyon | San Rafael Swell, Utah | 36.4MP | Tags: utah-landscape, red-rock-formations, desert-highway, canyon-road, geological-formations, fine-art-photography, landscape-photography, utah-national-parks
   - ... and 17 more photographs
 
 ### Valley of Fire (3 photographs)

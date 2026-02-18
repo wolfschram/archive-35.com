@@ -33,10 +33,15 @@ except ImportError:
 # Allow ultra-large panoramic images (up to 500MP)
 Image.MAX_IMAGE_PIXELS = 500_000_000
 
-# Preview protection settings
+# Preview protection settings (for grid/modal view — invisible protection)
 PREVIEW_MAX_PX = 2000       # Max dimension — enough for screen, not for print
 PREVIEW_QUALITY = 45         # Aggressive compression — looks OK on screen, garbage for print
 PREVIEW_BLUR_RADIUS = 0.5   # Slight softening — imperceptible on screen, kills print sharpness
+
+# Zoom preview settings (for fullscreen view — visible watermark, higher quality)
+ZOOM_MAX_PX = 4000           # Larger for zoom — shows quality but still not print-worthy
+ZOOM_QUALITY = 78            # Good enough to showcase, not good enough for commercial use
+ZOOM_BLUR_RADIUS = 0         # No blur — let them see the sharpness
 
 
 def load_config(base):
@@ -66,16 +71,78 @@ def generate_clean_preview(img):
     return img
 
 
-def generate_watermarks(base_path, force=False):
+def generate_zoom_preview(img):
     """
-    Generate clean preview images (no visible watermark).
-    Set force=True to regenerate ALL previews (replacing old watermarked ones).
+    Generate a higher-quality zoom preview WITH visible watermark.
+    Good enough to showcase sharpness — not good enough for commercial use.
+    """
+    w, h = img.size
+
+    # 1. Resize to zoom resolution (bigger than grid preview)
+    if max(w, h) > ZOOM_MAX_PX:
+        ratio = ZOOM_MAX_PX / max(w, h)
+        img = img.resize((int(w * ratio), int(h * ratio)), Image.LANCZOS)
+
+    # 2. Strip to RGB
+    if img.mode != "RGB":
+        img = img.convert("RGB")
+
+    # 3. NO blur — let them see the quality
+
+    # 4. Apply visible watermark
+    try:
+        from PIL import ImageDraw, ImageFont
+        draw = ImageDraw.Draw(img)
+        w, h = img.size
+
+        # Calculate font size based on image dimensions
+        font_size = max(w // 16, 40)
+        try:
+            font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", font_size)
+        except (OSError, IOError):
+            try:
+                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
+            except (OSError, IOError):
+                font = ImageFont.load_default()
+
+        # Diagonal repeating watermark
+        import math
+        step_y = max(h // 4, 150)
+        step_x = max(w // 3, 200)
+        for y in range(-h, h * 2, step_y):
+            for x in range(-w, w * 2, step_x):
+                # Create a temporary image for rotated text
+                txt_img = Image.new("RGBA", (font_size * 8, font_size * 2), (0, 0, 0, 0))
+                txt_draw = ImageDraw.Draw(txt_img)
+                txt_draw.text((10, 10), "ARCHIVE-35", fill=(255, 255, 255, 28), font=font)
+                txt_img = txt_img.rotate(30, expand=True, resample=Image.BICUBIC)
+                try:
+                    img.paste(txt_img, (x, y), txt_img)
+                except (ValueError, Exception):
+                    pass
+    except ImportError:
+        pass  # No watermark if PIL doesn't support it
+
+    return img
+
+
+def generate_watermarks(base_path, force=False, zoom=False):
+    """
+    Generate preview images.
+    Default: clean invisible-protection previews in watermarked/
+    zoom=True: higher-quality visible-watermark previews in zoom/
+    Set force=True to regenerate ALL previews.
     """
     base = Path(base_path)
     cfg = load_config(base)
     metadata_dir = base / "metadata"
     originals_dir = base / "originals"
-    output_dir = base / "watermarked"  # Keep same folder name for compatibility
+    if zoom:
+        output_dir = base / "zoom"
+        quality = ZOOM_QUALITY
+    else:
+        output_dir = base / "watermarked"  # Keep same folder name for compatibility
+        quality = PREVIEW_QUALITY
 
     if not metadata_dir.exists():
         sys.exit(f"ERROR: metadata folder not found at {metadata_dir}")
@@ -105,14 +172,17 @@ def generate_watermarks(base_path, force=False):
         try:
             img = Image.open(original_file)
 
-            # Generate clean preview (no watermark, invisible protection)
-            preview = generate_clean_preview(img)
+            # Generate preview based on mode
+            if zoom:
+                preview = generate_zoom_preview(img)
+            else:
+                preview = generate_clean_preview(img)
 
-            # Save with aggressive compression and NO metadata (exif=None strips all EXIF)
+            # Save with appropriate compression and NO metadata
             preview.save(
                 output_file,
                 "JPEG",
-                quality=PREVIEW_QUALITY,
+                quality=quality,
                 optimize=True,
                 # Do NOT pass exif — this strips all metadata
             )
@@ -135,7 +205,12 @@ if __name__ == "__main__":
     parser.add_argument("folder", nargs="?", default=os.path.dirname(os.path.abspath(__file__)),
                         help="Path to 09_Licensing directory")
     parser.add_argument("--force", action="store_true",
-                        help="Regenerate ALL previews (replace existing watermarked ones)")
+                        help="Regenerate ALL previews (replace existing)")
+    parser.add_argument("--zoom", action="store_true",
+                        help="Generate zoom previews (higher quality, visible watermark) in zoom/ folder")
     args = parser.parse_args()
-    print(f"Generating clean previews (invisible protection) ...")
-    generate_watermarks(args.folder, force=args.force)
+    if args.zoom:
+        print(f"Generating ZOOM previews (higher quality, visible watermark) ...")
+    else:
+        print(f"Generating clean previews (invisible protection) ...")
+    generate_watermarks(args.folder, force=args.force, zoom=args.zoom)

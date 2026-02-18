@@ -248,7 +248,7 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
 <div class="modal-overlay" id="modal">
   <button class="modal-close" onclick="closeModal()">&times;</button>
   <div class="modal">
-    <div class="modal-img" onclick="openZoom()"><canvas id="m-canvas" role="img" aria-label="" style="width:100%;display:block;border-radius:4px"></canvas></div>
+    <div class="modal-img"><canvas id="m-canvas" role="img" aria-label="" style="width:100%;display:block;border-radius:4px;cursor:pointer" onclick="openZoom()"></canvas></div>
     <div class="modal-details">
       <h2 id="m-title"></h2>
       <div class="loc" id="m-location"></div>
@@ -478,29 +478,51 @@ function openZoom() {
   const srcCanvas = document.getElementById('m-canvas');
   if (!srcCanvas || !srcCanvas.width) return;
 
-  // Copy source canvas to zoom canvas at full resolution
-  zoomCanvas.width = srcCanvas.width;
-  zoomCanvas.height = srcCanvas.height;
-  const ctx = zoomCanvas.getContext('2d');
-  ctx.drawImage(srcCanvas, 0, 0);
+  // Try to load higher-quality zoom preview first
+  const zoomPath = currentImage.preview.replace('/watermarked/', '/zoom/');
+  
+  function renderZoom(sourceImg, w, h) {
+    zoomCanvas.width = w;
+    zoomCanvas.height = h;
+    const ctx = zoomCanvas.getContext('2d');
+    ctx.drawImage(sourceImg, 0, 0, w, h);
 
-  // Draw visible watermark for protection at zoom level
-  ctx.save();
-  ctx.globalAlpha = 0.12;
-  ctx.fillStyle = '#ffffff';
-  ctx.font = `bold ${Math.max(srcCanvas.width / 18, 40)}px Inter, sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  // Diagonal watermark pattern
-  ctx.translate(srcCanvas.width / 2, srcCanvas.height / 2);
-  ctx.rotate(-Math.PI / 6);
-  const step = Math.max(srcCanvas.height / 3, 200);
-  for (let y = -srcCanvas.height; y < srcCanvas.height * 2; y += step) {
-    ctx.fillText('ARCHIVE-35', 0, y);
+    // Draw visible watermark for protection at zoom level
+    ctx.save();
+    ctx.globalAlpha = 0.10;
+    ctx.fillStyle = '#ffffff';
+    const fontSize = Math.max(w / 16, 48);
+    ctx.font = `600 ${fontSize}px Inter, Helvetica, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    // Diagonal watermark pattern
+    ctx.translate(w / 2, h / 2);
+    ctx.rotate(-Math.PI / 6);
+    const stepY = Math.max(h / 3, 200);
+    const stepX = Math.max(w / 2, 400);
+    for (let y = -h; y < h * 2; y += stepY) {
+      for (let x = -w; x < w * 2; x += stepX) {
+        ctx.fillText('ARCHIVE-35', x - w/2, y);
+      }
+    }
+    ctx.restore();
+    overlay.classList.add('open');
   }
-  ctx.restore();
 
-  overlay.classList.add('open');
+  // Try zoom/ folder first (higher quality if generated)
+  fetch(zoomPath + '?v=2').then(r => {
+    if (!r.ok) throw new Error('no zoom');
+    return r.blob();
+  }).then(blob => {
+    const url = URL.createObjectURL(blob);
+    const img = new window.Image();
+    img.onload = () => { renderZoom(img, img.naturalWidth, img.naturalHeight); URL.revokeObjectURL(url); };
+    img.onerror = () => { URL.revokeObjectURL(url); renderZoom(srcCanvas, srcCanvas.width, srcCanvas.height); };
+    img.src = url;
+  }).catch(() => {
+    // Fall back to modal canvas (same resolution but still useful for now)
+    renderZoom(srcCanvas, srcCanvas.width, srcCanvas.height);
+  });
 }
 
 function closeZoom() {

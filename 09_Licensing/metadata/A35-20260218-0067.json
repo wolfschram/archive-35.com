@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260218-0067",
+  "original_filename": "Wolf 5093.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Meadow with Distant Peaks",
+  "description": "A sweeping panoramic vista capturing the majesty of Glacier National Park's pristine meadowlands framed by dramatic mountain architecture. This ultra-high-resolution image reveals exceptional detail across the full composition—from foreground alpine grasses to the intricate geological formations of the distant peaks—offering extraordinary potential for large-format fine art prints and editorial licensing.",
+  "location": "Glacier National Park, Montana, USA",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 13006,
+    "height": 5756
+  },
+  "megapixels": 74.9,
+  "aspect_ratio": 2.26,
+  "file_size_bytes": 23742245,
+  "file_size_mb": 22.6,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 43.4,
+    "height_in": 19.2,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 86.7,
+    "height_in": 38.4,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2022:09:15 17:19:57",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.00125",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260218-0067.jpg",
+    "preview": "previews/A35-20260218-0067.jpg",
+    "thumbnail": "thumbnails/A35-20260218-0067.jpg"
+  },
+  "scanned_at": "2026-02-18T16:38:08.149657+00:00"
+}

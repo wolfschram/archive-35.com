@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2026-02-17T23:21:13.026978+00:00",
+  "last_updated": "2026-02-18T16:40:15.438731+00:00",
   "images": [
     {
       "catalog_id": "A35-20260210-0001",
@@ -803,6 +803,86 @@
       "license_count": 0,
       "description": "A commanding panoramic vista of a pristine mountain valley framed by coniferous forests and dramatic peaks, captured in ultra-high resolution to reveal exceptional detail across the entire composition\u2014from foreground alpine meadow to distant summits. The exceptional tonal range and sharpness throughout makes this image ideal for large-format fine art printing and commercial licensing applications.",
       "location": "Altai Mountains, Altai Republic, Russia"
+    },
+    {
+      "catalog_id": "A35-20260218-0064",
+      "original_filename": "Wolf 5086.jpg",
+      "source_path": "../Photography/Large Scale Photography Stitch",
+      "collection": "",
+      "title": "Alpine Ridges and Glacial Valleys",
+      "classification": "ULTRA",
+      "width": 20739,
+      "height": 8616,
+      "megapixels": 178.7,
+      "file_size_mb": 61.7,
+      "status": "available",
+      "license_count": 0,
+      "description": "A commanding panoramic vista of layered mountain ridges and verdant alpine valleys, captured in exceptional detail that reveals the intricate geological stratification and delicate vegetation across the expansive landscape. This ultra-high-resolution image offers extraordinary print potential for large-format fine art applications, with crisp detail from foreground conifers to distant peaks.",
+      "location": "Glacier National Park, Montana, USA"
+    },
+    {
+      "catalog_id": "A35-20260218-0065",
+      "original_filename": "Wolf 5090.jpg",
+      "source_path": "../Photography/Large Scale Photography Stitch",
+      "collection": "",
+      "title": "Jackson Peak Alpine Meadow",
+      "classification": "PREMIUM",
+      "width": 14063,
+      "height": 5146,
+      "megapixels": 72.4,
+      "file_size_mb": 21,
+      "status": "available",
+      "license_count": 0,
+      "description": "A sweeping panoramic vista of Glacier National Park's iconic Jackson Peak rising majestically above subalpine meadows and coniferous forest. This ultra-high-resolution image captures extraordinary detail across multiple landscape layers\u2014from foreground wildflower meadows to distant glaciated peaks\u2014offering exceptional print potential for large-format fine art applications and commercial licensing.",
+      "location": "Glacier National Park, Montana, USA (Jackson Peak area)"
+    },
+    {
+      "catalog_id": "A35-20260218-0066",
+      "original_filename": "Wolf 5092.jpg",
+      "source_path": "../Photography/Large Scale Photography Stitch",
+      "collection": "",
+      "title": "Mountain Cathedral at Golden Hour",
+      "classification": "PREMIUM",
+      "width": 13617,
+      "height": 7839,
+      "megapixels": 106.7,
+      "file_size_mb": 30.5,
+      "status": "available",
+      "license_count": 0,
+      "description": "A monumental alpine landscape captured in stunning ultra-high resolution, featuring dramatic stratified peaks rising majestically above a pristine subalpine meadow. The exceptional detail and tonal range of this large-format image reveals every geological formation and vegetation texture, offering extraordinary print potential for fine art and commercial applications.",
+      "location": "Glacier National Park, Montana, USA (Mount Jackson vicinity)"
+    },
+    {
+      "catalog_id": "A35-20260218-0067",
+      "original_filename": "Wolf 5093.jpg",
+      "source_path": "../Photography/Large Scale Photography Stitch",
+      "collection": "",
+      "title": "Alpine Meadow with Distant Peaks",
+      "classification": "PREMIUM",
+      "width": 13006,
+      "height": 5756,
+      "megapixels": 74.9,
+      "file_size_mb": 22.6,
+      "status": "available",
+      "license_count": 0,
+      "description": "A sweeping panoramic vista capturing the majesty of Glacier National Park's pristine meadowlands framed by dramatic mountain architecture. This ultra-high-resolution image reveals exceptional detail across the full composition\u2014from foreground alpine grasses to the intricate geological formations of the distant peaks\u2014offering extraordinary potential for large-format fine art prints and editorial licensing.",
+      "location": "Glacier National Park, Montana, USA"
+    },
+    {
+      "catalog_id": "A35-20260218-0068",
+      "original_filename": "Wolf 5110.jpg",
+      "source_path": "../Photography/Large Scale Photography Stitch",
+      "collection": "",
+      "title": "Glacial Valley Wilderness",
+      "classification": "ULTRA",
+      "width": 15116,
+      "height": 5167,
+      "megapixels": 78.1,
+      "file_size_mb": 33.5,
+      "status": "available",
+      "license_count": 0,
+      "description": "A sweeping panoramic vista capturing the raw majesty of an alpine valley, with driftwood-strewn foreground, pristine wetlands, and dramatic mountain peaks rising beyond. This ultra-high-resolution image reveals exceptional detail throughout\u2014from weathered timber textures to distant forest gradation\u2014making it ideal for museum-quality large-format fine art prints and immersive commercial installations.",
+      "location": "Glacier National Park, Montana, USA"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-17T23:21:13.034383+00:00",
-  "total_images": 63,
+  "generated_at": "2026-02-18T16:40:15.449749+00:00",
+  "total_images": 68,
   "classifications": {
     "ULTRA": {
       "min_width": 15000,
@@ -2322,6 +2322,186 @@
       "max_print_150dpi": {
         "width_in": 109.1,
         "height_in": 48.6,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260218-0064",
+      "title": "Alpine Ridges and Glacial Valleys",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5086",
+      "original_filename": "Wolf 5086.jpg",
+      "width": 20739,
+      "height": 8616,
+      "megapixels": 178.7,
+      "file_size_mb": 61.7,
+      "location": "Glacier National Park, Montana, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260218-0064.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260218-0064.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 69.1,
+        "height_in": 28.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 138.3,
+        "height_in": 57.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260218-0065",
+      "title": "Jackson Peak Alpine Meadow",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 5090",
+      "original_filename": "Wolf 5090.jpg",
+      "width": 14063,
+      "height": 5146,
+      "megapixels": 72.4,
+      "file_size_mb": 21,
+      "location": "Glacier National Park, Montana, USA (Jackson Peak area)",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260218-0065.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260218-0065.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 46.9,
+        "height_in": 17.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 93.8,
+        "height_in": 34.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260218-0066",
+      "title": "Mountain Cathedral at Golden Hour",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 5092",
+      "original_filename": "Wolf 5092.jpg",
+      "width": 13617,
+      "height": 7839,
+      "megapixels": 106.7,
+      "file_size_mb": 30.5,
+      "location": "Glacier National Park, Montana, USA (Mount Jackson vicinity)",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260218-0066.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260218-0066.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 45.4,
+        "height_in": 26.1,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 90.8,
+        "height_in": 52.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260218-0067",
+      "title": "Alpine Meadow with Distant Peaks",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 5093",
+      "original_filename": "Wolf 5093.jpg",
+      "width": 13006,
+      "height": 5756,
+      "megapixels": 74.9,
+      "file_size_mb": 22.6,
+      "location": "Glacier National Park, Montana, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260218-0067.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260218-0067.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 43.4,
+        "height_in": 19.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 86.7,
+        "height_in": 38.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260218-0068",
+      "title": "Glacial Valley Wilderness",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5110",
+      "original_filename": "Wolf 5110.jpg",
+      "width": 15116,
+      "height": 5167,
+      "megapixels": 78.1,
+      "file_size_mb": 33.5,
+      "location": "Glacier National Park, Montana, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260218-0068.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260218-0068.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 50.4,
+        "height_in": 17.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 100.8,
+        "height_in": 34.4,
         "dpi": 150
       }
     }

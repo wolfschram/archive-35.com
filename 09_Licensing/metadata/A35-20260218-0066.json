@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260218-0066",
+  "original_filename": "Wolf 5092.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Mountain Cathedral at Golden Hour",
+  "description": "A monumental alpine landscape captured in stunning ultra-high resolution, featuring dramatic stratified peaks rising majestically above a pristine subalpine meadow. The exceptional detail and tonal range of this large-format image reveals every geological formation and vegetation texture, offering extraordinary print potential for fine art and commercial applications.",
+  "location": "Glacier National Park, Montana, USA (Mount Jackson vicinity)",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 13617,
+    "height": 7839
+  },
+  "megapixels": 106.7,
+  "aspect_ratio": 1.737,
+  "file_size_bytes": 31997053,
+  "file_size_mb": 30.5,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 45.4,
+    "height_in": 26.1,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 90.8,
+    "height_in": 52.3,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2022:09:15 17:12:33",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.00125",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260218-0066.jpg",
+    "preview": "previews/A35-20260218-0066.jpg",
+    "thumbnail": "thumbnails/A35-20260218-0066.jpg"
+  },
+  "scanned_at": "2026-02-18T16:38:08.148424+00:00"
+}

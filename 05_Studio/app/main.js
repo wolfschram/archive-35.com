@@ -2512,9 +2512,23 @@ ${collectionsText}${staticFooter}`;
     }
 
     try {
-      // Stage ALL website-relevant files (photos, HTML pages, JS, CSS, functions, config)
-      // Previously only staged photos.json + images + gallery.html — other changes never deployed!
-      execSync('git add data/ images/ *.html css/ js/ functions/ build.sh llms*.txt sitemap.xml robots.txt logos/ 09_Licensing/thumbnails/ 09_Licensing/watermarked/ api/ licensing/', gitOpts);
+      // Sync _site/ mirror so Cloudflare Pages serves fresh content
+      // _site/ is the build output directory — must mirror source files
+      const siteDir = path.join(ARCHIVE_BASE, '_site');
+      const cpSync = (src, dest) => {
+        try { execSync(`cp -r ${src} ${dest}`, gitOpts); } catch (e) { /* source may not exist yet */ }
+      };
+      cpSync('data/photos.json', path.join(siteDir, 'data', 'photos.json'));
+      cpSync('data/licensing-catalog.json', path.join(siteDir, 'data', 'licensing-catalog.json'));
+      // Ensure _site/09_Licensing dirs exist and sync thumbnails + watermarks
+      execSync(`mkdir -p ${path.join(siteDir, '09_Licensing')}`, gitOpts);
+      cpSync('09_Licensing/thumbnails', path.join(siteDir, '09_Licensing', 'thumbnails'));
+      cpSync('09_Licensing/watermarked', path.join(siteDir, '09_Licensing', 'watermarked'));
+
+      // Stage ALL website-relevant files INCLUDING per-collection metadata
+      // _photos.json files are the source of truth for each portfolio collection
+      // _catalog.json is the source of truth for licensing — ALL must be committed
+      execSync('git add data/ images/ *.html css/ js/ functions/ build.sh llms*.txt sitemap.xml robots.txt logos/ 09_Licensing/thumbnails/ 09_Licensing/watermarked/ api/ licensing/ 01_Portfolio/*/_photos.json 09_Licensing/_catalog.json _site/', gitOpts);
 
       // Check if there are staged changes before committing
       const gitStatus = execSync('git diff --cached --stat', gitOpts).trim();

@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260218-0064",
+  "original_filename": "Wolf 5086.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Ridges and Glacial Valleys",
+  "description": "A commanding panoramic vista of layered mountain ridges and verdant alpine valleys, captured in exceptional detail that reveals the intricate geological stratification and delicate vegetation across the expansive landscape. This ultra-high-resolution image offers extraordinary print potential for large-format fine art applications, with crisp detail from foreground conifers to distant peaks.",
+  "location": "Glacier National Park, Montana, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 20739,
+    "height": 8616
+  },
+  "megapixels": 178.7,
+  "aspect_ratio": 2.407,
+  "file_size_bytes": 64652555,
+  "file_size_mb": 61.7,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 69.1,
+    "height_in": 28.7,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 138.3,
+    "height_in": 57.4,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2022:09:15 16:37:29",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.00125",
+    "FNumber": "2.5",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260218-0064.jpg",
+    "preview": "previews/A35-20260218-0064.jpg",
+    "thumbnail": "thumbnails/A35-20260218-0064.jpg"
+  },
+  "scanned_at": "2026-02-18T16:38:08.146442+00:00"
+}

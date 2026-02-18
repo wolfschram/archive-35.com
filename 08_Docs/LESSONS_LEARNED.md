@@ -679,4 +679,48 @@ execSync('git add data/ images/ *.html css/ js/ functions/ build.sh llms*.txt si
 
 ---
 
+### LESSON 029: Misspelled Source Folders Survive Every Downstream Fix
+**Date:** 2026-02-18
+**Category:** `file-organization` `pipeline` `ROOT-CAUSE` `CRITICAL`
+
+**Symptom:** Utah National Parks gallery appeared twice on the website — fixed 5+ times across multiple sessions. Kept coming back.
+
+**Root Cause:** The Photography folder on Mac was literally misspelled: `"Utha National Parks"`. Every previous fix targeted downstream artifacts (deleting portfolio folder, editing photos.json, removing image folders). The deploy scanner kept finding the misspelled source folder and recreating everything.
+
+**Fix:**
+1. Wolf renamed the Photography source folder on Mac (the actual root cause)
+2. Added `"utha national parks": "Utah_National_Parks"` to `.scan-config.json` aliasMap (safety net)
+3. Added `Utha_National_Parks_` and `Utha National Parks` to EXCLUDED_PORTFOLIO_FOLDERS (belt-and-suspenders)
+4. Removed duplicate entries from photos.json and re-synced gallery
+
+**Prevention:**
+- **RULE: When a "fixed" bug returns, the fix targeted the wrong layer.** Trace back to the EARLIEST point in the pipeline where the bad data enters. That's your real fix.
+- **RULE: The scan-config aliasMap exists for a reason.** When Photography folder names don't match portfolio folder names, add an alias — don't just delete the output.
+
+---
+
+### LESSON 030: Notification Emails Need a Real Mailbox
+**Date:** 2026-02-18
+**Category:** `email` `notifications` `infrastructure` `CRITICAL`
+
+**Symptom:** New customer signed up, received welcome email, but Wolf was never notified. No idea the signup happened.
+
+**Root Cause:** All notification emails (signup alerts, order alerts, webhook crash alerts) were sent TO `wolf@archive-35.com`. But Cloudflare Email Routing was never configured for that domain — the address was a dead end. Emails sent FROM `wolf@archive-35.com` via Resend worked fine (Resend handles sending). But emails sent TO that address had no mailbox or forwarding rule.
+
+**Fix:**
+1. Changed all notification recipient addresses to use `env.WOLF_EMAIL` with fallback to `wolfbroadcast@gmail.com`
+2. Added `WOLF_EMAIL=wolfbroadcast@gmail.com` to Cloudflare Pages environment variables
+3. Both `send-magic-link.js` (signup notifications) and `stripe-webhook.js` (order + crash notifications) updated
+
+**Prevention:**
+- **RULE: Before using an email address as a RECIPIENT, verify it can receive email.** Sending FROM an address (via API like Resend) and receiving AT an address are completely different infrastructure.
+- **RULE: Use env vars for notification recipients.** Never hardcode — makes it easy to change without redeploying code.
+
+---
+
+31. **Misspelled source folders survive every downstream fix.** Trace back to the earliest pipeline entry point.
+32. **Verify email recipients can actually receive.** Sending FROM ≠ receiving AT. Check routing.
+
+---
+
 *This is a living document. Add new lessons as they're discovered. Every bug is a gift — it teaches us something we didn't know.*

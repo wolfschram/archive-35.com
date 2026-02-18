@@ -163,7 +163,7 @@ export async function onRequestPost(context) {
     // For new customers: send welcome email + notify Wolf + log to Google Sheet
     if (isNewCustomer) {
       const RESEND_KEY2 = env.RESEND_API_KEY;
-      const WOLF_BIZ = 'wolf@archive-35.com';
+      const WOLF_BIZ = env.WOLF_EMAIL || 'wolfbroadcast@gmail.com';
 
       // Send welcome email from Wolf with BCC to Wolf (non-blocking)
       if (RESEND_KEY2) {

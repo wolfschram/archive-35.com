@@ -563,6 +563,10 @@ nav a:hover::after, nav a.active::after { width:100%; }
 <script>
 /* ===== GALLERY DATA (from photos.json) ===== */
 const G=[
+  {name:"Alps",slug:"alps",n:2,img:"images/alps/_MG_1871-thumb.jpg",p:[
+    {t:"images/alps/_MG_1871-thumb.jpg",f:"images/alps/_MG_1871-full.jpg",n:"Peaks Above the Frozen Valley",ar:2.213},
+    {t:"images/alps/_MG_1876-thumb.jpg",f:"images/alps/_MG_1876-full.jpg",n:"Windswept Peaks of the High Alps",ar:1.873}
+  ]},
   {name:"Antelope Canyon",slug:"antelope-canyon",n:11,img:"images/antelope-canyon/118A6286-thumb.jpg",p:[
     {t:"images/antelope-canyon/118A6286-thumb.jpg",f:"images/antelope-canyon/118A6286-full.jpg",n:"Crimson Passage Through Stone",ar:1.5},
     {t:"images/antelope-canyon/118A6607-thumb.jpg",f:"images/antelope-canyon/118A6607-full.jpg",n:"Striations of Stone and Shadow",ar:1.5},
@@ -708,15 +712,19 @@ const G=[
     {t:"images/canada/Wolf 1456-thumb.jpg",f:"images/canada/Wolf 1456-full.jpg",n:"Emerald Waters, Alpine Peaks",ar:1.5},
     {t:"images/canada/Wolf 1461-thumb.jpg",f:"images/canada/Wolf 1461-full.jpg",n:"Emerald Mirror: Alpine Lake Reflection",ar:1.944}
   ]},
-  {name:"Chicago",slug:"chicago",n:6,img:"images/chicago/118A1049-thumb.jpg",p:[
+  {name:"Chicago",slug:"chicago",n:10,img:"images/chicago/118A1049-thumb.jpg",p:[
     {t:"images/chicago/118A1049-thumb.jpg",f:"images/chicago/118A1049-full.jpg",n:"Cloud Gate Reflection at Night",ar:1.5},
     {t:"images/chicago/118A0558-thumb.jpg",f:"images/chicago/118A0558-full.jpg",n:"Elevated Rails Through Urban Canyon",ar:1.877},
     {t:"images/chicago/118A0594-thumb.jpg",f:"images/chicago/118A0594-full.jpg",n:"Parisian Balconies in Chicago",ar:1.64},
     {t:"images/chicago/118A0689-thumb.jpg",f:"images/chicago/118A0689-full.jpg",n:"Chicago Riverfront Urban Landscape",ar:1.5},
     {t:"images/chicago/118A0851-thumb.jpg",f:"images/chicago/118A0851-full.jpg",n:"Chicago Riverfront Urban Canvas",ar:1.5},
-    {t:"images/chicago/118A1052-thumb.jpg",f:"images/chicago/118A1052-full.jpg",n:"Cloud Gate Reflections, Chicago",ar:1.506}
+    {t:"images/chicago/118A1052-thumb.jpg",f:"images/chicago/118A1052-full.jpg",n:"Cloud Gate Reflections, Chicago",ar:1.506},
+    {t:"images/chicago/118A0185-thumb.jpg",f:"images/chicago/118A0185-full.jpg",n:"Chicago Riverwalk Urban Serenity",ar:1.5},
+    {t:"images/chicago/118A0454-thumb.jpg",f:"images/chicago/118A0454-full.jpg",n:"Urban Canyon: Chicago's Architectural Perspective",ar:0.667},
+    {t:"images/chicago/118A0474-thumb.jpg",f:"images/chicago/118A0474-full.jpg",n:"Elevated Perspective on Urban Rails",ar:1.5},
+    {t:"images/chicago/118A0479-thumb.jpg",f:"images/chicago/118A0479-full.jpg",n:"Chicago Rails Through Urban Canyon",ar:1.5}
   ]},
-  {name:"Coast of California",slug:"coast-of-california",n:12,img:"images/coast-of-california/118A0013-thumb.jpg",p:[
+  {name:"Coast of California",slug:"coast-of-california",n:15,img:"images/coast-of-california/118A0013-thumb.jpg",p:[
     {t:"images/coast-of-california/118A0013-thumb.jpg",f:"images/coast-of-california/118A0013-full.jpg",n:"Driftwood and Marshland Reflection",ar:1.5},
     {t:"images/coast-of-california/118A0044-thumb.jpg",f:"images/coast-of-california/118A0044-full.jpg",n:"Sculptured Cliffs Meet Turquoise Tide",ar:1.5},
     {t:"images/coast-of-california/118A0060-thumb.jpg",f:"images/coast-of-california/118A0060-full.jpg",n:"Coastal Scrubland Guardian",ar:1.771},
@@ -728,7 +736,10 @@ const G=[
     {t:"images/coast-of-california/Wolf 4477-thumb.jpg",f:"images/coast-of-california/Wolf 4477-full.jpg",n:"Emerald Surge and Pelican Dance",ar:1.994},
     {t:"images/coast-of-california/Wolf 4489-thumb.jpg",f:"images/coast-of-california/Wolf 4489-full.jpg",n:"Blue Heron in Flight",ar:1.499},
     {t:"images/coast-of-california/Wolf 4490-thumb.jpg",f:"images/coast-of-california/Wolf 4490-full.jpg",n:"Blue Heron in Flight, Coastal Marshland",ar:1.499},
-    {t:"images/coast-of-california/Wolf 4768-thumb.jpg",f:"images/coast-of-california/Wolf 4768-full.jpg",n:"Balanced Stones at Pacific Shore",ar:2.16}
+    {t:"images/coast-of-california/Wolf 4768-thumb.jpg",f:"images/coast-of-california/Wolf 4768-full.jpg",n:"Balanced Stones at Pacific Shore",ar:2.16},
+    {t:"images/coast-of-california/_MG_7336-thumb.jpg",f:"images/coast-of-california/_MG_7336-full.jpg",n:"Rocky Sentinels at Twilight",ar:1.776},
+    {t:"images/coast-of-california/_MG_7408-thumb.jpg",f:"images/coast-of-california/_MG_7408-full.jpg",n:"Golden Light Over Coastal Rocks",ar:1.936},
+    {t:"images/coast-of-california/_MG_7426-thumb.jpg",f:"images/coast-of-california/_MG_7426-full.jpg",n:"Coastal Headland in Golden Light",ar:1.5}
   ]},
   {name:"Colorado",slug:"colorado",n:8,img:"images/colorado/WOLF2296-Edit-thumb.jpg",p:[
     {t:"images/colorado/WOLF2296-Edit-thumb.jpg",f:"images/colorado/WOLF2296-Edit-full.jpg",n:"Ancient Stone Vigil Over Green Valley",ar:2.399},
@@ -844,7 +855,7 @@ const G=[
     {t:"images/flowers-and-leaves/118A1511-thumb.jpg",f:"images/flowers-and-leaves/118A1511-full.jpg",n:"Ancient Fern in Temperate Forest",ar:1.5},
     {t:"images/flowers-and-leaves/Wolf 56-thumb.jpg",f:"images/flowers-and-leaves/Wolf 56-full.jpg",n:"Papaya Golden Abundance",ar:1.5}
   ]},
-  {name:"Glacier National Park",slug:"glacier-national-park",n:17,img:"images/glacier-national-park/Wolf 5075-thumb.jpg",p:[
+  {name:"Glacier National Park",slug:"glacier-national-park",n:31,img:"images/glacier-national-park/Wolf 5075-thumb.jpg",p:[
     {t:"images/glacier-national-park/Wolf 5075-thumb.jpg",f:"images/glacier-national-park/Wolf 5075-full.jpg",n:"Lake McDonald Reflection and Peaks",ar:1.908},
     {t:"images/glacier-national-park/Wolf 5077-thumb.jpg",f:"images/glacier-national-park/Wolf 5077-full.jpg",n:"Mountain Road into Wilderness",ar:0.667},
     {t:"images/glacier-national-park/Wolf 5080-thumb.jpg",f:"images/glacier-national-park/Wolf 5080-full.jpg",n:"Carved Through Stone",ar:1.499},
@@ -861,7 +872,21 @@ const G=[
     {t:"images/glacier-national-park/Wolf 5102-thumb.jpg",f:"images/glacier-national-park/Wolf 5102-full.jpg",n:"Layered Stone and Mist",ar:1.499},
     {t:"images/glacier-national-park/Wolf 5110-thumb.jpg",f:"images/glacier-national-park/Wolf 5110-full.jpg",n:"Wetlands and Peak Reflections",ar:2.926},
     {t:"images/glacier-national-park/Wolf 5111-thumb.jpg",f:"images/glacier-national-park/Wolf 5111-full.jpg",n:"Mountain Lake Serenity",ar:1.499},
-    {t:"images/glacier-national-park/Wolf 5115-thumb.jpg",f:"images/glacier-national-park/Wolf 5115-full.jpg",n:"Mountain Majesty Across Still Waters",ar:3.47}
+    {t:"images/glacier-national-park/Wolf 5115-thumb.jpg",f:"images/glacier-national-park/Wolf 5115-full.jpg",n:"Mountain Majesty Across Still Waters",ar:3.47},
+    {t:"images/glacier-national-park/Wolf 5075-thumb.jpg",f:"images/glacier-national-park/Wolf 5075-full.jpg",n:"Lake McDonald's Serene Reflection",ar:1.908},
+    {t:"images/glacier-national-park/Wolf 5077-thumb.jpg",f:"images/glacier-national-park/Wolf 5077-full.jpg",n:"Mountain Road Through Glacier Valley",ar:0.667},
+    {t:"images/glacier-national-park/Wolf 5080-thumb.jpg",f:"images/glacier-national-park/Wolf 5080-full.jpg",n:"Cliff Road Through Mountain Pass",ar:1.499},
+    {t:"images/glacier-national-park/Wolf 5081-thumb.jpg",f:"images/glacier-national-park/Wolf 5081-full.jpg",n:"Mountain Pass Through Glacier Valley",ar:3.115},
+    {t:"images/glacier-national-park/Wolf 5085-thumb.jpg",f:"images/glacier-national-park/Wolf 5085-full.jpg",n:"Mountain Valley Light and Shadow",ar:2.242},
+    {t:"images/glacier-national-park/Wolf 5086-thumb.jpg",f:"images/glacier-national-park/Wolf 5086-full.jpg",n:"Golden Peak Over Glacier Valley",ar:2.407},
+    {t:"images/glacier-national-park/Wolf 5090-thumb.jpg",f:"images/glacier-national-park/Wolf 5090-full.jpg",n:"Mountain Sentinel Over Glacier Valley",ar:2.733},
+    {t:"images/glacier-national-park/Wolf 5092-thumb.jpg",f:"images/glacier-national-park/Wolf 5092-full.jpg",n:"Mountain Light Over Glacier Valley",ar:1.737},
+    {t:"images/glacier-national-park/Wolf 5093-thumb.jpg",f:"images/glacier-national-park/Wolf 5093-full.jpg",n:"Mountain Sentinels Over Meadow",ar:2.259},
+    {t:"images/glacier-national-park/Wolf 5100-thumb.jpg",f:"images/glacier-national-park/Wolf 5100-full.jpg",n:"Mountain Vigil Over Glacier Valley",ar:1.578},
+    {t:"images/glacier-national-park/Wolf 5102-thumb.jpg",f:"images/glacier-national-park/Wolf 5102-full.jpg",n:"Mountain Cathedral Through Glacial Mist",ar:1.499},
+    {t:"images/glacier-national-park/Wolf 5110-thumb.jpg",f:"images/glacier-national-park/Wolf 5110-full.jpg",n:"Mountain Reflection in Glacier Valley",ar:2.926},
+    {t:"images/glacier-national-park/Wolf 5111-thumb.jpg",f:"images/glacier-national-park/Wolf 5111-full.jpg",n:"St. Mary Lake Tranquility",ar:1.499},
+    {t:"images/glacier-national-park/Wolf 5115-thumb.jpg",f:"images/glacier-national-park/Wolf 5115-full.jpg",n:"Swiftcurrent Lake's Monumental Reflection",ar:3.47}
   ]},
   {name:"Grand Teton",slug:"grand-teton",n:49,img:"images/grand-teton/WOLF6767-thumb.jpg",p:[
     {t:"images/grand-teton/WOLF6767-thumb.jpg",f:"images/grand-teton/WOLF6767-full.jpg",n:"Teton Range Winter Solitude",ar:1.961},
@@ -1008,7 +1033,7 @@ const G=[
   {name:"London",slug:"london",n:1,img:"images/london/118A8990-thumb.jpg",p:[
     {t:"images/london/118A8990-thumb.jpg",f:"images/london/118A8990-full.jpg",n:"London Eye Illuminated Reflection",ar:1.5}
   ]},
-  {name:"Los Angeles",slug:"los-angeles",n:25,img:"images/los-angeles/118A5493-thumb.jpg",p:[
+  {name:"Los Angeles",slug:"los-angeles",n:26,img:"images/los-angeles/118A5493-thumb.jpg",p:[
     {t:"images/los-angeles/118A5493-thumb.jpg",f:"images/los-angeles/118A5493-full.jpg",n:"Sailboats in Golden Harbor Light",ar:1.592},
     {t:"images/los-angeles/Wolf 1591-thumb.jpg",f:"images/los-angeles/Wolf 1591-full.jpg",n:"Snow-Crowned Peaks Above the Valley",ar:1.5},
     {t:"images/los-angeles/Wolf 1602-thumb.jpg",f:"images/los-angeles/Wolf 1602-full.jpg",n:"Snow-Crowned Peak Above the Valley",ar:1.5},
@@ -1033,7 +1058,8 @@ const G=[
     {t:"images/los-angeles/Wolf 3987-thumb.jpg",f:"images/los-angeles/Wolf 3987-full.jpg",n:"Downtown Los Angeles Urban Skyline",ar:3.4},
     {t:"images/los-angeles/Wolf 3992-thumb.jpg",f:"images/los-angeles/Wolf 3992-full.jpg",n:"Urban Storm Over Los Angeles",ar:1.788},
     {t:"images/los-angeles/Wolf 4008-thumb.jpg",f:"images/los-angeles/Wolf 4008-full.jpg",n:"Industrial LA Under Dramatic Skies",ar:1.845},
-    {t:"images/los-angeles/Wolf 4783-thumb.jpg",f:"images/los-angeles/Wolf 4783-full.jpg",n:"Sentinel Rock Formation",ar:1.499}
+    {t:"images/los-angeles/Wolf 4783-thumb.jpg",f:"images/los-angeles/Wolf 4783-full.jpg",n:"Sentinel Rock Formation",ar:1.499},
+    {t:"images/los-angeles/118A0083-thumb.jpg",f:"images/los-angeles/118A0083-full.jpg",n:"Towering Palm Against Azure Sky",ar:2.164}
   ]},
   {name:"Mexico city",slug:"mexico-city",n:5,img:"images/mexico-city/118A2448-thumb.jpg",p:[
     {t:"images/mexico-city/118A2448-thumb.jpg",f:"images/mexico-city/118A2448-full.jpg",n:"Ancient Pyramids of Teotihuacan",ar:1.5},
@@ -1067,12 +1093,16 @@ const G=[
     {t:"images/moscow/Wolf 847-thumb.jpg",f:"images/moscow/Wolf 847-full.jpg",n:"Urban Resilience: Life on Copper",ar:1.5},
     {t:"images/moscow/Wolf 924-thumb.jpg",f:"images/moscow/Wolf 924-full.jpg",n:"Golden Tower Moscow Industrial Geometry",ar:1.885}
   ]},
-  {name:"New York",slug:"new-york",n:5,img:"images/new-york/Wolf 1625-thumb.jpg",p:[
+  {name:"New York",slug:"new-york",n:9,img:"images/new-york/Wolf 1625-thumb.jpg",p:[
     {t:"images/new-york/Wolf 1625-thumb.jpg",f:"images/new-york/Wolf 1625-full.jpg",n:"Manhattan Skyline Golden Light",ar:1.5},
     {t:"images/new-york/Wolf 1626-thumb.jpg",f:"images/new-york/Wolf 1626-full.jpg",n:"Manhattan Skyline in Golden Light",ar:1.5},
     {t:"images/new-york/Wolf 1627-thumb.jpg",f:"images/new-york/Wolf 1627-full.jpg",n:"Manhattan Skyline in Golden Light",ar:1.868},
     {t:"images/new-york/Wolf 1629-thumb.jpg",f:"images/new-york/Wolf 1629-full.jpg",n:"Manhattan Skyline Golden Hour",ar:1.5},
-    {t:"images/new-york/Wolf 1631-thumb.jpg",f:"images/new-york/Wolf 1631-full.jpg",n:"Manhattan Lights Reflected",ar:1.854}
+    {t:"images/new-york/Wolf 1631-thumb.jpg",f:"images/new-york/Wolf 1631-full.jpg",n:"Manhattan Lights Reflected",ar:1.854},
+    {t:"images/new-york/118A4436-thumb.jpg",f:"images/new-york/118A4436-full.jpg",n:"Urban Canyon After Dark",ar:2.066},
+    {t:"images/new-york/118A4439-thumb.jpg",f:"images/new-york/118A4439-full.jpg",n:"Urban Corridor: Manhattan Nocturne",ar:1.792},
+    {t:"images/new-york/118A4952-2-thumb.jpg",f:"images/new-york/118A4952-2-full.jpg",n:"Brooklyn Bridge Urban Geometry",ar:1.5},
+    {t:"images/new-york/118A5010-thumb.jpg",f:"images/new-york/118A5010-full.jpg",n:"Manhattan Bridge Urban Gateway",ar:1.338}
   ]},
   {name:"New Zealand",slug:"new-zealand",n:27,img:"images/new-zealand/118A2696-thumb.jpg",p:[
     {t:"images/new-zealand/118A2696-thumb.jpg",f:"images/new-zealand/118A2696-full.jpg",n:"Alpine Meadow with Mountain Stream",ar:2.159},
@@ -1137,10 +1167,13 @@ const G=[
     {t:"images/random-stuff/Wolf 5017-thumb.jpg",f:"images/random-stuff/Wolf 5017-full.jpg",n:"Sanctuary in the Vast Expanse",ar:2.658},
     {t:"images/random-stuff/Wolf 5019-thumb.jpg",f:"images/random-stuff/Wolf 5019-full.jpg",n:"Desert Station: Solitude and Structure",ar:1.835}
   ]},
-  {name:"San Francisco",slug:"san-francisco",n:1,img:"images/san-francisco/Wolf 1560-thumb.jpg",p:[
-    {t:"images/san-francisco/Wolf 1560-thumb.jpg",f:"images/san-francisco/Wolf 1560-full.jpg",n:"Above the San Francisco Fog",ar:1.845}
+  {name:"San Francisco",slug:"san-francisco",n:4,img:"images/san-francisco/Wolf 1560-thumb.jpg",p:[
+    {t:"images/san-francisco/Wolf 1560-thumb.jpg",f:"images/san-francisco/Wolf 1560-full.jpg",n:"Above the San Francisco Fog",ar:1.845},
+    {t:"images/san-francisco/_MG_4193-thumb.jpg",f:"images/san-francisco/_MG_4193-full.jpg",n:"San Francisco Nocturne",ar:2.184},
+    {t:"images/san-francisco/_MG_7613-thumb.jpg",f:"images/san-francisco/_MG_7613-full.jpg",n:"Golden Hour Over the Bay",ar:1.5},
+    {t:"images/san-francisco/_MG_7653-thumb.jpg",f:"images/san-francisco/_MG_7653-full.jpg",n:"Cable Car Descent to the Bay",ar:1.731}
   ]},
-  {name:"Sequoia National Park",slug:"sequoia-national-park",n:24,img:"images/sequoia-national-park/Wolf 2413-thumb.jpg",p:[
+  {name:"Sequoia National Park",slug:"sequoia-national-park",n:32,img:"images/sequoia-national-park/Wolf 2413-thumb.jpg",p:[
     {t:"images/sequoia-national-park/Wolf 2413-thumb.jpg",f:"images/sequoia-national-park/Wolf 2413-full.jpg",n:"Forest Road Through the Sierra",ar:1.5},
     {t:"images/sequoia-national-park/Wolf 2421-thumb.jpg",f:"images/sequoia-national-park/Wolf 2421-full.jpg",n:"Giants of the Sierra Forest",ar:1.575},
     {t:"images/sequoia-national-park/Wolf 2424-thumb.jpg",f:"images/sequoia-national-park/Wolf 2424-full.jpg",n:"Giants' Cathedral",ar:1.5},
@@ -1164,9 +1197,17 @@ const G=[
     {t:"images/sequoia-national-park/Wolf 2451-thumb.jpg",f:"images/sequoia-national-park/Wolf 2451-full.jpg",n:"Cathedral of Giants",ar:1.5},
     {t:"images/sequoia-national-park/Wolf 2455-thumb.jpg",f:"images/sequoia-national-park/Wolf 2455-full.jpg",n:"Meadow Between Ancient Giants",ar:1.5},
     {t:"images/sequoia-national-park/Wolf 2463-thumb.jpg",f:"images/sequoia-national-park/Wolf 2463-full.jpg",n:"Ancient Giant's Hollow",ar:1.5},
-    {t:"images/sequoia-national-park/Wolf 2464-thumb.jpg",f:"images/sequoia-national-park/Wolf 2464-full.jpg",n:"Ancient Giants in Morning Light",ar:1.5}
+    {t:"images/sequoia-national-park/Wolf 2464-thumb.jpg",f:"images/sequoia-national-park/Wolf 2464-full.jpg",n:"Ancient Giants in Morning Light",ar:1.5},
+    {t:"images/sequoia-national-park/Wolf 2413-thumb.jpg",f:"images/sequoia-national-park/Wolf 2413-full.jpg",n:"Forest Passage Through Giant Country",ar:1.5},
+    {t:"images/sequoia-national-park/Wolf 2421-thumb.jpg",f:"images/sequoia-national-park/Wolf 2421-full.jpg",n:"Between Ancient Giants",ar:1.575},
+    {t:"images/sequoia-national-park/Wolf 2424-thumb.jpg",f:"images/sequoia-national-park/Wolf 2424-full.jpg",n:"Giants Among the Sky",ar:1.5},
+    {t:"images/sequoia-national-park/Wolf 2426-thumb.jpg",f:"images/sequoia-national-park/Wolf 2426-full.jpg",n:"Hollow Giant Among the Sequoias",ar:1.5},
+    {t:"images/sequoia-national-park/Wolf 2451-thumb.jpg",f:"images/sequoia-national-park/Wolf 2451-full.jpg",n:"Cathedral of Ancient Giants",ar:1.5},
+    {t:"images/sequoia-national-park/Wolf 2455-thumb.jpg",f:"images/sequoia-national-park/Wolf 2455-full.jpg",n:"Golden Meadow Between Ancient Groves",ar:1.5},
+    {t:"images/sequoia-national-park/Wolf 2463-thumb.jpg",f:"images/sequoia-national-park/Wolf 2463-full.jpg",n:"Hollow Giant Among the Sequoias",ar:1.5},
+    {t:"images/sequoia-national-park/Wolf 2464-thumb.jpg",f:"images/sequoia-national-park/Wolf 2464-full.jpg",n:"Giant Sequoia Cathedral",ar:1.5}
   ]},
-  {name:"South Africa",slug:"south-africa",n:20,img:"images/south-africa/_MG_2190-thumb.jpg",p:[
+  {name:"South Africa",slug:"south-africa",n:36,img:"images/south-africa/_MG_2190-thumb.jpg",p:[
     {t:"images/south-africa/_MG_2190-thumb.jpg",f:"images/south-africa/_MG_2190-full.jpg",n:"Ostrich Portrait",ar:1.5},
     {t:"images/south-africa/_MG_2487-thumb.jpg",f:"images/south-africa/_MG_2487-full.jpg",n:"Lion Cub on the Lookout",ar:1.5},
     {t:"images/south-africa/_MG_2508-thumb.jpg",f:"images/south-africa/_MG_2508-full.jpg",n:"White Lion Cub",ar:1.5},
@@ -1186,7 +1227,23 @@ const G=[
     {t:"images/south-africa/Wolf 738-thumb.jpg",f:"images/south-africa/Wolf 738-full.jpg",n:"Impala Gathering in the Bush",ar:1.697},
     {t:"images/south-africa/_MG_2182-thumb.jpg",f:"images/south-africa/_MG_2182-full.jpg",n:"Giraffe Portrait Among Acacia",ar:1.5},
     {t:"images/south-africa/_MG_2270-thumb.jpg",f:"images/south-africa/_MG_2270-full.jpg",n:"Lioness at Rest, Kruger",ar:2.293},
-    {t:"images/south-africa/_MG_2311-thumb.jpg",f:"images/south-africa/_MG_2311-full.jpg",n:"Lioness in the Grassland",ar:2.106}
+    {t:"images/south-africa/_MG_2311-thumb.jpg",f:"images/south-africa/_MG_2311-full.jpg",n:"Lioness in the Grassland",ar:2.106},
+    {t:"images/south-africa/_MG_2366-thumb.jpg",f:"images/south-africa/_MG_2366-full.jpg",n:"Lioness in the South African Wild",ar:1.942},
+    {t:"images/south-africa/_MG_2395-thumb.jpg",f:"images/south-africa/_MG_2395-full.jpg",n:"Lioness Yawn, Kruger National Park",ar:1.5},
+    {t:"images/south-africa/_MG_2413-thumb.jpg",f:"images/south-africa/_MG_2413-full.jpg",n:"Spotted Sentinel at Rest",ar:1.805},
+    {t:"images/south-africa/_MG_2486-thumb.jpg",f:"images/south-africa/_MG_2486-full.jpg",n:"Lioness at Rest, Kruger",ar:1.853},
+    {t:"images/south-africa/_MG_3951-thumb.jpg",f:"images/south-africa/_MG_3951-full.jpg",n:"Penguin in Turquoise Shallows",ar:2.241},
+    {t:"images/south-africa/_MG_3959-thumb.jpg",f:"images/south-africa/_MG_3959-full.jpg",n:"Penguins at Boulder Beach Colony",ar:1.5},
+    {t:"images/south-africa/_MG_3973-thumb.jpg",f:"images/south-africa/_MG_3973-full.jpg",n:"Penguins at Boulder's Beach",ar:2.055},
+    {t:"images/south-africa/_MG_3977-thumb.jpg",f:"images/south-africa/_MG_3977-full.jpg",n:"Boulder Colony at Water's Edge",ar:2.069},
+    {t:"images/south-africa/_MG_4038-thumb.jpg",f:"images/south-africa/_MG_4038-full.jpg",n:"Turquoise Waters Meet Ancient Stone",ar:2.051},
+    {t:"images/south-africa/_MG_4062-thumb.jpg",f:"images/south-africa/_MG_4062-full.jpg",n:"Turquoise Waves Meet Ancient Stone",ar:2.315},
+    {t:"images/south-africa/_MG_4077-thumb.jpg",f:"images/south-africa/_MG_4077-full.jpg",n:"Rock Sentinel",ar:1.5},
+    {t:"images/south-africa/_MG_4079-thumb.jpg",f:"images/south-africa/_MG_4079-full.jpg",n:"Cliffs Meet the Sea",ar:1.681},
+    {t:"images/south-africa/_MG_4093-thumb.jpg",f:"images/south-africa/_MG_4093-full.jpg",n:"Solitary Antelope in the Fynbos",ar:2.03},
+    {t:"images/south-africa/_MG_4109-thumb.jpg",f:"images/south-africa/_MG_4109-full.jpg",n:"Coastal Cliffs Meet Azure Waters",ar:2.223},
+    {t:"images/south-africa/_MG_4165-thumb.jpg",f:"images/south-africa/_MG_4165-full.jpg",n:"Cape Town's Embrace: City and Sea",ar:1.952},
+    {t:"images/south-africa/_MG_3975-thumb.jpg",f:"images/south-africa/_MG_3975-full.jpg",n:"Penguin on Rocky Shore",ar:2.079}
   ]},
   {name:"South America",slug:"south-america",n:10,img:"images/south-america/118A2240-thumb.jpg",p:[
     {t:"images/south-america/118A2240-thumb.jpg",f:"images/south-america/118A2240-full.jpg",n:"Lama on the Street",ar:1.661},
@@ -1256,7 +1313,7 @@ const G=[
     {t:"images/tanzania/Wolf 226-thumb.jpg",f:"images/tanzania/Wolf 226-full.jpg",n:"Giraffe in Acacia Wilderness",ar:1.714},
     {t:"images/tanzania/Wolf 282-thumb.jpg",f:"images/tanzania/Wolf 282-full.jpg",n:"Giraffe's Gentle Reach",ar:1.5}
   ]},
-  {name:"Utah National Parks",slug:"utah-national-parks",n:22,img:"images/utah-national-parks/118A6607-thumb.jpg",p:[
+  {name:"Utah National Parks",slug:"utah-national-parks",n:45,img:"images/utah-national-parks/118A6607-thumb.jpg",p:[
     {t:"images/utah-national-parks/118A6607-thumb.jpg",f:"images/utah-national-parks/118A6607-full.jpg",n:"Crimson Waves Across Stone",ar:1.5},
     {t:"images/utah-national-parks/118A6652-thumb.jpg",f:"images/utah-national-parks/118A6652-full.jpg",n:"Weathered Wood Grain Study",ar:1.5},
     {t:"images/utah-national-parks/118A7121-thumb.jpg",f:"images/utah-national-parks/118A7121-full.jpg",n:"Dunes and Distant Plateaus",ar:1.54},
@@ -1278,7 +1335,30 @@ const G=[
     {t:"images/utah-national-parks/Wolf 480-thumb.jpg",f:"images/utah-national-parks/Wolf 480-full.jpg",n:"Desert Sentinel",ar:1.5},
     {t:"images/utah-national-parks/Wolf 482-thumb.jpg",f:"images/utah-national-parks/Wolf 482-full.jpg",n:"Desert Serpent: Canyon Road Curves",ar:1.5},
     {t:"images/utah-national-parks/Wolf 488-thumb.jpg",f:"images/utah-national-parks/Wolf 488-full.jpg",n:"Desert Portal: Canyonlands Frame",ar:1.81},
-    {t:"images/utah-national-parks/Wolf 490-thumb.jpg",f:"images/utah-national-parks/Wolf 490-full.jpg",n:"Desert Gateway: Canyonlands Vista",ar:1.886}
+    {t:"images/utah-national-parks/Wolf 490-thumb.jpg",f:"images/utah-national-parks/Wolf 490-full.jpg",n:"Desert Gateway: Canyonlands Vista",ar:1.886},
+    {t:"images/utah-national-parks/118A0015-thumb.jpg",f:"images/utah-national-parks/118A0015-full.jpg",n:"Natural Window to the Desert",ar:1.5},
+    {t:"images/utah-national-parks/118A6607-thumb.jpg",f:"images/utah-national-parks/118A6607-full.jpg",n:"Striations of Stone and Shadow",ar:1.5},
+    {t:"images/utah-national-parks/118A6652-thumb.jpg",f:"images/utah-national-parks/118A6652-full.jpg",n:"Weathered Stone Patterns",ar:1.5},
+    {t:"images/utah-national-parks/118A7121-thumb.jpg",f:"images/utah-national-parks/118A7121-full.jpg",n:"Sand Dunes and Desert Valley",ar:1.54},
+    {t:"images/utah-national-parks/118A7177-thumb.jpg",f:"images/utah-national-parks/118A7177-full.jpg",n:"Ridgeline Majesty Over Canyonlands",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 433-thumb.jpg",f:"images/utah-national-parks/Wolf 433-full.jpg",n:"Desert Highway Through Red Canyons",ar:2.039},
+    {t:"images/utah-national-parks/Wolf 435-thumb.jpg",f:"images/utah-national-parks/Wolf 435-full.jpg",n:"Towering Sentinels of the Desert",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 439-thumb.jpg",f:"images/utah-national-parks/Wolf 439-full.jpg",n:"Solitary Tree in Red Desert",ar:1.838},
+    {t:"images/utah-national-parks/Wolf 450-thumb.jpg",f:"images/utah-national-parks/Wolf 450-full.jpg",n:"Balanced Rock Sentinel",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 458-thumb.jpg",f:"images/utah-national-parks/Wolf 458-full.jpg",n:"Desert Monoliths at Golden Hour",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 459-thumb.jpg",f:"images/utah-national-parks/Wolf 459-full.jpg",n:"Desert Arches at Golden Hour",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 463-thumb.jpg",f:"images/utah-national-parks/Wolf 463-full.jpg",n:"Desert Rocks at Golden Hour",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 464-thumb.jpg",f:"images/utah-national-parks/Wolf 464-full.jpg",n:"Desert Monuments in Twilight",ar:2.012},
+    {t:"images/utah-national-parks/Wolf 466-thumb.jpg",f:"images/utah-national-parks/Wolf 466-full.jpg",n:"Desert Sentinels at Arches",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 468-thumb.jpg",f:"images/utah-national-parks/Wolf 468-full.jpg",n:"Delicate Arch Golden Light",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 469-thumb.jpg",f:"images/utah-national-parks/Wolf 469-full.jpg",n:"Desert Arch's Sculptured Portal",ar:1.799},
+    {t:"images/utah-national-parks/Wolf 476-thumb.jpg",f:"images/utah-national-parks/Wolf 476-full.jpg",n:"Balanced Rock's Desert Sentinel",ar:2.073},
+    {t:"images/utah-national-parks/Wolf 478-thumb.jpg",f:"images/utah-national-parks/Wolf 478-full.jpg",n:"Monument Valley's Towering Sentinels",ar:1.764},
+    {t:"images/utah-national-parks/Wolf 479-thumb.jpg",f:"images/utah-national-parks/Wolf 479-full.jpg",n:"Desert Monolith and Carved Cliffs",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 480-thumb.jpg",f:"images/utah-national-parks/Wolf 480-full.jpg",n:"Desert Sentinel",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 482-thumb.jpg",f:"images/utah-national-parks/Wolf 482-full.jpg",n:"Serpentine Canyon Road Through Red Stone",ar:1.5},
+    {t:"images/utah-national-parks/Wolf 488-thumb.jpg",f:"images/utah-national-parks/Wolf 488-full.jpg",n:"Stone Portal to the Desert",ar:1.81},
+    {t:"images/utah-national-parks/Wolf 490-thumb.jpg",f:"images/utah-national-parks/Wolf 490-full.jpg",n:"Mesa Portal Landscape",ar:1.886}
   ]},
   {name:"Valley of Fire",slug:"valley-of-fire",n:3,img:"images/valley-of-fire/IMG_0102-2-thumb.jpg",p:[
     {t:"images/valley-of-fire/IMG_0102-2-thumb.jpg",f:"images/valley-of-fire/IMG_0102-2-full.jpg",n:"Desert Ridges and Russet Plateaus",ar:1.915},

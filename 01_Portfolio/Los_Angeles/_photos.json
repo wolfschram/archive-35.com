@@ -1023,5 +1023,45 @@
     "thumbnail": "Wolf 4783-thumb.jpg",
     "full": "Wolf 4783-full.jpg",
     "c2pa": true
+  },
+  {
+    "id": "118a0083",
+    "filename": "118A0083.jpg",
+    "title": "Towering Palm Against Azure Sky",
+    "description": "A striking upward perspective captures a solitary palm tree rising dramatically against a crystalline blue sky, its fronds splayed at the crown like a natural crown. This iconic Los Angeles composition celebrates the vertical majesty of the city's signature botanical landscape.",
+    "location": "Los Angeles, Southern California",
+    "tags": [
+      "palm-tree",
+      "los-angeles",
+      "landscape-photography",
+      "fine-art-photography",
+      "upward-perspective",
+      "botanical",
+      "clear-sky",
+      "azure-sky",
+      "southern-california",
+      "nature-photography",
+      "dramatic-angle",
+      "minimalist",
+      "wall-art",
+      "canvas-print",
+      "home-decor",
+      "gallery-wall",
+      "majestic",
+      "vertical-composition",
+      "iconic-la",
+      "tropical-landscape"
+    ],
+    "dimensions": {
+      "width": 8688,
+      "height": 4014,
+      "aspectRatio": 2.164,
+      "aspectRatioString": "1448:669",
+      "orientation": "panorama",
+      "megapixels": 34.9
+    },
+    "thumbnail": "118A0083-thumb.jpg",
+    "full": "118A0083-full.jpg",
+    "c2pa": true
   }
 ]

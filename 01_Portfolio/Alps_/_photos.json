@@ -1,0 +1,82 @@
+[
+  {
+    "id": "_mg_1871",
+    "filename": "_MG_1871.jpg",
+    "title": "Peaks Above the Frozen Valley",
+    "description": "A dramatic panorama of snow-covered Alpine peaks rising majestically above a vast frozen landscape. Multiple summits pierce a brilliant blue sky, their stark ridges and glaciated slopes creating a composition of crystalline beauty and geological grandeur.",
+    "location": "Ötztal region, Ötztal Alps, Austria",
+    "tags": [
+      "mountain-peaks",
+      "snow-covered-landscape",
+      "glacier",
+      "frozen-valley",
+      "alps-mountains",
+      "alpine-scenery",
+      "dramatic-landscape",
+      "fine-art-photography",
+      "nature-photography",
+      "majestic-peaks",
+      "crystalline-white",
+      "azure-sky",
+      "ridge-formation",
+      "high-altitude",
+      "wilderness",
+      "landscape-art",
+      "wall-art",
+      "gallery-print",
+      "canvas-worthy",
+      "austrian-alps"
+    ],
+    "dimensions": {
+      "width": 5472,
+      "height": 2473,
+      "aspectRatio": 2.213,
+      "aspectRatioString": "5472:2473",
+      "orientation": "panorama",
+      "megapixels": 13.5
+    },
+    "thumbnail": "_MG_1871-thumb.jpg",
+    "full": "_MG_1871-full.jpg",
+    "c2pa": true
+  },
+  {
+    "id": "_mg_1876",
+    "filename": "_MG_1876.jpg",
+    "title": "Windswept Peaks of the High Alps",
+    "description": "A vast panorama of snow-covered mountain ridges and valleys unfolds beneath a luminous sky, revealing the raw, sculptural beauty of the Alps' highest reaches. Wind-carved snow surfaces and distant peaks create a profound sense of solitude and timeless majesty.",
+    "location": "High Alps, France-Italy Border Region",
+    "tags": [
+      "mountain-landscape",
+      "snow-covered-peaks",
+      "fine-art-photography",
+      "alps-mountains",
+      "alpine-scenery",
+      "glacier-terrain",
+      "high-altitude",
+      "dramatic-landscape",
+      "white-mountains",
+      "nature-photography",
+      "wall-art",
+      "canvas-print",
+      "majestic-peaks",
+      "mountain-vista",
+      "monochromatic-landscape",
+      "overcast-sky",
+      "pristine-wilderness",
+      "gallery-wall",
+      "landscape-art",
+      "serene-mountains"
+    ],
+    "dimensions": {
+      "width": 5472,
+      "height": 2922,
+      "aspectRatio": 1.873,
+      "aspectRatioString": "912:487",
+      "orientation": "wide",
+      "megapixels": 16
+    },
+    "thumbnail": "_MG_1876-thumb.jpg",
+    "full": "_MG_1876-full.jpg",
+    "c2pa": true
+  }
+]

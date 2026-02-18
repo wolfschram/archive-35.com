@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260218-0070",
+  "original_filename": "Wolf 5132-Pano-2.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Valley Stillness",
+  "description": "A pristine panoramic vista of a crystalline alpine lake framed by towering glacier-carved peaks and dense coniferous forests. This ultra-high-resolution image captures extraordinary detail across the entire composition—from the delicate reflection of clouds on mirror-still water to the textured geology of distant mountainsides—making it ideal for large-format fine art prints and immersive commercial installations.",
+  "location": "Lake McDonald, Glacier National Park, Montana, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 17082,
+    "height": 9241
+  },
+  "megapixels": 157.9,
+  "aspect_ratio": 1.849,
+  "file_size_bytes": 42921574,
+  "file_size_mb": 40.9,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 56.9,
+    "height_in": 30.8,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 113.9,
+    "height_in": 61.6,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2022:09:16 12:51:27",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.00125",
+    "FNumber": "2.8",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260218-0070.jpg",
+    "preview": "previews/A35-20260218-0070.jpg",
+    "thumbnail": "thumbnails/A35-20260218-0070.jpg"
+  },
+  "scanned_at": "2026-02-18T19:48:28.377467+00:00"
+}

@@ -164,8 +164,12 @@ def generate_watermarks(base_path, force=False, zoom=False):
         output_file = output_dir / f"{catalog_id}.jpg"
 
         if output_file.exists() and not force:
-            skipped += 1
-            continue
+            # Check if original was re-edited (newer mtime = needs regen)
+            if original_file.exists() and original_file.stat().st_mtime > output_file.stat().st_mtime:
+                print(f"  UPDATE {catalog_id}: original is newer than preview")
+            else:
+                skipped += 1
+                continue
 
         if not original_file.exists():
             print(f"  SKIP {catalog_id}: original not found ({meta['original_filename']})")

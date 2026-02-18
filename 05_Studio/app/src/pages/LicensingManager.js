@@ -21,11 +21,12 @@ const CLASSIFICATIONS = {
 };
 
 const PIPELINE_STEPS = [
-  { id: 'scan',      label: 'Scan & Classify',       script: 'scan_licensing_folder.py' },
-  { id: 'watermark', label: 'Generate Previews',       script: 'generate_watermark.py' },
-  { id: 'thumbnail', label: 'Generate Thumbnails',    script: 'generate_thumbnail.py' },
-  { id: 'r2',        label: 'Upload to R2',           script: 'upload_to_r2.py' },
-  { id: 'catalog',   label: 'Generate Gallery Catalog', script: 'process_licensing_images.py' },
+  { id: 'scan',      label: 'Scan & Classify',         script: 'scan_licensing_folder.py' },
+  { id: 'watermark', label: 'Generate Previews',        script: 'generate_watermark.py' },
+  { id: 'zoom',      label: 'Generate Zoom Previews',   script: 'generate_watermark.py' },
+  { id: 'thumbnail', label: 'Generate Thumbnails',      script: 'generate_thumbnail.py' },
+  { id: 'r2',        label: 'Upload to R2',             script: 'upload_to_r2.py' },
+  { id: 'catalog',   label: 'Generate Gallery Catalog',  script: 'process_licensing_images.py' },
 ];
 
 function LicensingManager() {
@@ -108,9 +109,10 @@ function LicensingManager() {
           } else {
             const sourceArg = step.id === 'scan' ? ` . --source "../${sourceFolder}"` : '';
             const folderArg = (step.id !== 'scan' && step.id !== 'r2') ? ' .' : '';
-            const forceArg = (step.id === 'watermark' && forceRegenPreviews) ? ' --force' : '';
+            const zoomArg = step.id === 'zoom' ? ' --zoom' : '';
+            const forceArg = ((step.id === 'watermark' || step.id === 'zoom') && forceRegenPreviews) ? ' --force' : '';
             const result = await window.electronAPI.runCommand(
-              `cd 09_Licensing && python3 ${step.script}${folderArg}${sourceArg}${forceArg}`
+              `cd 09_Licensing && python3 ${step.script}${folderArg}${sourceArg}${zoomArg}${forceArg}`
             );
             log(result);
           }
@@ -347,7 +349,7 @@ function LicensingManager() {
             onChange={(e) => setForceRegenPreviews(e.target.checked)}
             style={{ accentColor: '#c4973b' }}
           />
-          Regenerate all previews
+          Regenerate all previews + zoom
         </label>
         <button
           onClick={loadCatalog}

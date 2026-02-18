@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260217-0061",
+  "original_filename": "Wolf 5061.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Desert Ridges at Twiligt and fire ",
+  "description": "This expansive panoramic fine art photograph captures layered desert mountain ranges under a dramatic twilight sky, rendered in ultra-high resolution to reveal exceptional detail across the entire composition. The image's commanding scale and rich tonal gradations make it ideal for large-format gallery prints and premium commercial licensing applications.",
+  "location": "santa clarita  California, USA",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 14625,
+    "height": 4948
+  },
+  "megapixels": 72.4,
+  "aspect_ratio": 2.956,
+  "file_size_bytes": 24664936,
+  "file_size_mb": 23.5,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 48.8,
+    "height_in": 16.5,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 97.5,
+    "height_in": 33,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2022:08:31 18:34:12",
+    "FocalLength": "70.0",
+    "ExposureTime": "0.003125",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 320,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260217-0061.jpg",
+    "preview": "previews/A35-20260217-0061.jpg",
+    "thumbnail": "thumbnails/A35-20260217-0061.jpg"
+  },
+  "scanned_at": "2026-02-17T23:20:18.384900+00:00"
+}

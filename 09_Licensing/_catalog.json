@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2026-02-17T21:43:25.343Z",
+  "last_updated": "2026-02-17T23:21:13.026978+00:00",
   "images": [
     {
       "catalog_id": "A35-20260210-0001",
@@ -755,6 +755,54 @@
       "file_size_mb": 14.4,
       "status": "available",
       "license_count": 0
+    },
+    {
+      "catalog_id": "A35-20260217-0061",
+      "original_filename": "Wolf 5061.jpg",
+      "source_path": "../Photography/Large Scale Photography Stitch",
+      "collection": "",
+      "title": "Desert Ridges at Twiligt and fire ",
+      "classification": "PREMIUM",
+      "width": 14625,
+      "height": 4948,
+      "megapixels": 72.4,
+      "file_size_mb": 23.5,
+      "status": "available",
+      "license_count": 0,
+      "description": "This expansive panoramic fine art photograph captures layered desert mountain ranges under a dramatic twilight sky, rendered in ultra-high resolution to reveal exceptional detail across the entire composition. The image's commanding scale and rich tonal gradations make it ideal for large-format gallery prints and premium commercial licensing applications.",
+      "location": "santa clarita  California, USA"
+    },
+    {
+      "catalog_id": "A35-20260217-0062",
+      "original_filename": "Wolf 5081.jpg",
+      "source_path": "../Photography/Large Scale Photography Stitch",
+      "collection": "",
+      "title": "Alpine Passage Through Mountain Wilderness",
+      "classification": "ULTRA",
+      "width": 16266,
+      "height": 5221,
+      "megapixels": 84.9,
+      "file_size_mb": 38.6,
+      "status": "available",
+      "license_count": 0,
+      "description": "A breathtaking panoramic vista capturing a dramatic mountain road carved into sheer cliffside, overlooking a vast forested valley framed by jagged alpine peaks. The ultra-high-resolution capture preserves exquisite detail across the entire composition\u2014from the precise road markings and layered geological formations to the fine texture of dense conifer forests and distant mountain ridges\u2014making this image exceptionally suited for large-format fine art prints and expansive commercial installations.",
+      "location": "Going-to-the-Sun Road, Glacier National Park, Montana, USA"
+    },
+    {
+      "catalog_id": "A35-20260217-0063",
+      "original_filename": "Wolf 5085.jpg",
+      "source_path": "../Photography/Large Scale Photography Stitch",
+      "collection": "",
+      "title": "Alpine Valley in Silence",
+      "classification": "ULTRA",
+      "width": 16358,
+      "height": 7297,
+      "megapixels": 119.4,
+      "file_size_mb": 38.3,
+      "status": "available",
+      "license_count": 0,
+      "description": "A commanding panoramic vista of a pristine mountain valley framed by coniferous forests and dramatic peaks, captured in ultra-high resolution to reveal exceptional detail across the entire composition\u2014from foreground alpine meadow to distant summits. The exceptional tonal range and sharpness throughout makes this image ideal for large-format fine art printing and commercial licensing applications.",
+      "location": "Altai Mountains, Altai Republic, Russia"
     }
   ]
 }

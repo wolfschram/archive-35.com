@@ -1655,5 +1655,45 @@
     "thumbnail": "_MG_2454-thumb.jpg",
     "full": "_MG_2454-full.jpg",
     "c2pa": true
+  },
+  {
+    "id": "wolf_2782",
+    "filename": "Wolf 2782.jpg",
+    "title": "Urban Reflection and Architecture",
+    "description": "A striking composition capturing the interplay of modern architecture and sky, where geometric forms mirror perfectly in still water. The contrast between built environment and natural elements creates a meditation on urban design and balance.",
+    "location": "Los Angeles Walt Disney concert hall  Metropolitan District",
+    "tags": [
+      "architecture-photography",
+      "urban-landscape",
+      "fine-art-photography",
+      "black-and-white",
+      "reflection-photography",
+      "modern-architecture",
+      "geometric-composition",
+      "still-water",
+      "monochrome",
+      "architectural-design",
+      "contemporary-art",
+      "water-reflection",
+      "cityscape",
+      "minimalist-aesthetic",
+      "contrast-photography",
+      "building-facade",
+      "symmetry",
+      "gallery-wall-art",
+      "wall-art-print",
+      "fine-art-print"
+    ],
+    "dimensions": {
+      "width": 8147,
+      "height": 5434,
+      "aspectRatio": 1.499,
+      "aspectRatioString": "8147:5434",
+      "orientation": "landscape",
+      "megapixels": 44.3
+    },
+    "thumbnail": "Wolf 2782-thumb.jpg",
+    "full": "Wolf 2782-full.jpg",
+    "c2pa": true
   }
 ]

@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260217-0063",
+  "original_filename": "Wolf 5085.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Valley in Silence",
+  "description": "A commanding panoramic vista of a pristine mountain valley framed by coniferous forests and dramatic peaks, captured in ultra-high resolution to reveal exceptional detail across the entire composition—from foreground alpine meadow to distant summits. The exceptional tonal range and sharpness throughout makes this image ideal for large-format fine art printing and commercial licensing applications.",
+  "location": "Altai Mountains, Altai Republic, Russia",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 16358,
+    "height": 7297
+  },
+  "megapixels": 119.4,
+  "aspect_ratio": 2.242,
+  "file_size_bytes": 40160284,
+  "file_size_mb": 38.3,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 54.5,
+    "height_in": 24.3,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 109.1,
+    "height_in": 48.6,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2022:09:15 16:23:18",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.0003125",
+    "FNumber": "2.5",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260217-0063.jpg",
+    "preview": "previews/A35-20260217-0063.jpg",
+    "thumbnail": "thumbnails/A35-20260217-0063.jpg"
+  },
+  "scanned_at": "2026-02-17T23:20:18.386956+00:00"
+}

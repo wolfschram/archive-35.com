@@ -2524,11 +2524,12 @@ ${collectionsText}${staticFooter}`;
       execSync(`mkdir -p ${path.join(siteDir, '09_Licensing')}`, gitOpts);
       cpSync('09_Licensing/thumbnails', path.join(siteDir, '09_Licensing', 'thumbnails'));
       cpSync('09_Licensing/watermarked', path.join(siteDir, '09_Licensing', 'watermarked'));
+      cpSync('09_Licensing/zoom', path.join(siteDir, '09_Licensing', 'zoom'));
 
       // Stage ALL website-relevant files INCLUDING per-collection metadata
       // _photos.json files are the source of truth for each portfolio collection
       // _catalog.json is the source of truth for licensing — ALL must be committed
-      execSync('git add data/ images/ *.html css/ js/ functions/ build.sh llms*.txt sitemap.xml robots.txt logos/ 09_Licensing/thumbnails/ 09_Licensing/watermarked/ api/ licensing/ 01_Portfolio/*/_photos.json 09_Licensing/_catalog.json _site/', gitOpts);
+      execSync('git add data/ images/ *.html css/ js/ functions/ build.sh llms*.txt sitemap.xml robots.txt logos/ 09_Licensing/thumbnails/ 09_Licensing/watermarked/ 09_Licensing/zoom/ api/ licensing/ 01_Portfolio/*/_photos.json 09_Licensing/_catalog.json _site/', gitOpts);
 
       // Check if there are staged changes before committing
       const gitStatus = execSync('git diff --cached --stat', gitOpts).trim();

@@ -38,10 +38,12 @@ PREVIEW_MAX_PX = 2000       # Max dimension — enough for screen, not for print
 PREVIEW_QUALITY = 45         # Aggressive compression — looks OK on screen, garbage for print
 PREVIEW_BLUR_RADIUS = 0.5   # Slight softening — imperceptible on screen, kills print sharpness
 
-# Zoom preview settings (for fullscreen view — visible watermark, higher quality)
-ZOOM_MAX_PX = 4000           # Larger for zoom — shows quality but still not print-worthy
-ZOOM_QUALITY = 78            # Good enough to showcase, not good enough for commercial use
-ZOOM_BLUR_RADIUS = 0         # No blur — let them see the sharpness
+# Zoom preview settings (for hover-reveal fullscreen view)
+# High enough to showcase sharpness on 4K/5K monitors — still not original quality
+# The hover-reveal stripe only shows ~180px band at a time, so screenshots are useless
+ZOOM_MAX_PX = 8000           # Up to 8K on long edge — shows incredible detail in reveal stripe
+ZOOM_QUALITY = 82            # Good enough to showcase sharpness, not good enough for print at full size
+ZOOM_BLUR_RADIUS = 0         # No blur — let them see the crisp detail that makes this photography special
 
 
 def load_config(base):

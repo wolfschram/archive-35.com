@@ -14,6 +14,7 @@ function AgentPhotoImport() {
   const [filter, setFilter] = useState('');
   const [selected, setSelected] = useState(null);
   const [detail, setDetail] = useState(null);
+  const [importing, setImporting] = useState(false);
 
   const loadPhotos = async () => {
     try {
@@ -35,12 +36,15 @@ function AgentPhotoImport() {
   };
 
   const handleImport = async () => {
+    setImporting(true);
     try {
       const result = await post('/photos/import');
       alert(`Imported ${result.imported} new photos`);
       await loadPhotos();
     } catch (err) {
       alert(`Import failed: ${err.message}`);
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -57,8 +61,8 @@ function AgentPhotoImport() {
             <h2>Photo Library</h2>
             <p className="page-subtitle">{total} photos in agent database</p>
           </div>
-          <button className="btn btn-primary" onClick={handleImport} disabled={loading}>
-            Import New Photos
+          <button className="btn btn-primary" onClick={handleImport} disabled={importing}>
+            {importing ? 'Importing...' : 'Import New Photos'}
           </button>
         </div>
       </header>

@@ -237,6 +237,17 @@ def analyze_photo(
             "photo_id": photo_id,
             "error": str(e),
         }, success=False)
+
+        # Mark as failed so it doesn't block future batches
+        now = datetime.now(timezone.utc).isoformat()
+        conn.execute(
+            """UPDATE photos SET
+               vision_mood = 'error',
+               vision_analyzed_at = ?
+               WHERE id = ?""",
+            (now, photo_id),
+        )
+        conn.commit()
         return None
 
 

@@ -85,6 +85,7 @@ function createWindow() {
     minHeight: 700,
     titleBarStyle: 'hiddenInset',
     backgroundColor: '#0a0a0a',
+    show: false, // Don't show until ready
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -92,16 +93,39 @@ function createWindow() {
     }
   });
 
-  // Load the app
-  const startUrl = isDev
+  // Show splash screen immediately while React loads
+  const splashPath = `file://${path.join(__dirname, 'splash.html')}`;
+  mainWindow.loadURL(splashPath);
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+  });
+
+  // Load the actual app once React dev server or build is available
+  const appUrl = isDev
     ? 'http://localhost:3000'
     : `file://${path.join(__dirname, 'build', 'index.html')}`;
 
-  mainWindow.loadURL(startUrl);
-
-  // Open DevTools in development
   if (isDev) {
-    mainWindow.webContents.openDevTools();
+    // Wait for React dev server to be available, then switch from splash
+    const waitForReact = () => {
+      const checkReq = http.get(appUrl, (res) => {
+        if (res.statusCode === 200) {
+          console.log('[Studio] React dev server ready, loading app...');
+          mainWindow.loadURL(appUrl);
+          if (isDev) mainWindow.webContents.openDevTools();
+        } else {
+          setTimeout(waitForReact, 500);
+        }
+      });
+      checkReq.on('error', () => setTimeout(waitForReact, 500));
+      checkReq.setTimeout(2000, () => { checkReq.destroy(); setTimeout(waitForReact, 500); });
+    };
+    waitForReact();
+  } else {
+    // Production build — load directly after brief splash
+    setTimeout(() => {
+      mainWindow.loadURL(appUrl);
+    }, 1500);
   }
 
   mainWindow.on('closed', () => {

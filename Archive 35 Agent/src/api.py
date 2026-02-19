@@ -14,6 +14,7 @@ from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from src.config import get_settings
@@ -134,6 +135,19 @@ def list_photos(
         conn.close()
 
 
+@app.get("/photos/collections/list")
+def list_collections():
+    """Get all unique collection names with photo counts."""
+    conn = _get_conn()
+    try:
+        rows = conn.execute(
+            "SELECT collection, COUNT(*) as count FROM photos GROUP BY collection ORDER BY count DESC"
+        ).fetchall()
+        return {"collections": [{"name": r[0], "count": r[1]} for r in rows]}
+    finally:
+        conn.close()
+
+
 @app.get("/photos/{photo_id}")
 def get_photo(photo_id: str):
     """Get photo detail with related content."""
@@ -156,6 +170,28 @@ def get_photo(photo_id: str):
             "content": [dict(c) for c in content],
             "skus": [dict(s) for s in skus],
         }
+    finally:
+        conn.close()
+
+
+@app.get("/photos/{photo_id}/thumbnail")
+def get_photo_thumbnail(photo_id: str):
+    """Serve a photo file directly for thumbnail display."""
+    conn = _get_conn()
+    try:
+        photo = conn.execute("SELECT path FROM photos WHERE id = ?", (photo_id,)).fetchone()
+        if not photo:
+            raise HTTPException(status_code=404, detail="Photo not found")
+
+        photo_path = Path(photo["path"])
+        if not photo_path.exists():
+            raise HTTPException(status_code=404, detail="Photo file not found on disk")
+
+        return FileResponse(
+            path=str(photo_path),
+            media_type="image/jpeg",
+            headers={"Cache-Control": "public, max-age=86400"},
+        )
     finally:
         conn.close()
 

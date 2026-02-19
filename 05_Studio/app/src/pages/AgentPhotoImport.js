@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import useAgentApi from '../hooks/useAgentApi';
 
-const COLLECTIONS = ['ICE', 'TOK', 'LON', 'PAR', 'NYC', 'HAV', 'MAR', 'SYD', 'BER'];
+const AGENT_API = 'http://127.0.0.1:8035';
 
 /**
  * AgentPhotoImport — Photo library browser + import trigger.
- * Grid view with collection filter, click for detail panel.
+ * Grid view with dynamic collection filter, click for detail panel.
+ * Thumbnails served via Agent API to avoid Electron file:// restrictions.
  */
 function AgentPhotoImport() {
   const { get, post, loading, error } = useAgentApi();
@@ -15,16 +16,25 @@ function AgentPhotoImport() {
   const [selected, setSelected] = useState(null);
   const [detail, setDetail] = useState(null);
   const [importing, setImporting] = useState(false);
+  const [collections, setCollections] = useState([]);
 
   const loadPhotos = async () => {
     try {
-      const params = filter ? `?collection=${filter}&limit=100` : '?limit=100';
+      const params = filter ? `?collection=${encodeURIComponent(filter)}&limit=100` : '?limit=100';
       const data = await get(`/photos${params}`);
       setPhotos(data.items || []);
       setTotal(data.total || 0);
     } catch { /* error shown via hook */ }
   };
 
+  const loadCollections = async () => {
+    try {
+      const data = await get('/photos/collections/list');
+      setCollections(data.collections || []);
+    } catch { /* silently fail */ }
+  };
+
+  useEffect(() => { loadCollections(); }, []);
   useEffect(() => { loadPhotos(); }, [filter]);
 
   const loadDetail = async (photoId) => {
@@ -41,6 +51,7 @@ function AgentPhotoImport() {
       const result = await post('/photos/import');
       alert(`Imported ${result.imported} new photos`);
       await loadPhotos();
+      await loadCollections();
     } catch (err) {
       alert(`Import failed: ${err.message}`);
     } finally {
@@ -53,13 +64,20 @@ function AgentPhotoImport() {
     try { return JSON.parse(tagsStr); } catch { return []; }
   };
 
+  const formatCollection = (name) => {
+    if (!name) return '—';
+    return name.replace(/_/g, ' ').replace(/\s+$/, '');
+  };
+
   return (
     <div className="page">
       <header className="page-header">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h2>Photo Library</h2>
-            <p className="page-subtitle">{total} photos in agent database</p>
+            <p className="page-subtitle">
+              {total} photos across {collections.length} collections
+            </p>
           </div>
           <button className="btn btn-primary" onClick={handleImport} disabled={importing}>
             {importing ? 'Importing...' : 'Import New Photos'}
@@ -67,23 +85,23 @@ function AgentPhotoImport() {
         </div>
       </header>
 
-      {/* Collection filter */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
+      {/* Collection filter — dynamic from database */}
+      <div style={{ display: 'flex', gap: '6px', marginBottom: '24px', flexWrap: 'wrap' }}>
         <button
           className={`btn ${!filter ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '6px 14px', fontSize: '12px' }}
+          style={{ padding: '5px 12px', fontSize: '11px' }}
           onClick={() => setFilter('')}
         >
-          All
+          All ({collections.reduce((sum, c) => sum + c.count, 0)})
         </button>
-        {COLLECTIONS.map(c => (
+        {collections.map(c => (
           <button
-            key={c}
-            className={`btn ${filter === c ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '6px 14px', fontSize: '12px' }}
-            onClick={() => setFilter(c)}
+            key={c.name}
+            className={`btn ${filter === c.name ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '5px 12px', fontSize: '11px' }}
+            onClick={() => setFilter(c.name)}
           >
-            {c}
+            {formatCollection(c.name)} ({c.count})
           </button>
         ))}
       </div>
@@ -115,30 +133,21 @@ function AgentPhotoImport() {
                 <div style={{
                   aspectRatio: '1',
                   background: 'var(--bg-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   overflow: 'hidden',
                 }}>
-                  {photo.path ? (
-                    <img
-                      src={`file://${photo.path}`}
-                      alt={photo.filename}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                      }}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.parentNode.innerHTML = '<span style="font-size:28px;color:var(--text-muted)">📷</span>';
-                      }}
-                    />
-                  ) : (
-                    <span style={{ fontSize: '28px', color: 'var(--text-muted)' }}>
-                      {photo.vision_analyzed_at ? '🖼️' : '📷'}
-                    </span>
-                  )}
+                  <img
+                    src={`${AGENT_API}/photos/${photo.id}/thumbnail`}
+                    alt={photo.filename}
+                    loading="lazy"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
                 </div>
                 <div style={{ padding: '8px' }}>
                   <div style={{
@@ -160,7 +169,7 @@ function AgentPhotoImport() {
                         color: 'var(--accent)',
                         borderRadius: '10px',
                       }}>
-                        {photo.collection}
+                        {formatCollection(photo.collection)}
                       </span>
                     )}
                     {photo.vision_analyzed_at && (
@@ -182,20 +191,38 @@ function AgentPhotoImport() {
 
           {photos.length === 0 && !loading && (
             <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-muted)' }}>
-              {filter ? `No photos in ${filter} collection` : 'No photos imported yet'}
+              {filter ? `No photos in ${formatCollection(filter)}` : 'No photos imported yet'}
             </div>
           )}
         </div>
 
         {/* Detail panel */}
         {detail && (
-          <div className="glass-card" style={{ width: '320px', flexShrink: 0 }}>
-            <h3>{detail.photo.filename}</h3>
+          <div className="glass-card" style={{ width: '340px', flexShrink: 0 }}>
+            {/* Photo preview */}
+            <div style={{
+              marginBottom: '16px',
+              borderRadius: 'var(--radius-sm)',
+              overflow: 'hidden',
+              background: 'var(--bg-secondary)',
+            }}>
+              <img
+                src={`${AGENT_API}/photos/${detail.photo.id}/thumbnail`}
+                alt={detail.photo.filename}
+                style={{
+                  width: '100%',
+                  maxHeight: '300px',
+                  objectFit: 'contain',
+                }}
+              />
+            </div>
+
+            <h3 style={{ fontSize: '14px', marginBottom: '12px' }}>{detail.photo.filename}</h3>
 
             <div style={{ marginBottom: '16px' }}>
               <div className="detail-row">
                 <span className="detail-label">Collection</span>
-                <span>{detail.photo.collection || '—'}</span>
+                <span>{formatCollection(detail.photo.collection)}</span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Size</span>
@@ -205,6 +232,21 @@ function AgentPhotoImport() {
                 <span className="detail-label">Imported</span>
                 <span>{new Date(detail.photo.imported_at).toLocaleDateString()}</span>
               </div>
+              {detail.photo.exif_json && (() => {
+                try {
+                  const exif = JSON.parse(detail.photo.exif_json);
+                  return (
+                    <>
+                      {exif.Make && (
+                        <div className="detail-row">
+                          <span className="detail-label">Camera</span>
+                          <span>{exif.Make} {exif.Model || ''}</span>
+                        </div>
+                      )}
+                    </>
+                  );
+                } catch { return null; }
+              })()}
             </div>
 
             {/* Vision Analysis */}
@@ -249,6 +291,19 @@ function AgentPhotoImport() {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {!detail.photo.vision_analyzed_at && (
+              <div style={{
+                padding: '12px',
+                background: 'rgba(212, 165, 116, 0.08)',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                marginBottom: '16px',
+              }}>
+                Vision analysis not yet run. Use the Pipeline to analyze this photo.
               </div>
             )}
 

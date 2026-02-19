@@ -143,7 +143,7 @@ def analyze_photo(
         ).fetchone()
         return dict(cached)
 
-    # Check rate limits
+    # Check rate limits — don't mark as error (temporary condition)
     if not check_limit(conn, "anthropic", daily_call_limit=500, daily_cost_limit_usd=5.0):
         logger.warning("Anthropic API rate limit reached, skipping vision analysis")
         return None
@@ -157,7 +157,20 @@ def analyze_photo(
         return None
 
     if image_path is None or not image_path.exists():
-        logger.error("Image file not found for photo %s", photo_id)
+        logger.error("Image file not found for photo %s: %s", photo_id[:12], image_path)
+        now = datetime.now(timezone.utc).isoformat()
+        conn.execute(
+            """UPDATE photos SET
+               vision_mood = 'error',
+               vision_analyzed_at = ?
+               WHERE id = ?""",
+            (now, photo_id),
+        )
+        conn.commit()
+        audit_log(conn, "vision", "analyze_failed", {
+            "photo_id": photo_id,
+            "error": f"Image file not found: {image_path}",
+        }, success=False)
         return None
 
     # Call Claude Vision API

@@ -79,8 +79,21 @@ def _get_conn():
 
 @app.get("/health")
 def health():
-    """API health check."""
-    return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
+    """API health check — also verifies DB connectivity."""
+    db_ok = False
+    try:
+        conn = _get_conn()
+        conn.execute("SELECT 1").fetchone()
+        conn.close()
+        db_ok = True
+    except Exception:
+        pass
+    return {
+        "status": "online" if db_ok else "degraded",
+        "version": "0.2.0",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "db": "ok" if db_ok else "error",
+    }
 
 
 # ── Dashboard Stats ─────────────────────────────────────────────
@@ -434,11 +447,45 @@ def pipeline_status():
         conn.close()
 
 
-@app.post("/pipeline/run")
-def run_pipeline(dry_run: bool = True):
-    """Manually trigger the daily pipeline."""
-    from src.pipeline.daily import run_daily_pipeline
+class PipelineRunRequest(BaseModel):
+    component: Optional[str] = None
 
+
+@app.post("/pipeline/run")
+def run_pipeline(dry_run: bool = True, req: PipelineRunRequest = PipelineRunRequest()):
+    """Manually trigger the daily pipeline or test a specific component."""
+    # Component-specific health tests (used by Health panel)
+    if req.component == "vision":
+        client = _get_anthropic_client()
+        if not client:
+            return {"success": False, "error": "Anthropic API key not configured"}
+        try:
+            # Quick model ping — no actual image analysis
+            resp = client.messages.create(
+                model="claude-haiku-4-5-20251001",
+                max_tokens=10,
+                messages=[{"role": "user", "content": "Reply OK"}],
+            )
+            return {"success": True, "model": "claude-haiku-4-5-20251001"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    if req.component == "content":
+        client = _get_anthropic_client()
+        if not client:
+            return {"success": False, "error": "Anthropic API key not configured"}
+        try:
+            resp = client.messages.create(
+                model="claude-sonnet-4-5-20250929",
+                max_tokens=10,
+                messages=[{"role": "user", "content": "Reply OK"}],
+            )
+            return {"success": True, "model": "claude-sonnet-4-5-20250929"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    # Full pipeline run
+    from src.pipeline.daily import run_daily_pipeline
     client = _get_anthropic_client()
     results = run_daily_pipeline(anthropic_client=client, dry_run=dry_run)
     return results
@@ -463,14 +510,18 @@ def pipeline_logs(
 
 @app.get("/safety/status")
 def safety_status():
-    """Get kill switch and rate limit status."""
+    """Get kill switch, rate limit, and Late API status."""
     conn = _get_conn()
     try:
         ks = kill_switch.get_status(conn)
         rates = conn.execute("SELECT * FROM rate_limits").fetchall()
+        # Check Late API connectivity
+        settings = get_settings()
+        late_connected = settings.has_late_api_key() if hasattr(settings, 'has_late_api_key') else False
         return {
             "kill_switches": ks,
             "rate_limits": [dict(r) for r in rates],
+            "connected": late_connected,
         }
     finally:
         conn.close()

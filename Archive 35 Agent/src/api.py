@@ -175,8 +175,12 @@ def get_photo(photo_id: str):
 
 
 @app.get("/photos/{photo_id}/thumbnail")
-def get_photo_thumbnail(photo_id: str):
-    """Serve a photo file directly for thumbnail display."""
+def get_photo_thumbnail(photo_id: str, size: int = Query(default=300, le=800)):
+    """Serve a resized thumbnail for fast grid display.
+
+    Generates a small JPEG on first request, caches it in data/thumbnails/.
+    Subsequent requests serve the cached file instantly.
+    """
     conn = _get_conn()
     try:
         photo = conn.execute("SELECT path FROM photos WHERE id = ?", (photo_id,)).fetchone()
@@ -187,10 +191,25 @@ def get_photo_thumbnail(photo_id: str):
         if not photo_path.exists():
             raise HTTPException(status_code=404, detail="Photo file not found on disk")
 
+        # Check for cached thumbnail
+        thumb_dir = Path("data/thumbnails")
+        thumb_dir.mkdir(parents=True, exist_ok=True)
+        thumb_path = thumb_dir / f"{photo_id}_{size}.jpg"
+
+        if not thumb_path.exists():
+            # Generate thumbnail from original
+            from PIL import Image
+            img = Image.open(photo_path)
+            img.thumbnail((size, size), Image.LANCZOS)
+            # Convert to RGB if needed (handles RGBA, CMYK, etc.)
+            if img.mode not in ("RGB", "L"):
+                img = img.convert("RGB")
+            img.save(str(thumb_path), "JPEG", quality=80, optimize=True)
+
         return FileResponse(
-            path=str(photo_path),
+            path=str(thumb_path),
             media_type="image/jpeg",
-            headers={"Cache-Control": "public, max-age=86400"},
+            headers={"Cache-Control": "public, max-age=604800"},  # 7 days
         )
     finally:
         conn.close()

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | ARCHIVE-35</title>
+  <meta name="description" content="Sign in to your Archive-35 account to view order history and manage your account.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ARCHIVE-35">
+  <meta property="og:title" content="Sign In | ARCHIVE-35">
+  <meta property="og:url" content="https://archive-35.com/login.html">
+  <meta property="og:image" content="https://archive-35.com/logos/archive35-og-image.png">
+  <meta name="robots" content="noai, noimageai">
+  <link rel="canonical" href="https://archive-35.com/login.html">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="logos/archive35-favicon-180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="logos/archive35-favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="logos/archive35-favicon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/account.css">
+  <link rel="stylesheet" href="css/cart.css">
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SE2WETEK5D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-SE2WETEK5D', { 'anonymize_ip': true, 'allow_google_signals': false, 'allow_ad_personalization_signals': false });
+  </script>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "CLOUDFLARE_BEACON_TOKEN"}'></script>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-white">ARCHIVE</span><span class="logo-gold">-35</span>
+      </a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="licensing.html">Licensing</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="search.html">Search</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container">
+      <h1>My Account</h1>
+      <p>Sign in to view your orders and account details.</p>
+    </div>
+  </div>
+
+  <!-- Login Content -->
+  <section class="page-content">
+    <div class="container">
+      <div class="login-container">
+
+        <!-- Error message (from redirect) -->
+        <div class="login-error" id="login-error" style="display:none;"></div>
+
+        <!-- Success message (after sending link) -->
+        <div class="login-success" id="login-success" style="display:none;">
+          <div class="success-icon">&#9993;</div>
+          <h2>Check Your Email</h2>
+          <p>We sent a login link to <strong id="sent-email"></strong>. Click the link in the email to sign in.</p>
+          <p class="login-hint">Don't see it? Check your spam folder. The link expires in 15 minutes.</p>
+        </div>
+
+        <!-- Login form -->
+        <div class="login-form-wrapper" id="login-form-wrapper">
+          <div class="login-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+
+          <h2>Sign In</h2>
+          <p class="login-subtitle">Enter your email to receive a secure login link. No password needed.</p>
+
+          <form id="login-form" class="login-form">
+            <div class="form-group">
+              <label for="name">Your Name</label>
+              <input type="text" id="name" name="name" placeholder="First and last name" autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" placeholder="your@email.com" required autocomplete="email">
+            </div>
+            <button type="submit" class="btn btn-primary login-btn" id="login-btn">
+              Send Login Link
+            </button>
+          </form>
+
+          <p class="login-note">
+            New here? Just enter your email — we'll create your account automatically.
+            <br><small style="color:#999;">Tip: Check your spam or junk folder if you don't receive the email.</small>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">
+            <span class="logo-white">ARCHIVE</span><span class="logo-gold">-35</span>
+          </a>
+          <p>Fine art landscape photography prints. Light. Place. Time.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Explore</h4>
+          <a href="gallery.html">Gallery</a>
+          <a href="licensing.html">Licensing</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-links">
+          <h4>Legal</h4>
+          <a href="terms.html">Terms of Sale</a>
+          <a href="privacy.html">Privacy Policy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Archive-35. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/cart-ui.js?v=6"></script>
+  <script src="js/auth.js?v=1"></script>
+  <script>
+    // Handle login form submission
+    const form = document.getElementById('login-form');
+    const loginBtn = document.getElementById('login-btn');
+    const formWrapper = document.getElementById('login-form-wrapper');
+    const successMsg = document.getElementById('login-success');
+    const errorMsg = document.getElementById('login-error');
+    const sentEmailEl = document.getElementById('sent-email');
+
+    // Show error from redirect (e.g., expired magic link)
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorParam = urlParams.get('error');
+    if (errorParam) {
+      errorMsg.textContent = errorParam;
+      errorMsg.style.display = 'block';
+    }
+
+    // If already logged in, redirect to account
+    fetch('/api/auth/session', { credentials: 'include' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.loggedIn) {
+          window.location.href = '/account.html';
+        }
+      })
+      .catch(() => {});
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const name = document.getElementById('name').value.trim();
+      if (!email) return;
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Sending...';
+      errorMsg.style.display = 'none';
+
+      try {
+        const resp = await fetch('/api/auth/send-magic-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, name }),
+        });
+
+        const data = await resp.json();
+
+        if (resp.ok) {
+          // Show success state
+          formWrapper.style.display = 'none';
+          sentEmailEl.textContent = email;
+          successMsg.style.display = 'block';
+        } else {
+          errorMsg.textContent = data.error || 'Something went wrong. Please try again.';
+          errorMsg.style.display = 'block';
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Send Login Link';
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Network error. Please check your connection and try again.';
+        errorMsg.style.display = 'block';
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Send Login Link';
+      }
+    });
+  </script>
+</body>
+</html>

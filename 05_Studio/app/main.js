@@ -109,7 +109,21 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(async () => {
+  createWindow();
+
+  // Auto-start Agent backend if directory exists
+  try {
+    if (fsSync.existsSync(AGENT_DIR) && fsSync.existsSync(path.join(AGENT_DIR, 'src', 'api.py'))) {
+      console.log('[Agent] Auto-starting backend...');
+      await startAgentProcess();
+    } else {
+      console.log('[Agent] Agent directory not found, skipping auto-start');
+    }
+  } catch (err) {
+    console.warn('[Agent] Auto-start failed:', err.message);
+  }
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -4539,17 +4553,6 @@ ipcMain.handle('save-agent-env', async (event, key, value) => {
   } catch (err) {
     console.error('[Agent Env] Failed to save:', err.message);
     return { success: false, error: err.message };
-  }
-});
-
-// Auto-start agent on app ready (if Agent directory exists)
-app.on('ready', () => {
-  try {
-    if (fsSync.existsSync(AGENT_DIR) && fsSync.existsSync(path.join(AGENT_DIR, 'src', 'api.py'))) {
-      startAgentProcess();
-    }
-  } catch (err) {
-    console.warn('[Agent] Auto-start skipped:', err.message);
   }
 });
 

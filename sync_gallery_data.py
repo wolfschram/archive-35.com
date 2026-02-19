@@ -63,7 +63,7 @@ def main():
     lines = []
     for slug, coll in collections.items():
         photo_count = len(coll['photos'])
-        cover_img = coll['photos'][0]['t'] if coll['photos'] else ''
+        cover_img = coll['photos'][0]['f'] if coll['photos'] else ''
 
         photo_entries = []
         for ph in coll['photos']:

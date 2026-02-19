@@ -1516,11 +1516,26 @@ const tEl=document.getElementById('info-t'),cEl=document.getElementById('info-c'
 function updH(){const i=wI(Math.round(sm));if(i===lastH)return;lastH=i;tEl.textContent=G[i].name.toUpperCase();cEl.textContent=G[i].n+' photograph'+(G[i].n!==1?'s':'');}
 
 /* Idle-aware animation loop — pauses when settled to save CPU/battery */
-let _idleFrames=0;
+let _idleFrames=0,_dwellTimer=null,_dwellIdx=-1;
 (function run(){
   const d=cur-sm;sm+=d*0.12;if(Math.abs(d)<0.0005){sm=cur;_idleFrames++;}else{_idleFrames=0;}
   const r=Math.round(sm);if(r!==lastR){lastR=r;}
   layout();updH();
+
+  /* Auto-preview: after settling on a collection for 3s, show preview panel */
+  const ci=wI(Math.round(sm));
+  const fgOpen=document.getElementById('fgal').classList.contains('open');
+  const lbOpen=document.getElementById('lb').classList.contains('open');
+  if(_idleFrames>5&&ci!==_dwellIdx&&!fgOpen&&!lbOpen){
+    _dwellIdx=ci;clearTimeout(_dwellTimer);
+    _dwellTimer=setTimeout(()=>{
+      if(!document.getElementById('fgal').classList.contains('open')&&
+         !document.getElementById('lb').classList.contains('open')&&
+         wI(Math.round(cur))===ci){openCP(ci);}
+    },3000);
+  }
+  if(_idleFrames===0){clearTimeout(_dwellTimer);_dwellIdx=-1;if(cpI>=0)closeCP();}
+
   /* After 60 idle frames (~1 sec), slow to 4fps instead of stopping completely */
   if(_idleFrames>60){setTimeout(()=>requestAnimationFrame(run),250);return;}
   requestAnimationFrame(run);
@@ -1609,7 +1624,7 @@ function openCP(idx){
   document.getElementById('cprev').classList.add('open');
   document.getElementById('info-h').style.opacity='0';
 }
-function closeCP(){cpI=-1;document.getElementById('cprev').classList.remove('open');document.getElementById('info-h').style.opacity='';}
+function closeCP(){cpI=-1;_dwellIdx=-1;clearTimeout(_dwellTimer);document.getElementById('cprev').classList.remove('open');document.getElementById('info-h').style.opacity='';}
 document.getElementById('cprev-btn').addEventListener('click',()=>{if(cpI>=0)openFg(cpI);});
 
 /* ===== FULL GALLERY — uses thumbnails on mobile for performance ===== */

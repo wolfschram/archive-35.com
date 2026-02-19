@@ -29,6 +29,37 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Archive-35 Agent API", version="0.2.0")
 
+
+def _get_anthropic_client():
+    """Get Anthropic client, checking Agent .env then root .env fallback."""
+    settings = get_settings()
+    api_key = None
+
+    # 1. Check Agent's own .env
+    if settings.has_anthropic_key():
+        api_key = settings.anthropic_api_key
+
+    # 2. Fallback: read from root Archive-35 .env (Studio's key)
+    if not api_key:
+        root_env = Path(__file__).parent.parent.parent / ".env"
+        if root_env.exists():
+            for line in root_env.read_text().splitlines():
+                if line.startswith("ANTHROPIC_API_KEY="):
+                    val = line.split("=", 1)[1].strip()
+                    if val and val != "sk-ant-...":
+                        api_key = val
+                        break
+
+    if not api_key:
+        return None
+
+    try:
+        import anthropic
+        return anthropic.Anthropic(api_key=api_key)
+    except Exception as e:
+        logger.error("Failed to create Anthropic client: %s", e)
+        return None
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -259,6 +290,52 @@ def reimport_photos(req: ImportRequest):
         conn.close()
 
 
+class AnalyzeRequest(BaseModel):
+    photo_ids: Optional[list[str]] = None  # None = all unanalyzed
+    limit: int = 10  # max photos per batch
+
+
+@app.post("/photos/analyze")
+def analyze_photos(req: AnalyzeRequest):
+    """Run Claude Vision analysis on photos."""
+    client = _get_anthropic_client()
+    if not client:
+        raise HTTPException(
+            status_code=503,
+            detail="Anthropic API key not configured. Set it in Studio Settings > API Keys.",
+        )
+
+    conn = _get_conn()
+    try:
+        if req.photo_ids:
+            ids = req.photo_ids
+        else:
+            rows = conn.execute(
+                "SELECT id FROM photos WHERE vision_analyzed_at IS NULL LIMIT ?",
+                (req.limit,),
+            ).fetchall()
+            ids = [r["id"] for r in rows]
+
+        if not ids:
+            return {"analyzed": 0, "message": "All photos already analyzed"}
+
+        from src.agents.vision import analyze_batch
+        results = analyze_batch(conn, ids, client=client)
+
+        remaining = conn.execute(
+            "SELECT COUNT(*) as cnt FROM photos WHERE vision_analyzed_at IS NULL"
+        ).fetchone()["cnt"]
+
+        return {
+            "analyzed": len(results),
+            "requested": len(ids),
+            "remaining_unanalyzed": remaining,
+            "results": results,
+        }
+    finally:
+        conn.close()
+
+
 # ── Content ─────────────────────────────────────────────────────
 
 
@@ -362,7 +439,8 @@ def run_pipeline(dry_run: bool = True):
     """Manually trigger the daily pipeline."""
     from src.pipeline.daily import run_daily_pipeline
 
-    results = run_daily_pipeline(dry_run=dry_run)
+    client = _get_anthropic_client()
+    results = run_daily_pipeline(anthropic_client=client, dry_run=dry_run)
     return results
 
 

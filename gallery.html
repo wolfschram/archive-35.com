@@ -333,7 +333,9 @@ nav a:hover::after, nav a.active::after { width:100%; }
 #info {
   position:absolute; bottom:24vh; left:0; right:0;
   text-align:center; z-index:15; pointer-events:none;
+  transition:bottom .7s cubic-bezier(.23,1,.32,1);
 }
+#info.preview-up { bottom:50vh; }
 #info-t {
   font-family:'Bebas Neue',sans-serif;
   font-size:clamp(28px,4.2vw,56px);
@@ -1622,9 +1624,10 @@ function openCP(idx){
     newGrid.appendChild(m);
   }
   document.getElementById('cprev').classList.add('open');
+  document.getElementById('info').classList.add('preview-up');
   document.getElementById('info-h').style.opacity='0';
 }
-function closeCP(){cpI=-1;_dwellIdx=-1;clearTimeout(_dwellTimer);document.getElementById('cprev').classList.remove('open');document.getElementById('info-h').style.opacity='';}
+function closeCP(){cpI=-1;_dwellIdx=-1;clearTimeout(_dwellTimer);document.getElementById('cprev').classList.remove('open');document.getElementById('info').classList.remove('preview-up');document.getElementById('info-h').style.opacity='';}
 document.getElementById('cprev-btn').addEventListener('click',()=>{if(cpI>=0)openFg(cpI);});
 
 /* ===== FULL GALLERY — uses thumbnails on mobile for performance ===== */

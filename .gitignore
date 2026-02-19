@@ -42,6 +42,12 @@ Archive-35_Strategy_Briefing_v2_FINAL.docx
 # Session handover docs
 Archive-35_Session_Handover_*.docx
 
+# Agent data (SQLite DB, cached thumbnails)
+Archive 35 Agent/data/
+
+# Agent handover docs
+Archive-35_Agent_Handover*.docx
+
 # Studio build artifacts (Electron)
 05_Studio/app/dist/
 05_Studio/app/build/

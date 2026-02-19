@@ -1339,8 +1339,8 @@ const cfEl=document.getElementById('cf'),items=[],dotsEl=document.getElementById
 G.forEach((g,i)=>{
   const el=document.createElement('div');el.className='c';
   const face=document.createElement('div');face.className='c-face';
-  /* On mobile use thumbnails for covers (~20KB vs ~550KB); full-size on desktop */
-  const covSrc=_isMobile?g.img:g.img.replace('-thumb.','-full.');
+  /* Thumbnails for covers — 400px is plenty for CoverFlow card size */
+  const covSrc=g.img;
   face.innerHTML=`<img src="${covSrc}" alt="${g.name} — Cover" draggable="false" loading="${i<3?'eager':'lazy'}">`;
   face.innerHTML+=`<div class="c-lbl">${g.name.toUpperCase()}</div>`;
   el.appendChild(face);
@@ -1521,7 +1521,7 @@ function openCP(idx){
 function closeCP(){cpI=-1;_dwellIdx=-1;clearTimeout(_dwellTimer);document.getElementById('cprev').classList.remove('open');document.getElementById('info').classList.remove('preview-up');document.getElementById('info-h').style.opacity='';}
 document.getElementById('cprev-btn').addEventListener('click',()=>{if(cpI>=0)openFg(cpI);});
 
-/* ===== FULL GALLERY — uses thumbnails on mobile for performance ===== */
+/* ===== FULL GALLERY — thumbnails in grid, full-res only in lightbox ===== */
 function openFg(idx,scrollToPhoto){
   const g=G[idx];document.getElementById('fg-ti').textContent=g.name.toUpperCase();
   document.getElementById('fg-ct').textContent=g.n+' photograph'+(g.n!==1?'s':'');
@@ -1532,10 +1532,11 @@ function openFg(idx,scrollToPhoto){
   newGrid.id='fg-gr';
   for(let i=0;i<g.n;i++){
     const img=document.createElement('img');img.className='fg-im';
-    /* On mobile use thumbnails (~20KB) instead of full (~550KB) to cut load by 95% */
-    img.src=_isMobile?g.p[i].t:g.p[i].f;
+    /* Always use thumbnails (~20KB) in grid — full-res loads in lightbox on click */
+    img.src=g.p[i].t;
     img.alt=g.p[i].n||`${g.name} — ${i+1}`;
-    img.loading='lazy';
+    /* First 9 images load eagerly (visible above fold), rest lazy */
+    img.loading=i<9?'eager':'lazy';
     img.onload=function(){this.classList.add('loaded');};
     img.addEventListener('click',()=>openLb(idx,i));
     newGrid.appendChild(img);

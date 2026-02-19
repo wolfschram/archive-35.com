@@ -33,10 +33,39 @@ Consider: visual impact, emotional resonance, print-worthiness,
 commercial appeal for home decor. Be specific with tags."""
 
 
+MAX_IMAGE_BYTES = 4_500_000  # Stay under Claude's 5MB base64 limit
+
+
 def _encode_image(image_path: Path) -> str:
-    """Base64-encode an image file for the API."""
-    with open(image_path, "rb") as f:
-        return base64.b64encode(f.read()).decode("utf-8")
+    """Base64-encode an image file, resizing if over 5MB limit."""
+    raw = image_path.read_bytes()
+
+    if len(raw) <= MAX_IMAGE_BYTES:
+        return base64.b64encode(raw).decode("utf-8")
+
+    # Resize to fit under the limit
+    logger.info("Resizing %s (%d bytes) for vision API", image_path.name, len(raw))
+    from PIL import Image
+    import io
+
+    img = Image.open(image_path)
+    if img.mode not in ("RGB", "L"):
+        img = img.convert("RGB")
+
+    # Start at 2000px long edge, reduce until under limit
+    for max_dim in (2000, 1500, 1200, 1000, 800):
+        img_copy = img.copy()
+        img_copy.thumbnail((max_dim, max_dim), Image.LANCZOS)
+        buf = io.BytesIO()
+        img_copy.save(buf, "JPEG", quality=85, optimize=True)
+        if buf.tell() <= MAX_IMAGE_BYTES:
+            return base64.b64encode(buf.getvalue()).decode("utf-8")
+
+    # Last resort: very small
+    img.thumbnail((600, 600), Image.LANCZOS)
+    buf = io.BytesIO()
+    img.save(buf, "JPEG", quality=70, optimize=True)
+    return base64.b64encode(buf.getvalue()).decode("utf-8")
 
 
 def _get_media_type(path: Path) -> str:

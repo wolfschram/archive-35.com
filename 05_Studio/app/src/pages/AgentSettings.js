@@ -63,8 +63,8 @@ function AgentSettings({ setActiveTab }) {
     if (window.electronAPI?.getAgentConfig) {
       window.electronAPI.getAgentConfig()
         .then(config => {
-          if (config?.shared_keys) {
-            setSharedKeys(config.shared_keys);
+          if (config) {
+            setSharedKeys(config);
           }
           setSharedLoading(false);
         })

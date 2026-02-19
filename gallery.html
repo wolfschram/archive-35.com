@@ -1447,10 +1447,10 @@ window.addEventListener('resize',layout);
 
 /* ===== INPUT ===== */
 function modal(){return document.getElementById('fgal').classList.contains('open')||document.getElementById('lb').classList.contains('open');}
-let sA=0;
+var sA=0;
 document.addEventListener('wheel',e=>{if(modal())return;const dd=document.getElementById('gal-drop');if(dd&&dd.matches(':hover')){return;}e.preventDefault();sA+=(e.deltaY||0)+(e.deltaX||0);if(Math.abs(sA)>=180){cur+=Math.sign(sA);sA=0;}},{passive:false});
 
-let drag=false,dX0=0,dC0=0,dM=false,dLX=0,dV=0;
+var drag=false,dX0=0,dC0=0,dM=false,dLX=0,dV=0;
 function dS(x,e){if(modal())return;const dd=document.getElementById('gal-drop');if(dd&&dd.matches(':hover'))return;drag=true;dM=false;dX0=x;dC0=cur;dLX=x;dV=0;}
 const _isTouch='ontouchstart'in window,_swDiv=_isTouch?300:200,_swVel=_isTouch?0.005:0.008,_swFling=_isTouch?1.2:1.8;
 function dMv(x){if(!drag)return;if(Math.abs(x-dX0)>5)dM=true;dV=(dLX-x)*_swVel;dLX=x;cur=dC0+(dX0-x)/_swDiv;}
@@ -1470,7 +1470,7 @@ document.addEventListener('keydown',e=>{
 });
 
 /* ===== COVER CLICK ===== */
-let cpI=-1;
+var cpI=-1;
 function onCC(idx){if(dM)return;const ci=wI(Math.round(cur));if(idx!==ci){cur+=cD(ci,idx);return;}
   openFg(idx);}
 

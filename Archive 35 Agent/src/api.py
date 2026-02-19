@@ -528,8 +528,7 @@ def get_agent_keys():
 
 
 class KeyUpdate(BaseModel):
-    class Config:
-        extra = "allow"
+    model_config = {"extra": "allow"}
 
 
 @app.post("/config/keys")

@@ -20,6 +20,7 @@ Every change must be treated as a production deployment:
 - **No experiments on main.** If something is risky, discuss with Wolf before pushing
 - **Mobile matters.** Many visitors come from iPhone/Instagram links. Test mobile viewport behavior
 - **Performance matters.** Gallery has CoverFlow animations — don't regress the idle-throttling or event listener cleanup
+- **Self-test EVERY change.** After every commit+push, wait for Cloudflare deploy (~15-30s), then hard-refresh the live site in the browser and: (1) take a screenshot to visually verify, (2) check the browser console for JS errors, (3) test basic interactions (click, scroll, navigate). Never tell Wolf "it's deployed" without actually verifying it works. You have Chrome browser access — use it.
 
 ---
 

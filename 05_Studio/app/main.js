@@ -109,19 +109,15 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(async () => {
+app.whenReady().then(() => {
   createWindow();
 
-  // Auto-start Agent backend if directory exists
-  try {
-    if (fsSync.existsSync(AGENT_DIR) && fsSync.existsSync(path.join(AGENT_DIR, 'src', 'api.py'))) {
-      console.log('[Agent] Auto-starting backend...');
-      await startAgentProcess();
-    } else {
-      console.log('[Agent] Agent directory not found, skipping auto-start');
-    }
-  } catch (err) {
-    console.warn('[Agent] Auto-start failed:', err.message);
+  // Auto-start Agent backend in background (don't block window rendering)
+  if (fsSync.existsSync(AGENT_DIR) && fsSync.existsSync(path.join(AGENT_DIR, 'src', 'api.py'))) {
+    console.log('[Agent] Auto-starting backend...');
+    startAgentProcess().catch(err => {
+      console.warn('[Agent] Auto-start failed:', err.message);
+    });
   }
 });
 

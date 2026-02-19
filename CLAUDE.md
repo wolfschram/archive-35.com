@@ -1,7 +1,7 @@
 # CLAUDE.md — Archive-35.com (Live Production Site)
 
 > **Read this file completely before doing anything.**
-> Last updated: 2026-02-19
+> Last updated: 2026-02-19 (workflow docs added)
 
 ---
 
@@ -145,10 +145,90 @@ Before modifying any SHARED file:
 | Health | AgentHealthPanel.js | Service testing + pipeline visualization |
 | Settings | AgentSettings.js | Agent-specific API keys + config |
 
+### CRITICAL: Studio Already Generates AI Metadata
+
+**Before touching Agent vision/content code, understand this:** Studio's photo ingest pipeline ALREADY calls Claude Haiku 4.5 to generate AI metadata for every photo. The Agent's analysis is COMPLEMENTARY, not a replacement.
+
+#### Studio Ingest Pipeline (ContentIngest.js → main.js IPC)
+
+The full photo lifecycle starts in Studio, NOT the Agent:
+
+```
+Camera → Lightroom export → Studio ContentIngest.js → 01_Portfolio/ → Deploy → Live site
+```
+
+**Phase 1 — Scan + AI Analysis** (`analyze-photos` IPC in main.js):
+- Reads EXIF data (camera, lens, GPS, date, exposure)
+- Resizes to 800×800px for API call
+- Calls Claude Haiku 4.5 to generate: **title, description, location, tags**
+- User reviews and edits AI output before finalizing (AI gets sunrise/sunset wrong!)
+
+**Phase 2 — User Review**:
+- Wolf reviews every AI-generated title, description, location, and tag set
+- Manual corrections applied (especially time-of-day and location specifics)
+
+**Phase 3 — Finalize** (`finalize-ingest` IPC in main.js):
+- Copies originals to `01_Portfolio/{collection}/originals/`
+- Creates web-optimized: 2000px full-size + 400px thumbnail
+- Signs with C2PA content credentials (provenance)
+- Uploads originals to Cloudflare R2 cloud storage
+- Writes per-portfolio `_photos.json` metadata file
+
+**Deploy** (`deploy-website` IPC in main.js):
+- Aggregates all `_photos.json` → `data/photos.json`
+- Copies web images to `images/` directory
+- Runs `sync_gallery_data.py` to update gallery.html
+- Git commit + push → Cloudflare Pages auto-deploys
+
+#### What Studio Generates vs What Agent Adds
+
+| Field | Studio (during ingest) | Agent (vision analysis) |
+|-------|----------------------|----------------------|
+| Title | ✅ AI-generated, user-reviewed | suggested_title (alternative) |
+| Description | ✅ AI-generated, user-reviewed | — |
+| Location | ✅ AI + EXIF GPS | — |
+| Tags | ✅ AI-generated, user-reviewed | ✅ Additional tags (OVERLAP) |
+| Mood | — | ✅ Agent-only |
+| Composition | — | ✅ Agent-only |
+| Marketability score | — | ✅ Agent-only (1-10) |
+| EXIF data | ✅ Extracted during ingest | Imported from 01_Portfolio |
+
+**Key insight:** Agent's unique value-add is mood, composition analysis, and marketability scoring. Tags overlap with Studio's AI tags but may add different descriptors. Agent should NOT overwrite Studio's user-reviewed titles/descriptions.
+
+#### Agent Photo Import Flow
+
+Agent's `import_photos.py` imports from `01_Portfolio/*/originals/` — these are photos that have ALREADY been through Studio's full ingest pipeline. The Agent is a downstream consumer of Studio-processed photos.
+
+```
+01_Portfolio/{collection}/originals/*.jpg  →  Agent import_photos.py  →  archive35.db
+01_Portfolio/{collection}/_photos.json     →  EXIF + Studio metadata available
+```
+
+#### Anthropic API Key Strategy (Updated)
+
+- **Real key location:** Root `.env` at `~/Documents/Archive-35.com/.env` (shared with Studio)
+- **Agent .env:** Has placeholder `sk-ant-...` — NOT a real key
+- **Fallback logic:** `_get_anthropic_client()` in api.py checks Agent .env first, then falls back to root .env
+- **Models used:** Vision = `claude-haiku-4-5-20251001`, Content = `claude-sonnet-4-5-20250929`
+- **Rate limits:** 500 calls/day, $5.00/day budget (configurable in config.py)
+
 ### Agent API Key Strategy
 
 - **Shared keys** (Anthropic, R2, Pictorem): Read from Studio .env via `getAgentConfig()` IPC
 - **Agent-specific keys** (Late API, Telegram, Etsy, Shopify): Stored in Agent .env, managed via Agent Settings tab
+
+### Vision Batch Operations
+
+To run vision analysis on all unanalyzed photos:
+```bash
+cd "Archive 35 Agent"
+nohup python3 scripts/run_vision_batch.py > vision_batch.log 2>&1 &
+```
+- Requires Agent API running on port 8035 (Studio must be open)
+- Processes one photo at a time with 60s timeout
+- Failed photos marked with `vision_mood='error'` to prevent infinite retries
+- Progress: check `tail -f vision_batch.log` or query DB directly
+- Images >4.5MB auto-resized via PIL before sending to Claude API
 
 ### Critical Agent Files
 

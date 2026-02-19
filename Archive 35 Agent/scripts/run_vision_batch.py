@@ -1,6 +1,6 @@
-"""Run vision analysis on all unanalyzed photos in batches.
+"""Run vision analysis on all unanalyzed photos, one at a time.
 
-Usage: uv run python scripts/run_vision_batch.py [batch_size]
+Usage: python3 scripts/run_vision_batch.py
 """
 import json
 import sys
@@ -8,55 +8,75 @@ import time
 import urllib.request
 import urllib.error
 
-BATCH_SIZE = int(sys.argv[1]) if len(sys.argv) > 1 else 10
 API = "http://127.0.0.1:8035"
-REQUEST_TIMEOUT = 120  # 2 min max per batch
+PHOTO_TIMEOUT = 60  # 60s max per single photo
 
 total_analyzed = 0
 total_failed = 0
-batch_num = 0
 
-print(f"Starting vision analysis (batch size: {BATCH_SIZE}, timeout: {REQUEST_TIMEOUT}s)", flush=True)
+print("Starting vision analysis (1 photo at a time)", flush=True)
 print("=" * 60, flush=True)
 
 while True:
-    batch_num += 1
     try:
+        # Get next unanalyzed photo
         req = urllib.request.Request(
-            f"{API}/photos/analyze",
-            data=json.dumps({"limit": BATCH_SIZE}).encode(),
-            headers={"Content-Type": "application/json"},
-            method="POST",
+            f"{API}/photos?analyzed=false&limit=1",
+            method="GET",
         )
-        with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
+        with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read())
 
-        analyzed = data.get("analyzed", 0)
-        requested = data.get("requested", 0)
-        remaining = data.get("remaining_unanalyzed", 0)
-        failed = requested - analyzed
-        total_analyzed += analyzed
-        total_failed += failed
-
-        pct = round((total_analyzed / 721) * 100) if total_analyzed > 0 else 0
-        print(
-            f"Batch {batch_num}: +{analyzed} ok, {failed} skip | "
-            f"Total: {total_analyzed} ({pct}%) | Remaining: {remaining}",
-            flush=True,
-        )
-
-        if analyzed == 0 or remaining == 0:
+        items = data.get("items", [])
+        if not items:
             print("\n" + "=" * 60, flush=True)
-            print(f"DONE! Analyzed: {total_analyzed}, Skipped: {total_failed}", flush=True)
+            print(f"DONE! Analyzed: {total_analyzed}, Failed: {total_failed}", flush=True)
             break
 
-        time.sleep(0.5)
+        photo = items[0]
+        photo_id = photo["id"]
+        fname = photo.get("filename", "unknown")
 
-    except urllib.error.URLError as e:
-        print(f"Batch {batch_num} timeout/error: {e}", flush=True)
-        print("Retrying in 3s...", flush=True)
-        time.sleep(3)
+        # Analyze this single photo
+        try:
+            req = urllib.request.Request(
+                f"{API}/photos/analyze",
+                data=json.dumps({"photo_ids": [photo_id], "limit": 1}).encode(),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=PHOTO_TIMEOUT) as resp:
+                result = json.loads(resp.read())
+
+            analyzed = result.get("analyzed", 0)
+            remaining = result.get("remaining_unanalyzed", 0)
+
+            if analyzed > 0:
+                total_analyzed += 1
+                score = result.get("results", [{}])[0].get("marketability_score", "?")
+                pct = round(total_analyzed / 721 * 100)
+                print(f"OK  {total_analyzed:3d} | score={score} | {remaining} left | {fname}", flush=True)
+            else:
+                total_failed += 1
+                print(f"SKIP {fname} (failed, marked)", flush=True)
+
+        except (urllib.error.URLError, TimeoutError) as e:
+            total_failed += 1
+            print(f"TIMEOUT {fname} — skipping", flush=True)
+            # Mark it as failed via a direct call
+            try:
+                req = urllib.request.Request(
+                    f"{API}/photos/analyze",
+                    data=json.dumps({"photo_ids": [photo_id], "limit": 1}).encode(),
+                    headers={"Content-Type": "application/json"},
+                    method="POST",
+                )
+                urllib.request.urlopen(req, timeout=5)
+            except Exception:
+                pass
+
+        time.sleep(0.2)
+
     except Exception as e:
-        print(f"Batch {batch_num} unexpected error: {e}", flush=True)
-        print("Retrying in 5s...", flush=True)
-        time.sleep(5)
+        print(f"Error: {e}", flush=True)
+        time.sleep(3)

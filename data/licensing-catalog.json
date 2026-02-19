@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-18T23:01:51.340745+00:00",
-  "total_images": 70,
+  "generated_at": "2026-02-19T01:43:34.513293+00:00",
+  "total_images": 76,
   "classifications": {
     "ULTRA": {
       "min_width": 15000,
@@ -2574,6 +2574,222 @@
       "max_print_150dpi": {
         "width_in": 113.9,
         "height_in": 61.6,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260219-0071",
+      "title": "Alpine Stream Through Conifer Valley",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5137",
+      "original_filename": "Wolf 5137.jpg",
+      "width": 15257,
+      "height": 6946,
+      "megapixels": 106,
+      "file_size_mb": 41.7,
+      "location": "Glacier National Park, Montana, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260219-0071.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260219-0071.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 50.9,
+        "height_in": 23.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 101.7,
+        "height_in": 46.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260219-0072",
+      "title": "Mountain Sentinel Over Alpine Waters",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5143",
+      "original_filename": "Wolf 5143.jpg",
+      "width": 22227,
+      "height": 8842,
+      "megapixels": 196.5,
+      "file_size_mb": 56.7,
+      "location": "Swiftcurrent Lake, Glacier National Park, Montana, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260219-0072.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260219-0072.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 74.1,
+        "height_in": 29.5,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 148.2,
+        "height_in": 58.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260219-0073",
+      "title": "Alpine Lake with Glacier Peak",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 5146",
+      "original_filename": "Wolf 5146.jpg",
+      "width": 12143,
+      "height": 5045,
+      "megapixels": 61.3,
+      "file_size_mb": 19.8,
+      "location": "Lake McDonald, Glacier National Park, Montana, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260219-0073.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260219-0073.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 40.5,
+        "height_in": 16.8,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 81,
+        "height_in": 33.6,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260219-0074",
+      "title": "Alpine Valley: Mountain Cathedral",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5158",
+      "original_filename": "Wolf 5158.jpg",
+      "width": 23246,
+      "height": 13643,
+      "megapixels": 317.1,
+      "file_size_mb": 105.6,
+      "location": "Glacier National Park, Montana, USA (Lake McDonald Valley region)",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260219-0074.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260219-0074.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 77.5,
+        "height_in": 45.5,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 155,
+        "height_in": 91,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260219-0075",
+      "title": "Alpine Lake in Mountain Splendor",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 5163",
+      "original_filename": "Wolf 5163.jpg",
+      "width": 8192,
+      "height": 5464,
+      "megapixels": 44.8,
+      "file_size_mb": 24.7,
+      "location": "Glacier National Park, Montana, USA (likely Saint Mary Lake or Going-to-the-Sun Road valley)",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260219-0075.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260219-0075.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 27.3,
+        "height_in": 18.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 54.6,
+        "height_in": 36.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260219-0076",
+      "title": "Gilded Hall of Symmetry",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5787",
+      "original_filename": "Wolf 5787.jpg",
+      "width": 17850,
+      "height": 6966,
+      "megapixels": 124.3,
+      "file_size_mb": 36.3,
+      "location": "Union Station, Los Angeles, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260219-0076.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260219-0076.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 59.5,
+        "height_in": 23.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 119,
+        "height_in": 46.4,
         "dpi": 150
       }
     }

@@ -1475,7 +1475,7 @@ function onCC(idx){if(dM)return;const ci=wI(Math.round(cur));if(idx!==ci){cur+=c
   openFg(idx);}
 
 /* ===== PREVIEW PANEL — always visible, syncs with coverflow ===== */
-let _prevIdx=-1;
+var _prevIdx=-1;
 function updPrev(idx){
   if(idx===_prevIdx)return;
   _prevIdx=idx;cpI=idx;

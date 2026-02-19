@@ -507,7 +507,7 @@ nav a:hover::after, nav a.active::after { width:100%; }
 <div id="info">
   <div id="info-t">&mdash;</div>
   <div id="info-c"></div>
-  <div id="info-h">&#10235; scroll &middot; click to preview &#10236;</div>
+  <div id="info-h">&#10235; scroll &middot; click to open &#10236;</div>
 </div>
 <div id="dots"></div>
 
@@ -1443,13 +1443,17 @@ function covSz(){const w=window.innerWidth,h=window.innerHeight;if(w<=768)return
 
 /* Audio removed */
 
+/* ===== MOBILE DETECTION ===== */
+const _isMobile=window.innerWidth<=768;
+
 /* ===== BUILD COVERS ===== */
 const cfEl=document.getElementById('cf'),items=[],dotsEl=document.getElementById('dots');
 G.forEach((g,i)=>{
   const el=document.createElement('div');el.className='c';
   const face=document.createElement('div');face.className='c-face';
-  /* Use full-size for cover quality; lazy-load off-screen covers for perf */
-  face.innerHTML=`<img src="${g.img.replace('-thumb.','-full.')}" alt="${g.name} — Cover" draggable="false" loading="${i<3?'eager':'lazy'}">`;
+  /* On mobile use thumbnails for covers (~20KB vs ~550KB); full-size on desktop */
+  const covSrc=_isMobile?g.img:g.img.replace('-thumb.','-full.');
+  face.innerHTML=`<img src="${covSrc}" alt="${g.name} — Cover" draggable="false" loading="${i<3?'eager':'lazy'}">`;
   face.innerHTML+=`<div class="c-lbl">${g.name.toUpperCase()}</div>`;
   el.appendChild(face);
 
@@ -1530,7 +1534,16 @@ window.addEventListener('resize',layout);
   const sorted=G.map((g,i)=>({name:g.name,idx:i})).sort((a,b)=>a.name.localeCompare(b.name));
   sorted.forEach(g=>{
     const a=document.createElement('a');a.href='#';a.textContent=g.name;
-    a.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();cur=g.idx;closeCP();dd.style.display='none';setTimeout(()=>dd.style.display='',300);});
+    a.addEventListener('click',e=>{
+      e.preventDefault();e.stopPropagation();
+      /* Close any open views first */
+      closeLb();closeFg();closeCP();
+      /* Navigate coverflow to selected collection */
+      cur=g.idx;
+      dd.style.display='none';setTimeout(()=>dd.style.display='',300);
+      /* Open the collection gallery directly */
+      setTimeout(()=>openFg(g.idx),100);
+    });
     dd.appendChild(a);
   });
 })();
@@ -1563,7 +1576,7 @@ document.addEventListener('keydown',e=>{
 /* ===== COVER CLICK ===== */
 let cpI=-1;
 function onCC(idx){if(dM)return;const ci=wI(Math.round(cur));if(idx!==ci){cur+=cD(ci,idx);closeCP();return;}
-  if(cpI===idx&&document.getElementById('cprev').classList.contains('open')){openFg(idx);return;}openCP(idx);}
+  openFg(idx);}
 
 /* ===== PREVIEW PANEL — uses real photo thumbnails ===== */
 function openCP(idx){
@@ -1599,7 +1612,7 @@ function openCP(idx){
 function closeCP(){cpI=-1;document.getElementById('cprev').classList.remove('open');document.getElementById('info-h').style.opacity='';}
 document.getElementById('cprev-btn').addEventListener('click',()=>{if(cpI>=0)openFg(cpI);});
 
-/* ===== FULL GALLERY — uses real full-size images ===== */
+/* ===== FULL GALLERY — uses thumbnails on mobile for performance ===== */
 function openFg(idx,scrollToPhoto){
   const g=G[idx];document.getElementById('fg-ti').textContent=g.name.toUpperCase();
   document.getElementById('fg-ct').textContent=g.n+' photograph'+(g.n!==1?'s':'');
@@ -1610,7 +1623,8 @@ function openFg(idx,scrollToPhoto){
   newGrid.id='fg-gr';
   for(let i=0;i<g.n;i++){
     const img=document.createElement('img');img.className='fg-im';
-    img.src=g.p[i].f;
+    /* On mobile use thumbnails (~20KB) instead of full (~550KB) to cut load by 95% */
+    img.src=_isMobile?g.p[i].t:g.p[i].f;
     img.alt=g.p[i].n||`${g.name} — ${i+1}`;
     img.loading='lazy';
     img.addEventListener('click',()=>openLb(idx,i));

@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260219-0072",
+  "original_filename": "Wolf 5143.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Mountain Sentinel Over Alpine Waters",
+  "description": "A breathtaking panoramic vista of pristine alpine lake waters reflecting dramatic peak formations under dynamic cloud formations. This ultra-high-resolution capture reveals exceptional detail throughout—from the textured mountain geology and forest edges to the luminous water surface and sky gradations—making it ideal for large-format fine art prints and premium commercial licensing applications.",
+  "location": "Swiftcurrent Lake, Glacier National Park, Montana, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 22227,
+    "height": 8842
+  },
+  "megapixels": 196.5,
+  "aspect_ratio": 2.514,
+  "file_size_bytes": 59499144,
+  "file_size_mb": 56.7,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 74.1,
+    "height_in": 29.5,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 148.2,
+    "height_in": 58.9,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2022:09:16 17:19:51",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.0015625",
+    "FNumber": "2.8",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260219-0072.jpg",
+    "preview": "previews/A35-20260219-0072.jpg",
+    "thumbnail": "thumbnails/A35-20260219-0072.jpg"
+  },
+  "scanned_at": "2026-02-19T01:39:42.832314+00:00"
+}

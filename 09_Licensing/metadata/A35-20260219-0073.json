@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260219-0073",
+  "original_filename": "Wolf 5146.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Lake with Glacier Peak",
+  "description": "A breathtaking panoramic capture of a pristine alpine lake framed by towering coniferous forests and dramatic glaciated peaks. This ultra-high-resolution image reveals exceptional detail across the entire composition—from the subtle ripples on the water's surface to the delicate texture of the evergreen canopy and distant mountain geology—making it ideal for large-format fine art prints and premium commercial licensing applications.",
+  "location": "Lake McDonald, Glacier National Park, Montana, USA",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 12143,
+    "height": 5045
+  },
+  "megapixels": 61.3,
+  "aspect_ratio": 2.407,
+  "file_size_bytes": 20755126,
+  "file_size_mb": 19.8,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 40.5,
+    "height_in": 16.8,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 81,
+    "height_in": 33.6,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2022:09:17 07:51:02",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.008",
+    "FNumber": "5.6",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260219-0073.jpg",
+    "preview": "previews/A35-20260219-0073.jpg",
+    "thumbnail": "thumbnails/A35-20260219-0073.jpg"
+  },
+  "scanned_at": "2026-02-19T01:39:42.833176+00:00"
+}

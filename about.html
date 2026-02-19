@@ -128,7 +128,17 @@
       if (d.printsInfo && d.printsInfo.length) {
         document.getElementById('about-prints-info').innerHTML = d.printsInfo.map(p => '<p>' + p + '</p>').join('');
       }
-      if (d.photoPath) document.getElementById('about-photo').src = d.photoPath;
+      if (d.photoPath) {
+        const el = document.getElementById('about-photo');
+        /* Preload new image, then crossfade to avoid flash */
+        const img = new Image();
+        img.onload = () => {
+          el.style.transition = 'opacity 0.4s';
+          el.style.opacity = '0';
+          setTimeout(() => { el.src = d.photoPath; el.style.opacity = '1'; }, 400);
+        };
+        img.src = d.photoPath;
+      }
     } catch (e) { /* fallback to hardcoded content */ }
   })();
   </script>

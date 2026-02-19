@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260219-0074",
+  "original_filename": "Wolf 5158.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Valley: Mountain Cathedral",
+  "description": "A breathtaking panoramic vista of a pristine alpine valley framed by towering glaciated peaks and dense coniferous forest, with a serene mountain lake nestled in the heart of the wilderness. The ultra-high-resolution capture reveals extraordinary detail across multiple focal planes—from delicate foreground vegetation to distant summit geology—making this an exceptional choice for large-format fine art prints and premium commercial licensing applications.",
+  "location": "Glacier National Park, Montana, USA (Lake McDonald Valley region)",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 23246,
+    "height": 13643
+  },
+  "megapixels": 317.1,
+  "aspect_ratio": 1.704,
+  "file_size_bytes": 110718218,
+  "file_size_mb": 105.6,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 77.5,
+    "height_in": 45.5,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 155,
+    "height_in": 91,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2022:09:17 09:41:42",
+    "FocalLength": "70.0",
+    "ExposureTime": "0.0015625",
+    "FNumber": "4.5",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF70-200mm F2.8 L IS USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260219-0074.jpg",
+    "preview": "previews/A35-20260219-0074.jpg",
+    "thumbnail": "thumbnails/A35-20260219-0074.jpg"
+  },
+  "scanned_at": "2026-02-19T01:39:42.834209+00:00"
+}

@@ -569,9 +569,33 @@ function openZoom() {
     closeZoom();
   }
 
+  /* Touch support — stripe follows finger on mobile */
+  function onTouchMove(e) {
+    e.preventDefault();
+    if (!overlay.classList.contains('open') || !e.touches.length) return;
+    const touch = e.touches[0];
+    const rect = loCanvas.getBoundingClientRect();
+    const relY = touch.clientY - rect.top;
+    const pctTop = (relY - REVEAL_HEIGHT / 2) / rect.height * 100;
+    const pctBottom = 100 - (relY + REVEAL_HEIGHT / 2) / rect.height * 100;
+    hiCanvas.style.clipPath = `inset(${Math.max(0, pctTop)}% 0 ${Math.max(0, pctBottom)}% 0)`;
+  }
+
+  function onTouchEnd(e) {
+    /* Double-tap to close, single tap continues dragging */
+    if (overlay._lastTap && Date.now() - overlay._lastTap < 300) {
+      closeZoom();
+    }
+    overlay._lastTap = Date.now();
+  }
+
   overlay._onMove = onMouseMove;
+  overlay._onTouchMove = onTouchMove;
+  overlay._onTouchEnd = onTouchEnd;
   overlay._onClick = onClick;
   overlay.addEventListener('mousemove', onMouseMove);
+  overlay.addEventListener('touchmove', onTouchMove, { passive: false });
+  overlay.addEventListener('touchend', onTouchEnd);
   overlay.addEventListener('click', onClick);
 }
 
@@ -586,7 +610,10 @@ function closeZoom() {
   });
   // Remove event listeners
   if (overlay._onMove) overlay.removeEventListener('mousemove', overlay._onMove);
+  if (overlay._onTouchMove) overlay.removeEventListener('touchmove', overlay._onTouchMove);
+  if (overlay._onTouchEnd) overlay.removeEventListener('touchend', overlay._onTouchEnd);
   if (overlay._onClick) overlay.removeEventListener('click', overlay._onClick);
+  overlay._lastTap = null;
   zoomHiImg = null;
 }
 

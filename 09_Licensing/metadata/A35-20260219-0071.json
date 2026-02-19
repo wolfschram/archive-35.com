@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260219-0071",
+  "original_filename": "Wolf 5137.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Stream Through Conifer Valley",
+  "description": "A pristine wilderness panorama capturing a meandering alpine stream flanked by dense coniferous forest and distant mountain peaks. The ultra-high-resolution capture preserves exceptional detail throughout the composition—from individual willow branches along the water's edge to atmospheric depth in the distant ridgeline—making this image ideal for monumental fine art prints and large-scale commercial installations.",
+  "location": "Glacier National Park, Montana, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 15257,
+    "height": 6946
+  },
+  "megapixels": 106,
+  "aspect_ratio": 2.197,
+  "file_size_bytes": 43770580,
+  "file_size_mb": 41.7,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 50.9,
+    "height_in": 23.2,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 101.7,
+    "height_in": 46.3,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2022:09:16 12:56:03",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.0015625",
+    "FNumber": "2.8",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260219-0071.jpg",
+    "preview": "previews/A35-20260219-0071.jpg",
+    "thumbnail": "thumbnails/A35-20260219-0071.jpg"
+  },
+  "scanned_at": "2026-02-19T01:39:42.831144+00:00"
+}

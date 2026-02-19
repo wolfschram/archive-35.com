@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260219-0076",
+  "original_filename": "Wolf 5787.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Gilded Hall of Symmetry",
+  "description": "A masterfully composed architectural panorama capturing the soaring wooden barrel-vault ceiling and geometric floor patterns of this grand institutional interior. The ultra-high-resolution capture reveals exceptional detail throughout the expansive space—from the intricate coffered ceiling to the polished terrazzo floors—making this image ideal for large-format fine art prints and commercial architectural applications.",
+  "location": "Union Station, Los Angeles, California, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 17850,
+    "height": 6966
+  },
+  "megapixels": 124.3,
+  "aspect_ratio": 2.562,
+  "file_size_bytes": 38038646,
+  "file_size_mb": 36.3,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 59.5,
+    "height_in": 23.2,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 119,
+    "height_in": 46.4,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2022:12:27 11:26:43",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.005",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 400,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260219-0076.jpg",
+    "preview": "previews/A35-20260219-0076.jpg",
+    "thumbnail": "thumbnails/A35-20260219-0076.jpg"
+  },
+  "scanned_at": "2026-02-19T01:39:42.836440+00:00"
+}

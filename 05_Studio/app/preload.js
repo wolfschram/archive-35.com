@@ -158,6 +158,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('licensing-ai-progress', handler);
   },
 
+  // ── Agent API Bridge ──────────────────────────────────────────
+  // Proxies HTTP calls to the FastAPI agent backend (port 8035).
+  // React pages call this instead of direct fetch for Electron security.
+  agentApiCall: (path, options) => ipcRenderer.invoke('agent-api-call', path, options),
+
+  // Agent process management
+  agentStart: () => ipcRenderer.invoke('agent-start'),
+  agentStop: () => ipcRenderer.invoke('agent-stop'),
+  agentStatus: () => ipcRenderer.invoke('agent-status'),
+
+  // Agent config bridge — reads shared API keys from Studio .env
+  // Agent Settings page uses this to display shared keys (read-only)
+  getAgentConfig: () => ipcRenderer.invoke('get-agent-config'),
+
+  // Agent .env management — read/write Agent-specific keys
+  getAgentEnv: () => ipcRenderer.invoke('get-agent-env'),
+  saveAgentEnv: (key, value) => ipcRenderer.invoke('save-agent-env', key, value),
+
   // Platform info
   platform: process.platform
 });

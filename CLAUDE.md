@@ -1,7 +1,7 @@
 # CLAUDE.md — Archive-35.com (Live Production Site)
 
 > **Read this file completely before doing anything.**
-> Last updated: 2026-02-17
+> Last updated: 2026-02-19
 
 ---
 
@@ -93,6 +93,74 @@ Every change must be treated as a production deployment:
 1. Commit to main → auto-deploys via Cloudflare Pages
 2. After deploy, verify: `curl -s -o /dev/null -w '%{http_code}' https://archive-35.com`
 3. Check critical paths: /, /gallery, /login, /account.html, /api/auth/session
+
+---
+
+## AI Agent System (Phase 2)
+
+The Archive-35 Agent is an AI-powered automation system integrated into the Studio Electron app. It handles photo analysis, content generation, and social posting.
+
+### MANDATORY: Read Before Modifying Agent or Shared Files
+
+1. **Read this CLAUDE.md** (you're reading it now)
+2. **Read 08_Docs/LESSONS_LEARNED.md** — especially Lessons 008, 022, 023, 027
+3. **Read 08_Docs/Archive-35_Architecture_Integration_Blueprint.docx** — the boundary map
+
+### File Zones (from Architecture Blueprint)
+
+| Zone | Rule |
+|------|------|
+| **STUDIO** (existing pages) | Agent development must NEVER modify these files |
+| **AGENT** (Agent pages + Python backend) | New files only. Safe to create and modify |
+| **SHARED** (main.js, preload.js, Sidebar.js, App.js) | Changes require testing BOTH systems |
+
+### Shared Zone Modification Rules
+
+Before modifying any SHARED file:
+- Read the ENTIRE file first
+- Read LESSONS_LEARNED.md for relevant lessons
+- Make the change (additive only when possible)
+- Test Studio: verify all 12 Studio tabs work + deploy pipeline runs
+- Test Agent: verify all 7 Agent tabs work + Dashboard shows ONLINE
+- If ANYTHING breaks: revert immediately
+
+### Agent Architecture
+
+| Layer | Technology | Location |
+|-------|------------|----------|
+| Frontend | React (in Electron Studio) | 05_Studio/app/src/pages/Agent*.js |
+| Backend | Python FastAPI (port 8035) | Archive 35 Agent/src/ |
+| Database | SQLite + WAL mode | Archive 35 Agent/data/archive35.db |
+| IPC Bridge | Electron IPC → HTTP proxy | preload.js → main.js → localhost:8035 |
+
+### Agent Pages in Studio
+
+| Tab | Component | Purpose |
+|-----|-----------|---------|
+| Dashboard | AgentDashboard.js | Overview, stats, kill switches |
+| Photos | AgentPhotoImport.js | Photo grid + vision analysis |
+| Queue | AgentContentQueue.js | Content approval with visual previews |
+| Pipeline | AgentPipelineMonitor.js | Audit logs + manual triggers |
+| Etsy | AgentEtsyListings.js | Etsy listing preview + SKU pricing |
+| Health | AgentHealthPanel.js | Service testing + pipeline visualization |
+| Settings | AgentSettings.js | Agent-specific API keys + config |
+
+### Agent API Key Strategy
+
+- **Shared keys** (Anthropic, R2, Pictorem): Read from Studio .env via `getAgentConfig()` IPC
+- **Agent-specific keys** (Late API, Telegram, Etsy, Shopify): Stored in Agent .env, managed via Agent Settings tab
+
+### Critical Agent Files
+
+| File | Risk | Purpose |
+|------|------|---------|
+| Archive 35 Agent/src/api.py | HIGH | FastAPI server (16+ endpoints) |
+| Archive 35 Agent/src/safety/kill_switch.py | CRITICAL | Emergency stop |
+| Archive 35 Agent/src/agents/vision.py | MEDIUM | Claude Haiku vision analysis |
+| Archive 35 Agent/src/agents/content.py | MEDIUM | Content generation |
+| Archive 35 Agent/src/agents/variations.py | MEDIUM | Content variation engine |
+| Archive 35 Agent/src/content_library.py | HIGH | Content master file storage |
+| Archive 35 Agent/src/integrations/google_sheets.py | MEDIUM | Google Sheets webhook |
 
 ---
 

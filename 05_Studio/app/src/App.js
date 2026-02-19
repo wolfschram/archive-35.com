@@ -12,6 +12,13 @@ import PromoCodeManager from './pages/PromoCodeManager';
 import FolderSync from './pages/FolderSync';
 import Settings from './pages/Settings';
 import AboutEditor from './pages/AboutEditor';
+import AgentDashboard from './pages/AgentDashboard';
+import AgentPhotoImport from './pages/AgentPhotoImport';
+import AgentContentQueue from './pages/AgentContentQueue';
+import AgentPipelineMonitor from './pages/AgentPipelineMonitor';
+import AgentEtsyListings from './pages/AgentEtsyListings';
+import AgentHealthPanel from './pages/AgentHealthPanel';
+import AgentSettings from './pages/AgentSettings';
 import './styles/App.css';
 
 /**
@@ -94,6 +101,29 @@ function App() {
         </TabPanel>
         <TabPanel id="settings" activeTab={activeTab}>
           <Settings mode={mode} setMode={setMode} />
+        </TabPanel>
+
+        {/* Agent Pages */}
+        <TabPanel id="agent-dash" activeTab={activeTab}>
+          <AgentDashboard />
+        </TabPanel>
+        <TabPanel id="agent-photos" activeTab={activeTab}>
+          <AgentPhotoImport />
+        </TabPanel>
+        <TabPanel id="agent-queue" activeTab={activeTab}>
+          <AgentContentQueue />
+        </TabPanel>
+        <TabPanel id="agent-pipeline" activeTab={activeTab}>
+          <AgentPipelineMonitor />
+        </TabPanel>
+        <TabPanel id="agent-etsy" activeTab={activeTab}>
+          <AgentEtsyListings />
+        </TabPanel>
+        <TabPanel id="agent-health" activeTab={activeTab}>
+          <AgentHealthPanel />
+        </TabPanel>
+        <TabPanel id="agent-settings" activeTab={activeTab}>
+          <AgentSettings />
         </TabPanel>
       </main>
     </div>

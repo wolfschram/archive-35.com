@@ -1617,3 +1617,32 @@
   color: var(--text-muted);
   white-space: nowrap;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   AGENT PAGES — Additional styles for AI pipeline management
+   ═══════════════════════════════════════════════════════════════ */
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 13px;
+}
+
+.detail-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-warning {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--warning);
+  border: 1px solid var(--warning);
+}
+
+.btn-warning:hover:not(:disabled) {
+  background: rgba(251, 191, 36, 0.25);
+}

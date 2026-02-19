@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../styles/Sidebar.css';
 
-const tabs = [
+const studioTabs = [
   { id: 'ingest', label: 'Ingest', icon: '📷' },
   { id: 'manage', label: 'Manage', icon: '🗂️' },
   { id: 'gallery', label: 'Gallery', icon: '🖼️' },
@@ -16,7 +16,43 @@ const tabs = [
   { id: 'settings', label: 'Settings', icon: '⚙️' },
 ];
 
+const agentTabs = [
+  { id: 'agent-dash', label: 'Dashboard', icon: '🤖' },
+  { id: 'agent-photos', label: 'Photos', icon: '🖼️' },
+  { id: 'agent-queue', label: 'Queue', icon: '📋' },
+  { id: 'agent-pipeline', label: 'Pipeline', icon: '🔄' },
+  { id: 'agent-etsy', label: 'Etsy', icon: '🏷️' },
+  { id: 'agent-health', label: 'Health', icon: '🩺' },
+  { id: 'agent-settings', label: 'Settings', icon: '⚙️' },
+];
+
 function Sidebar({ activeTab, setActiveTab, mode }) {
+  // Auto-expand the section that contains the active tab
+  const isAgentTab = activeTab.startsWith('agent-');
+  const [studioOpen, setStudioOpen] = useState(!isAgentTab);
+  const [agentOpen, setAgentOpen] = useState(true);
+
+  const handleTabClick = (tabId) => {
+    setActiveTab(tabId);
+    // Auto-expand the section when a tab is clicked
+    if (tabId.startsWith('agent-')) {
+      setAgentOpen(true);
+    } else {
+      setStudioOpen(true);
+    }
+  };
+
+  const renderTab = (tab) => (
+    <button
+      key={tab.id}
+      className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
+      onClick={() => handleTabClick(tab.id)}
+    >
+      <span className="nav-icon">{tab.icon}</span>
+      <span className="nav-label">{tab.label}</span>
+    </button>
+  );
+
   return (
     <aside className={`sidebar ${mode === 'test' ? 'sidebar-test-mode' : ''}`}>
       <div className="sidebar-header">
@@ -28,16 +64,35 @@ function Sidebar({ activeTab, setActiveTab, mode }) {
       </div>
 
       <nav className="sidebar-nav">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            <span className="nav-icon">{tab.icon}</span>
-            <span className="nav-label">{tab.label}</span>
-          </button>
-        ))}
+        {/* ── STUDIO Section ── */}
+        <button
+          className="section-header"
+          onClick={() => setStudioOpen(!studioOpen)}
+        >
+          <span className={`section-chevron ${studioOpen ? 'open' : ''}`}>&#9656;</span>
+          <span className="section-label">STUDIO</span>
+          <span className="section-count">{studioTabs.length}</span>
+        </button>
+        {studioOpen && (
+          <div className="section-items">
+            {studioTabs.map(renderTab)}
+          </div>
+        )}
+
+        {/* ── AGENT Section ── */}
+        <button
+          className="section-header agent-section"
+          onClick={() => setAgentOpen(!agentOpen)}
+        >
+          <span className={`section-chevron ${agentOpen ? 'open' : ''}`}>&#9656;</span>
+          <span className="section-label">AGENT</span>
+          <span className="section-count">{agentTabs.length}</span>
+        </button>
+        {agentOpen && (
+          <div className="section-items">
+            {agentTabs.map(renderTab)}
+          </div>
+        )}
       </nav>
 
       <div className="sidebar-footer">

@@ -1,0 +1,255 @@
+"""Vision Agent for Archive-35.
+
+Analyzes photos using Claude Haiku API for tags, mood, composition,
+and marketability scoring. Caches results to prevent re-analysis.
+"""
+
+from __future__ import annotations
+
+import base64
+import json
+import logging
+import sqlite3
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Optional
+
+from src.safety.audit import log as audit_log
+from src.safety.rate_limiter import check_limit, record_usage
+
+logger = logging.getLogger(__name__)
+
+# Default prompt for vision analysis
+VISION_PROMPT = """Analyze this fine art photograph. Respond in JSON only:
+{
+    "tags": ["list", "of", "descriptive", "tags"],
+    "mood": "one word mood (e.g., serene, dramatic, contemplative)",
+    "composition": "brief composition description",
+    "marketability_score": 1-10,
+    "suggested_title": "evocative title for print sales"
+}
+
+Consider: visual impact, emotional resonance, print-worthiness,
+commercial appeal for home decor. Be specific with tags."""
+
+
+def _encode_image(image_path: Path) -> str:
+    """Base64-encode an image file for the API."""
+    with open(image_path, "rb") as f:
+        return base64.b64encode(f.read()).decode("utf-8")
+
+
+def _get_media_type(path: Path) -> str:
+    """Get media type from file extension."""
+    ext = path.suffix.lower()
+    types = {
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".png": "image/png",
+        ".webp": "image/webp",
+        ".gif": "image/gif",
+    }
+    return types.get(ext, "image/jpeg")
+
+
+def _parse_vision_response(text: str) -> dict[str, Any]:
+    """Parse the JSON response from Claude Vision.
+
+    Handles cases where response may include markdown code fences.
+    """
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        lines = cleaned.split("\n")
+        cleaned = "\n".join(lines[1:-1])
+
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError:
+        logger.warning("Failed to parse vision response as JSON")
+        return {
+            "tags": [],
+            "mood": "unknown",
+            "composition": "unknown",
+            "marketability_score": 5,
+            "suggested_title": "Untitled",
+        }
+
+
+def analyze_photo(
+    conn: sqlite3.Connection,
+    photo_id: str,
+    image_path: Optional[Path] = None,
+    client: Optional[Any] = None,
+    model: str = "claude-haiku-4-5-20251001",
+) -> Optional[dict]:
+    """Analyze a photo using Claude Vision API.
+
+    Caches results — will not re-analyze a photo that has vision data.
+
+    Args:
+        conn: Active database connection.
+        photo_id: Photo ID (SHA256 hash).
+        image_path: Path to the image file (or resized copy).
+        client: Anthropic client instance (None = skip API call).
+        model: Claude model to use for vision.
+
+    Returns:
+        Dict with tags, mood, composition, score. None if skipped/failed.
+    """
+    # Check cache — skip if already analyzed
+    row = conn.execute(
+        "SELECT vision_analyzed_at FROM photos WHERE id = ?",
+        (photo_id,),
+    ).fetchone()
+
+    if not row:
+        logger.error("Photo %s not found in database", photo_id)
+        return None
+
+    if row["vision_analyzed_at"]:
+        logger.debug("Photo %s already analyzed, skipping", photo_id[:12])
+        cached = conn.execute(
+            "SELECT vision_tags, vision_mood, vision_composition, marketability_score FROM photos WHERE id = ?",
+            (photo_id,),
+        ).fetchone()
+        return dict(cached)
+
+    # Check rate limits
+    if not check_limit(conn, "anthropic", daily_call_limit=500, daily_cost_limit_usd=5.0):
+        logger.warning("Anthropic API rate limit reached, skipping vision analysis")
+        return None
+
+    if client is None:
+        logger.warning("No Anthropic client provided, skipping vision analysis")
+        audit_log(conn, "vision", "analyze_skipped", {
+            "photo_id": photo_id,
+            "reason": "no_api_client",
+        })
+        return None
+
+    if image_path is None or not image_path.exists():
+        logger.error("Image file not found for photo %s", photo_id)
+        return None
+
+    # Call Claude Vision API
+    try:
+        image_data = _encode_image(image_path)
+        media_type = _get_media_type(image_path)
+
+        response = client.messages.create(
+            model=model,
+            max_tokens=500,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": media_type,
+                            "data": image_data,
+                        },
+                    },
+                    {
+                        "type": "text",
+                        "text": VISION_PROMPT,
+                    },
+                ],
+            }],
+        )
+
+        # Parse response
+        result_text = response.content[0].text
+        result = _parse_vision_response(result_text)
+
+        # Estimate cost (Haiku is ~$0.001 per image)
+        cost = 0.001
+
+        # Store results
+        now = datetime.now(timezone.utc).isoformat()
+        conn.execute(
+            """UPDATE photos SET
+               vision_tags = ?,
+               vision_mood = ?,
+               vision_composition = ?,
+               marketability_score = ?,
+               vision_analyzed_at = ?
+               WHERE id = ?""",
+            (
+                json.dumps(result.get("tags", [])),
+                result.get("mood", "unknown"),
+                result.get("composition", "unknown"),
+                result.get("marketability_score", 5),
+                now,
+                photo_id,
+            ),
+        )
+        conn.commit()
+
+        # Record usage and audit
+        record_usage(conn, "anthropic", cost_usd=cost)
+        audit_log(conn, "vision", "analyze_photo", {
+            "photo_id": photo_id,
+            "score": result.get("marketability_score"),
+            "tags_count": len(result.get("tags", [])),
+        }, cost_usd=cost)
+
+        logger.info(
+            "Analyzed %s: score=%s, tags=%d",
+            photo_id[:12],
+            result.get("marketability_score"),
+            len(result.get("tags", [])),
+        )
+        return result
+
+    except Exception as e:
+        logger.error("Vision analysis failed for %s: %s", photo_id[:12], e)
+        audit_log(conn, "vision", "analyze_failed", {
+            "photo_id": photo_id,
+            "error": str(e),
+        }, success=False)
+        return None
+
+
+def analyze_batch(
+    conn: sqlite3.Connection,
+    photo_ids: list[str],
+    image_dir: Optional[Path] = None,
+    client: Optional[Any] = None,
+    model: str = "claude-haiku-4-5-20251001",
+) -> list[dict]:
+    """Analyze multiple photos sequentially.
+
+    Args:
+        conn: Active database connection.
+        photo_ids: List of photo IDs to analyze.
+        image_dir: Directory containing image files.
+        client: Anthropic client instance.
+        model: Claude model to use.
+
+    Returns:
+        List of analysis results (skipped photos excluded).
+    """
+    results = []
+    for photo_id in photo_ids:
+        # Look up filename
+        row = conn.execute(
+            "SELECT filename, path FROM photos WHERE id = ?",
+            (photo_id,),
+        ).fetchone()
+
+        if not row:
+            continue
+
+        # Determine image path
+        image_path = None
+        if image_dir:
+            image_path = image_dir / row["filename"]
+        elif row["path"]:
+            image_path = Path(row["path"])
+
+        result = analyze_photo(conn, photo_id, image_path, client, model)
+        if result:
+            results.append(result)
+
+    return results

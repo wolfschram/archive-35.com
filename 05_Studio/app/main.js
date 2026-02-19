@@ -1,8 +1,10 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs').promises;
 const fsSync = require('fs');
 const isDev = require('electron-is-dev');
+const http = require('http');
 
 // Load environment variables
 require('dotenv').config({
@@ -4218,4 +4220,242 @@ ipcMain.handle('save-licensing-metadata', async (event, { updates }) => {
   } catch (err) {
     return { success: false, error: err.message };
   }
+});
+
+
+// ═══════════════════════════════════════════════════════════════
+// AGENT API BRIDGE
+// Spawns FastAPI backend and proxies IPC calls to HTTP.
+// See: Archive 35 Agent/src/api.py
+// ═══════════════════════════════════════════════════════════════
+
+const AGENT_DIR = path.join(ARCHIVE_BASE, 'Archive 35 Agent');
+const AGENT_PORT = 8035;
+let agentProcess = null;
+
+/**
+ * Start the Agent FastAPI server as a child process.
+ * Uses `uv run python -m src.api` from the Agent directory.
+ */
+function startAgentProcess() {
+  if (agentProcess) return; // Already running
+
+  try {
+    console.log('[Agent] Starting FastAPI server...');
+    agentProcess = spawn('uv', ['run', 'python', '-m', 'src.api'], {
+      cwd: AGENT_DIR,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, PYTHONUNBUFFERED: '1' },
+    });
+
+    agentProcess.stdout.on('data', (data) => {
+      console.log(`[Agent] ${data.toString().trim()}`);
+    });
+
+    agentProcess.stderr.on('data', (data) => {
+      console.log(`[Agent:err] ${data.toString().trim()}`);
+    });
+
+    agentProcess.on('close', (code) => {
+      console.log(`[Agent] Process exited with code ${code}`);
+      agentProcess = null;
+    });
+
+    agentProcess.on('error', (err) => {
+      console.error('[Agent] Failed to start:', err.message);
+      agentProcess = null;
+    });
+  } catch (err) {
+    console.error('[Agent] Spawn error:', err.message);
+  }
+}
+
+/**
+ * Stop the Agent FastAPI server.
+ */
+function stopAgentProcess() {
+  if (agentProcess) {
+    console.log('[Agent] Stopping FastAPI server...');
+    agentProcess.kill('SIGTERM');
+    agentProcess = null;
+  }
+}
+
+/**
+ * Check if Agent API is responding.
+ */
+function checkAgentHealth() {
+  return new Promise((resolve) => {
+    const req = http.get(`http://127.0.0.1:${AGENT_PORT}/health`, (res) => {
+      let body = '';
+      res.on('data', chunk => { body += chunk; });
+      res.on('end', () => {
+        try {
+          resolve({ online: true, ...JSON.parse(body) });
+        } catch {
+          resolve({ online: true });
+        }
+      });
+    });
+    req.on('error', () => resolve({ online: false }));
+    req.setTimeout(3000, () => { req.destroy(); resolve({ online: false }); });
+  });
+}
+
+/**
+ * Proxy an HTTP request to the Agent API.
+ */
+function agentApiProxy(apiPath, options = {}) {
+  return new Promise((resolve, reject) => {
+    const method = (options.method || 'GET').toUpperCase();
+    const bodyStr = options.body ? JSON.stringify(options.body) : null;
+
+    const urlObj = new URL(`http://127.0.0.1:${AGENT_PORT}${apiPath}`);
+    const reqOpts = {
+      hostname: urlObj.hostname,
+      port: urlObj.port,
+      path: urlObj.pathname + urlObj.search,
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(bodyStr ? { 'Content-Length': Buffer.byteLength(bodyStr) } : {}),
+      },
+    };
+
+    const req = http.request(reqOpts, (res) => {
+      let body = '';
+      res.on('data', chunk => { body += chunk; });
+      res.on('end', () => {
+        try {
+          const data = JSON.parse(body);
+          if (res.statusCode >= 400) {
+            reject(new Error(data.detail || `API error ${res.statusCode}`));
+          } else {
+            resolve(data);
+          }
+        } catch {
+          reject(new Error(`Invalid JSON response from agent API`));
+        }
+      });
+    });
+
+    req.on('error', (err) => {
+      reject(new Error(`Agent API unreachable: ${err.message}`));
+    });
+
+    req.setTimeout(30000, () => {
+      req.destroy();
+      reject(new Error('Agent API request timed out'));
+    });
+
+    if (bodyStr) req.write(bodyStr);
+    req.end();
+  });
+}
+
+// IPC: Generic API proxy — React pages call this for all Agent API requests
+ipcMain.handle('agent-api-call', async (event, apiPath, options) => {
+  try {
+    return await agentApiProxy(apiPath, options);
+  } catch (err) {
+    throw err;
+  }
+});
+
+// IPC: Start agent
+ipcMain.handle('agent-start', async () => {
+  startAgentProcess();
+  // Wait up to 10s for health check
+  for (let i = 0; i < 20; i++) {
+    await new Promise(r => setTimeout(r, 500));
+    const health = await checkAgentHealth();
+    if (health.online) return { success: true, ...health };
+  }
+  return { success: false, error: 'Agent did not start within 10s' };
+});
+
+// IPC: Stop agent
+ipcMain.handle('agent-stop', async () => {
+  stopAgentProcess();
+  return { success: true };
+});
+
+// IPC: Check agent status
+ipcMain.handle('agent-status', async () => {
+  return await checkAgentHealth();
+});
+
+// IPC: Get shared config keys for Agent Settings page (read-only bridge)
+// Agent reads Studio's .env keys that are shared between systems
+ipcMain.handle('get-agent-config', async () => {
+  try {
+    const env = parseEnvFileSync();
+    return {
+      ANTHROPIC_API_KEY: env.ANTHROPIC_API_KEY || '',
+      R2_ACCESS_KEY_ID: env.R2_ACCESS_KEY_ID || '',
+      R2_SECRET_ACCESS_KEY: env.R2_SECRET_ACCESS_KEY || '',
+      R2_ENDPOINT: env.R2_ENDPOINT || '',
+      R2_BUCKET_NAME: env.R2_BUCKET_NAME || '',
+      PICTOREM_API_KEY: env.PICTOREM_API_KEY || '',
+    };
+  } catch (err) {
+    console.error('[Agent Config] Failed to read shared config:', err.message);
+    return {};
+  }
+});
+
+// IPC: Read Agent-specific .env file
+ipcMain.handle('get-agent-env', async () => {
+  try {
+    const agentEnvPath = path.join(AGENT_DIR, '.env');
+    if (!fsSync.existsSync(agentEnvPath)) return {};
+    const content = fsSync.readFileSync(agentEnvPath, 'utf8');
+    const keys = {};
+    for (const line of content.split('\n')) {
+      const match = line.match(/^([A-Z0-9_]+)=(.*)$/);
+      if (match) keys[match[1]] = match[2];
+    }
+    return keys;
+  } catch (err) {
+    console.error('[Agent Env] Failed to read:', err.message);
+    return {};
+  }
+});
+
+// IPC: Save a key to Agent's .env file
+ipcMain.handle('save-agent-env', async (event, key, value) => {
+  try {
+    const agentEnvPath = path.join(AGENT_DIR, '.env');
+    let content = '';
+    if (fsSync.existsSync(agentEnvPath)) {
+      content = fsSync.readFileSync(agentEnvPath, 'utf8');
+    }
+    const regex = new RegExp(`^${key}=.*$`, 'm');
+    if (regex.test(content)) {
+      content = content.replace(regex, `${key}=${value}`);
+    } else {
+      content = content.trimEnd() + `\n${key}=${value}\n`;
+    }
+    fsSync.writeFileSync(agentEnvPath, content, 'utf8');
+    return { success: true };
+  } catch (err) {
+    console.error('[Agent Env] Failed to save:', err.message);
+    return { success: false, error: err.message };
+  }
+});
+
+// Auto-start agent on app ready (if Agent directory exists)
+app.on('ready', () => {
+  try {
+    if (fsSync.existsSync(AGENT_DIR) && fsSync.existsSync(path.join(AGENT_DIR, 'src', 'api.py'))) {
+      startAgentProcess();
+    }
+  } catch (err) {
+    console.warn('[Agent] Auto-start skipped:', err.message);
+  }
+});
+
+// Kill agent on app quit
+app.on('before-quit', () => {
+  stopAgentProcess();
 });

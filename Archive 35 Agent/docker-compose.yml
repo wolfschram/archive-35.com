@@ -1,0 +1,247 @@
+# Archive-35 Agent System — Docker Compose Configuration
+#
+# This file defines all services needed for 24/7 autonomous operation:
+# - agent-api: FastAPI REST server for the Electron Studio UI (port 8035)
+# - agent-scheduler: Huey background task scheduler (daily pipeline, content generation)
+# - agent-telegram: Telegram bot for real-time notifications and manual triggers
+#
+# All services share:
+# - Persistent data volume (SQLite DB, imported photos, generated content)
+# - Environment variables from .env file
+# - Internal network (agent-network) for inter-service communication
+# - Health checks to ensure uptime
+#
+# Start:  docker-compose up -d
+# Stop:   docker-compose down
+# Status: docker-compose ps
+# Logs:   docker-compose logs -f <service>
+
+version: "3.8"
+
+# ──────────────────────────────────────────────────────────────────────
+# Services
+# ──────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ────────────────────────────────────────────────────────────────────
+  # API Service
+  # ────────────────────────────────────────────────────────────────────
+  # FastAPI REST server listening on port 8035
+  # Provides endpoints for Electron Studio UI to read stats, trigger imports, approve content
+  # Automatically restarts if it crashes
+  #
+  # Access:
+  #   Local:  http://localhost:8035
+  #   Health: http://localhost:8035/health
+  #   Docs:   http://localhost:8035/docs (Swagger UI)
+  #
+  # Override command to run different entry point:
+  #   docker-compose exec agent-api uv run python -m src.pipeline.daily
+  agent-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: archive35-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      # Port 8035: API server
+      # Change port mapping if 8035 is already in use: "9000:8035"
+      - "8035:8035"
+    volumes:
+      # Shared data volume (persistent across container restarts)
+      # Contains: SQLite database, imported photos, generated content
+      - ./data:/app/data
+      # Logs volume (optional, helps with debugging)
+      - ./logs:/app/logs
+    environment:
+      # Log level: DEBUG, INFO (default), WARNING, ERROR
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    command:
+      # Run the FastAPI server
+      # Server binds to 0.0.0.0:8035 (inside container, mapped to host port)
+      - python
+      - -m
+      - src.api
+    healthcheck:
+      # Health check: curl the /health endpoint every 30 seconds
+      # If check fails 3 times in a row, container marked as "unhealthy"
+      # Docker will restart unhealthy containers (restart: unless-stopped)
+      test: ["CMD", "curl", "-sf", "http://localhost:8035/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - agent-network
+    # Resource limits (optional, uncomment to enable)
+    # Prevents one service from consuming all system resources
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "1.0"
+    #       memory: 512M
+    #     reservations:
+    #       cpus: "0.5"
+    #       memory: 256M
+
+  # ────────────────────────────────────────────────────────────────────
+  # Scheduler Service
+  # ────────────────────────────────────────────────────────────────────
+  # Background task scheduler powered by Huey
+  # Handles recurring tasks:
+  #   - Daily pipeline run (analyze photos, generate content)
+  #   - Content generation with Claude AI
+  #   - Platform posting (Instagram, Etsy, etc.)
+  #   - Rate limiting and cost tracking
+  #   - Expired content cleanup
+  #
+  # Logs: docker-compose logs -f agent-scheduler
+  # Manual trigger: docker-compose exec agent-api curl -X POST http://localhost:8035/pipeline/run
+  agent-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: archive35-scheduler
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Shared with API: same database and data directories
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    command:
+      # Run Huey consumer (background task queue)
+      # -w 2: 2 worker threads
+      # -k thread: use thread-based workers (vs process-based)
+      # -c 4: consumer thread pool size
+      - sh
+      - -c
+      - |
+        uv run python scripts/init_db.py && \
+        uv run huey_consumer src.pipeline.scheduler.huey -w 2 -k thread -c 4 -v
+    healthcheck:
+      # Check if Huey can connect to its database
+      test: ["CMD", "python", "-c", "from src.pipeline.scheduler import huey; huey.connect()"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - agent-network
+    depends_on:
+      agent-api:
+        condition: service_healthy
+
+  # ────────────────────────────────────────────────────────────────────
+  # Telegram Bot Service
+  # ────────────────────────────────────────────────────────────────────
+  # Telegram bot for real-time content notifications and manual triggers
+  # Requires TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env
+  #
+  # Features:
+  #   - Send content to Wolf via Telegram before posting
+  #   - Manual approval/rejection from phone
+  #   - Cost alerts and pipeline status
+  #   - Scheduled summaries
+  #
+  # Logs: docker-compose logs -f agent-telegram
+  # To disable: comment out this service and docker-compose will skip it
+  agent-telegram:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: archive35-telegram
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Shared data with other services
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    command:
+      # Run the Telegram bot
+      - sh
+      - -c
+      - |
+        uv run python scripts/init_db.py && \
+        uv run python -m src.telegram.bot
+    healthcheck:
+      # Simple check: can the bot import its dependencies?
+      test: ["CMD", "python", "-c", "from src.telegram.bot import main"]
+      interval: 60s
+      timeout: 10s
+      retries: 2
+      start_period: 20s
+    networks:
+      - agent-network
+    depends_on:
+      agent-api:
+        condition: service_healthy
+    # Make this service optional:
+    # If TELEGRAM_BOT_TOKEN is empty, the service will fail to connect
+    # and you'll see warnings in logs but the system keeps running
+
+# ──────────────────────────────────────────────────────────────────────
+# Volumes
+# ──────────────────────────────────────────────────────────────────────
+# Persistent storage shared by all services
+# Data survives container restarts and removals
+
+volumes:
+  # All data stored in ./data on the host machine
+  # This is mounted to /app/data inside containers
+
+# ──────────────────────────────────────────────────────────────────────
+# Networks
+# ──────────────────────────────────────────────────────────────────────
+# Internal network for service-to-service communication
+# Services can reach each other by hostname (e.g., http://agent-api:8035)
+# External access only on exposed ports (8035)
+
+networks:
+  agent-network:
+    driver: bridge
+
+# ──────────────────────────────────────────────────────────────────────
+# Usage Examples
+# ──────────────────────────────────────────────────────────────────────
+#
+# Start all services:
+#   docker-compose up -d
+#
+# View running status:
+#   docker-compose ps
+#   docker-compose logs -f
+#
+# View logs for one service:
+#   docker-compose logs -f agent-api
+#   docker-compose logs -f agent-scheduler
+#   docker-compose logs -f agent-telegram
+#
+# Restart a service:
+#   docker-compose restart agent-api
+#
+# Stop everything:
+#   docker-compose down
+#
+# Stop and remove data:
+#   docker-compose down -v  (WARNING: deletes data volume!)
+#
+# Run a one-off command in a service:
+#   docker-compose exec agent-api curl http://localhost:8035/health
+#   docker-compose exec agent-scheduler python -c "from src.db import get_initialized_connection; ..."
+#
+# View database:
+#   docker-compose exec agent-api sqlite3 data/archive35.db ".tables"
+#
+# Trigger manual pipeline run:
+#   docker-compose exec agent-api curl -X POST http://localhost:8035/pipeline/run?dry_run=false
+#
+# ──────────────────────────────────────────────────────────────────────

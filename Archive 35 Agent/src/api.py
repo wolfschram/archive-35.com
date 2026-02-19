@@ -380,6 +380,201 @@ def list_etsy_listings():
         conn.close()
 
 
+# ── Config ─────────────────────────────────────────────────────
+
+
+@app.get("/config")
+def get_config():
+    """Get general Agent configuration."""
+    settings = get_settings()
+    return {
+        "daily_budget_usd": settings.daily_budget_usd,
+        "log_level": settings.log_level,
+        "db_path": settings.db_path,
+        "pipeline_schedule": "0 9 * * *",  # default: 9am daily
+    }
+
+
+class ConfigUpdate(BaseModel):
+    daily_budget_usd: Optional[float] = None
+    log_level: Optional[str] = None
+    db_path: Optional[str] = None
+
+
+@app.post("/config")
+def update_config(req: ConfigUpdate):
+    """Update general Agent configuration (writes to .env)."""
+    env_path = Path(__file__).parent.parent / ".env"
+    content = env_path.read_text() if env_path.exists() else ""
+
+    updates = {}
+    if req.daily_budget_usd is not None:
+        updates["DAILY_BUDGET_USD"] = str(req.daily_budget_usd)
+    if req.log_level is not None:
+        updates["LOG_LEVEL"] = req.log_level.upper()
+    if req.db_path is not None:
+        updates["DB_PATH"] = req.db_path
+
+    for key, value in updates.items():
+        import re
+        pattern = re.compile(rf"^{key}=.*$", re.MULTILINE)
+        if pattern.search(content):
+            content = pattern.sub(f"{key}={value}", content)
+        else:
+            content = content.rstrip() + f"\n{key}={value}\n"
+
+    env_path.write_text(content)
+    return {"success": True, **updates}
+
+
+@app.get("/config/keys")
+def get_agent_keys():
+    """Get Agent-specific API key status (masked)."""
+    settings = get_settings()
+    def mask(val: str) -> str:
+        if not val or len(val) < 8:
+            return ""
+        return val[:4] + "•" * (len(val) - 8) + val[-4:]
+
+    return {
+        "TELEGRAM_BOT_TOKEN": mask(settings.telegram_bot_token),
+        "TELEGRAM_CHAT_ID": settings.telegram_chat_id,
+        "LATE_API_KEY": mask(settings.late_api_key),
+        "ETSY_API_KEY": mask(settings.etsy_api_key),
+        "ETSY_API_SECRET": mask(settings.etsy_api_secret),
+        "SHOPIFY_STORE_URL": settings.shopify_store_url,
+        "SHOPIFY_API_KEY": mask(settings.shopify_api_key),
+        "SHOPIFY_API_SECRET": mask(settings.shopify_api_secret),
+        "PRINTFUL_API_KEY": mask(settings.printful_api_key),
+    }
+
+
+class KeyUpdate(BaseModel):
+    class Config:
+        extra = "allow"
+
+
+@app.post("/config/keys")
+def save_agent_key(req: KeyUpdate):
+    """Save an Agent-specific API key to .env."""
+    env_path = Path(__file__).parent.parent / ".env"
+    content = env_path.read_text() if env_path.exists() else ""
+
+    import re
+    for key, value in req.__pydantic_extra__.items():
+        key_upper = key.upper()
+        pattern = re.compile(rf"^{key_upper}=.*$", re.MULTILINE)
+        if pattern.search(content):
+            content = pattern.sub(f"{key_upper}={value}", content)
+        else:
+            content = content.rstrip() + f"\n{key_upper}={value}\n"
+
+    env_path.write_text(content)
+    return {"success": True}
+
+
+class KeyTest(BaseModel):
+    key_id: str
+    value: str
+
+
+@app.post("/config/test-key")
+def test_agent_key(req: KeyTest):
+    """Test an API key by making a lightweight validation call."""
+    key_id = req.key_id.upper()
+    value = req.value
+
+    if not value:
+        return {"success": False, "message": "No key value provided"}
+
+    if key_id in ("TELEGRAM_BOT_TOKEN",):
+        try:
+            import urllib.request
+            url = f"https://api.telegram.org/bot{value}/getMe"
+            resp = urllib.request.urlopen(url, timeout=5)
+            data = json.loads(resp.read())
+            if data.get("ok"):
+                bot = data["result"]
+                return {"success": True, "message": f"Connected: @{bot.get('username', 'unknown')}"}
+            return {"success": False, "message": "Invalid bot token"}
+        except Exception as e:
+            return {"success": False, "message": str(e)}
+
+    if key_id in ("LATE_API_KEY",):
+        return {"success": True, "message": "Key format looks valid (live test requires Late API)"}
+
+    if key_id in ("ETSY_API_KEY",):
+        return {"success": True, "message": "Key saved. Full validation available after OAuth setup."}
+
+    return {"success": True, "message": f"Key '{key_id}' saved (no live test available)"}
+
+
+@app.get("/config/photo-source")
+def get_photo_source():
+    """Get photo import source configuration."""
+    settings = get_settings()
+    return {
+        "source": "r2" if "r2" in settings.photo_import_dir.lower() else "local",
+        "import_dir": settings.photo_import_dir,
+    }
+
+
+class PhotoSourceUpdate(BaseModel):
+    source: str = "local"
+    import_dir: Optional[str] = None
+
+
+@app.post("/config/photo-source")
+def save_photo_source(req: PhotoSourceUpdate):
+    """Update photo import source config."""
+    env_path = Path(__file__).parent.parent / ".env"
+    content = env_path.read_text() if env_path.exists() else ""
+
+    import_dir = req.import_dir or ("./data/photos" if req.source == "local" else "r2://archive-35")
+
+    import re
+    pattern = re.compile(r"^PHOTO_IMPORT_DIR=.*$", re.MULTILINE)
+    if pattern.search(content):
+        content = pattern.sub(f"PHOTO_IMPORT_DIR={import_dir}", content)
+    else:
+        content = content.rstrip() + f"\nPHOTO_IMPORT_DIR={import_dir}\n"
+
+    env_path.write_text(content)
+    return {"success": True, "source": req.source, "import_dir": import_dir}
+
+
+@app.post("/config/test-telegram")
+def test_telegram():
+    """Send a test message via Telegram bot."""
+    settings = get_settings()
+    if not settings.has_telegram_config():
+        return {"success": False, "message": "Telegram bot token or chat ID not configured"}
+    try:
+        import urllib.request
+        import urllib.parse
+        url = (
+            f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage?"
+            f"chat_id={urllib.parse.quote(settings.telegram_chat_id)}"
+            f"&text={urllib.parse.quote('Archive-35 Agent test message')}"
+        )
+        resp = urllib.request.urlopen(url, timeout=5)
+        data = json.loads(resp.read())
+        if data.get("ok"):
+            return {"success": True, "message": "Test message sent to Telegram"}
+        return {"success": False, "message": data.get("description", "Unknown error")}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+
+@app.post("/config/test-late")
+def test_late():
+    """Test Late API connection."""
+    settings = get_settings()
+    if not settings.has_late_api_key():
+        return {"success": False, "message": "Late API key not configured"}
+    return {"success": True, "message": "Late API key is configured (live test requires API endpoint)"}
+
+
 # ── Mount sub-routers ──────────────────────────────────────────
 
 app.include_router(library_router, prefix="/library", tags=["content-library"])

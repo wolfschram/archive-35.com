@@ -333,7 +333,7 @@ nav a:hover::after, nav a.active::after { width:100%; }
 #info {
   position:absolute; bottom:24vh; left:0; right:0;
   text-align:center; z-index:15; pointer-events:none;
-  transition:bottom .4s cubic-bezier(.23,1,.32,1);
+  transition:bottom .25s cubic-bezier(.23,1,.32,1);
 }
 #info.preview-up { bottom:50vh; }
 #info-t {
@@ -370,7 +370,7 @@ nav a:hover::after, nav a.active::after { width:100%; }
 #cprev {
   position:fixed; bottom:0; left:0; right:0;
   max-height:0; opacity:0; overflow:hidden;
-  transition:max-height .4s cubic-bezier(.23,1,.32,1), opacity .3s;
+  transition:max-height .25s cubic-bezier(.23,1,.32,1), opacity .2s;
   z-index:30;
   background:linear-gradient(180deg, transparent 0%, rgba(8,7,6,0.97) 5%, rgba(5,5,4,0.99) 100%);
 }
@@ -1404,25 +1404,20 @@ const tEl=document.getElementById('info-t'),cEl=document.getElementById('info-c'
 function updH(){const i=wI(Math.round(sm));if(i===lastH)return;lastH=i;tEl.textContent=G[i].name.toUpperCase();cEl.textContent=G[i].n+' photograph'+(G[i].n!==1?'s':'');}
 
 /* Idle-aware animation loop — pauses when settled to save CPU/battery */
-let _idleFrames=0,_dwellTimer=null,_dwellIdx=-1;
+let _idleFrames=0,_dwellIdx=-1;
 (function run(){
   const d=cur-sm;sm+=d*0.12;if(Math.abs(d)<0.0005){sm=cur;_idleFrames++;}else{_idleFrames=0;}
   const r=Math.round(sm);if(r!==lastR){lastR=r;}
   layout();updH();
 
-  /* Auto-preview: show preview panel as soon as coverflow settles */
+  /* Auto-preview: open instantly when coverflow settles on a collection */
   const ci=wI(Math.round(sm));
   const fgOpen=document.getElementById('fgal').classList.contains('open');
   const lbOpen=document.getElementById('lb').classList.contains('open');
-  if(_idleFrames>5&&ci!==_dwellIdx&&!fgOpen&&!lbOpen){
-    _dwellIdx=ci;clearTimeout(_dwellTimer);
-    _dwellTimer=setTimeout(()=>{
-      if(!document.getElementById('fgal').classList.contains('open')&&
-         !document.getElementById('lb').classList.contains('open')&&
-         wI(Math.round(cur))===ci){openCP(ci);}
-    },600);
+  if(_idleFrames===3&&ci!==_dwellIdx&&!fgOpen&&!lbOpen){
+    _dwellIdx=ci;openCP(ci);
   }
-  if(_idleFrames===0){clearTimeout(_dwellTimer);_dwellIdx=-1;if(cpI>=0)closeCP();}
+  if(_idleFrames===0&&cpI>=0){_dwellIdx=-1;closeCP();}
 
   /* After 60 idle frames (~1 sec), slow to 4fps instead of stopping completely */
   if(_idleFrames>60){setTimeout(()=>requestAnimationFrame(run),250);return;}
@@ -1518,7 +1513,7 @@ function openCP(idx){
   document.getElementById('info').classList.add('preview-up');
   document.getElementById('info-h').style.opacity='0';
 }
-function closeCP(){cpI=-1;_dwellIdx=-1;clearTimeout(_dwellTimer);document.getElementById('cprev').classList.remove('open');document.getElementById('info').classList.remove('preview-up');document.getElementById('info-h').style.opacity='';}
+function closeCP(){cpI=-1;_dwellIdx=-1;document.getElementById('cprev').classList.remove('open');document.getElementById('info').classList.remove('preview-up');document.getElementById('info-h').style.opacity='';}
 document.getElementById('cprev-btn').addEventListener('click',()=>{if(cpI>=0)openFg(cpI);});
 
 /* ===== FULL GALLERY — thumbnails in grid, full-res only in lightbox ===== */

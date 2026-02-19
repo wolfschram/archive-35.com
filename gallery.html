@@ -259,8 +259,8 @@ nav a:hover::after, nav a.active::after { width:100%; }
 /* === COVERFLOW === */
 #cf {
   position:absolute;
-  top:14vh; left:0; right:0;
-  height:60vh;
+  top:12vh; left:0; right:0;
+  height:52vh;
   perspective:1800px;
   perspective-origin:50% 50%;
   z-index:10;
@@ -333,9 +333,7 @@ nav a:hover::after, nav a.active::after { width:100%; }
 #info {
   position:absolute; bottom:24vh; left:0; right:0;
   text-align:center; z-index:15; pointer-events:none;
-  transition:bottom .25s cubic-bezier(.23,1,.32,1);
 }
-#info.preview-up { bottom:50vh; }
 #info-t {
   font-family:'Bebas Neue',sans-serif;
   font-size:clamp(28px,4.2vw,56px);
@@ -357,8 +355,8 @@ nav a:hover::after, nav a.active::after { width:100%; }
 @keyframes breathe{0%,100%{opacity:.15}50%{opacity:.35}}
 
 #dots {
-  position:fixed; bottom:14px; left:50%; transform:translateX(-50%);
-  display:flex; gap:6px; z-index:20;
+  position:fixed; bottom:22vh; left:50%; transform:translateX(-50%);
+  display:flex; gap:6px; z-index:35;
 }
 .dot {
   width:5px; height:5px; border-radius:50%;
@@ -366,35 +364,31 @@ nav a:hover::after, nav a.active::after { width:100%; }
 }
 .dot.active { background:var(--gold); box-shadow:0 0 6px rgba(201,168,76,0.3); }
 
-/* === CONTENT PREVIEW === */
+/* === CONTENT PREVIEW — always visible, part of the coverflow composition === */
 #cprev {
   position:fixed; bottom:0; left:0; right:0;
-  max-height:0; opacity:0; overflow:hidden;
-  transition:max-height .25s cubic-bezier(.23,1,.32,1), opacity .2s;
-  z-index:30;
-  background:linear-gradient(180deg, transparent 0%, rgba(8,7,6,0.97) 5%, rgba(5,5,4,0.99) 100%);
+  height:22vh; z-index:30;
+  background:linear-gradient(180deg, transparent 0%, rgba(8,7,6,0.95) 12%, rgba(5,5,4,0.99) 100%);
+  pointer-events:auto;
 }
-#cprev.open { max-height:46vh; opacity:1; }
-#cprev-in { padding:14px 48px 28px; height:100%; display:flex; flex-direction:column; }
+#cprev-in { padding:10px 48px 16px; height:100%; display:flex; flex-direction:column; }
 #cprev-hd {
   display:flex; align-items:baseline; justify-content:space-between;
-  padding-bottom:10px; margin-bottom:10px;
+  padding-bottom:6px; margin-bottom:6px;
   border-bottom:1px solid rgba(201,168,76,0.05); flex-shrink:0;
 }
-#cprev-t { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:6px; }
+#cprev-t { font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:6px; }
 #cprev-c { font-family:'Courier Prime',monospace; font-size:10px; color:rgba(201,168,76,0.45); letter-spacing:2px; margin-left:14px; }
 #cprev-btn {
   font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:2px;
   color:var(--gold); background:transparent; border:1px solid var(--gold-dim);
-  padding:8px 24px; cursor:pointer; transition:all .3s;
+  padding:6px 20px; cursor:pointer; transition:all .3s;
 }
 #cprev-btn:hover { background:var(--gold); color:#000; }
 #cprev-g {
-  flex:1; overflow-y:auto;
-  display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:6px;
+  flex:1; overflow:hidden;
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:4px;
 }
-#cprev-g::-webkit-scrollbar{width:3px}
-#cprev-g::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px}
 .cp-th {
   aspect-ratio:3/2; overflow:hidden;
   border:1px solid rgba(255,255,255,0.02);
@@ -471,9 +465,11 @@ nav a:hover::after, nav a.active::after { width:100%; }
   #info-t { font-size:clamp(20px,5vw,32px); letter-spacing:clamp(5px,1.2vw,10px); }
   #info-c { font-size:9px; letter-spacing:2px; }
   #dots { bottom:10px; }
-  #cprev.open { max-height:38vh; }
-  #cprev-in { padding:10px 16px 20px; }
-  #cprev-g { grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:4px; }
+  #cprev { height:20vh; }
+  #cprev-in { padding:8px 16px 14px; }
+  #cprev-g { grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:4px; }
+  #dots { bottom:20vh; }
+  #info { bottom:22vh; }
   #fg-hd { padding:70px 20px 20px; }
   #fg-ti { font-size:28px; letter-spacing:8px; }
   #fg-gr { padding:14px 12px 40px; }
@@ -481,8 +477,10 @@ nav a:hover::after, nav a.active::after { width:100%; }
 @media(max-width:420px){
   nav a { font-size:0.5rem; }
   nav { gap:0.5rem; }
-  #cf { top:18vh; height:52vh; }
-  #info { bottom:10vh; }
+  #cf { top:18vh; height:48vh; }
+  #cprev { height:18vh; }
+  #dots { bottom:18vh; }
+  #info { bottom:20vh; }
 }
 </style>
 </head>
@@ -1363,7 +1361,7 @@ G.forEach((g,i)=>{
   cfEl.appendChild(el);items.push(el);
 
   const d=document.createElement('div');d.className='dot';
-  d.addEventListener('click',()=>{cur=i;closeCP();});
+  d.addEventListener('click',()=>{cur=i;});
   dotsEl.appendChild(d);
 });
 
@@ -1401,24 +1399,20 @@ function layout(){
 }
 
 const tEl=document.getElementById('info-t'),cEl=document.getElementById('info-c');let lastH=-1;
-function updH(){const i=wI(Math.round(sm));if(i===lastH)return;lastH=i;tEl.textContent=G[i].name.toUpperCase();cEl.textContent=G[i].n+' photograph'+(G[i].n!==1?'s':'');}
+function updH(){
+  const i=wI(Math.round(sm));if(i===lastH)return;lastH=i;
+  tEl.textContent=G[i].name.toUpperCase();
+  cEl.textContent=G[i].n+' photograph'+(G[i].n!==1?'s':'');
+  /* Update preview panel in sync with coverflow — always visible */
+  updPrev(i);
+}
 
 /* Idle-aware animation loop — pauses when settled to save CPU/battery */
-let _idleFrames=0,_dwellIdx=-1;
+let _idleFrames=0;
 (function run(){
   const d=cur-sm;sm+=d*0.12;if(Math.abs(d)<0.0005){sm=cur;_idleFrames++;}else{_idleFrames=0;}
   const r=Math.round(sm);if(r!==lastR){lastR=r;}
   layout();updH();
-
-  /* Auto-preview: open instantly when coverflow settles on a collection */
-  const ci=wI(Math.round(sm));
-  const fgOpen=document.getElementById('fgal').classList.contains('open');
-  const lbOpen=document.getElementById('lb').classList.contains('open');
-  if(_idleFrames===3&&ci!==_dwellIdx&&!fgOpen&&!lbOpen){
-    _dwellIdx=ci;openCP(ci);
-  }
-  if(_idleFrames===0&&cpI>=0){_dwellIdx=-1;closeCP();}
-
   /* After 60 idle frames (~1 sec), slow to 4fps instead of stopping completely */
   if(_idleFrames>60){setTimeout(()=>requestAnimationFrame(run),250);return;}
   requestAnimationFrame(run);
@@ -1434,7 +1428,7 @@ window.addEventListener('resize',layout);
     const a=document.createElement('a');a.href='#';a.textContent=g.name;
     a.addEventListener('click',e=>{
       e.preventDefault();e.stopPropagation();
-      closeLb();closeCP();
+      closeLb();
       /* If already in a gallery, swap directly without close/open animation */
       const fgal=document.getElementById('fgal');
       if(fgal.classList.contains('open')){
@@ -1454,7 +1448,7 @@ window.addEventListener('resize',layout);
 /* ===== INPUT ===== */
 function modal(){return document.getElementById('fgal').classList.contains('open')||document.getElementById('lb').classList.contains('open');}
 let sA=0;
-document.addEventListener('wheel',e=>{if(modal())return;const dd=document.getElementById('gal-drop');if(dd&&dd.matches(':hover')){return;}e.preventDefault();sA+=(e.deltaY||0)+(e.deltaX||0);if(Math.abs(sA)>=180){cur+=Math.sign(sA);sA=0;closeCP();}},{passive:false});
+document.addEventListener('wheel',e=>{if(modal())return;const dd=document.getElementById('gal-drop');if(dd&&dd.matches(':hover')){return;}e.preventDefault();sA+=(e.deltaY||0)+(e.deltaX||0);if(Math.abs(sA)>=180){cur+=Math.sign(sA);sA=0;}},{passive:false});
 
 let drag=false,dX0=0,dC0=0,dM=false,dLX=0,dV=0;
 function dS(x,e){if(modal())return;const dd=document.getElementById('gal-drop');if(dd&&dd.matches(':hover'))return;drag=true;dM=false;dX0=x;dC0=cur;dLX=x;dV=0;}
@@ -1471,50 +1465,51 @@ document.addEventListener('touchend',dE);
 document.addEventListener('keydown',e=>{
   if(document.getElementById('lb').classList.contains('open')){if(e.key==='Escape')closeLb();if(e.key==='ArrowLeft')lbN(-1);if(e.key==='ArrowRight')lbN(1);return;}
   if(document.getElementById('fgal').classList.contains('open')){if(e.key==='Escape')closeFg();return;}
-  if(document.getElementById('cprev').classList.contains('open')){if(e.key==='Escape')closeCP();if(e.key==='Enter')openFg(cpI);return;}
-  if(e.key==='ArrowRight'){cur++;closeCP();}if(e.key==='ArrowLeft'){cur--;closeCP();}
+  if(e.key==='ArrowRight'){cur++;}if(e.key==='ArrowLeft'){cur--;}
   if(e.key==='Enter')onCC(wI(Math.round(cur)));
 });
 
 /* ===== COVER CLICK ===== */
 let cpI=-1;
-function onCC(idx){if(dM)return;const ci=wI(Math.round(cur));if(idx!==ci){cur+=cD(ci,idx);closeCP();return;}
+function onCC(idx){if(dM)return;const ci=wI(Math.round(cur));if(idx!==ci){cur+=cD(ci,idx);return;}
   openFg(idx);}
 
-/* ===== PREVIEW PANEL — uses real photo thumbnails ===== */
-function openCP(idx){
-  cpI=idx;const g=G[idx];
+/* ===== PREVIEW PANEL — always visible, syncs with coverflow ===== */
+let _prevIdx=-1;
+function updPrev(idx){
+  if(idx===_prevIdx)return;
+  _prevIdx=idx;cpI=idx;
+  const g=G[idx];
   document.getElementById('cprev-t').textContent=g.name.toUpperCase();
   document.getElementById('cprev-c').textContent='  '+g.n+' photographs';
   const grid=document.getElementById('cprev-g');
-  /* Clean up old event listeners by replacing the grid node */
   const newGrid=grid.cloneNode(false);
   grid.parentNode.replaceChild(newGrid,grid);
   newGrid.id='cprev-g';
-  const max=Math.min(g.n,16);
+  const max=Math.min(g.n,12);
   for(let i=0;i<max;i++){
     const th=document.createElement('div');th.className='cp-th';
     const im=document.createElement('img');
     im.src=g.p[i].t;
     im.alt=g.p[i].n||`${g.name} — ${i+1}`;
-    im.loading='lazy';
+    im.loading=i<8?'eager':'lazy';
     th.appendChild(im);
     th.addEventListener('click',e=>{e.stopPropagation();openFg(idx,i);});
     newGrid.appendChild(th);
   }
-  if(g.n>16){
+  if(g.n>12){
     const m=document.createElement('div');m.className='cp-th';
     m.style.cssText='display:flex;align-items:center;justify-content:center;background:rgba(201,168,76,0.03);font-family:"Courier Prime",monospace;font-size:11px;color:#c9a84c;letter-spacing:1px;cursor:pointer';
-    m.textContent=`+${g.n-16}`;
+    m.textContent=`+${g.n-12}`;
     m.addEventListener('click',e=>{e.stopPropagation();openFg(idx);});
     newGrid.appendChild(m);
   }
-  document.getElementById('cprev').classList.add('open');
-  document.getElementById('info').classList.add('preview-up');
-  document.getElementById('info-h').style.opacity='0';
 }
-function closeCP(){cpI=-1;_dwellIdx=-1;document.getElementById('cprev').classList.remove('open');document.getElementById('info').classList.remove('preview-up');document.getElementById('info-h').style.opacity='';}
+function showPrev(){document.getElementById('cprev').style.display='';document.getElementById('dots').style.display='';}
+function hidePrev(){document.getElementById('cprev').style.display='none';document.getElementById('dots').style.display='none';}
 document.getElementById('cprev-btn').addEventListener('click',()=>{if(cpI>=0)openFg(cpI);});
+/* Initialize preview with first collection */
+updPrev(wI(Math.round(cur)));
 
 /* ===== FULL GALLERY — thumbnails in grid, full-res only in lightbox ===== */
 function openFg(idx,scrollToPhoto){
@@ -1536,10 +1531,10 @@ function openFg(idx,scrollToPhoto){
     img.addEventListener('click',()=>openLb(idx,i));
     newGrid.appendChild(img);
   }
-  closeCP();document.getElementById('fgal').classList.add('open');document.getElementById('fgal').scrollTop=0;
+  hidePrev();document.getElementById('fgal').classList.add('open');document.getElementById('fgal').scrollTop=0;
   if(typeof scrollToPhoto==='number'){setTimeout(()=>{const imgs=newGrid.querySelectorAll('.fg-im');if(imgs[scrollToPhoto])imgs[scrollToPhoto].scrollIntoView({behavior:'smooth',block:'center'});},100);}
 }
-function closeFg(){document.getElementById('fgal').classList.remove('open');const staleModal=document.getElementById('product-selector-modal');if(staleModal)staleModal.remove();}
+function closeFg(){document.getElementById('fgal').classList.remove('open');showPrev();const staleModal=document.getElementById('product-selector-modal');if(staleModal)staleModal.remove();}
 document.getElementById('fg-bk').addEventListener('click',closeFg);
 
 /* ===== LIGHTBOX — uses real full-size images ===== */

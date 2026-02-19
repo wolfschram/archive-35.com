@@ -118,10 +118,27 @@ function AgentPhotoImport() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '28px',
-                  color: 'var(--text-muted)',
+                  overflow: 'hidden',
                 }}>
-                  {photo.vision_analyzed_at ? '🖼️' : '📷'}
+                  {photo.path ? (
+                    <img
+                      src={`file://${photo.path}`}
+                      alt={photo.filename}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentNode.innerHTML = '<span style="font-size:28px;color:var(--text-muted)">📷</span>';
+                      }}
+                    />
+                  ) : (
+                    <span style={{ fontSize: '28px', color: 'var(--text-muted)' }}>
+                      {photo.vision_analyzed_at ? '🖼️' : '📷'}
+                    </span>
+                  )}
                 </div>
                 <div style={{ padding: '8px' }}>
                   <div style={{

@@ -1,7 +1,13 @@
 """Photo import pipeline for Archive-35.
 
-Scans a directory for images, hashes them for dedup,
-extracts EXIF data, resizes for API, and stores in the database.
+Scans portfolio directories for original photos, hashes for dedup,
+extracts EXIF data, and stores metadata references in the database.
+
+Architecture:
+- Photos stay in place (01_Portfolio/) — NO copies made
+- Database stores absolute paths as references
+- Collection = portfolio folder name (e.g., "Valley_of_Fire")
+- Only imports from originals/ subfolder (skips web/ thumbs/full variants)
 """
 
 from __future__ import annotations
@@ -23,7 +29,9 @@ from src.safety.ledger import can_execute, record_action
 logger = logging.getLogger(__name__)
 
 SUPPORTED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".tiff", ".tif", ".webp"}
-MAX_EDGE = 1024  # Longest edge for API-ready resize
+
+# Skip these files/patterns during import
+SKIP_PATTERNS = {"-thumb.", "-full.", ".ds_store", "thumbs.db"}
 
 
 def _hash_file(path: Path) -> str:
@@ -42,7 +50,6 @@ def _extract_exif(img: Image.Image) -> dict:
     if raw_exif:
         for tag_id, value in raw_exif.items():
             tag_name = TAGS.get(tag_id, str(tag_id))
-            # Convert non-serializable types to strings
             try:
                 json.dumps(value)
                 exif_data[tag_name] = value
@@ -51,53 +58,52 @@ def _extract_exif(img: Image.Image) -> dict:
     return exif_data
 
 
-def _resize_for_api(img: Image.Image, max_edge: int = MAX_EDGE) -> Image.Image:
-    """Resize image so longest edge is max_edge pixels.
+def _should_skip(path: Path) -> bool:
+    """Check if file should be skipped (thumbs, web variants, system files)."""
+    name_lower = path.name.lower()
+    return any(pattern in name_lower for pattern in SKIP_PATTERNS)
 
-    Returns original if already within bounds.
+
+def _get_collection_name(photo_path: Path, portfolio_root: Path) -> Optional[str]:
+    """Get portfolio folder name as collection.
+
+    Given: /Users/.../01_Portfolio/Valley_of_Fire/originals/IMG_001.jpg
+    Returns: "Valley_of_Fire"
+
+    Walks up from the photo to find the direct child of portfolio_root.
     """
-    w, h = img.size
-    if max(w, h) <= max_edge:
-        return img
-
-    if w >= h:
-        new_w = max_edge
-        new_h = int(h * (max_edge / w))
-    else:
-        new_h = max_edge
-        new_w = int(w * (max_edge / h))
-
-    return img.resize((new_w, new_h), Image.LANCZOS)
-
-
-def _guess_collection(path: Path) -> Optional[str]:
-    """Guess collection code from parent directory name.
-
-    e.g., /photos/ICE/aurora.jpg → "ICE"
-    """
-    parent = path.parent.name.upper()
-    if len(parent) <= 5 and parent.isalpha():
-        return parent
+    try:
+        relative = photo_path.relative_to(portfolio_root)
+        # First part of the relative path is the portfolio folder
+        parts = relative.parts
+        if len(parts) >= 2:
+            return parts[0]
+    except ValueError:
+        pass
     return None
 
 
 def import_photo(
     conn: sqlite3.Connection,
     photo_path: Path,
-    output_dir: Optional[Path] = None,
+    collection: Optional[str] = None,
 ) -> Optional[str]:
     """Import a single photo into the database.
+
+    Stores absolute path as reference — no copies made.
 
     Args:
         conn: Active database connection.
         photo_path: Path to the photo file.
-        output_dir: Optional directory for resized copies.
+        collection: Portfolio/collection name.
 
     Returns:
         Photo ID (hash) if imported, None if skipped (duplicate).
     """
     if photo_path.suffix.lower() not in SUPPORTED_EXTENSIONS:
-        logger.debug("Skipping unsupported file: %s", photo_path)
+        return None
+
+    if _should_skip(photo_path):
         return None
 
     # Hash for dedup
@@ -108,22 +114,15 @@ def import_photo(
         logger.debug("Skipping duplicate: %s", photo_path.name)
         return None
 
-    # Open and process
     try:
         img = Image.open(photo_path)
         width, height = img.size
         exif = _extract_exif(img)
-        collection = _guess_collection(photo_path)
 
-        # Resize for API
-        resized = _resize_for_api(img)
-        if output_dir:
-            output_dir.mkdir(parents=True, exist_ok=True)
-            resized.save(output_dir / photo_path.name, quality=90)
-
+        # Always store absolute path
+        abs_path = str(photo_path.resolve())
         now = datetime.now(timezone.utc).isoformat()
 
-        # Insert into database
         conn.execute(
             """INSERT INTO photos
                (id, filename, path, imported_at, width, height,
@@ -132,7 +131,7 @@ def import_photo(
             (
                 file_hash,
                 photo_path.name,
-                str(photo_path),
+                abs_path,
                 now,
                 width,
                 height,
@@ -142,10 +141,8 @@ def import_photo(
         )
         conn.commit()
 
-        # Record in ledger
         record_action(conn, "import", "photos", file_hash)
 
-        # Audit log
         audit_log(conn, "pipeline", "import_photo", {
             "filename": photo_path.name,
             "hash": file_hash,
@@ -153,7 +150,7 @@ def import_photo(
             "collection": collection,
         })
 
-        logger.info("Imported: %s → %s", photo_path.name, file_hash[:12])
+        logger.info("Imported: %s [%s] → %s", photo_path.name, collection, file_hash[:12])
         return file_hash
 
     except Exception as e:
@@ -170,27 +167,66 @@ def import_directory(
     directory: str | Path,
     output_dir: Optional[Path] = None,
 ) -> list[str]:
-    """Import all supported photos from a directory.
+    """Import original photos from portfolio directories.
+
+    Expected structure:
+        01_Portfolio/
+            Valley_of_Fire/
+                originals/   ← imports from here
+                    IMG_001.jpg
+                web/         ← skipped (these are generated derivatives)
+                    IMG_001-thumb.jpg
+                    IMG_001-full.jpg
+
+    If a portfolio folder has no originals/ subfolder, imports directly
+    from the portfolio folder (but still skips -thumb/-full variants).
 
     Args:
         conn: Active database connection.
-        directory: Directory to scan for photos.
-        output_dir: Optional directory for resized copies.
+        directory: Root portfolio directory (e.g., 01_Portfolio).
 
     Returns:
         List of imported photo IDs.
     """
-    dir_path = Path(directory)
+    dir_path = Path(directory).resolve()
     if not dir_path.exists():
         logger.warning("Import directory does not exist: %s", dir_path)
         return []
 
     imported = []
-    for photo_path in sorted(dir_path.rglob("*")):
-        if photo_path.is_file():
-            photo_id = import_photo(conn, photo_path, output_dir)
+
+    # Iterate portfolio folders (direct children of the root)
+    for portfolio_dir in sorted(dir_path.iterdir()):
+        if not portfolio_dir.is_dir():
+            continue
+
+        collection = portfolio_dir.name
+
+        # Prefer originals/ subfolder, fall back to portfolio root
+        originals_dir = portfolio_dir / "originals"
+        scan_dir = originals_dir if originals_dir.exists() else portfolio_dir
+
+        # Only scan files in this directory (not recursive into web/ etc.)
+        # unless there's no originals folder, then we need to be selective
+        if originals_dir.exists():
+            # Scan only originals/ — these are the source-of-truth files
+            scan_files = sorted(scan_dir.iterdir())
+        else:
+            # No originals/ folder — scan portfolio dir but skip web/ subfolder
+            scan_files = sorted(
+                f for f in portfolio_dir.rglob("*")
+                if f.is_file() and "web" not in f.parts
+            )
+
+        for photo_path in scan_files:
+            if not photo_path.is_file():
+                continue
+            photo_id = import_photo(conn, photo_path, collection=collection)
             if photo_id:
                 imported.append(photo_id)
+
+        if imported:
+            logger.info("  %s: scanned %s", collection, scan_dir.name)
 
     logger.info("Imported %d photos from %s", len(imported), directory)
     return imported

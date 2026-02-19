@@ -181,6 +181,29 @@ def import_photos(req: ImportRequest):
         conn.close()
 
 
+@app.post("/photos/reimport")
+def reimport_photos(req: ImportRequest):
+    """Clear all photo data and reimport from scratch."""
+    from src.pipeline.import_photos import import_directory
+
+    conn = _get_conn()
+    try:
+        # Clear existing photo data and related ledger entries
+        conn.execute("DELETE FROM photos")
+        conn.execute("DELETE FROM actions_ledger WHERE action_type = 'import' AND target = 'photos'")
+        conn.commit()
+        logger.info("Cleared photos table and import ledger for reimport")
+
+        settings = get_settings()
+        photo_dir = req.directory or settings.photo_import_dir
+        imported = import_directory(conn, photo_dir)
+        return {"imported": len(imported), "cleared": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
 # ── Content ─────────────────────────────────────────────────────
 
 

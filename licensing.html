@@ -140,7 +140,8 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
 .modal-close{position:fixed;top:80px;right:32px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);color:var(--text-dim);font-size:14px;cursor:pointer;z-index:410;transition:all 0.2s;padding:8px 20px;border-radius:30px;backdrop-filter:blur(8px);letter-spacing:2px;font-family:inherit;display:flex;align-items:center;gap:8px}
 .modal-close:hover{color:var(--gold);border-color:var(--gold-dim);background:rgba(0,0,0,0.9)}
 .modal-img{border-radius:4px;overflow:hidden;background:var(--raised);position:relative}
-.modal-img canvas{width:100%;display:block;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:auto;border-radius:4px}
+.modal-img canvas{width:100%;display:block;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none;border-radius:4px}
+.modal-overlay.open .modal-img canvas{pointer-events:auto;cursor:pointer}
 /* Hover-reveal instruction */
 .modal-img .reveal-hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.5);background:rgba(0,0,0,0.6);padding:6px 16px;border-radius:20px;pointer-events:none;transition:opacity 0.3s;opacity:1}
 .modal-img:hover .reveal-hint{opacity:0}

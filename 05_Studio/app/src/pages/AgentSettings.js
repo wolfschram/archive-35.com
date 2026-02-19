@@ -5,7 +5,7 @@ import useAgentApi from '../hooks/useAgentApi';
  * AgentSettings — Configure Agent-specific API keys, shared keys (read-only),
  * photo source, and agent configuration (budget, log level, schedule).
  */
-function AgentSettings() {
+function AgentSettings({ setActiveTab }) {
   const { get, post, loading, error, setError } = useAgentApi();
 
   // Agent-specific API keys (editable)
@@ -509,9 +509,9 @@ function AgentSettings() {
                     <button
                       className="btn btn-secondary"
                       style={{ padding: '4px 12px', fontSize: '11px', whiteSpace: 'nowrap', marginLeft: '12px' }}
-                      disabled
+                      onClick={() => setActiveTab && setActiveTab('settings')}
                     >
-                      Edit in Studio
+                      Edit in Studio →
                     </button>
                   </div>
 

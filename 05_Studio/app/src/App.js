@@ -123,7 +123,7 @@ function App() {
           <AgentHealthPanel />
         </TabPanel>
         <TabPanel id="agent-settings" activeTab={activeTab}>
-          <AgentSettings />
+          <AgentSettings setActiveTab={setActiveTab} />
         </TabPanel>
       </main>
     </div>

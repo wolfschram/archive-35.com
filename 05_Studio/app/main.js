@@ -4234,15 +4234,88 @@ const AGENT_PORT = 8035;
 let agentProcess = null;
 
 /**
- * Start the Agent FastAPI server as a child process.
- * Uses `uv run python -m src.api` from the Agent directory.
+ * Find the uv binary — Electron doesn't inherit shell PATH additions.
+ * Searches common install locations on macOS.
  */
-function startAgentProcess() {
+function findUvBinary() {
+  const homedir = require('os').homedir();
+  const candidates = [
+    path.join(homedir, '.local', 'bin', 'uv'),
+    '/usr/local/bin/uv',
+    '/opt/homebrew/bin/uv',
+    path.join(homedir, '.cargo', 'bin', 'uv'),
+    'uv', // fallback: hope it's in PATH
+  ];
+  for (const candidate of candidates) {
+    try {
+      if (candidate === 'uv' || fsSync.existsSync(candidate)) {
+        return candidate;
+      }
+    } catch { /* skip */ }
+  }
+  return null;
+}
+
+/**
+ * Initialize the Agent database before starting the API server.
+ */
+function initAgentDb(uvBin) {
+  return new Promise((resolve, reject) => {
+    console.log('[Agent] Initializing database...');
+    const proc = spawn(uvBin, ['run', 'python', 'scripts/init_db.py'], {
+      cwd: AGENT_DIR,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, PYTHONUNBUFFERED: '1' },
+    });
+    let output = '';
+    proc.stdout.on('data', (d) => { output += d.toString(); });
+    proc.stderr.on('data', (d) => { output += d.toString(); });
+    proc.on('close', (code) => {
+      if (code === 0) {
+        console.log('[Agent] DB initialized:', output.trim());
+        resolve();
+      } else {
+        console.error('[Agent] DB init failed (code ' + code + '):', output.trim());
+        reject(new Error('DB init failed'));
+      }
+    });
+    proc.on('error', reject);
+  });
+}
+
+/**
+ * Start the Agent FastAPI server as a child process.
+ * Finds uv binary, initializes DB, then launches the API.
+ * Automatically restarts once if the process crashes.
+ */
+async function startAgentProcess() {
   if (agentProcess) return; // Already running
+
+  // Check if agent is already running externally (e.g., manual terminal)
+  const health = await checkAgentHealth();
+  if (health.online) {
+    console.log('[Agent] Already running externally, skipping spawn');
+    return;
+  }
+
+  const uvBin = findUvBinary();
+  if (!uvBin) {
+    console.error('[Agent] uv binary not found. Install with: curl -LsSf https://astral.sh/uv/install.sh | sh');
+    return;
+  }
+  console.log('[Agent] Using uv at:', uvBin);
+
+  try {
+    // Initialize database first
+    await initAgentDb(uvBin);
+  } catch (err) {
+    console.error('[Agent] Skipping start — DB init failed:', err.message);
+    return;
+  }
 
   try {
     console.log('[Agent] Starting FastAPI server...');
-    agentProcess = spawn('uv', ['run', 'python', '-m', 'src.api'], {
+    agentProcess = spawn(uvBin, ['run', 'python', '-m', 'src.api'], {
       cwd: AGENT_DIR,
       stdio: ['pipe', 'pipe', 'pipe'],
       env: { ...process.env, PYTHONUNBUFFERED: '1' },
@@ -4253,18 +4326,40 @@ function startAgentProcess() {
     });
 
     agentProcess.stderr.on('data', (data) => {
-      console.log(`[Agent:err] ${data.toString().trim()}`);
+      const msg = data.toString().trim();
+      // Uvicorn logs to stderr — only flag actual errors
+      if (msg.includes('ERROR') || msg.includes('Traceback')) {
+        console.error(`[Agent:err] ${msg}`);
+      } else {
+        console.log(`[Agent] ${msg}`);
+      }
     });
 
     agentProcess.on('close', (code) => {
       console.log(`[Agent] Process exited with code ${code}`);
       agentProcess = null;
+      // Auto-restart once on unexpected crash (not on intentional stop)
+      if (code !== 0 && code !== null) {
+        console.log('[Agent] Unexpected exit — restarting in 3s...');
+        setTimeout(() => startAgentProcess(), 3000);
+      }
     });
 
     agentProcess.on('error', (err) => {
       console.error('[Agent] Failed to start:', err.message);
       agentProcess = null;
     });
+
+    // Wait for health check to confirm startup
+    for (let i = 0; i < 20; i++) {
+      await new Promise(r => setTimeout(r, 500));
+      const h = await checkAgentHealth();
+      if (h.online) {
+        console.log('[Agent] FastAPI server is ready on port', AGENT_PORT);
+        return;
+      }
+    }
+    console.warn('[Agent] Server started but health check timed out after 10s');
   } catch (err) {
     console.error('[Agent] Spawn error:', err.message);
   }
@@ -4277,6 +4372,14 @@ function stopAgentProcess() {
   if (agentProcess) {
     console.log('[Agent] Stopping FastAPI server...');
     agentProcess.kill('SIGTERM');
+    // Give it 3s to shut down gracefully, then force kill
+    setTimeout(() => {
+      if (agentProcess) {
+        console.log('[Agent] Force killing...');
+        agentProcess.kill('SIGKILL');
+        agentProcess = null;
+      }
+    }, 3000);
     agentProcess = null;
   }
 }
@@ -4364,14 +4467,9 @@ ipcMain.handle('agent-api-call', async (event, apiPath, options) => {
 
 // IPC: Start agent
 ipcMain.handle('agent-start', async () => {
-  startAgentProcess();
-  // Wait up to 10s for health check
-  for (let i = 0; i < 20; i++) {
-    await new Promise(r => setTimeout(r, 500));
-    const health = await checkAgentHealth();
-    if (health.online) return { success: true, ...health };
-  }
-  return { success: false, error: 'Agent did not start within 10s' };
+  await startAgentProcess();
+  const health = await checkAgentHealth();
+  return { success: health.online, ...health };
 });
 
 // IPC: Stop agent

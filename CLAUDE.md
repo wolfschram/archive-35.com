@@ -195,13 +195,27 @@ Camera → Lightroom export → Studio ContentIngest.js → 01_Portfolio/ → De
 
 **Key insight:** Agent's unique value-add is mood, composition analysis, and marketability scoring. Tags overlap with Studio's AI tags but may add different descriptors. Agent should NOT overwrite Studio's user-reviewed titles/descriptions.
 
-#### Agent Photo Import Flow
+#### Master Image Source of Truth
 
-Agent's `import_photos.py` imports from `01_Portfolio/*/originals/` — these are photos that have ALREADY been through Studio's full ingest pipeline. The Agent is a downstream consumer of Studio-processed photos.
+**`photography/` folder** in the repo root is the ONE source of truth for all published images:
+- **744 images across 40 gallery folders** (as of Feb 2026)
+- Each subfolder = one gallery (e.g., `photography/Iceland/`, `photography/Tanzania/`)
+- New galleries added by creating new folders; folder structure may grow
+- Images can only be **copied out**, never deleted (only Wolf deletes)
+- From here, images flow to: R2 bucket, thumbnails, web-optimized copies, etc.
 
 ```
-01_Portfolio/{collection}/originals/*.jpg  →  Agent import_photos.py  →  archive35.db
-01_Portfolio/{collection}/_photos.json     →  EXIF + Studio metadata available
+photography/{gallery}/*.jpg  →  Source of truth (raw published images)
+```
+
+#### Agent Photo Import Flow
+
+Agent's `import_photos.py` currently imports from `01_Portfolio/*/originals/` — but the **canonical source** is `photography/`. The Agent should reference `photography/` for any image operations where originals are needed.
+
+```
+photography/{gallery}/*.jpg           →  Source of truth
+01_Portfolio/{collection}/originals/  →  Studio-processed copies (may not match 1:1)
+01_Portfolio/{collection}/_photos.json →  EXIF + Studio metadata
 ```
 
 #### Anthropic API Key Strategy (Updated)

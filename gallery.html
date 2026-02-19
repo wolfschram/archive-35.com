@@ -428,13 +428,14 @@ nav a:hover::after, nav a.active::after { width:100%; }
 
 /* === LIGHTBOX === */
 #lb {
-  position:fixed; inset:0; z-index:10001;
+  position:fixed; inset:0; z-index:9999;
   background:#050504;
   display:flex; align-items:center; justify-content:center;
+  padding-top:80px;
   opacity:0; pointer-events:none; transition:opacity .4s;
 }
 #lb.open { opacity:1; pointer-events:auto; }
-#lb-img { max-width:92vw; max-height:90vh; object-fit:contain; box-shadow:0 0 100px rgba(0,0,0,0.5); }
+#lb-img { max-width:92vw; max-height:calc(90vh - 80px); object-fit:contain; box-shadow:0 0 100px rgba(0,0,0,0.5); }
 #lb-ctr { position:absolute; bottom:24px; left:50%; transform:translateX(-50%); font-family:'Courier Prime',monospace; font-size:11px; color:var(--gold); letter-spacing:3px; }
 #lb-ttl { position:absolute; bottom:48px; left:50%; transform:translateX(-50%); font-family:'DM Sans',sans-serif; font-size:13px; color:rgba(232,224,208,0.6); letter-spacing:1px; white-space:nowrap; }
 .lb-a { position:absolute; top:50%; transform:translateY(-50%); font-size:32px; color:rgba(255,255,255,0.2); cursor:pointer; background:none; border:none; padding:30px; transition:color .3s; }

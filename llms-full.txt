@@ -12,7 +12,7 @@
 - Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
 - Website: https://archive-35.com
 
-## Print Collections (726 photographs, 38 collections)
+## Print Collections (797 photographs, 38 collections)
 
 ### Alps (2 photographs)
 - URL: https://archive-35.com/collection.html?id=alps
@@ -175,7 +175,7 @@
   - Pointe in Stillness | Studio setting | 50.3MP | Tags: ballet, pointe-shoes, dance-photography, classical-ballet, fine-art-photography, soft-focus, ethereal, graceful
   - ... and 9 more photographs
 
-### Glacier National Park (31 photographs)
+### Glacier National Park (63 photographs)
 - URL: https://archive-35.com/collection.html?id=glacier-national-park
 - Gallery: https://archive-35.com/gallery.html?collection=glacier-national-park
 
@@ -184,7 +184,7 @@
   - Carved Through Stone | Going-to-the-Sun Road, Glacier National Park | 44.8MP | Tags: glacier-national-park, going-to-the-sun-road, mountain-road, cliff-face, dramatic-landscape, coniferous-forest, rocky-mountains, alpine-scenery
   - Lake McDonald Stillness | Lake McDonald, Glacier National Park, Montana | 34.8MP | Tags: lake-mcdonald, glacier-national-park, mountain-lake, landscape-photography, fine-art-photography, turquoise-water, glacial-lake, montana-landscape
   - Road to the Continental Divide | Going-to-the-Sun Road, Glacier National Park | 44.8MP | Tags: glacier-national-park, going-to-the-sun-road, montana-landscape, mountain-road, perspective-photography, coniferous-forest, peak-vista, fine-art-landscape
-  - ... and 26 more photographs
+  - ... and 58 more photographs
 
 ### Grand Teton (49 photographs)
 - URL: https://archive-35.com/collection.html?id=grand-teton
@@ -234,7 +234,7 @@
 
   - London Eye Illuminated Reflection | South Bank, London, England | 50.3MP | Tags: london-eye, millennium-wheel, south-bank, thames-river, london-england, urban-landscape, architectural-photography, neon-lights
 
-### Los Angeles (26 photographs)
+### Los Angeles (28 photographs)
 - URL: https://archive-35.com/collection.html?id=los-angeles
 - Gallery: https://archive-35.com/gallery.html?collection=los-angeles
 
@@ -243,7 +243,7 @@
   - Snow-Crowned Peak Above the Valley | San Gabriel Mountains, Los Angeles | 50.3MP | Tags: mountain-landscape, snow-covered-peak, san-gabriel-mountains, los-angeles-landscape, alpine-scenery, white-mountains, dramatic-peaks, fine-art-photography
   - Downtown Towers Ascending | Downtown Los Angeles, Financial District | 50.3MP | Tags: downtown-los-angeles, architecture, skyscrapers, urban-landscape, high-rise, financial-district, modern-architecture, cityscape
   - Harbor Twilight Reflection | Los Angeles Harbor, Long Beach | 50.3MP | Tags: los-angeles, harbor-photography, long-beach, waterfront, fine-art-landscape, industrial-waterscape, moody-sky, calm-water
-  - ... and 21 more photographs
+  - ... and 23 more photographs
 
 ### Mexico city (5 photographs)
 - URL: https://archive-35.com/collection.html?id=mexico-city
@@ -277,7 +277,7 @@
   - Russian Flag Over Moscow Waters | Moscow River, Central Moscow | 50.3MP | Tags: moscow-river, russian-flag, moscow-landscape, urban-photography, fine-art-photography, river-reflections, moscow-cityscape, architectural-landscape
   - ... and 7 more photographs
 
-### New York (9 photographs)
+### New York (12 photographs)
 - URL: https://archive-35.com/collection.html?id=new-york
 - Gallery: https://archive-35.com/gallery.html?collection=new-york
 
@@ -286,7 +286,7 @@
   - Manhattan Skyline in Golden Light | Manhattan, New York City | 40.0MP | Tags: manhattan-skyline, new-york-city, urban-landscape, skyscraper, east-river, architectural-photography, fine-art-photography, golden-hour
   - Manhattan Skyline Golden Hour | East River Waterfront, Manhattan, New York | 49.8MP | Tags: manhattan-skyline, new-york-city, urban-landscape, east-river, architecture, skyline-photography, fine-art-photography, golden-light
   - Manhattan Lights Reflected | East River, Manhattan, New York | 40.2MP | Tags: manhattan-skyline, new-york-city, urban-landscape, east-river, skyline-reflection, city-lights, fine-art-photography, architectural-photography
-  - ... and 4 more photographs
+  - ... and 7 more photographs
 
 ### New Zealand (27 photographs)
 - URL: https://archive-35.com/collection.html?id=new-zealand
@@ -305,7 +305,7 @@
 
   - Iron Lattice Against Sky | Paris, France | 20.0MP | Tags: eiffel-tower, paris, france, iron-lattice, architectural-photography, fine-art-photography, geometric-composition, wrought-iron
 
-### Planes (5 photographs)
+### Planes (8 photographs)
 - URL: https://archive-35.com/collection.html?id=planes
 - Gallery: https://archive-35.com/gallery.html?collection=planes
 
@@ -314,6 +314,7 @@
   - Horizon's Golden Threshold | Aerial view, high altitude | 43.2MP | Tags: aerial-photography, horizon-line, airplane-wing, atmospheric-light, golden-hour, earth-curvature, stratosphere, fine-art-landscape
   - Horizon's Golden Threshold | Aerial perspective, high altitude | 46.6MP | Tags: aerial-photography, horizon-line, atmospheric-landscape, fine-art-print, golden-hour-light, earth-from-above, sky-art, contemplative
   - Aerial Rescue Over Planes | Planes Airspace | 50.3MP | Tags: helicopter, rescue-operation, aerial-photography, water-drop, Planes, aviation, dramatic-sky, azure-sky
+  - ... and 3 more photographs
 
 ### Prague (4 photographs)
 - URL: https://archive-35.com/collection.html?id=prague
@@ -344,7 +345,7 @@
   - Golden Hour Over the Bay | Twin Peaks Vista, San Francisco | 20.0MP | Tags: san-francisco, golden-gate-bridge, urban-landscape, cityscape, marin-headlands, bay-area, california-landscape, rooftop-view
   - Cable Car Descent to the Bay | California Street, Financial District, San Francisco | 17.3MP | Tags: san-francisco, cable-car, urban-landscape, financial-district, california-street, bay-bridge-view, city-street, architectural-photography
 
-### Sequoia National Park (32 photographs)
+### Sequoia National Park (40 photographs)
 - URL: https://archive-35.com/collection.html?id=sequoia-national-park
 - Gallery: https://archive-35.com/gallery.html?collection=sequoia-national-park
 
@@ -353,7 +354,7 @@
   - Giants' Cathedral | Giant Forest, Sequoia National Park | 50.3MP | Tags: giant-sequoia, sequoia-national-park, old-growth-forest, ancient-trees, forest-canopy, vertical-perspective, landscape-photography, fine-art-nature
   - Giant Among Giants | Giant Forest, Sequoia National Park | 50.3MP | Tags: giant-sequoia, sequoia-national-park, ancient-forest, old-growth, massive-trees, forest-landscape, nature-photography, fine-art-landscape
   - Giant Sentinels Looking Skyward | Giant Forest, Sequoia National Park | 50.3MP | Tags: giant-sequoia, sequoia-national-park, ancient-forest, old-growth, forest-canopy, woodland-perspective, majestic-trees, nature-photography
-  - ... and 27 more photographs
+  - ... and 35 more photographs
 
 ### South Africa (36 photographs)
 - URL: https://archive-35.com/collection.html?id=south-africa
@@ -388,7 +389,7 @@
   - Ascent Through Golden Clouds | Sky | 50.3MP | Tags: hot-air-balloon, balloon-photography, sky-art, clouds, flight, aerial-view, fine-art-photography, landscape-photography
   - ... and 49 more photographs
 
-### Utah National Parks (45 photographs)
+### Utah National Parks (68 photographs)
 - URL: https://archive-35.com/collection.html?id=utah-national-parks
 - Gallery: https://archive-35.com/gallery.html?collection=utah-national-parks
 
@@ -397,7 +398,7 @@
   - Dunes and Distant Plateaus | Colorado Plateau Region, Southwestern United States | 43.9MP | Tags: sand-dunes, desert-landscape, mesa, plateaus, high-desert, colorado-plateau, arid-terrain, geological-formations
   - Ridgeline Through Verdant Canyons | Blue Mountains, New South Wales, Australia | 50.3MP | Tags: blue-mountains, new-south-wales, australia, canyon-landscape, sandstone-formations, aerial-photography, dramatic-ridgeline, forest-canopy
   - Desert Highway Through Red Rock Canyon | Utah Canyon Country, Utah, United States | 36.4MP | Tags: utah-landscape, red-rock-canyon, desert-highway, southwest-usa, landscape-photography, fine-art-print, canyon-scenery, geological-formations
-  - ... and 40 more photographs
+  - ... and 63 more photographs
 
 ### Valley of Fire (3 photographs)
 - URL: https://archive-35.com/collection.html?id=valley-of-fire

@@ -766,6 +766,287 @@ def list_etsy_listings():
         conn.close()
 
 
+@app.get("/etsy/status")
+def etsy_status():
+    """Check Etsy integration status — tokens, shop info, SKU count."""
+    from src.integrations.etsy import EtsyClient
+    conn = _get_conn()
+    try:
+        client = EtsyClient()
+        has_tokens = bool(client.access_token)
+
+        sku_count = conn.execute("SELECT COUNT(*) FROM sku_catalog WHERE active = 1").fetchone()[0]
+
+        result = {
+            "configured": has_tokens,
+            "shop_id": client.shop_id or None,
+            "active_skus": sku_count,
+        }
+
+        # If tokens exist, try to fetch shop info
+        if has_tokens and client.shop_id:
+            try:
+                shop = client.get_shop_info()
+                result["shop_name"] = shop.get("shop_name")
+                result["shop_url"] = shop.get("url")
+                result["listing_active_count"] = shop.get("listing_active_count", 0)
+            except Exception as e:
+                result["shop_error"] = str(e)
+
+        return result
+    except Exception as e:
+        return {"configured": False, "error": str(e)}
+    finally:
+        conn.close()
+
+
+@app.get("/etsy/oauth/url")
+def etsy_oauth_url():
+    """Generate Etsy OAuth authorization URL for the user to visit."""
+    from src.integrations.etsy import EtsyClient
+    client = EtsyClient()
+    url, state = client.generate_oauth_url()
+    return {"url": url, "state": state}
+
+
+class EtsyOAuthCallback(BaseModel):
+    code: str
+    state: str
+
+
+@app.post("/etsy/oauth/callback")
+def etsy_oauth_callback(req: EtsyOAuthCallback):
+    """Exchange OAuth authorization code for access tokens."""
+    from src.integrations.etsy import EtsyClient
+    conn = _get_conn()
+    try:
+        client = EtsyClient()
+        tokens = client.exchange_code(req.code)
+        audit.log(conn, "etsy", "oauth_connected", {"shop_id": client.shop_id})
+        return {"success": True, "shop_id": client.shop_id}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        conn.close()
+
+
+class EtsyListingCreate(BaseModel):
+    content_id: str
+    shipping_profile_id: Optional[int] = None
+
+
+@app.post("/etsy/listings/create")
+def create_etsy_listing(req: EtsyListingCreate):
+    """Create an Etsy listing from approved content + SKU catalog."""
+    from src.integrations.etsy import EtsyClient
+    conn = _get_conn()
+    try:
+        # Get approved content
+        content = conn.execute(
+            "SELECT * FROM content WHERE id = ? AND platform = 'etsy'",
+            (req.content_id,),
+        ).fetchone()
+        if not content:
+            raise HTTPException(status_code=404, detail="Content not found or not Etsy platform")
+        content = dict(content)
+
+        # Get SKUs for this photo
+        skus = conn.execute(
+            "SELECT * FROM sku_catalog WHERE photo_id = ? AND active = 1 ORDER BY list_price_usd",
+            (content["photo_id"],),
+        ).fetchall()
+        if not skus:
+            raise HTTPException(status_code=400, detail="No active SKUs for this photo")
+
+        # Use first (cheapest) SKU as the listing base price
+        base_sku = dict(skus[0])
+
+        client = EtsyClient()
+        listing = client.create_listing_from_content(
+            content=content,
+            price=base_sku["list_price_usd"],
+            quantity=999,
+            shipping_profile_id=req.shipping_profile_id,
+        )
+
+        # Record in audit log
+        audit.log(conn, "etsy", "listing_created", {
+            "listing_id": listing.get("listing_id"),
+            "content_id": req.content_id,
+            "sku": base_sku["sku"],
+            "price": base_sku["list_price_usd"],
+        })
+
+        return {"listing": listing, "sku": base_sku["sku"]}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Failed to create Etsy listing: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
+@app.post("/skus/populate")
+def populate_sku_catalog(clear: bool = False, dry_run: bool = False):
+    """Populate SKU catalog from photos DB using pricing engine."""
+    from scripts.populate_sku_catalog import populate
+    conn = _get_conn()
+    try:
+        stats = populate(conn, clear=clear, dry_run=dry_run)
+        audit.log(conn, "catalog", "skus_populated", stats)
+        return stats
+    except Exception as e:
+        logger.error("SKU populate failed: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
+@app.get("/etsy/receipts")
+def get_etsy_receipts(status: str = "open"):
+    """Poll Etsy for recent orders/receipts."""
+    from src.integrations.etsy import EtsyClient
+    conn = _get_conn()
+    try:
+        client = EtsyClient()
+        was_paid = status != "all"
+        receipts = client.get_receipts(was_paid=was_paid, limit=25)
+
+        # Enrich with local SKU data
+        results = []
+        for r in receipts.get("results", []):
+            enriched = {
+                "receipt_id": r.get("receipt_id"),
+                "buyer_email": r.get("buyer_email"),
+                "buyer_name": r.get("name"),
+                "total": r.get("grandtotal", {}).get("amount", 0) / 100,
+                "currency": r.get("grandtotal", {}).get("currency_code", "USD"),
+                "status": r.get("status"),
+                "created": r.get("create_timestamp"),
+                "transactions": [],
+            }
+            for t in r.get("transactions", []):
+                enriched["transactions"].append({
+                    "title": t.get("title"),
+                    "quantity": t.get("quantity"),
+                    "price": t.get("price", {}).get("amount", 0) / 100,
+                    "sku": next(
+                        (v.get("value") for v in t.get("variations", [])
+                         if v.get("property_id") == 513),  # SKU property
+                        t.get("sku"),
+                    ),
+                })
+            results.append(enriched)
+
+        return {"receipts": results, "count": len(results)}
+    except Exception as e:
+        logger.error("Etsy receipt fetch failed: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
+class FulfillmentRequest(BaseModel):
+    receipt_id: int
+
+
+@app.post("/etsy/receipts/fulfill")
+def fulfill_etsy_receipt(req: FulfillmentRequest):
+    """Route an Etsy order to Pictorem fulfillment.
+
+    Parses the receipt SKU → looks up print specs → builds Pictorem
+    preorder code → submits to Pictorem API (same flow as stripe-webhook).
+    """
+    from src.integrations.etsy import EtsyClient
+    from src.brand.pricing import build_pictorem_preorder
+    conn = _get_conn()
+    try:
+        client = EtsyClient()
+        receipt = client.get_receipt(req.receipt_id)
+
+        fulfillment_items = []
+        for txn in receipt.get("transactions", []):
+            # Extract SKU from listing variations or transaction SKU field
+            sku_value = next(
+                (v.get("value") for v in txn.get("variations", [])
+                 if v.get("property_id") == 513),
+                txn.get("sku"),
+            )
+            if not sku_value:
+                continue
+
+            # Look up SKU in our catalog
+            sku_row = conn.execute(
+                "SELECT * FROM sku_catalog WHERE sku = ?", (sku_value,)
+            ).fetchone()
+            if not sku_row:
+                logger.warning("Unknown SKU in Etsy order: %s", sku_value)
+                continue
+
+            sku_row = dict(sku_row)
+            # Parse material from paper_code: CAN→canvas, MET→metal, etc.
+            mat_map = {"CAN": "canvas", "MET": "metal", "ACR": "acrylic",
+                       "PAP": "paper", "WOO": "wood"}
+            material = mat_map.get(sku_row["paper_code"], "canvas")
+
+            # Parse size from size_code: "24x16" → (24, 16)
+            w, h = [int(x) for x in sku_row["size_code"].split("x")]
+
+            preorder = build_pictorem_preorder(material, w, h, txn.get("quantity", 1))
+
+            # Get photo path for Pictorem image URL
+            photo = conn.execute(
+                "SELECT path, filename FROM photos WHERE id = ?",
+                (sku_row["photo_id"],)
+            ).fetchone()
+
+            fulfillment_items.append({
+                "sku": sku_value,
+                "preorder_code": preorder,
+                "material": material,
+                "size": f"{w}x{h}",
+                "quantity": txn.get("quantity", 1),
+                "photo_filename": photo["filename"] if photo else "unknown",
+                "photo_path": photo["path"] if photo else None,
+            })
+
+        if not fulfillment_items:
+            raise HTTPException(status_code=400, detail="No fulfillable items found in receipt")
+
+        # Log the fulfillment (Pictorem submission would go here when API is live)
+        audit.log(conn, "etsy", "order_fulfilled", {
+            "receipt_id": req.receipt_id,
+            "items": len(fulfillment_items),
+            "preorder_codes": [f["preorder_code"] for f in fulfillment_items],
+        })
+
+        return {
+            "receipt_id": req.receipt_id,
+            "items": fulfillment_items,
+            "status": "ready_for_pictorem",
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Etsy fulfillment failed for receipt %s: %s", req.receipt_id, e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
+@app.get("/etsy/shipping-profiles")
+def get_etsy_shipping_profiles():
+    """List Etsy shipping profiles for listing creation."""
+    from src.integrations.etsy import EtsyClient
+    try:
+        client = EtsyClient()
+        profiles = client.get_shipping_profiles()
+        return {"profiles": profiles.get("results", [])}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ── Config ─────────────────────────────────────────────────────
 
 

@@ -431,6 +431,94 @@ def defer_content(content_id: str):
     return _update_content_status(content_id, "deferred")
 
 
+class GenerateDraftRequest(BaseModel):
+    photo_id: str
+    platform: str = "instagram"
+
+
+@app.post("/content/generate-draft")
+def generate_draft(req: GenerateDraftRequest):
+    """Generate AI caption/listing draft for a photo (not saved to DB)."""
+    conn = _get_conn()
+    try:
+        photo = conn.execute("SELECT * FROM photos WHERE id = ?", (req.photo_id,)).fetchone()
+        if not photo:
+            raise HTTPException(status_code=404, detail="Photo not found")
+
+        client = _get_anthropic_client()
+        if not client:
+            raise HTTPException(status_code=503, detail="No Anthropic API key configured")
+
+        from src.agents.content import _build_context, PLATFORM_PROMPTS, _parse_content_response
+
+        context = _build_context(photo)
+        prompt = PLATFORM_PROMPTS.get(req.platform, PLATFORM_PROMPTS["instagram"])
+        full_prompt = f"Photo context:\n{context}\n\n{prompt}"
+
+        response = client.messages.create(
+            model="claude-sonnet-4-5-20250929",
+            max_tokens=1000,
+            messages=[{"role": "user", "content": full_prompt}],
+        )
+        result = _parse_content_response(response.content[0].text)
+        return result
+    finally:
+        conn.close()
+
+
+class CreateManualContentRequest(BaseModel):
+    photo_id: str
+    platform: str
+    body: str
+    title: str = ""
+    tags: list[str] = []
+
+
+@app.post("/content/create-manual")
+def create_manual_content(req: CreateManualContentRequest):
+    """Create a manually-composed content entry (status=pending)."""
+    conn = _get_conn()
+    try:
+        photo = conn.execute("SELECT * FROM photos WHERE id = ?", (req.photo_id,)).fetchone()
+        if not photo:
+            raise HTTPException(status_code=404, detail="Photo not found")
+
+        from uuid import uuid4
+        from datetime import timedelta
+        content_id = str(uuid4())
+        now = datetime.now(timezone.utc)
+        expires = now + timedelta(hours=168)  # 7 days for manual posts
+
+        body = req.body
+        if req.title:
+            body = f"{req.title}\n\n{body}"
+
+        conn.execute(
+            """INSERT INTO content
+               (id, photo_id, platform, content_type, body, tags,
+                variant, status, created_at, expires_at, provenance)
+               VALUES (?, ?, ?, ?, ?, ?, 1, 'pending', ?, ?, 'manual')""",
+            (
+                content_id,
+                req.photo_id,
+                req.platform,
+                "listing" if req.platform == "etsy" else "caption",
+                body,
+                json.dumps(req.tags),
+                now.isoformat(),
+                expires.isoformat(),
+            ),
+        )
+        conn.commit()
+        audit.log(conn, "studio", "manual_content_create", {
+            "content_id": content_id, "photo_id": req.photo_id,
+            "platform": req.platform,
+        })
+        return {"id": content_id, "status": "pending"}
+    finally:
+        conn.close()
+
+
 # ── Pipeline ────────────────────────────────────────────────────
 
 

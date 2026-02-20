@@ -18,6 +18,7 @@ import AgentContentQueue from './pages/AgentContentQueue';
 import AgentPipelineMonitor from './pages/AgentPipelineMonitor';
 import AgentEtsyListings from './pages/AgentEtsyListings';
 import AgentInstagram from './pages/AgentInstagram';
+import AgentCompose from './pages/AgentCompose';
 import AgentHealthPanel from './pages/AgentHealthPanel';
 import AgentSettings from './pages/AgentSettings';
 import './styles/App.css';
@@ -122,6 +123,9 @@ function App() {
         </TabPanel>
         <TabPanel id="agent-instagram" activeTab={activeTab}>
           <AgentInstagram />
+        </TabPanel>
+        <TabPanel id="agent-compose" activeTab={activeTab}>
+          <AgentCompose />
         </TabPanel>
         <TabPanel id="agent-health" activeTab={activeTab}>
           <AgentHealthPanel />

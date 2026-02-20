@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Optional
 
 from PIL import Image
-from PIL.ExifTags import TAGS
+from PIL.ExifTags import TAGS, GPSTAGS
 
 from src.safety.audit import log as audit_log
 from src.safety.ledger import can_execute, record_action
@@ -44,18 +44,88 @@ def _hash_file(path: Path) -> str:
 
 
 def _extract_exif(img: Image.Image) -> dict:
-    """Extract EXIF data from a PIL Image as a dict."""
+    """Extract FULL EXIF data from a PIL Image, including sub-IFDs.
+
+    Uses _getexif() to get ALL tags including:
+    - DateTimeOriginal (actual shot date, not Lightroom export date)
+    - LensModel, LensMake
+    - ISOSpeedRatings, FNumber, ExposureTime, FocalLength
+    - GPSInfo (latitude, longitude)
+
+    Falls back to getexif() if _getexif() unavailable.
+    """
     exif_data = {}
-    raw_exif = img.getexif()
-    if raw_exif:
-        for tag_id, value in raw_exif.items():
-            tag_name = TAGS.get(tag_id, str(tag_id))
+
+    # _getexif() returns ALL tags including sub-IFDs in a flat dict
+    try:
+        raw = img._getexif()
+    except (AttributeError, Exception):
+        raw = None
+
+    if not raw:
+        # Fallback to basic getexif()
+        basic = img.getexif()
+        if basic:
+            raw = dict(basic.items())
+
+    if not raw:
+        return exif_data
+
+    for tag_id, value in raw.items():
+        tag_name = TAGS.get(tag_id, str(tag_id))
+
+        # Handle GPS sub-dict
+        if tag_name == "GPSInfo" and isinstance(value, dict):
+            gps = {}
+            for gps_id, gps_val in value.items():
+                gps_tag = GPSTAGS.get(gps_id, str(gps_id))
+                try:
+                    json.dumps(gps_val)
+                    gps[gps_tag] = gps_val
+                except (TypeError, ValueError):
+                    gps[gps_tag] = str(gps_val)
+            exif_data["GPSInfo"] = gps
+            # Also extract lat/lon as top-level convenience fields
             try:
-                json.dumps(value)
-                exif_data[tag_name] = value
-            except (TypeError, ValueError):
-                exif_data[tag_name] = str(value)
+                lat_ref = gps.get("GPSLatitudeRef", "N")
+                lon_ref = gps.get("GPSLongitudeRef", "E")
+                lat_dms = gps.get("GPSLatitude")
+                lon_dms = gps.get("GPSLongitude")
+                if lat_dms and lon_dms:
+                    lat = _dms_to_decimal(lat_dms, lat_ref)
+                    lon = _dms_to_decimal(lon_dms, lon_ref)
+                    if lat is not None and lon is not None:
+                        exif_data["GPSLatitude"] = round(lat, 6)
+                        exif_data["GPSLongitude"] = round(lon, 6)
+            except Exception:
+                pass
+            continue
+
+        # Skip large binary blobs
+        if isinstance(value, bytes) and len(value) > 200:
+            continue
+
+        try:
+            json.dumps(value)
+            exif_data[tag_name] = value
+        except (TypeError, ValueError):
+            exif_data[tag_name] = str(value)
+
     return exif_data
+
+
+def _dms_to_decimal(dms, ref: str) -> float | None:
+    """Convert GPS DMS (degrees, minutes, seconds) to decimal degrees."""
+    try:
+        if isinstance(dms, (list, tuple)) and len(dms) == 3:
+            d, m, s = [float(x) for x in dms]
+            decimal = d + m / 60 + s / 3600
+            if ref in ("S", "W"):
+                decimal = -decimal
+            return decimal
+    except (ValueError, TypeError):
+        pass
+    return None
 
 
 def _should_skip(path: Path) -> bool:

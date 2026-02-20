@@ -17,6 +17,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
+# Allow large panoramas globally — Wolf shoots 200M+ pixel panos
+from PIL import Image as _PILImage
+_PILImage.MAX_IMAGE_PIXELS = None
+
 from src.config import get_settings
 from src.db import get_initialized_connection
 from src.safety import audit, kill_switch, rate_limiter

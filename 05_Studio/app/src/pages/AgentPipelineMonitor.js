@@ -40,7 +40,7 @@ function AgentPipelineMonitor() {
       await loadStatus();
       await loadLogs();
     } catch (err) {
-      setRunResult({ status: 'failed', errors: [err.message] });
+      setRunResult({ status: 'failed', errors: [err.message || String(err) || 'Unknown error'] });
     } finally {
       setRunning(false);
     }
@@ -87,9 +87,16 @@ function AgentPipelineMonitor() {
                   fontSize: '12px', fontFamily: 'monospace',
                   color: 'var(--text-secondary)',
                 }}>
-                  {typeof lastRun.details === 'string'
-                    ? lastRun.details
-                    : JSON.stringify(JSON.parse(lastRun.details || '{}'), null, 2)}
+                  {(() => {
+                    try {
+                      if (typeof lastRun.details === 'string') {
+                        return JSON.stringify(JSON.parse(lastRun.details), null, 2);
+                      }
+                      return JSON.stringify(lastRun.details, null, 2);
+                    } catch {
+                      return String(lastRun.details || '');
+                    }
+                  })()}
                 </div>
               )}
             </div>
@@ -128,21 +135,32 @@ function AgentPipelineMonitor() {
           {runResult && (
             <div style={{
               marginTop: '16px', padding: '12px',
-              background: runResult.status === 'completed'
-                ? 'rgba(74, 222, 128, 0.08)'
-                : 'rgba(248, 113, 113, 0.08)',
-              border: `1px solid ${runResult.status === 'completed' ? 'var(--success)' : 'var(--danger)'}`,
+              background: runResult.status === 'started'
+                ? 'rgba(251, 191, 36, 0.08)'
+                : runResult.status === 'completed'
+                  ? 'rgba(74, 222, 128, 0.08)'
+                  : 'rgba(248, 113, 113, 0.08)',
+              border: `1px solid ${
+                runResult.status === 'started' ? 'var(--warning)'
+                : runResult.status === 'completed' ? 'var(--success)' : 'var(--danger)'}`,
               borderRadius: 'var(--radius-sm)',
               fontSize: '13px',
             }}>
               <div style={{
                 fontWeight: 600,
-                color: runResult.status === 'completed' ? 'var(--success)' : 'var(--danger)',
+                color: runResult.status === 'started' ? 'var(--warning)'
+                  : runResult.status === 'completed' ? 'var(--success)' : 'var(--danger)',
                 marginBottom: '8px',
               }}>
                 Pipeline: {runResult.status}
               </div>
-              {runResult.steps && Object.entries(runResult.steps).map(([step, data]) => (
+              {runResult.message && (
+                <div style={{ color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '8px' }}>
+                  {runResult.message}
+                </div>
+              )}
+              {runResult.steps && typeof runResult.steps === 'object' &&
+                Object.entries(runResult.steps).map(([step, data]) => (
                 <div key={step} style={{
                   display: 'flex', justifyContent: 'space-between',
                   padding: '4px 0', fontSize: '12px',
@@ -151,9 +169,9 @@ function AgentPipelineMonitor() {
                     {step}
                   </span>
                   <span style={{
-                    color: data.status === 'ok' ? 'var(--success)' : 'var(--danger)',
+                    color: data?.status === 'ok' ? 'var(--success)' : 'var(--danger)',
                   }}>
-                    {data.status === 'ok' ? '\u2713' : '\u2717'} {data.status}
+                    {data?.status === 'ok' ? '\u2713' : '\u2717'} {data?.status || 'unknown'}
                   </span>
                 </div>
               ))}

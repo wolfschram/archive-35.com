@@ -23,8 +23,9 @@ from typing import Optional
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 
-# Allow large panoramas — Wolf shoots 200M+ pixel panos
-Image.MAX_IMAGE_PIXELS = 300_000_000
+# Allow large panoramas — Wolf shoots 200M+ pixel panos (up to 313M px)
+# None = no limit; PIL default is 178M which blocks most panoramas
+Image.MAX_IMAGE_PIXELS = None
 
 from src.safety.audit import log as audit_log
 from src.safety.ledger import can_execute, record_action
@@ -206,23 +207,28 @@ def import_photo(
             rel_path = str(resolved)
         now = datetime.now(timezone.utc).isoformat()
 
-        conn.execute(
-            """INSERT INTO photos
-               (id, filename, path, imported_at, width, height,
-                exif_json, collection)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-            (
-                file_hash,
-                photo_path.name,
-                rel_path,
-                now,
-                width,
-                height,
-                json.dumps(exif) if exif else None,
-                collection,
-            ),
-        )
-        conn.commit()
+        try:
+            conn.execute(
+                """INSERT INTO photos
+                   (id, filename, path, imported_at, width, height,
+                    exif_json, collection)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    file_hash,
+                    photo_path.name,
+                    rel_path,
+                    now,
+                    width,
+                    height,
+                    json.dumps(exif) if exif else None,
+                    collection,
+                ),
+            )
+            conn.commit()
+        except sqlite3.IntegrityError:
+            # Duplicate detected at DB level (race condition or same hash via different path)
+            logger.debug("Skipping duplicate (IntegrityError): %s", photo_path.name)
+            return None
 
         record_action(conn, "import", "photos", file_hash)
 

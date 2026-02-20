@@ -94,7 +94,7 @@ export function useAgentApi() {
         // Silently fail — the component will retry on next render/interaction
         return null;
       }
-      setError(err.message);
+      setError(err.message || err.detail || String(err) || 'Unknown API error');
       throw err;
     } finally {
       setLoading(false);

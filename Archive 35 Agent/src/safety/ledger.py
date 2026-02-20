@@ -89,26 +89,18 @@ def record_action(
 
     executed_at = now if status == "executed" else None
 
-    # Upsert: if hash exists (failed retry), update it
-    existing = conn.execute(
-        "SELECT id FROM actions_ledger WHERE action_hash = ?",
-        (action_hash,),
-    ).fetchone()
-
-    if existing:
-        conn.execute(
-            """UPDATE actions_ledger
-               SET status = ?, executed_at = ?, cost_usd = ?, error = ?
-               WHERE action_hash = ?""",
-            (status, executed_at, cost_usd, error, action_hash),
-        )
-        action_id = existing["id"]
-    else:
+    # Upsert using ON CONFLICT to avoid TOCTOU race conditions
+    try:
         conn.execute(
             """INSERT INTO actions_ledger
                (id, action_hash, action_type, target, content_id,
                 status, created_at, executed_at, cost_usd, error)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT(action_hash) DO UPDATE SET
+                 status = excluded.status,
+                 executed_at = excluded.executed_at,
+                 cost_usd = excluded.cost_usd,
+                 error = excluded.error""",
             (
                 action_id,
                 action_hash,
@@ -121,6 +113,14 @@ def record_action(
                 cost_usd,
                 error,
             ),
+        )
+    except sqlite3.IntegrityError:
+        # Fallback: hash collision or concurrent insert — update existing row
+        conn.execute(
+            """UPDATE actions_ledger
+               SET status = ?, executed_at = ?, cost_usd = ?, error = ?
+               WHERE action_hash = ?""",
+            (status, executed_at, cost_usd, error, action_hash),
         )
 
     conn.commit()

@@ -632,11 +632,21 @@ def run_pipeline(dry_run: bool = True, req: PipelineRunRequest = PipelineRunRequ
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    # Full pipeline run
+    # Full pipeline run — runs in background thread to avoid IPC timeout
+    import threading
     from src.pipeline.daily import run_daily_pipeline
+
     client = _get_anthropic_client()
-    results = run_daily_pipeline(anthropic_client=client, dry_run=dry_run)
-    return results
+
+    def _run_bg():
+        try:
+            run_daily_pipeline(anthropic_client=client, dry_run=dry_run)
+        except Exception as e:
+            logger.error("Background pipeline failed: %s", e)
+
+    thread = threading.Thread(target=_run_bg, daemon=True)
+    thread.start()
+    return {"status": "started", "message": "Pipeline running in background — check logs for progress"}
 
 
 @app.get("/pipeline/logs")

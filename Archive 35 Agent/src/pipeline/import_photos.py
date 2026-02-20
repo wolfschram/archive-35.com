@@ -23,6 +23,9 @@ from typing import Optional
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 
+# Allow large panoramas — Wolf shoots 200M+ pixel panos
+Image.MAX_IMAGE_PIXELS = 300_000_000
+
 from src.safety.audit import log as audit_log
 from src.safety.ledger import can_execute, record_action
 

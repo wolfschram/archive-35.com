@@ -179,9 +179,13 @@ def import_photo(
     # Hash for dedup
     file_hash = _hash_file(photo_path)
 
-    # Check if already imported via ledger
+    # Check if already imported — check DB directly AND ledger
+    existing = conn.execute("SELECT id FROM photos WHERE id = ?", (file_hash,)).fetchone()
+    if existing:
+        logger.debug("Skipping duplicate (already in DB): %s", photo_path.name)
+        return None
     if not can_execute(conn, "import", "photos", file_hash):
-        logger.debug("Skipping duplicate: %s", photo_path.name)
+        logger.debug("Skipping duplicate (ledger): %s", photo_path.name)
         return None
 
     try:
@@ -189,8 +193,14 @@ def import_photo(
         width, height = img.size
         exif = _extract_exif(img)
 
-        # Always store absolute path
-        abs_path = str(photo_path.resolve())
+        # Store path relative to repo root for portability (Mac/VM)
+        resolved = photo_path.resolve()
+        # Try to make it relative to repo root (parent of Archive 35 Agent)
+        repo_root = Path(__file__).resolve().parent.parent.parent.parent
+        try:
+            rel_path = str(resolved.relative_to(repo_root))
+        except ValueError:
+            rel_path = str(resolved)
         now = datetime.now(timezone.utc).isoformat()
 
         conn.execute(
@@ -201,7 +211,7 @@ def import_photo(
             (
                 file_hash,
                 photo_path.name,
-                abs_path,
+                rel_path,
                 now,
                 width,
                 height,

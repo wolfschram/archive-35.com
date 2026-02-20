@@ -232,8 +232,12 @@ def get_photo_thumbnail(photo_id: str, size: int = Query(default=300, le=800)):
             raise HTTPException(status_code=404, detail="Photo not found")
 
         photo_path = Path(photo["path"])
+        # Resolve relative paths against repo root
+        if not photo_path.is_absolute():
+            repo_root = Path(__file__).parent.parent.parent  # Archive 35 Agent -> repo root
+            photo_path = repo_root / photo_path
         if not photo_path.exists():
-            raise HTTPException(status_code=404, detail="Photo file not found on disk")
+            raise HTTPException(status_code=404, detail=f"Photo file not found on disk: {photo_path}")
 
         # Check for cached thumbnail
         thumb_dir = Path("data/thumbnails")

@@ -300,6 +300,10 @@ def analyze_batch(
             image_path = image_dir / row["filename"]
         elif row["path"]:
             image_path = Path(row["path"])
+            # Resolve relative paths against repo root
+            if not image_path.is_absolute():
+                repo_root = Path(__file__).parent.parent.parent.parent  # agents -> src -> Agent -> repo root
+                image_path = repo_root / image_path
 
         result = analyze_photo(conn, photo_id, image_path, client, model)
         if result:

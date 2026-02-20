@@ -603,5 +603,49 @@
     "thumbnail": "_MG_7426-thumb.jpg",
     "full": "_MG_7426-full.jpg",
     "c2pa": true
+  },
+  {
+    "id": "wolf_7452",
+    "filename": "Wolf 7452.jpg",
+    "title": "Lifeguard Station on California Sand",
+    "description": "A solitary lifeguard tower stands sentinel on the beach, its geometric architecture contrasting beautifully against dynamic coastal skies. This fine art piece captures the quiet dignity of California's iconic beach infrastructure, where human and natural worlds meet in perfect balance.",
+    "location": "San Diego County Beaches, Coast of California",
+    "tags": [
+      "lifeguard-tower",
+      "california-beach",
+      "coastal-architecture",
+      "san-diego-coast",
+      "fine-art-photography",
+      "landscape-photography",
+      "beach-structures",
+      "dramatic-skies",
+      "golden-hour-light",
+      "coastal-california",
+      "sandy-beach",
+      "architectural-photography",
+      "wall-art",
+      "home-decor",
+      "nature-photography",
+      "pacific-coast",
+      "serene-composition",
+      "iconic-structures",
+      "canvas-print",
+      "coastal-beauty",
+      "gallery-wall",
+      "california-coast",
+      "ocean-view",
+      "weathered-patina"
+    ],
+    "dimensions": {
+      "width": 8192,
+      "height": 3966,
+      "aspectRatio": 2.066,
+      "aspectRatioString": "4096:1983",
+      "orientation": "panorama",
+      "megapixels": 32.5
+    },
+    "thumbnail": "Wolf 7452-thumb.jpg",
+    "full": "Wolf 7452-full.jpg",
+    "c2pa": true
   }
 ]

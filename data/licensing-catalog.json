@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-19T01:43:34.513293+00:00",
-  "total_images": 76,
+  "generated_at": "2026-02-20T23:40:23.467325+00:00",
+  "total_images": 115,
   "classifications": {
     "ULTRA": {
       "min_width": 15000,
@@ -2790,6 +2790,1410 @@
       "max_print_150dpi": {
         "width_in": 119,
         "height_in": 46.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0077",
+      "title": "Joshua Tree Desert Convergence",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5822",
+      "original_filename": "Wolf 5822.jpg",
+      "width": 18058,
+      "height": 7356,
+      "megapixels": 132.8,
+      "file_size_mb": 40.7,
+      "location": "Joshua Tree National Park, San Bernardino County, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0077.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0077.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 60.2,
+        "height_in": 24.5,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 120.4,
+        "height_in": 49,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0078",
+      "title": "La County ",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5853",
+      "original_filename": "Wolf 5853.jpg",
+      "width": 28029,
+      "height": 7782,
+      "megapixels": 218.1,
+      "file_size_mb": 51.5,
+      "location": "La County  California ",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0078.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0078.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 93.4,
+        "height_in": 25.9,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 186.9,
+        "height_in": 51.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0079",
+      "title": "Desert Mountains in Golden Light",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5871",
+      "original_filename": "Wolf 5871.jpg",
+      "width": 22185,
+      "height": 5176,
+      "megapixels": 114.8,
+      "file_size_mb": 16.8,
+      "location": "Joshua Tree National Park, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0079.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0079.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 74,
+        "height_in": 17.3,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 147.9,
+        "height_in": 34.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0080",
+      "title": "Desert Light Across Stone",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 5872",
+      "original_filename": "Wolf 5872.jpg",
+      "width": 11358,
+      "height": 4836,
+      "megapixels": 54.9,
+      "file_size_mb": 14.6,
+      "location": "Mojave Desert, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0080.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0080.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 37.9,
+        "height_in": 16.1,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 75.7,
+        "height_in": 32.2,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0081",
+      "title": "Joshua Tree Desert Expanse",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5876",
+      "original_filename": "Wolf 5876.jpg",
+      "width": 16905,
+      "height": 7095,
+      "megapixels": 119.9,
+      "file_size_mb": 36.2,
+      "location": "Joshua Tree National Park, San Bernardino County, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0081.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0081.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 56.4,
+        "height_in": 23.6,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 112.7,
+        "height_in": 47.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0082",
+      "title": "Desert Monoliths in Golden Light",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5888",
+      "original_filename": "Wolf 5888.jpg",
+      "width": 15445,
+      "height": 7570,
+      "megapixels": 116.9,
+      "file_size_mb": 48.6,
+      "location": "Joshua Tree National Park, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0082.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0082.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 51.5,
+        "height_in": 25.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 103,
+        "height_in": 50.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0083",
+      "title": "Tidal Patterns and Distant Mountains",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5908",
+      "original_filename": "Wolf 5908.jpg",
+      "width": 15551,
+      "height": 7487,
+      "megapixels": 116.4,
+      "file_size_mb": 27.7,
+      "location": "Manzanita Beach, Oregon Coast, United States",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0083.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0083.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 51.8,
+        "height_in": 25,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 103.7,
+        "height_in": 49.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0084",
+      "title": "Desert Passage Through Stone",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5972",
+      "original_filename": "Wolf 5972.jpg",
+      "width": 19131,
+      "height": 8531,
+      "megapixels": 163.2,
+      "file_size_mb": 56.9,
+      "location": "Vasques Rocks  California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0084.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0084.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 63.8,
+        "height_in": 28.4,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 127.5,
+        "height_in": 56.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0085",
+      "title": "Desert Sentinels",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5973",
+      "original_filename": "Wolf 5973.jpg",
+      "width": 22466,
+      "height": 7162,
+      "megapixels": 160.9,
+      "file_size_mb": 49.1,
+      "location": "Vasques Rocks  California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0085.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0085.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 74.9,
+        "height_in": 23.9,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 149.8,
+        "height_in": 47.7,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0086",
+      "title": "Desert Peaks After Winter Snow",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 5975",
+      "original_filename": "Wolf 5975.jpg",
+      "width": 23969,
+      "height": 6207,
+      "megapixels": 148.8,
+      "file_size_mb": 44.4,
+      "location": "Vasques Rocks  California, USA California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0086.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0086.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 79.9,
+        "height_in": 20.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 159.8,
+        "height_in": 41.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0087",
+      "title": "Golden Gate Under Grey Skies",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6012",
+      "original_filename": "Wolf 6012.jpg",
+      "width": 19194,
+      "height": 6257,
+      "megapixels": 120.1,
+      "file_size_mb": 43.6,
+      "location": "Crissy Field, San Francisco, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0087.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0087.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 64,
+        "height_in": 20.9,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 128,
+        "height_in": 41.7,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0088",
+      "title": "Bay and Bridge: Urban Geometry",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6018",
+      "original_filename": "Wolf 6018.jpg",
+      "width": 26359,
+      "height": 8237,
+      "megapixels": 217.1,
+      "file_size_mb": 60.7,
+      "location": "Marin Headlands, Golden Gate National Recreation Area, San Francisco Bay Area, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0088.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0088.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 87.9,
+        "height_in": 27.5,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 175.7,
+        "height_in": 54.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0089",
+      "title": "Desert Expanse Under Gathering Clouds",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6071",
+      "original_filename": "Wolf 6071.jpg",
+      "width": 24170,
+      "height": 8774,
+      "megapixels": 212.1,
+      "file_size_mb": 33.5,
+      "location": "Mojave Desert, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0089.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0089.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 80.6,
+        "height_in": 29.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 161.1,
+        "height_in": 58.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0090",
+      "title": "Manhattan Skyline Across Dark Waters",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 6231",
+      "original_filename": "Wolf 6231.jpg",
+      "width": 11000,
+      "height": 5020,
+      "megapixels": 55.2,
+      "file_size_mb": 13,
+      "location": "Lower Manhattan skyline, East River, New York City, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0090.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0090.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 36.7,
+        "height_in": 16.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 73.3,
+        "height_in": 33.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0091",
+      "title": "Manhattan Nocturne Reflected",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 6232",
+      "original_filename": "Wolf 6232.jpg",
+      "width": 13516,
+      "height": 6008,
+      "megapixels": 81.2,
+      "file_size_mb": 15.6,
+      "location": "East River, Manhattan, New York City, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0091.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0091.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 45.1,
+        "height_in": 20,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 90.1,
+        "height_in": 40.1,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0092",
+      "title": "Oculus: Symmetry and Light",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6253",
+      "original_filename": "Wolf 6253.jpg",
+      "width": 15587,
+      "height": 6554,
+      "megapixels": 102.2,
+      "file_size_mb": 23.4,
+      "location": "Oculus/World Trade Center Transportation Hub, New York City, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0092.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0092.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 52,
+        "height_in": 21.8,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 103.9,
+        "height_in": 43.7,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0093",
+      "title": "Apocalyptic Gathering: Mural Detail",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6678",
+      "original_filename": "Wolf 6678.jpg",
+      "width": 18750,
+      "height": 7578,
+      "megapixels": 142.1,
+      "file_size_mb": 45.9,
+      "location": "East Side Gallery, Berlin, Germany",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0093.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0093.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 62.5,
+        "height_in": 25.3,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 125,
+        "height_in": 50.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0094",
+      "title": "Guardian of the Skyline",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6679",
+      "original_filename": "Wolf 6679.jpg",
+      "width": 17310,
+      "height": 7988,
+      "megapixels": 138.3,
+      "file_size_mb": 38.7,
+      "location": "East Side Gallery, Berlin, Germany",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0094.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0094.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 57.7,
+        "height_in": 26.6,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 115.4,
+        "height_in": 53.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0095",
+      "title": "Peacock in Bloom",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6878",
+      "original_filename": "Wolf 6878.jpg",
+      "width": 18610,
+      "height": 7589,
+      "megapixels": 141.2,
+      "file_size_mb": 58.8,
+      "location": "Mainau Germany ",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0095.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0095.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 62,
+        "height_in": 25.3,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 124.1,
+        "height_in": 50.6,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0096",
+      "title": "Alpine Valley in Green Descent",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6889",
+      "original_filename": "Wolf 6889.jpg",
+      "width": 17437,
+      "height": 6314,
+      "megapixels": 110.1,
+      "file_size_mb": 44.2,
+      "location": "Appenzell Alps, Eastern Switzerland (likely S\u00e4ntis region or Alpstein massif)",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0096.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0096.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 58.1,
+        "height_in": 21,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 116.2,
+        "height_in": 42.1,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0097",
+      "title": "Alpine Shelter: Mountain Solitude",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 6898",
+      "original_filename": "Wolf 6898.jpg",
+      "width": 12014,
+      "height": 7492,
+      "megapixels": 90,
+      "file_size_mb": 37.7,
+      "location": "S\u00e4ntis Region, Appenzell Alps, Switzerland",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0097.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0097.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 40,
+        "height_in": 25,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 80.1,
+        "height_in": 49.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0098",
+      "title": "Alpine Reflections at Lago di Braies",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6913",
+      "original_filename": "Wolf 6913.jpg",
+      "width": 19654,
+      "height": 6824,
+      "megapixels": 134.1,
+      "file_size_mb": 56,
+      "location": "Lago di Braies, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0098.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0098.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 65.5,
+        "height_in": 22.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 131,
+        "height_in": 45.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0099",
+      "title": "Alpine Lake Mirror",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6914",
+      "original_filename": "Wolf 6914.jpg",
+      "width": 15602,
+      "height": 6754,
+      "megapixels": 105.4,
+      "file_size_mb": 42.4,
+      "location": "Lago di Braies (Pragser Wildsee), Dolomites, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0099.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0099.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 52,
+        "height_in": 22.5,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 104,
+        "height_in": 45,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0100",
+      "title": "Alpine Lake and Dolomite Peaks",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6930",
+      "original_filename": "Wolf 6930.jpg",
+      "width": 16826,
+      "height": 6716,
+      "megapixels": 113,
+      "file_size_mb": 42.1,
+      "location": "Lago di braies, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0100.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0100.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 56.1,
+        "height_in": 22.4,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 112.2,
+        "height_in": 44.8,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0101",
+      "title": "Lago di Sorapis, Dolomites",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 6931",
+      "original_filename": "Wolf 6931.jpg",
+      "width": 13936,
+      "height": 7957,
+      "megapixels": 110.9,
+      "file_size_mb": 36.1,
+      "location": "Lago di braies, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0101.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0101.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 46.5,
+        "height_in": 26.5,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 92.9,
+        "height_in": 53,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0102",
+      "title": "Alpine Refuge Among Dolomite Spires",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6936",
+      "original_filename": "Wolf 6936.jpg",
+      "width": 18870,
+      "height": 7976,
+      "megapixels": 150.5,
+      "file_size_mb": 42.3,
+      "location": "Tre Cime di Lavaredo area, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0102.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0102.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 62.9,
+        "height_in": 26.6,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 125.8,
+        "height_in": 53.2,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0103",
+      "title": "Alpine Wilderness: Stone and Summit",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6937",
+      "original_filename": "Wolf 6937.jpg",
+      "width": 19984,
+      "height": 8824,
+      "megapixels": 176.3,
+      "file_size_mb": 61.4,
+      "location": "Tre Cime di Lavaredo area, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0103.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0103.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 66.6,
+        "height_in": 29.4,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 133.2,
+        "height_in": 58.8,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0104",
+      "title": "Ra Gusela's Alpine Sentinel",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 6938",
+      "original_filename": "Wolf 6938.jpg",
+      "width": 14787,
+      "height": 7635,
+      "megapixels": 112.9,
+      "file_size_mb": 37.5,
+      "location": "Ra Gusela, Passo Ghedina, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0104.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0104.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 49.3,
+        "height_in": 25.4,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 98.6,
+        "height_in": 50.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0105",
+      "title": "Dolomite Peaks at Golden Hour",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6942",
+      "original_filename": "Wolf 6942.jpg",
+      "width": 15306,
+      "height": 7028,
+      "megapixels": 107.6,
+      "file_size_mb": 36.9,
+      "location": "Tre Cime di Lavaredo / Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0105.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0105.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 51,
+        "height_in": 23.4,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 102,
+        "height_in": 46.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0106",
+      "title": "Tre Cime Alpine Cathedral",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6945",
+      "original_filename": "Wolf 6945.jpg",
+      "width": 20391,
+      "height": 6361,
+      "megapixels": 129.7,
+      "file_size_mb": 44.6,
+      "location": "Tre Cime di Lavaredo, Cortina d'Ampezzo, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0106.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0106.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 68,
+        "height_in": 21.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 135.9,
+        "height_in": 42.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0107",
+      "title": "Tre Cime Reflection",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 6948",
+      "original_filename": "Wolf 6948.jpg",
+      "width": 9366,
+      "height": 9124,
+      "megapixels": 85.5,
+      "file_size_mb": 21,
+      "location": "Tre Cime di Lavaredo, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0107.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0107.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 31.2,
+        "height_in": 30.4,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 62.4,
+        "height_in": 60.8,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0108",
+      "title": "Alpine Refuge Among Stone Pillars",
+      "classification": "STANDARD",
+      "collection": "",
+      "filename": "Wolf 6949",
+      "original_filename": "Wolf 6949.jpg",
+      "width": 7953,
+      "height": 4100,
+      "megapixels": 32.6,
+      "file_size_mb": 10.6,
+      "location": "Tre Cime di Lavaredo, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0108.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0108.jpg",
+      "starting_price": 175,
+      "pricing": {
+        "web_social": 175,
+        "editorial": 350,
+        "commercial_print": 700,
+        "billboard_ooh": 1050,
+        "hospitality": 1400,
+        "exclusive": 3500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 26.5,
+        "height_in": 13.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 53,
+        "height_in": 27.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0109",
+      "title": "Tre Cime: Alpine Sentinels",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 6950",
+      "original_filename": "Wolf 6950.jpg",
+      "width": 14104,
+      "height": 6210,
+      "megapixels": 87.6,
+      "file_size_mb": 28.1,
+      "location": "Tre Cime di Lavaredo, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0109.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0109.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 47,
+        "height_in": 20.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 94,
+        "height_in": 41.4,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0110",
+      "title": "Alpine Lake Among Peaks",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6953",
+      "original_filename": "Wolf 6953.jpg",
+      "width": 19280,
+      "height": 7518,
+      "megapixels": 144.9,
+      "file_size_mb": 52,
+      "location": "Tre Cime di Lavaredo, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0110.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0110.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 64.3,
+        "height_in": 25.1,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 128.5,
+        "height_in": 50.1,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0111",
+      "title": "Alpine Lake Beneath Dolomite Spires",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 6956",
+      "original_filename": "Wolf 6956.jpg",
+      "width": 14177,
+      "height": 5539,
+      "megapixels": 78.5,
+      "file_size_mb": 33.1,
+      "location": "Tre Cime di Lavaredo, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0111.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0111.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 47.3,
+        "height_in": 18.5,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 94.5,
+        "height_in": 36.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0112",
+      "title": "Tre Cime Reflected in Stone",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 6960",
+      "original_filename": "Wolf 6960.jpg",
+      "width": 8405,
+      "height": 8642,
+      "megapixels": 72.6,
+      "file_size_mb": 20.9,
+      "location": "Tre Cime di Lavaredo, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0112.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0112.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 28,
+        "height_in": 28.8,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 56,
+        "height_in": 57.6,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0113",
+      "title": "Alpine Valley Gateway",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6963",
+      "original_filename": "Wolf 6963.jpg",
+      "width": 28237,
+      "height": 11026,
+      "megapixels": 311.3,
+      "file_size_mb": 97.7,
+      "location": "Sorau Valley (Sorau), Dolomites, South Tyrol, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0113.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0113.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 94.1,
+        "height_in": 36.8,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 188.2,
+        "height_in": 73.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0114",
+      "title": "Alpine Meadow Between Peaks",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 6975",
+      "original_filename": "Wolf 6975.jpg",
+      "width": 19869,
+      "height": 8437,
+      "megapixels": 167.6,
+      "file_size_mb": 50.4,
+      "location": "Tre Cime di Lavaredo National Park, Dolomites, Veneto, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0114.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0114.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 66.2,
+        "height_in": 28.1,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 132.5,
+        "height_in": 56.2,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260220-0115",
+      "title": "Grand Canal Perspective",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 7183",
+      "original_filename": "Wolf 7183.jpg",
+      "width": 12075,
+      "height": 6724,
+      "megapixels": 81.2,
+      "file_size_mb": 21,
+      "location": "Grand Canal, Venice, Italy",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260220-0115.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260220-0115.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 40.2,
+        "height_in": 22.4,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 80.5,
+        "height_in": 44.8,
         "dpi": 150
       }
     }

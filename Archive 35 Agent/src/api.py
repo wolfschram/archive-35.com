@@ -787,6 +787,83 @@ app.include_router(library_router, prefix="/library", tags=["content-library"])
 app.include_router(variations_router, prefix="/variations", tags=["variations"])
 
 
+# ── Instagram ────────────────────────────────────────────────────
+
+
+@app.get("/instagram/status")
+def instagram_status():
+    """Check Instagram integration status and token validity."""
+    from src.integrations.instagram import is_configured, verify_token, get_credentials
+
+    if not is_configured():
+        return {"configured": False, "valid": False, "error": "Instagram not configured in .env"}
+
+    creds = get_credentials()
+    verification = verify_token()
+
+    return {
+        "configured": True,
+        "valid": verification.get("valid", False),
+        "username": verification.get("username", ""),
+        "user_id": verification.get("user_id", ""),
+        "token_expires": creds.get("token_expires", "unknown"),
+        "error": verification.get("error"),
+    }
+
+
+@app.post("/instagram/refresh-token")
+def instagram_refresh_token():
+    """Refresh the Instagram long-lived token (extends 60 days)."""
+    from src.integrations.instagram import refresh_token
+
+    result = refresh_token()
+    return result
+
+
+@app.get("/instagram/account")
+def instagram_account():
+    """Get Instagram account info."""
+    from src.integrations.instagram import get_account_info
+
+    return get_account_info()
+
+
+@app.get("/instagram/media")
+def instagram_media(limit: int = Query(10, ge=1, le=50)):
+    """Get recent Instagram media posts."""
+    from src.integrations.instagram import get_recent_media
+
+    return get_recent_media(limit=limit)
+
+
+class InstagramPublishRequest(BaseModel):
+    image_url: str
+    caption: str
+    photo_id: Optional[str] = None
+
+
+@app.post("/instagram/publish")
+def instagram_publish(req: InstagramPublishRequest):
+    """Publish a photo to Instagram.
+
+    Requires a public image URL and caption.
+    Two-step process: create container → publish.
+    """
+    from src.integrations.instagram import publish_photo
+
+    conn = _get_conn()
+    try:
+        result = publish_photo(
+            image_url=req.image_url,
+            caption=req.caption,
+            conn=conn,
+            photo_id=req.photo_id,
+        )
+        return result
+    finally:
+        conn.close()
+
+
 # ── CLI Entry Point ─────────────────────────────────────────────
 
 

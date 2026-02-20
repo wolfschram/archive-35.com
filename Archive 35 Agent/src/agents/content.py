@@ -103,8 +103,12 @@ def _build_context(
         parts.append(f"Mood: {photo_row['vision_mood']}")
     if photo_row["vision_composition"]:
         parts.append(f"Composition: {photo_row['vision_composition']}")
-    if photo_row.get("marketability_score"):
-        parts.append(f"Marketability: {photo_row['marketability_score']}/10")
+    try:
+        ms = photo_row["marketability_score"]
+        if ms:
+            parts.append(f"Marketability: {ms}/10")
+    except (IndexError, KeyError):
+        pass
 
     if provenance:
         parts.append(f"Story: {provenance}")

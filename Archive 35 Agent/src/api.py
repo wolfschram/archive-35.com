@@ -1317,6 +1317,175 @@ def auto_fulfill_etsy_orders():
         conn.close()
 
 
+# ── Pinterest Endpoints ────────────────────────────────────────────
+
+
+@app.get("/pinterest/status")
+def pinterest_status():
+    """Check Pinterest integration status — token, boards, user info."""
+    from src.integrations.pinterest import get_status
+    return get_status()
+
+
+@app.get("/pinterest/oauth/url")
+def pinterest_oauth_url():
+    """Generate Pinterest OAuth authorization URL for the user to visit."""
+    from src.integrations.pinterest import generate_oauth_url
+    result = generate_oauth_url()
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+
+class PinterestOAuthCallback(BaseModel):
+    code: str
+
+
+@app.post("/pinterest/oauth/callback")
+def pinterest_oauth_callback(req: PinterestOAuthCallback):
+    """Exchange OAuth authorization code for Pinterest access tokens."""
+    from src.integrations.pinterest import exchange_code
+    conn = _get_conn()
+    try:
+        result = exchange_code(req.code)
+        if "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+        audit.log(conn, "pinterest", "oauth_connected", {
+            "access_token_prefix": result.get("access_token", "")[:10] + "...",
+        })
+        return {"success": True, "token_type": result.get("token_type", "")}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        conn.close()
+
+
+@app.get("/pinterest/boards")
+def pinterest_boards():
+    """List all Pinterest boards for the authenticated user."""
+    from src.integrations.pinterest import list_boards
+    result = list_boards(page_size=250)
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+
+class PinterestBoardCreate(BaseModel):
+    name: str
+    description: str = ""
+    privacy: str = "PUBLIC"
+
+
+@app.post("/pinterest/boards/create")
+def create_pinterest_board(req: PinterestBoardCreate):
+    """Create a new Pinterest board."""
+    from src.integrations.pinterest import create_board
+    conn = _get_conn()
+    try:
+        result = create_board(name=req.name, description=req.description, privacy=req.privacy)
+        if "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+        audit.log(conn, "pinterest", "board_created", {
+            "board_id": result.get("id", ""),
+            "name": req.name,
+        })
+        return result
+    finally:
+        conn.close()
+
+
+class PinterestPinCreate(BaseModel):
+    board_id: str
+    title: str
+    description: str = ""
+    image_url: str
+    link: str = ""
+    alt_text: str = ""
+
+
+@app.post("/pinterest/pins/create")
+def create_pinterest_pin(req: PinterestPinCreate):
+    """Create a single Pinterest pin."""
+    from src.integrations.pinterest import create_pin
+    conn = _get_conn()
+    try:
+        result = create_pin(
+            board_id=req.board_id,
+            title=req.title,
+            description=req.description,
+            image_url=req.image_url,
+            link=req.link,
+            alt_text=req.alt_text,
+        )
+        if "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+        audit.log(conn, "pinterest", "pin_created", {
+            "pin_id": result.get("id", ""),
+            "board_id": req.board_id,
+            "title": req.title,
+        })
+        return result
+    finally:
+        conn.close()
+
+
+class PinterestPhotoPin(BaseModel):
+    photo_id: str
+    board_id: Optional[str] = None
+
+
+@app.post("/pinterest/pins/from-photo")
+def create_pin_from_photo(req: PinterestPhotoPin):
+    """Create a Pinterest pin from an Archive-35 photo in the database.
+
+    Pulls photo metadata (title, description, tags, image URL) from the
+    photos table and creates a formatted pin with gallery link.
+    """
+    from src.integrations.pinterest import post_photo_as_pin
+    conn = _get_conn()
+    try:
+        photo = conn.execute(
+            "SELECT * FROM photos WHERE id = ?",
+            (req.photo_id,),
+        ).fetchone()
+        if not photo:
+            raise HTTPException(status_code=404, detail=f"Photo {req.photo_id} not found")
+
+        photo_data = {
+            "title": photo["title"] or photo["filename"],
+            "description": photo["description"] or "",
+            "tags": photo["tags"] or "[]",
+            "image_url": f"https://archive-35.com/images/{photo['collection']}/{photo['filename']}",
+            "collection": photo["collection"],
+            "filename": photo["filename"],
+        }
+
+        result = post_photo_as_pin(photo_data, board_id=req.board_id)
+        if "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        audit.log(conn, "pinterest", "photo_pinned", {
+            "photo_id": req.photo_id,
+            "pin_id": result.get("id", ""),
+            "collection": photo["collection"],
+        })
+        return result
+    finally:
+        conn.close()
+
+
+@app.get("/pinterest/user")
+def pinterest_user():
+    """Get the authenticated Pinterest user account info."""
+    from src.integrations.pinterest import get_user_account
+    result = get_user_account()
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+
 # ── Config ─────────────────────────────────────────────────────
 
 

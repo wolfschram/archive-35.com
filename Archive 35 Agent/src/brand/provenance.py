@@ -1,7 +1,8 @@
 """Provenance generator for Archive-35.
 
-Creates 2-3 sentence brand stories from EXIF data and collection context.
-Each photo gets a unique narrative connecting the image to Wolf's journey.
+Creates short, factual brand context from EXIF data and collection name.
+NEVER fabricates stories, memories, or artistic descriptions — only uses
+real metadata that exists in the photo.
 """
 
 from __future__ import annotations
@@ -12,81 +13,27 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-# Story bank: collection code → context snippets
-STORY_BANK = {
-    "ICE": {
-        "location": "Iceland",
-        "memories": [
-            "Captured during a winter expedition across Iceland's volcanic landscape",
-            "Found along the Diamond Beach where glacial ice meets black sand",
-            "Discovered on a midnight drive through Iceland's highland interior",
-        ],
-    },
-    "TOK": {
-        "location": "Tokyo",
-        "memories": [
-            "Shot in the neon-lit corridors of Shinjuku after midnight",
-            "Captured during the cherry blossom season in Tokyo's hidden gardens",
-            "Found in the quiet backstreets of Yanaka, old Tokyo's last neighborhood",
-        ],
-    },
-    "LON": {
-        "location": "London",
-        "memories": [
-            "Captured along the South Bank during a winter fog",
-            "Found in the early morning light of Borough Market",
-            "Shot from the Millennium Bridge at golden hour",
-        ],
-    },
-    "NYC": {
-        "location": "New York",
-        "memories": [
-            "Captured from a Brooklyn rooftop at sunset",
-            "Found in the early morning calm of Central Park",
-            "Shot through the steam rising from Manhattan's streets",
-        ],
-    },
-    "BER": {
-        "location": "Berlin",
-        "memories": [
-            "Captured along the remnants of the Wall in winter light",
-            "Found in the industrial beauty of Kreuzberg's canal district",
-            "Shot during a quiet Sunday morning at Tempelhof Field",
-        ],
-    },
-}
-
-# Generic stories for unknown collections
-GENERIC_MEMORIES = [
-    "Captured during one of Wolf's journeys across 55+ countries",
-    "Found in that fleeting moment when light and place align",
-    "Discovered on an expedition driven by the restless eye",
-]
-
-
-def _extract_location_from_exif(exif: dict) -> Optional[str]:
-    """Try to extract a location description from EXIF GPS data."""
-    gps = exif.get("GPSInfo")
-    if not gps:
-        return None
-    # GPS data is complex — just note that it exists
-    return "with original GPS coordinates preserved"
-
 
 def _extract_camera_from_exif(exif: dict) -> Optional[str]:
     """Extract camera model from EXIF."""
-    make = exif.get("Make", "")
     model = exif.get("Model", "")
     if model:
-        return f"{make} {model}".strip()
+        # Clean up — remove redundant make prefix if model already includes it
+        make = exif.get("Make", "")
+        if make and model.startswith(make):
+            return model.strip()
+        if make:
+            return f"{make} {model}".strip()
+        return model.strip()
     return None
 
 
 def _extract_date_from_exif(exif: dict) -> Optional[str]:
-    """Extract capture date from EXIF."""
-    date_str = exif.get("DateTime") or exif.get("DateTimeOriginal")
+    """Extract capture date from EXIF — DateTimeOriginal FIRST, then DateTime."""
+    # CRITICAL: DateTimeOriginal = actual shot date
+    # DateTime = last modified (often Lightroom export date)
+    date_str = exif.get("DateTimeOriginal") or exif.get("DateTime")
     if date_str and isinstance(date_str, str):
-        # Format: "2024:01:15 14:30:00" → "January 2024"
         try:
             parts = date_str.split(" ")[0].split(":")
             year = parts[0]
@@ -101,68 +48,55 @@ def _extract_date_from_exif(exif: dict) -> Optional[str]:
     return None
 
 
+def _extract_lens_from_exif(exif: dict) -> Optional[str]:
+    """Extract lens model from EXIF."""
+    lens = exif.get("LensModel", "")
+    return lens.strip() if lens else None
+
+
 def generate_provenance(
     exif_json: Optional[str] = None,
     collection: Optional[str] = None,
     vision_mood: Optional[str] = None,
     vision_tags: Optional[str] = None,
 ) -> str:
-    """Generate a 2-3 sentence brand story for a photograph.
+    """Generate a factual provenance string from real photo metadata.
+
+    Only includes information that actually exists in the EXIF data.
+    Never fabricates stories, expeditions, or artistic descriptions.
 
     Args:
         exif_json: Raw EXIF data as JSON string.
-        collection: Collection code (e.g., "ICE", "TOK").
+        collection: Collection/gallery name (e.g., "Iceland", "Tanzania").
         vision_mood: Mood from vision analysis.
         vision_tags: Tags from vision analysis as JSON string.
 
     Returns:
-        A provenance story string (2-3 sentences).
+        A factual provenance string.
     """
     exif = json.loads(exif_json) if exif_json else {}
-
-    # Get collection-specific context
-    collection_upper = (collection or "").upper()
-    story_data = STORY_BANK.get(collection_upper)
-
-    # Build the story
     parts = []
 
-    # Opening: collection-specific or generic memory
-    if story_data:
-        import random
-        memory = random.choice(story_data["memories"])
-        parts.append(memory + ".")
-    else:
-        import random
-        parts.append(random.choice(GENERIC_MEMORIES) + ".")
+    # Collection name (use as-is — it's the gallery folder name)
+    if collection:
+        # Clean up underscores and capitalize nicely
+        clean_name = collection.replace("_", " ").strip()
+        parts.append(f"From the {clean_name} collection.")
 
-    # Middle: camera and date context
+    # Camera + lens
     camera = _extract_camera_from_exif(exif)
-    date = _extract_date_from_exif(exif)
-    if camera and date:
-        parts.append(f"Shot on {camera} in {date}.")
+    lens = _extract_lens_from_exif(exif)
+    if camera and lens:
+        parts.append(f"Shot on {camera} with {lens}.")
     elif camera:
         parts.append(f"Shot on {camera}.")
-    elif date:
-        parts.append(f"Captured in {date}.")
 
-    # Closing: mood and artistic intent
-    if vision_mood:
-        mood_closings = {
-            "serene": "A meditation on stillness and light.",
-            "dramatic": "Raw energy frozen in a single frame.",
-            "contemplative": "An invitation to pause and reflect.",
-            "moody": "Where shadow meets emotion.",
-            "vibrant": "Life captured at its most vivid.",
-            "melancholic": "Beauty found in quiet solitude.",
-            "ethereal": "A moment suspended between reality and dream.",
-        }
-        closing = mood_closings.get(
-            vision_mood.lower(),
-            f"A {vision_mood} moment from The Restless Eye collection.",
-        )
-        parts.append(closing)
-    else:
-        parts.append("Part of The Restless Eye collection by Wolf.")
+    # Date — only the real shot date
+    date = _extract_date_from_exif(exif)
+    if date:
+        parts.append(f"Captured {date}.")
+
+    # Attribution
+    parts.append("Fine art photography by Wolf Schram — archive-35.com.")
 
     return " ".join(parts)

@@ -64,8 +64,8 @@ class Settings(BaseSettings):
         ge=0,
     )
     photo_import_dir: str = Field(
-        default="./data/photos",
-        description="Directory to scan for new photos",
+        default="../photography",
+        description="Directory to scan for new photos (relative to Agent root)",
     )
     log_level: str = Field(
         default="INFO",

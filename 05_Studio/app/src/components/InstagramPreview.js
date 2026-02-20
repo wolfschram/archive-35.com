@@ -35,6 +35,7 @@ function InstagramPreview({ content, thumbnailUrl, onApprove, onReject, onDefer 
       flexDirection: 'column',
       gap: '16px',
       padding: '20px',
+      maxWidth: '460px',
       background: 'linear-gradient(135deg, rgba(225, 48, 108, 0.08) 0%, rgba(0, 0, 0, 0.2) 100%)',
       border: '1px solid rgba(225, 48, 108, 0.2)',
       borderRadius: 'var(--radius-md)',

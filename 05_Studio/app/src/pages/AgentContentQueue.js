@@ -194,23 +194,54 @@ function AgentContentQueue() {
                 {/* Expanded body */}
                 {isExpanded && (
                   <div style={{ padding: '20px' }}>
-                    {/* Photo thumbnail */}
-                    {item.thumbnail_url && (
-                      <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+                    {/* Photo thumbnail + metadata row */}
+                    <div style={{
+                      display: 'flex',
+                      gap: '16px',
+                      marginBottom: '16px',
+                      alignItems: 'flex-start',
+                    }}>
+                      {item.thumbnail_url && (
                         <img
                           src={`http://127.0.0.1:8035${item.thumbnail_url}`}
                           alt={item.filename || 'Photo'}
                           style={{
-                            maxWidth: '100%',
-                            maxHeight: '300px',
+                            width: '120px',
+                            height: '120px',
                             borderRadius: '8px',
                             border: '1px solid var(--glass-border)',
-                            objectFit: 'contain',
+                            objectFit: 'cover',
+                            flexShrink: 0,
                           }}
                           onError={(e) => { e.target.style.display = 'none'; }}
                         />
+                      )}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{
+                          fontSize: '15px',
+                          fontWeight: 600,
+                          color: 'var(--text-primary)',
+                          marginBottom: '4px',
+                        }}>
+                          {item.title || item.collection?.replace(/_/g, ' ') || item.filename}
+                        </div>
+                        {item.collection && (
+                          <div style={{
+                            fontSize: '12px',
+                            color: 'var(--accent)',
+                            marginBottom: '4px',
+                          }}>
+                            {item.collection.replace(/_/g, ' ')}
+                          </div>
+                        )}
+                        <div style={{
+                          fontSize: '11px',
+                          color: 'var(--text-muted)',
+                        }}>
+                          {item.filename} · v{item.variant}
+                        </div>
                       </div>
-                    )}
+                    </div>
 
                     {/* Provenance */}
                     {item.provenance && (
@@ -315,7 +346,7 @@ function AgentContentQueue() {
         </div>
       ) : (
         /* PREVIEW VIEW — Platform-specific previews */
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'flex-start' }}>
           {items.map(item => {
             const thumbnailUrl = item.thumbnail_url
               ? `http://127.0.0.1:8035${item.thumbnail_url}`

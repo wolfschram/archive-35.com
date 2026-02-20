@@ -382,7 +382,8 @@ def list_content(
         params.extend([limit, offset])
 
         rows = conn.execute(
-            f"""SELECT c.*, p.filename, p.collection, p.path as photo_path
+            f"""SELECT c.*, p.filename, p.collection, p.path as photo_path,
+                       p.exif_json, p.vision_tags
                 FROM content c JOIN photos p ON c.photo_id = p.id
                 {where} ORDER BY c.created_at DESC LIMIT ? OFFSET ?""",
             params,
@@ -393,6 +394,22 @@ def list_content(
             item = dict(r)
             # Add thumbnail URL — points to the Agent API thumbnail endpoint
             item["thumbnail_url"] = f"/photos/{item['photo_id']}/thumbnail?size=300"
+            # Derive a title if content table doesn't have one
+            if not item.get("title"):
+                # Try EXIF title, then vision suggested_title, then collection name
+                title = None
+                if item.get("exif_json"):
+                    try:
+                        exif = json.loads(item["exif_json"]) if isinstance(item["exif_json"], str) else item["exif_json"]
+                        title = exif.get("ImageDescription") or exif.get("XPTitle")
+                    except Exception:
+                        pass
+                if not title and item.get("collection"):
+                    title = item["collection"].replace("_", " ")
+                item["title"] = title or item.get("filename", "Untitled")
+            # Don't send large EXIF blob to frontend
+            item.pop("exif_json", None)
+            item.pop("vision_tags", None)
             items.append(item)
 
         return {"items": items}

@@ -30,6 +30,7 @@ function PinterestPreview({ content, thumbnailUrl, onApprove, onReject, onDefer 
       flexDirection: 'column',
       gap: '16px',
       padding: '20px',
+      maxWidth: '340px',
       background: 'linear-gradient(135deg, rgba(230, 0, 35, 0.08) 0%, rgba(0, 0, 0, 0.2) 100%)',
       border: '1px solid rgba(230, 0, 35, 0.2)',
       borderRadius: 'var(--radius-md)',

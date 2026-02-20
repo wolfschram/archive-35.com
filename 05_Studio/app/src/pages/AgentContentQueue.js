@@ -274,7 +274,7 @@ function AgentContentQueue() {
                           onClick={() => handleAction(item.id, 'approve')}
                           disabled={loading}
                         >
-                          {'\u2713'} Approve
+                          {'\u2713'} {item.platform === 'instagram' ? 'Approve & Publish' : 'Approve'}
                         </button>
                         <button
                           className="btn btn-danger"

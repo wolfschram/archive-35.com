@@ -417,8 +417,57 @@ def _update_content_status(content_id: str, new_status: str):
 
 
 @app.post("/content/{content_id}/approve")
-def approve_content(content_id: str):
-    return _update_content_status(content_id, "approved")
+def approve_content(content_id: str, auto_publish: bool = True):
+    """Approve content and optionally auto-publish to the platform."""
+    result = _update_content_status(content_id, "approved")
+
+    if auto_publish:
+        conn = _get_conn()
+        try:
+            row = conn.execute(
+                """SELECT c.*, p.filename, p.collection
+                   FROM content c JOIN photos p ON c.photo_id = p.id
+                   WHERE c.id = ?""",
+                (content_id,),
+            ).fetchone()
+
+            if row and row["platform"] == "instagram":
+                try:
+                    from src.integrations.instagram import publish_photo
+
+                    # Build image URL
+                    collection = (row["collection"] or "").lower()
+                    base_name = row["filename"].rsplit(".", 1)[0] if row["filename"] else ""
+                    image_url = f"https://archive-35.com/images/{collection}/{base_name}-full.jpg"
+
+                    pub_result = publish_photo(
+                        image_url=image_url,
+                        caption=row["body"] or "",
+                        conn=conn,
+                        photo_id=row["photo_id"],
+                    )
+                    if pub_result.get("success"):
+                        conn.execute(
+                            "UPDATE content SET status = 'posted', posted_at = ? WHERE id = ?",
+                            (datetime.now(timezone.utc).isoformat(), content_id),
+                        )
+                        conn.commit()
+                        audit.log(conn, "publish", "auto_publish_instagram", {
+                            "content_id": content_id,
+                            "media_id": pub_result.get("media_id"),
+                        })
+                        result["published"] = True
+                        result["media_id"] = pub_result.get("media_id")
+                        result["permalink"] = pub_result.get("permalink")
+                        result["status"] = "posted"
+                except Exception as e:
+                    logger.error("Auto-publish failed for %s: %s", content_id, e)
+                    result["publish_error"] = str(e)
+            # Pinterest and Etsy auto-publish can be added here in future phases
+        finally:
+            conn.close()
+
+    return result
 
 
 @app.post("/content/{content_id}/reject")

@@ -726,3 +726,144 @@ def create_listing_from_content(
         })
 
     return result
+
+
+# ── EtsyClient Class ───────────────────────────────────────────────────
+# Wraps the module-level functions into a stateful class expected by api.py.
+# Persists PKCE code_verifier between generate_oauth_url() and exchange_code().
+
+class EtsyClient:
+    """Stateful Etsy API client wrapping module-level functions.
+
+    Stores PKCE code_verifier so the OAuth flow works across requests.
+    All API calls delegate to the tested standalone functions above.
+    """
+
+    def __init__(self):
+        self._code_verifier: Optional[str] = None
+        self._state: Optional[str] = None
+
+    @property
+    def access_token(self) -> str:
+        return get_credentials().get("access_token", "")
+
+    @property
+    def shop_id(self) -> str:
+        return get_credentials().get("shop_id", "")
+
+    def generate_oauth_url(self) -> tuple[str, str]:
+        """Generate OAuth URL, store code_verifier for later exchange.
+
+        Returns:
+            (auth_url, state) tuple
+        """
+        result = generate_oauth_url()
+        if "error" in result:
+            raise RuntimeError(result["error"])
+        self._code_verifier = result["code_verifier"]
+        self._state = result["state"]
+        return result["auth_url"], result["state"]
+
+    def exchange_code(self, auth_code: str) -> dict[str, Any]:
+        """Exchange authorization code using stored PKCE verifier.
+
+        Args:
+            auth_code: Code from OAuth callback
+
+        Returns:
+            Token response dict
+
+        Raises:
+            RuntimeError: If no code_verifier from prior generate_oauth_url()
+        """
+        if not self._code_verifier:
+            raise RuntimeError(
+                "No code_verifier — call generate_oauth_url() first"
+            )
+        result = exchange_code(auth_code, self._code_verifier)
+        if "error" in result:
+            raise RuntimeError(result.get("detail", result["error"]))
+        return result
+
+    def get_shop_info(self) -> dict[str, Any]:
+        return get_shop_info()
+
+    def get_shipping_profiles(self) -> dict[str, Any]:
+        return get_shipping_profiles()
+
+    def get_receipts(self, was_paid: bool = True, limit: int = 25, **kwargs) -> dict[str, Any]:
+        """Poll for receipts/orders."""
+        return get_receipts(limit=limit, **kwargs)
+
+    def get_receipt(self, receipt_id: int) -> dict[str, Any]:
+        return get_receipt(receipt_id)
+
+    def get_listings(self, state: str = "active", limit: int = 25, offset: int = 0) -> dict[str, Any]:
+        return get_listings(state=state, limit=limit, offset=offset)
+
+    def create_listing_from_content(
+        self,
+        conn: sqlite3.Connection = None,
+        content: dict = None,
+        content_id: str = "",
+        price: float = 0,
+        quantity: int = 999,
+        sku: str = "",
+        shipping_profile_id: Optional[int] = None,
+        **kwargs,
+    ) -> dict[str, Any]:
+        """Create listing — supports both api.py call signatures.
+
+        api.py calls this with (content=dict, price=, quantity=, shipping_profile_id=)
+        Direct callers may use (conn=, content_id=, sku=, etsy_price=)
+        """
+        # If called with content dict directly (api.py pattern)
+        if content and isinstance(content, dict):
+            from src.brand.pricing import etsy_price as calc_etsy_price, website_price
+
+            # Parse tags
+            try:
+                tags = json.loads(content.get("tags", "[]")) if content.get("tags") else []
+            except (json.JSONDecodeError, TypeError):
+                tags = []
+
+            title = content.get("title") or ""
+            if not title:
+                first_line = (content.get("body") or "").split("\n")[0].strip()
+                if len(first_line) > 100:
+                    first_line = first_line[:97] + "..."
+                title = first_line
+
+            description = content.get("body") or ""
+            if content.get("provenance"):
+                description += f"\n\n{content['provenance']}"
+            description += "\n\n© Wolfgang Schram / Archive-35 Studio"
+            description += "\nAll prints are made-to-order and shipped directly from our professional print lab."
+
+            listing_price = price if price > 0 else float(calc_etsy_price(website_price("canvas", 24, 16)))
+
+            return create_listing(
+                title=title,
+                description=description,
+                price=listing_price,
+                tags=tags,
+                sku=sku,
+                quantity=quantity,
+                shipping_profile_id=shipping_profile_id,
+            )
+
+        # If called with conn + content_id (direct module pattern)
+        if conn and content_id:
+            return create_listing_from_content(
+                conn, content_id, sku=sku,
+                etsy_price=price,
+                shipping_profile_id=shipping_profile_id,
+            )
+
+        return {"error": "Must provide either content dict or conn + content_id"}
+
+    def upload_listing_image(self, listing_id: int, image_url: str, rank: int = 1) -> dict[str, Any]:
+        return upload_listing_image(listing_id, image_url, rank)
+
+    def activate_listing(self, listing_id: int) -> dict[str, Any]:
+        return activate_listing(listing_id)

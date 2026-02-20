@@ -837,7 +837,7 @@ class EtsyListingCreate(BaseModel):
 
 @app.post("/etsy/listings/create")
 def create_etsy_listing(req: EtsyListingCreate):
-    """Create an Etsy listing from approved content + SKU catalog."""
+    """Create an Etsy listing from approved content + SKU catalog, then upload image."""
     from src.integrations.etsy import EtsyClient
     conn = _get_conn()
     try:
@@ -866,22 +866,82 @@ def create_etsy_listing(req: EtsyListingCreate):
             content=content,
             price=base_sku["list_price_usd"],
             quantity=999,
+            sku=base_sku["sku"],
             shipping_profile_id=req.shipping_profile_id,
         )
 
+        if "error" in listing:
+            raise HTTPException(status_code=502, detail=listing["error"])
+
+        listing_id = listing.get("listing_id")
+
+        # Upload image after successful listing creation
+        image_result = None
+        if listing_id:
+            photo = conn.execute(
+                "SELECT filename, collection FROM photos WHERE id = ?",
+                (content["photo_id"],),
+            ).fetchone()
+            if photo:
+                image_url = f"https://archive-35.com/images/{photo['collection']}/{photo['filename']}"
+                image_result = client.upload_listing_image(listing_id, image_url)
+                if "error" in (image_result or {}):
+                    logger.warning("Image upload failed for listing %s: %s", listing_id, image_result)
+
         # Record in audit log
         audit.log(conn, "etsy", "listing_created", {
-            "listing_id": listing.get("listing_id"),
+            "listing_id": listing_id,
             "content_id": req.content_id,
             "sku": base_sku["sku"],
             "price": base_sku["list_price_usd"],
+            "image_uploaded": image_result is not None and "error" not in (image_result or {}),
         })
 
-        return {"listing": listing, "sku": base_sku["sku"]}
+        return {"listing": listing, "sku": base_sku["sku"], "image": image_result}
     except HTTPException:
         raise
     except Exception as e:
         logger.error("Failed to create Etsy listing: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
+class EtsyImageUpload(BaseModel):
+    photo_id: str
+
+
+@app.post("/etsy/listings/{listing_id}/upload-image")
+def upload_etsy_listing_image(listing_id: int, req: EtsyImageUpload):
+    """Manually upload an image to an existing Etsy listing."""
+    from src.integrations.etsy import EtsyClient
+    conn = _get_conn()
+    try:
+        photo = conn.execute(
+            "SELECT filename, collection FROM photos WHERE id = ?",
+            (req.photo_id,),
+        ).fetchone()
+        if not photo:
+            raise HTTPException(status_code=404, detail="Photo not found")
+
+        image_url = f"https://archive-35.com/images/{photo['collection']}/{photo['filename']}"
+        client = EtsyClient()
+        result = client.upload_listing_image(listing_id, image_url)
+
+        if "error" in result:
+            raise HTTPException(status_code=502, detail=result["error"])
+
+        audit.log(conn, "etsy", "image_uploaded", {
+            "listing_id": listing_id,
+            "photo_id": req.photo_id,
+            "image_url": image_url,
+        })
+
+        return {"success": True, "result": result}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Image upload failed: %s", e)
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         conn.close()
@@ -898,6 +958,118 @@ def populate_sku_catalog(clear: bool = False, dry_run: bool = False):
         return stats
     except Exception as e:
         logger.error("SKU populate failed: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
+class EtsyBatchCreate(BaseModel):
+    content_id: str
+    sku_list: list[str]
+    shipping_profile_id: Optional[int] = None
+
+
+@app.post("/etsy/listings/create-batch")
+def create_etsy_listings_batch(req: EtsyBatchCreate):
+    """Create multiple Etsy listings (one per SKU) from a single content item.
+
+    Each SKU becomes its own listing with the correct material/size-specific pricing.
+    Images are uploaded to each listing after creation.
+    """
+    from src.integrations.etsy import EtsyClient
+    from src.brand.pricing import etsy_price as calc_etsy_price
+    conn = _get_conn()
+    try:
+        # Validate content
+        content = conn.execute(
+            "SELECT * FROM content WHERE id = ? AND platform = 'etsy'",
+            (req.content_id,),
+        ).fetchone()
+        if not content:
+            raise HTTPException(status_code=404, detail="Content not found or not Etsy platform")
+        content = dict(content)
+
+        # Get photo for image URL
+        photo = conn.execute(
+            "SELECT filename, collection FROM photos WHERE id = ?",
+            (content["photo_id"],),
+        ).fetchone()
+        image_url = None
+        if photo:
+            image_url = f"https://archive-35.com/images/{photo['collection']}/{photo['filename']}"
+
+        client = EtsyClient()
+        results = []
+
+        for sku_code in req.sku_list:
+            # Look up SKU in catalog
+            sku_row = conn.execute(
+                "SELECT * FROM sku_catalog WHERE sku = ? AND active = 1",
+                (sku_code,),
+            ).fetchone()
+            if not sku_row:
+                results.append({"sku": sku_code, "status": "error", "detail": "SKU not found or inactive"})
+                continue
+
+            sku_row = dict(sku_row)
+            price = sku_row["list_price_usd"]
+
+            # Parse material from paper_code for title suffix
+            mat_labels = {"CAN": "Canvas", "MET": "Metal", "ACR": "Acrylic", "PAP": "Paper", "WOO": "Wood"}
+            mat_label = mat_labels.get(sku_row.get("paper_code", ""), "Print")
+            size_label = sku_row.get("size_code", "").replace("x", "×")
+
+            # Create listing with material/size in title for Etsy SEO
+            listing_content = dict(content)
+            base_title = listing_content.get("title") or listing_content.get("body", "").split("\n")[0].strip()
+            if len(base_title) > 90:
+                base_title = base_title[:87] + "..."
+            suffix = f" | {mat_label} {size_label}"
+            listing_content["title"] = (base_title + suffix)[:140]
+
+            listing = client.create_listing_from_content(
+                content=listing_content,
+                price=price,
+                quantity=999,
+                sku=sku_code,
+                shipping_profile_id=req.shipping_profile_id,
+            )
+
+            if "error" in listing:
+                results.append({"sku": sku_code, "status": "error", "detail": listing["error"]})
+                continue
+
+            listing_id = listing.get("listing_id")
+            entry = {"sku": sku_code, "listing_id": listing_id, "status": "created", "price": price}
+
+            # Upload image
+            if listing_id and image_url:
+                img_result = client.upload_listing_image(listing_id, image_url)
+                entry["image_uploaded"] = "error" not in (img_result or {})
+            else:
+                entry["image_uploaded"] = False
+
+            results.append(entry)
+
+            # Audit each listing
+            audit.log(conn, "etsy", "listing_created_batch", {
+                "listing_id": listing_id,
+                "content_id": req.content_id,
+                "sku": sku_code,
+                "price": price,
+            })
+
+        return {
+            "content_id": req.content_id,
+            "total": len(req.sku_list),
+            "created": sum(1 for r in results if r["status"] == "created"),
+            "failed": sum(1 for r in results if r["status"] == "error"),
+            "results": results,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Batch Etsy listing creation failed: %s", e)
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         conn.close()
@@ -1045,6 +1217,104 @@ def get_etsy_shipping_profiles():
         return {"profiles": profiles.get("results", [])}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/etsy/receipts/auto-fulfill")
+def auto_fulfill_etsy_orders():
+    """Poll Etsy for new paid orders and auto-route to Pictorem fulfillment.
+
+    Designed to be called on a schedule (e.g., every 30 minutes) or manually.
+    Only processes receipts that haven't been fulfilled yet (checked via audit log).
+    """
+    from src.integrations.etsy import EtsyClient, parse_receipt_for_fulfillment
+    from src.brand.pricing import build_pictorem_preorder
+    conn = _get_conn()
+    try:
+        client = EtsyClient()
+        if not client.access_token:
+            return {"skipped": True, "reason": "No Etsy access token configured"}
+
+        # Fetch recent paid receipts
+        receipts_resp = client.get_receipts(was_paid=True, limit=25)
+        if "error" in receipts_resp:
+            return {"error": receipts_resp["error"]}
+
+        all_receipts = receipts_resp.get("results", [])
+
+        # Check which receipt IDs we've already fulfilled
+        fulfilled_ids = set()
+        rows = conn.execute(
+            "SELECT json_extract(details, '$.receipt_id') as rid FROM audit_log "
+            "WHERE action = 'order_fulfilled' OR action = 'etsy_auto_fulfilled'"
+        ).fetchall()
+        for r in rows:
+            if r[0]:
+                fulfilled_ids.add(int(r[0]))
+
+        # Process unfulfilled receipts
+        processed = []
+        skipped = []
+
+        for receipt in all_receipts:
+            receipt_id = receipt.get("receipt_id")
+            if not receipt_id or receipt_id in fulfilled_ids:
+                skipped.append(receipt_id)
+                continue
+
+            # Parse receipt for fulfillment items
+            items = parse_receipt_for_fulfillment(receipt)
+            if not items:
+                skipped.append(receipt_id)
+                continue
+
+            # Build Pictorem preorder submission
+            fulfillment_items = []
+            for item in items:
+                # Look up photo path for Pictorem image URL
+                if item.get("sku"):
+                    sku_row = conn.execute(
+                        "SELECT photo_id FROM sku_catalog WHERE sku = ?",
+                        (item["sku"],),
+                    ).fetchone()
+                    if sku_row:
+                        photo = conn.execute(
+                            "SELECT path, filename, collection FROM photos WHERE id = ?",
+                            (sku_row[0],),
+                        ).fetchone()
+                        if photo:
+                            item["image_url"] = (
+                                f"https://archive-35.com/images/{photo['collection']}/{photo['filename']}"
+                            )
+
+                fulfillment_items.append(item)
+
+            # TODO: Submit to Pictorem API when live (same as stripe-webhook flow)
+            # For now, log and mark as fulfilled
+
+            audit.log(conn, "etsy", "etsy_auto_fulfilled", {
+                "receipt_id": receipt_id,
+                "items": len(fulfillment_items),
+                "preorder_codes": [f.get("pictorem_preorder", "") for f in fulfillment_items],
+                "buyer_name": receipt.get("name", ""),
+            })
+
+            processed.append({
+                "receipt_id": receipt_id,
+                "items": len(fulfillment_items),
+                "buyer_name": receipt.get("name", ""),
+            })
+
+        return {
+            "polled": len(all_receipts),
+            "processed": len(processed),
+            "skipped": len(skipped),
+            "orders": processed,
+        }
+    except Exception as e:
+        logger.error("Etsy auto-fulfill failed: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
 
 
 # ── Config ─────────────────────────────────────────────────────

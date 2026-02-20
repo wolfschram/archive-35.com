@@ -374,13 +374,20 @@ def list_content(
         params.extend([limit, offset])
 
         rows = conn.execute(
-            f"""SELECT c.*, p.filename, p.collection
+            f"""SELECT c.*, p.filename, p.collection, p.path as photo_path
                 FROM content c JOIN photos p ON c.photo_id = p.id
                 {where} ORDER BY c.created_at DESC LIMIT ? OFFSET ?""",
             params,
         ).fetchall()
 
-        return {"items": [dict(r) for r in rows]}
+        items = []
+        for r in rows:
+            item = dict(r)
+            # Add thumbnail URL — points to the Agent API thumbnail endpoint
+            item["thumbnail_url"] = f"/photos/{item['photo_id']}/thumbnail?size=300"
+            items.append(item)
+
+        return {"items": items}
     finally:
         conn.close()
 

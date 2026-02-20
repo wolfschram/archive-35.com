@@ -194,6 +194,24 @@ function AgentContentQueue() {
                 {/* Expanded body */}
                 {isExpanded && (
                   <div style={{ padding: '20px' }}>
+                    {/* Photo thumbnail */}
+                    {item.thumbnail_url && (
+                      <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+                        <img
+                          src={`http://127.0.0.1:8035${item.thumbnail_url}`}
+                          alt={item.filename || 'Photo'}
+                          style={{
+                            maxWidth: '100%',
+                            maxHeight: '300px',
+                            borderRadius: '8px',
+                            border: '1px solid var(--glass-border)',
+                            objectFit: 'contain',
+                          }}
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                      </div>
+                    )}
+
                     {/* Provenance */}
                     {item.provenance && (
                       <div style={{
@@ -299,7 +317,9 @@ function AgentContentQueue() {
         /* PREVIEW VIEW — Platform-specific previews */
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {items.map(item => {
-            const thumbnailUrl = item.thumbnail_url || null;
+            const thumbnailUrl = item.thumbnail_url
+              ? `http://127.0.0.1:8035${item.thumbnail_url}`
+              : null;
 
             return (
               <div key={item.id}>

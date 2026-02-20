@@ -22,22 +22,33 @@ PLATFORMS = ["pinterest", "instagram", "etsy"]
 VARIANTS_PER_PLATFORM = 2
 EXPIRY_HOURS = 48
 
+# Shared guardrail for all prompts
+_NO_HALLUCINATE = """CRITICAL RULES:
+- ONLY mention camera/lens/date if provided in the context above.
+- NEVER invent or guess camera models, dates, or technical specs.
+- If no camera info is given, do NOT mention any camera.
+- Use the Collection name as the location/theme — don't invent locations.
+- Brand: Archive-35 (archive-35.com) by Wolf Schram, fine art photography."""
+
 # Platform-specific prompts
 PLATFORM_PROMPTS = {
-    "pinterest": """Write a Pinterest pin description for this fine art photograph.
+    "pinterest": f"""Write a Pinterest pin description for this fine art photograph.
 Include: evocative description (2-3 sentences), 5 relevant hashtags.
 Style: inspirational, aspirational, home-decor focused.
-Output JSON: {"body": "...", "tags": ["tag1", "tag2", ...]}""",
+{_NO_HALLUCINATE}
+Output JSON: {{"body": "...", "tags": ["tag1", "tag2", ...]}}""",
 
-    "instagram": """Write an Instagram caption for this fine art photograph.
+    "instagram": f"""Write an Instagram caption for this fine art photograph.
 Include: storytelling opener, emotional connection, call to action, 10 hashtags.
-Style: authentic, artistic, conversational.
-Output JSON: {"body": "...", "tags": ["tag1", "tag2", ...]}""",
+Style: authentic, artistic, conversational. Keep it concise — no fluff.
+{_NO_HALLUCINATE}
+Output JSON: {{"body": "...", "tags": ["tag1", "tag2", ...]}}""",
 
-    "etsy": """Write an Etsy listing description for this fine art photograph print.
+    "etsy": f"""Write an Etsy listing description for this fine art photograph print.
 Include: SEO-rich title, detailed description (print quality, paper, story),
 13 tags optimized for Etsy search.
-Output JSON: {"title": "...", "body": "...", "tags": ["tag1", ..., "tag13"]}""",
+{_NO_HALLUCINATE}
+Output JSON: {{"title": "...", "body": "...", "tags": ["tag1", ..., "tag13"]}}""",
 }
 
 
@@ -45,8 +56,46 @@ def _build_context(
     photo_row: sqlite3.Row,
     provenance: Optional[str] = None,
 ) -> str:
-    """Build context string from photo metadata for the content prompt."""
+    """Build context string from photo metadata for the content prompt.
+
+    Includes EXIF data (camera, lens, date, GPS) so Claude uses REAL
+    metadata instead of hallucinating. Only includes fields that exist.
+    """
     parts = []
+
+    # EXIF data — CRITICAL: prevents hallucinated camera/date info
+    if photo_row["exif_json"]:
+        try:
+            exif = json.loads(photo_row["exif_json"])
+            camera = exif.get("Model", "")
+            if camera:
+                parts.append(f"Camera: {camera}")
+            lens = exif.get("LensModel", "")
+            if lens:
+                parts.append(f"Lens: {lens}")
+            # Use DateTimeOriginal (actual shot date), fall back to DateTime
+            date_str = exif.get("DateTimeOriginal", exif.get("DateTime", ""))
+            if date_str:
+                parts.append(f"Date taken: {date_str}")
+            iso = exif.get("ISOSpeedRatings", "")
+            if iso:
+                parts.append(f"ISO: {iso}")
+            focal = exif.get("FocalLength", "")
+            if focal:
+                parts.append(f"Focal length: {focal}mm")
+            # GPS if available
+            lat = exif.get("GPSLatitude", "")
+            lon = exif.get("GPSLongitude", "")
+            if lat and lon:
+                parts.append(f"GPS: {lat}, {lon}")
+        except (json.JSONDecodeError, TypeError):
+            pass
+
+    # Collection / gallery name
+    if photo_row["collection"]:
+        parts.append(f"Collection: {photo_row['collection']}")
+
+    # Vision analysis data
     if photo_row["vision_tags"]:
         tags = json.loads(photo_row["vision_tags"])
         parts.append(f"Visual tags: {', '.join(tags)}")
@@ -54,10 +103,12 @@ def _build_context(
         parts.append(f"Mood: {photo_row['vision_mood']}")
     if photo_row["vision_composition"]:
         parts.append(f"Composition: {photo_row['vision_composition']}")
-    if photo_row["collection"]:
-        parts.append(f"Collection: {photo_row['collection']}")
+    if photo_row.get("marketability_score"):
+        parts.append(f"Marketability: {photo_row['marketability_score']}/10")
+
     if provenance:
         parts.append(f"Story: {provenance}")
+
     return "\n".join(parts)
 
 
@@ -134,12 +185,9 @@ def generate_content(
             logger.error("Content generation failed: %s", e)
             return None
     else:
-        # Stub content for testing without API key
-        body = f"[Stub] Beautiful {photo['vision_mood'] or 'fine art'} photograph"
-        if photo["collection"]:
-            body += f" from the {photo['collection']} collection"
-        tags_list = json.loads(photo["vision_tags"]) if photo["vision_tags"] else ["fineart"]
-        tags_json = json.dumps(tags_list[:13])
+        # No API key = no content generation. Never create stub/fake content.
+        logger.warning("Skipping content generation for %s — no Anthropic API key or rate limit hit", photo_id[:12])
+        return None
 
     # Create content record
     content_id = str(uuid4())

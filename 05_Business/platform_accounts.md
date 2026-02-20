@@ -25,6 +25,7 @@
 | GitHub | wolfschram | wolfschram | ✅ Active | 08_Docs/Credentials/github.md |
 | Cloudflare | (via GitHub OAuth) | — | ✅ Active | — |
 | Google Workspace | wolf@archive-35.com | Wolf | ✅ Active | — |
+| Etsy | wolf@archive-35.com (via Google) | Archive35Photo | ✅ Active (Plus) | 08_Docs/Credentials/etsy.md |
 
 ---
 
@@ -58,4 +59,4 @@ Use a password manager. Individual platform details are in `08_Docs/Credentials/
 
 ---
 
-*Updated: 2026-02-06*
+*Updated: 2026-02-20*

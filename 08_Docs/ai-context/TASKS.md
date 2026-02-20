@@ -1,8 +1,12 @@
 # Archive 35 — Task Queue
 
-**Last Updated:** 2026-02-10
+**Last Updated:** 2026-02-20
+
+## ⏰ Calendar Reminders
+- [ ] **2026-08-20** — Cancel Etsy Plus subscription ($10/mo). Signed up 2026-02-20 for 6-month $29 credit + 15 listings/mo + $5 ads/mo. Re-evaluate ROI before canceling.
 
 ## 🔴 Priority (Immediate)
+- [ ] Etsy shop setup — finish onboarding, configure shop settings, shipping profiles, API access
 - [ ] Verify mobile layout on actual iPhone — gallery nav overlap, homepage text overlap
 - [ ] Licensing page layout — Wolf wants bigger/wider grid like About page
 - [ ] Apply for additional image licenses (Wolf mentioned pending applications)

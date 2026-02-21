@@ -1,7 +1,7 @@
 # CLAUDE.md — Archive-35.com (Live Production Site)
 
 > **Read this file completely before doing anything.**
-> Last updated: 2026-02-19 (workflow docs added)
+> Last updated: 2026-02-21 (HD WebP image tier added)
 
 ---
 
@@ -169,8 +169,11 @@ Camera → Lightroom export → Studio ContentIngest.js → 01_Portfolio/ → De
 
 **Phase 3 — Finalize** (`finalize-ingest` IPC in main.js):
 - Copies originals to `01_Portfolio/{collection}/originals/`
-- Creates web-optimized: 2000px full-size + 400px thumbnail
-- Signs with C2PA content credentials (provenance)
+- Creates 3-tier web images:
+  - `*-full.jpg` — 2000px JPEG @ 85% (CoverFlow hero, standard displays)
+  - `*-hd.webp` — 3500px WebP @ 85% (lightbox on 4K/Retina displays)
+  - `*-thumb.jpg` — 400px JPEG @ 80% (grid thumbnails)
+- Signs full-size with C2PA content credentials (provenance)
 - Uploads originals to Cloudflare R2 cloud storage
 - Writes per-portfolio `_photos.json` metadata file
 
@@ -207,6 +210,27 @@ Camera → Lightroom export → Studio ContentIngest.js → 01_Portfolio/ → De
 ```
 photography/{gallery}/*.jpg  →  Source of truth (raw published images)
 ```
+
+#### Web Image Tiers (3-Tier Responsive)
+
+As of Feb 2026, every published photo exists in three web-optimized sizes:
+
+| Tier | File Pattern | Max Size | Format | Avg Size | Purpose |
+|------|-------------|----------|--------|----------|--------|
+| Thumbnail | `*-thumb.jpg` | 400px | JPEG 80% | ~16 KB | Gallery grid, CoverFlow sidebar |
+| Full | `*-full.jpg` | 2000px | JPEG 85% | ~509 KB | CoverFlow hero, standard displays |
+| HD | `*-hd.webp` | 3500px | WebP 85% | ~922 KB | Lightbox on 4K/Retina (DPR > 1) |
+
+**How it works:**
+- Gallery grid loads thumbnails (400px) — fast, minimal bandwidth
+- CoverFlow hero loads full (2000px) — sharp enough at typical card size
+- Lightbox loads full FIRST (instant display), then swaps to HD WebP on high-DPI displays
+- The swap is seamless — user sees 2000px immediately, then gets 3500px upgrade
+- On standard displays (DPR 1), HD WebP is never loaded — zero extra bandwidth
+
+**Why 3500px, not 4000px?** On a 4K display at DPR 2, the lightbox maxes out at ~4260 device pixels. 3500px at WebP quality 85 provides visually sharp results with acceptable file sizes. The step from 2000px → 3500px eliminates the visible softness; going to 4000px adds ~40% more bytes for diminishing perceptual returns.
+
+**Batch generation:** `python3 scripts/generate_hd_webp.py --all` regenerates from Photography/ originals.
 
 #### Agent Photo Import Flow
 

@@ -1690,10 +1690,22 @@ function lbN(d){lP=Math.max(0,Math.min(G[lG].n-1,lP+d));updLb();}
 function updLb(){
   const g=G[lG];
   const img=document.getElementById('lb-img');
-  img.src=g.p[lP].f;
+  const fullSrc=g.p[lP].f;
+  /* Show 2000px JPEG immediately for fast display */
+  img.src=fullSrc;
   img.alt=g.p[lP].n||`${g.name} — ${lP+1}`;
   document.getElementById('lb-ttl').textContent=g.p[lP].n||'';
   document.getElementById('lb-ctr').textContent=`${lP+1} / ${g.n}`;
+  /* Progressive enhancement: load 3500px HD WebP for 4K/Retina displays */
+  if(window.devicePixelRatio>1){
+    const hdSrc=fullSrc.replace('-full.jpg','-hd.webp');
+    const hdImg=new Image();
+    hdImg.onload=function(){
+      /* Only swap if user hasn't navigated to a different photo */
+      if(img.src.includes(fullSrc.split('/').pop()))img.src=hdSrc;
+    };
+    hdImg.src=hdSrc;
+  }
 }
 document.getElementById('lb').addEventListener('click',e=>{if(e.target.id==='lb'||e.target.id==='lb-img')closeLb();});
 document.getElementById('lb-x').addEventListener('click',closeLb);

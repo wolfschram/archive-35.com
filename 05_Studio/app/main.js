@@ -1246,6 +1246,13 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
           }
         }
 
+        // Create HD WebP version (max 3500px long edge) for 4K/Retina lightbox
+        const hdDest = path.join(webFolder, `${baseName}-hd.webp`);
+        await sharp(photo.path, { limitInputPixels: false })
+          .resize(3500, 3500, { fit: 'inside', withoutEnlargement: true })
+          .webp({ quality: 85 })
+          .toFile(hdDest);
+
         // Create thumbnail (400px long edge)
         const thumbDest = path.join(webFolder, `${baseName}-thumb.jpg`);
         await sharp(photo.path)
@@ -1700,7 +1707,14 @@ ipcMain.handle('replace-photo', async (event, { portfolioId, photoId, newFilePat
       }
     }
 
-    // 4. Create new thumbnail
+    // 4. Create HD WebP version (3500px for 4K/Retina lightbox)
+    const hdDest = path.join(webFolder, `${baseName}-hd.webp`);
+    await sharp(newFilePath, { limitInputPixels: false })
+      .resize(3500, 3500, { fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 85 })
+      .toFile(hdDest);
+
+    // 5. Create new thumbnail
     const thumbDest = path.join(webFolder, `${baseName}-thumb.jpg`);
     await sharp(newFilePath)
       .resize(400, 400, { fit: 'inside', withoutEnlargement: true })

@@ -760,4 +760,50 @@ In Cloudflare Workers, once the Response is returned to the client, the Worker r
 
 ---
 
+### LESSON 032: 2000px Images Look Soft on 4K Displays — Progressive HD Loading
+**Date:** 2026-02-21
+**Category:** `images` `performance` `quality` `4K` `webp`
+
+**Symptom:** All gallery images looked soft/out-of-focus on Wolf's 40" 4K display, especially in the lightbox fullscreen view. Since Archive-35 sells premium fine art photography, soft images = lost sales.
+
+**Root Cause:** Web images were max 2000px (JPEG). On a 4K display at DPR 2, the lightbox fills ~4260 device pixels. A 2000px image stretched to 4260px = **2.13x upscale = visibly soft**. The CoverFlow hero cards were OK (2000px at ~1660 device pixels = slight downscale), but the lightbox — where buyers evaluate quality before purchasing — was unacceptably blurry.
+
+**Why 2000px Was Chosen Originally:** Page load speed. With 807 images across 40 galleries, larger images would significantly increase initial page load time and bandwidth.
+
+**Fix: 3-Tier Progressive Loading**
+1. Created `*-hd.webp` tier at 3500px, WebP @ 85% quality (avg 922 KB)
+2. Gallery grid still loads thumbnails (400px) — no change
+3. CoverFlow hero still loads full (2000px) — no change  
+4. Lightbox loads full FIRST (instant display), then a background `new Image()` loads the HD WebP
+5. When HD finishes loading, it replaces the full — seamless upgrade, no blank screen
+6. Only triggers when `window.devicePixelRatio > 1` — standard displays never load HD
+
+**Why WebP?** ~40% smaller than JPEG at same quality. 3500px WebP ≈ same bytes as 2000px JPEG. Net bandwidth impact for HD upgrade: near-zero.
+
+**Files Changed:**
+- `gallery.html` — `updLb()` function: progressive HD loading logic
+- `05_Studio/app/main.js` — `finalize-ingest` + `replace-photo`: generate `-hd.webp` alongside `-full.jpg`
+- `scripts/generate_hd_webp.py` — batch conversion of all 807 existing images
+- `CLAUDE.md` — documented 3-tier image system
+
+**Prevention:**
+- **RULE: Always test image quality at the TARGET display resolution.** 2000px looks great on a laptop but soft on 4K.
+- **RULE: Progressive loading (show low-res fast, upgrade to hi-res in background) gives both speed AND quality.**
+- **RULE: WebP format is mandatory for large images.** ~40% size savings vs JPEG at equal quality.
+- **RULE: `scripts/generate_hd_webp.py --all` must be run when adding photos outside Studio's ingest pipeline.**
+
+**Stats:**
+- 786 HD WebP images generated (21 missing originals)
+- Total HD tier size: 708 MB (avg 922 KB per image)
+- Full tier for comparison: 401 MB (avg 509 KB per image)
+- Page load speed: unchanged (HD only loads on demand in lightbox)
+
+---
+
+35. **2000px looks soft on 4K.** Always test at target display DPR. Use progressive loading for quality + speed.
+36. **WebP saves ~40% vs JPEG.** Use WebP for any new image tier where browser support (97%+) is acceptable.
+37. **Progressive image loading = best of both worlds.** Show low-res instantly, upgrade to hi-res in background.
+
+---
+
 *This is a living document. Add new lessons as they're discovered. Every bug is a gift — it teaches us something we didn't know.*

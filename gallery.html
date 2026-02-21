@@ -1699,10 +1699,11 @@ function updLb(){
   /* Progressive enhancement: load 3500px HD WebP for 4K/Retina displays */
   if(window.devicePixelRatio>1){
     const hdSrc=fullSrc.replace('-full.jpg','-hd.webp');
+    const snapG=lG,snapP=lP;
     const hdImg=new Image();
     hdImg.onload=function(){
       /* Only swap if user hasn't navigated to a different photo */
-      if(img.src.includes(fullSrc.split('/').pop()))img.src=hdSrc;
+      if(lG===snapG&&lP===snapP)img.src=hdSrc;
     };
     hdImg.src=hdSrc;
   }

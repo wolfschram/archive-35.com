@@ -13,8 +13,10 @@ function AgentSettings({ setActiveTab }) {
     { id: 'LATE_API_KEY', name: 'Late API Key', desc: 'Social media posting integration' },
     { id: 'TELEGRAM_BOT_TOKEN', name: 'Telegram Bot Token', desc: 'Approval bot token (starts with digits:)' },
     { id: 'TELEGRAM_CHAT_ID', name: 'Telegram Chat ID', desc: "Wolf's Telegram chat ID for notifications" },
-    { id: 'ETSY_API_KEY', name: 'Etsy API Key', desc: 'Etsy marketplace integration (Phase 2)' },
-    { id: 'ETSY_API_SECRET', name: 'Etsy API Secret', desc: 'Etsy API secret key (Phase 2)' },
+    { id: 'ETSY_API_KEY', name: 'Etsy API Key', desc: 'Etsy marketplace integration' },
+    { id: 'ETSY_API_SECRET', name: 'Etsy API Secret', desc: 'Etsy API secret key' },
+    { id: 'PINTEREST_APP_ID', name: 'Pinterest App ID', desc: 'Pinterest developer app ID' },
+    { id: 'PINTEREST_APP_SECRET', name: 'Pinterest App Secret', desc: 'Pinterest developer app secret' },
     { id: 'SHOPIFY_STORE_URL', name: 'Shopify Store URL', desc: 'Shopify store domain (Phase 2)' },
     { id: 'SHOPIFY_API_KEY', name: 'Shopify API Key', desc: 'Shopify API key (Phase 2)' },
     { id: 'SHOPIFY_API_SECRET', name: 'Shopify API Secret', desc: 'Shopify API secret (Phase 2)' },
@@ -47,6 +49,15 @@ function AgentSettings({ setActiveTab }) {
   const [photoSource, setPhotoSource] = useState('local');
   const [photoImportDir, setPhotoImportDir] = useState('');
   const [loadingPhotoSource, setLoadingPhotoSource] = useState(true);
+
+  // Pinterest integration status
+  const [pinterestStatus, setPinterestStatus] = useState(null);
+  const [pinterestBoards, setPinterestBoards] = useState([]);
+  const [pinterestLoading, setPinterestLoading] = useState(false);
+
+  // Etsy integration status
+  const [etsyStatus, setEtsyStatus] = useState(null);
+  const [etsyLoading, setEtsyLoading] = useState(false);
 
   // Agent config
   const [agentConfig, setAgentConfig] = useState({
@@ -82,6 +93,8 @@ function AgentSettings({ setActiveTab }) {
     loadAgentKeys();
     loadPhotoSource();
     loadAgentConfig();
+    loadPinterestStatus();
+    loadEtsyStatus();
   }, []);
 
   const loadAgentKeys = async () => {
@@ -123,6 +136,56 @@ function AgentSettings({ setActiveTab }) {
       }
     } catch (err) {
       console.error('Failed to load Agent config:', err);
+    }
+  };
+
+  const loadPinterestStatus = async () => {
+    setPinterestLoading(true);
+    try {
+      const status = await get('/pinterest/status');
+      setPinterestStatus(status);
+      if (status?.connected) {
+        const boards = await get('/pinterest/boards');
+        setPinterestBoards(boards?.items || []);
+      }
+    } catch (err) {
+      console.error('Failed to load Pinterest status:', err);
+      setPinterestStatus({ connected: false, error: err.message });
+    }
+    setPinterestLoading(false);
+  };
+
+  const loadEtsyStatus = async () => {
+    setEtsyLoading(true);
+    try {
+      const status = await get('/etsy/status');
+      setEtsyStatus(status);
+    } catch (err) {
+      console.error('Failed to load Etsy status:', err);
+      setEtsyStatus({ connected: false, error: err.message });
+    }
+    setEtsyLoading(false);
+  };
+
+  const startPinterestOAuth = async () => {
+    try {
+      const result = await get('/pinterest/oauth/url');
+      if (result?.url) {
+        window.open(result.url, '_blank');
+      }
+    } catch (err) {
+      setError(`Pinterest OAuth failed: ${err.message}`);
+    }
+  };
+
+  const startEtsyOAuth = async () => {
+    try {
+      const result = await get('/etsy/oauth/url');
+      if (result?.url) {
+        window.open(result.url, '_blank');
+      }
+    } catch (err) {
+      setError(`Etsy OAuth failed: ${err.message}`);
     }
   };
 
@@ -209,6 +272,24 @@ function AgentSettings({ setActiveTab }) {
           keyId: `connection_${type}`,
           success: result?.success !== false,
           message: result?.message || 'Late API connection successful',
+        });
+      } else if (type === 'pinterest') {
+        result = await get('/pinterest/status');
+        setTestResult({
+          keyId: `connection_${type}`,
+          success: result?.connected === true,
+          message: result?.connected
+            ? `Connected as @${result.username || 'unknown'}`
+            : result?.error || 'Pinterest not connected',
+        });
+      } else if (type === 'etsy') {
+        result = await get('/etsy/status');
+        setTestResult({
+          keyId: `connection_${type}`,
+          success: result?.connected === true,
+          message: result?.connected
+            ? `Connected to Etsy shop`
+            : result?.error || 'Etsy not connected',
         });
       }
     } catch (err) {
@@ -407,7 +488,7 @@ function AgentSettings({ setActiveTab }) {
           </div>
         ))}
 
-        <div style={{ ...sectionHeaderStyle, marginTop: '16px' }}>Ecommerce Platforms (Phase 2)</div>
+        <div style={{ ...sectionHeaderStyle, marginTop: '16px' }}>Marketplace &amp; Social Platforms</div>
         {AGENT_API_KEYS.slice(3).map(key => (
           <div key={key.id} style={keyRowStyle}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -476,6 +557,260 @@ function AgentSettings({ setActiveTab }) {
             )}
           </div>
         ))}
+      </div>
+
+      {/* ========== PINTEREST INTEGRATION ========== */}
+      <div style={cardStyle}>
+        <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {'📌'} Pinterest Integration
+        </h3>
+        <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '16px' }}>
+          Direct Pinterest API v5 — boards, pins, and posting.
+        </p>
+
+        {pinterestLoading ? (
+          <p style={{ color: 'var(--text-muted)' }}>Loading Pinterest status...</p>
+        ) : pinterestStatus ? (
+          <>
+            {/* Connection Status */}
+            <div style={{
+              ...keyRowStyle,
+              borderLeft: `3px solid ${pinterestStatus.connected ? '#4caf50' : '#ff9800'}`,
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <strong style={{ color: 'var(--text-primary)', fontSize: '13px' }}>Connection Status</strong>
+                  <span style={{ marginLeft: '12px' }}>
+                    <span className={`status-badge ${pinterestStatus.connected ? 'online' : 'warning'}`} style={{ fontSize: '10px' }}>
+                      {pinterestStatus.connected ? 'Connected' : 'Disconnected'}
+                    </span>
+                  </span>
+                </div>
+                <button
+                  className="btn btn-secondary"
+                  style={{ padding: '4px 12px', fontSize: '11px' }}
+                  onClick={loadPinterestStatus}
+                >
+                  Refresh
+                </button>
+              </div>
+              {pinterestStatus.connected && pinterestStatus.username && (
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '8px 0 0' }}>
+                  Logged in as <strong>@{pinterestStatus.username}</strong>
+                  {' — '}
+                  <a
+                    href={pinterestStatus.profile_url || `https://pinterest.com/${pinterestStatus.username}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: 'var(--accent)', textDecoration: 'none' }}
+                  >
+                    View Profile ↗
+                  </a>
+                </p>
+              )}
+              {pinterestStatus.error && (
+                <p style={{ fontSize: '12px', color: '#ef5350', margin: '8px 0 0' }}>
+                  {pinterestStatus.error}
+                </p>
+              )}
+            </div>
+
+            {/* Token Expiry */}
+            {pinterestStatus.token_expires && (
+              <div style={keyRowStyle}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong style={{ color: 'var(--text-primary)', fontSize: '13px' }}>Token Expires</strong>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 0' }}>
+                      {pinterestStatus.token_expires}
+                      {(() => {
+                        const expires = new Date(pinterestStatus.token_expires);
+                        const now = new Date();
+                        const daysLeft = Math.ceil((expires - now) / (1000 * 60 * 60 * 24));
+                        if (daysLeft <= 0) return ' — Expired!';
+                        if (daysLeft <= 7) return ` — ${daysLeft} days left (renew soon)`;
+                        return ` — ${daysLeft} days remaining`;
+                      })()}
+                    </p>
+                  </div>
+                  <button
+                    className="btn btn-secondary"
+                    style={{ padding: '4px 12px', fontSize: '11px' }}
+                    onClick={startPinterestOAuth}
+                  >
+                    Reconnect OAuth
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Boards Summary */}
+            <div style={keyRowStyle}>
+              <strong style={{ color: 'var(--text-primary)', fontSize: '13px' }}>
+                Boards ({pinterestBoards.length})
+              </strong>
+              {pinterestBoards.length > 0 ? (
+                <div style={{
+                  marginTop: '8px',
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                  gap: '6px',
+                }}>
+                  {pinterestBoards.map(board => (
+                    <div key={board.id} style={{
+                      padding: '6px 10px',
+                      background: 'var(--bg-primary)',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      color: 'var(--text-secondary)',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}>
+                      <span>{board.name}</span>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
+                        {board.pin_count || 0} pins
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '8px 0 0' }}>
+                  No boards loaded. Connect Pinterest to see boards.
+                </p>
+              )}
+            </div>
+
+            {/* App Info */}
+            <div style={keyRowStyle}>
+              <strong style={{ color: 'var(--text-primary)', fontSize: '13px' }}>App Details</strong>
+              <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                <div>App ID: <code style={{ fontFamily: 'monospace', fontSize: '11px' }}>{pinterestStatus.app_id || '—'}</code></div>
+                <div style={{ marginTop: '4px' }}>
+                  Tier: <span style={{ color: '#ff9800', fontWeight: 600 }}>Trial</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '11px', marginLeft: '8px' }}>
+                    (Standard tier application pending)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div style={{
+            padding: '16px',
+            background: 'var(--bg-tertiary)',
+            borderRadius: 'var(--radius-sm)',
+            textAlign: 'center',
+          }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '12px' }}>
+              Pinterest is not configured yet. Add your App ID and Secret in the API Keys section above, then connect via OAuth.
+            </p>
+            <button
+              className="btn btn-primary"
+              style={{ padding: '8px 20px', fontSize: '12px' }}
+              onClick={startPinterestOAuth}
+            >
+              Connect Pinterest
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ========== ETSY INTEGRATION ========== */}
+      <div style={cardStyle}>
+        <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {'🛒'} Etsy Integration
+        </h3>
+        <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '16px' }}>
+          Etsy marketplace listings, orders, and fulfillment.
+        </p>
+
+        {etsyLoading ? (
+          <p style={{ color: 'var(--text-muted)' }}>Loading Etsy status...</p>
+        ) : etsyStatus ? (
+          <>
+            <div style={{
+              ...keyRowStyle,
+              borderLeft: `3px solid ${etsyStatus.connected ? '#4caf50' : '#ff9800'}`,
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <strong style={{ color: 'var(--text-primary)', fontSize: '13px' }}>Connection Status</strong>
+                  <span style={{ marginLeft: '12px' }}>
+                    <span className={`status-badge ${etsyStatus.connected ? 'online' : 'warning'}`} style={{ fontSize: '10px' }}>
+                      {etsyStatus.connected ? 'Connected' : 'Disconnected'}
+                    </span>
+                  </span>
+                </div>
+                <button
+                  className="btn btn-secondary"
+                  style={{ padding: '4px 12px', fontSize: '11px' }}
+                  onClick={loadEtsyStatus}
+                >
+                  Refresh
+                </button>
+              </div>
+              {etsyStatus.shop_name && (
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '8px 0 0' }}>
+                  Shop: <strong>{etsyStatus.shop_name}</strong>
+                </p>
+              )}
+              {etsyStatus.error && (
+                <p style={{ fontSize: '12px', color: '#ef5350', margin: '8px 0 0' }}>
+                  {etsyStatus.error}
+                </p>
+              )}
+            </div>
+
+            {!etsyStatus.connected && (
+              <div style={{
+                ...keyRowStyle,
+                background: 'rgba(255, 152, 0, 0.08)',
+                border: '1px solid rgba(255, 152, 0, 0.2)',
+              }}>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                  Etsy app is pending approval. Once approved, connect via OAuth to enable listings and fulfillment.
+                </p>
+                <button
+                  className="btn btn-primary"
+                  style={{ padding: '6px 16px', fontSize: '12px' }}
+                  onClick={startEtsyOAuth}
+                >
+                  Connect Etsy
+                </button>
+              </div>
+            )}
+
+            {etsyStatus.token_expires && (
+              <div style={keyRowStyle}>
+                <strong style={{ color: 'var(--text-primary)', fontSize: '13px' }}>Token Expires</strong>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 0' }}>
+                  {etsyStatus.token_expires}
+                </p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div style={{
+            padding: '16px',
+            background: 'var(--bg-tertiary)',
+            borderRadius: 'var(--radius-sm)',
+            textAlign: 'center',
+          }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '12px' }}>
+              Etsy is not configured yet. Add your API Key and Secret above, then connect via OAuth.
+            </p>
+            <button
+              className="btn btn-primary"
+              style={{ padding: '8px 20px', fontSize: '12px' }}
+              onClick={startEtsyOAuth}
+            >
+              Connect Etsy
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ========== SHARED KEYS (READ-ONLY) ========== */}
@@ -903,6 +1238,62 @@ function AgentSettings({ setActiveTab }) {
               {testingKey === 'connection_late' ? 'Testing...' : 'Test Late API'}
             </button>
             {testResult?.keyId === 'connection_late' && (
+              <div style={{
+                marginTop: '8px',
+                padding: '8px 12px',
+                borderRadius: '4px',
+                fontSize: '12px',
+                background: testResult.success ? 'rgba(27, 122, 27, 0.15)' : 'rgba(198, 40, 40, 0.15)',
+                color: testResult.success ? '#4caf50' : '#ef5350',
+              }}>
+                {testResult.success ? '✓ ' : '✕ '}
+                {testResult.message}
+              </div>
+            )}
+          </div>
+
+          <div style={{ ...keyRowStyle, marginBottom: 0 }}>
+            <strong style={{ color: 'var(--text-primary)', fontSize: '13px' }}>Pinterest</strong>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '4px 0 8px' }}>
+              Verify Pinterest API connection
+            </p>
+            <button
+              className="btn btn-primary"
+              style={{ width: '100%', padding: '6px 12px', fontSize: '12px' }}
+              onClick={() => testConnection('pinterest')}
+              disabled={testingKey === 'connection_pinterest'}
+            >
+              {testingKey === 'connection_pinterest' ? 'Testing...' : 'Test Pinterest'}
+            </button>
+            {testResult?.keyId === 'connection_pinterest' && (
+              <div style={{
+                marginTop: '8px',
+                padding: '8px 12px',
+                borderRadius: '4px',
+                fontSize: '12px',
+                background: testResult.success ? 'rgba(27, 122, 27, 0.15)' : 'rgba(198, 40, 40, 0.15)',
+                color: testResult.success ? '#4caf50' : '#ef5350',
+              }}>
+                {testResult.success ? '✓ ' : '✕ '}
+                {testResult.message}
+              </div>
+            )}
+          </div>
+
+          <div style={{ ...keyRowStyle, marginBottom: 0 }}>
+            <strong style={{ color: 'var(--text-primary)', fontSize: '13px' }}>Etsy</strong>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '4px 0 8px' }}>
+              Verify Etsy API connection
+            </p>
+            <button
+              className="btn btn-primary"
+              style={{ width: '100%', padding: '6px 12px', fontSize: '12px' }}
+              onClick={() => testConnection('etsy')}
+              disabled={testingKey === 'connection_etsy'}
+            >
+              {testingKey === 'connection_etsy' ? 'Testing...' : 'Test Etsy'}
+            </button>
+            {testResult?.keyId === 'connection_etsy' && (
               <div style={{
                 marginTop: '8px',
                 padding: '8px 12px',

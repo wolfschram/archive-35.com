@@ -112,7 +112,8 @@ def _save_tokens(access_token: str, refresh_token: str, expires_in: int):
         return
 
     lines = agent_env.read_text().splitlines()
-    expires_at = datetime.now(timezone.utc).isoformat()
+    from datetime import timedelta
+    expires_at = (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat()
 
     updates = {
         "ETSY_ACCESS_TOKEN": access_token,
@@ -353,7 +354,7 @@ def create_listing(
     shipping_profile_id: Optional[int] = None,
     taxonomy_id: int = DEFAULT_TAXONOMY_ID,
     who_made: str = "i_did",
-    when_made: str = "2020_2025",
+    when_made: str = "made_to_order",
     is_supply: bool = False,
 ) -> dict[str, Any]:
     """Create a new Etsy listing (draft state).

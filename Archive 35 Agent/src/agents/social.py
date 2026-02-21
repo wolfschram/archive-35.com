@@ -1,6 +1,9 @@
 """Social posting agent for Archive-35.
 
-Posts approved content to Pinterest and Instagram via Late API.
+Posts approved content to social platforms:
+- Pinterest: Direct API v5 integration (preferred) or Late API fallback
+- Instagram: Via Late API (until direct integration is built)
+
 Includes idempotency, randomized timing, and exponential backoff.
 """
 
@@ -26,6 +29,77 @@ logger = logging.getLogger(__name__)
 LATE_API_BASE = "https://api.late.app/v1"
 MAX_RETRIES = 3
 BASE_BACKOFF = 2.0  # seconds
+
+
+def _use_direct_pinterest() -> bool:
+    """Check if direct Pinterest API is configured and should be used."""
+    try:
+        from src.integrations.pinterest import is_configured, has_valid_token
+        return is_configured() and has_valid_token()
+    except ImportError:
+        return False
+
+
+def _post_via_pinterest_api(
+    content_body: str,
+    tags: list[str],
+    image_url: Optional[str] = None,
+    board_name: Optional[str] = None,
+    link: Optional[str] = None,
+    title: Optional[str] = None,
+) -> dict:
+    """Post content directly via Pinterest API v5.
+
+    Uses the direct integration module instead of Late API middleman.
+
+    Args:
+        content_body: Pin description text.
+        tags: Hashtags to append to description.
+        image_url: URL of the image for the pin.
+        board_name: Target board name (matched to collection).
+        link: Link URL for the pin (defaults to gallery).
+        title: Pin title (optional, extracted from content if not given).
+
+    Returns:
+        API response dict with pin details.
+
+    Raises:
+        Exception on API errors.
+    """
+    from src.integrations.pinterest import create_pin, ensure_board_exists
+
+    # Build description with hashtags
+    description = content_body
+    if tags:
+        tag_str = " ".join(f"#{t}" if not t.startswith("#") else t for t in tags)
+        description = f"{content_body}\n\n{tag_str}"
+
+    # Determine target board
+    if board_name:
+        board_result = ensure_board_exists(board_name)
+        board_id = board_result["id"]
+    else:
+        # Default to first available board
+        from src.integrations.pinterest import list_boards
+        boards = list_boards(page_size=1)
+        if not boards.get("items"):
+            raise ValueError("No Pinterest boards found. Create a board first.")
+        board_id = boards["items"][0]["id"]
+
+    # Default link to gallery
+    if not link:
+        link = "https://archive-35.com/gallery.html"
+
+    # Create pin
+    result = create_pin(
+        board_id=board_id,
+        title=title or content_body[:100],
+        description=description[:500],  # Pinterest limit
+        image_url=image_url or "",
+        link=link,
+    )
+
+    return result
 
 
 def _randomized_delay(min_seconds: float = 30, max_seconds: float = 300) -> float:
@@ -115,10 +189,15 @@ def post_content(
         })
         return False
 
-    # Rate limit check
-    if not check_limit(conn, "late_api", daily_call_limit=50, daily_cost_limit_usd=1.0):
-        logger.warning("Late API rate limit reached, skipping")
-        return False
+    # Rate limit check — use appropriate limiter based on platform
+    if platform == "pinterest" and _use_direct_pinterest():
+        if not check_limit(conn, "pinterest_api", daily_call_limit=100, daily_cost_limit_usd=0.0):
+            logger.warning("Pinterest API rate limit reached, skipping")
+            return False
+    else:
+        if not check_limit(conn, "late_api", daily_call_limit=50, daily_cost_limit_usd=1.0):
+            logger.warning("Late API rate limit reached, skipping")
+            return False
 
     # Idempotency check
     post_target = f"{platform}:{content_id}"
@@ -140,22 +219,47 @@ def post_content(
         })
         return True
 
+    # Determine posting method
+    use_direct = platform == "pinterest" and _use_direct_pinterest()
+
+    # Extract optional fields from content row
+    image_url = row["image_url"] if "image_url" in row.keys() else None
+    board_name = row["board_name"] if "board_name" in row.keys() else None
+    link = row["link"] if "link" in row.keys() else None
+    title = row["title"] if "title" in row.keys() else None
+
     # Post with retries
     for attempt in range(MAX_RETRIES):
         try:
-            result = _post_via_late_api(platform, body, tags, api_key)
+            if use_direct:
+                # Direct Pinterest API v5
+                result = _post_via_pinterest_api(
+                    content_body=body,
+                    tags=tags,
+                    image_url=image_url,
+                    board_name=board_name,
+                    link=link,
+                    title=title,
+                )
+                api_name = "pinterest_api"
+            else:
+                # Late API fallback
+                result = _post_via_late_api(platform, body, tags, api_key)
+                api_name = "late_api"
+
             record_action(
                 conn, "post", post_target, body,
                 content_id=content_id, cost_usd=0.0,
             )
             _mark_posted(conn, content_id)
-            record_usage(conn, "late_api")
+            record_usage(conn, api_name)
             audit_log(conn, "social", "post_success", {
                 "content_id": content_id,
                 "platform": platform,
+                "api": api_name,
                 "api_response": result,
             })
-            logger.info("Posted to %s: %s", platform, content_id[:12])
+            logger.info("Posted to %s via %s: %s", platform, api_name, content_id[:12])
             return True
 
         except Exception as e:

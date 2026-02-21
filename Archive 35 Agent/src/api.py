@@ -779,6 +779,7 @@ def etsy_status():
 
         result = {
             "configured": has_tokens,
+            "connected": False,
             "shop_id": client.shop_id or None,
             "active_skus": sku_count,
         }
@@ -787,15 +788,19 @@ def etsy_status():
         if has_tokens and client.shop_id:
             try:
                 shop = client.get_shop_info()
-                result["shop_name"] = shop.get("shop_name")
-                result["shop_url"] = shop.get("url")
-                result["listing_active_count"] = shop.get("listing_active_count", 0)
+                if "error" not in shop:
+                    result["connected"] = True
+                    result["shop_name"] = shop.get("shop_name")
+                    result["shop_url"] = shop.get("url")
+                    result["listing_active_count"] = shop.get("listing_active_count", 0)
+                else:
+                    result["error"] = shop.get("error", "")
             except Exception as e:
-                result["shop_error"] = str(e)
+                result["error"] = str(e)
 
         return result
     except Exception as e:
-        return {"configured": False, "error": str(e)}
+        return {"configured": False, "connected": False, "error": str(e)}
     finally:
         conn.close()
 

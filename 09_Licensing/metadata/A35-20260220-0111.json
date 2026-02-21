@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0111",
+  "original_filename": "Wolf 6956.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Lake Beneath Dolomite Spires",
+  "description": "A breathtaking panoramic composition capturing the dramatic vertical geology of the Dolomites meeting serene alpine waters. This ultra-high-resolution capture reveals extraordinary detail across the entire frame—from delicate alpine meadow textures in the foreground to crisp geological stratification in the distant peaks—making it ideal for large-format fine art prints and commercial licensing applications.",
+  "location": "Tre Cime di Lavaredo, Dolomites, Veneto, Italy",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 14177,
+    "height": 5539
+  },
+  "megapixels": 78.5,
+  "aspect_ratio": 2.559,
+  "file_size_bytes": 34741988,
+  "file_size_mb": 33.1,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 47.3,
+    "height_in": 18.5,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 94.5,
+    "height_in": 36.9,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:06:23 20:39:14",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.0008",
+    "FNumber": "3.5",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0111.jpg",
+    "preview": "previews/A35-20260220-0111.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0111.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.400776+00:00"
+}

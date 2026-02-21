@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0083",
+  "original_filename": "Wolf 5908.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Tidal Patterns and Distant Mountains",
+  "description": "This ultra-high-resolution panoramic image captures the intricate textures of exposed tidal flats meeting the open ocean, with layered mountain ranges receding into atmospheric perspective. The exceptional detail in the rippled sand patterns and luminous sky creates a compelling large-format fine art print with remarkable depth and commercial versatility.",
+  "location": "Manzanita Beach, Oregon Coast, United States",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 15551,
+    "height": 7487
+  },
+  "megapixels": 116.4,
+  "aspect_ratio": 2.077,
+  "file_size_bytes": 29055007,
+  "file_size_mb": 27.7,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 51.8,
+    "height_in": 25,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 103.7,
+    "height_in": 49.9,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:02:11 16:52:37",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.0005",
+    "FNumber": "3.5",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0083.jpg",
+    "preview": "previews/A35-20260220-0083.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0083.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.373318+00:00"
+}

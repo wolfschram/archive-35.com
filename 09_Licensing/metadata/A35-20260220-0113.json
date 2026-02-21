@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0113",
+  "original_filename": "Wolf 6963.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Valley Gateway",
+  "description": "A commanding panoramic vista of a pristine alpine meadow framed by soaring limestone peaks and dense coniferous forest. This ultra-high-resolution capture reveals exceptional detail across the entire composition—from delicate alpine vegetation in the foreground to the dramatic geological formations and distant summits—making it ideal for large-format fine art prints and premium commercial licensing.",
+  "location": "Sorau Valley (Sorau), Dolomites, South Tyrol, Italy",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 28237,
+    "height": 11026
+  },
+  "megapixels": 311.3,
+  "aspect_ratio": 2.561,
+  "file_size_bytes": 102409864,
+  "file_size_mb": 97.7,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 94.1,
+    "height_in": 36.8,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 188.2,
+    "height_in": 73.5,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:06:23 21:27:26",
+    "FocalLength": "200.0",
+    "ExposureTime": "0.0008",
+    "FNumber": "3.5",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF70-200mm F2.8 L IS USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0113.jpg",
+    "preview": "previews/A35-20260220-0113.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0113.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.402330+00:00"
+}

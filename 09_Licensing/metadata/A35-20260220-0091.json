@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0091",
+  "original_filename": "Wolf 6232.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Manhattan Nocturne Reflected",
+  "description": "A commanding panoramic study of Manhattan's illuminated skyline mirrored in the calm waters of the East River, captured in ultra-high resolution to reveal extraordinary architectural detail across the entire composition. The exceptional clarity and scale of this fine art print showcase the interplay of urban light and reflective surfaces, offering museum-quality reproduction potential for large-format presentations.",
+  "location": "East River, Manhattan, New York City, USA",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 13516,
+    "height": 6008
+  },
+  "megapixels": 81.2,
+  "aspect_ratio": 2.25,
+  "file_size_bytes": 16323530,
+  "file_size_mb": 15.6,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 45.1,
+    "height_in": 20,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 90.1,
+    "height_in": 40.1,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:05:09 18:15:17",
+    "FocalLength": "28.0",
+    "ExposureTime": "30.0",
+    "FNumber": "10.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0091.jpg",
+    "preview": "previews/A35-20260220-0091.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0091.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.380592+00:00"
+}

@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0096",
+  "original_filename": "Wolf 6889.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Valley in Green Descent",
+  "description": "A sweeping panoramic vista capturing the dramatic vertical relief of the Alpine landscape, where verdant valleys plunge beneath jagged limestone peaks dusted with lingering snow. This ultra-high-resolution image preserves extraordinary detail across the entire composition—from foreground geological strata to distant valley settlements—making it ideal for large-scale fine art reproduction and commercial licensing applications.",
+  "location": "Appenzell Alps, Eastern Switzerland (likely Säntis region or Alpstein massif)",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 17437,
+    "height": 6314
+  },
+  "megapixels": 110.1,
+  "aspect_ratio": 2.762,
+  "file_size_bytes": 46348929,
+  "file_size_mb": 44.2,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 58.1,
+    "height_in": 21,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 116.2,
+    "height_in": 42.1,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:06:20 03:24:48",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.0005",
+    "FNumber": "4.5",
+    "ISOSpeedRatings": 320,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0096.jpg",
+    "preview": "previews/A35-20260220-0096.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0096.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.385675+00:00"
+}

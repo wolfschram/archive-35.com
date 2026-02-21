@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0108",
+  "original_filename": "Wolf 6949.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Refuge Among Stone Pillars",
+  "description": "A solitary mountain refuge nestles against dramatic columnar basalt formations in this expansive alpine landscape. The ultra-high-resolution capture reveals extraordinary geological detail across the entire composition, from the intricate hexagonal rock formations to the delicate alpine vegetation, offering exceptional print potential for large-format fine art applications.",
+  "location": "Tre Cime di Lavaredo, Dolomites, Veneto, Italy",
+  "classification": "STANDARD",
+  "resolution": {
+    "width": 7953,
+    "height": 4100
+  },
+  "megapixels": 32.6,
+  "aspect_ratio": 1.94,
+  "file_size_bytes": 11128444,
+  "file_size_mb": 10.6,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 26.5,
+    "height_in": 13.7,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 53,
+    "height_in": 27.3,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:06:23 20:13:37",
+    "FocalLength": "50.0",
+    "ExposureTime": "0.000625",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0108.jpg",
+    "preview": "previews/A35-20260220-0108.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0108.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.397626+00:00"
+}

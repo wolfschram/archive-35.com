@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0085",
+  "original_filename": "Wolf 5973.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Desert Sentinels",
+  "description": "A commanding panoramic vista of monumental desert rock formations rising majestically from an arid plain, captured in ultra-high resolution that reveals extraordinary geological detail and textural nuance across the expansive landscape. This fine art image offers exceptional print potential for large-format display, with pristine clarity throughout the composition from foreground scrubland to distant mountain ridges.",
+  "location": "Vasques Rocks  California, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 22466,
+    "height": 7162
+  },
+  "megapixels": 160.9,
+  "aspect_ratio": 3.137,
+  "file_size_bytes": 51508148,
+  "file_size_mb": 49.1,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 74.9,
+    "height_in": 23.9,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 149.8,
+    "height_in": 47.7,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:02:26 07:53:25",
+    "FocalLength": "38.0",
+    "ExposureTime": "0.000625",
+    "FNumber": "3.2",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0085.jpg",
+    "preview": "previews/A35-20260220-0085.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0085.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.374988+00:00"
+}

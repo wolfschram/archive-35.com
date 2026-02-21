@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0112",
+  "original_filename": "Wolf 6960.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Tre Cime Reflected in Stone",
+  "description": "An iconic view of the Tre Cime di Lavaredo's distinctive limestone peaks mirrored in a pristine alpine pool, captured in ultra-high resolution that reveals the dramatic geological formations and textured scree in exquisite detail—ideal for large-format fine art prints and commercial licensing applications.",
+  "location": "Tre Cime di Lavaredo, Dolomites, Veneto, Italy",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 8405,
+    "height": 8642
+  },
+  "megapixels": 72.6,
+  "aspect_ratio": 0.973,
+  "file_size_bytes": 21960659,
+  "file_size_mb": 20.9,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 28,
+    "height_in": 28.8,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 56,
+    "height_in": 57.6,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:06:23 21:12:52",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.00125",
+    "FNumber": "3.5",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0112.jpg",
+    "preview": "previews/A35-20260220-0112.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0112.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.401557+00:00"
+}

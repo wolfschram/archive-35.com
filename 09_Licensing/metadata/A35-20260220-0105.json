@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0105",
+  "original_filename": "Wolf 6942.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Dolomite Peaks at Golden Hour",
+  "description": "A sweeping panoramic vista of the dramatic Dolomite limestone formations, captured in ultra-high resolution to reveal intricate geological detail across the entire composition. The exceptional clarity and tonal range of this large-format image showcase the jagged peaks and alpine terrain with museum-quality precision, ideal for expansive wall installations and fine art licensing applications.",
+  "location": "Tre Cime di Lavaredo / Dolomites, Veneto, Italy",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 15306,
+    "height": 7028
+  },
+  "megapixels": 107.6,
+  "aspect_ratio": 2.178,
+  "file_size_bytes": 38695091,
+  "file_size_mb": 36.9,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 51,
+    "height_in": 23.4,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 102,
+    "height_in": 46.9,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:06:23 19:55:09",
+    "FocalLength": "43.0",
+    "ExposureTime": "0.0008",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0105.jpg",
+    "preview": "previews/A35-20260220-0105.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0105.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.394855+00:00"
+}

@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0109",
+  "original_filename": "Wolf 6950.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Tre Cime: Alpine Sentinels",
+  "description": "A commanding panoramic study of the Tre Cime di Lavaredo's iconic three peaks, captured in exceptional detail that reveals every geological striation and textural nuance of the dolomite formations. The ultra-high-resolution capture preserves the monumental scale and dramatic interplay of light across these legendary summits, offering limitless print potential for large-format fine art applications.",
+  "location": "Tre Cime di Lavaredo, Dolomites, Veneto, Italy",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 14104,
+    "height": 6210
+  },
+  "megapixels": 87.6,
+  "aspect_ratio": 2.271,
+  "file_size_bytes": 29456031,
+  "file_size_mb": 28.1,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 47,
+    "height_in": 20.7,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 94,
+    "height_in": 41.4,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:06:23 20:16:40",
+    "FocalLength": "41.0",
+    "ExposureTime": "0.0015625",
+    "FNumber": "3.5",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0109.jpg",
+    "preview": "previews/A35-20260220-0109.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0109.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.398836+00:00"
+}

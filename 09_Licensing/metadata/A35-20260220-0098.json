@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0098",
+  "original_filename": "Wolf 6913.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Reflections at Lago di Braies",
+  "description": "A serene panoramic vista of the Dolomites' most iconic turquoise alpine lake, captured in ultra-high resolution. The exceptional detail reveals intricate rock formations, pristine forest edges, and mirror-like water reflections—ideal for large-format fine art prints and luxury commercial applications.",
+  "location": "Lago di Braies, Dolomites, Veneto, Italy",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 19654,
+    "height": 6824
+  },
+  "megapixels": 134.1,
+  "aspect_ratio": 2.88,
+  "file_size_bytes": 58712606,
+  "file_size_mb": 56,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 65.5,
+    "height_in": 22.7,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 131,
+    "height_in": 45.5,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:06:23 04:44:37",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.001",
+    "FNumber": "2.8",
+    "ISOSpeedRatings": 500,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0098.jpg",
+    "preview": "previews/A35-20260220-0098.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0098.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.387301+00:00"
+}

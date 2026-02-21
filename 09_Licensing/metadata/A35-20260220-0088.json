@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0088",
+  "original_filename": "Wolf 6018.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Bay and Bridge: Urban Geometry",
+  "description": "A panoramic vista capturing San Francisco's iconic skyline and Golden Gate Bridge from the Marin Headlands, rendered in exceptional detail across ultra-high resolution. This expansive composition reveals the intricate layering of water, urban architecture, and atmospheric perspective—ideal for large-format fine art printing with remarkable clarity throughout the entire frame.",
+  "location": "Marin Headlands, Golden Gate National Recreation Area, San Francisco Bay Area, California, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 26359,
+    "height": 8237
+  },
+  "megapixels": 217.1,
+  "aspect_ratio": 3.2,
+  "file_size_bytes": 63647904,
+  "file_size_mb": 60.7,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 87.9,
+    "height_in": 27.5,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 175.7,
+    "height_in": 54.9,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:03:11 13:37:39",
+    "FocalLength": "200.0",
+    "ExposureTime": "0.0004",
+    "FNumber": "3.5",
+    "ISOSpeedRatings": 125,
+    "LensModel": "RF70-200mm F2.8 L IS USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0088.jpg",
+    "preview": "previews/A35-20260220-0088.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0088.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.377997+00:00"
+}

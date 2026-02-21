@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0097",
+  "original_filename": "Wolf 6898.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Shelter: Mountain Solitude",
+  "description": "A meticulously detailed ultra-high-resolution capture of a traditional stone alpenhütte nestled in the verdant Appenzell Alps, showcasing exceptional clarity that reveals the weathered texture of stacked stone walls, pastoral landscape layers, and dramatic limestone formations. This panoramic fine art image offers museum-quality print potential with stunning detail retention across the entire compositional range.",
+  "location": "Säntis Region, Appenzell Alps, Switzerland",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 12014,
+    "height": 7492
+  },
+  "megapixels": 90,
+  "aspect_ratio": 1.604,
+  "file_size_bytes": 39526272,
+  "file_size_mb": 37.7,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 40,
+    "height_in": 25,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 80.1,
+    "height_in": 49.9,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:06:20 05:13:04",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.004",
+    "FNumber": "4.5",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0097.jpg",
+    "preview": "previews/A35-20260220-0097.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0097.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.386538+00:00"
+}

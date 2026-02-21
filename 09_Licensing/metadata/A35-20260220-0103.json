@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0103",
+  "original_filename": "Wolf 6937.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Wilderness: Stone and Summit",
+  "description": "A sweeping panoramic vista across the dramatic Dolomite landscape, capturing the intricate texture of rocky alpine terrain in the foreground transitioning to soaring jagged peaks and distant mountain ranges. This ultra-high-resolution image reveals exceptional detail throughout—from individual stones and alpine vegetation to the crystalline definition of distant summits—making it ideal for large-scale fine art prints and immersive commercial installations.",
+  "location": "Tre Cime di Lavaredo area, Dolomites, Veneto, Italy",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 19984,
+    "height": 8824
+  },
+  "megapixels": 176.3,
+  "aspect_ratio": 2.265,
+  "file_size_bytes": 64351173,
+  "file_size_mb": 61.4,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 66.6,
+    "height_in": 29.4,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 133.2,
+    "height_in": 58.8,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:06:23 19:37:33",
+    "FocalLength": "70.0",
+    "ExposureTime": "0.002",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0103.jpg",
+    "preview": "previews/A35-20260220-0103.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0103.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.392170+00:00"
+}

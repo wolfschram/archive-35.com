@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0100",
+  "original_filename": "Wolf 6930.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Lake and Dolomite Peaks",
+  "description": "A commanding panoramic vista capturing the pristine clarity of an alpine lake basin, framed by dramatic Dolomite limestone peaks and dense coniferous forests. This ultra-high-resolution image preserves extraordinary detail across the entire composition—from foreground vegetation to distant mountain geology—making it ideal for large-scale fine art printing and immersive commercial installations.",
+  "location": "Lago di braies, Dolomites, Veneto, Italy",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 16826,
+    "height": 6716
+  },
+  "megapixels": 113,
+  "aspect_ratio": 2.505,
+  "file_size_bytes": 44128884,
+  "file_size_mb": 42.1,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 56.1,
+    "height_in": 22.4,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 112.2,
+    "height_in": 44.8,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:06:23 05:39:44",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.003125",
+    "FNumber": "3.2",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0100.jpg",
+    "preview": "previews/A35-20260220-0100.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0100.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.389034+00:00"
+}

@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0079",
+  "original_filename": "Wolf 5871.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Desert Mountains in Golden Light",
+  "description": "A sweeping panoramic vista capturing the layered ridgelines and desert terrain in exquisite detail. This ultra-high-resolution image reveals the subtle tonal gradations across vast mountain ranges, offering exceptional print potential for large-format fine art applications and commercial licensing.",
+  "location": "Joshua Tree National Park, California, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 22185,
+    "height": 5176
+  },
+  "megapixels": 114.8,
+  "aspect_ratio": 4.286,
+  "file_size_bytes": 17568630,
+  "file_size_mb": 16.8,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 74,
+    "height_in": 17.3,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 147.9,
+    "height_in": 34.5,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:01:21 07:05:49",
+    "FocalLength": "70.0",
+    "ExposureTime": "0.00025",
+    "FNumber": "2.8",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0079.jpg",
+    "preview": "previews/A35-20260220-0079.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0079.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.368441+00:00"
+}

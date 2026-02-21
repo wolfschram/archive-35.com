@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260220-0092",
+  "original_filename": "Wolf 6253.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Oculus: Symmetry and Light",
+  "description": "A stunning ultra-high-resolution panoramic capture of architectural symmetry, showcasing pristine detail in the soaring ribbed vault structure and geometric patterns. This exceptional resolution fine art print reveals intricate architectural elements and luminous interior spaces, ideal for large-scale commercial installations and gallery display.",
+  "location": "Oculus/World Trade Center Transportation Hub, New York City, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 15587,
+    "height": 6554
+  },
+  "megapixels": 102.2,
+  "aspect_ratio": 2.378,
+  "file_size_bytes": 24516115,
+  "file_size_mb": 23.4,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 52,
+    "height_in": 21.8,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 103.9,
+    "height_in": 43.7,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:05:10 16:48:48",
+    "FocalLength": "28.0",
+    "ExposureTime": "2.0",
+    "FNumber": "22.0",
+    "ISOSpeedRatings": 400,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260220-0092.jpg",
+    "preview": "previews/A35-20260220-0092.jpg",
+    "thumbnail": "thumbnails/A35-20260220-0092.jpg"
+  },
+  "scanned_at": "2026-02-20T23:23:58.381507+00:00"
+}

@@ -176,6 +176,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getAgentEnv: () => ipcRenderer.invoke('get-agent-env'),
   saveAgentEnv: (key, value) => ipcRenderer.invoke('save-agent-env', key, value),
 
+  // ── Mockup Service Bridge ──────────────────────────────────────
+  // Proxies calls to the Node.js mockup compositing service (port 8036).
+  // Mockup React pages call this for template management and preview generation.
+  mockupApiCall: (path, options) => ipcRenderer.invoke('mockup-api-call', path, options),
+
+  // Mockup service process management
+  mockupStart: () => ipcRenderer.invoke('mockup-start'),
+  mockupStop: () => ipcRenderer.invoke('mockup-stop'),
+  mockupStatus: () => ipcRenderer.invoke('mockup-status'),
+
+  // Mockup convenience methods
+  mockupGetTemplates: () => ipcRenderer.invoke('mockup-get-templates'),
+  mockupPreview: (config) => ipcRenderer.invoke('mockup-preview', config),
+
   // Platform info
   platform: process.platform
 });

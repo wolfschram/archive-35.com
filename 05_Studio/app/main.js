@@ -119,6 +119,14 @@ app.whenReady().then(() => {
       console.warn('[Agent] Auto-start failed:', err.message);
     });
   }
+
+  // Auto-start Mockup compositing service in background
+  if (fsSync.existsSync(MOCKUP_DIR) && fsSync.existsSync(path.join(MOCKUP_DIR, 'src', 'server.js'))) {
+    console.log('[Mockup] Auto-starting compositing service...');
+    startMockupProcess().catch(err => {
+      console.warn('[Mockup] Auto-start failed:', err.message);
+    });
+  }
 });
 
 app.on('window-all-closed', () => {
@@ -4566,7 +4574,217 @@ ipcMain.handle('save-agent-env', async (event, key, value) => {
   }
 });
 
-// Kill agent on app quit
+// ═══════════════════════════════════════════════════════════════
+// MOCKUP SERVICE BRIDGE
+// Spawns Node.js mockup compositing service and proxies IPC calls.
+// See: mockup-service/src/server.js
+// ═══════════════════════════════════════════════════════════════
+
+const MOCKUP_DIR = path.join(ARCHIVE_BASE, 'mockup-service');
+const MOCKUP_PORT = 8036;
+let mockupProcess = null;
+
+/**
+ * Start the mockup compositing service (Node.js/Express on port 8036).
+ * Same spawn pattern as Agent — checks health first, then spawns.
+ */
+async function startMockupProcess() {
+  if (mockupProcess) return;
+
+  // Check if already running externally
+  const health = await checkMockupHealth();
+  if (health.online) {
+    console.log('[Mockup] Already running externally, skipping spawn');
+    return;
+  }
+
+  try {
+    console.log('[Mockup] Starting compositing service...');
+    mockupProcess = spawn('node', ['src/server.js'], {
+      cwd: MOCKUP_DIR,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, MOCKUP_PORT: String(MOCKUP_PORT) },
+    });
+
+    mockupProcess.stdout.on('data', (data) => {
+      console.log(`[Mockup] ${data.toString().trim()}`);
+    });
+
+    mockupProcess.stderr.on('data', (data) => {
+      const msg = data.toString().trim();
+      if (msg.includes('ERROR') || msg.includes('Error')) {
+        console.error(`[Mockup:err] ${msg}`);
+      } else {
+        console.log(`[Mockup] ${msg}`);
+      }
+    });
+
+    mockupProcess.on('close', (code) => {
+      console.log(`[Mockup] Process exited with code ${code}`);
+      mockupProcess = null;
+      if (code !== 0 && code !== null) {
+        console.log('[Mockup] Unexpected exit — restarting in 3s...');
+        setTimeout(() => startMockupProcess(), 3000);
+      }
+    });
+
+    mockupProcess.on('error', (err) => {
+      console.error('[Mockup] Failed to start:', err.message);
+      mockupProcess = null;
+    });
+
+    // Wait for health check (up to 10s)
+    for (let i = 0; i < 20; i++) {
+      await new Promise(r => setTimeout(r, 500));
+      const h = await checkMockupHealth();
+      if (h.online) {
+        console.log('[Mockup] Service is ready on port', MOCKUP_PORT);
+        return;
+      }
+    }
+    console.warn('[Mockup] Server started but health check timed out after 10s');
+  } catch (err) {
+    console.error('[Mockup] Spawn error:', err.message);
+  }
+}
+
+function stopMockupProcess() {
+  if (mockupProcess) {
+    console.log('[Mockup] Stopping compositing service...');
+    mockupProcess.kill('SIGTERM');
+    setTimeout(() => {
+      if (mockupProcess) {
+        console.log('[Mockup] Force killing...');
+        mockupProcess.kill('SIGKILL');
+        mockupProcess = null;
+      }
+    }, 3000);
+    mockupProcess = null;
+  }
+}
+
+/**
+ * Check if Mockup Service is responding.
+ */
+function checkMockupHealth() {
+  return new Promise((resolve) => {
+    const http = require('http');
+    const req = http.get(`http://localhost:${MOCKUP_PORT}/health`, { timeout: 2000 }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          resolve({ online: json.status === 'ok', ...json });
+        } catch {
+          resolve({ online: false });
+        }
+      });
+    });
+    req.on('error', () => resolve({ online: false }));
+    req.on('timeout', () => { req.destroy(); resolve({ online: false }); });
+  });
+}
+
+/**
+ * Proxy HTTP requests to the mockup service.
+ * React pages call window.electronAPI.mockupApiCall(path, options)
+ */
+async function mockupApiProxy(apiPath, options = {}) {
+  const http = require('http');
+  const url = `http://localhost:${MOCKUP_PORT}${apiPath}`;
+  const method = (options.method || 'GET').toUpperCase();
+
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+    const reqOptions = {
+      hostname: urlObj.hostname,
+      port: urlObj.port,
+      path: urlObj.pathname + urlObj.search,
+      method: method,
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 30000, // 30s for compositing
+    };
+
+    const req = http.request(reqOptions, (res) => {
+      const chunks = [];
+      res.on('data', chunk => chunks.push(chunk));
+      res.on('end', () => {
+        const buffer = Buffer.concat(chunks);
+        const contentType = res.headers['content-type'] || '';
+
+        if (contentType.includes('image/')) {
+          // Return image as base64 data URL
+          const base64 = buffer.toString('base64');
+          resolve({
+            status: res.statusCode,
+            contentType: contentType,
+            data: `data:${contentType};base64,${base64}`,
+            renderTimeMs: res.headers['x-render-time-ms']
+          });
+        } else {
+          // Return JSON
+          try {
+            resolve({ status: res.statusCode, data: JSON.parse(buffer.toString()) });
+          } catch {
+            resolve({ status: res.statusCode, data: buffer.toString() });
+          }
+        }
+      });
+    });
+
+    req.on('error', (err) => reject(new Error(`Mockup API error: ${err.message}`)));
+    req.on('timeout', () => { req.destroy(); reject(new Error('Mockup API timeout')); });
+
+    if (options.body) {
+      req.write(typeof options.body === 'string' ? options.body : JSON.stringify(options.body));
+    }
+    req.end();
+  });
+}
+
+// IPC: Generic API proxy — React pages call this for all Mockup API requests
+ipcMain.handle('mockup-api-call', async (event, apiPath, options) => {
+  try {
+    return await mockupApiProxy(apiPath, options);
+  } catch (err) {
+    throw err;
+  }
+});
+
+// IPC: Start mockup service
+ipcMain.handle('mockup-start', async () => {
+  await startMockupProcess();
+  const health = await checkMockupHealth();
+  return { success: health.online, ...health };
+});
+
+// IPC: Stop mockup service
+ipcMain.handle('mockup-stop', async () => {
+  stopMockupProcess();
+  return { success: true };
+});
+
+// IPC: Check mockup service status
+ipcMain.handle('mockup-status', async () => {
+  return await checkMockupHealth();
+});
+
+// IPC: Convenience — get templates list
+ipcMain.handle('mockup-get-templates', async () => {
+  return await mockupApiProxy('/templates');
+});
+
+// IPC: Convenience — generate preview (returns base64 image)
+ipcMain.handle('mockup-preview', async (event, config) => {
+  return await mockupApiProxy('/preview', {
+    method: 'POST',
+    body: config
+  });
+});
+
+// Kill agent AND mockup on app quit
 app.on('before-quit', () => {
   stopAgentProcess();
+  stopMockupProcess();
 });

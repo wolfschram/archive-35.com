@@ -21,6 +21,10 @@ import AgentInstagram from './pages/AgentInstagram';
 import AgentCompose from './pages/AgentCompose';
 import AgentHealthPanel from './pages/AgentHealthPanel';
 import AgentSettings from './pages/AgentSettings';
+import MockupTemplates from './pages/MockupTemplates';
+import MockupPreview from './pages/MockupPreview';
+import MockupBatch from './pages/MockupBatch';
+import MockupGallery from './pages/MockupGallery';
 import './styles/App.css';
 
 /**
@@ -132,6 +136,20 @@ function App() {
         </TabPanel>
         <TabPanel id="agent-settings" activeTab={activeTab}>
           <AgentSettings setActiveTab={setActiveTab} />
+        </TabPanel>
+
+        {/* Mockup Pages */}
+        <TabPanel id="mockup-templates" activeTab={activeTab}>
+          <MockupTemplates />
+        </TabPanel>
+        <TabPanel id="mockup-preview" activeTab={activeTab}>
+          <MockupPreview />
+        </TabPanel>
+        <TabPanel id="mockup-batch" activeTab={activeTab}>
+          <MockupBatch />
+        </TabPanel>
+        <TabPanel id="mockup-gallery" activeTab={activeTab}>
+          <MockupGallery />
         </TabPanel>
       </main>
     </div>

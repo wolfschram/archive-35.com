@@ -16,6 +16,13 @@ const studioTabs = [
   { id: 'settings', label: 'Settings', icon: '⚙️' },
 ];
 
+const mockupTabs = [
+  { id: 'mockup-templates', label: 'Templates', icon: '🏠' },
+  { id: 'mockup-preview', label: 'Preview', icon: '🖼️' },
+  { id: 'mockup-batch', label: 'Batch', icon: '⚙️' },
+  { id: 'mockup-gallery', label: 'Gallery', icon: '📸' },
+];
+
 const agentTabs = [
   { id: 'agent-dash', label: 'Dashboard', icon: '🤖' },
   { id: 'agent-photos', label: 'Photos', icon: '🖼️' },
@@ -31,14 +38,18 @@ const agentTabs = [
 function Sidebar({ activeTab, setActiveTab, mode }) {
   // Auto-expand the section that contains the active tab
   const isAgentTab = activeTab.startsWith('agent-');
-  const [studioOpen, setStudioOpen] = useState(!isAgentTab);
+  const isMockupTab = activeTab.startsWith('mockup-');
+  const [studioOpen, setStudioOpen] = useState(!isAgentTab && !isMockupTab);
   const [agentOpen, setAgentOpen] = useState(true);
+  const [mockupOpen, setMockupOpen] = useState(isMockupTab);
 
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
     // Auto-expand the section when a tab is clicked
     if (tabId.startsWith('agent-')) {
       setAgentOpen(true);
+    } else if (tabId.startsWith('mockup-')) {
+      setMockupOpen(true);
     } else {
       setStudioOpen(true);
     }
@@ -93,6 +104,21 @@ function Sidebar({ activeTab, setActiveTab, mode }) {
         {agentOpen && (
           <div className="section-items">
             {agentTabs.map(renderTab)}
+          </div>
+        )}
+
+        {/* ── MOCKUP Section ── */}
+        <button
+          className="section-header mockup-section"
+          onClick={() => setMockupOpen(!mockupOpen)}
+        >
+          <span className={`section-chevron ${mockupOpen ? 'open' : ''}`}>&#9656;</span>
+          <span className="section-label">MOCKUP</span>
+          <span className="section-count">{mockupTabs.length}</span>
+        </button>
+        {mockupOpen && (
+          <div className="section-items">
+            {mockupTabs.map(renderTab)}
           </div>
         )}
       </nav>

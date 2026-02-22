@@ -1,0 +1,27 @@
+[
+  {
+    "id": "test-living-room-01",
+    "name": "Test Living Room",
+    "category": "living-room",
+    "image": "templates/rooms/test-living-room-01.jpg",
+    "dimensions": { "width": 3000, "height": 2000 },
+    "placementZones": [
+      {
+        "id": "main-wall",
+        "corners": {
+          "topLeft": [845, 310],
+          "topRight": [1610, 290],
+          "bottomRight": [1620, 885],
+          "bottomLeft": [835, 900]
+        },
+        "maxWidth": 48,
+        "maxHeight": 36,
+        "lightAngle": 315,
+        "lightIntensity": 0.3
+      }
+    ],
+    "printSizes": ["16x24", "20x30", "24x36"],
+    "wallColor": "#E8E0D8",
+    "ambientLight": 0.85
+  }
+]

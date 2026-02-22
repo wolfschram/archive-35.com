@@ -1,0 +1,21 @@
+{
+  "name": "archive35-mockup-service",
+  "version": "1.0.0",
+  "description": "Archive-35 Mockup Compositing Engine — server-side image compositing with Sharp",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node test/test-composite.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "sharp": "^0.33.0",
+    "uuid": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "private": true
+}

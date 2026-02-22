@@ -4598,6 +4598,20 @@ async function startMockupProcess() {
     return;
   }
 
+  // Auto-install dependencies if node_modules missing (first launch after clone)
+  const mockupNodeModules = path.join(MOCKUP_DIR, 'node_modules');
+  if (!fsSync.existsSync(mockupNodeModules)) {
+    console.log('[Mockup] node_modules missing — running npm install...');
+    try {
+      const { execSync } = require('child_process');
+      execSync('npm install', { cwd: MOCKUP_DIR, stdio: 'pipe', timeout: 60000 });
+      console.log('[Mockup] npm install complete');
+    } catch (err) {
+      console.error('[Mockup] npm install failed:', err.message);
+      return;
+    }
+  }
+
   try {
     console.log('[Mockup] Starting compositing service...');
     mockupProcess = spawn('node', ['src/server.js'], {

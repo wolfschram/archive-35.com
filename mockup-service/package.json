@@ -6,12 +6,13 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node test/test-composite.js"
+    "test": "node test/test-composite.js",
+    "setup": "npm install && echo 'Mockup service ready!'"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.0",
-    "sharp": "^0.33.0",
+    "sharp": "^0.33.5",
     "uuid": "^9.0.0"
   },
   "engines": {

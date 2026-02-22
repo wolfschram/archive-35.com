@@ -30,6 +30,15 @@ const {
   validateTemplate,
   REPO_ROOT
 } = require('./templates');
+const {
+  createBatchJob,
+  getJobStatus,
+  cancelJob,
+  listJobs,
+  listMockups,
+  listGalleries,
+  listPhotos
+} = require('./batch');
 
 const app = express();
 const PORT = process.env.MOCKUP_PORT || 8036;
@@ -39,7 +48,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 // Serve generated mockups as static files
-app.use('/mockups', express.static(path.join(REPO_ROOT, 'mockups')));
+app.use('/mockups/file', express.static(path.join(REPO_ROOT, 'mockups')));
 
 // --- Health ---
 
@@ -68,6 +77,9 @@ app.get('/templates', async (req, res) => {
         image: t.image,
         dimensions: t.dimensions,
         printSizes: t.printSizes,
+        wallColor: t.wallColor,
+        ambientLight: t.ambientLight,
+        placementZones: t.placementZones,
         zoneCount: t.placementZones ? t.placementZones.length : 0
       }))
     });
@@ -183,27 +195,70 @@ app.post('/preview', async (req, res) => {
   }
 });
 
-// --- Batch Compositing (Phase 5 — stubs for now) ---
+// --- Galleries (Photo Browser) ---
+
+app.get('/galleries', async (req, res) => {
+  try {
+    const galleries = await listGalleries();
+    res.json({ count: galleries.length, galleries });
+  } catch (err) {
+    console.error('Error listing galleries:', err);
+    res.status(500).json({ error: 'Failed to list galleries' });
+  }
+});
+
+app.get('/galleries/:name', async (req, res) => {
+  try {
+    const photos = await listPhotos(req.params.name);
+    res.json({ gallery: req.params.name, count: photos.length, photos });
+  } catch (err) {
+    console.error('Error listing photos:', err);
+    res.status(500).json({ error: 'Failed to list photos' });
+  }
+});
+
+// --- Batch Compositing ---
 
 app.post('/composite/batch', async (req, res) => {
-  res.status(501).json({
-    error: 'Batch compositing not implemented yet',
-    note: 'Coming in Phase 5'
-  });
+  try {
+    const result = await createBatchJob(req.body);
+    res.status(202).json(result);
+  } catch (err) {
+    console.error('Error creating batch job:', err);
+    res.status(400).json({ error: err.message });
+  }
 });
 
 app.get('/composite/status/:jobId', async (req, res) => {
-  res.status(501).json({
-    error: 'Batch status not implemented yet',
-    note: 'Coming in Phase 5'
-  });
+  const status = getJobStatus(req.params.jobId);
+  if (!status) {
+    return res.status(404).json({ error: 'Job not found' });
+  }
+  res.json(status);
 });
 
+app.post('/composite/cancel/:jobId', async (req, res) => {
+  const cancelled = cancelJob(req.params.jobId);
+  res.json({ success: cancelled });
+});
+
+app.get('/composite/jobs', async (req, res) => {
+  res.json({ jobs: listJobs() });
+});
+
+// --- Mockups (Generated Files) ---
+
 app.get('/mockups', async (req, res) => {
-  res.status(501).json({
-    error: 'Mockup listing not implemented yet',
-    note: 'Coming in Phase 5'
-  });
+  try {
+    const filters = {};
+    if (req.query.gallery) filters.gallery = req.query.gallery;
+    if (req.query.platform) filters.platform = req.query.platform;
+    const mockups = await listMockups(filters);
+    res.json({ count: mockups.length, mockups });
+  } catch (err) {
+    console.error('Error listing mockups:', err);
+    res.status(500).json({ error: 'Failed to list mockups' });
+  }
 });
 
 // --- Error handling ---

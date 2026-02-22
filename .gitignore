@@ -56,3 +56,4 @@ Archive-35_Agent_Handover*.docx
 # C2PA private keys (NEVER commit)
 07_C2PA/*.key
 07_C2PA/ca/
+mockups/

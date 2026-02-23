@@ -12,7 +12,7 @@
 - Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
 - Website: https://archive-35.com
 
-## Print Collections (819 photographs, 41 collections)
+## Print Collections (852 photographs, 44 collections)
 
 ### Alps (2 photographs)
 - URL: https://archive-35.com/collection.html?id=alps
@@ -43,6 +43,15 @@
   - Moment of Contemplation, Argentina | Buenos Aires, Argentina | 37.4MP | Tags: portrait-photography, fine-art-photography, argentinian-culture, candid-moment, human-portrait, contemplative-mood, cultural-documentary, wall-art
   - ... and 30 more photographs
 
+### Arizona (4 photographs)
+- URL: https://archive-35.com/collection.html?id=arizona
+- Gallery: https://archive-35.com/gallery.html?collection=arizona
+
+  - Badlands Expanse Under Arizona Sky | Petrified Forest National Park, Arizona | 47.2MP | Tags: arizona-landscape, badlands, petrified-forest, desert-panorama, geological-formations, colorado-plateau, erosion-landscape, fine-art-photography
+  - Badlands Stratification, Arizona Desert | Petrified Forest National Park area, Arizona | 55.6MP | Tags: arizona-landscape, badlands, geological-formations, sedimentary-layers, desert-landscape, erosion-patterns, fine-art-photography, nature-photography
+  - Meandering Waters Through Desert Expanse | Petrified Forest National Park area, Arizona | 40.9MP | Tags: arizona-landscape, desert-photography, aerial-view, river-meandering, geological-formations, fine-art-landscape, navajo-county, southwestern-art
+  - Badlands Erosion: Arizona's Painted Desert | Petrified Forest National Park / Painted Desert, Arizona | 50.6MP | Tags: badlands, painted-desert, arizona-landscape, geological-formations, erosion-patterns, panoramic-photography, petrified-forest, fine-art-landscape
+
 ### Australia (8 photographs)
 - URL: https://archive-35.com/collection.html?id=australia
 - Gallery: https://archive-35.com/gallery.html?collection=australia
@@ -54,7 +63,7 @@
   - Eucalyptus Reaching Skyward | Eastern Australia | 20.0MP | Tags: eucalyptus-tree, australian-landscape, fine-art-photography, nature-photography, upward-perspective, tree-canopy, azure-sky, botanical-art
   - ... and 3 more photographs
 
-### Black and White (44 photographs)
+### Black and White (45 photographs)
 - URL: https://archive-35.com/collection.html?id=black-and-white
 - Gallery: https://archive-35.com/gallery.html?collection=black-and-white
 
@@ -63,7 +72,7 @@
   - Zebra Family in the Grassland | African Savanna | 50.3MP | Tags: zebra, wildlife-photography, african-savanna, black-and-white, fine-art-photography, nature-photography, grassland, animal-portrait
   - Intimate Connection | Studio | 50.3MP | Tags: portrait-photography, black-and-white, fine-art, human-connection, intimate-moment, emotional-depth, monochromatic, studio-portrait
   - The Magician's Contemplation | Studio setting | 37.4MP | Tags: portrait-photography, fine-art-portraiture, black-and-white-photography, monochromatic, studio-portrait, theatrical-portrait, male-portrait, contemplative
-  - ... and 39 more photographs
+  - ... and 40 more photographs
 
 ### Brazil (14 photographs)
 - URL: https://archive-35.com/collection.html?id=brazil
@@ -186,7 +195,7 @@
   - Political Dialogue: Mural Expression | Berlin, Germany | 37.7MP | Tags: street-art, mural-photography, berlin-art, political-art, urban-photography, fine-art-photography, german-culture, wall-art
   - ... and 3 more photographs
 
-### Glacier National Park (64 photographs)
+### Glacier National Park (76 photographs)
 - URL: https://archive-35.com/collection.html?id=glacier-national-park
 - Gallery: https://archive-35.com/gallery.html?collection=glacier-national-park
 
@@ -195,7 +204,7 @@
   - Granite Passage Through Mountain Wilderness | Going-to-the-Sun Road, Glacier National Park, Montana | 44.8MP | Tags: glacier-national-park, going-to-the-sun-road, mountain-landscape, granite-cliff, alpine-scenery, coniferous-forest, rocky-mountain, dramatic-peaks
   - Mountain Pass in Glacier Country | Going-to-the-Sun Road, Glacier National Park, Montana | 32.1MP | Tags: glacier-national-park, going-to-the-sun-road, montana-landscape, mountain-road, dramatic-peaks, forest-valley, alpine-scenery, layered-mountains
   - Mountain Valley Sanctuary | Many Glacier Valley, Glacier National Park, Montana | 44.6MP | Tags: glacier-national-park, mountain-valley, coniferous-forest, alpine-meadow, montana-landscape, mountain-peaks, wilderness-photography, landscape-photography
-  - ... and 59 more photographs
+  - ... and 71 more photographs
 
 ### Grand Teton (48 photographs)
 - URL: https://archive-35.com/collection.html?id=grand-teton
@@ -308,6 +317,17 @@
   - Moscow Skyline: Urban Geometry at Dusk | Moscow River, Moscow City Business District, Moscow | 50.3MP | Tags: moscow-skyline, moscow-city, urban-landscape, architecture-photography, moscow-river, contemporary-architecture, fine-art-photography, cityscape
   - Russian Flag Over Moscow Waters | Moscow River, Central Moscow | 50.3MP | Tags: moscow-river, russian-flag, moscow-landscape, urban-photography, fine-art-photography, river-reflections, moscow-cityscape, architectural-landscape
   - ... and 7 more photographs
+
+### New Mexico (7 photographs)
+- URL: https://archive-35.com/collection.html?id=new-mexico
+- Gallery: https://archive-35.com/gallery.html?collection=new-mexico
+
+  - High Desert Highway Perspective | High Plains of eastern New Mexico | 27.3MP | Tags: highway, desert-road, straight-road, new-mexico, high-desert, sagebrush, vast-landscape, perspective
+  - Radio Telescopes Across the Plains | Very Large Array, Socorro, New Mexico | 33.6MP | Tags: very-large-array, socorro-new-mexico, radio-telescope, high-desert, new-mexico-landscape, plains-photography, antenna-array, grassland
+  - Desert Observatory | Very Large Array, Plains of San Agustin, Socorro County, New Mexico | 44.8MP | Tags: radio-telescope, very-large-array, socorro-county, new-mexico, desert-landscape, high-desert, science-and-nature, observatory
+  - Desert Observatory | Very Large Array (VLA), San Agustin Plain, Socorro County, New Mexico | 43.2MP | Tags: very-large-array, vla-observatory, satellite-dish, radio-telescope, new-mexico-landscape, high-desert, san-agustin-plain, socorro-county
+  - Radio Telescopes Across the Plain | Very Large Array, Plains of San Agustin, New Mexico | 34.5MP | Tags: very-large-array, radio-telescope, new-mexico, san-agustin-plain, socorro-county, desert-landscape, high-desert, astronomical-observatory
+  - ... and 2 more photographs
 
 ### New York (20 photographs)
 - URL: https://archive-35.com/collection.html?id=new-york
@@ -440,6 +460,17 @@
   - Desert Ridges and Russet Plateaus | Southern African arid region, semi-desert plateau | 13.1MP | Tags: desert-landscape, arid-terrain, rust-colored-earth, rocky-plateau, sparse-vegetation, dunes, semi-arid, fine-art-landscape
   - Layered Desert Canyons in Stillness | Serranía del Hornocal region, Jujuy Province, Argentina | 13.5MP | Tags: desert-canyon, geological-formations, argentina, jujuy, hornocal, stratified-rock, arid-landscape, mountain-terrain
   - Desert Boulders and Stone Formations | Joshua Tree National Park, California | 16.7MP | Tags: desert-landscape, boulder-formations, rock-formations, joshua-tree, california-desert, geological-landscape, fine-art-photography, nature-photography
+
+### White Sands National Park (9 photographs)
+- URL: https://archive-35.com/collection.html?id=white-sands-national-park
+- Gallery: https://archive-35.com/gallery.html?collection=white-sands-national-park
+
+  - Windswept Dunes at White Sands | Central Dune Field, White Sands National Park, New Mexico | 44.8MP | Tags: white-sands-national-park, gypsum-dunes, desert-landscape, dune-patterns, wind-carved, fine-art-landscape, nature-photography, white-sand
+  - Windswept Dunes of White Sands | White Sands National Park, New Mexico - Central Dune Field | 44.8MP | Tags: white-sands-national-park, gypsum-dunes, desert-landscape, dune-patterns, ripple-textures, fine-art-photography, nature-photography, landscape-photography
+  - Dunes and Desert Grasses | White Sands National Park, Alamogordo, New Mexico | 36.2MP | Tags: white-sands, desert-grasses, gypsum-dunes, white-sands-national-park, fine-art-landscape, desert-landscape, nature-photography, dune-vegetation
+  - Dunes and Desert Solitude | Central Dunes Region, White Sands National Park, New Mexico | 41.3MP | Tags: white-sands-national-park, gypsum-dunes, desert-landscape, sand-dunes, fine-art-photography, landscape-photography, nature-photography, new-mexico
+  - Gypsum Dunes in Ethereal Light | White Sands National Park, New Mexico - Central Dune Field | 33.8MP | Tags: white-sands-national-park, gypsum-dunes, desert-landscape, dune-field, white-sand, panoramic-landscape, fine-art-photography, nature-photography
+  - ... and 4 more photographs
 
 ## Commercial Licensing (45 ultra-high-resolution panoramic images)
 

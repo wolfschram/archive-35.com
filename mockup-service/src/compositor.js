@@ -39,14 +39,15 @@ const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BRANDING = {
   logo: path.join(REPO_ROOT, 'logos', 'archive35-social-watermark-1200.png'),
   icon: path.join(REPO_ROOT, 'logos', 'archive35-icon-200.png'),
-  // Per-platform branding config — scale = % of image width
-  // Social platforms get larger branding so viewers can read "ARCHIVE-35.COM"
+  // Per-platform branding config
+  // Social platforms use 'banner' mode: full-width bottom banner with large centered logo + URL
+  // Web platforms use 'corner' mode: small corner watermark (subtle, doesn't obscure the art)
   platforms: {
-    'etsy':      { position: 'bottom-right', opacity: 0.85, scale: 0.30, padding: 30 },
-    'pinterest': { position: 'bottom-right', opacity: 0.85, scale: 0.32, padding: 24 },
-    'instagram': { position: 'bottom-right', opacity: 0.85, scale: 0.30, padding: 20 },
-    'web-full':  { position: 'bottom-right', opacity: 0.5, scale: 0.10, padding: 20 },
-    'web-thumb': { position: 'bottom-right', opacity: 0.5, scale: 0.15, padding: 8 },
+    'etsy':      { mode: 'banner', bannerHeight: 0.10 },
+    'pinterest': { mode: 'banner', bannerHeight: 0.10 },
+    'instagram': { mode: 'banner', bannerHeight: 0.10 },
+    'web-full':  { mode: 'corner', position: 'bottom-right', opacity: 0.5, scale: 0.10, padding: 20 },
+    'web-thumb': { mode: 'corner', position: 'bottom-right', opacity: 0.5, scale: 0.15, padding: 8 },
   }
 };
 const { computeHomography, warpImageBilinear, getTransformedBounds } = require('./homography');
@@ -233,23 +234,96 @@ async function addBrandingOverlay(imageBuffer, platform, options = {}) {
   if (options.skipBranding) return imageBuffer;
 
   const config = BRANDING.platforms[platform] || BRANDING.platforms['web-full'];
-  const logoPath = BRANDING.logo;
 
-  // Check if logo file exists
+  if (config.mode === 'banner') {
+    return addBannerBranding(imageBuffer, config);
+  } else {
+    return addCornerBranding(imageBuffer, config);
+  }
+}
+
+/**
+ * BANNER MODE — Full-width bottom banner with large centered ARCHIVE|35 logo + URL.
+ * Used on social platforms. Renders as SVG text → Sharp composite for crisp results.
+ * The banner sits ON TOP of the image at the bottom — bold, unmissable.
+ */
+async function addBannerBranding(imageBuffer, config) {
+  const imgMeta = await sharp(imageBuffer).metadata();
+  const imgW = imgMeta.width;
+  const imgH = imgMeta.height;
+
+  // Banner dimensions — 10% of image height, full width
+  const bannerH = Math.round(imgH * (config.bannerHeight || 0.10));
+  const bannerY = imgH - bannerH;
+
+  // Font sizes scale with banner height
+  const mainFontSize = Math.round(bannerH * 0.42);   // "ARCHIVE" + "35"
+  const urlFontSize = Math.round(bannerH * 0.22);     // "ARCHIVE-35.COM"
+  const dividerH = Math.round(bannerH * 0.45);        // gold divider line height
+  const dividerY1 = Math.round((bannerH - dividerH) / 2 - bannerH * 0.05);
+
+  // Build SVG banner — crisp text rendering at any size
+  const bannerSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${imgW}" height="${bannerH}">
+    <!-- Semi-transparent black background -->
+    <rect width="${imgW}" height="${bannerH}" fill="#000000" opacity="0.75"/>
+
+    <!-- ARCHIVE text (left of center) -->
+    <text x="${Math.round(imgW * 0.42)}" y="${Math.round(bannerH * 0.52)}"
+      text-anchor="middle"
+      font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+      font-size="${mainFontSize}" font-weight="200" letter-spacing="${Math.round(mainFontSize * 0.35)}"
+      fill="#FFFFFF">ARCHIVE</text>
+
+    <!-- Gold divider -->
+    <line x1="${Math.round(imgW * 0.545)}" y1="${dividerY1}"
+          x2="${Math.round(imgW * 0.545)}" y2="${dividerY1 + dividerH}"
+          stroke="#FFD700" stroke-width="${Math.max(1, Math.round(bannerH * 0.015))}"/>
+
+    <!-- 35 in gold (right of center) -->
+    <text x="${Math.round(imgW * 0.60)}" y="${Math.round(bannerH * 0.52)}"
+      text-anchor="middle"
+      font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+      font-size="${Math.round(mainFontSize * 1.25)}" font-weight="900" letter-spacing="-1"
+      fill="#FFD700">35</text>
+
+    <!-- ARCHIVE-35.COM underneath -->
+    <text x="${Math.round(imgW * 0.50)}" y="${Math.round(bannerH * 0.85)}"
+      text-anchor="middle"
+      font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+      font-size="${urlFontSize}" font-weight="400" letter-spacing="${Math.round(urlFontSize * 0.25)}"
+      fill="#FFFFFF" opacity="0.9">ARCHIVE-35.COM</text>
+  </svg>`;
+
+  const bannerBuffer = await sharp(Buffer.from(bannerSvg))
+    .png()
+    .toBuffer();
+
+  return sharp(imageBuffer)
+    .composite([{
+      input: bannerBuffer,
+      left: 0,
+      top: bannerY,
+      blend: 'over'
+    }])
+    .jpeg({ quality: 90 })
+    .toBuffer();
+}
+
+/**
+ * CORNER MODE — Small corner watermark (for web use, subtle).
+ */
+async function addCornerBranding(imageBuffer, config) {
+  const logoPath = BRANDING.logo;
   if (!fs.existsSync(logoPath)) {
     console.warn(`Branding logo not found at ${logoPath}, skipping overlay`);
     return imageBuffer;
   }
 
-  // Get image dimensions
   const imgMeta = await sharp(imageBuffer).metadata();
   const imgW = imgMeta.width;
   const imgH = imgMeta.height;
-
-  // Scale logo relative to image width
   const logoTargetW = Math.round(imgW * config.scale);
 
-  // Resize logo with transparency → raw pixels for opacity manipulation
   const logoResized = await sharp(logoPath)
     .resize(logoTargetW, null, { fit: 'inside', withoutEnlargement: true })
     .ensureAlpha()
@@ -258,13 +332,11 @@ async function addBrandingOverlay(imageBuffer, platform, options = {}) {
 
   const { data, info } = logoResized;
 
-  // Apply opacity by modifying alpha channel
   if (config.opacity < 1.0) {
     const pixels = Buffer.from(data);
     for (let i = 3; i < pixels.length; i += 4) {
       pixels[i] = Math.round(pixels[i] * config.opacity);
     }
-
     var logoBuffer = await sharp(pixels, {
       raw: { width: info.width, height: info.height, channels: 4 }
     }).png().toBuffer();
@@ -274,7 +346,6 @@ async function addBrandingOverlay(imageBuffer, platform, options = {}) {
     }).png().toBuffer();
   }
 
-  // Compute position
   const pad = config.padding;
   let left, top;
   switch (config.position) {
@@ -290,12 +361,11 @@ async function addBrandingOverlay(imageBuffer, platform, options = {}) {
       left = imgW - info.width - pad;
       top = pad;
       break;
-    default: // top-left
+    default:
       left = pad;
       top = pad;
   }
 
-  // Composite logo onto image
   return sharp(imageBuffer)
     .composite([{
       input: logoBuffer,

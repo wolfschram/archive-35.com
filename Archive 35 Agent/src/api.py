@@ -762,6 +762,30 @@ def list_available_mockups():
     return {"items": items, "total": len(items), "dir": str(mockup_dir)}
 
 
+class DeleteMockupRequest(BaseModel):
+    base: str  # The base name (group key) — all platform variants will be deleted
+
+
+@app.post("/mockups/delete")
+def delete_mockup(req: DeleteMockupRequest):
+    """Delete a mockup group (all platform variants) from local disk.
+
+    Removes all files matching the base name from mockups/social/.
+    """
+    mockup_dir = Path(__file__).parent.parent.parent / "mockups" / "social"
+    if not mockup_dir.exists():
+        return {"deleted": 0}
+
+    deleted = []
+    for f in mockup_dir.iterdir():
+        if f.is_file() and f.name.startswith(req.base):
+            f.unlink()
+            deleted.append(f.name)
+            logger.info("Deleted mockup: %s", f.name)
+
+    return {"deleted": len(deleted), "files": deleted}
+
+
 class GenerateDraftRequest(BaseModel):
     photo_id: str
     platform: str = "instagram"

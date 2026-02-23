@@ -54,7 +54,27 @@ function AgentCompose() {
   const [publishing, setPublishing] = useState(false);
   const [publishResults, setPublishResults] = useState({});
 
-  // ── Load data ──
+  // ── Load/refresh mockups ──
+  const refreshMockups = useCallback(async () => {
+    try {
+      const mockupData = await get('/mockups/list').catch(() => ({ items: [] }));
+      setMockups(mockupData?.items || []);
+    } catch {}
+  }, [get]);
+
+  // ── Delete a mockup group ──
+  const deleteMockup = useCallback(async (base) => {
+    try {
+      await post('/mockups/delete', { base });
+      setMockups(prev => prev.filter(m => m.base !== base));
+      // Also remove from selected images if present
+      setSelectedImages(prev => prev.filter(i => i.filename !== base));
+    } catch (err) {
+      console.error('Failed to delete mockup:', err);
+    }
+  }, [post]);
+
+  // ── Load data on mount ──
   useEffect(() => {
     const load = async () => {
       try {
@@ -388,15 +408,28 @@ function AgentCompose() {
           {/* Mockups grid */}
           {sourceTab === 'mockups' && (
             <div>
-              <input
-                type="text" placeholder="Filter mockups... (e.g. iceland, gallery-dark)"
-                value={mockupFilter} onChange={(e) => setMockupFilter(e.target.value)}
-                style={{
-                  width: '100%', padding: '10px 14px', fontSize: '13px', marginBottom: '12px',
-                  background: 'var(--bg-primary)', border: '1px solid var(--glass-border)',
-                  borderRadius: '6px', color: 'var(--text)', boxSizing: 'border-box',
-                }}
-              />
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', alignItems: 'center' }}>
+                <input
+                  type="text" placeholder="Filter mockups... (e.g. iceland, gallery-dark)"
+                  value={mockupFilter} onChange={(e) => setMockupFilter(e.target.value)}
+                  style={{
+                    flex: 1, padding: '10px 14px', fontSize: '13px',
+                    background: 'var(--bg-primary)', border: '1px solid var(--glass-border)',
+                    borderRadius: '6px', color: 'var(--text)', boxSizing: 'border-box',
+                  }}
+                />
+                <button onClick={refreshMockups} title="Refresh mockups from disk"
+                  style={{
+                    padding: '10px 16px', background: 'var(--bg-primary)', border: '1px solid var(--glass-border)',
+                    borderRadius: '6px', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '14px',
+                    whiteSpace: 'nowrap',
+                  }}>
+                  🔄 Refresh
+                </button>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                  {mockups.length} mockups
+                </span>
+              </div>
               {filteredMockups.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-muted)' }}>
                   {loading ? 'Loading mockups...' : 'No mockups found. Generate some in the Mockup tab first.'}
@@ -409,29 +442,42 @@ function AgentCompose() {
                     const previewFile = mockup.platforms.instagram || mockup.platforms.full || Object.values(mockup.platforms)[0];
                     const selected = isSelected(mockup.base);
                     return (
-                      <div key={mockup.base} onClick={() => toggleMockupImage(mockup)} style={{
-                        cursor: 'pointer', borderRadius: '8px', overflow: 'hidden',
-                        border: `2px solid ${selected ? 'var(--accent)' : 'transparent'}`,
-                        background: selected ? 'rgba(212, 165, 116, 0.06)' : 'rgba(255,255,255,0.02)',
-                        transition: 'border-color 0.2s',
-                      }}>
-                        <img src={`${AGENT_BASE}/mockups/image/${previewFile}`} alt={mockup.base}
-                          loading="lazy" style={{ width: '100%', height: '140px', objectFit: 'cover' }}
-                          onError={(e) => { e.target.style.display = 'none'; }}
-                        />
-                        <div style={{ padding: '8px' }}>
-                          <div style={{
-                            fontSize: '11px', color: 'var(--text-primary)',
-                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                          }}>{mockup.base.replace(/_/g, ' / ')}</div>
-                          <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
-                            {Object.keys(mockup.platforms).map(p => (
-                              <span key={p} style={{
-                                fontSize: '9px', padding: '1px 5px', borderRadius: '3px',
-                                background: PLATFORMS[p]?.bg || 'rgba(255,255,255,0.05)',
-                                color: PLATFORMS[p]?.color || 'var(--text-muted)',
-                              }}>{p}</span>
-                            ))}
+                      <div key={mockup.base} style={{ position: 'relative' }}>
+                        {/* Delete button */}
+                        <button onClick={(e) => { e.stopPropagation(); deleteMockup(mockup.base); }}
+                          title="Delete this mockup"
+                          style={{
+                            position: 'absolute', top: '6px', right: '6px', zIndex: 10,
+                            width: '24px', height: '24px', borderRadius: '50%',
+                            background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.2)',
+                            color: '#ff6b6b', cursor: 'pointer', fontSize: '14px', fontWeight: 700,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            lineHeight: 1, padding: 0,
+                          }}>×</button>
+                        <div onClick={() => toggleMockupImage(mockup)} style={{
+                          cursor: 'pointer', borderRadius: '8px', overflow: 'hidden',
+                          border: `2px solid ${selected ? 'var(--accent)' : 'transparent'}`,
+                          background: selected ? 'rgba(212, 165, 116, 0.06)' : 'rgba(255,255,255,0.02)',
+                          transition: 'border-color 0.2s',
+                        }}>
+                          <img src={`${AGENT_BASE}/mockups/image/${previewFile}`} alt={mockup.base}
+                            loading="lazy" style={{ width: '100%', height: '140px', objectFit: 'cover' }}
+                            onError={(e) => { e.target.style.display = 'none'; }}
+                          />
+                          <div style={{ padding: '8px' }}>
+                            <div style={{
+                              fontSize: '11px', color: 'var(--text-primary)',
+                              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                            }}>{mockup.base.replace(/_/g, ' / ')}</div>
+                            <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+                              {Object.keys(mockup.platforms).map(p => (
+                                <span key={p} style={{
+                                  fontSize: '9px', padding: '1px 5px', borderRadius: '3px',
+                                  background: PLATFORMS[p]?.bg || 'rgba(255,255,255,0.05)',
+                                  color: PLATFORMS[p]?.color || 'var(--text-muted)',
+                                }}>{p}</span>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       </div>

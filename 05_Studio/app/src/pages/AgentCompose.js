@@ -52,6 +52,10 @@ function AgentCompose() {
   const [title, setTitle] = useState('');
   const [generating, setGenerating] = useState(false);
 
+  // ── Pinterest boards ──
+  const [pinterestBoards, setPinterestBoards] = useState([]);
+  const [selectedBoardId, setSelectedBoardId] = useState('');
+
   // ── Preview & Publish ──
   const [step, setStep] = useState(1); // 1=select, 2=compose, 3=preview, 4=published
   const [publishing, setPublishing] = useState(false);
@@ -81,13 +85,16 @@ function AgentCompose() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [mockupData, collData] = await Promise.all([
+        const [mockupData, collData, boardData] = await Promise.all([
           get('/mockups/list').catch(() => ({ items: [] })),
           get('/photos/collections/list').catch(() => ({ collections: [] })),
+          get('/pinterest/boards').catch(() => ({ items: [] })),
         ]);
         setMockups(mockupData?.items || []);
         const cols = (collData?.collections || []).map(c => typeof c === 'string' ? c : c.name).filter(Boolean);
         setCollections(cols);
+        const boards = boardData?.items || [];
+        setPinterestBoards(boards);
       } catch {}
     };
     load();
@@ -133,7 +140,18 @@ function AgentCompose() {
       if (exists >= 0) return prev.filter((_, idx) => idx !== exists);
       return [...prev, entry];
     });
-  }, []);
+
+    // Auto-match Pinterest board from mockup gallery name
+    if (pinterestBoards.length > 0 && !selectedBoardId) {
+      const baseLower = mockup.base.toLowerCase().replace(/[_-]/g, ' ');
+      const dirLower = (mockup.dir || '').toLowerCase();
+      const match = pinterestBoards.find(b => {
+        const boardName = b.name.toLowerCase();
+        return baseLower.startsWith(boardName) || dirLower.includes(boardName);
+      });
+      if (match) setSelectedBoardId(match.id);
+    }
+  }, [pinterestBoards, selectedBoardId]);
 
   const togglePhotoImage = useCallback((photo) => {
     const collection = (photo.collection || '').toLowerCase();
@@ -244,8 +262,13 @@ function AgentCompose() {
           });
           results[platform] = result;
         } else if (platform === 'pinterest') {
-          const imageUrl = firstImg.fullUrl || firstImg.src;
+          if (!selectedBoardId) {
+            results[platform] = { error: 'No Pinterest board selected' };
+            continue;
+          }
+          const imageUrl = firstImg.platformUrls?.pinterest || firstImg.fullUrl || firstImg.src;
           const result = await post('/pinterest/pins/create', {
+            board_id: selectedBoardId,
             title: (title || firstImg.filename || '').slice(0, 100),
             description: fullCaption.slice(0, 500),
             image_url: imageUrl,
@@ -612,6 +635,27 @@ function AgentCompose() {
                     marginBottom: '12px', boxSizing: 'border-box',
                   }}
                 />
+              )}
+
+              {/* Pinterest board picker */}
+              {targetPlatforms.has('pinterest') && (
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                    📌 Pinterest Board
+                  </label>
+                  <select value={selectedBoardId} onChange={(e) => setSelectedBoardId(e.target.value)}
+                    style={{
+                      width: '100%', padding: '10px 12px', fontSize: '14px',
+                      background: 'var(--bg-primary)', color: 'var(--text-primary)',
+                      border: '1px solid var(--glass-border)', borderRadius: '6px',
+                      boxSizing: 'border-box', cursor: 'pointer',
+                    }}>
+                    <option value="">— Select a board —</option>
+                    {pinterestBoards.map(b => (
+                      <option key={b.id} value={b.id}>{b.name} ({b.pin_count || 0} pins)</option>
+                    ))}
+                  </select>
+                </div>
               )}
 
               <textarea value={caption} onChange={(e) => setCaption(e.target.value)}

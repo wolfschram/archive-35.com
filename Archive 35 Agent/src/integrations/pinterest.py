@@ -49,6 +49,10 @@ DEFAULT_REDIRECT_URI = "https://archive-35.com/api/pinterest-callback"
 MAX_RETRIES = 3
 BASE_BACKOFF = 2.0
 
+# Refresh cooldown — prevent hammering Pinterest when refresh token is invalid
+_last_refresh_failure: float = 0.0
+_REFRESH_COOLDOWN = 300  # 5 minutes
+
 
 # ── Environment & Credentials ────────────────────────────────────────────
 
@@ -325,12 +329,17 @@ def _api_request(
     except urllib.error.HTTPError as e:
         error_body = e.read().decode() if e.fp else ""
 
-        # Auto-refresh on 401
+        # Auto-refresh on 401 (with cooldown to avoid spam)
+        global _last_refresh_failure
         if e.code == 401 and auto_refresh and creds.get("refresh_token"):
-            logger.info("Pinterest token expired, attempting refresh...")
-            refresh_result = refresh_access_token()
-            if "error" not in refresh_result:
-                return _api_request(endpoint, method, data, auto_refresh=False)
+            if time.time() - _last_refresh_failure < _REFRESH_COOLDOWN:
+                logger.debug("Pinterest refresh on cooldown, skipping")
+            else:
+                logger.info("Pinterest token expired, attempting refresh...")
+                refresh_result = refresh_access_token()
+                if "error" not in refresh_result:
+                    return _api_request(endpoint, method, data, auto_refresh=False)
+                _last_refresh_failure = time.time()
 
         logger.error("Pinterest API error %s: %s", e.code, error_body)
         return {"error": f"API request failed: {e.code}", "detail": error_body}

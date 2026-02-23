@@ -18,9 +18,12 @@ import useAgentApi from '../hooks/useAgentApi';
 const AGENT_BASE = 'http://127.0.0.1:8035';
 
 const PLATFORMS = {
-  instagram: { label: 'Instagram', icon: '📷', color: '#e1306c', bg: 'rgba(225, 48, 108, 0.12)' },
-  pinterest: { label: 'Pinterest', icon: '📌', color: '#e60023', bg: 'rgba(230, 0, 35, 0.12)' },
-  etsy:      { label: 'Etsy',      icon: '🏷️', color: '#f1641e', bg: 'rgba(241, 100, 30, 0.12)' },
+  instagram:  { label: 'Instagram',  icon: '📷', color: '#e1306c', bg: 'rgba(225, 48, 108, 0.12)' },
+  pinterest:  { label: 'Pinterest',  icon: '📌', color: '#e60023', bg: 'rgba(230, 0, 35, 0.12)' },
+  etsy:       { label: 'Etsy',       icon: '🏷️', color: '#f1641e', bg: 'rgba(241, 100, 30, 0.12)' },
+  full:       { label: 'Full',       icon: '🖼️', color: '#8899aa', bg: 'rgba(136, 153, 170, 0.12)' },
+  'web-full': { label: 'Web Full',   icon: '🌐', color: '#4a9eff', bg: 'rgba(74, 158, 255, 0.12)' },
+  'web-thumb':{ label: 'Thumb',      icon: '📐', color: '#8899aa', bg: 'rgba(136, 153, 170, 0.12)' },
 };
 
 function AgentCompose() {
@@ -63,9 +66,9 @@ function AgentCompose() {
   }, [get]);
 
   // ── Delete a mockup group ──
-  const deleteMockup = useCallback(async (base) => {
+  const deleteMockup = useCallback(async (base, files) => {
     try {
-      await post('/mockups/delete', { base });
+      await post('/mockups/delete', { base, files: files || [] });
       setMockups(prev => prev.filter(m => m.base !== base));
       // Also remove from selected images if present
       setSelectedImages(prev => prev.filter(i => i.filename !== base));
@@ -444,7 +447,7 @@ function AgentCompose() {
                     return (
                       <div key={mockup.base} style={{ position: 'relative' }}>
                         {/* Delete button */}
-                        <button onClick={(e) => { e.stopPropagation(); deleteMockup(mockup.base); }}
+                        <button onClick={(e) => { e.stopPropagation(); deleteMockup(mockup.base, mockup.files); }}
                           title="Delete this mockup"
                           style={{
                             position: 'absolute', top: '6px', right: '6px', zIndex: 10,
@@ -468,7 +471,7 @@ function AgentCompose() {
                             <div style={{
                               fontSize: '11px', color: 'var(--text-primary)',
                               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                            }}>{mockup.base.replace(/_/g, ' / ')}</div>
+                            }}>{mockup.base.replace(/[_-]/g, ' ')}</div>
                             <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
                               {Object.keys(mockup.platforms).map(p => (
                                 <span key={p} style={{

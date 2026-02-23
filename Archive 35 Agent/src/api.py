@@ -130,12 +130,20 @@ def health():
 
 @app.get("/mockups/image/{filename:path}")
 def serve_mockup_image(filename: str):
-    """Serve a mockup image from mockups/social/ directory."""
-    mockup_dir = Path(__file__).parent.parent.parent / "mockups" / "social"
-    file_path = mockup_dir / filename
+    """Serve a mockup image from anywhere under mockups/ directory.
+
+    Accepts paths like 'iceland/wolf3969/wolf3969-room-1-instagram.jpg'
+    or flat names like 'foo_bar_instagram.jpg' (legacy social/ layout).
+    """
+    mockup_root = Path(__file__).parent.parent.parent / "mockups"
+    file_path = mockup_root / filename
+    # Security: ensure resolved path stays inside mockup_root
+    if not file_path.resolve().is_relative_to(mockup_root.resolve()):
+        raise HTTPException(status_code=403, detail="Access denied")
     if not file_path.exists() or not file_path.is_file():
         raise HTTPException(status_code=404, detail="Mockup image not found")
-    return FileResponse(file_path, media_type="image/jpeg")
+    media = "image/webp" if file_path.suffix == ".webp" else "image/jpeg"
+    return FileResponse(file_path, media_type=media)
 
 
 # ── Dashboard Stats ─────────────────────────────────────────────
@@ -725,65 +733,130 @@ def clear_all_content():
 
 @app.get("/mockups/list")
 def list_available_mockups():
-    """List all generated mockup images in mockups/social/ directory.
+    """List all generated mockup images under mockups/ directory tree.
 
-    Returns grouped by photo+template combo with platform variants.
+    Scans all subdirectories (social/, gallery/photo-slug/, etc.)
+    and returns grouped by photo+template combo with platform variants.
     """
-    import re
-    mockup_dir = Path(__file__).parent.parent.parent / "mockups" / "social"
-    if not mockup_dir.exists():
+    KNOWN_PLATFORMS = {"instagram", "pinterest", "etsy", "full", "web-full", "web-thumb"}
+    mockup_root = Path(__file__).parent.parent.parent / "mockups"
+    if not mockup_root.exists():
         return {"items": [], "total": 0}
 
-    files = sorted(f.name for f in mockup_dir.iterdir() if f.suffix in (".jpg", ".png", ".webp"))
+    # Recursively find all image files (skip batches/ directory)
+    all_files = []
+    for f in mockup_root.rglob("*"):
+        if f.is_file() and f.suffix in (".jpg", ".png", ".webp"):
+            rel = f.relative_to(mockup_root)
+            # Skip batches/ metadata directory
+            if str(rel).startswith("batches"):
+                continue
+            all_files.append((str(rel), f))
+
+    all_files.sort(key=lambda x: x[0])
 
     # Group by photo+template combo
     groups: dict[str, dict] = {}
-    for fname in files:
-        # Pattern: gallery_photoname_template_platform.jpg
-        # or older pattern: gallery-room-platform.jpg
-        parts = fname.rsplit("_", 1)
-        if len(parts) == 2:
-            base, platform_ext = parts
-            platform = platform_ext.replace(".jpg", "").replace(".png", "").replace(".webp", "")
-            if platform in ("instagram", "pinterest", "etsy", "full"):
-                if base not in groups:
-                    groups[base] = {"base": base, "platforms": {}, "files": []}
-                groups[base]["platforms"][platform] = fname
-                groups[base]["files"].append(fname)
-            else:
-                # Single file, no platform suffix
-                if fname not in groups:
-                    groups[fname] = {"base": fname, "platforms": {"full": fname}, "files": [fname]}
+    for rel_path, full_path in all_files:
+        fname = full_path.name
+        stem = full_path.stem  # filename without extension
+
+        # Try underscore split first (social/ pattern: base_platform.ext)
+        u_parts = stem.rsplit("_", 1)
+
+        platform = None
+        base = None
+
+        if len(u_parts) == 2 and u_parts[1] in KNOWN_PLATFORMS:
+            platform = u_parts[1]
+            base = u_parts[0]
         else:
-            if fname not in groups:
-                groups[fname] = {"base": fname, "platforms": {"full": fname}, "files": [fname]}
+            # Batch pattern uses hyphens: base-platform.ext
+            # Check two-word platforms first (web-full, web-thumb)
+            h2_parts = stem.rsplit("-", 2)
+            h1_parts = stem.rsplit("-", 1)
+            if len(h2_parts) >= 3 and f"{h2_parts[-2]}-{h2_parts[-1]}" in KNOWN_PLATFORMS:
+                platform = f"{h2_parts[-2]}-{h2_parts[-1]}"
+                base = stem[:-(len(platform) + 1)]  # strip -platform from end
+            elif len(h1_parts) == 2 and h1_parts[1] in KNOWN_PLATFORMS:
+                platform = h1_parts[1]
+                base = h1_parts[0]
+
+        if platform and base:
+            if base not in groups:
+                groups[base] = {"base": base, "platforms": {}, "files": [], "dir": str(full_path.parent.relative_to(mockup_root))}
+            groups[base]["platforms"][platform] = rel_path
+            groups[base]["files"].append(rel_path)
+        else:
+            # Unknown pattern — treat as single "full" image
+            key = stem
+            if key not in groups:
+                groups[key] = {"base": key, "platforms": {"full": rel_path}, "files": [rel_path], "dir": str(full_path.parent.relative_to(mockup_root))}
 
     items = list(groups.values())
-    return {"items": items, "total": len(items), "dir": str(mockup_dir)}
+    return {"items": items, "total": len(items)}
 
 
 class DeleteMockupRequest(BaseModel):
     base: str  # The base name (group key) — all platform variants will be deleted
+    files: list[str] = []  # Optional: specific relative paths to delete
 
 
 @app.post("/mockups/delete")
 def delete_mockup(req: DeleteMockupRequest):
-    """Delete a mockup group (all platform variants) from local disk.
+    """Delete a mockup group (all platform variants) from local disk and R2.
 
-    Removes all files matching the base name from mockups/social/.
+    Accepts either a list of relative file paths (from /mockups/list) or
+    falls back to scanning all dirs for files starting with the base name.
+    Also cleans up from R2 social bucket if uploaded.
     """
-    mockup_dir = Path(__file__).parent.parent.parent / "mockups" / "social"
-    if not mockup_dir.exists():
+    mockup_root = Path(__file__).parent.parent.parent / "mockups"
+    if not mockup_root.exists():
         return {"deleted": 0}
 
     deleted = []
-    for f in mockup_dir.iterdir():
-        if f.is_file() and f.name.startswith(req.base):
-            f.unlink()
-            deleted.append(f.name)
-            logger.info("Deleted mockup: %s", f.name)
 
-    return {"deleted": len(deleted), "files": deleted}
+    if req.files:
+        # Delete specific files by relative path
+        for rel in req.files:
+            fp = mockup_root / rel
+            if fp.exists() and fp.is_file() and fp.resolve().is_relative_to(mockup_root.resolve()):
+                fp.unlink()
+                deleted.append(rel)
+                logger.info("Deleted mockup: %s", rel)
+    else:
+        # Fallback: scan all directories for files starting with base name
+        for f in mockup_root.rglob("*"):
+            if f.is_file() and f.stem.startswith(req.base) and f.suffix in (".jpg", ".png", ".webp"):
+                rel = str(f.relative_to(mockup_root))
+                f.unlink()
+                deleted.append(rel)
+                logger.info("Deleted mockup: %s", rel)
+
+    # Also attempt R2 cleanup
+    r2_deleted = 0
+    try:
+        _load_agent_env()
+        from src.integrations.r2_upload import delete_from_r2
+        for rel in deleted:
+            fname = Path(rel).name
+            if delete_from_r2(f"mockups/{fname}"):
+                r2_deleted += 1
+    except Exception as e:
+        logger.warning("R2 cleanup skipped: %s", e)
+
+    # Remove parent dir if now empty (batch creates per-photo subdirs)
+    for rel in deleted:
+        parent = (mockup_root / rel).parent
+        if parent != mockup_root and parent.exists():
+            try:
+                if not any(parent.iterdir()):
+                    parent.rmdir()
+                    logger.info("Removed empty dir: %s", parent.relative_to(mockup_root))
+            except OSError:
+                pass
+
+    return {"deleted": len(deleted), "r2_deleted": r2_deleted, "files": deleted}
 
 
 class GenerateDraftRequest(BaseModel):
@@ -2528,16 +2601,15 @@ def _ensure_public_url(image_url: str) -> str:
 
     # Local URL — extract filename and upload to R2
     if "localhost" in image_url or "127.0.0.1" in image_url:
-        # Extract mockup filename from URL like http://localhost:8035/mockups/image/foo.jpg
-        filename = image_url.split("/mockups/image/")[-1] if "/mockups/image/" in image_url else ""
-        if filename:
-            # repo root is 3 levels up from this file (src/ → Agent/ → repo root)
+        # Extract mockup path from URL like http://localhost:8035/mockups/image/iceland/wolf/wolf-room-instagram.jpg
+        rel_path = image_url.split("/mockups/image/")[-1] if "/mockups/image/" in image_url else ""
+        if rel_path:
             repo_root = Path(__file__).resolve().parent.parent.parent
-            mockup_dir = repo_root / "mockups" / "social"
-            local_path = mockup_dir / filename
+            local_path = repo_root / "mockups" / rel_path
             if local_path.exists():
                 from src.integrations.r2_upload import upload_to_r2
-                return upload_to_r2(str(local_path), f"mockups/{filename}")
+                # Upload with just the filename as the R2 key (flat namespace)
+                return upload_to_r2(str(local_path), f"mockups/{local_path.name}")
 
         raise HTTPException(
             status_code=400,

@@ -645,6 +645,32 @@ function AgentCompose() {
                     )}
                   </div>
 
+                  {/* Account row — logo + username */}
+                  <div style={{
+                    padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px',
+                    borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  }}>
+                    <img
+                      src="https://archive-35.com/logos/archive35-social-profile.svg"
+                      alt="Archive-35"
+                      style={{
+                        width: '36px', height: '36px', borderRadius: '50%',
+                        border: '2px solid var(--accent)',
+                      }}
+                    />
+                    <div>
+                      <div style={{
+                        fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)',
+                        letterSpacing: '0.5px',
+                      }}>
+                        {platform === 'instagram' ? 'archive_35_photography' : 'ARCHIVE-35'}
+                      </div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                        {platform === 'instagram' ? 'Fine Art Photography' : 'archive-35.com'}
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Image preview */}
                   <img src={imgSrc} alt="" style={{
                     width: '100%',

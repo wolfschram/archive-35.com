@@ -34,6 +34,20 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="Archive-35 Agent API", version="0.2.0")
 
 
+# Global exception handler — ensures ALL errors return JSON (never plain text)
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Catch unhandled exceptions and return JSON instead of plain text 500."""
+    logger.error("Unhandled exception on %s %s: %s", request.method, request.url.path, exc)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Internal server error: {str(exc)}"},
+    )
+
+
 def _get_anthropic_client():
     """Get Anthropic client, checking Agent .env then root .env fallback."""
     settings = get_settings()
@@ -2360,9 +2374,21 @@ def instagram_publish(req: InstagramPublishRequest):
     """
     from src.integrations.instagram import publish_photo
 
-    conn = _get_conn()
+    # Step 1: Ensure we have a public URL
     try:
         public_url = _ensure_public_url(req.image_url)
+    except HTTPException:
+        raise  # Pass through our own errors
+    except Exception as e:
+        logger.error("Failed to prepare public URL for Instagram: %s", e)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to prepare image for Instagram: {str(e)}"
+        )
+
+    # Step 2: Publish via Instagram API
+    conn = _get_conn()
+    try:
         result = publish_photo(
             image_url=public_url,
             caption=req.caption,
@@ -2370,6 +2396,12 @@ def instagram_publish(req: InstagramPublishRequest):
             photo_id=req.photo_id,
         )
         return result
+    except Exception as e:
+        logger.error("Instagram publish failed: %s", e)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Instagram publish failed: {str(e)}"
+        )
     finally:
         conn.close()
 

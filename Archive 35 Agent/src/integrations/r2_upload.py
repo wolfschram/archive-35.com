@@ -4,7 +4,7 @@ Instagram and Pinterest APIs require publicly accessible image URLs.
 This module uploads mockup images to the R2 bucket and returns
 a public URL that can be used in social media API calls.
 
-R2 credentials are read from root .env (shared with Studio).
+R2 credentials are read from Agent .env (loaded into os.environ at api.py startup).
 """
 
 import logging

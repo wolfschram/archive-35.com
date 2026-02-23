@@ -21,6 +21,20 @@ from pydantic import BaseModel
 from PIL import Image as _PILImage
 _PILImage.MAX_IMAGE_PIXELS = None
 
+import os as _os
+
+# Load Agent .env into os.environ EARLY — before any module reads os.getenv().
+# This ensures R2 credentials, API keys, etc. are available to all integrations.
+_agent_env_path = Path(__file__).resolve().parent.parent / ".env"
+if _agent_env_path.exists():
+    for _line in _agent_env_path.read_text().splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith("#") and "=" in _line:
+            _k, _, _v = _line.partition("=")
+            _k, _v = _k.strip(), _v.strip()
+            if _k and _k not in _os.environ:
+                _os.environ[_k] = _v
+
 from src.config import get_settings
 from src.db import get_initialized_connection
 from src.safety import audit, kill_switch, rate_limiter
@@ -2455,20 +2469,24 @@ def instagram_media(limit: int = Query(10, ge=1, le=50)):
     return get_recent_media(limit=limit)
 
 
-def _load_root_env_for_r2():
-    """Load R2 credentials from root .env into os.environ if not already set."""
+def _load_agent_env():
+    """Load Agent .env into os.environ so all modules (r2_upload, etc.) can use os.getenv().
+
+    Agent .env is at Archive 35 Agent/.env — two directories up from src/api.py.
+    Only sets vars that aren't already in os.environ (no overwriting).
+    """
     import os
     if os.environ.get("R2_ACCESS_KEY_ID"):
-        return  # Already set
-    root_env = Path(__file__).resolve().parent.parent.parent / ".env"
-    if root_env.exists():
-        for line in root_env.read_text().splitlines():
+        return  # Already loaded
+    agent_env = Path(__file__).resolve().parent.parent / ".env"
+    if agent_env.exists():
+        for line in agent_env.read_text().splitlines():
             line = line.strip()
             if line and not line.startswith("#") and "=" in line:
                 key, _, val = line.partition("=")
                 key = key.strip()
                 val = val.strip()
-                if key.startswith("R2_") and key not in os.environ:
+                if key and key not in os.environ:
                     os.environ[key] = val
 
 
@@ -2481,15 +2499,15 @@ def _ensure_public_url(image_url: str) -> str:
     if image_url.startswith("https://"):
         return image_url
 
-    # Ensure R2 credentials are loaded from root .env
-    _load_root_env_for_r2()
+    # Ensure R2 credentials are loaded from Agent .env
+    _load_agent_env()
 
     # Local URL — extract filename and upload to R2
     if "localhost" in image_url or "127.0.0.1" in image_url:
         # Extract mockup filename from URL like http://localhost:8035/mockups/image/foo.jpg
         filename = image_url.split("/mockups/image/")[-1] if "/mockups/image/" in image_url else ""
         if filename:
-            # repo root is 2 levels up from this file (src/api.py → Archive 35 Agent → repo)
+            # repo root is 3 levels up from this file (src/ → Agent/ → repo root)
             repo_root = Path(__file__).resolve().parent.parent.parent
             mockup_dir = repo_root / "mockups" / "social"
             local_path = mockup_dir / filename

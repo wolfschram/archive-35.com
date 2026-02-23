@@ -581,11 +581,44 @@ def list_available_mockups():
 class GenerateDraftRequest(BaseModel):
     photo_id: str
     platform: str = "instagram"
+    context: dict | None = None  # For mockups: {gallery, template, filename}
 
 
 @app.post("/content/generate-draft")
 def generate_draft(req: GenerateDraftRequest):
-    """Generate AI caption/listing draft for a photo (not saved to DB)."""
+    """Generate AI caption/listing draft for a photo or mockup (not saved to DB)."""
+    # Handle mockup drafts (no DB photo required)
+    if req.photo_id == "__mockup__" and req.context:
+        client = _get_anthropic_client()
+        if not client:
+            raise HTTPException(status_code=503, detail="No Anthropic API key configured")
+
+        from src.agents.content import PLATFORM_PROMPTS, _parse_content_response
+
+        gallery = req.context.get("gallery", "")
+        template = req.context.get("template", "")
+        filename = req.context.get("filename", "")
+
+        mockup_context = (
+            f"This is a wall art mockup showing a fine art photograph displayed in a room setting.\n"
+            f"Gallery/Collection: {gallery}\n"
+            f"Room template: {template}\n"
+            f"Filename: {filename}\n"
+            f"The image shows the photograph as it would look hanging on a wall in a modern interior."
+        )
+
+        prompt = PLATFORM_PROMPTS.get(req.platform, PLATFORM_PROMPTS["instagram"])
+        full_prompt = f"Photo context:\n{mockup_context}\n\n{prompt}"
+
+        response = client.messages.create(
+            model="claude-sonnet-4-5-20250929",
+            max_tokens=1000,
+            messages=[{"role": "user", "content": full_prompt}],
+        )
+        result = _parse_content_response(response.content[0].text)
+        return result
+
+    # Standard photo draft
     conn = _get_conn()
     try:
         photo = conn.execute("SELECT * FROM photos WHERE id = ?", (req.photo_id,)).fetchone()
@@ -626,9 +659,13 @@ def create_manual_content(req: CreateManualContentRequest):
     """Create a manually-composed content entry (status=pending)."""
     conn = _get_conn()
     try:
-        photo = conn.execute("SELECT * FROM photos WHERE id = ?", (req.photo_id,)).fetchone()
-        if not photo:
-            raise HTTPException(status_code=404, detail="Photo not found")
+        # Allow mockup entries — photo_id can be a filename or '__mockup__'
+        is_mockup = req.photo_id.startswith("__mockup__") or not req.photo_id.isdigit()
+        photo = None
+        if not is_mockup:
+            photo = conn.execute("SELECT * FROM photos WHERE id = ?", (req.photo_id,)).fetchone()
+            if not photo:
+                raise HTTPException(status_code=404, detail="Photo not found")
 
         from uuid import uuid4
         from datetime import timedelta

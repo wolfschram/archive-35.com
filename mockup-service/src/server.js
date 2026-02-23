@@ -40,8 +40,32 @@ const {
   listPhotos
 } = require('./batch');
 const { detectZone, autoDetectTemplates } = require('./zone-detect');
+const {
+  loadAndAnalyze,
+  isCompatible,
+  getSmartMatchPairs,
+  ASPECT_CATEGORIES
+} = require('./matcher');
+const {
+  generateRoomPrompt,
+  generatePromptsForUnmatched,
+  ROOM_PRESETS
+} = require('./prompt-generator');
 
 const app = express();
+
+// Cached compatibility matrix (rebuilt on demand)
+let _cachedMatrix = null;
+let _cachedPhotos = null;
+function getMatrix() {
+  if (!_cachedMatrix) {
+    const result = loadAndAnalyze(REPO_ROOT);
+    _cachedMatrix = result.matrix;
+    _cachedPhotos = result.photos;
+  }
+  return { matrix: _cachedMatrix, photos: _cachedPhotos };
+}
+function invalidateMatrix() { _cachedMatrix = null; _cachedPhotos = null; }
 const PORT = process.env.MOCKUP_PORT || 8036;
 
 // Middleware
@@ -322,6 +346,128 @@ app.post('/detect-all', async (req, res) => {
     console.error('Error in auto-detect:', err);
     res.status(500).json({ error: 'Auto-detect failed', details: err.message });
   }
+});
+
+// --- Matching Engine ---
+
+// Full compatibility stats
+app.get('/match/stats', (req, res) => {
+  try {
+    const result = loadAndAnalyze(REPO_ROOT, parseFloat(req.query.tolerance) || undefined);
+    res.json(result.stats);
+  } catch (err) {
+    console.error('Error computing match stats:', err);
+    res.status(500).json({ error: 'Failed to compute match stats', details: err.message });
+  }
+});
+
+// Compatible templates for a specific photo
+app.get('/match/photo/:id', (req, res) => {
+  try {
+    const { matrix } = getMatrix();
+    const entry = matrix.byPhoto[req.params.id];
+    if (!entry) {
+      return res.status(404).json({ error: `Photo "${req.params.id}" not found` });
+    }
+    res.json(entry);
+  } catch (err) {
+    console.error('Error matching photo:', err);
+    res.status(500).json({ error: 'Failed to match photo', details: err.message });
+  }
+});
+
+// Compatible photos for a specific template
+app.get('/match/template/:id', (req, res) => {
+  try {
+    const { matrix } = getMatrix();
+    const entry = matrix.byTemplate[req.params.id];
+    if (!entry) {
+      return res.status(404).json({ error: `Template "${req.params.id}" not found` });
+    }
+    res.json({
+      template: entry.template,
+      compatibleCount: entry.compatiblePhotos.length,
+      photos: entry.compatiblePhotos
+    });
+  } catch (err) {
+    console.error('Error matching template:', err);
+    res.status(500).json({ error: 'Failed to match template', details: err.message });
+  }
+});
+
+// Smart-match pairs for batch generation
+app.get('/match/pairs', (req, res) => {
+  try {
+    const { matrix, photos } = getMatrix();
+    const maxPerPhoto = parseInt(req.query.maxPerPhoto) || 3;
+    const fitType = req.query.fitType || 'good';
+    const pairs = getSmartMatchPairs(matrix, photos, { maxPerPhoto, fitType });
+    res.json({
+      totalPairs: pairs.length,
+      uniquePhotos: new Set(pairs.map(p => p.photoId)).size,
+      uniqueTemplates: new Set(pairs.map(p => p.templateId)).size,
+      pairs
+    });
+  } catch (err) {
+    console.error('Error computing pairs:', err);
+    res.status(500).json({ error: 'Failed to compute pairs', details: err.message });
+  }
+});
+
+// Force-refresh the cached matrix (after adding new templates)
+app.post('/match/refresh', (req, res) => {
+  invalidateMatrix();
+  const { matrix } = getMatrix();
+  const photoCount = Object.keys(matrix.byPhoto).length;
+  const templateCount = matrix.templateAspects.length;
+  res.json({ refreshed: true, photoCount, templateCount });
+});
+
+// Aspect ratio categories reference
+app.get('/match/categories', (req, res) => {
+  res.json({ categories: ASPECT_CATEGORIES });
+});
+
+// --- ChatGPT Prompt Generator ---
+
+// Generate a single prompt for a specific aspect ratio + room type
+app.post('/prompt/generate', (req, res) => {
+  try {
+    const { aspectRatio, roomType = 'living-room-modern', imageWidth, zonePercent } = req.body;
+    if (!aspectRatio) {
+      return res.status(400).json({ error: 'aspectRatio is required' });
+    }
+    const prompt = generateRoomPrompt({ aspectRatio, roomType, imageWidth, zonePercent });
+    res.json({ aspectRatio, roomType, prompt });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Generate prompts for all unmatched photos
+app.get('/prompt/unmatched', (req, res) => {
+  try {
+    const result = loadAndAnalyze(REPO_ROOT);
+    const prompts = generatePromptsForUnmatched(result.stats.unmatchedPhotos);
+    res.json({
+      unmatchedPhotoCount: result.stats.unmatchedPhotos.length,
+      promptsGenerated: prompts.length,
+      prompts
+    });
+  } catch (err) {
+    console.error('Error generating unmatched prompts:', err);
+    res.status(500).json({ error: 'Failed to generate prompts', details: err.message });
+  }
+});
+
+// List available room presets
+app.get('/prompt/room-types', (req, res) => {
+  const types = Object.entries(ROOM_PRESETS).map(([key, preset]) => ({
+    id: key,
+    name: preset.name,
+    description: preset.description
+  }));
+  res.json({ roomTypes: types });
 });
 
 // --- Error handling ---

@@ -668,7 +668,7 @@ function AgentCompose() {
                         fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)',
                         letterSpacing: '0.5px',
                       }}>
-                        {platform === 'instagram' ? 'archive_35_photography' : 'ARCHIVE-35'}
+                        {platform === 'instagram' ? 'archive35photo' : 'ARCHIVE-35'}
                       </div>
                       <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
                         {platform === 'instagram' ? 'Fine Art Photography' : 'archive-35.com'}

@@ -39,6 +39,7 @@ const {
   listGalleries,
   listPhotos
 } = require('./batch');
+const { detectZone, autoDetectTemplates } = require('./zone-detect');
 
 const app = express();
 const PORT = process.env.MOCKUP_PORT || 8036;
@@ -258,6 +259,68 @@ app.get('/mockups', async (req, res) => {
   } catch (err) {
     console.error('Error listing mockups:', err);
     res.status(500).json({ error: 'Failed to list mockups' });
+  }
+});
+
+// --- Zone Auto-Detection ---
+
+// Detect placement zone in a single image
+app.post('/detect-zone', async (req, res) => {
+  try {
+    const { imagePath, method } = req.body;
+    if (!imagePath) {
+      return res.status(400).json({ error: 'imagePath is required' });
+    }
+
+    const fullPath = path.isAbsolute(imagePath) ? imagePath : path.join(REPO_ROOT, imagePath);
+    const detection = await detectZone(fullPath, { method });
+
+    res.json(detection);
+  } catch (err) {
+    console.error('Error detecting zone:', err);
+    res.status(500).json({ error: 'Zone detection failed', details: err.message });
+  }
+});
+
+// Auto-detect all room templates and rebuild templates.json
+app.post('/detect-all', async (req, res) => {
+  try {
+    const roomsDir = path.join(REPO_ROOT, 'templates', 'rooms');
+    const detected = await autoDetectTemplates(roomsDir);
+
+    // Merge with existing templates (keep manually defined ones)
+    const existing = listTemplates();
+    const existingIds = new Set(existing.map(t => t.id));
+
+    // Keep existing manual templates, add new auto-detected ones
+    const merged = [...existing];
+    let added = 0;
+    for (const t of detected) {
+      if (!existingIds.has(t.id)) {
+        merged.push(t);
+        added++;
+      }
+    }
+
+    // Write merged templates
+    const fs = require('fs').promises;
+    const templatesPath = path.join(REPO_ROOT, 'templates', 'templates.json');
+    await fs.writeFile(templatesPath, JSON.stringify(merged, null, 2));
+
+    res.json({
+      total: merged.length,
+      added,
+      existing: existing.length,
+      detected: detected.map(d => ({
+        id: d.id,
+        category: d.category,
+        method: d._detection.method,
+        confidence: d._detection.confidence
+      }))
+    });
+  } catch (err) {
+    console.error('Error in auto-detect:', err);
+    res.status(500).json({ error: 'Auto-detect failed', details: err.message });
   }
 });
 

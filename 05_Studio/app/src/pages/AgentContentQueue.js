@@ -15,6 +15,8 @@ function AgentContentQueue() {
   const [platformFilter, setPlatformFilter] = useState('');
   const [expanded, setExpanded] = useState(null);
   const [viewMode, setViewMode] = useState('card'); // 'card' or 'preview'
+  const [clearing, setClearing] = useState(false);
+  const [clearMsg, setClearMsg] = useState(null);
 
   const loadContent = async () => {
     try {
@@ -37,6 +39,21 @@ function AgentContentQueue() {
     }
   };
 
+  const handleClearAll = async () => {
+    if (!window.confirm('Delete ALL content queue items? This cannot be undone.')) return;
+    setClearing(true);
+    setClearMsg(null);
+    try {
+      const result = await post('/content/clear-all');
+      setClearMsg({ type: 'success', text: `Cleared ${result.cleared} items (${result.content} content + ${result.mockup_content} mockups)` });
+      await loadContent();
+    } catch (err) {
+      setClearMsg({ type: 'error', text: `Clear failed: ${err.message}` });
+    } finally {
+      setClearing(false);
+    }
+  };
+
   const platformColors = {
     pinterest: { bg: 'rgba(230, 0, 35, 0.12)', color: '#e60023' },
     instagram: { bg: 'rgba(225, 48, 108, 0.12)', color: '#e1306c' },
@@ -51,6 +68,21 @@ function AgentContentQueue() {
           Review and approve AI-generated content before posting
         </p>
       </header>
+
+      {/* Clear message toast */}
+      {clearMsg && (
+        <div style={{
+          marginBottom: '16px', padding: '10px 16px',
+          background: clearMsg.type === 'success' ? 'rgba(74, 222, 128, 0.1)' : 'rgba(248, 113, 113, 0.1)',
+          border: `1px solid ${clearMsg.type === 'success' ? 'var(--success)' : 'var(--danger)'}`,
+          borderRadius: 'var(--radius-sm)',
+          color: clearMsg.type === 'success' ? 'var(--success)' : 'var(--danger)',
+          fontSize: '13px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <span>{clearMsg.text}</span>
+          <span onClick={() => setClearMsg(null)} style={{ cursor: 'pointer', fontSize: '16px' }}>×</span>
+        </div>
+      )}
 
       {/* Filters and view mode toggle */}
       <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -96,21 +128,39 @@ function AgentContentQueue() {
           </div>
         </div>
 
-        {/* View Mode Toggle */}
-        <div style={{ display: 'flex', gap: '6px', background: 'var(--glass-bg)', padding: '4px', borderRadius: '20px', border: '1px solid var(--glass-border)' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {/* View Mode Toggle */}
+          <div style={{ display: 'flex', gap: '6px', background: 'var(--glass-bg)', padding: '4px', borderRadius: '20px', border: '1px solid var(--glass-border)' }}>
+            <button
+              className={`btn ${viewMode === 'card' ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ padding: '6px 12px', fontSize: '11px' }}
+              onClick={() => setViewMode('card')}
+            >
+              📋 Card
+            </button>
+            <button
+              className={`btn ${viewMode === 'preview' ? 'btn-primary' : 'btn-secondary'}`}
+              style={{ padding: '6px 12px', fontSize: '11px' }}
+              onClick={() => setViewMode('preview')}
+            >
+              👁️ Preview
+            </button>
+          </div>
+
+          {/* Clear Queue */}
           <button
-            className={`btn ${viewMode === 'card' ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '6px 12px', fontSize: '11px' }}
-            onClick={() => setViewMode('card')}
+            onClick={handleClearAll}
+            disabled={clearing || items.length === 0}
+            style={{
+              padding: '6px 14px', fontSize: '11px', fontWeight: 600,
+              background: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '6px', color: '#ef4444',
+              cursor: items.length > 0 ? 'pointer' : 'not-allowed',
+              opacity: clearing || items.length === 0 ? 0.5 : 1,
+            }}
           >
-            📋 Card
-          </button>
-          <button
-            className={`btn ${viewMode === 'preview' ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '6px 12px', fontSize: '11px' }}
-            onClick={() => setViewMode('preview')}
-          >
-            👁️ Preview
+            {clearing ? 'Clearing...' : 'Clear All'}
           </button>
         </div>
       </div>

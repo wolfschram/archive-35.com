@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-23T22:08:03.988063+00:00",
+  "generated_at": "2026-02-23T22:08:43.476855+00:00",
   "total_images": 125,
   "classifications": {
     "ULTRA": {
@@ -4199,7 +4199,7 @@
     },
     {
       "id": "A35-20260223-0116",
-      "title": "104A9021-Pano-2.jpg",
+      "title": "White Sands Dune Geometry",
       "classification": "PREMIUM",
       "collection": "",
       "filename": "104A9021-Pano-2",
@@ -4208,7 +4208,7 @@
       "height": 6133,
       "megapixels": 91.1,
       "file_size_mb": 17.9,
-      "location": "",
+      "location": "White Sands National Park, Alamogordo, New Mexico, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260223-0116.jpg",
       "preview": "09_Licensing/watermarked/A35-20260223-0116.jpg",
       "starting_price": 280,
@@ -4228,14 +4228,14 @@
         "dpi": 300
       },
       "max_print_150dpi": {
-        "width_in": 99.0,
+        "width_in": 99,
         "height_in": 40.9,
         "dpi": 150
       }
     },
     {
       "id": "A35-20260223-0117",
-      "title": "104A9021-Pano.jpg",
+      "title": "White Sands Solitude",
       "classification": "PREMIUM",
       "collection": "",
       "filename": "104A9021-Pano",
@@ -4244,7 +4244,7 @@
       "height": 6133,
       "megapixels": 91.1,
       "file_size_mb": 17.9,
-      "location": "",
+      "location": "White Sands National Park, New Mexico, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260223-0117.jpg",
       "preview": "09_Licensing/watermarked/A35-20260223-0117.jpg",
       "starting_price": 280,
@@ -4264,14 +4264,14 @@
         "dpi": 300
       },
       "max_print_150dpi": {
-        "width_in": 99.0,
+        "width_in": 99,
         "height_in": 40.9,
         "dpi": 150
       }
     },
     {
       "id": "A35-20260223-0118",
-      "title": "104A9032-Pano.jpg",
+      "title": "White Sands Eternal",
       "classification": "ULTRA",
       "collection": "",
       "filename": "104A9032-Pano",
@@ -4280,7 +4280,7 @@
       "height": 5447,
       "megapixels": 87.7,
       "file_size_mb": 18.2,
-      "location": "",
+      "location": "White Sands National Park, New Mexico, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260223-0118.jpg",
       "preview": "09_Licensing/watermarked/A35-20260223-0118.jpg",
       "starting_price": 350,
@@ -4307,7 +4307,7 @@
     },
     {
       "id": "A35-20260223-0119",
-      "title": "104A9055-Pano.jpg",
+      "title": "White Sands Vast Horizon",
       "classification": "ULTRA",
       "collection": "",
       "filename": "104A9055-Pano",
@@ -4316,7 +4316,7 @@
       "height": 9425,
       "megapixels": 227.4,
       "file_size_mb": 44.7,
-      "location": "",
+      "location": "White Sands National Park, Alamogordo, New Mexico, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260223-0119.jpg",
       "preview": "09_Licensing/watermarked/A35-20260223-0119.jpg",
       "starting_price": 350,
@@ -4343,7 +4343,7 @@
     },
     {
       "id": "A35-20260223-0120",
-      "title": "104A9122-Pano.jpg",
+      "title": "White Sands Dune Geometry",
       "classification": "PREMIUM",
       "collection": "",
       "filename": "104A9122-Pano",
@@ -4351,8 +4351,8 @@
       "width": 11305,
       "height": 5567,
       "megapixels": 62.9,
-      "file_size_mb": 17.0,
-      "location": "",
+      "file_size_mb": 17,
+      "location": "White Sands National Park, New Mexico, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260223-0120.jpg",
       "preview": "09_Licensing/watermarked/A35-20260223-0120.jpg",
       "starting_price": 280,
@@ -4379,7 +4379,7 @@
     },
     {
       "id": "A35-20260223-0121",
-      "title": "104A9139-Pano.jpg",
+      "title": "Desert Mountains in Crystalline Light",
       "classification": "PREMIUM",
       "collection": "",
       "filename": "104A9139-Pano",
@@ -4387,8 +4387,8 @@
       "width": 14213,
       "height": 5581,
       "megapixels": 79.3,
-      "file_size_mb": 14.0,
-      "location": "",
+      "file_size_mb": 14,
+      "location": "Mojave Desert, California, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260223-0121.jpg",
       "preview": "09_Licensing/watermarked/A35-20260223-0121.jpg",
       "starting_price": 280,
@@ -4415,7 +4415,7 @@
     },
     {
       "id": "A35-20260223-0122",
-      "title": "104A9145-Pano.jpg",
+      "title": "White Sands Geometry",
       "classification": "ULTRA",
       "collection": "",
       "filename": "104A9145-Pano",
@@ -4423,8 +4423,8 @@
       "width": 27868,
       "height": 8005,
       "megapixels": 223.1,
-      "file_size_mb": 47.0,
-      "location": "",
+      "file_size_mb": 47,
+      "location": "White Sands National Park, New Mexico, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260223-0122.jpg",
       "preview": "09_Licensing/watermarked/A35-20260223-0122.jpg",
       "starting_price": 350,
@@ -4451,7 +4451,7 @@
     },
     {
       "id": "A35-20260223-0123",
-      "title": "104A9184-Pano.jpg",
+      "title": "White Sands Ripple Study",
       "classification": "PREMIUM",
       "collection": "",
       "filename": "104A9184-Pano",
@@ -4460,7 +4460,7 @@
       "height": 5521,
       "megapixels": 58.1,
       "file_size_mb": 13.5,
-      "location": "",
+      "location": "White Sands National Park, New Mexico, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260223-0123.jpg",
       "preview": "09_Licensing/watermarked/A35-20260223-0123.jpg",
       "starting_price": 280,
@@ -4487,7 +4487,7 @@
     },
     {
       "id": "A35-20260223-0124",
-      "title": "104A9245-Pano.jpg",
+      "title": "White Sands Luminescence",
       "classification": "ULTRA",
       "collection": "",
       "filename": "104A9245-Pano",
@@ -4496,7 +4496,7 @@
       "height": 8396,
       "megapixels": 165.9,
       "file_size_mb": 39.2,
-      "location": "",
+      "location": "White Sands National Park, New Mexico, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260223-0124.jpg",
       "preview": "09_Licensing/watermarked/A35-20260223-0124.jpg",
       "starting_price": 350,
@@ -4512,18 +4512,18 @@
       "status": "available",
       "max_print_300dpi": {
         "width_in": 65.9,
-        "height_in": 28.0,
+        "height_in": 28,
         "dpi": 300
       },
       "max_print_150dpi": {
         "width_in": 131.7,
-        "height_in": 56.0,
+        "height_in": 56,
         "dpi": 150
       }
     },
     {
       "id": "A35-20260223-0125",
-      "title": "104A9291-Pano.jpg",
+      "title": "White Sands Mirage",
       "classification": "ULTRA",
       "collection": "",
       "filename": "104A9291-Pano",
@@ -4532,7 +4532,7 @@
       "height": 5468,
       "megapixels": 85.5,
       "file_size_mb": 20.1,
-      "location": "",
+      "location": "White Sands National Park, New Mexico, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260223-0125.jpg",
       "preview": "09_Licensing/watermarked/A35-20260223-0125.jpg",
       "starting_price": 350,

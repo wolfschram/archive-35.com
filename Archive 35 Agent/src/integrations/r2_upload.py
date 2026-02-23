@@ -16,36 +16,39 @@ from botocore.config import Config as BotoConfig
 
 logger = logging.getLogger(__name__)
 
-# R2 config — read from environment (root .env via getAgentConfig IPC fallback)
-_R2_ACCOUNT_ID = os.getenv("R2_ACCOUNT_ID", "")
-_R2_ACCESS_KEY = os.getenv("R2_ACCESS_KEY_ID", "")
-_R2_SECRET_KEY = os.getenv("R2_SECRET_ACCESS_KEY", "")
-_R2_BUCKET = os.getenv("R2_SOCIAL_BUCKET", "archive-35-social")
-_R2_ENDPOINT = os.getenv("R2_ENDPOINT", "")
+# R2 config defaults — lazy-loaded to allow env vars to be set after import
+_R2_BUCKET_DEFAULT = "archive-35-social"
+_R2_PUBLIC_DOMAIN_DEFAULT = "https://pub-e234c9959bf14a75a4d5b3f04dd1ff4c.r2.dev"
 
-# Public domain for R2 — the social bucket's public dev URL
-# Enabled in Cloudflare dashboard: R2 > archive-35-social > Settings > Public Development URL
-_R2_PUBLIC_DOMAIN = os.getenv(
-    "R2_SOCIAL_PUBLIC_URL",
-    "https://pub-e234c9959bf14a75a4d5b3f04dd1ff4c.r2.dev"
-)
+
+def _get_r2_config() -> dict:
+    """Get R2 configuration from environment (read at call time, not import time)."""
+    return {
+        "account_id": os.getenv("R2_ACCOUNT_ID", ""),
+        "access_key": os.getenv("R2_ACCESS_KEY_ID", ""),
+        "secret_key": os.getenv("R2_SECRET_ACCESS_KEY", ""),
+        "bucket": os.getenv("R2_SOCIAL_BUCKET", _R2_BUCKET_DEFAULT),
+        "endpoint": os.getenv("R2_ENDPOINT", ""),
+        "public_domain": os.getenv("R2_SOCIAL_PUBLIC_URL", _R2_PUBLIC_DOMAIN_DEFAULT),
+    }
 
 
 def _get_s3_client():
     """Create boto3 S3 client configured for Cloudflare R2."""
-    if not _R2_ACCESS_KEY or not _R2_SECRET_KEY:
+    cfg = _get_r2_config()
+    if not cfg["access_key"] or not cfg["secret_key"]:
         raise RuntimeError(
             "R2 credentials not configured. "
             "Set R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY in .env"
         )
 
-    endpoint = _R2_ENDPOINT or f"https://{_R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+    endpoint = cfg["endpoint"] or f"https://{cfg['account_id']}.r2.cloudflarestorage.com"
 
     return boto3.client(
         "s3",
         endpoint_url=endpoint,
-        aws_access_key_id=_R2_ACCESS_KEY,
-        aws_secret_access_key=_R2_SECRET_KEY,
+        aws_access_key_id=cfg["access_key"],
+        aws_secret_access_key=cfg["secret_key"],
         config=BotoConfig(
             signature_version="s3v4",
             retries={"max_attempts": 2, "mode": "standard"},
@@ -83,13 +86,14 @@ def upload_to_r2(local_path: str, r2_key: str) -> str:
     }
     content_type = content_types.get(ext, "application/octet-stream")
 
+    cfg = _get_r2_config()
     client = _get_s3_client()
 
-    logger.info("Uploading %s → r2://%s/%s", filepath.name, _R2_BUCKET, r2_key)
+    logger.info("Uploading %s → r2://%s/%s", filepath.name, cfg["bucket"], r2_key)
 
     client.upload_file(
         str(filepath),
-        _R2_BUCKET,
+        cfg["bucket"],
         r2_key,
         ExtraArgs={
             "ContentType": content_type,
@@ -97,7 +101,7 @@ def upload_to_r2(local_path: str, r2_key: str) -> str:
         },
     )
 
-    public_url = f"{_R2_PUBLIC_DOMAIN.rstrip('/')}/{r2_key}"
+    public_url = f"{cfg['public_domain'].rstrip('/')}/{r2_key}"
     logger.info("Uploaded: %s", public_url)
     return public_url
 
@@ -112,8 +116,9 @@ def delete_from_r2(r2_key: str) -> bool:
         True if deleted, False on error.
     """
     try:
+        cfg = _get_r2_config()
         client = _get_s3_client()
-        client.delete_object(Bucket=_R2_BUCKET, Key=r2_key)
+        client.delete_object(Bucket=cfg["bucket"], Key=r2_key)
         logger.info("Deleted from R2: %s", r2_key)
         return True
     except Exception as e:

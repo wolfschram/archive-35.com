@@ -217,15 +217,12 @@ function AgentCompose() {
           results[platform] = result;
         } else if (platform === 'pinterest') {
           const imageUrl = firstImg.fullUrl || firstImg.src;
-          const result = await post('/pinterest/pins/from-photo', {
-            photo_data: {
-              title: title || firstImg.filename,
-              description: fullCaption,
-              tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-              image_url: imageUrl,
-              collection: firstImg.collection || '',
-              filename: firstImg.filename,
-            },
+          const result = await post('/pinterest/pins/create', {
+            title: (title || firstImg.filename || '').slice(0, 100),
+            description: fullCaption.slice(0, 500),
+            image_url: imageUrl,
+            link: `https://archive-35.com/gallery.html${firstImg.collection ? '#collection=' + encodeURIComponent(firstImg.collection) : ''}`,
+            alt_text: `${title || firstImg.filename} — fine art photography by Wolf Schram`,
           });
           results[platform] = result;
         } else if (platform === 'etsy') {

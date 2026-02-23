@@ -1884,7 +1884,7 @@ def create_pinterest_board(req: PinterestBoardCreate):
 
 
 class PinterestPinCreate(BaseModel):
-    board_id: str
+    board_id: Optional[str] = None  # Falls back to PINTEREST_BOARD_ID env var
     title: str
     description: str = ""
     image_url: str
@@ -1894,15 +1894,30 @@ class PinterestPinCreate(BaseModel):
 
 @app.post("/pinterest/pins/create")
 def create_pinterest_pin(req: PinterestPinCreate):
-    """Create a single Pinterest pin."""
-    from src.integrations.pinterest import create_pin
+    """Create a single Pinterest pin.
+
+    board_id is optional — falls back to PINTEREST_BOARD_ID from .env.
+    image_url can be local (auto-uploaded to R2) or public.
+    """
+    from src.integrations.pinterest import create_pin, get_credentials as get_pinterest_creds
     conn = _get_conn()
     try:
+        # Resolve board_id — use default from env if not provided
+        board_id = req.board_id
+        if not board_id:
+            pinterest_creds = get_pinterest_creds()
+            board_id = pinterest_creds.get("board_id", "")
+        if not board_id:
+            raise HTTPException(status_code=400, detail="No board_id provided and PINTEREST_BOARD_ID not set in .env")
+
+        # Ensure image URL is public
+        public_url = _ensure_public_url(req.image_url)
+
         result = create_pin(
-            board_id=req.board_id,
+            board_id=board_id,
             title=req.title,
             description=req.description,
-            image_url=req.image_url,
+            image_url=public_url,
             link=req.link,
             alt_text=req.alt_text,
         )
@@ -1910,7 +1925,7 @@ def create_pinterest_pin(req: PinterestPinCreate):
             raise HTTPException(status_code=400, detail=result["error"])
         audit.log(conn, "pinterest", "pin_created", {
             "pin_id": result.get("id", ""),
-            "board_id": req.board_id,
+            "board_id": board_id,
             "title": req.title,
         })
         return result
@@ -2270,6 +2285,65 @@ def instagram_media(limit: int = Query(10, ge=1, le=50)):
     return get_recent_media(limit=limit)
 
 
+def _load_root_env_for_r2():
+    """Load R2 credentials from root .env into os.environ if not already set."""
+    import os
+    if os.environ.get("R2_ACCESS_KEY_ID"):
+        return  # Already set
+    root_env = Path(__file__).resolve().parent.parent.parent / ".env"
+    if root_env.exists():
+        for line in root_env.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, _, val = line.partition("=")
+                key = key.strip()
+                val = val.strip()
+                if key.startswith("R2_") and key not in os.environ:
+                    os.environ[key] = val
+
+
+def _ensure_public_url(image_url: str) -> str:
+    """Convert a local image URL to a public R2 URL if needed.
+
+    If image_url is already public (https://), returns as-is.
+    If image_url is a local mockup URL (localhost), uploads to R2 first.
+    """
+    if image_url.startswith("https://"):
+        return image_url
+
+    # Ensure R2 credentials are loaded from root .env
+    _load_root_env_for_r2()
+
+    # Local URL — extract filename and upload to R2
+    if "localhost" in image_url or "127.0.0.1" in image_url:
+        # Extract mockup filename from URL like http://localhost:8035/mockups/image/foo.jpg
+        filename = image_url.split("/mockups/image/")[-1] if "/mockups/image/" in image_url else ""
+        if filename:
+            # repo root is 2 levels up from this file (src/api.py → Archive 35 Agent → repo)
+            repo_root = Path(__file__).resolve().parent.parent.parent
+            mockup_dir = repo_root / "mockups" / "social"
+            local_path = mockup_dir / filename
+            if local_path.exists():
+                from src.integrations.r2_upload import upload_to_r2
+                return upload_to_r2(str(local_path), f"mockups/{filename}")
+
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot resolve local image to public URL: {image_url}"
+        )
+
+    # Not https and not localhost — treat as local path
+    local_path = Path(image_url)
+    if local_path.exists():
+        from src.integrations.r2_upload import upload_to_r2
+        return upload_to_r2(str(local_path), f"uploads/{local_path.name}")
+
+    raise HTTPException(
+        status_code=400,
+        detail=f"Image URL must be publicly accessible (https://). Got: {image_url}"
+    )
+
+
 class InstagramPublishRequest(BaseModel):
     image_url: str
     caption: str
@@ -2280,15 +2354,17 @@ class InstagramPublishRequest(BaseModel):
 def instagram_publish(req: InstagramPublishRequest):
     """Publish a photo to Instagram.
 
-    Requires a public image URL and caption.
+    Accepts both public URLs and local mockup URLs.
+    Local images are auto-uploaded to R2 for a public URL.
     Two-step process: create container → publish.
     """
     from src.integrations.instagram import publish_photo
 
     conn = _get_conn()
     try:
+        public_url = _ensure_public_url(req.image_url)
         result = publish_photo(
-            image_url=req.image_url,
+            image_url=public_url,
             caption=req.caption,
             conn=conn,
             photo_id=req.photo_id,

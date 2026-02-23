@@ -832,6 +832,36 @@ In Cloudflare Workers, once the Response is returned to the client, the Worker r
 38. **Code needs self-help for AI.** Embed dependency hints and "read first" pointers directly in source files — AI agents don't remember past sessions.
 39. **CONSTRAINTS.md is the stop sign.** Hard rules per file. Only Wolf relaxes constraints.
 40. **Three-layer safety: CONSTRAINTS.md → file headers → CLAUDE.md checklist.** All three must agree before modifying critical code.
+41. **Every system owns its own credentials.** Never "borrow" from another system's .env. If the Agent needs R2 access, the Agent's .env gets R2 keys — period.
+
+---
+
+### LESSON 034: Give Each System Its Own Credentials — Never Borrow
+**Date:** 2026-02-23
+**Category:** `agent` `configuration` `architecture` `ROOT-CAUSE` `CRITICAL`
+
+**Symptom:** Instagram publish failed with "R2 credentials not configured. Set R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY in .env". This was the THIRD failure in a row caused by the Agent lacking something it needed — first boto3 wasn't installed, then R2 credentials weren't accessible. Each fix just uncovered the next missing dependency.
+
+**Root Cause:** The Agent was designed to "borrow" credentials from the root .env via a runtime path-resolution hack (`_load_root_env_for_r2()` walking 3 parent directories). This fragile approach failed because: (1) pydantic-settings loads .env into its Settings object, NOT into os.environ; (2) r2_upload.py reads from os.getenv(); (3) the path resolution pointed to the wrong directory. More fundamentally, the Agent didn't own its own tools — it depended on reaching into another system's config at runtime.
+
+**Why It Wasn't Caught Sooner:** Each symptom looked like an isolated bug (missing pip package, wrong path, etc.) rather than a systemic issue. We kept patching symptoms instead of asking: "Why does the Agent keep failing on basic dependencies?"
+
+**Fix:**
+1. Added R2 credentials directly to Agent's own `.env` (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT)
+2. Added early env loading in api.py — reads Agent .env into os.environ at module import time, before any integration module is loaded
+3. Removed the fragile `_load_root_env_for_r2()` root-directory workaround
+
+**Prevention:**
+- **RULE: Every system must own its own credentials.** If the Agent needs R2 access, the Agent's .env gets R2 keys. If the Mockup Service needs Anthropic access, the Mockup .env gets the API key. No "borrowing" from sibling .env files via path hacks.
+- **RULE: When adding a new integration to any system, the FIRST step is adding the required credentials to that system's .env.** Not "we'll load it from the root .env" — that creates invisible dependencies that break silently.
+- **RULE: When debugging a recurring pattern of failures, STOP and ask "What's the ONE thing causing all of these?" before fixing the next symptom.** (Wolf's exact words: "Take a step back. Think about what's the one thing that causes us to be in this loop.")
+- **Checklist for new Agent integrations:**
+  1. What API keys / credentials does it need?
+  2. Are they in `Archive 35 Agent/.env`? If not, ADD THEM.
+  3. Are they in `requirements.txt`? If it's a new Python package, ADD IT.
+  4. Test with a fresh restart — don't rely on leftover state.
+
+**Related Files:** `Archive 35 Agent/.env`, `Archive 35 Agent/src/api.py`, `Archive 35 Agent/src/integrations/r2_upload.py`
 
 ---
 

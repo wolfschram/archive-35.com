@@ -100,6 +100,16 @@ def health():
     }
 
 
+@app.get("/mockups/image/{filename:path}")
+def serve_mockup_image(filename: str):
+    """Serve a mockup image from mockups/social/ directory."""
+    mockup_dir = Path(__file__).parent.parent.parent / "mockups" / "social"
+    file_path = mockup_dir / filename
+    if not file_path.exists() or not file_path.is_file():
+        raise HTTPException(status_code=404, detail="Mockup image not found")
+    return FileResponse(file_path, media_type="image/jpeg")
+
+
 # ── Dashboard Stats ─────────────────────────────────────────────
 
 
@@ -503,6 +513,69 @@ def reject_content(content_id: str):
 @app.post("/content/{content_id}/defer")
 def defer_content(content_id: str):
     return _update_content_status(content_id, "deferred")
+
+
+@app.post("/content/clear-all")
+def clear_all_content():
+    """Delete ALL content queue items + related actions. Fresh start."""
+    conn = _get_conn()
+    try:
+        c1 = conn.execute("SELECT count(*) FROM content").fetchone()[0]
+        conn.execute("DELETE FROM actions_ledger WHERE content_id IS NOT NULL")
+        conn.execute("DELETE FROM content")
+        # Also clear mockup_content if table exists
+        c2 = 0
+        try:
+            c2 = conn.execute("SELECT count(*) FROM mockup_content").fetchone()[0]
+            conn.execute("DELETE FROM mockup_content")
+        except Exception:
+            pass  # table may not exist
+        conn.commit()
+        audit.log(conn, "studio", "content_cleared_all", {
+            "content_deleted": c1, "mockup_content_deleted": c2,
+        })
+        return {"cleared": c1 + c2, "content": c1, "mockup_content": c2}
+    finally:
+        conn.close()
+
+
+@app.get("/mockups/list")
+def list_available_mockups():
+    """List all generated mockup images in mockups/social/ directory.
+
+    Returns grouped by photo+template combo with platform variants.
+    """
+    import re
+    mockup_dir = Path(__file__).parent.parent.parent / "mockups" / "social"
+    if not mockup_dir.exists():
+        return {"items": [], "total": 0}
+
+    files = sorted(f.name for f in mockup_dir.iterdir() if f.suffix in (".jpg", ".png", ".webp"))
+
+    # Group by photo+template combo
+    groups: dict[str, dict] = {}
+    for fname in files:
+        # Pattern: gallery_photoname_template_platform.jpg
+        # or older pattern: gallery-room-platform.jpg
+        parts = fname.rsplit("_", 1)
+        if len(parts) == 2:
+            base, platform_ext = parts
+            platform = platform_ext.replace(".jpg", "").replace(".png", "").replace(".webp", "")
+            if platform in ("instagram", "pinterest", "etsy", "full"):
+                if base not in groups:
+                    groups[base] = {"base": base, "platforms": {}, "files": []}
+                groups[base]["platforms"][platform] = fname
+                groups[base]["files"].append(fname)
+            else:
+                # Single file, no platform suffix
+                if fname not in groups:
+                    groups[fname] = {"base": fname, "platforms": {"full": fname}, "files": [fname]}
+        else:
+            if fname not in groups:
+                groups[fname] = {"base": fname, "platforms": {"full": fname}, "files": [fname]}
+
+    items = list(groups.values())
+    return {"items": items, "total": len(items), "dir": str(mockup_dir)}
 
 
 class GenerateDraftRequest(BaseModel):

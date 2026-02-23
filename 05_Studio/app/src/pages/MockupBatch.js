@@ -18,7 +18,7 @@ function MockupBatch() {
   const [selectedGallery, setSelectedGallery] = useState('');
   const [selectedPhotos, setSelectedPhotos] = useState(new Set());
   const [selectedTemplates, setSelectedTemplates] = useState(new Set());
-  const [selectedPlatforms, setSelectedPlatforms] = useState(new Set(['etsy', 'pinterest', 'web-full']));
+  const [selectedPlatforms, setSelectedPlatforms] = useState(new Set(['instagram', 'etsy', 'pinterest', 'web-full']));
   const [printSize, setPrintSize] = useState('24x36');
 
   // Jobs
@@ -366,6 +366,7 @@ function MockupBatch() {
           <label style={labelStyle}>Platforms</label>
           <div style={{ marginBottom: '16px' }}>
             {[
+              { id: 'instagram', label: 'Instagram (1080×1080 1:1)' },
               { id: 'etsy', label: 'Etsy (2000×2000 1:1)' },
               { id: 'pinterest', label: 'Pinterest (1000×1500 2:3)' },
               { id: 'web-full', label: 'Website Full (2000px)' },

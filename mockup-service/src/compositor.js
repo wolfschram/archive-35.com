@@ -257,40 +257,48 @@ async function addBannerBranding(imageBuffer, config) {
   const bannerY = imgH - bannerH;
 
   // Font sizes scale with banner height
-  const mainFontSize = Math.round(bannerH * 0.42);   // "ARCHIVE" + "35"
-  const urlFontSize = Math.round(bannerH * 0.22);     // "ARCHIVE-35.COM"
-  const dividerH = Math.round(bannerH * 0.45);        // gold divider line height
+  const mainFontSize = Math.round(bannerH * 0.38);   // "ARCHIVE" + "35"
+  const urlFontSize = Math.round(bannerH * 0.20);     // "ARCHIVE-35.COM"
+  const dividerH = Math.round(bannerH * 0.40);        // gold divider line height
   const dividerY1 = Math.round((bannerH - dividerH) / 2 - bannerH * 0.05);
+  const letterSp = Math.round(mainFontSize * 0.22);   // tighter spacing to prevent clipping
+
+  // Center point — all elements anchored relative to this
+  const cx = Math.round(imgW * 0.50);
+  // "ARCHIVE" goes left of center, "35" goes right, divider in between
+  const archiveX = Math.round(cx - imgW * 0.06);      // ARCHIVE center-point
+  const dividerX = Math.round(cx + imgW * 0.065);     // divider line
+  const num35X = Math.round(cx + imgW * 0.12);        // 35 center-point
 
   // Build SVG banner — crisp text rendering at any size
   const bannerSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${imgW}" height="${bannerH}">
     <!-- Semi-transparent black background -->
     <rect width="${imgW}" height="${bannerH}" fill="#000000" opacity="0.75"/>
 
-    <!-- ARCHIVE text (left of center) -->
-    <text x="${Math.round(imgW * 0.42)}" y="${Math.round(bannerH * 0.52)}"
+    <!-- ARCHIVE text -->
+    <text x="${archiveX}" y="${Math.round(bannerH * 0.52)}"
       text-anchor="middle"
       font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
-      font-size="${mainFontSize}" font-weight="200" letter-spacing="${Math.round(mainFontSize * 0.35)}"
+      font-size="${mainFontSize}" font-weight="200" letter-spacing="${letterSp}"
       fill="#FFFFFF">ARCHIVE</text>
 
     <!-- Gold divider -->
-    <line x1="${Math.round(imgW * 0.545)}" y1="${dividerY1}"
-          x2="${Math.round(imgW * 0.545)}" y2="${dividerY1 + dividerH}"
-          stroke="#FFD700" stroke-width="${Math.max(1, Math.round(bannerH * 0.015))}"/>
+    <line x1="${dividerX}" y1="${dividerY1}"
+          x2="${dividerX}" y2="${dividerY1 + dividerH}"
+          stroke="#FFD700" stroke-width="${Math.max(1, Math.round(bannerH * 0.02))}"/>
 
-    <!-- 35 in gold (right of center) -->
-    <text x="${Math.round(imgW * 0.60)}" y="${Math.round(bannerH * 0.52)}"
+    <!-- 35 in gold -->
+    <text x="${num35X}" y="${Math.round(bannerH * 0.52)}"
       text-anchor="middle"
       font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
-      font-size="${Math.round(mainFontSize * 1.25)}" font-weight="900" letter-spacing="-1"
+      font-size="${Math.round(mainFontSize * 1.2)}" font-weight="900" letter-spacing="-1"
       fill="#FFD700">35</text>
 
     <!-- ARCHIVE-35.COM underneath -->
-    <text x="${Math.round(imgW * 0.50)}" y="${Math.round(bannerH * 0.85)}"
+    <text x="${cx}" y="${Math.round(bannerH * 0.84)}"
       text-anchor="middle"
       font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
-      font-size="${urlFontSize}" font-weight="400" letter-spacing="${Math.round(urlFontSize * 0.25)}"
+      font-size="${urlFontSize}" font-weight="400" letter-spacing="${Math.round(urlFontSize * 0.20)}"
       fill="#FFFFFF" opacity="0.9">ARCHIVE-35.COM</text>
   </svg>`;
 

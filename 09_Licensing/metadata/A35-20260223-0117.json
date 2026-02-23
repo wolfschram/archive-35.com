@@ -3,9 +3,9 @@
   "original_filename": "104A9021-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "White Sands Solitude",
+  "description": "A sweeping panoramic vista of undulating gypsum dunes with a solitary figure traversing the sculptural landscape, captured in exceptional detail and clarity across the expansive vista. The ultra-high-resolution composition reveals intricate surface textures and atmospheric depth, offering remarkable print potential for large-format fine art applications.",
+  "location": "White Sands National Park, New Mexico, USA",
   "classification": "PREMIUM",
   "resolution": {
     "width": 14846,
@@ -27,7 +27,7 @@
     "dpi": 300
   },
   "max_print_150dpi": {
-    "width_in": 99.0,
+    "width_in": 99,
     "height_in": 40.9,
     "dpi": 150
   },

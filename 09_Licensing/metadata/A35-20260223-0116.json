@@ -3,9 +3,9 @@
   "original_filename": "104A9021-Pano-2.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "White Sands Dune Geometry",
+  "description": "A sweeping panoramic study of undulating gypsum dunes and desert floor at White Sands National Park, captured in ultra-high resolution to reveal the intricate textures, shadows, and compositional layers across the vast landscape. The exceptional detail and scale make this image ideal for large-format fine art prints and commercial wall installations.",
+  "location": "White Sands National Park, Alamogordo, New Mexico, USA",
   "classification": "PREMIUM",
   "resolution": {
     "width": 14846,
@@ -27,7 +27,7 @@
     "dpi": 300
   },
   "max_print_150dpi": {
-    "width_in": 99.0,
+    "width_in": 99,
     "height_in": 40.9,
     "dpi": 150
   },

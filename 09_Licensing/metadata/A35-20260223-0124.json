@@ -3,9 +3,9 @@
   "original_filename": "104A9245-Pano.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "White Sands Luminescence",
+  "description": "A sweeping panoramic vista of pristine gypsum dunes bathed in golden light, with distant mountain ranges and sparse desert vegetation creating subtle depth layers. This ultra-high-resolution image captures extraordinary textural detail in the sand ripples and atmospheric clarity, offering exceptional print potential for large-format fine art applications.",
+  "location": "White Sands National Park, New Mexico, USA",
   "classification": "ULTRA",
   "resolution": {
     "width": 19759,
@@ -23,12 +23,12 @@
   ],
   "max_print_300dpi": {
     "width_in": 65.9,
-    "height_in": 28.0,
+    "height_in": 28,
     "dpi": 300
   },
   "max_print_150dpi": {
     "width_in": 131.7,
-    "height_in": 56.0,
+    "height_in": 56,
     "dpi": 150
   },
   "exif": {

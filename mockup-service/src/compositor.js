@@ -33,7 +33,7 @@ const { computeHomography, warpImageBilinear, getTransformedBounds } = require('
  * @param {string} [options.quality='high'] - 'high' (bilinear) or 'fast' (nearest)
  * @returns {Promise<Buffer>} JPEG buffer of the composited mockup
  */
-async function generateMockup({ photoPath, template, printSize, zoneIndex = 0, quality = 'high' }) {
+async function generateMockup({ photoPath, template, printSize, zoneIndex = 0, quality = 'high', overshoot = 8 }) {
   // 1. Load room template
   const roomImage = sharp(template.imagePath);
   const roomMeta = await roomImage.metadata();
@@ -59,7 +59,8 @@ async function generateMockup({ photoPath, template, printSize, zoneIndex = 0, q
 
   // 5. Compute the destination quad (where art goes on the wall)
   //    Scale from zone's full area to match the print size proportions
-  const dstCorners = computeDestinationCorners(zone, artDimensions, printW, printH);
+  //    overshoot extends the art beyond the zone boundary to cover green edges
+  const dstCorners = computeDestinationCorners(zone, artDimensions, printW, printH, overshoot);
 
   // 6. Compute homography: art rectangle → wall quadrilateral
   const srcCorners = [
@@ -104,7 +105,7 @@ async function generateMockup({ photoPath, template, printSize, zoneIndex = 0, q
   const warpedBuffer = await warpedImage.toBuffer();
 
   // 10. Composite warped art onto room template
-  const result = await sharp(template.imagePath)
+  const composited = await sharp(template.imagePath)
     .composite([
       {
         input: warpedBuffer,
@@ -113,8 +114,22 @@ async function generateMockup({ photoPath, template, printSize, zoneIndex = 0, q
         blend: 'over'
       }
     ])
-    .jpeg({ quality: 90 })
-    .toBuffer();
+    .removeAlpha() // Force 3-channel RGB output
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  // 11. Remove green-screen spill (reflections on floors, walls, furniture)
+  const ch = composited.info.channels;
+  const cleaned = removeGreenSpill(composited.data, composited.info.width, composited.info.height, ch);
+
+  // 12. Encode final JPEG
+  const result = await sharp(cleaned, {
+    raw: {
+      width: composited.info.width,
+      height: composited.info.height,
+      channels: ch
+    }
+  }).jpeg({ quality: 90 }).toBuffer();
 
   return result;
 }
@@ -250,8 +265,11 @@ function computeArtDimensions(zone, printW, printH) {
  * The placement zone corners define the MAXIMUM wall area.
  * The art may be smaller than the zone (if print size doesn't fill it),
  * so we center it within the zone and scale proportionally.
+ *
+ * @param {number} [overshootPx=0] - Pixels to extend art beyond zone boundary
+ *   to cover green-screen edge bleed. Converted to normalized overshoot.
  */
-function computeDestinationCorners(zone, artDimensions, printW, printH) {
+function computeDestinationCorners(zone, artDimensions, printW, printH, overshootPx = 0) {
   const c = zone.corners;
 
   // Zone corner vectors
@@ -277,9 +295,15 @@ function computeDestinationCorners(zone, artDimensions, printW, printH) {
     scaleX = (zoneH * printAspect) / zoneW;
   }
 
-  // Center the art within the zone
-  const offsetX = (1 - scaleX) / 2;
-  const offsetY = (1 - scaleY) / 2;
+  // Convert pixel overshoot to normalized zone fraction
+  const ovX = overshootPx / zoneW;
+  const ovY = overshootPx / zoneH;
+
+  // Center the art within the zone, with overshoot expansion
+  const offsetX = (1 - scaleX) / 2 - ovX;
+  const offsetY = (1 - scaleY) / 2 - ovY;
+  const fillX = scaleX + 2 * ovX;
+  const fillY = scaleY + 2 * ovY;
 
   // Bilinear interpolation of zone corners to get art corners
   // P(u,v) = (1-u)(1-v)*TL + u*(1-v)*TR + (1-u)*v*BL + u*v*BR
@@ -292,16 +316,75 @@ function computeDestinationCorners(zone, artDimensions, printW, printH) {
 
   return [
     lerp(offsetX, offsetY),                        // Top-left
-    lerp(offsetX + scaleX, offsetY),               // Top-right
-    lerp(offsetX + scaleX, offsetY + scaleY),      // Bottom-right
-    lerp(offsetX, offsetY + scaleY)                 // Bottom-left
+    lerp(offsetX + fillX, offsetY),                // Top-right
+    lerp(offsetX + fillX, offsetY + fillY),        // Bottom-right
+    lerp(offsetX, offsetY + fillY)                  // Bottom-left
   ];
+}
+
+/**
+ * Remove green-screen color spill from the composited image.
+ *
+ * AI-generated rooms with #00FF00 zones often have green reflections
+ * on floors, furniture, and walls. This scans the pixel buffer and
+ * neutralizes ONLY pixels with a strong green-screen signature.
+ *
+ * Tight detection thresholds to avoid false positives:
+ *   - G > 150 (strong green channel)
+ *   - G > R * 1.8 (green much stronger than red)
+ *   - G > B * 1.8 (green much stronger than blue)
+ *   - R < 120 AND B < 120 (red and blue channels are low)
+ *
+ * @param {Buffer} data - Raw pixel buffer
+ * @param {number} width
+ * @param {number} height
+ * @param {number} [channels=3] - 3 for RGB, 4 for RGBA
+ * @returns {Buffer} Cleaned pixel buffer
+ */
+function removeGreenSpill(data, width, height, channels = 3) {
+  const out = Buffer.from(data); // Copy to avoid mutating original
+
+  for (let i = 0; i < width * height; i++) {
+    const idx = i * channels;
+    const r = out[idx];
+    const g = out[idx + 1];
+    const b = out[idx + 2];
+
+    // Tight detection: only catch actual green-screen pixels and their direct spill
+    // Pure green screen: G=255, R≈0, B≈0
+    // Green spill/reflection: G>150, R<120, B<120, G dominates by 1.8x
+    if (g > 150 && r < 120 && b < 120 && g > r * 1.8 && g > b * 1.8) {
+      // How "green-screeny" is this pixel? (0 = mild spill, 1 = pure #00FF00)
+      const greenExcess = (g - Math.max(r, b)) / 255;
+      const spillStrength = Math.min(1.0, greenExcess * 2.0);
+
+      // Compute luminance
+      const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+
+      // Blend toward warm neutral (natural floor/wall tone)
+      const neutralR = Math.min(255, lum * 1.08);
+      const neutralG = Math.min(255, lum * 0.92);
+      const neutralB = Math.min(255, lum * 0.88);
+
+      out[idx]     = Math.round(r + (neutralR - r) * spillStrength);
+      out[idx + 1] = Math.round(g + (neutralG - g) * spillStrength);
+      out[idx + 2] = Math.round(b + (neutralB - b) * spillStrength);
+
+      // Clamp
+      out[idx]     = Math.min(255, Math.max(0, out[idx]));
+      out[idx + 1] = Math.min(255, Math.max(0, out[idx + 1]));
+      out[idx + 2] = Math.min(255, Math.max(0, out[idx + 2]));
+    }
+  }
+
+  return out;
 }
 
 module.exports = {
   generateMockup,
   generatePlatformMockup,
   addFrameShadow,
+  removeGreenSpill,
   parsePrintSize,
   computeArtDimensions,
   computeDestinationCorners

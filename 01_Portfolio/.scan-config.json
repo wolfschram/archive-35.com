@@ -4,10 +4,16 @@
     "Large_Scale_Photography_Stitch"
   ],
   "aliasMap": {
-    "south africa": "south_africa",
-    "grant teton": "Grand_Teton",
-    "new zealand": "New_Zealand_",
-    "iceland": "Iceland_Ring_road_",
-    "utha national parks": "Utah_National_Parks"
+    "south africa": "South_Africa",
+    "grand teton": "Grand_Teton",
+    "new zealand": "New_Zealand",
+    "iceland": "Iceland",
+    "utah national parks": "Utah_National_Parks",
+    "white sands np": "White_Sands_NP",
+    "new mexico": "New_Mexico",
+    "sequoia national park": "Sequoia_National_Park",
+    "random stuff": "Random_Stuff",
+    "monument valley": "Monument_Valley",
+    "mexico city": "Mexico_city"
   }
 }

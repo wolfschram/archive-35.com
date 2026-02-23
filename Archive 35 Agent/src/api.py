@@ -335,6 +335,162 @@ def reimport_photos(req: ImportRequest):
         conn.close()
 
 
+@app.get("/photos/collections/reconcile")
+def reconcile_collections():
+    """Show mismatches between photography/, 01_Portfolio/, and Agent DB.
+
+    Returns all three naming layers so Wolf can see what's off and fix it.
+    """
+    repo_root = Path(__file__).resolve().parent.parent.parent
+    photo_dir = repo_root / "photography"
+    portfolio_dir = repo_root / "01_Portfolio"
+
+    # Gather all three name sets
+    photo_folders = sorted(
+        [d.name for d in photo_dir.iterdir() if d.is_dir()]
+    ) if photo_dir.exists() else []
+
+    portfolio_folders = sorted(
+        [d.name for d in portfolio_dir.iterdir()
+         if d.is_dir() and not d.name.startswith(("_", "."))]
+    ) if portfolio_dir.exists() else []
+
+    conn = _get_conn()
+    try:
+        db_collections = {
+            r["collection"]: r["count"]
+            for r in conn.execute(
+                "SELECT collection, COUNT(*) as count FROM photos GROUP BY collection"
+            ).fetchall()
+        }
+    finally:
+        conn.close()
+
+    # Normalize function for matching
+    def normalize(name: str) -> str:
+        return name.lower().replace("_", "").replace(" ", "").rstrip()
+
+    # Build unified map
+    all_normalized: dict[str, dict] = {}
+    for name in photo_folders:
+        key = normalize(name)
+        all_normalized.setdefault(key, {})["photography"] = name
+    for name in portfolio_folders:
+        key = normalize(name)
+        all_normalized.setdefault(key, {})["portfolio"] = name
+    for name in db_collections:
+        key = normalize(name)
+        all_normalized.setdefault(key, {})["agent_db"] = name
+        all_normalized[key]["db_count"] = db_collections[name]
+
+    # Build results
+    results = []
+    for key, layers in sorted(all_normalized.items()):
+        photo_name = layers.get("photography")
+        portfolio_name = layers.get("portfolio")
+        db_name = layers.get("agent_db")
+        db_count = layers.get("db_count", 0)
+
+        # Count photos on disk
+        disk_count = 0
+        if photo_name:
+            folder = photo_dir / photo_name
+            disk_count = sum(
+                1 for f in folder.iterdir()
+                if f.is_file() and f.suffix.lower() in {".jpg", ".jpeg", ".png", ".tiff", ".webp"}
+            )
+
+        matched = (
+            photo_name is not None
+            and portfolio_name is not None
+            and db_name is not None
+        )
+        names_consistent = len({
+            normalize(n) for n in [photo_name, portfolio_name, db_name] if n
+        }) <= 1
+
+        results.append({
+            "normalized_key": key,
+            "photography": photo_name,
+            "portfolio": portfolio_name,
+            "agent_db": db_name,
+            "disk_count": disk_count,
+            "db_count": db_count,
+            "matched": matched,
+            "consistent": names_consistent,
+            "needs_attention": not matched or disk_count != db_count,
+        })
+
+    mismatches = [r for r in results if r["needs_attention"]]
+    return {
+        "total_collections": len(results),
+        "mismatches": len(mismatches),
+        "collections": results,
+    }
+
+
+class RenameCollectionRequest(BaseModel):
+    old_name: str
+    new_name: str
+    rename_photography: bool = True   # Rename folder in photography/
+    rename_portfolio: bool = False     # Rename folder in 01_Portfolio/
+    update_db: bool = True             # Update collection name in Agent DB
+
+
+@app.post("/photos/collections/rename")
+def rename_collection(req: RenameCollectionRequest):
+    """Rename a collection across filesystem and database.
+
+    Renames the actual folder on disk so future scans find the correct name.
+    """
+    repo_root = Path(__file__).resolve().parent.parent.parent
+    renamed = []
+
+    if req.rename_photography:
+        photo_dir = repo_root / "photography" / req.old_name
+        photo_target = repo_root / "photography" / req.new_name
+        if photo_dir.exists() and not photo_target.exists():
+            photo_dir.rename(photo_target)
+            renamed.append(f"photography/{req.old_name} → {req.new_name}")
+            logger.info("Renamed photography folder: %s → %s", req.old_name, req.new_name)
+        elif not photo_dir.exists():
+            logger.warning("Photography folder not found: %s", req.old_name)
+        elif photo_target.exists():
+            raise HTTPException(
+                status_code=400,
+                detail=f"Target folder already exists: photography/{req.new_name}"
+            )
+
+    if req.rename_portfolio:
+        port_dir = repo_root / "01_Portfolio" / req.old_name
+        port_target = repo_root / "01_Portfolio" / req.new_name
+        if port_dir.exists() and not port_target.exists():
+            port_dir.rename(port_target)
+            renamed.append(f"01_Portfolio/{req.old_name} → {req.new_name}")
+            logger.info("Renamed portfolio folder: %s → %s", req.old_name, req.new_name)
+
+    if req.update_db:
+        conn = _get_conn()
+        try:
+            count = conn.execute(
+                "UPDATE photos SET collection = ? WHERE collection = ?",
+                (req.new_name, req.old_name),
+            ).rowcount
+            conn.commit()
+            if count:
+                renamed.append(f"Agent DB: {count} photos updated")
+                logger.info("Updated %d photos: collection %s → %s", count, req.old_name, req.new_name)
+        finally:
+            conn.close()
+
+    return {
+        "success": len(renamed) > 0,
+        "changes": renamed,
+        "old_name": req.old_name,
+        "new_name": req.new_name,
+    }
+
+
 class AnalyzeRequest(BaseModel):
     photo_ids: Optional[list[str]] = None  # None = all unanalyzed
     limit: int = 10  # max photos per batch

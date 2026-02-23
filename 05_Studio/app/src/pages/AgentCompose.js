@@ -210,9 +210,14 @@ function AgentCompose() {
         if (platform === 'instagram') {
           // Instagram needs a public URL
           const imageUrl = firstImg.fullUrl || firstImg.src;
+          // Append "Link in bio" CTA if not already present
+          let igCaption = fullCaption;
+          if (!igCaption.toLowerCase().includes('link in bio')) {
+            igCaption += '\n\n\ud83d\uddbc\ufe0f Prints & licensing \u2192 Link in bio';
+          }
           const result = await post('/instagram/publish', {
             image_url: imageUrl,
-            caption: fullCaption,
+            caption: igCaption,
           });
           results[platform] = result;
         } else if (platform === 'pinterest') {

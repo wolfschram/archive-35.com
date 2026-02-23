@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 100" width="600" height="100">
+  <!-- Semi-transparent dark background pill for legibility on any image -->
+  <rect x="0" y="0" width="600" height="100" rx="12" fill="#000000" opacity="0.55"/>
+  <!-- ARCHIVE text -->
+  <text x="220" y="48" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="30" font-weight="200" letter-spacing="12" fill="#FFFFFF">ARCHIVE</text>
+  <!-- Gold divider -->
+  <line x1="355" y1="18" x2="355" y2="56" stroke="#FFD700" stroke-width="1"/>
+  <!-- 35 in gold -->
+  <text x="420" y="50" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="42" font-weight="900" letter-spacing="-1" fill="#FFD700">35</text>
+  <!-- Website URL underneath -->
+  <text x="300" y="82" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="18" font-weight="400" letter-spacing="3" fill="#FFFFFF" opacity="0.9">ARCHIVE-35.COM</text>
+</svg>

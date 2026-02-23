@@ -37,13 +37,14 @@ const path = require('path');
 // Branding assets — resolved from repo root /logos/
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BRANDING = {
-  logo: path.join(REPO_ROOT, 'logos', 'archive35-wordmark-600.png'),
+  logo: path.join(REPO_ROOT, 'logos', 'archive35-social-watermark-1200.png'),
   icon: path.join(REPO_ROOT, 'logos', 'archive35-icon-200.png'),
-  // Per-platform branding config
+  // Per-platform branding config — scale = % of image width
+  // Social platforms get larger branding so viewers can read "ARCHIVE-35.COM"
   platforms: {
-    'etsy':      { position: 'bottom-right', opacity: 0.7, scale: 0.12, padding: 30 },
-    'pinterest': { position: 'bottom-right', opacity: 0.7, scale: 0.15, padding: 24 },
-    'instagram': { position: 'bottom-right', opacity: 0.65, scale: 0.14, padding: 20 },
+    'etsy':      { position: 'bottom-right', opacity: 0.85, scale: 0.30, padding: 30 },
+    'pinterest': { position: 'bottom-right', opacity: 0.85, scale: 0.32, padding: 24 },
+    'instagram': { position: 'bottom-right', opacity: 0.85, scale: 0.30, padding: 20 },
     'web-full':  { position: 'bottom-right', opacity: 0.5, scale: 0.10, padding: 20 },
     'web-thumb': { position: 'bottom-right', opacity: 0.5, scale: 0.15, padding: 8 },
   }

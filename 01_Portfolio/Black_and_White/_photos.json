@@ -1775,5 +1775,45 @@
     "thumbnail": "Wolf 6272-thumb.jpg",
     "full": "Wolf 6272-full.jpg",
     "c2pa": true
+  },
+  {
+    "id": "104a9593-enhanced-nr",
+    "filename": "104A9593-Enhanced-NR.jpg",
+    "title": "Sentinel Dishes Across the Plain",
+    "description": "A striking alignment of massive radio telescope dishes stretches across an arid high-altitude plain, their geometric forms creating a powerful dialogue between human technology and vast landscape. This monumental installation speaks to humanity's quest to reach beyond the terrestrial realm, set against rolling mountains and expansive grassland.",
+    "location": "Very Large Array, Socorro, New Mexico, Black and White Region",
+    "tags": [
+      "radio-telescope",
+      "very-large-array",
+      "technology-landscape",
+      "astronomical-observatory",
+      "desert-plain",
+      "geometric-forms",
+      "high-altitude",
+      "monumental-architecture",
+      "arid-landscape",
+      "fine-art-photography",
+      "landscape-photography",
+      "black-and-white-photography",
+      "new-mexico",
+      "dramatic-composition",
+      "scientific-infrastructure",
+      "expansive-vista",
+      "human-achievement",
+      "wall-art",
+      "gallery-print",
+      "nature-and-technology"
+    ],
+    "dimensions": {
+      "width": 7848,
+      "height": 5235,
+      "aspectRatio": 1.499,
+      "aspectRatioString": "2616:1745",
+      "orientation": "landscape",
+      "megapixels": 41.1
+    },
+    "thumbnail": "104A9593-Enhanced-NR-thumb.jpg",
+    "full": "104A9593-Enhanced-NR-full.jpg",
+    "c2pa": true
   }
 ]

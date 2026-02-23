@@ -4049,15 +4049,36 @@ ipcMain.handle('write-file', async (event, relativePath, data) => {
 });
 
 ipcMain.handle('run-command', async (event, command) => {
-  // Execute a shell command in ARCHIVE_BASE — used by LicensingManager pipeline
-  const { execSync } = require('child_process');
-  const result = execSync(command, {
-    cwd: ARCHIVE_BASE,
-    timeout: 300000,  // 5 min — licensing images are huge
-    encoding: 'utf-8',
-    maxBuffer: 10 * 1024 * 1024,
+  // Execute a shell command in ARCHIVE_BASE — used by LicensingManager pipeline.
+  // IMPORTANT: Uses spawn (async) not execSync — large-scale photo scans can take
+  // minutes and execSync blocks the main process, freezing the entire app.
+  return new Promise((resolve, reject) => {
+    const proc = spawn('bash', ['-c', command], {
+      cwd: ARCHIVE_BASE,
+      env: { ...process.env, PYTHONUNBUFFERED: '1' },
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    let stdout = '';
+    let stderr = '';
+    proc.stdout.on('data', (d) => { stdout += d.toString(); });
+    proc.stderr.on('data', (d) => { stderr += d.toString(); });
+    const timer = setTimeout(() => {
+      proc.kill('SIGTERM');
+      reject(new Error('Command timed out after 5 minutes'));
+    }, 300000);
+    proc.on('close', (code) => {
+      clearTimeout(timer);
+      if (code === 0) {
+        resolve(stdout);
+      } else {
+        reject(new Error(stderr || stdout || `Process exited with code ${code}`));
+      }
+    });
+    proc.on('error', (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
   });
-  return result;
 });
 
 // ── Licensing AI Analysis: name/describe/locate licensing images ────────────

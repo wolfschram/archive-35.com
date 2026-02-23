@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260223-0124",
+  "original_filename": "104A9245-Pano.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "",
+  "description": "",
+  "location": "",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 19759,
+    "height": 8396
+  },
+  "megapixels": 165.9,
+  "aspect_ratio": 2.353,
+  "file_size_bytes": 41143204,
+  "file_size_mb": 39.2,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 65.9,
+    "height_in": 28.0,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 131.7,
+    "height_in": 56.0,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:05:12 17:43:33",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.0008",
+    "FNumber": "4.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260223-0124.jpg",
+    "preview": "previews/A35-20260223-0124.jpg",
+    "thumbnail": "thumbnails/A35-20260223-0124.jpg"
+  },
+  "scanned_at": "2026-02-23T21:39:09.458940+00:00"
+}

@@ -1,11 +1,19 @@
 /**
- * templates.js — Room Template CRUD for Archive-35 Mockup Engine
+ * templates.js — Room Template CRUD for Archive-35 Mockup Engine (v2 — Safe Zone)
+ *
+ * ⚠️ PROTECTED FILE — Risk: HIGH
+ * Dependencies: templates/templates.json, templates/rooms/*.png
+ * Side effects: Template changes affect compatibility matrix + all mockup outputs
+ * Read first: CONSTRAINTS.md (templates.json), LESSONS_LEARNED.md #033
+ * Consumers: Mockup Service (server.js, matcher.js, compositor.js, batch.js)
  *
  * Manages room template definitions: load, save, list, get by ID.
  * Templates are stored in templates/templates.json with room images
  * in templates/rooms/.
  *
- * Template JSON schema follows the spec from the build plan (Section 3.1.3).
+ * v2 changes (2026-02-23):
+ *   - safeZone field support in validation and listing
+ *   - Template objects now expose safeZone alongside placementZones
  */
 
 'use strict';
@@ -39,7 +47,9 @@ async function listTemplates() {
     const templates = JSON.parse(data);
     return templates.map(t => ({
       ...t,
-      imagePath: resolveImagePath(t.image)
+      imagePath: resolveImagePath(t.image || t.imagePath),
+      // v2: pass through safeZone if defined
+      safeZone: t.safeZone || null
     }));
   } catch (err) {
     if (err.code === 'ENOENT') {

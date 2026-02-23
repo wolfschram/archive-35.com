@@ -1,7 +1,18 @@
-"""Content Agent for Archive-35.
+"""Content Agent for Archive-35 (v2 — Mockup Support).
+
+⚠️ PROTECTED FILE — Risk: MEDIUM
+Dependencies: photos table (SQLite), Anthropic API, safety modules
+Side effects: Creates content rows consumed by social.py for posting
+Read first: CONSTRAINTS.md (rate limits), LESSONS_LEARNED.md #033
+Consumers: social.py, api.py (content queue endpoints)
 
 Generates platform-specific content (captions, descriptions, listings)
 using Claude Sonnet. Creates 2-3 variants per platform with 48h expiry.
+
+v2 changes (2026-02-23):
+  - Mockup-specific caption prompts for Instagram and Pinterest
+  - MOCKUP_PLATFORM_PROMPTS for posts featuring room mockup images
+  - These captions reference the art-in-room context, not just the photo
 """
 
 from __future__ import annotations
@@ -47,6 +58,34 @@ Output JSON: {{"body": "...", "tags": ["tag1", "tag2", ...]}}""",
     "etsy": f"""Write an Etsy listing description for this fine art photograph print.
 Include: SEO-rich title, detailed description (print quality, paper, story),
 13 tags optimized for Etsy search.
+{_NO_HALLUCINATE}
+Output JSON: {{"title": "...", "body": "...", "tags": ["tag1", ..., "tag13"]}}""",
+}
+
+# Mockup-specific prompts — for posts featuring art-in-room mockup images
+# These emphasize the interior design / home decor angle
+MOCKUP_PLATFORM_PROMPTS = {
+    "instagram": f"""Write an Instagram caption for a mockup image showing fine art photography
+displayed in a beautifully designed room. The image shows the photograph as a
+wall print in a real interior setting.
+Include: hook about transforming spaces with art, emotional connection to the scene,
+call to action to visit archive-35.com, 10 hashtags (mix of art + home decor).
+Style: aspirational, interior-design-focused, conversational.
+{_NO_HALLUCINATE}
+Output JSON: {{"body": "...", "tags": ["tag1", "tag2", ...]}}""",
+
+    "pinterest": f"""Write a Pinterest pin description for a mockup image showing fine art photography
+displayed as a wall print in a beautifully styled room.
+Include: description of how the art enhances the room (2-3 sentences),
+5 hashtags mixing fine art + interior design + home decor.
+Style: inspirational, home-styling focused, aspirational.
+{_NO_HALLUCINATE}
+Output JSON: {{"body": "...", "tags": ["tag1", "tag2", ...]}}""",
+
+    "etsy": f"""Write an Etsy listing for a fine art photograph shown as a wall print in a room mockup.
+Include: SEO-rich title mentioning "wall art" and "fine art print",
+description emphasizing how it looks in a real room, print quality details,
+13 tags optimized for Etsy search (include "wall art", "home decor", "fine art print").
 {_NO_HALLUCINATE}
 Output JSON: {{"title": "...", "body": "...", "tags": ["tag1", ..., "tag13"]}}""",
 }

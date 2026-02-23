@@ -57,6 +57,22 @@ class Settings(BaseSettings):
     # ── Printful ──
     printful_api_key: str = Field(default="", description="Printful API key")
 
+    # ── Mockup Service (Phase 2/3) ──
+    mockup_service_url: str = Field(
+        default="http://localhost:8036",
+        description="Mockup Compositing Service URL",
+    )
+    mockup_output_dir: str = Field(
+        default="mockups/social",
+        description="Directory for generated social mockups (relative to repo root)",
+    )
+    daily_mockup_posts: int = Field(
+        default=1,
+        description="Max mockup posts per platform per day",
+        ge=0,
+        le=5,
+    )
+
     # ── General ──
     daily_budget_usd: float = Field(
         default=5.00,

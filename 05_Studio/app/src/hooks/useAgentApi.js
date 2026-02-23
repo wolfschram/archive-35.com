@@ -107,7 +107,11 @@ export function useAgentApi() {
     return call(path, { method: 'POST', body });
   }, [call]);
 
-  return { get, post, loading, error, setError };
+  const del = useCallback((path) => {
+    return call(path, { method: 'DELETE' });
+  }, [call]);
+
+  return { get, post, del, loading, error, setError };
 }
 
 export { agentFetch };

@@ -806,4 +806,33 @@ In Cloudflare Workers, once the Response is returned to the client, the Worker r
 
 ---
 
+### LESSON 033: AI Agents Need Self-Help Mechanisms — Code Safety Annotations
+**Date:** 2026-02-23
+**Category:** `process` `ai-safety` `documentation` `CRITICAL`
+
+**Symptom:** AI agents (ChatGPT, Claude) modifying one file would unknowingly break other files that depend on it. With 3 systems (Studio, Agent, Mockup) sharing resources and growing codebase complexity, the full project exceeds any AI's context window. Fixes in one area caused regressions elsewhere.
+
+**Root Cause:** No embedded guidance in source files to remind AI agents about dependencies, constraints, or required reading BEFORE making changes. AI agents start fresh each session — they don't remember past lessons unless explicitly told. The documentation existed (LESSONS_LEARNED.md, CLAUDE.md) but nothing in the actual code files pointed agents to it.
+
+**Fix: Three-Layer Code Safety System**
+1. **CONSTRAINTS.md** (08_Docs/) — Hard immutable rules per critical file. "NEVER do X" with "Why" explanations and "Read first" references. This is the stop sign.
+2. **File Headers** — Structured comments at the top of critical source files with: risk level, dependencies, side effects, and "read before modifying" references. This is the speed bump.
+3. **CLAUDE.md Safety Protocol** — Added mandatory pre-modification checklist: read CONSTRAINTS.md, read file header, read LESSONS_LEARNED.md for relevant lessons, understand all consumers.
+
+**Prevention:**
+- **RULE: Every critical file gets a safety header.** Format: `⚠️ PROTECTED | Risk: HIGH | Dependencies: [list] | Read first: [docs]`
+- **RULE: CONSTRAINTS.md is immutable.** Only Wolf can relax a constraint. AI agents cannot self-authorize exceptions.
+- **RULE: When creating a NEW file that others will depend on, add it to CONSTRAINTS.md immediately.** Don't wait for the first break.
+- **RULE: The codebase must be self-documenting for AI agents.** If an AI needs to read 5 docs before safely editing a file, the file itself must say so.
+
+**Related Files:** `08_Docs/CONSTRAINTS.md`, `CLAUDE.md`, all critical source files
+
+---
+
+38. **Code needs self-help for AI.** Embed dependency hints and "read first" pointers directly in source files — AI agents don't remember past sessions.
+39. **CONSTRAINTS.md is the stop sign.** Hard rules per file. Only Wolf relaxes constraints.
+40. **Three-layer safety: CONSTRAINTS.md → file headers → CLAUDE.md checklist.** All three must agree before modifying critical code.
+
+---
+
 *This is a living document. Add new lessons as they're discovered. Every bug is a gift — it teaches us something we didn't know.*

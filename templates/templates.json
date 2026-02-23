@@ -1,1198 +1,968 @@
 [
   {
-    "id": "test-living-room-01",
-    "name": "Test Living Room",
+    "id": "living-room-modern",
+    "name": "Modern Living Room",
     "category": "living-room",
-    "image": "templates/rooms/test-living-room-01.jpg",
+    "image": "templates/rooms/living-room-modern.png",
     "dimensions": {
-      "width": 3000,
-      "height": 2000
+      "width": 1536,
+      "height": 1024
     },
     "placementZones": [
       {
         "id": "main-wall",
         "corners": {
           "topLeft": [
-            845,
-            310
+            467,
+            246
           ],
           "topRight": [
-            1610,
-            290
+            1044,
+            246
           ],
           "bottomRight": [
-            1620,
-            885
+            1044,
+            543
           ],
           "bottomLeft": [
-            835,
-            900
+            467,
+            543
           ]
         },
-        "maxWidth": 48,
-        "maxHeight": 36,
-        "lightAngle": 315,
-        "lightIntensity": 0.3
+        "maxDimensions": {
+          "width": 578,
+          "height": 298
+        }
       }
     ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#E8E0D8",
+    "safeZone": {
+      "x": 380,
+      "y": 201,
+      "w": 752,
+      "h": 388
+    },
+    "greenZoneAspect": 1.94,
+    "wallColor": "#E0DCD6",
     "ambientLight": 0.85
   },
   {
-    "id": "Living room ",
-    "name": "Living room ",
-    "category": "other",
-    "imagePath": "templates/rooms/Living room .png",
-    "dimensions": {
-      "width": 1536,
-      "height": 1024
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            701,
-            192
-          ],
-          "topRight": [
-            1092,
-            192
-          ],
-          "bottomRight": [
-            1092,
-            413
-          ],
-          "bottomLeft": [
-            701,
-            413
-          ]
-        },
-        "maxDimensions": {
-          "width": 391,
-          "height": 221
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
-  },
-  {
-    "id": "bedroom 1",
-    "name": "Bedroom 1",
+    "id": "bedroom-standard",
+    "name": "Minimalist Bedroom",
     "category": "bedroom",
-    "imagePath": "templates/rooms/bedroom 1.png",
+    "image": "templates/rooms/bedroom-standard.png",
     "dimensions": {
       "width": 1536,
       "height": 1024
     },
     "placementZones": [
       {
+        "id": "main-wall",
         "corners": {
           "topLeft": [
-            480,
-            138
+            522,
+            220
           ],
           "topRight": [
-            1027,
-            138
+            1009,
+            220
           ],
           "bottomRight": [
-            1027,
-            403
+            1009,
+            529
           ],
           "bottomLeft": [
-            480,
-            403
+            522,
+            529
           ]
         },
         "maxDimensions": {
-          "width": 547,
-          "height": 265
+          "width": 488,
+          "height": 310
         }
       }
     ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
+    "safeZone": {
+      "x": 449,
+      "y": 173,
+      "w": 634,
+      "h": 404
+    },
+    "greenZoneAspect": 1.574,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
   },
   {
-    "id": "bedroom 2 ",
-    "name": "Bedroom 2 ",
-    "category": "bedroom",
-    "imagePath": "templates/rooms/bedroom 2 .png",
+    "id": "penthouse-living",
+    "name": "Luxury Penthouse",
+    "category": "living-room",
+    "image": "templates/rooms/penthouse-living.png",
     "dimensions": {
       "width": 1536,
       "height": 1024
     },
     "placementZones": [
       {
+        "id": "main-wall",
         "corners": {
           "topLeft": [
-            396,
-            117
+            522,
+            220
           ],
           "topRight": [
-            831,
-            117
+            1009,
+            220
           ],
           "bottomRight": [
-            831,
-            382
+            1009,
+            529
           ],
           "bottomLeft": [
-            396,
-            382
+            522,
+            529
           ]
         },
         "maxDimensions": {
-          "width": 435,
-          "height": 265
+          "width": 488,
+          "height": 310
         }
       }
     ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.8893251612079422
-    }
+    "safeZone": {
+      "x": 449,
+      "y": 173,
+      "w": 634,
+      "h": 404
+    },
+    "greenZoneAspect": 1.574,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
   },
   {
-    "id": "business huddle room ",
-    "name": "Business huddle room ",
-    "category": "other",
-    "imagePath": "templates/rooms/business huddle room .png",
+    "id": "gallery-white",
+    "name": "Gallery White",
+    "category": "gallery",
+    "image": "templates/rooms/gallery-white.png",
     "dimensions": {
       "width": 1536,
       "height": 1024
     },
     "placementZones": [
       {
+        "id": "main-wall",
         "corners": {
           "topLeft": [
-            225,
-            257
+            424,
+            269
           ],
           "topRight": [
-            870,
-            257
+            1110,
+            269
           ],
           "bottomRight": [
-            870,
-            468
+            1110,
+            625
           ],
           "bottomLeft": [
-            225,
-            468
+            424,
+            625
           ]
         },
         "maxDimensions": {
-          "width": 645,
-          "height": 211
+          "width": 687,
+          "height": 357
         }
       }
     ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.8753517316017316
-    }
+    "safeZone": {
+      "x": 321,
+      "y": 215,
+      "w": 893,
+      "h": 465
+    },
+    "greenZoneAspect": 1.924,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
   },
   {
-    "id": "business lobby ",
-    "name": "Business lobby ",
+    "id": "gallery-dark",
+    "name": "Gallery Dark",
+    "category": "gallery",
+    "image": "templates/rooms/gallery-dark.png",
+    "dimensions": {
+      "width": 1536,
+      "height": 1024
+    },
+    "placementZones": [
+      {
+        "id": "main-wall",
+        "corners": {
+          "topLeft": [
+            463,
+            236
+          ],
+          "topRight": [
+            1075,
+            236
+          ],
+          "bottomRight": [
+            1075,
+            562
+          ],
+          "bottomLeft": [
+            463,
+            562
+          ]
+        },
+        "maxDimensions": {
+          "width": 613,
+          "height": 327
+        }
+      }
+    ],
+    "safeZone": {
+      "x": 371,
+      "y": 187,
+      "w": 797,
+      "h": 425
+    },
+    "greenZoneAspect": 1.875,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
+  },
+  {
+    "id": "gallery-large",
+    "name": "Gallery Large Scale",
+    "category": "gallery",
+    "image": "templates/rooms/gallery-large.png",
+    "dimensions": {
+      "width": 1536,
+      "height": 1024
+    },
+    "placementZones": [
+      {
+        "id": "main-wall",
+        "corners": {
+          "topLeft": [
+            293,
+            260
+          ],
+          "topRight": [
+            1241,
+            260
+          ],
+          "bottomRight": [
+            1241,
+            575
+          ],
+          "bottomLeft": [
+            293,
+            575
+          ]
+        },
+        "maxDimensions": {
+          "width": 949,
+          "height": 316
+        }
+      }
+    ],
+    "safeZone": {
+      "x": 151,
+      "y": 213,
+      "w": 1233,
+      "h": 410
+    },
+    "greenZoneAspect": 3.003,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
+  },
+  {
+    "id": "conference-room",
+    "name": "Modern Conference Room",
+    "category": "office",
+    "image": "templates/rooms/conference-room.png",
+    "dimensions": {
+      "width": 1536,
+      "height": 1024
+    },
+    "placementZones": [
+      {
+        "id": "main-wall",
+        "corners": {
+          "topLeft": [
+            440,
+            322
+          ],
+          "topRight": [
+            1069,
+            322
+          ],
+          "bottomRight": [
+            1069,
+            600
+          ],
+          "bottomLeft": [
+            440,
+            600
+          ]
+        },
+        "maxDimensions": {
+          "width": 630,
+          "height": 279
+        }
+      }
+    ],
+    "safeZone": {
+      "x": 345,
+      "y": 280,
+      "w": 820,
+      "h": 363
+    },
+    "greenZoneAspect": 2.258,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
+  },
+  {
+    "id": "restaurant-fine",
+    "name": "Fine Dining Restaurant",
+    "category": "restaurant",
+    "image": "templates/rooms/restaurant-fine.png",
+    "dimensions": {
+      "width": 1536,
+      "height": 1024
+    },
+    "placementZones": [
+      {
+        "id": "main-wall",
+        "corners": {
+          "topLeft": [
+            423,
+            240
+          ],
+          "topRight": [
+            1083,
+            240
+          ],
+          "bottomRight": [
+            1083,
+            545
+          ],
+          "bottomLeft": [
+            423,
+            545
+          ]
+        },
+        "maxDimensions": {
+          "width": 661,
+          "height": 306
+        }
+      }
+    ],
+    "safeZone": {
+      "x": 324,
+      "y": 194,
+      "w": 859,
+      "h": 398
+    },
+    "greenZoneAspect": 2.16,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
+  },
+  {
+    "id": "restaurant-square",
+    "name": "Fine Dining Square",
+    "category": "restaurant",
+    "image": "templates/rooms/restaurant-square.png",
+    "dimensions": {
+      "width": 1024,
+      "height": 1024
+    },
+    "placementZones": [
+      {
+        "id": "main-wall",
+        "corners": {
+          "topLeft": [
+            313,
+            182
+          ],
+          "topRight": [
+            708,
+            182
+          ],
+          "bottomRight": [
+            708,
+            525
+          ],
+          "bottomLeft": [
+            313,
+            525
+          ]
+        },
+        "maxDimensions": {
+          "width": 396,
+          "height": 344
+        }
+      }
+    ],
+    "safeZone": {
+      "x": 254,
+      "y": 130,
+      "w": 514,
+      "h": 448
+    },
+    "greenZoneAspect": 1.151,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
+  },
+  {
+    "id": "penthouse-luxury",
+    "name": "Luxury Penthouse Living",
+    "category": "living-room",
+    "image": "templates/rooms/penthouse-luxury.png",
+    "dimensions": {
+      "width": 1536,
+      "height": 1024
+    },
+    "placementZones": [
+      {
+        "id": "main-wall",
+        "corners": {
+          "topLeft": [
+            575,
+            238
+          ],
+          "topRight": [
+            1224,
+            238
+          ],
+          "bottomRight": [
+            1224,
+            511
+          ],
+          "bottomLeft": [
+            575,
+            511
+          ]
+        },
+        "maxDimensions": {
+          "width": 650,
+          "height": 274
+        }
+      }
+    ],
+    "safeZone": {
+      "x": 477,
+      "y": 197,
+      "w": 846,
+      "h": 356
+    },
+    "greenZoneAspect": 2.372,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
+  },
+  {
+    "id": "hotel-lobby",
+    "name": "Grand Hotel Lobby",
     "category": "lobby",
-    "imagePath": "templates/rooms/business lobby .png",
+    "image": "templates/rooms/hotel-lobby.png",
     "dimensions": {
       "width": 1536,
       "height": 1024
     },
     "placementZones": [
       {
+        "id": "main-wall",
         "corners": {
           "topLeft": [
-            922,
-            296
+            412,
+            337
           ],
           "topRight": [
-            1496,
-            296
+            1035,
+            337
           ],
           "bottomRight": [
-            1496,
-            540
+            1035,
+            578
           ],
           "bottomLeft": [
-            922,
-            540
+            412,
+            578
           ]
         },
         "maxDimensions": {
-          "width": 574,
+          "width": 624,
+          "height": 242
+        }
+      }
+    ],
+    "safeZone": {
+      "x": 318,
+      "y": 301,
+      "w": 812,
+      "h": 314
+    },
+    "greenZoneAspect": 2.579,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
+  },
+  {
+    "id": "outdoor-patio",
+    "name": "Covered Outdoor Patio",
+    "category": "outdoor",
+    "image": "templates/rooms/outdoor-patio.png",
+    "dimensions": {
+      "width": 1536,
+      "height": 1024
+    },
+    "placementZones": [
+      {
+        "id": "main-wall",
+        "corners": {
+          "topLeft": [
+            334,
+            241
+          ],
+          "topRight": [
+            1069,
+            241
+          ],
+          "bottomRight": [
+            1069,
+            575
+          ],
+          "bottomLeft": [
+            334,
+            575
+          ]
+        },
+        "maxDimensions": {
+          "width": 736,
+          "height": 335
+        }
+      }
+    ],
+    "safeZone": {
+      "x": 224,
+      "y": 191,
+      "w": 956,
+      "h": 435
+    },
+    "greenZoneAspect": 2.197,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
+  },
+  {
+    "id": "hotel-corridor-1",
+    "name": "Hotel Corridor 1",
+    "category": "hallway",
+    "image": "templates/rooms/hotel-corridor-1.png",
+    "dimensions": {
+      "width": 1536,
+      "height": 1024
+    },
+    "placementZones": [
+      {
+        "id": "main-wall",
+        "corners": {
+          "topLeft": [
+            412,
+            243
+          ],
+          "topRight": [
+            1123,
+            243
+          ],
+          "bottomRight": [
+            1123,
+            486
+          ],
+          "bottomLeft": [
+            412,
+            486
+          ]
+        },
+        "maxDimensions": {
+          "width": 712,
           "height": 244
         }
       }
     ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.8362520738419403
-    }
+    "safeZone": {
+      "x": 305,
+      "y": 206,
+      "w": 926,
+      "h": 318
+    },
+    "greenZoneAspect": 2.918,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
   },
   {
-    "id": "conference room 1",
-    "name": "Conference room 1",
-    "category": "other",
-    "imagePath": "templates/rooms/conference room 1.png",
+    "id": "hotel-corridor-2",
+    "name": "Hotel Corridor 2",
+    "category": "hallway",
+    "image": "templates/rooms/hotel-corridor-2.png",
     "dimensions": {
       "width": 1536,
       "height": 1024
     },
     "placementZones": [
       {
+        "id": "main-wall",
         "corners": {
           "topLeft": [
-            394,
-            259
+            337,
+            246
           ],
           "topRight": [
-            1119,
-            259
+            1177,
+            246
           ],
           "bottomRight": [
-            1119,
-            461
+            1177,
+            540
           ],
           "bottomLeft": [
-            394,
-            461
+            337,
+            540
           ]
         },
         "maxDimensions": {
-          "width": 725,
-          "height": 202
+          "width": 841,
+          "height": 295
         }
       }
     ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
-  },
-  {
-    "id": "dining room restaurant ",
-    "name": "Dining room restaurant ",
-    "category": "dining-room",
-    "imagePath": "templates/rooms/dining room restaurant .png",
-    "dimensions": {
-      "width": 1536,
-      "height": 1024
+    "safeZone": {
+      "x": 211,
+      "y": 202,
+      "w": 1093,
+      "h": 383
     },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            221,
-            209
-          ],
-          "topRight": [
-            968,
-            209
-          ],
-          "bottomRight": [
-            968,
-            501
-          ],
-          "bottomLeft": [
-            221,
-            501
-          ]
-        },
-        "maxDimensions": {
-          "width": 747,
-          "height": 292
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.8820186713570559
-    }
+    "greenZoneAspect": 2.851,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
   },
   {
-    "id": "gallery 1",
-    "name": "Gallery 1",
-    "category": "gallery",
-    "imagePath": "templates/rooms/gallery 1.png",
-    "dimensions": {
-      "width": 1536,
-      "height": 1024
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            540,
-            261
-          ],
-          "topRight": [
-            993,
-            261
-          ],
-          "bottomRight": [
-            993,
-            566
-          ],
-          "bottomLeft": [
-            540,
-            566
-          ]
-        },
-        "maxDimensions": {
-          "width": 453,
-          "height": 305
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
-  },
-  {
-    "id": "gallery black walls ",
-    "name": "Gallery black walls ",
-    "category": "gallery",
-    "imagePath": "templates/rooms/gallery black walls .png",
-    "dimensions": {
-      "width": 1536,
-      "height": 1024
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            536,
-            263
-          ],
-          "topRight": [
-            998,
-            263
-          ],
-          "bottomRight": [
-            998,
-            578
-          ],
-          "bottomLeft": [
-            536,
-            578
-          ]
-        },
-        "maxDimensions": {
-          "width": 462,
-          "height": 315
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
-  },
-  {
-    "id": "gallery large scale ",
-    "name": "Gallery large scale ",
-    "category": "gallery",
-    "imagePath": "templates/rooms/gallery large scale .png",
-    "dimensions": {
-      "width": 1536,
-      "height": 1024
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            317,
-            290
-          ],
-          "topRight": [
-            1215,
-            290
-          ],
-          "bottomRight": [
-            1215,
-            561
-          ],
-          "bottomLeft": [
-            317,
-            561
-          ]
-        },
-        "maxDimensions": {
-          "width": 898,
-          "height": 271
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
-  },
-  {
-    "id": "gallery",
-    "name": "Gallery",
-    "category": "gallery",
-    "imagePath": "templates/rooms/gallery.png",
-    "dimensions": {
-      "width": 1536,
-      "height": 1024
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            540,
-            261
-          ],
-          "topRight": [
-            993,
-            261
-          ],
-          "bottomRight": [
-            993,
-            566
-          ],
-          "bottomLeft": [
-            540,
-            566
-          ]
-        },
-        "maxDimensions": {
-          "width": 453,
-          "height": 305
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
-  },
-  {
-    "id": "hallway 1",
-    "name": "Hallway 1",
-    "category": "entry",
-    "imagePath": "templates/rooms/hallway 1.png",
-    "dimensions": {
-      "width": 1024,
-      "height": 1536
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            136,
-            241
-          ],
-          "topRight": [
-            406,
-            241
-          ],
-          "bottomRight": [
-            406,
-            635
-          ],
-          "bottomLeft": [
-            136,
-            635
-          ]
-        },
-        "maxDimensions": {
-          "width": 270,
-          "height": 394
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.8422324121376255
-    }
-  },
-  {
-    "id": "hallway 2",
-    "name": "Hallway 2",
-    "category": "entry",
-    "imagePath": "templates/rooms/hallway 2.png",
-    "dimensions": {
-      "width": 1024,
-      "height": 1536
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            88,
-            218
-          ],
-          "topRight": [
-            271,
-            218
-          ],
-          "bottomRight": [
-            271,
-            630
-          ],
-          "bottomLeft": [
-            88,
-            630
-          ]
-        },
-        "maxDimensions": {
-          "width": 183,
-          "height": 412
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.8517569387134605
-    }
-  },
-  {
-    "id": "hotel hallway ",
-    "name": "Hotel hallway ",
-    "category": "entry",
-    "imagePath": "templates/rooms/hotel hallway .png",
-    "dimensions": {
-      "width": 1536,
-      "height": 1024
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            538,
-            205
-          ],
-          "topRight": [
-            998,
-            205
-          ],
-          "bottomRight": [
-            998,
-            664
-          ],
-          "bottomLeft": [
-            538,
-            664
-          ]
-        },
-        "maxDimensions": {
-          "width": 460,
-          "height": 459
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "fallback-center",
-      "confidence": 0.2
-    }
-  },
-  {
-    "id": "hotel lobby 1",
-    "name": "Hotel lobby 1",
-    "category": "lobby",
-    "imagePath": "templates/rooms/hotel lobby 1.png",
-    "dimensions": {
-      "width": 1536,
-      "height": 1024
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            361,
-            234
-          ],
-          "topRight": [
-            1167,
-            234
-          ],
-          "bottomRight": [
-            1167,
-            451
-          ],
-          "bottomLeft": [
-            361,
-            451
-          ]
-        },
-        "maxDimensions": {
-          "width": 806,
-          "height": 217
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
-  },
-  {
-    "id": "hotel lobby 2 ",
-    "name": "Hotel lobby 2 ",
-    "category": "lobby",
-    "imagePath": "templates/rooms/hotel lobby 2 .png",
-    "dimensions": {
-      "width": 1536,
-      "height": 1024
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            445,
-            225
-          ],
-          "topRight": [
-            1094,
-            225
-          ],
-          "bottomRight": [
-            1094,
-            424
-          ],
-          "bottomLeft": [
-            445,
-            424
-          ]
-        },
-        "maxDimensions": {
-          "width": 649,
-          "height": 199
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
-  },
-  {
-    "id": "hotel lobby 3",
-    "name": "Hotel lobby 3",
-    "category": "lobby",
-    "imagePath": "templates/rooms/hotel lobby 3.png",
-    "dimensions": {
-      "width": 1536,
-      "height": 1024
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            417,
-            230
-          ],
-          "topRight": [
-            1146,
-            230
-          ],
-          "bottomRight": [
-            1146,
-            434
-          ],
-          "bottomLeft": [
-            417,
-            434
-          ]
-        },
-        "maxDimensions": {
-          "width": 729,
-          "height": 204
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
-  },
-  {
-    "id": "living room 1",
-    "name": "Living room 1",
-    "category": "living-room",
-    "imagePath": "templates/rooms/living room 1.png",
-    "dimensions": {
-      "width": 1536,
-      "height": 1024
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            551,
-            163
-          ],
-          "topRight": [
-            1029,
-            163
-          ],
-          "bottomRight": [
-            1029,
-            449
-          ],
-          "bottomLeft": [
-            551,
-            449
-          ]
-        },
-        "maxDimensions": {
-          "width": 478,
-          "height": 286
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
-  },
-  {
-    "id": "luxery livingroom ",
-    "name": "Luxery livingroom ",
-    "category": "living-room",
-    "imagePath": "templates/rooms/luxery livingroom .png",
-    "dimensions": {
-      "width": 2816,
-      "height": 1536
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            760,
-            310
-          ],
-          "topRight": [
-            1123,
-            310
-          ],
-          "bottomRight": [
-            1123,
-            933
-          ],
-          "bottomLeft": [
-            760,
-            933
-          ]
-        },
-        "maxDimensions": {
-          "width": 363,
-          "height": 623
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.9313806154352476
-    }
-  },
-  {
-    "id": "office ",
-    "name": "Office ",
+    "id": "executive-office",
+    "name": "Executive Office",
     "category": "office",
-    "imagePath": "templates/rooms/office .png",
-    "dimensions": {
-      "width": 2528,
-      "height": 1696
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            1065,
-            294
-          ],
-          "topRight": [
-            1460,
-            294
-          ],
-          "bottomRight": [
-            1460,
-            809
-          ],
-          "bottomLeft": [
-            1065,
-            809
-          ]
-        },
-        "maxDimensions": {
-          "width": 395,
-          "height": 515
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
-  },
-  {
-    "id": "outdoor aerea 1",
-    "name": "Outdoor aerea 1",
-    "category": "other",
-    "imagePath": "templates/rooms/outdoor aerea 1.png",
+    "image": "templates/rooms/executive-office.png",
     "dimensions": {
       "width": 1536,
       "height": 1024
     },
     "placementZones": [
       {
+        "id": "main-wall",
         "corners": {
           "topLeft": [
-            432,
-            255
+            340,
+            246
           ],
           "topRight": [
-            801,
-            255
+            1169,
+            246
           ],
           "bottomRight": [
-            801,
-            490
+            1169,
+            538
           ],
           "bottomLeft": [
-            432,
-            490
+            340,
+            538
           ]
         },
         "maxDimensions": {
-          "width": 369,
-          "height": 235
-        }
-      }
-    ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
-  },
-  {
-    "id": "penthouse ",
-    "name": "Penthouse ",
-    "category": "other",
-    "imagePath": "templates/rooms/penthouse .png",
-    "dimensions": {
-      "width": 1536,
-      "height": 1024
-    },
-    "placementZones": [
-      {
-        "corners": {
-          "topLeft": [
-            230,
-            271
-          ],
-          "topRight": [
-            1081,
-            271
-          ],
-          "bottomRight": [
-            1081,
-            564
-          ],
-          "bottomLeft": [
-            230,
-            564
-          ]
-        },
-        "maxDimensions": {
-          "width": 851,
+          "width": 830,
           "height": 293
         }
       }
     ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.95
-    }
+    "safeZone": {
+      "x": 215,
+      "y": 202,
+      "w": 1080,
+      "h": 381
+    },
+    "greenZoneAspect": 2.833,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
   },
   {
-    "id": "restaurant ",
-    "name": "Restaurant ",
-    "category": "restaurant",
-    "imagePath": "templates/rooms/restaurant .png",
+    "id": "bedroom-portrait-1",
+    "name": "Bedroom Portrait",
+    "category": "bedroom",
+    "image": "templates/rooms/bedroom-portrait-1.png",
+    "dimensions": {
+      "width": 1024,
+      "height": 1536
+    },
+    "placementZones": [
+      {
+        "id": "main-wall",
+        "corners": {
+          "topLeft": [
+            339,
+            381
+          ],
+          "topRight": [
+            684,
+            381
+          ],
+          "bottomRight": [
+            684,
+            867
+          ],
+          "bottomLeft": [
+            339,
+            867
+          ]
+        },
+        "maxDimensions": {
+          "width": 346,
+          "height": 487
+        }
+      }
+    ],
+    "safeZone": {
+      "x": 287,
+      "y": 308,
+      "w": 450,
+      "h": 633
+    },
+    "greenZoneAspect": 0.71,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
+  },
+  {
+    "id": "bedroom-portrait-2",
+    "name": "Bedroom Portrait 2",
+    "category": "bedroom",
+    "image": "templates/rooms/bedroom-portrait-2.png",
+    "dimensions": {
+      "width": 1024,
+      "height": 1536
+    },
+    "placementZones": [
+      {
+        "id": "main-wall",
+        "corners": {
+          "topLeft": [
+            364,
+            245
+          ],
+          "topRight": [
+            716,
+            245
+          ],
+          "bottomRight": [
+            716,
+            662
+          ],
+          "bottomLeft": [
+            364,
+            662
+          ]
+        },
+        "maxDimensions": {
+          "width": 353,
+          "height": 418
+        }
+      }
+    ],
+    "safeZone": {
+      "x": 311,
+      "y": 182,
+      "w": 459,
+      "h": 544
+    },
+    "greenZoneAspect": 0.844,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
+  },
+  {
+    "id": "bedroom-wide",
+    "name": "Bedroom Wide",
+    "category": "bedroom",
+    "image": "templates/rooms/bedroom-wide.png",
     "dimensions": {
       "width": 1536,
       "height": 1024
     },
     "placementZones": [
       {
+        "id": "main-wall",
         "corners": {
           "topLeft": [
-            553,
-            184
+            590,
+            93
           ],
           "topRight": [
-            983,
-            184
+            945,
+            93
           ],
           "bottomRight": [
-            983,
-            461
+            945,
+            483
           ],
           "bottomLeft": [
-            553,
-            461
+            590,
+            483
           ]
         },
         "maxDimensions": {
-          "width": 430,
-          "height": 277
+          "width": 356,
+          "height": 391
         }
       }
     ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
-    ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "blank-wall",
-      "confidence": 0.31737335834896807
-    }
+    "safeZone": {
+      "x": 537,
+      "y": 34,
+      "w": 462,
+      "h": 509
+    },
+    "greenZoneAspect": 0.91,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
   },
   {
-    "id": "spa wellness lobby ",
-    "name": "Spa wellness lobby ",
-    "category": "lobby",
-    "imagePath": "templates/rooms/spa wellness lobby .png",
+    "id": "spa-wellness",
+    "name": "Spa & Wellness Lobby",
+    "category": "spa",
+    "image": "templates/rooms/spa-wellness.png",
+    "dimensions": {
+      "width": 1024,
+      "height": 1536
+    },
+    "placementZones": [
+      {
+        "id": "main-wall",
+        "corners": {
+          "topLeft": [
+            380,
+            368
+          ],
+          "topRight": [
+            647,
+            368
+          ],
+          "bottomRight": [
+            647,
+            737
+          ],
+          "bottomLeft": [
+            380,
+            737
+          ]
+        },
+        "maxDimensions": {
+          "width": 268,
+          "height": 370
+        }
+      }
+    ],
+    "safeZone": {
+      "x": 340,
+      "y": 312,
+      "w": 348,
+      "h": 482
+    },
+    "greenZoneAspect": 0.724,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
+  },
+  {
+    "id": "penthouse-bedroom-1",
+    "name": "Penthouse Bedroom 1",
+    "category": "bedroom",
+    "image": "templates/rooms/penthouse-bedroom-1.png",
     "dimensions": {
       "width": 1536,
       "height": 1024
     },
     "placementZones": [
       {
+        "id": "main-wall",
         "corners": {
           "topLeft": [
-            758,
-            215
+            581,
+            223
           ],
           "topRight": [
-            1373,
-            215
+            1018,
+            223
           ],
           "bottomRight": [
-            1373,
-            499
+            1018,
+            375
           ],
           "bottomLeft": [
-            758,
-            499
+            581,
+            375
           ]
         },
         "maxDimensions": {
-          "width": 615,
-          "height": 284
+          "width": 438,
+          "height": 153
         }
       }
     ],
-    "printSizes": [
-      "16x24",
-      "20x30",
-      "24x36"
+    "safeZone": {
+      "x": 515,
+      "y": 200,
+      "w": 570,
+      "h": 199
+    },
+    "greenZoneAspect": 2.863,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
+  },
+  {
+    "id": "penthouse-bedroom-2",
+    "name": "Penthouse Bedroom 2",
+    "category": "bedroom",
+    "image": "templates/rooms/penthouse-bedroom-2.png",
+    "dimensions": {
+      "width": 1536,
+      "height": 1024
+    },
+    "placementZones": [
+      {
+        "id": "main-wall",
+        "corners": {
+          "topLeft": [
+            542,
+            270
+          ],
+          "topRight": [
+            1001,
+            270
+          ],
+          "bottomRight": [
+            1001,
+            422
+          ],
+          "bottomLeft": [
+            542,
+            422
+          ]
+        },
+        "maxDimensions": {
+          "width": 460,
+          "height": 153
+        }
+      }
     ],
-    "wallColor": "#FFFFFF",
-    "lightAngle": 45,
-    "lightIntensity": 0.7,
-    "_detection": {
-      "method": "green-screen",
-      "confidence": 0.9010346283783783
-    }
+    "safeZone": {
+      "x": 473,
+      "y": 247,
+      "w": 598,
+      "h": 199
+    },
+    "greenZoneAspect": 3.007,
+    "wallColor": "#E0DCD6",
+    "ambientLight": 0.85
   }
 ]

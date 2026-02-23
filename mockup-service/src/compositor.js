@@ -1,9 +1,20 @@
 /**
- * compositor.js — Sharp-based Mockup Compositing Engine
+ * compositor.js — Sharp-based Mockup Compositing Engine (v2 — Branding Support)
+ *
+ * ⚠️ PROTECTED FILE — Risk: HIGH
+ * Dependencies: homography.js, templates.json, sharp (npm)
+ * Side effects: Generates customer-facing mockup images for social + web
+ * Read first: CONSTRAINTS.md, LESSONS_LEARNED.md #033, ChatGPT_Room_Prompt_Strategy_v2.docx
+ * Consumers: Mockup Service (server.js), batch.js, Agent social pipeline
  *
  * Takes an art photo and a room template, applies perspective transform,
  * and composites the art onto the room wall. Supports multiple output
  * formats for different platforms (Etsy, Pinterest, Website).
+ *
+ * v2 changes (2026-02-23):
+ *   - Branding overlay: Archive-35.com logo on all platform outputs
+ *   - generatePlatformMockup() now applies branding after crop
+ *   - New addBrandingOverlay() function with per-platform positioning
  *
  * Pipeline:
  *   1. Load room template image + art photo
@@ -12,14 +23,31 @@
  *   4. Compute homography from art rect → wall quad corners
  *   5. Warp art pixels using reverse-mapping
  *   6. Composite warped art onto room template
- *   7. Apply optional shadow/light overlay
- *   8. Output as JPEG at target dimensions
+ *   7. Remove green-screen spill
+ *   8. Apply branding overlay (logo + URL)
+ *   9. Output as JPEG at target dimensions
  */
 
 'use strict';
 
 const sharp = require('sharp');
+const fs = require('fs');
 const path = require('path');
+
+// Branding assets — resolved from repo root /logos/
+const REPO_ROOT = path.resolve(__dirname, '..', '..');
+const BRANDING = {
+  logo: path.join(REPO_ROOT, 'logos', 'archive35-wordmark-600.png'),
+  icon: path.join(REPO_ROOT, 'logos', 'archive35-icon-200.png'),
+  // Per-platform branding config
+  platforms: {
+    'etsy':      { position: 'bottom-right', opacity: 0.7, scale: 0.12, padding: 30 },
+    'pinterest': { position: 'bottom-right', opacity: 0.7, scale: 0.15, padding: 24 },
+    'instagram': { position: 'bottom-right', opacity: 0.65, scale: 0.14, padding: 20 },
+    'web-full':  { position: 'bottom-right', opacity: 0.5, scale: 0.10, padding: 20 },
+    'web-thumb': { position: 'bottom-right', opacity: 0.5, scale: 0.15, padding: 8 },
+  }
+};
 const { computeHomography, warpImageBilinear, getTransformedBounds } = require('./homography');
 
 /**
@@ -146,21 +174,22 @@ async function generatePlatformMockup(options) {
   const mockup = await generateMockup(options);
 
   const platformSpecs = {
-    'etsy': { width: 2000, height: 2000, fit: 'cover' },
+    'etsy':      { width: 2000, height: 2000, fit: 'cover' },
     'pinterest': { width: 1000, height: 1500, fit: 'cover' },
-    'web-full': { width: 2000, height: null, fit: 'inside' },
-    'web-thumb': { width: 400, height: null, fit: 'inside' }
+    'instagram': { width: 1080, height: 1080, fit: 'cover' },
+    'web-full':  { width: 2000, height: null,  fit: 'inside' },
+    'web-thumb': { width: 400,  height: null,  fit: 'inside' }
   };
 
   const spec = platformSpecs[options.platform];
   if (!spec) {
-    throw new Error(`Unknown platform: ${options.platform}`);
+    throw new Error(`Unknown platform: ${options.platform}. Valid: ${Object.keys(platformSpecs).join(', ')}`);
   }
 
   let pipeline = sharp(mockup);
 
   if (spec.height) {
-    // Fixed aspect ratio crop (Etsy 1:1, Pinterest 2:3)
+    // Fixed aspect ratio crop (Etsy 1:1, Pinterest 2:3, Instagram 1:1)
     pipeline = pipeline.resize(spec.width, spec.height, {
       fit: 'cover',
       position: 'centre'
@@ -173,15 +202,108 @@ async function generatePlatformMockup(options) {
     });
   }
 
-  const result = await pipeline.jpeg({ quality: 90 }).toBuffer();
+  let result = await pipeline.jpeg({ quality: 90 }).toBuffer();
+
+  // Apply branding overlay (Archive-35.com logo) unless explicitly skipped
+  if (options.platform && !options.skipBranding) {
+    result = await addBrandingOverlay(result, options.platform, options);
+  }
 
   if (options.outputPath) {
-    const fs = require('fs').promises;
-    await fs.mkdir(path.dirname(options.outputPath), { recursive: true });
-    await fs.writeFile(options.outputPath, result);
+    const fsPromises = require('fs').promises;
+    await fsPromises.mkdir(path.dirname(options.outputPath), { recursive: true });
+    await fsPromises.writeFile(options.outputPath, result);
   }
 
   return result;
+}
+
+/**
+ * Add Archive-35.com branding overlay to a mockup image.
+ * Applies a semi-transparent logo in the specified corner.
+ *
+ * @param {Buffer} imageBuffer - JPEG buffer of the mockup
+ * @param {string} platform - Platform name (etsy, pinterest, instagram, web-full, web-thumb)
+ * @param {object} [options] - Override defaults
+ * @param {boolean} [options.skipBranding=false] - If true, return image unchanged
+ * @returns {Promise<Buffer>} JPEG buffer with branding overlay
+ */
+async function addBrandingOverlay(imageBuffer, platform, options = {}) {
+  if (options.skipBranding) return imageBuffer;
+
+  const config = BRANDING.platforms[platform] || BRANDING.platforms['web-full'];
+  const logoPath = BRANDING.logo;
+
+  // Check if logo file exists
+  if (!fs.existsSync(logoPath)) {
+    console.warn(`Branding logo not found at ${logoPath}, skipping overlay`);
+    return imageBuffer;
+  }
+
+  // Get image dimensions
+  const imgMeta = await sharp(imageBuffer).metadata();
+  const imgW = imgMeta.width;
+  const imgH = imgMeta.height;
+
+  // Scale logo relative to image width
+  const logoTargetW = Math.round(imgW * config.scale);
+
+  // Resize logo with transparency → raw pixels for opacity manipulation
+  const logoResized = await sharp(logoPath)
+    .resize(logoTargetW, null, { fit: 'inside', withoutEnlargement: true })
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const { data, info } = logoResized;
+
+  // Apply opacity by modifying alpha channel
+  if (config.opacity < 1.0) {
+    const pixels = Buffer.from(data);
+    for (let i = 3; i < pixels.length; i += 4) {
+      pixels[i] = Math.round(pixels[i] * config.opacity);
+    }
+
+    var logoBuffer = await sharp(pixels, {
+      raw: { width: info.width, height: info.height, channels: 4 }
+    }).png().toBuffer();
+  } else {
+    var logoBuffer = await sharp(data, {
+      raw: { width: info.width, height: info.height, channels: 4 }
+    }).png().toBuffer();
+  }
+
+  // Compute position
+  const pad = config.padding;
+  let left, top;
+  switch (config.position) {
+    case 'bottom-right':
+      left = imgW - info.width - pad;
+      top = imgH - info.height - pad;
+      break;
+    case 'bottom-left':
+      left = pad;
+      top = imgH - info.height - pad;
+      break;
+    case 'top-right':
+      left = imgW - info.width - pad;
+      top = pad;
+      break;
+    default: // top-left
+      left = pad;
+      top = pad;
+  }
+
+  // Composite logo onto image
+  return sharp(imageBuffer)
+    .composite([{
+      input: logoBuffer,
+      left: Math.max(0, left),
+      top: Math.max(0, top),
+      blend: 'over'
+    }])
+    .jpeg({ quality: 90 })
+    .toBuffer();
 }
 
 /**
@@ -233,20 +355,11 @@ function computeArtDimensions(zone, printW, printH) {
     corners.bottomLeft[1] - corners.topLeft[1]
   );
 
-  // Print aspect ratio
-  const printAspect = printW / printH;
-  const zoneAspect = zoneW / zoneH;
-
-  let artW, artH;
-  if (printAspect > zoneAspect) {
-    // Art is wider than zone — fit to zone width
-    artW = Math.round(zoneW);
-    artH = Math.round(zoneW / printAspect);
-  } else {
-    // Art is taller than zone — fit to zone height
-    artH = Math.round(zoneH);
-    artW = Math.round(zoneH * printAspect);
-  }
+  // FILL the zone completely — art will be resized with fit:'cover' (crop to fill)
+  // The zone IS the frame; the photo fills it edge-to-edge.
+  // Print size is metadata only — it doesn't affect the visual mockup.
+  let artW = Math.round(zoneW);
+  let artH = Math.round(zoneH);
 
   // Cap at reasonable resolution for compositing (2x the zone for quality)
   const maxDim = 2000;
@@ -282,18 +395,10 @@ function computeDestinationCorners(zone, artDimensions, printW, printH, overshoo
   const zoneW = Math.hypot(tr.x - tl.x, tr.y - tl.y);
   const zoneH = Math.hypot(bl.x - tl.x, bl.y - tl.y);
 
-  // How much of the zone the art fills
-  const printAspect = printW / printH;
-  const zoneAspect = zoneW / zoneH;
-
-  let scaleX, scaleY;
-  if (printAspect > zoneAspect) {
-    scaleX = 1.0;
-    scaleY = (zoneW / printAspect) / zoneH;
-  } else {
-    scaleY = 1.0;
-    scaleX = (zoneH * printAspect) / zoneW;
-  }
+  // Art fills the entire zone — no aspect ratio letterboxing.
+  // The photo is cropped to cover (via Sharp fit:'cover' in generateMockup).
+  let scaleX = 1.0;
+  let scaleY = 1.0;
 
   // Convert pixel overshoot to normalized zone fraction
   const ovX = overshootPx / zoneW;
@@ -383,6 +488,7 @@ function removeGreenSpill(data, width, height, channels = 3) {
 module.exports = {
   generateMockup,
   generatePlatformMockup,
+  addBrandingOverlay,
   addFrameShadow,
   removeGreenSpill,
   parsePrintSize,

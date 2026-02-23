@@ -1,13 +1,24 @@
 /**
- * matcher.js — Aspect Ratio Compatibility Engine
+ * matcher.js — Aspect Ratio Compatibility Engine (v2 — Safe Zone Support)
+ *
+ * ⚠️ PROTECTED FILE — Risk: HIGH
+ * Dependencies: data/photos.json, templates/templates.json
+ * Side effects: Compatibility matrix determines which mockups can be generated
+ * Read first: CONSTRAINTS.md (data/photos.json, templates.json), LESSONS_LEARNED.md #033
+ * Consumers: Mockup Service (server.js), compositor.js, prompt-generator.js
  *
  * Maps photos ↔ room templates based on aspect ratio.
  * Prevents impossible combinations (ultra-wide pano in portrait zone).
  * Identifies gaps where new ChatGPT room templates are needed.
  *
+ * v2 changes (2026-02-23):
+ *   - Safe zone support: when template has safeZone, uses expanded area for tolerance
+ *   - analyzeTemplate() now returns both greenZone and safeZone aspect ratios
+ *   - isCompatible() accepts optional safeZoneAspect for extended matching
+ *
  * Data sources:
- *   - data/photos.json (819 photos with dimensions.aspectRatio)
- *   - templates/templates.json (24 templates with zone corners)
+ *   - data/photos.json (photos with dimensions.aspectRatio)
+ *   - templates/templates.json (templates with zone corners + optional safeZone)
  */
 
 'use strict';
@@ -73,6 +84,37 @@ function analyzeTemplate(template, zoneIndex = 0) {
 }
 
 /**
+ * Compute safe zone aspect ratio from a template's safeZone field.
+ * Returns null if no safeZone defined — caller should fall back to green zone.
+ *
+ * @param {object} template - Template object from templates.json
+ * @returns {{ aspect: number, width: number, height: number } | null}
+ */
+function analyzeSafeZone(template) {
+  const sz = template.safeZone;
+  if (!sz || !sz.w || !sz.h) {
+    // No explicit safe zone — estimate as 15% larger than green zone
+    const greenAspect = analyzeTemplate(template);
+    if (!greenAspect) return null;
+
+    const zone = template.placementZones?.[0];
+    if (!zone) return null;
+
+    const c = zone.corners;
+    const greenW = zone.maxDimensions?.width || Math.hypot(c.topRight[0] - c.topLeft[0], c.topRight[1] - c.topLeft[1]);
+    const greenH = zone.maxDimensions?.height || Math.hypot(c.bottomLeft[0] - c.topLeft[0], c.bottomLeft[1] - c.topLeft[1]);
+
+    // Default safe zone: 15% larger in each direction (30% total expansion)
+    const safeW = Math.round(greenW * 1.30);
+    const safeH = Math.round(greenH * 1.30);
+
+    return { aspect: safeW / safeH, width: safeW, height: safeH };
+  }
+
+  return { aspect: sz.w / sz.h, width: sz.w, height: sz.h };
+}
+
+/**
  * Check if a photo aspect ratio is compatible with a zone aspect ratio.
  *
  * @param {number} photoAspect - Photo width/height ratio
@@ -112,16 +154,23 @@ function isCompatible(photoAspect, zoneAspect, tolerance = DEFAULT_TOLERANCE) {
  * @returns {object} Matrix with per-photo and per-template lookups
  */
 function buildCompatibilityMatrix(photos, templates, tolerance = DEFAULT_TOLERANCE) {
-  // Pre-compute template zone aspect ratios
-  const templateAspects = templates.map(t => ({
-    id: t.id,
-    name: t.name || t.id,
-    category: t.category || 'other',
-    imagePath: t.imagePath || t.image,
-    zoneAspect: analyzeTemplate(t),
-    zoneCategory: classifyAspect(analyzeTemplate(t) || 0),
-    zoneDimensions: t.placementZones[0]?.maxDimensions || null
-  })).filter(t => t.zoneAspect != null);
+  // Pre-compute template zone aspect ratios (green zone + safe zone)
+  const templateAspects = templates.map(t => {
+    const greenAspect = analyzeTemplate(t);
+    const safeInfo = analyzeSafeZone(t);
+    return {
+      id: t.id,
+      name: t.name || t.id,
+      category: t.category || 'other',
+      imagePath: t.imagePath || t.image,
+      zoneAspect: greenAspect,
+      safeZoneAspect: safeInfo?.aspect || null,
+      safeZoneDimensions: safeInfo ? { width: safeInfo.width, height: safeInfo.height } : null,
+      zoneCategory: classifyAspect(greenAspect || 0),
+      zoneDimensions: t.placementZones[0]?.maxDimensions || null,
+      hasSafeZone: !!t.safeZone || true  // true = at least default 15% expansion
+    };
+  }).filter(t => t.zoneAspect != null);
 
   // Build per-photo compatibility
   const byPhoto = {};
@@ -140,7 +189,19 @@ function buildCompatibilityMatrix(photos, templates, tolerance = DEFAULT_TOLERAN
     const matches = [];
 
     for (const tmpl of templateAspects) {
-      const result = isCompatible(ar, tmpl.zoneAspect, tolerance);
+      // First check green zone compatibility (tight fit)
+      const greenResult = isCompatible(ar, tmpl.zoneAspect, tolerance);
+
+      // If not compatible with green zone, check safe zone (expanded area)
+      let result = greenResult;
+      let usingSafeZone = false;
+      if (!greenResult.compatible && tmpl.safeZoneAspect) {
+        const safeResult = isCompatible(ar, tmpl.safeZoneAspect, tolerance);
+        if (safeResult.compatible) {
+          result = safeResult;
+          usingSafeZone = true;
+        }
+      }
 
       if (result.compatible) {
         const match = {
@@ -148,6 +209,8 @@ function buildCompatibilityMatrix(photos, templates, tolerance = DEFAULT_TOLERAN
           templateName: tmpl.name,
           templateCategory: tmpl.category,
           zoneAspect: tmpl.zoneAspect,
+          safeZoneAspect: tmpl.safeZoneAspect,
+          usingSafeZone,
           ...result
         };
         matches.push(match);
@@ -158,6 +221,7 @@ function buildCompatibilityMatrix(photos, templates, tolerance = DEFAULT_TOLERAN
           collection: photo.collection,
           title: photo.title,
           aspectRatio: ar,
+          usingSafeZone,
           ...result
         });
       }
@@ -362,6 +426,7 @@ function loadAndAnalyze(repoRoot, tolerance = DEFAULT_TOLERANCE) {
 module.exports = {
   classifyAspect,
   analyzeTemplate,
+  analyzeSafeZone,
   isCompatible,
   buildCompatibilityMatrix,
   getCompatibilityStats,

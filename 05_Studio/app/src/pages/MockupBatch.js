@@ -11,6 +11,8 @@ function MockupBatch() {
   const [galleries, setGalleries] = useState([]);
   const [photos, setPhotos] = useState([]);
   const [templates, setTemplates] = useState([]);
+  const [photoThumbnails, setPhotoThumbnails] = useState({});
+  const [templateThumbnails, setTemplateThumbnails] = useState({});
 
   // Selections
   const [selectedGallery, setSelectedGallery] = useState('');
@@ -52,15 +54,46 @@ function MockupBatch() {
       setTemplates(templResult?.data?.templates || []);
       setGalleries(galResult?.data?.galleries || []);
       setJobHistory(jobsResult?.data?.jobs || []);
+
+      // Load template thumbnails
+      const templates_data = templResult?.data?.templates || [];
+      const thumbs = {};
+      for (const t of templates_data) {
+        try {
+          const result = await window.electronAPI.mockupApiCall(`/templates/${t.id}/thumbnail?size=150`);
+          if (result?.data) {
+            thumbs[t.id] = result.data;
+          }
+        } catch (err) {
+          console.error(`Failed to load template thumbnail for ${t.id}:`, err);
+        }
+      }
+      setTemplateThumbnails(thumbs);
     } catch (err) { console.error('Failed to load data:', err); }
   };
 
   const loadPhotos = async (galleryName) => {
     setSelectedGallery(galleryName);
     setSelectedPhotos(new Set());
+    setPhotoThumbnails({});
     try {
       const result = await window.electronAPI.mockupApiCall(`/galleries/${encodeURIComponent(galleryName)}`);
-      setPhotos(result?.data?.photos || []);
+      const photos_data = result?.data?.photos || [];
+      setPhotos(photos_data);
+
+      // Load photo thumbnails
+      const thumbs = {};
+      for (const p of photos_data) {
+        try {
+          const thumbResult = await window.electronAPI.mockupApiCall(`/thumbnail?path=${encodeURIComponent(p.path)}&size=120`);
+          if (thumbResult?.data) {
+            thumbs[p.path] = thumbResult.data;
+          }
+        } catch (err) {
+          console.error(`Failed to load photo thumbnail for ${p.path}:`, err);
+        }
+      }
+      setPhotoThumbnails(thumbs);
     } catch { setPhotos([]); }
   };
 
@@ -92,6 +125,7 @@ function MockupBatch() {
     });
   };
 
+  const [queueToAgent, setQueueToAgent] = useState(true); // Default ON — queue to agent for posting
   const totalImages = selectedPhotos.size * selectedTemplates.size * selectedPlatforms.size;
 
   const startBatch = async () => {
@@ -103,7 +137,8 @@ function MockupBatch() {
           photoPaths: Array.from(selectedPhotos),
           templateIds: Array.from(selectedTemplates),
           platforms: Array.from(selectedPlatforms),
-          printSize
+          printSize,
+          queueToAgent
         }
       });
       const job = result?.data;
@@ -213,48 +248,118 @@ function MockupBatch() {
             </div>
           )}
 
-          <div style={{ maxHeight: '300px', overflowY: 'auto', background: '#222', borderRadius: '6px' }}>
-            {photos.map(photo => (
-              <label
-                key={photo.filename}
+          <div style={{ maxHeight: '400px', overflowY: 'auto', background: '#222', borderRadius: '6px', padding: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+              {photos.map(photo => (
+                <div
+                  key={photo.path}
+                  onClick={() => togglePhoto(photo)}
+                  style={{
+                    position: 'relative',
+                    cursor: 'pointer',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                    border: selectedPhotos.has(photo.path) ? '2px solid #4a9eff' : '1px solid #333',
+                    background: '#1a1a1a',
+                    aspectRatio: '1/1'
+                  }}
+                >
+                  {photoThumbnails[photo.path] ? (
+                    <img
+                      src={photoThumbnails[photo.path]}
+                      alt={photo.filename}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ color: '#666', fontSize: '10px' }}>Loading...</span>
+                    </div>
+                  )}
+                  <input
+                    type="checkbox"
+                    checked={selectedPhotos.has(photo.path)}
+                    onChange={() => togglePhoto(photo)}
+                    style={{
+                      position: 'absolute',
+                      top: '4px',
+                      left: '4px',
+                      accentColor: '#4a9eff',
+                      cursor: 'pointer'
+                    }}
+                    onClick={e => e.stopPropagation()}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          <p style={{ color: '#4a9eff', fontSize: '12px', marginTop: '8px', fontWeight: 500 }}>
+            {selectedPhotos.size} selected
+          </p>
+        </div>
+
+        {/* Templates + Platforms Column */}
+        <div style={{ width: '340px', flexShrink: 0 }}>
+          <label style={labelStyle}>Templates</label>
+          <div style={{ marginBottom: '16px', maxHeight: '300px', overflowY: 'auto' }}>
+            {templates.map(t => (
+              <div
+                key={t.id}
+                onClick={() => toggleTemplate(t.id)}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px',
-                  cursor: 'pointer', borderBottom: '1px solid #2a2a2a',
-                  background: selectedPhotos.has(photo.path) ? '#1a3a5c' : 'transparent'
+                  display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '8px',
+                  cursor: 'pointer', background: selectedTemplates.has(t.id) ? '#1a3a5c' : '#2a2a2a',
+                  borderRadius: '4px', marginBottom: '8px', border: '1px solid',
+                  borderColor: selectedTemplates.has(t.id) ? '#4a9eff' : '#333',
+                  transition: 'all 0.15s'
                 }}
               >
                 <input
                   type="checkbox"
-                  checked={selectedPhotos.has(photo.path)}
-                  onChange={() => togglePhoto(photo)}
-                  style={{ accentColor: '#4a9eff' }}
+                  checked={selectedTemplates.has(t.id)}
+                  onChange={() => toggleTemplate(t.id)}
+                  style={{ accentColor: '#4a9eff', marginTop: '2px', flexShrink: 0 }}
+                  onClick={e => e.stopPropagation()}
                 />
-                <span style={{ color: selectedPhotos.has(photo.path) ? '#fff' : '#aaa', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {photo.filename}
-                </span>
-              </label>
-            ))}
-          </div>
-          <p style={{ color: '#4a9eff', fontSize: '12px', marginTop: '4px' }}>{selectedPhotos.size} selected</p>
-        </div>
-
-        {/* Templates + Platforms Column */}
-        <div style={{ width: '260px', flexShrink: 0 }}>
-          <label style={labelStyle}>Templates</label>
-          <div style={{ marginBottom: '16px' }}>
-            {templates.map(t => (
-              <label
-                key={t.id}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px',
-                  cursor: 'pointer', background: selectedTemplates.has(t.id) ? '#1a3a5c' : '#2a2a2a',
-                  borderRadius: '4px', marginBottom: '4px', border: '1px solid',
-                  borderColor: selectedTemplates.has(t.id) ? '#4a9eff' : '#333'
-                }}
-              >
-                <input type="checkbox" checked={selectedTemplates.has(t.id)} onChange={() => toggleTemplate(t.id)} style={{ accentColor: '#4a9eff' }} />
-                <span style={{ color: selectedTemplates.has(t.id) ? '#fff' : '#aaa', fontSize: '13px' }}>{t.name}</span>
-              </label>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                    {templateThumbnails[t.id] ? (
+                      <img
+                        src={templateThumbnails[t.id]}
+                        alt={t.name}
+                        style={{
+                          width: '60px',
+                          height: '60px',
+                          objectFit: 'cover',
+                          borderRadius: '3px',
+                          flexShrink: 0
+                        }}
+                      />
+                    ) : (
+                      <div style={{
+                        width: '60px',
+                        height: '60px',
+                        background: '#333',
+                        borderRadius: '3px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                      }}>
+                        <span style={{ color: '#666', fontSize: '9px' }}>No img</span>
+                      </div>
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ color: selectedTemplates.has(t.id) ? '#fff' : '#aaa', fontSize: '12px', margin: '0 0 4px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {t.name}
+                      </p>
+                      <p style={{ color: '#666', fontSize: '10px', margin: 0 }}>
+                        {t.zoneAr && `AR ${t.zoneAr}`}
+                      </p>
+                      {t.category && <p style={{ color: '#555', fontSize: '10px', margin: '2px 0 0' }}>{t.category}</p>}
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
 
@@ -290,7 +395,7 @@ function MockupBatch() {
 
           {/* Summary + Start */}
           <div style={{ background: '#222', padding: '12px', borderRadius: '6px', marginBottom: '12px' }}>
-            <p style={{ color: '#ccc', fontSize: '13px', margin: '0 0 4px' }}>
+            <p style={{ color: '#ccc', fontSize: '12px', margin: '0 0 4px' }}>
               {selectedPhotos.size} photo{selectedPhotos.size !== 1 ? 's' : ''} × {selectedTemplates.size} template{selectedTemplates.size !== 1 ? 's' : ''} × {selectedPlatforms.size} platform{selectedPlatforms.size !== 1 ? 's' : ''}
             </p>
             <p style={{ color: '#4a9eff', fontSize: '18px', fontWeight: 700, margin: 0 }}>
@@ -298,6 +403,18 @@ function MockupBatch() {
             </p>
           </div>
 
+          <button
+            onClick={() => setQueueToAgent(!queueToAgent)}
+            style={{
+              width: '100%', padding: '8px 12px', marginBottom: '8px',
+              background: queueToAgent ? 'rgba(225, 48, 108, 0.15)' : '#222',
+              border: `1px solid ${queueToAgent ? '#e1306c' : '#444'}`,
+              borderRadius: '4px', color: queueToAgent ? '#e1306c' : '#666',
+              cursor: 'pointer', fontSize: '12px', textAlign: 'left'
+            }}
+          >
+            {queueToAgent ? '✓ Queue to Agent (AI captions + social posting)' : '○ Save files only (no agent queue)'}
+          </button>
           <button
             onClick={startBatch}
             disabled={totalImages === 0 || (activeJob?.status === 'running')}
@@ -340,6 +457,6 @@ function MockupBatch() {
 const btnPrimary = { padding: '8px 16px', background: '#4a9eff', border: 'none', borderRadius: '4px', color: '#fff', cursor: 'pointer', fontSize: '13px', fontWeight: 500 };
 const btnSmall = { padding: '4px 10px', background: '#333', border: '1px solid #444', borderRadius: '4px', color: '#aaa', cursor: 'pointer', fontSize: '11px' };
 const selectStyle = { width: '100%', padding: '8px', background: '#2a2a2a', border: '1px solid #3a3a3a', borderRadius: '4px', color: '#ccc', fontSize: '13px' };
-const labelStyle = { display: 'block', fontSize: '11px', color: '#777', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' };
+const labelStyle = { display: 'block', fontSize: '11px', color: '#777', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', fontWeight: 600 };
 
 export default MockupBatch;

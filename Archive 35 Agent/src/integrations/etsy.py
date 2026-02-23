@@ -303,7 +303,10 @@ def _api_request(
 
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
-            return json.loads(resp.read())
+            body = resp.read()
+            if not body or resp.status == 204:
+                return {}
+            return json.loads(body)
     except urllib.error.HTTPError as e:
         resp_body = e.read().decode() if e.fp else ""
         logger.error("Etsy API %s %s → %s: %s", method, endpoint, e.code, resp_body)
@@ -527,6 +530,34 @@ def get_listings(
 def activate_listing(listing_id: int) -> dict[str, Any]:
     """Activate a draft listing (make it live)."""
     return update_listing(listing_id, {"state": "active"})
+
+
+def deactivate_listing(listing_id: int) -> dict[str, Any]:
+    """Deactivate a listing (set to inactive, can be reactivated later)."""
+    return update_listing(listing_id, {"state": "inactive"})
+
+
+def delete_listing(listing_id: int) -> dict[str, Any]:
+    """Permanently delete a listing from Etsy.
+
+    Uses DELETE /v3/application/listings/{listing_id}.
+    This is irreversible — the listing and all its images are gone.
+
+    Args:
+        listing_id: Numeric Etsy listing ID.
+
+    Returns:
+        Empty dict on success, error dict on failure.
+    """
+    result = _api_request(
+        f"/application/listings/{listing_id}",
+        method="DELETE",
+    )
+    # Etsy returns 204 No Content on successful delete — our helper
+    # may return an empty dict or the parsed response
+    if result is None or result == {}:
+        return {"deleted": True, "listing_id": listing_id}
+    return result
 
 
 # ── Order / Receipt Polling ──────────────────────────────────────────────

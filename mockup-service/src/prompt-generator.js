@@ -1,9 +1,21 @@
 /**
- * prompt-generator.js — ChatGPT Room Image Prompt Generator
+ * prompt-generator.js — ChatGPT Room Image Prompt Generator (v2)
+ *
+ * ⚠️ PROTECTED FILE — Risk: MEDIUM
+ * Dependencies: matcher.js (classifyAspect), templates.json (room regeneration)
+ * Side effects: ChatGPT prompts determine room image quality → mockup quality
+ * Read first: 08_Docs/ChatGPT_Room_Prompt_Strategy_v2.docx
+ * Consumers: Mockup Service (server.js), Studio (via IPC)
  *
  * When a photo has no compatible room template, generates a ready-to-paste
  * ChatGPT prompt that Wolf can use to create a new room with a green-screen
  * placement zone matching the photo's aspect ratio.
+ *
+ * v2 changes (2026-02-23):
+ *   - 12 explicit anti-green-reflection rules (was 1 line)
+ *   - "matte non-emissive flat panel" language
+ *   - Safe zone concept: 15% buffer around green zone
+ *   - ChatGPT asked to report safe zone dimensions in text response
  */
 
 'use strict';
@@ -100,6 +112,7 @@ const ROOM_PRESETS = {
 
 /**
  * Generate a ChatGPT prompt for creating a room with a green-screen zone.
+ * v2: includes anti-green-reflection rules and safe zone concept.
  *
  * @param {object} options
  * @param {number} options.aspectRatio - Photo aspect ratio (width/height)
@@ -124,20 +137,17 @@ function generateRoomPrompt(options) {
   const category = classifyAspect(aspectRatio);
 
   // Compute image dimensions (ChatGPT generates ~1536px wide by default)
-  // For panoramic photos, make the image wider to accommodate the zone
   let imgW = imageWidth;
   let imgH;
   if (aspectRatio >= 2.5) {
-    // Ultra-wide: use wider canvas
     imgW = 2048;
-    imgH = Math.round(imgW / (aspectRatio * 0.75)); // Room wider than zone
+    imgH = Math.round(imgW / (aspectRatio * 0.75));
   } else if (aspectRatio >= 1.8) {
     imgH = Math.round(imgW / (aspectRatio * 0.7));
   } else if (aspectRatio <= 0.95) {
-    // Portrait: tall canvas
     imgH = Math.round(imgW * 1.5);
   } else {
-    imgH = Math.round(imgW / 1.5); // Standard 3:2 canvas
+    imgH = Math.round(imgW / 1.5);
   }
 
   // Green zone dimensions
@@ -148,6 +158,10 @@ function generateRoomPrompt(options) {
   const maxZoneH = Math.round(imgH * 0.7);
   const finalZoneH = Math.min(zoneH, maxZoneH);
   const finalZoneW = Math.round(finalZoneH * aspectRatio);
+
+  // Safe zone: 15% larger in each direction
+  const safeZoneW = Math.round(finalZoneW * 1.30);
+  const safeZoneH = Math.round(finalZoneH * 1.30);
 
   const prompt = `Create a photorealistic interior photograph of a ${preset.name.toLowerCase()}.
 
@@ -172,10 +186,30 @@ Green rectangle specifications:
 - Aspect ratio: ${aspectRatio.toFixed(2)}:1 (${category} format)
 - The rectangle must be PERFECTLY rectangular with sharp, crisp edges
 - NO rounded corners
-- NO green glow, reflection, or color spill on any surrounding surface
-- NO green tint on the floor, furniture, ceiling, or any other object
 - The green rectangle should look like a flat matte panel mounted on the wall
 - It should be centered on the main wall, positioned at eye level
+
+ANTI-REFLECTION RULES (MANDATORY — follow ALL of these):
+- The green rectangle must NOT cast any color onto surrounding surfaces
+- NO green glow, tint, reflection, or ambient light spill on ANY surface
+- NO green reflected on the floor (hardwood, marble, concrete, or any material)
+- NO green reflected on the ceiling
+- NO green tint on nearby furniture, pillows, vases, lamps, or decorations
+- NO green light scatter on metallic or glossy surfaces
+- NO green color bleeding at the edges where the rectangle meets the wall
+- Treat the green zone as a MATTE, NON-REFLECTIVE, NON-EMISSIVE flat panel
+- The green panel does NOT emit light — it is opaque and matte, like a piece of painted cardboard mounted on the wall. It absorbs light, it does not reflect or emit it.
+- If there are any reflective surfaces in the room (mirrors, glass tables, polished floors), they must NOT show any green whatsoever
+- Check EVERY surface in the scene for green contamination before finalizing
+- The ONLY green in the entire image must be the rectangle itself — nowhere else
+
+SAFE ZONE REQUIREMENT:
+The wall area AROUND the green rectangle must be CLEAR of obstructions:
+- At least 15% extra wall space on each side (left, right, top, bottom) beyond the green rectangle must be clean, uninterrupted wall surface
+- No furniture, frames, shelves, light fixtures, switches, vents, or decorative elements within this buffer zone
+- The buffer zone should match the wall texture/color seamlessly — it is simply more wall
+- Target safe zone: approximately ${safeZoneW}x${safeZoneH} pixels centered around the green rectangle
+- In your text response, please state: "Safe zone: [W]x[H] pixels, starting at position ([X], [Y])"
 
 The green zone represents where fine art photography will be composited in post-production. It MUST be a clean, uniform #00FF00 with zero color bleeding.
 
@@ -197,7 +231,6 @@ IMAGE QUALITY:
  * @returns {object[]} Array of { photo, prompt, suggestedRoomType }
  */
 function generatePromptsForUnmatched(unmatchedPhotos, defaultRoom = 'living-room-modern') {
-  // Group by aspect ratio category to avoid duplicate prompts
   const byCategory = {};
 
   for (const photo of unmatchedPhotos) {
@@ -220,7 +253,6 @@ function generatePromptsForUnmatched(unmatchedPhotos, defaultRoom = 'living-room
   for (const group of Object.values(byCategory)) {
     const avgAspect = group.avgAspect / group.count;
 
-    // Suggest room types based on aspect ratio
     let suggestedRooms;
     if (avgAspect >= 2.5) {
       suggestedRooms = ['hotel-lobby', 'gallery', 'conference-room'];

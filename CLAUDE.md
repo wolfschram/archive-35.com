@@ -1,7 +1,7 @@
 # CLAUDE.md — Archive-35.com (Live Production Site)
 
 > **Read this file completely before doing anything.**
-> Last updated: 2026-02-21 (HD WebP image tier added)
+> Last updated: 2026-02-23 (Code safety annotation system added)
 
 ---
 
@@ -279,6 +279,59 @@ nohup python3 scripts/run_vision_batch.py > vision_batch.log 2>&1 &
 | Archive 35 Agent/src/agents/variations.py | MEDIUM | Content variation engine |
 | Archive 35 Agent/src/content_library.py | HIGH | Content master file storage |
 | Archive 35 Agent/src/integrations/google_sheets.py | MEDIUM | Google Sheets webhook |
+
+---
+
+## 🛡️ Code Safety Protocol — MANDATORY Before Modifying Files
+
+**This codebase has 3 interconnected systems (Studio, Agent, Mockup) with shared dependencies. A change in one file can break all three systems. Follow this protocol EVERY TIME.**
+
+### Pre-Modification Checklist
+
+Before editing ANY file in the Critical Files table above, or any file in `05_Studio/app/main.js`, `preload.js`, `App.js`, or `Sidebar.js`:
+
+1. **Read `08_Docs/CONSTRAINTS.md`** — Check if the file has hard rules. If it does, follow them exactly. Only Wolf can grant exceptions.
+2. **Read the file header** — Critical files have structured safety headers listing dependencies, side effects, and required reading.
+3. **Read `08_Docs/LESSONS_LEARNED.md`** — Search for lessons related to the file or feature you're changing. Pay special attention to ROOT-CAUSE lessons (022, 023, 027, 029).
+4. **Identify ALL consumers** — Before changing any data format, function signature, or file path, grep the entire project for references. Fix ALL consumers, not just the one you found.
+5. **One change at a time** — Make one change → test → verify → then next. Never batch unrelated changes.
+
+### The Three Safety Layers
+
+| Layer | File | Purpose | Who can override? |
+|-------|------|---------|-------------------|
+| **Stop Sign** | `08_Docs/CONSTRAINTS.md` | Hard "NEVER" rules per critical file | Wolf only |
+| **Speed Bump** | File headers in source code | Dependency hints + "read first" pointers | Wolf only |
+| **Guardrails** | This CLAUDE.md section | Process checklist + zone rules | Wolf only |
+
+### File Safety Header Format
+
+Critical source files should have this header format:
+```
+// ⚠️ PROTECTED FILE — Risk: [CRITICAL/HIGH/MEDIUM]
+// Dependencies: [list files that read/write this file]
+// Side effects: [what happens if this file changes]
+// Read first: CONSTRAINTS.md, LESSONS_LEARNED.md #NNN
+// Consumers: [which systems use this file: Studio/Agent/Mockup/Website]
+```
+
+### Generated vs Source Files — Know the Difference
+
+| Generated (DON'T hand-edit) | Source (edit these instead) |
+|-----------------------------|-----------------------------|
+| `data/photos.json` | `01_Portfolio/*/_photos.json` |
+| `gallery.html` inline `const G=[...]` | `data/photos.json` (via sync_gallery_data.py) |
+| `_site/` output | Source HTML/JS/CSS files |
+
+### Three-System Impact Check
+
+Before modifying shared files, verify impact on all three systems:
+
+| System | How to test | What to check |
+|--------|------------|---------------|
+| **Studio** | Open Electron app | All 12 tabs load, deploy pipeline runs |
+| **Agent** | Start Agent from Studio | All 7 tabs load, Dashboard shows ONLINE |
+| **Mockup** | Start Mockup from Studio | All 4 tabs load, preview generates |
 
 ---
 

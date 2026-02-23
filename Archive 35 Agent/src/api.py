@@ -593,6 +593,341 @@ def create_manual_content(req: CreateManualContentRequest):
         conn.close()
 
 
+# ── Mockup Content Queue ───────────────────────────────────────
+# Bridge between Mockup Service (port 8036) and social posting pipeline.
+# Mockup images saved to mockups/social/ get queued here with AI-generated
+# captions, then approved and published just like regular photo content.
+
+
+class MockupQueueRequest(BaseModel):
+    """Queue a mockup image for social posting."""
+    image_path: str          # relative path like mockups/social/foo.jpg
+    platform: str            # instagram, pinterest, etsy
+    photo_path: str          # original photo path (for context in caption gen)
+    template_id: str         # room template used
+    gallery: str = ""        # gallery name
+    caption: str = ""        # optional pre-written caption
+    tags: list[str] = []     # optional pre-written tags
+    auto_generate: bool = True  # generate AI caption if none provided
+
+
+@app.post("/mockup-content/queue")
+def queue_mockup_content(req: MockupQueueRequest):
+    """Queue a mockup for social posting — optionally auto-generate caption."""
+    from uuid import uuid4
+    from datetime import timedelta
+
+    conn = _get_conn()
+    try:
+        content_id = str(uuid4())
+        now = datetime.now(timezone.utc)
+        expires = now + timedelta(hours=168)  # 7 days
+
+        caption = req.caption
+        tags = req.tags
+
+        # Auto-generate caption using Claude if requested and no caption provided
+        if req.auto_generate and not caption:
+            try:
+                client = _get_anthropic_client()
+                if client:
+                    from src.agents.content import PLATFORM_PROMPTS
+                    platform_prompt = PLATFORM_PROMPTS.get(
+                        f"{req.platform}_mockup",
+                        PLATFORM_PROMPTS.get(req.platform, PLATFORM_PROMPTS.get("instagram", "")),
+                    )
+                    gallery_name = req.gallery or Path(req.photo_path).parent.name
+                    photo_name = Path(req.photo_path).stem
+
+                    prompt = (
+                        f"Generate a social media caption for this room mockup photo.\n\n"
+                        f"Gallery: {gallery_name}\n"
+                        f"Photo: {photo_name}\n"
+                        f"Room template: {req.template_id.replace('-', ' ')}\n"
+                        f"Platform: {req.platform}\n"
+                        f"Brand: Archive 35 — Fine art photography by Wolfgang Schram\n"
+                        f"Website: archive-35.com\n\n"
+                        f"{platform_prompt}"
+                    )
+
+                    resp = client.messages.create(
+                        model="claude-sonnet-4-5-20250929",
+                        max_tokens=500,
+                        messages=[{"role": "user", "content": prompt}],
+                    )
+                    raw = resp.content[0].text.strip()
+
+                    # Extract tags from response if present
+                    if "#" in raw:
+                        lines = raw.split("\n")
+                        tag_line = [l for l in lines if l.strip().startswith("#")]
+                        if tag_line:
+                            tags = [t.strip().lstrip("#") for t in tag_line[-1].split("#") if t.strip()]
+                            caption = "\n".join(l for l in lines if not l.strip().startswith("#")).strip()
+                        else:
+                            caption = raw
+                    else:
+                        caption = raw
+                    logger.info("AI caption generated for mockup %s", content_id[:12])
+            except Exception as e:
+                logger.warning("Caption generation failed: %s — using template fallback", e)
+                gallery_name = req.gallery or Path(req.photo_path).parent.name
+                caption = f"Transform your space with fine art photography. '{gallery_name}' collection — archive-35.com"
+                tags = ["wallart", "fineart", "homedecor", "interiordesign", "photographyprints"]
+
+        # Ensure we have fallback caption
+        if not caption:
+            gallery_name = req.gallery or Path(req.photo_path).parent.name
+            caption = f"Fine art photography for your walls. '{gallery_name}' — archive-35.com"
+
+        # Save to mockup_content table
+        from src.integrations.mockup_service import ensure_mockup_tables
+        ensure_mockup_tables(conn)
+
+        conn.execute(
+            """INSERT OR IGNORE INTO mockup_content
+               (id, photo_id, template_id, platform, image_path,
+                caption, tags, status, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)""",
+            (
+                content_id,
+                req.photo_path,   # photo_id = original photo path
+                req.template_id,
+                req.platform,
+                req.image_path,
+                caption,
+                json.dumps(tags) if tags else json.dumps([]),
+                now.isoformat(),
+            ),
+        )
+        conn.commit()
+
+        audit.log(conn, "studio", "mockup_content_queued", {
+            "content_id": content_id, "platform": req.platform,
+            "template": req.template_id, "image": req.image_path,
+        })
+
+        return {
+            "id": content_id,
+            "status": "pending",
+            "caption": caption,
+            "tags": tags,
+            "image_path": req.image_path,
+            "platform": req.platform,
+        }
+    finally:
+        conn.close()
+
+
+@app.get("/mockup-content")
+def list_mockup_content(
+    status: Optional[str] = None,
+    platform: Optional[str] = None,
+    limit: int = Query(default=50, le=200),
+):
+    """List queued mockup content items."""
+    conn = _get_conn()
+    try:
+        from src.integrations.mockup_service import ensure_mockup_tables
+        ensure_mockup_tables(conn)
+
+        conditions, params = [], []
+        if status:
+            conditions.append("status = ?")
+            params.append(status)
+        if platform:
+            conditions.append("platform = ?")
+            params.append(platform)
+
+        where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        params.append(limit)
+
+        rows = conn.execute(
+            f"""SELECT * FROM mockup_content
+                {where} ORDER BY created_at DESC LIMIT ?""",
+            params,
+        ).fetchall()
+
+        items = [dict(r) for r in rows]
+        # Parse tags JSON for frontend
+        for item in items:
+            if item.get("tags") and isinstance(item["tags"], str):
+                try:
+                    item["tags"] = json.loads(item["tags"])
+                except Exception:
+                    item["tags"] = []
+        return {"items": items, "total": len(items)}
+    finally:
+        conn.close()
+
+
+@app.post("/mockup-content/{content_id}/approve")
+def approve_mockup_content(content_id: str):
+    """Approve a mockup content item for publishing."""
+    conn = _get_conn()
+    try:
+        row = conn.execute("SELECT * FROM mockup_content WHERE id = ?", (content_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Mockup content not found")
+
+        now = datetime.now(timezone.utc).isoformat()
+        conn.execute(
+            "UPDATE mockup_content SET status = 'approved' WHERE id = ?",
+            (content_id,),
+        )
+        conn.commit()
+        audit.log(conn, "studio", "mockup_content_approved", {
+            "content_id": content_id, "platform": row["platform"],
+        })
+        return {"id": content_id, "status": "approved"}
+    finally:
+        conn.close()
+
+
+@app.post("/mockup-content/{content_id}/reject")
+def reject_mockup_content(content_id: str):
+    """Reject a mockup content item."""
+    conn = _get_conn()
+    try:
+        conn.execute(
+            "UPDATE mockup_content SET status = 'rejected' WHERE id = ?",
+            (content_id,),
+        )
+        conn.commit()
+        return {"id": content_id, "status": "rejected"}
+    finally:
+        conn.close()
+
+
+@app.post("/mockup-content/{content_id}/edit")
+def edit_mockup_content(content_id: str, caption: str = "", tags: list[str] = []):
+    """Edit caption/tags before publishing."""
+    conn = _get_conn()
+    try:
+        updates = []
+        params = []
+        if caption:
+            updates.append("caption = ?")
+            params.append(caption)
+        if tags:
+            updates.append("tags = ?")
+            params.append(json.dumps(tags))
+        if not updates:
+            raise HTTPException(status_code=400, detail="Nothing to update")
+
+        params.append(content_id)
+        conn.execute(
+            f"UPDATE mockup_content SET {', '.join(updates)} WHERE id = ?",
+            params,
+        )
+        conn.commit()
+        return {"id": content_id, "updated": True}
+    finally:
+        conn.close()
+
+
+@app.post("/mockup-content/{content_id}/publish")
+def publish_mockup_content(content_id: str):
+    """Publish an approved mockup to its target platform."""
+    conn = _get_conn()
+    try:
+        row = conn.execute("SELECT * FROM mockup_content WHERE id = ?", (content_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Mockup content not found")
+        if row["status"] not in ("approved", "pending"):
+            raise HTTPException(status_code=400, detail=f"Cannot publish: status is {row['status']}")
+
+        platform = row["platform"]
+        image_path = row["image_path"]
+        caption = row["caption"] or ""
+        tags_raw = row["tags"]
+        tags = json.loads(tags_raw) if isinstance(tags_raw, str) else (tags_raw or [])
+
+        # Check kill switch
+        if kill_switch.is_active(conn, platform) or kill_switch.is_active(conn, "global"):
+            raise HTTPException(status_code=503, detail=f"Kill switch active for {platform}")
+
+        result = {"id": content_id, "platform": platform}
+
+        if platform == "instagram":
+            from src.integrations.instagram import publish_photo
+            # Instagram requires public URL — mockup must be uploaded first
+            # For now, serve via the mockup service or upload to R2
+            settings = get_settings()
+            abs_path = Path(settings.repo_root) / image_path
+            if not abs_path.exists():
+                raise HTTPException(status_code=404, detail=f"Mockup image not found: {image_path}")
+
+            # Upload to R2 first to get public URL
+            try:
+                from src.integrations.r2_upload import upload_to_r2
+                public_url = upload_to_r2(str(abs_path), f"mockups/{abs_path.name}")
+                pub = publish_photo(image_url=public_url, caption=caption, conn=conn)
+                if pub.get("success"):
+                    result["published"] = True
+                    result["media_id"] = pub.get("media_id")
+                    result["permalink"] = pub.get("permalink")
+                else:
+                    result["error"] = pub.get("error", "Unknown error")
+            except ImportError:
+                raise HTTPException(status_code=501, detail="R2 upload not configured — Instagram needs public URL")
+
+        elif platform == "pinterest":
+            from src.integrations.pinterest import PinterestClient
+            settings = get_settings()
+            abs_path = Path(settings.repo_root) / image_path
+
+            # Pinterest also needs public URL
+            try:
+                from src.integrations.r2_upload import upload_to_r2
+                public_url = upload_to_r2(str(abs_path), f"mockups/{abs_path.name}")
+                client = PinterestClient()
+                pin = client.create_pin(
+                    title=caption[:100] if caption else "Fine Art Photography — Archive 35",
+                    description=caption[:500] if caption else "",
+                    image_url=public_url,
+                    link="https://archive-35.com/gallery",
+                    alt_text=f"Wall art mockup — Archive 35 Photography",
+                )
+                if pin:
+                    result["published"] = True
+                    result["pin_id"] = pin.get("id")
+                else:
+                    result["error"] = "Pin creation returned empty"
+            except ImportError:
+                raise HTTPException(status_code=501, detail="R2 upload not configured — Pinterest needs public URL")
+
+        elif platform == "etsy":
+            # Etsy listing creation is more complex — requires shop setup
+            result["error"] = "Etsy publish requires OAuth — use Etsy Listings tab"
+            result["published"] = False
+
+        else:
+            raise HTTPException(status_code=400, detail=f"Unknown platform: {platform}")
+
+        # Update status
+        if result.get("published"):
+            conn.execute(
+                "UPDATE mockup_content SET status = 'posted', posted_at = ? WHERE id = ?",
+                (datetime.now(timezone.utc).isoformat(), content_id),
+            )
+            conn.commit()
+            audit.log(conn, "publish", f"mockup_published_{platform}", {
+                "content_id": content_id, **{k: v for k, v in result.items() if k != "id"},
+            })
+            result["status"] = "posted"
+        elif result.get("error"):
+            conn.execute(
+                "UPDATE mockup_content SET error = ? WHERE id = ?",
+                (result["error"], content_id),
+            )
+            conn.commit()
+
+        return result
+    finally:
+        conn.close()
+
+
 # ── Pipeline ────────────────────────────────────────────────────
 
 
@@ -1224,6 +1559,43 @@ def get_etsy_shipping_profiles():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.delete("/etsy/listings/{listing_id}")
+def delete_etsy_listing(listing_id: int):
+    """Delete a single Etsy listing permanently."""
+    from src.integrations.etsy import delete_listing
+    result = delete_listing(listing_id)
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+
+@app.post("/etsy/listings/delete-batch")
+def delete_etsy_listings_batch(req: dict):
+    """Delete multiple Etsy listings at once.
+
+    Body: { "listing_ids": [123, 456, ...] }
+    """
+    from src.integrations.etsy import delete_listing
+    listing_ids = req.get("listing_ids", [])
+    if not listing_ids:
+        raise HTTPException(status_code=400, detail="No listing_ids provided")
+
+    results = []
+    for lid in listing_ids:
+        try:
+            result = delete_listing(int(lid))
+            results.append({
+                "listing_id": lid,
+                "status": "deleted" if result.get("deleted") else "error",
+                "detail": result.get("error", ""),
+            })
+        except Exception as e:
+            results.append({"listing_id": lid, "status": "error", "detail": str(e)})
+
+    deleted = sum(1 for r in results if r["status"] == "deleted")
+    return {"total": len(listing_ids), "deleted": deleted, "results": results}
+
+
 @app.post("/etsy/receipts/auto-fulfill")
 def auto_fulfill_etsy_orders():
     """Poll Etsy for new paid orders and auto-route to Pictorem fulfillment.
@@ -1489,6 +1861,54 @@ def pinterest_user():
     if "error" in result:
         raise HTTPException(status_code=400, detail=result["error"])
     return result
+
+
+@app.get("/pinterest/boards/{board_id}/pins")
+def pinterest_board_pins(board_id: str, page_size: int = 25, bookmark: str = ""):
+    """List pins on a specific board."""
+    from src.integrations.pinterest import list_pins
+    result = list_pins(board_id, page_size=page_size, bookmark=bookmark)
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+
+@app.delete("/pinterest/pins/{pin_id}")
+def delete_pinterest_pin(pin_id: str):
+    """Delete a single Pinterest pin."""
+    from src.integrations.pinterest import delete_pin
+    result = delete_pin(pin_id)
+    if isinstance(result, dict) and "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return {"deleted": True, "pin_id": pin_id}
+
+
+@app.post("/pinterest/pins/delete-batch")
+def delete_pinterest_pins_batch(req: dict):
+    """Delete multiple Pinterest pins at once.
+
+    Body: { "pin_ids": ["123", "456", ...] }
+    """
+    from src.integrations.pinterest import delete_pin
+    pin_ids = req.get("pin_ids", [])
+    if not pin_ids:
+        raise HTTPException(status_code=400, detail="No pin_ids provided")
+
+    results = []
+    for pid in pin_ids:
+        try:
+            result = delete_pin(str(pid))
+            has_error = isinstance(result, dict) and "error" in result
+            results.append({
+                "pin_id": pid,
+                "status": "error" if has_error else "deleted",
+                "detail": result.get("error", "") if has_error else "",
+            })
+        except Exception as e:
+            results.append({"pin_id": pid, "status": "error", "detail": str(e)})
+
+    deleted = sum(1 for r in results if r["status"] == "deleted")
+    return {"total": len(pin_ids), "deleted": deleted, "results": results}
 
 
 # ── Config ─────────────────────────────────────────────────────

@@ -38,7 +38,7 @@ const MAX_CONCURRENT = 3;
  * @returns {object} Job info { jobId, totalImages, status }
  */
 async function createBatchJob(config) {
-  const { photoPaths = [], templateIds = [], platforms = [], printSize = '24x36' } = config;
+  const { photoPaths = [], templateIds = [], platforms = [], printSize = '24x36', queueToAgent = false } = config;
 
   if (!photoPaths.length) throw new Error('No photos specified');
   if (!templateIds.length) throw new Error('No templates specified');
@@ -49,7 +49,7 @@ async function createBatchJob(config) {
 
   const job = {
     jobId,
-    config: { photoPaths, templateIds, platforms, printSize },
+    config: { photoPaths, templateIds, platforms, printSize, queueToAgent },
     totalImages,
     completed: 0,
     failed: 0,
@@ -122,6 +122,45 @@ async function processBatchJob(job) {
   // Finalize
   job.status = job.failed === job.totalImages ? 'failed' : 'completed';
   job.endTime = Date.now();
+
+  // Queue successful results to Agent content pipeline
+  if (job.config.queueToAgent && job.results.length > 0) {
+    let agentQueued = 0;
+    const http = require('http');
+    for (const result of job.results) {
+      try {
+        const body = JSON.stringify({
+          image_path: result.outputPath,
+          platform: result.platform,
+          photo_path: result.photoPath,
+          template_id: result.templateId,
+          gallery: result.gallery || '',
+          auto_generate: true
+        });
+        await new Promise((resolve, reject) => {
+          const req = http.request({
+            hostname: '127.0.0.1', port: 8035,
+            path: '/mockup-content/queue', method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+            timeout: 30000
+          }, (res) => {
+            let data = '';
+            res.on('data', c => data += c);
+            res.on('end', () => resolve(data));
+          });
+          req.on('error', reject);
+          req.on('timeout', () => { req.destroy(); reject(new Error('timeout')); });
+          req.write(body);
+          req.end();
+        });
+        agentQueued++;
+      } catch (err) {
+        console.warn(`[Batch] Failed to queue ${result.outputPath} to Agent:`, err.message);
+      }
+    }
+    job.agentQueued = agentQueued;
+    console.log(`[Batch] Queued ${agentQueued}/${job.results.length} to Agent content pipeline`);
+  }
 
   // Write batch manifest
   await writeBatchManifest(job);

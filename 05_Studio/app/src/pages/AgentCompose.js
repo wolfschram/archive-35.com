@@ -263,19 +263,28 @@ function AgentCompose() {
           results[platform] = result;
         } else if (platform === 'pinterest') {
           if (!selectedBoardId) {
-            results[platform] = { error: 'No Pinterest board selected' };
+            results[platform] = { error: 'No Pinterest board selected. Pick a board from the dropdown above.' };
             continue;
           }
           const imageUrl = firstImg.platformUrls?.pinterest || firstImg.fullUrl || firstImg.src;
-          const result = await post('/pinterest/pins/create', {
-            board_id: selectedBoardId,
-            title: (title || firstImg.filename || '').slice(0, 100),
-            description: fullCaption.slice(0, 500),
-            image_url: imageUrl,
-            link: `https://archive-35.com/gallery.html${firstImg.collection ? '#collection=' + encodeURIComponent(firstImg.collection) : ''}`,
-            alt_text: `${title || firstImg.filename} — fine art photography by Wolf Schram`,
-          });
-          results[platform] = result;
+          try {
+            const result = await post('/pinterest/pins/create', {
+              board_id: selectedBoardId,
+              title: (title || firstImg.filename || '').slice(0, 100),
+              description: fullCaption.slice(0, 500),
+              image_url: imageUrl,
+              link: `https://archive-35.com/gallery.html${firstImg.collection ? '#collection=' + encodeURIComponent(firstImg.collection) : ''}`,
+              alt_text: `${title || firstImg.filename} — fine art photography by Wolf Schram`,
+            });
+            results[platform] = result;
+          } catch (err) {
+            const msg = err?.message || String(err);
+            if (msg.includes('Trial access') || msg.includes('403')) {
+              results[platform] = { error: 'Pinterest Trial access cannot create pins. Standard access upgrade is pending — check developers.pinterest.com for status.' };
+            } else {
+              results[platform] = { error: msg };
+            }
+          }
         } else if (platform === 'etsy') {
           // Save to content queue for manual listing
           const result = await post('/content/create-manual', {

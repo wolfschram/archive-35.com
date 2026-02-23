@@ -36,6 +36,8 @@ from typing import Any, Optional
 logger = logging.getLogger(__name__)
 
 # Pinterest API v5 base
+# NOTE: Trial access cannot create pins. Standard access required for posting.
+# Standard access upgrade is pending as of Feb 2026.
 PINTEREST_API_BASE = "https://api.pinterest.com/v5"
 
 # OAuth endpoints

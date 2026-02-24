@@ -183,31 +183,38 @@ function AgentCompose() {
   }, [selectedImages]);
 
   // ── AI caption generation ──
+  // IMPORTANT: Always analyze the ORIGINAL PHOTO (last image), not mockups.
+  // Mockups are room/office renderings — the photo is the actual art that
+  // Etsy tags, titles, and descriptions must describe.
   const handleGenerate = async () => {
     if (selectedImages.length === 0) return;
     setGenerating(true);
     try {
-      const firstImg = selectedImages[0];
+      // Find the last original photo in the selection (it's always the actual artwork).
+      // Mockups come first (rooms/offices with the photo placed in them),
+      // so we search from the end to find the real photography.
+      const photoImg = [...selectedImages].reverse().find(i => i.type === 'photo' && i.photoId);
+      const targetImg = photoImg || selectedImages[selectedImages.length - 1];
       const platform = Array.from(targetPlatforms)[0] || 'instagram';
 
-      if (firstImg.photoId) {
+      if (targetImg.photoId) {
         const data = await post('/content/generate-draft', {
-          photo_id: firstImg.photoId,
+          photo_id: targetImg.photoId,
           platform,
         });
         if (data?.body) setCaption(data.body);
         if (data?.tags) setTags(Array.isArray(data.tags) ? data.tags.join(', ') : data.tags);
         if (data?.title) setTitle(data.title || '');
       } else {
-        // Mockup — generate from filename context
-        const parts = firstImg.filename.split('_');
+        // Mockup-only selection (no original photo) — generate from filename context
+        const parts = targetImg.filename.split('_');
         const gallery = parts[0]?.replace(/-/g, ' ') || '';
         const template = parts.slice(2).join(' ').replace(/-/g, ' ') || '';
 
         const data = await post('/content/generate-draft', {
           photo_id: '__mockup__',
           platform,
-          context: { gallery, template, filename: firstImg.filename },
+          context: { gallery, template, filename: targetImg.filename },
         });
         if (data?.body) setCaption(data.body);
         if (data?.tags) setTags(Array.isArray(data.tags) ? data.tags.join(', ') : data.tags);
@@ -324,14 +331,17 @@ function AgentCompose() {
     if (selectedImages.length === 0) return;
     setPublishing(true);
     try {
-      // Determine gallery name from first image
-      const firstImg = selectedImages[0];
+      // Determine gallery name — prefer collection from any photo in the selection,
+      // since mockup filenames use IDs (e.g. "118a0900") not real gallery names
       let galleryName = '';
-      if (firstImg.collection) {
-        galleryName = firstImg.collection;
-      } else if (firstImg.filename) {
-        // Try to extract from mockup filename (e.g. "lake-powell_118a6194_gallery-dark")
-        const parts = firstImg.filename.split('_');
+      const photoImg = selectedImages.find(i => i.type === 'photo' && i.collection);
+      if (photoImg) {
+        galleryName = photoImg.collection;
+      } else if (selectedImages[0]?.collection) {
+        galleryName = selectedImages[0].collection;
+      } else if (selectedImages[0]?.filename) {
+        // Last resort: extract from mockup filename
+        const parts = selectedImages[0].filename.split('_');
         galleryName = (parts[0] || '').replace(/-/g, ' ');
       }
 
@@ -357,9 +367,10 @@ function AgentCompose() {
         ...prev,
         etsy_export: {
           success: true,
-          message: `Exported ${result.images_count} images + ${result.variations_count} variations to Etsy folder`,
+          message: `Exported to ${result.folder_name || 'etsy-export'} — ${result.images_count} images + ${result.variations_count} variations`,
           path: result.export_path,
           base_price: result.base_price,
+          folder_name: result.folder_name,
         },
       }));
       setStep(4);

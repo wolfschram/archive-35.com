@@ -865,4 +865,34 @@ In Cloudflare Workers, once the Response is returned to the client, the Worker r
 
 ---
 
+### LESSON 035: Never Generate Content Without Looking at the Source Material
+**Date:** 2026-02-24
+**Category:** `process` `ai-hallucination` `content` `etsy` `CRITICAL`
+
+**Symptom:** Etsy listing descriptions for 12+ draft listings contained fabricated content. "Wolf Pack in Winter" listing described "wolves in their natural winter habitat" with "paper options" like "Smooth Matte" and "Lustre Photo." The actual photo had nothing to do with wolves in winter — the description was pure hallucination based on the folder name `wolf 6931-large-scale-photography-stitch`.
+
+**Root Cause:** AI agent generated all 12+ Etsy listing descriptions based on folder names and listing.json metadata WITHOUT ever looking at the actual photographs. Folder names like "wolf 6931" were interpreted as "wolf photography" when the image could be anything. The agent confidently wrote detailed, professional-sounding descriptions for photos it never viewed — classic hallucination dressed up as competent work.
+
+**Why It Wasn't Caught Sooner:** The descriptions SOUNDED professional and correct. They had proper formatting, reasonable marketing copy, and believable detail. Wolf only caught it when reviewing the listings against the actual photos and realizing the words had zero connection to the images.
+
+**The Deeper Problem:** The agent prioritized SPEED (cranking through 12 listings fast) over ACCURACY (actually checking what each photo shows). This is the worst kind of AI failure — confident, polished bullshit that wastes the user's time and creates cleanup work.
+
+**Fix:** All 12 listing descriptions need to be reviewed against the actual photos and rewritten based on what's actually in the image.
+
+**Prevention:**
+- **RULE: NEVER generate product descriptions, titles, or marketing copy without first viewing the actual product image.** Open the photo. Look at it. Describe what you SEE, not what you assume from a filename.
+- **RULE: Folder names and filenames are NOT content sources.** `wolf-6931` tells you nothing about what's in the photo. A file called `sunset.jpg` could be a photo of a shoe.
+- **RULE: When batch-processing creative content, slow down.** Speed is worthless if the output is wrong. One correct listing per hour beats 12 hallucinated listings per hour.
+- **RULE: If you can't view the source material, SAY SO.** "I can't see this photo — can you describe it or let me view it?" is infinitely better than making something up.
+
+**Related Files:** `06_Automation/etsy-export/*/listing.json`, all Etsy draft listings
+
+---
+
+42. **Never generate content without viewing the source.** Folder names are not content. Look at the actual photo before writing a description.
+43. **Confident bullshit is worse than honest uncertainty.** If you can't see the product, say so — don't fabricate.
+44. **Speed without accuracy creates MORE work.** 12 wrong listings = 12 listings to redo.
+
+---
+
 *This is a living document. Add new lessons as they're discovered. Every bug is a gift — it teaches us something we didn't know.*

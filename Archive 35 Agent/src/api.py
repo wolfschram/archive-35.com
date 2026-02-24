@@ -2118,32 +2118,35 @@ def export_etsy_folder(req: EtsyExportRequest):
     )
 
     project_root = Path(__file__).resolve().parent.parent.parent
+    etsy_export_root = project_root / "06_Automation" / "etsy-export"
 
-    # Build a UNIQUE folder slug using photo ID + gallery name.
-    # Without the photo ID, multiple photos from the same gallery (e.g. "LA")
-    # would all export to the same folder and overwrite each other.
-    photo_id = ''
-    for img in req.selected_images:
-        if img.get("type") == "photo":
-            fname = img.get("filename", "")
-            # Extract photo ID from filename (e.g. "104A9007.jpg" → "104a9007")
-            photo_id = re.sub(r'\.[^.]+$', '', fname).lower()
-            break
-    if not photo_id:
-        # Fallback: try extracting ID from first mockup filename
-        for img in req.selected_images:
-            fname = img.get("filename", "")
-            match = re.search(r'(\d{3}[a-z]?\d{4})', fname.lower())
-            if match:
-                photo_id = match.group(1)
-                break
-
+    # Build a descriptive folder name using sequential numbering + gallery + title.
+    # Format: NN-Gallery-Short-Title (e.g. "01-LA-Sunset-Over-Santa-Monica")
+    # This makes it easy to match folders to Etsy listings when uploading manually.
     gallery_slug = re.sub(r'[^a-z0-9]+', '-', req.gallery_name.lower()).strip('-')
-    if photo_id:
-        slug = f"{photo_id}-{gallery_slug}"
-    else:
-        slug = gallery_slug
-    export_dir = project_root / "06_Automation" / "etsy-export" / slug
+
+    # Create a short title slug from the listing title (first 40 chars, kebab-case)
+    title_slug = re.sub(r'[^a-z0-9]+', '-', req.title[:40].lower()).strip('-')
+    # Remove common suffixes that add noise
+    for suffix in ['-fine-art-photography-print', '-fine-art-print', '-print']:
+        if title_slug.endswith(suffix):
+            title_slug = title_slug[:-len(suffix)].strip('-')
+            break
+
+    base_slug = f"{gallery_slug}-{title_slug}" if title_slug else gallery_slug
+
+    # Auto-increment: scan existing folders to find next sequence number
+    etsy_export_root.mkdir(parents=True, exist_ok=True)
+    existing = sorted(etsy_export_root.iterdir()) if etsy_export_root.exists() else []
+    next_num = 1
+    for d in existing:
+        if d.is_dir():
+            match = re.match(r'^(\d+)-', d.name)
+            if match:
+                next_num = max(next_num, int(match.group(1)) + 1)
+
+    slug = f"{next_num:02d}-{base_slug}"
+    export_dir = etsy_export_root / slug
     images_dir = export_dir / "images"
 
     # Clean and recreate
@@ -2243,19 +2246,22 @@ def export_etsy_folder(req: EtsyExportRequest):
     mat_order = {"paper": 0, "canvas": 1, "wood": 2, "metal": 3, "acrylic": 4}
     variations.sort(key=lambda v: (mat_order.get(v["material_key"], 9), v["etsy_price"]))
 
-    # Ensure 13 tags
-    tags = list(req.tags)[:13]
+    # Ensure 13 tags, each max 20 characters (Etsy limit).
+    # Tags must describe the PHOTOGRAPHY, not the mockup rooms.
+    raw_tags = [t[:20] for t in req.tags if t.strip()]  # Enforce 20-char Etsy limit
+    tags = list(raw_tags)[:13]
     default_tags = [
-        "archive35", "fine art photography", "minimalist art", "gallery wall",
-        "art collectors", "contemporary art", "modern interiors", "wall art decor",
-        "photography art", "interior styling", "landscape photography",
-        "home decor", "wolf schram",
+        "archive35", "fine art photography", "wall art decor",
+        "photography art", "gallery wall", "art collectors",
+        "contemporary art", "landscape photo", "home decor",
+        "wolf schram", "nature photography", "travel photography",
+        "minimalist art",
     ]
     seen = set(t.lower() for t in tags)
     for dt in default_tags:
         if len(tags) >= 13:
             break
-        if dt.lower() not in seen:
+        if dt.lower() not in seen and len(dt) <= 20:
             tags.append(dt)
             seen.add(dt.lower())
 
@@ -2290,12 +2296,13 @@ def export_etsy_folder(req: EtsyExportRequest):
 
     # Write human-readable README
     readme_lines = [
-        f"ETSY EXPORT — {req.gallery_name}",
+        f"ETSY EXPORT — {slug}",
+        f"Gallery: {req.gallery_name}",
         f"Generated: {listing['generated_at']}",
         "",
         f"Title: {listing['title']}",
         f"Base Price: ${base_price}",
-        f"Tags: {', '.join(tags[:13])}",
+        f"Tags ({len(tags)}/13, each ≤20 chars): {', '.join(tags[:13])}",
         f"Variations: {len(variations)} material/size combos",
         f"Images: {len(copied_images)} files ready to upload",
         "",
@@ -2316,6 +2323,7 @@ def export_etsy_folder(req: EtsyExportRequest):
     return {
         "success": True,
         "export_path": str(export_dir),
+        "folder_name": slug,
         "images_count": len(copied_images),
         "variations_count": len(variations),
         "base_price": base_price,

@@ -12,7 +12,7 @@
 - Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
 - Website: https://archive-35.com
 
-## Print Collections (852 photographs, 44 collections)
+## Print Collections (955 photographs, 47 collections)
 
 ### Alps (2 photographs)
 - URL: https://archive-35.com/collection.html?id=alps
@@ -43,7 +43,7 @@
   - Moment of Contemplation, Argentina | Buenos Aires, Argentina | 37.4MP | Tags: portrait-photography, fine-art-photography, argentinian-culture, candid-moment, human-portrait, contemplative-mood, cultural-documentary, wall-art
   - ... and 30 more photographs
 
-### Arizona (4 photographs)
+### Arizona (12 photographs)
 - URL: https://archive-35.com/collection.html?id=arizona
 - Gallery: https://archive-35.com/gallery.html?collection=arizona
 
@@ -51,6 +51,8 @@
   - Badlands Stratification, Arizona Desert | Petrified Forest National Park area, Arizona | 55.6MP | Tags: arizona-landscape, badlands, geological-formations, sedimentary-layers, desert-landscape, erosion-patterns, fine-art-photography, nature-photography
   - Meandering Waters Through Desert Expanse | Petrified Forest National Park area, Arizona | 40.9MP | Tags: arizona-landscape, desert-photography, aerial-view, river-meandering, geological-formations, fine-art-landscape, navajo-county, southwestern-art
   - Badlands Erosion: Arizona's Painted Desert | Petrified Forest National Park / Painted Desert, Arizona | 50.6MP | Tags: badlands, painted-desert, arizona-landscape, geological-formations, erosion-patterns, panoramic-photography, petrified-forest, fine-art-landscape
+  - Desert Floor Beneath the Ranges | Arizona High Desert Plateau, Sonoran Region | 41.7MP | Tags: arizona-landscape, desert-photography, high-desert, sonoran-desert, mountain-vista, plateau-scenery, fine-art-landscape, nature-photography
+  - ... and 7 more photographs
 
 ### Australia (8 photographs)
 - URL: https://archive-35.com/collection.html?id=australia
@@ -63,7 +65,7 @@
   - Eucalyptus Reaching Skyward | Eastern Australia | 20.0MP | Tags: eucalyptus-tree, australian-landscape, fine-art-photography, nature-photography, upward-perspective, tree-canopy, azure-sky, botanical-art
   - ... and 3 more photographs
 
-### Black and White (45 photographs)
+### Black and White (46 photographs)
 - URL: https://archive-35.com/collection.html?id=black-and-white
 - Gallery: https://archive-35.com/gallery.html?collection=black-and-white
 
@@ -72,7 +74,7 @@
   - Zebra Family in the Grassland | African Savanna | 50.3MP | Tags: zebra, wildlife-photography, african-savanna, black-and-white, fine-art-photography, nature-photography, grassland, animal-portrait
   - Intimate Connection | Studio | 50.3MP | Tags: portrait-photography, black-and-white, fine-art, human-connection, intimate-moment, emotional-depth, monochromatic, studio-portrait
   - The Magician's Contemplation | Studio setting | 37.4MP | Tags: portrait-photography, fine-art-portraiture, black-and-white-photography, monochromatic, studio-portrait, theatrical-portrait, male-portrait, contemplative
-  - ... and 40 more photographs
+  - ... and 41 more photographs
 
 ### Brazil (14 photographs)
 - URL: https://archive-35.com/collection.html?id=brazil
@@ -107,7 +109,7 @@
   - Chicago Riverfront Urban Canvas | Chicago River, Chicago, Illinois, USA | 50.3MP | Tags: chicago-river, urban-landscape, chicago-skyline, architecture-photography, fine-art-photography, riverfront, illinois, midwest-usa
   - ... and 5 more photographs
 
-### Coast of California (16 photographs)
+### Coast of California (25 photographs)
 - URL: https://archive-35.com/collection.html?id=coast-of-california
 - Gallery: https://archive-35.com/gallery.html?collection=coast-of-california
 
@@ -116,7 +118,7 @@
   - Coastal Scrubland Guardian | California Coastal Sage Scrub, Central Coast | 42.6MP | Tags: california-coast, coastal-wildlife, sage-scrub, terrestrial-animal, california-central-coast, landscape-photography, fine-art-nature, scrubland-habitat
   - Coastal Squirrel Among Native Scrub | California Coast, Coastal Sage Scrub Region | 50.3MP | Tags: california-squirrel, coastal-wildlife, native-vegetation, california-coast, wildlife-portrait, nature-photography, landscape-photography, fine-art-nature
   - Kelp and Stone at California's Edge | Northern California Coast, rocky shoreline | 29.9MP | Tags: california-coast, kelp-forest, rocky-shore, coastal-landscape, seaweed, tidal-zone, ocean-waves, fine-art-photography
-  - ... and 11 more photographs
+  - ... and 20 more photographs
 
 ### Colorado (8 photographs)
 - URL: https://archive-35.com/collection.html?id=colorado
@@ -151,7 +153,7 @@
   - Chromatic Streets of Havana | Havana, Cuba | 33.4MP | Tags: street-photography, urban-landscape, cuba, havana, colonial-architecture, colorful-buildings, cuban-culture, turquoise
   - ... and 27 more photographs
 
-### Death Valley (20 photographs)
+### Death Valley (38 photographs)
 - URL: https://archive-35.com/collection.html?id=death-valley
 - Gallery: https://archive-35.com/gallery.html?collection=death-valley
 
@@ -160,7 +162,7 @@
   - Desert Highway into Infinity | High Desert Basin, Eastern Sierra Nevada Region, California | 15.6MP | Tags: desert-highway, straight-road, high-desert, sierra-nevada, vanishing-point, landscape-photography, fine-art-photography, american-west
   - Mineral Waters of the High Desert | Ladakh region, Jammu and Kashmir, India | 20.0MP | Tags: mountain-landscape, alpine-lake, ladakh, turquoise-water, mineral-lake, high-altitude, desert-mountain, geological-formations
   - Coyote in Desert Bloom | Desert Southwest, North America | 20.0MP | Tags: coyote, wildlife-photography, desert-landscape, fine-art-photography, nature-portrait, arid-environment, wildflowers, desert-vegetation
-  - ... and 15 more photographs
+  - ... and 33 more photographs
 
 ### Desert Dunes (10 photographs)
 - URL: https://archive-35.com/collection.html?id=desert-dunes
@@ -184,7 +186,7 @@
   - Pointe in Stillness | Studio setting | 50.3MP | Tags: ballet, pointe-shoes, dance-photography, classical-ballet, fine-art-photography, soft-focus, ethereal, graceful
   - ... and 12 more photographs
 
-### Germany (8 photographs)
+### Germany (9 photographs)
 - URL: https://archive-35.com/collection.html?id=germany
 - Gallery: https://archive-35.com/gallery.html?collection=germany
 
@@ -193,9 +195,9 @@
   - Urban Canvas: Street Art Berlin | Berlin, Germany | 44.8MP | Tags: street-art, mural, urban-photography, berlin, contemporary-art, graffiti-art, fine-art-photography, wall-art
   - Words That Change the World | Urban Germany, Street Art District | 35.7MP | Tags: street-art, mural, typography, inspirational-art, fine-art-photography, germany-urban, nature-integration, environmental-message
   - Political Dialogue: Mural Expression | Berlin, Germany | 37.7MP | Tags: street-art, mural-photography, berlin-art, political-art, urban-photography, fine-art-photography, german-culture, wall-art
-  - ... and 3 more photographs
+  - ... and 4 more photographs
 
-### Glacier National Park (76 photographs)
+### Glacier National Park (108 photographs)
 - URL: https://archive-35.com/collection.html?id=glacier-national-park
 - Gallery: https://archive-35.com/gallery.html?collection=glacier-national-park
 
@@ -204,7 +206,7 @@
   - Granite Passage Through Mountain Wilderness | Going-to-the-Sun Road, Glacier National Park, Montana | 44.8MP | Tags: glacier-national-park, going-to-the-sun-road, mountain-landscape, granite-cliff, alpine-scenery, coniferous-forest, rocky-mountain, dramatic-peaks
   - Mountain Pass in Glacier Country | Going-to-the-Sun Road, Glacier National Park, Montana | 32.1MP | Tags: glacier-national-park, going-to-the-sun-road, montana-landscape, mountain-road, dramatic-peaks, forest-valley, alpine-scenery, layered-mountains
   - Mountain Valley Sanctuary | Many Glacier Valley, Glacier National Park, Montana | 44.6MP | Tags: glacier-national-park, mountain-valley, coniferous-forest, alpine-meadow, montana-landscape, mountain-peaks, wilderness-photography, landscape-photography
-  - ... and 71 more photographs
+  - ... and 103 more photographs
 
 ### Grand Teton (48 photographs)
 - URL: https://archive-35.com/collection.html?id=grand-teton
@@ -275,7 +277,7 @@
 
   - London Eye Illuminated Reflection | South Bank, London, England | 50.3MP | Tags: london-eye, millennium-wheel, south-bank, thames-river, london-england, urban-landscape, architectural-photography, neon-lights
 
-### Los Angeles (30 photographs)
+### Los Angeles (34 photographs)
 - URL: https://archive-35.com/collection.html?id=los-angeles
 - Gallery: https://archive-35.com/gallery.html?collection=los-angeles
 
@@ -284,7 +286,18 @@
   - Snow-Crowned Peak Above the Valley | San Gabriel Mountains, Los Angeles | 50.3MP | Tags: mountain-landscape, snow-covered-peak, san-gabriel-mountains, los-angeles-landscape, alpine-scenery, white-mountains, dramatic-peaks, fine-art-photography
   - Downtown Towers Ascending | Downtown Los Angeles, Financial District | 50.3MP | Tags: downtown-los-angeles, architecture, skyscrapers, urban-landscape, high-rise, financial-district, modern-architecture, cityscape
   - Harbor Twilight Reflection | Los Angeles Harbor, Long Beach | 50.3MP | Tags: los-angeles, harbor-photography, long-beach, waterfront, fine-art-landscape, industrial-waterscape, moody-sky, calm-water
-  - ... and 25 more photographs
+  - ... and 29 more photographs
+
+### Mexico (8 photographs)
+- URL: https://archive-35.com/collection.html?id=mexico
+- Gallery: https://archive-35.com/gallery.html?collection=mexico
+
+  - Ancient Pyramids of Teotihuacán | Teotihuacán, State of Mexico | 50.3MP | Tags: teotihuacan, pyramids, pre-columbian, mexico-archaeology, ancient-civilization, state-of-mexico, sacred-valley, stone-architecture
+  - Teotihuacán's Geometric Expanse | Teotihuacán, State of Mexico | 47.5MP | Tags: teotihuacan, mexico, aerial-photography, pre-columbian, archaeological-site, pyramid, landscape-photography, fine-art-print
+  - Chromatic Hillside Tapestry | Guanajuato, Mexico | 37.1MP | Tags: hillside-settlement, urban-landscape, mexico-architecture, colorful-buildings, dense-housing, mountainous-terrain, cultural-landscape, guanajuato
+  - Hillside Settlement, Guanajuato | Guanajuato, Mexico | 50.3MP | Tags: guanajuato, mexican-architecture, hillside-settlement, adobe-houses, colorful-buildings, vernacular-architecture, mexico-landscape, urban-density
+  - Chromatic Mountain Community | Pachuca, Hidalgo, Mexico | 44.3MP | Tags: hillside-settlement, colorful-architecture, mexican-landscape, urban-photography, mountain-community, hidalgo-mexico, residential-landscape, vibrant-colors
+  - ... and 3 more photographs
 
 ### Mexico city (5 photographs)
 - URL: https://archive-35.com/collection.html?id=mexico-city
@@ -357,7 +370,7 @@
 
   - Iron Lattice Against Sky | Paris, France | 20.0MP | Tags: eiffel-tower, paris, france, iron-lattice, architectural-photography, fine-art-photography, geometric-composition, wrought-iron
 
-### Planes (8 photographs)
+### Planes (11 photographs)
 - URL: https://archive-35.com/collection.html?id=planes
 - Gallery: https://archive-35.com/gallery.html?collection=planes
 
@@ -366,7 +379,7 @@
   - Horizon's Golden Threshold | Aerial view, high altitude | 43.2MP | Tags: aerial-photography, horizon-line, airplane-wing, atmospheric-light, golden-hour, earth-curvature, stratosphere, fine-art-landscape
   - Horizon's Golden Threshold | Aerial perspective, high altitude | 46.6MP | Tags: aerial-photography, horizon-line, atmospheric-landscape, fine-art-print, golden-hour-light, earth-from-above, sky-art, contemplative
   - Aerial Rescue Over Planes | Planes Airspace | 50.3MP | Tags: helicopter, rescue-operation, aerial-photography, water-drop, Planes, aviation, dramatic-sky, azure-sky
-  - ... and 3 more photographs
+  - ... and 6 more photographs
 
 ### Prague (4 photographs)
 - URL: https://archive-35.com/collection.html?id=prague
@@ -377,7 +390,7 @@
   - Legionnaires Bridge Passage | Most Legií (Legionnaires Bridge), Prague 1, Vltava River | 38.1MP | Tags: prague-bridge, most-legii, architectural-perspective, urban-landscape, vltava-river, tramway-tracks, prague-old-town, symmetrical-composition
   - Vltava Reflections at Prague | Vltava Riverfront, Prague Old Town | 39.8MP | Tags: prague-landscape, vltava-river, urban-waterfront, czech-republic, old-town-prague, riverscape, architectural-reflection, fine-art-photography
 
-### Random Stuff (19 photographs)
+### Random Stuff (21 photographs)
 - URL: https://archive-35.com/collection.html?id=random-stuff
 - Gallery: https://archive-35.com/gallery.html?collection=random-stuff
 
@@ -386,7 +399,7 @@
   - Weathered Wood's Spiral Memory | Weathered wood detail | 37.9MP | Tags: wood-grain, macro-photography, nature-abstract, aged-wood, fine-art-photography, texture-detail, organic-patterns, natural-composition
   - Chromatic Journey Through Urban Space | Central Europe, urban plaza | 12.3MP | Tags: vintage-automobile, street-art, color-field, urban-landscape, trabant, contemporary-art, geometric-patterns, colorful-stripes
   - Geometric Rhythms in Green | Urban Metropolitan Area | 49.2MP | Tags: architecture-photography, urban-landscape, fine-art-photography, geometric-patterns, modern-buildings, residential-architecture, green-facade, contemporary-design
-  - ... and 14 more photographs
+  - ... and 16 more photographs
 
 ### San Francisco (9 photographs)
 - URL: https://archive-35.com/collection.html?id=san-francisco
@@ -461,7 +474,17 @@
   - Layered Desert Canyons in Stillness | Serranía del Hornocal region, Jujuy Province, Argentina | 13.5MP | Tags: desert-canyon, geological-formations, argentina, jujuy, hornocal, stratified-rock, arid-landscape, mountain-terrain
   - Desert Boulders and Stone Formations | Joshua Tree National Park, California | 16.7MP | Tags: desert-landscape, boulder-formations, rock-formations, joshua-tree, california-desert, geological-landscape, fine-art-photography, nature-photography
 
-### White Sands National Park (9 photographs)
+### Washington DC (5 photographs)
+- URL: https://archive-35.com/collection.html?id=washington-dc
+- Gallery: https://archive-35.com/gallery.html?collection=washington-dc
+
+  - Arlington Heights Urban Panorama | Arlington, Virginia - overlooking Washington DC metropolitan area | 36.6MP | Tags: washington-dc-photography, arlington-virginia, urban-landscape, fine-art-photography, city-skyline, potomac-river-valley, residential-architecture, panoramic-view
+  - Monument and Flight Over the Capital | Washington Monument, National Mall, Washington DC | 44.8MP | Tags: washington-dc, washington-monument, national-mall, aerial-photography, aircraft, urban-landscape, fine-art-photography, landscape-photography
+  - Monument Illuminated in Twilight | National Mall, Washington DC | 24.3MP | Tags: washington-monument, washington-dc, neoclassical-architecture, obelisk, national-mall, memorial, architectural-photography, fine-art-photography
+  - Lincoln Memorial Reflected in Still Waters | The National Mall, Washington DC - Lincoln Memorial and Reflecting Pool | 38.8MP | Tags: lincoln-memorial, reflecting-pool, washington-dc, national-mall, symmetry, architectural-reflection, fine-art-landscape, monumental-architecture
+  - Potomac Reflections at Night | Potomac River, Washington DC - Georgetown to Kennedy Center area | 32.5MP | Tags: washington-dc, potomac-river, urban-landscape, waterfront-photography, night-photography, light-reflection, architectural-lighting, cityscape
+
+### White Sands National Park (18 photographs)
 - URL: https://archive-35.com/collection.html?id=white-sands-national-park
 - Gallery: https://archive-35.com/gallery.html?collection=white-sands-national-park
 
@@ -470,7 +493,15 @@
   - Dunes and Desert Grasses | White Sands National Park, Alamogordo, New Mexico | 36.2MP | Tags: white-sands, desert-grasses, gypsum-dunes, white-sands-national-park, fine-art-landscape, desert-landscape, nature-photography, dune-vegetation
   - Dunes and Desert Solitude | Central Dunes Region, White Sands National Park, New Mexico | 41.3MP | Tags: white-sands-national-park, gypsum-dunes, desert-landscape, sand-dunes, fine-art-photography, landscape-photography, nature-photography, new-mexico
   - Gypsum Dunes in Ethereal Light | White Sands National Park, New Mexico - Central Dune Field | 33.8MP | Tags: white-sands-national-park, gypsum-dunes, desert-landscape, dune-field, white-sand, panoramic-landscape, fine-art-photography, nature-photography
-  - ... and 4 more photographs
+  - ... and 13 more photographs
+
+### Yosemite National Park (3 photographs)
+- URL: https://archive-35.com/collection.html?id=yosemite-national-park
+- Gallery: https://archive-35.com/gallery.html?collection=yosemite-national-park
+
+  - Lupine Meadow Among Giant Sequoias | Mariposa Grove area, Yosemite National Park | 42.6MP | Tags: lupine-flowers, giant-sequoias, yosemite-national-park, wildflower-meadow, old-growth-forest, purple-flowers, forest-landscape, mariposa-grove
+  - Winding Road Through Yosemite Valley | Tioga Road, Yosemite National Park | 47.1MP | Tags: yosemite-national-park, mountain-road, granite-cliffs, coniferous-forest, valley-vista, landscape-photography, fine-art-print, yosemite-valley
+  - Bridalveil Falls Cascading Through Stone | Bridalveil Falls, Yosemite Valley, Yosemite National Park | 34.3MP | Tags: bridalveil-falls, yosemite-valley, waterfall, granite-cliffs, yosemite-national-park, landscape-photography, fine-art-print, nature-photography
 
 ## Commercial Licensing (45 ultra-high-resolution panoramic images)
 

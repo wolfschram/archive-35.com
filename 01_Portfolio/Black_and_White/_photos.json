@@ -1815,5 +1815,45 @@
     "thumbnail": "104A9593-Enhanced-NR-thumb.jpg",
     "full": "104A9593-Enhanced-NR-full.jpg",
     "c2pa": true
+  },
+  {
+    "id": "wolf_7723",
+    "filename": "Wolf 7723.jpg",
+    "title": "Monument Reflected in Stillness",
+    "description": "A monumental obelisk rises in perfect symmetry, its pristine form mirrored in glassy waters below. Bare trees frame this study of geometric precision and natural reflection, creating a meditation on balance and permanence.",
+    "location": "National Mall, Washington D.C., United States",
+    "tags": [
+      "monument-photography",
+      "obelisk",
+      "reflection",
+      "black-and-white-landscape",
+      "washington-dc",
+      "fine-art-photography",
+      "architectural-landscape",
+      "symmetry",
+      "water-reflection",
+      "bare-trees",
+      "serene-landscape",
+      "geometric-composition",
+      "stillness",
+      "contemplative-art",
+      "monumental-architecture",
+      "landscape-wall-art",
+      "gallery-print",
+      "iconic-landmark",
+      "minimalist-photography",
+      "home-decor-art"
+    ],
+    "dimensions": {
+      "width": 8025,
+      "height": 4841,
+      "aspectRatio": 1.658,
+      "aspectRatioString": "8025:4841",
+      "orientation": "wide",
+      "megapixels": 38.8
+    },
+    "thumbnail": "Wolf 7723-thumb.jpg",
+    "full": "Wolf 7723-full.jpg",
+    "c2pa": true
   }
 ]

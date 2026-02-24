@@ -318,5 +318,45 @@
     "thumbnail": "Wolf 6846-thumb.jpg",
     "full": "Wolf 6846-full.jpg",
     "c2pa": true
+  },
+  {
+    "id": "wolf_8996",
+    "filename": "Wolf 8996.jpg",
+    "title": "Emerald Waters of the Bavarian Alps",
+    "description": "A pristine alpine lake mirrors the forested peaks and dramatic sky above, its crystalline turquoise waters revealing the glacial stone beneath. The composition captures the raw majesty of Germany's high mountain landscape, where untamed wilderness meets serene reflection.",
+    "location": "Eibsee, Bavaria, Germany",
+    "tags": [
+      "alpine-lake",
+      "bavaria",
+      "german-landscape",
+      "emerald-water",
+      "mountain-scenery",
+      "pristine-nature",
+      "glacial-lake",
+      "forested-peaks",
+      "tranquil-landscape",
+      "fine-art-photography",
+      "nature-photography",
+      "turquoise-water",
+      "cloud-reflection",
+      "german-mountains",
+      "landscape-art",
+      "wall-art",
+      "canvas-print",
+      "serene-beauty",
+      "clear-water",
+      "coniferous-forest"
+    ],
+    "dimensions": {
+      "width": 10000,
+      "height": 5059,
+      "aspectRatio": 1.977,
+      "aspectRatioString": "10000:5059",
+      "orientation": "wide",
+      "megapixels": 50.6
+    },
+    "thumbnail": "Wolf 8996-thumb.jpg",
+    "full": "Wolf 8996-full.jpg",
+    "c2pa": true
   }
 ]

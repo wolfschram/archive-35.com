@@ -92,6 +92,7 @@ function AgentCompose() {
         ]);
         setMockups(mockupData?.items || []);
         const cols = (collData?.collections || []).map(c => typeof c === 'string' ? c : c.name).filter(Boolean);
+        cols.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
         setCollections(cols);
         const boards = boardData?.items || [];
         setPinterestBoards(boards);

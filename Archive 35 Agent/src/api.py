@@ -2118,7 +2118,31 @@ def export_etsy_folder(req: EtsyExportRequest):
     )
 
     project_root = Path(__file__).resolve().parent.parent.parent
-    slug = re.sub(r'[^a-z0-9]+', '-', req.gallery_name.lower()).strip('-')
+
+    # Build a UNIQUE folder slug using photo ID + gallery name.
+    # Without the photo ID, multiple photos from the same gallery (e.g. "LA")
+    # would all export to the same folder and overwrite each other.
+    photo_id = ''
+    for img in req.selected_images:
+        if img.get("type") == "photo":
+            fname = img.get("filename", "")
+            # Extract photo ID from filename (e.g. "104A9007.jpg" → "104a9007")
+            photo_id = re.sub(r'\.[^.]+$', '', fname).lower()
+            break
+    if not photo_id:
+        # Fallback: try extracting ID from first mockup filename
+        for img in req.selected_images:
+            fname = img.get("filename", "")
+            match = re.search(r'(\d{3}[a-z]?\d{4})', fname.lower())
+            if match:
+                photo_id = match.group(1)
+                break
+
+    gallery_slug = re.sub(r'[^a-z0-9]+', '-', req.gallery_name.lower()).strip('-')
+    if photo_id:
+        slug = f"{photo_id}-{gallery_slug}"
+    else:
+        slug = gallery_slug
     export_dir = project_root / "06_Automation" / "etsy-export" / slug
     images_dir = export_dir / "images"
 
@@ -2146,18 +2170,24 @@ def export_etsy_folder(req: EtsyExportRequest):
                     image_order += 1
 
     # ── Copy original photos ──
+    # Each photo has its own 'collection' property (e.g. "Argentina") which maps
+    # to a Photography/{collection}/ subfolder. Use that instead of the top-level
+    # gallery_name which may be derived from mockup filenames and be wrong.
     if req.include_originals:
-        photo_dir = project_root / "Photography" / req.gallery_name
-        if photo_dir.exists():
-            for img in req.selected_images:
-                if img.get("type") == "photo":
-                    fname = img.get("filename", "")
-                    src_path = photo_dir / fname
-                    if src_path.exists():
-                        dest_name = f"{image_order:02d}-original-{fname}"
-                        shutil.copy2(src_path, images_dir / dest_name)
-                        copied_images.append({"order": image_order, "type": "original", "filename": dest_name})
-                        image_order += 1
+        for img in req.selected_images:
+            if img.get("type") == "photo":
+                fname = img.get("filename", "")
+                # Use the photo's own collection; fall back to gallery_name
+                collection = img.get("collection") or req.gallery_name
+                photo_dir = project_root / "Photography" / collection
+                src_path = photo_dir / fname
+                if src_path.exists():
+                    dest_name = f"{image_order:02d}-original-{fname}"
+                    shutil.copy2(src_path, images_dir / dest_name)
+                    copied_images.append({"order": image_order, "type": "original", "filename": dest_name})
+                    image_order += 1
+                else:
+                    logger.warning(f"Original photo not found: {src_path}")
 
     # ── Build pricing variations ──
     # Try to detect aspect ratio from first original photo
@@ -2167,7 +2197,8 @@ def export_etsy_folder(req: EtsyExportRequest):
     for img in req.selected_images:
         if img.get("type") == "photo":
             fname = img.get("filename", "")
-            photo_path = project_root / "Photography" / req.gallery_name / fname
+            collection = img.get("collection") or req.gallery_name
+            photo_path = project_root / "Photography" / collection / fname
             if photo_path.exists():
                 try:
                     from PIL import Image as PILImage

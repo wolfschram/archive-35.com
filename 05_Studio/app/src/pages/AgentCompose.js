@@ -306,6 +306,74 @@ function AgentCompose() {
     setPublishing(false);
   };
 
+  // ── Reset / Start Fresh ──
+  const handleStartFresh = () => {
+    setStep(1);
+    setSelectedImages([]);
+    setCaption('');
+    setTags('');
+    setTitle('');
+    setPublishResults({});
+    setTargetPlatforms(new Set(['instagram']));
+    setSelectedBoardId('');
+    setError?.(null);
+  };
+
+  // ── Export to Etsy Folder ──
+  const handleExportEtsyFolder = async () => {
+    if (selectedImages.length === 0) return;
+    setPublishing(true);
+    try {
+      // Determine gallery name from first image
+      const firstImg = selectedImages[0];
+      let galleryName = '';
+      if (firstImg.collection) {
+        galleryName = firstImg.collection;
+      } else if (firstImg.filename) {
+        // Try to extract from mockup filename (e.g. "lake-powell_118a6194_gallery-dark")
+        const parts = firstImg.filename.split('_');
+        galleryName = (parts[0] || '').replace(/-/g, ' ');
+      }
+
+      const tagList = tags.split(',').map(t => t.trim()).filter(Boolean);
+
+      const result = await post('/etsy/export-folder', {
+        title: title || `${galleryName} Fine Art Photography Print`,
+        description: caption.trim(),
+        tags: tagList,
+        gallery_name: galleryName,
+        selected_images: selectedImages.map(img => ({
+          type: img.type,
+          filename: img.filename,
+          src: img.src,
+          platforms: img.platforms || {},
+          photoId: img.photoId,
+          collection: img.collection,
+        })),
+        include_originals: true,
+      });
+
+      setPublishResults(prev => ({
+        ...prev,
+        etsy_export: {
+          success: true,
+          message: `Exported ${result.images_count} images + ${result.variations_count} variations to Etsy folder`,
+          path: result.export_path,
+          base_price: result.base_price,
+        },
+      }));
+      setStep(4);
+    } catch (err) {
+      setPublishResults(prev => ({
+        ...prev,
+        etsy_export: { error: err.message || 'Export failed' },
+      }));
+      setStep(4);
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   // ── Copy for manual Etsy ──
   const handleCopyEtsy = () => {
     const tagList = tags.split(',').map(t => t.trim()).filter(Boolean);
@@ -337,11 +405,21 @@ function AgentCompose() {
 
   return (
     <div className="page">
-      <header className="page-header">
-        <h2>Compose Post</h2>
-        <p className="page-subtitle">
-          Select mockups + photos → compose → preview → publish to any platform
-        </p>
+      <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h2>Compose Post</h2>
+          <p className="page-subtitle">
+            Select mockups + photos → compose → preview → publish to any platform
+          </p>
+        </div>
+        {step > 1 && (
+          <button onClick={handleStartFresh} style={{
+            padding: '8px 16px', fontSize: '12px', fontWeight: 600,
+            background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '6px', color: '#ef4444', cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }}>Start Fresh</button>
+        )}
       </header>
 
       {/* Step indicator */}
@@ -855,13 +933,22 @@ function AgentCompose() {
             </button>
 
             {targetPlatforms.has('etsy') && (
-              <button onClick={handleCopyEtsy} style={{
-                padding: '10px 20px', fontSize: '13px', fontWeight: 600,
-                background: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.4)',
-                borderRadius: '8px', color: '#3b82f6', cursor: 'pointer',
-              }}>
-                {publishResults.etsy_copied ? 'Copied!' : 'Copy for Etsy (Manual)'}
-              </button>
+              <>
+                <button onClick={handleExportEtsyFolder} disabled={publishing} style={{
+                  padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+                  background: 'rgba(241, 100, 30, 0.15)', border: '1px solid #f1641e',
+                  borderRadius: '8px', color: '#f1641e', cursor: publishing ? 'wait' : 'pointer',
+                }}>
+                  {publishing ? 'Exporting...' : 'Export to Etsy Folder'}
+                </button>
+                <button onClick={handleCopyEtsy} style={{
+                  padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+                  background: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.4)',
+                  borderRadius: '8px', color: '#3b82f6', cursor: 'pointer',
+                }}>
+                  {publishResults.etsy_copied ? 'Copied!' : 'Copy for Etsy (Manual)'}
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -911,24 +998,25 @@ function AgentCompose() {
                       </a>
                     </div>
                   )}
+                  {platform === 'etsy_export' && success && result.path && (
+                    <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
+                      Folder: <span style={{ fontFamily: 'monospace', color: 'var(--accent)' }}>{result.path}</span>
+                      {result.base_price && (
+                        <span style={{ marginLeft: '12px' }}>Base price: ${result.base_price}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
 
           <div style={{ display: 'flex', gap: '12px' }}>
-            <button onClick={() => {
-              setStep(1);
-              setSelectedImages([]);
-              setCaption('');
-              setTags('');
-              setTitle('');
-              setPublishResults({});
-            }} style={{
+            <button onClick={handleStartFresh} style={{
               padding: '10px 24px', fontSize: '14px', fontWeight: 600,
               background: 'rgba(212, 165, 116, 0.15)', border: '1px solid var(--accent)',
               borderRadius: '8px', color: 'var(--accent)', cursor: 'pointer',
-            }}>Create Another Post</button>
+            }}>Start Fresh</button>
           </div>
         </div>
       )}

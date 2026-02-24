@@ -2085,6 +2085,213 @@ def auto_fulfill_etsy_orders():
         conn.close()
 
 
+# ── Etsy Export Folder ─────────────────────────────────────────────
+
+
+class EtsyExportRequest(BaseModel):
+    """Request body for exporting listing data to a folder for browser automation."""
+    title: str
+    description: str
+    tags: list[str] = []
+    gallery_name: str  # e.g. "Lake Powell"
+    selected_images: list[dict] = []  # [{type, filename, src, ...}]
+    include_originals: bool = True  # Copy original photos too
+
+
+@app.post("/etsy/export-folder")
+def export_etsy_folder(req: EtsyExportRequest):
+    """Export listing data + images to a folder for browser-assisted Etsy posting.
+
+    Creates: 06_Automation/etsy-export/{gallery-slug}/
+      ├── listing.json      (all metadata for the listing)
+      ├── images/           (mockups + originals in posting order)
+      └── README.txt        (human-readable summary)
+
+    The listing.json contains everything needed to fill an Etsy listing form:
+    title, description, tags, pricing variations, category, shipping, image order.
+    """
+    import shutil
+    import re
+    from src.brand.pricing import (
+        MATERIALS, website_price, etsy_price, get_matching_category,
+        filter_sizes_by_aspect, calculate_dpi, get_quality_badge,
+    )
+
+    project_root = Path(__file__).resolve().parent.parent.parent
+    slug = re.sub(r'[^a-z0-9]+', '-', req.gallery_name.lower()).strip('-')
+    export_dir = project_root / "06_Automation" / "etsy-export" / slug
+    images_dir = export_dir / "images"
+
+    # Clean and recreate
+    if export_dir.exists():
+        shutil.rmtree(export_dir, ignore_errors=True)
+    images_dir.mkdir(parents=True, exist_ok=True)
+
+    copied_images = []
+    image_order = 1
+
+    # ── Copy selected mockup images (Etsy variants) ──
+    mockup_root = project_root / "mockups"
+    for img in req.selected_images:
+        if img.get("type") == "mockup":
+            # Find the etsy variant for this mockup
+            platforms = img.get("platforms", {})
+            etsy_file = platforms.get("etsy") or platforms.get("full") or platforms.get("instagram")
+            if etsy_file:
+                src_path = mockup_root / etsy_file
+                if src_path.exists():
+                    dest_name = f"{image_order:02d}-mockup-{src_path.name}"
+                    shutil.copy2(src_path, images_dir / dest_name)
+                    copied_images.append({"order": image_order, "type": "mockup", "filename": dest_name})
+                    image_order += 1
+
+    # ── Copy original photos ──
+    if req.include_originals:
+        photo_dir = project_root / "Photography" / req.gallery_name
+        if photo_dir.exists():
+            for img in req.selected_images:
+                if img.get("type") == "photo":
+                    fname = img.get("filename", "")
+                    src_path = photo_dir / fname
+                    if src_path.exists():
+                        dest_name = f"{image_order:02d}-original-{fname}"
+                        shutil.copy2(src_path, images_dir / dest_name)
+                        copied_images.append({"order": image_order, "type": "original", "filename": dest_name})
+                        image_order += 1
+
+    # ── Build pricing variations ──
+    # Try to detect aspect ratio from first original photo
+    aspect_ratio = 1.5  # default 3:2
+    photo_w, photo_h = 6000, 4000  # reasonable default for Wolf's camera
+
+    for img in req.selected_images:
+        if img.get("type") == "photo":
+            fname = img.get("filename", "")
+            photo_path = project_root / "Photography" / req.gallery_name / fname
+            if photo_path.exists():
+                try:
+                    from PIL import Image as PILImage
+                    with PILImage.open(photo_path) as pil_img:
+                        photo_w, photo_h = pil_img.size
+                        aspect_ratio = photo_w / photo_h
+                except Exception:
+                    pass
+                break
+
+    category = get_matching_category(aspect_ratio)
+    applicable_sizes = filter_sizes_by_aspect(category["sizes"], aspect_ratio)
+
+    variations = []
+    for mat_key, mat in MATERIALS.items():
+        for w, h in applicable_sizes:
+            dpi = calculate_dpi(photo_w, photo_h, w, h)
+            quality = get_quality_badge(dpi)
+            if not quality:
+                continue
+            sq_in = w * h
+            if sq_in > mat["max_sq_in"]:
+                continue
+
+            site_p = website_price(mat_key, w, h)
+            etsy_p = etsy_price(site_p)
+
+            variations.append({
+                "material": mat["name"],
+                "material_key": mat_key,
+                "size": f'{w}"x{h}"',
+                "width": w,
+                "height": h,
+                "website_price": site_p,
+                "etsy_price": etsy_p,
+                "dpi": dpi,
+                "quality": quality,
+                "label": f"{mat['name']} {w}x{h}",
+            })
+
+    # Sort: paper first (cheapest), then by price
+    mat_order = {"paper": 0, "canvas": 1, "wood": 2, "metal": 3, "acrylic": 4}
+    variations.sort(key=lambda v: (mat_order.get(v["material_key"], 9), v["etsy_price"]))
+
+    # Ensure 13 tags
+    tags = list(req.tags)[:13]
+    default_tags = [
+        "archive35", "fine art photography", "minimalist art", "gallery wall",
+        "art collectors", "contemporary art", "modern interiors", "wall art decor",
+        "photography art", "interior styling", "landscape photography",
+        "home decor", "wolf schram",
+    ]
+    seen = set(t.lower() for t in tags)
+    for dt in default_tags:
+        if len(tags) >= 13:
+            break
+        if dt.lower() not in seen:
+            tags.append(dt)
+            seen.add(dt.lower())
+
+    # Base price = cheapest variation (Fine Art Paper smallest)
+    base_price = variations[0]["etsy_price"] if variations else 51
+
+    # ── Build listing.json ──
+    listing = {
+        "title": req.title[:140],
+        "description": req.description,
+        "tags": tags[:13],
+        "base_price": base_price,
+        "category": "Art & Collectibles > Photography > Color",
+        "who_made": "i_did",
+        "when_made": "2020_2025",
+        "is_supply": False,
+        "processing_days": {"min": 5, "max": 7},
+        "shipping_profile": "Fine Art Prints - Free Shipping",
+        "quantity": 999,
+        "gallery_name": req.gallery_name,
+        "aspect_ratio": round(aspect_ratio, 2),
+        "aspect_category": category["name"],
+        "photo_dimensions": {"width": photo_w, "height": photo_h},
+        "variations": variations,
+        "images": copied_images,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+    # Write listing.json
+    listing_path = export_dir / "listing.json"
+    listing_path.write_text(json.dumps(listing, indent=2))
+
+    # Write human-readable README
+    readme_lines = [
+        f"ETSY EXPORT — {req.gallery_name}",
+        f"Generated: {listing['generated_at']}",
+        "",
+        f"Title: {listing['title']}",
+        f"Base Price: ${base_price}",
+        f"Tags: {', '.join(tags[:13])}",
+        f"Variations: {len(variations)} material/size combos",
+        f"Images: {len(copied_images)} files ready to upload",
+        "",
+        "PRICING BREAKDOWN:",
+    ]
+    for v in variations:
+        readme_lines.append(f"  {v['label']:>25}: ${v['etsy_price']}")
+    readme_lines.append("")
+    readme_lines.append("IMAGE ORDER:")
+    for img in copied_images:
+        readme_lines.append(f"  {img['order']}. [{img['type']}] {img['filename']}")
+
+    (export_dir / "README.txt").write_text("\n".join(readme_lines))
+
+    logger.info("Exported Etsy listing to %s — %d images, %d variations",
+                export_dir, len(copied_images), len(variations))
+
+    return {
+        "success": True,
+        "export_path": str(export_dir),
+        "images_count": len(copied_images),
+        "variations_count": len(variations),
+        "base_price": base_price,
+        "listing_json": str(listing_path),
+    }
+
+
 # ── Pinterest Endpoints ────────────────────────────────────────────
 
 

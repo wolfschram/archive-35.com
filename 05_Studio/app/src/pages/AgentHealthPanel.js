@@ -73,7 +73,7 @@ function AgentHealthPanel() {
     setStatsLoading(true);
     try {
       const data = await get('/stats');
-      setStats(data);
+      if (data) setStats(data);
     } catch (err) {
       console.error('Failed to load stats:', err);
     } finally {

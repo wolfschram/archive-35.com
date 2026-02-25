@@ -170,8 +170,9 @@ function AgentSettings({ setActiveTab }) {
   const startPinterestOAuth = async () => {
     try {
       const result = await get('/pinterest/oauth/url');
-      if (result?.url) {
-        window.open(result.url, '_blank');
+      const oauthUrl = result?.auth_url || result?.url;
+      if (oauthUrl) {
+        window.open(oauthUrl, '_blank');
       }
     } catch (err) {
       setError(`Pinterest OAuth failed: ${err.message}`);

@@ -1679,7 +1679,7 @@ G.forEach((g,i)=>{
 let _initCur=(function(){
   const p=new URLSearchParams(window.location.search);
   const gn=p.get('gallery');
-  if(gn){const idx=G.findIndex(g=>g.name===gn);if(idx>=0)return idx;}
+  if(gn){const idx=G.findIndex(g=>g.name.toLowerCase().replace(/\s+/g,'-')===gn.toLowerCase());if(idx>=0)return idx;}
   return Math.floor(Math.random()*G.length);
 })();
 let cur=_initCur,sm=_initCur,lastR=-1;

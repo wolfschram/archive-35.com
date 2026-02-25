@@ -454,11 +454,26 @@ nav a:hover::after, nav a.active::after { width:100%; }
 .vf-br{bottom:6px;right:6px;border-bottom:1px solid var(--gold);border-right:1px solid var(--gold)}
 
 /* === MOBILE === */
+/* Hamburger toggle — hidden on desktop, shown on mobile */
+.nav-toggle { display:none; background:none; border:none; cursor:pointer; padding:0.5rem; }
+.nav-toggle span { display:block; width:20px; height:1.5px; background:#e8e0d0; margin:5px 0; transition:all .3s; }
+
 @media(max-width:768px){
   header::before { height:calc(0.6rem + 2.6rem + 0.6rem); }
   header > .h-inner { margin:0.6rem auto; padding:0.5rem 1rem; width:calc(100% - 1.2rem); }
   .logo { font-size:16px; letter-spacing:5px; }
-  nav { gap:0.7rem; font-size:0.55rem; letter-spacing:0.08em; }
+  /* Collapsible mobile nav */
+  nav.nav {
+    position:fixed; top:52px; left:0.6rem; right:0.6rem;
+    background:rgba(10,10,10,0.95); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,0.06); border-radius:12px;
+    flex-direction:column; padding:1.5rem; gap:1.2rem;
+    font-size:0.75rem; letter-spacing:0.12em;
+    transform:translateY(-20px); opacity:0; visibility:hidden;
+    transition:all .3s; z-index:9998;
+  }
+  nav.nav.active { transform:translateY(0); opacity:1; visibility:visible; }
+  .nav-toggle { display:block; }
   .cart-icon-btn { width:30px; height:30px; margin-left:8px; }
   .cart-icon { width:18px; height:18px; }
   #cf { top:16vh; height:55vh; }
@@ -476,8 +491,6 @@ nav a:hover::after, nav a.active::after { width:100%; }
   #fg-gr { padding:14px 12px 40px; }
 }
 @media(max-width:420px){
-  nav a { font-size:0.5rem; }
-  nav { gap:0.5rem; }
   #cf { top:18vh; height:48vh; }
   #cprev { height:18vh; }
   #dots { bottom:18vh; }
@@ -526,6 +539,9 @@ nav a:hover::after, nav a.active::after { width:100%; }
       <a href="contact.html">Contact</a>
       <a href="search.html">Search</a>
     </nav>
+    <button class="nav-toggle" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
 
@@ -1659,7 +1675,14 @@ G.forEach((g,i)=>{
 });
 
 /* ===== ENGINE ===== */
-let cur=0,sm=0,lastR=-1;
+/* Parse URL params: ?gallery=Name&photo=id for deep-linking from Featured Work */
+let _initCur=(function(){
+  const p=new URLSearchParams(window.location.search);
+  const gn=p.get('gallery');
+  if(gn){const idx=G.findIndex(g=>g.name===gn);if(idx>=0)return idx;}
+  return Math.floor(Math.random()*G.length);
+})();
+let cur=_initCur,sm=_initCur,lastR=-1;
 const SA=68,VH=6;
 function wI(i){return((i%N)+N)%N;}
 function cD(a,b){let d=b-a;while(d>N/2)d-=N;while(d<-N/2)d+=N;return d;}
@@ -1886,6 +1909,20 @@ document.getElementById('lb-buy').addEventListener('click',async(e)=>{
 const noiseEl=document.getElementById('noise');
 const _grainMs=window.innerWidth<=768?500:120; /* 2fps on mobile, 8fps on desktop */
 setInterval(()=>{noiseEl.style.transform=`translate(${Math.random()*200-100}px,${Math.random()*200-100}px)`;},_grainMs);
+
+/* ===== MOBILE NAV HAMBURGER ===== */
+(function(){
+  const toggle=document.querySelector('.nav-toggle');
+  const nav=document.querySelector('.nav');
+  if(!toggle||!nav)return;
+  toggle.addEventListener('click',()=>{
+    nav.classList.toggle('active');
+    toggle.classList.toggle('active');
+  });
+  nav.querySelectorAll('a').forEach(a=>{
+    a.addEventListener('click',()=>{nav.classList.remove('active');toggle.classList.remove('active');});
+  });
+})();
 </script>
 </body>
 </html>

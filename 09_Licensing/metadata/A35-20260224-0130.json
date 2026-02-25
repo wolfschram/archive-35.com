@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260224-0130",
+  "original_filename": "Wolf 8515.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Desert Basin: Layered Geology",
+  "description": "An expansive panoramic vista revealing the dramatic geological stratification of high desert terrain, with layered mountain ranges receding toward distant peaks. The ultra-high-resolution capture preserves exceptional detail across the entire composition—from foreground desert scrub to the intricate erosion patterns on distant ridges—making it ideal for large-format fine art prints and immersive commercial installations.",
+  "location": "Atacama Desert Region, Northern Chile (possibly near San Pedro de Atacama or Paso de Jama area)",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 16530,
+    "height": 6956
+  },
+  "megapixels": 115,
+  "aspect_ratio": 2.376,
+  "file_size_bytes": 48082983,
+  "file_size_mb": 45.9,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 55.1,
+    "height_in": 23.2,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 110.2,
+    "height_in": 46.4,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2024:02:23 16:22:03",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.0002",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 125,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260224-0130.jpg",
+    "preview": "previews/A35-20260224-0130.jpg",
+    "thumbnail": "thumbnails/A35-20260224-0130.jpg"
+  },
+  "scanned_at": "2026-02-24T22:03:53.256354+00:00"
+}

@@ -205,6 +205,8 @@ def import_photo(
             rel_path = str(resolved.relative_to(repo_root))
         except ValueError:
             rel_path = str(resolved)
+        # Strip trailing spaces from directory components (e.g. "Alps /" → "Alps/")
+        rel_path = "/".join(part.strip() for part in rel_path.split("/"))
         now = datetime.now(timezone.utc).isoformat()
 
         try:
@@ -289,7 +291,7 @@ def import_directory(
         if not portfolio_dir.is_dir():
             continue
 
-        collection = portfolio_dir.name
+        collection = portfolio_dir.name.strip()
 
         # Prefer originals/ subfolder, fall back to portfolio root
         originals_dir = portfolio_dir / "originals"

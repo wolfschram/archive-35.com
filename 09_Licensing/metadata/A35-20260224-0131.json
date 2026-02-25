@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260224-0131",
+  "original_filename": "Wolf 8522.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Desert Basin Under Luminous Skies",
+  "description": "A vast panoramic study of arid desert landscape with scattered vegetation, framed by distant mountain ranges under dynamic cloud formations. This ultra-high-resolution image captures exceptional detail across the entire composition, revealing subtle textural variations in the desert floor and atmospheric depth that translates beautifully to large-scale fine art prints.",
+  "location": "Mojave Desert, California, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 15843,
+    "height": 6652
+  },
+  "megapixels": 105.4,
+  "aspect_ratio": 2.382,
+  "file_size_bytes": 34161250,
+  "file_size_mb": 32.6,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 52.8,
+    "height_in": 22.2,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 105.6,
+    "height_in": 44.3,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2024:02:23 17:34:11",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.003125",
+    "FNumber": "2.8",
+    "ISOSpeedRatings": 160,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260224-0131.jpg",
+    "preview": "previews/A35-20260224-0131.jpg",
+    "thumbnail": "thumbnails/A35-20260224-0131.jpg"
+  },
+  "scanned_at": "2026-02-24T22:03:53.257141+00:00"
+}

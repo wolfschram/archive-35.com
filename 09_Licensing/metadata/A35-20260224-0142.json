@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260224-0142",
+  "original_filename": "Wolf 9300.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Desert Expanse with Distant Peak",
+  "description": "A sweeping panoramic vista across the Sonoran Desert floor toward distant mountain ranges, captured in ultra-high resolution that reveals exceptional detail across the entire composition—from foreground vegetation to the commanding peak on the horizon. This expansive landscape print showcases the subtle tonal gradations and textural richness of the arid environment, ideal for large-format exhibition display.",
+  "location": "Sonoran Desert, Arizona, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 29901,
+    "height": 7271
+  },
+  "megapixels": 217.4,
+  "aspect_ratio": 4.112,
+  "file_size_bytes": 62004905,
+  "file_size_mb": 59.1,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 99.7,
+    "height_in": 24.2,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 199.3,
+    "height_in": 48.5,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2024:06:09 17:23:48",
+    "FocalLength": "70.0",
+    "ExposureTime": "0.00025",
+    "FNumber": "4.0",
+    "ISOSpeedRatings": 125,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260224-0142.jpg",
+    "preview": "previews/A35-20260224-0142.jpg",
+    "thumbnail": "thumbnails/A35-20260224-0142.jpg"
+  },
+  "scanned_at": "2026-02-24T22:03:53.265112+00:00"
+}

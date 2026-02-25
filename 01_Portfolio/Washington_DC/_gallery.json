@@ -1,0 +1,16 @@
+{
+  "id": "washington_dc",
+  "title": "Washington DC",
+  "slug": "washington-dc",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 5
+}

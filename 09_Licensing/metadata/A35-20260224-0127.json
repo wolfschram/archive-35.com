@@ -1,0 +1,83 @@
+{
+  "catalog_id": "A35-20260224-0127",
+  "original_filename": "Wolf 7608.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Solitary Figure, Vast Shore",
+  "description": "A contemplative panoramic study of an expansive black sand beach with rolling Pacific swells and dramatic cloud formations. This ultra-high-resolution image captures exceptional detail across the entire composition—from the fine gravel texture in the foreground to the atmospheric nuance of the overcast sky—offering remarkable print potential for large-scale fine art installations.",
+  "location": "Pacific Northwest Coast, Washington or Oregon, United States",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 13107,
+    "height": 5464
+  },
+  "megapixels": 71.6,
+  "aspect_ratio": 2.399,
+  "file_size_bytes": 20676034,
+  "file_size_mb": 19.7,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 43.7,
+    "height_in": 18.2,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 87.4,
+    "height_in": 36.4,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2023:10:22 11:31:01",
+    "ExposureTime": "0.002",
+    "ISOSpeedRatings": 100
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260224-0127.jpg",
+    "preview": "previews/A35-20260224-0127.jpg",
+    "thumbnail": "thumbnails/A35-20260224-0127.jpg"
+  },
+  "scanned_at": "2026-02-24T22:03:53.253970+00:00"
+}

@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260224-0136",
+  "original_filename": "Wolf 8596.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "",
+  "description": "",
+  "location": "",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 25029,
+    "height": 8402
+  },
+  "megapixels": 210.3,
+  "aspect_ratio": 2.979,
+  "file_size_bytes": 74802084,
+  "file_size_mb": 71.3,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 83.4,
+    "height_in": 28.0,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 166.9,
+    "height_in": 56.0,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2024:02:24 07:17:08",
+    "FocalLength": "62.0",
+    "ExposureTime": "0.008",
+    "FNumber": "5.6",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260224-0136.jpg",
+    "preview": "previews/A35-20260224-0136.jpg",
+    "thumbnail": "thumbnails/A35-20260224-0136.jpg"
+  },
+  "scanned_at": "2026-02-24T22:03:53.260923+00:00"
+}

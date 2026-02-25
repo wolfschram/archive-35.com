@@ -1,0 +1,86 @@
+{
+  "catalog_id": "A35-20260224-0129",
+  "original_filename": "Wolf 8511.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Ridges and Desert Foreground",
+  "description": "A striking panoramic study of massive snow-capped mountain peaks rising dramatically above arid desert foothills, captured in exceptional detail. This ultra-high-resolution image reveals intricate geological layering and textural complexity across the entire composition, ideal for large-scale fine art prints and commercial architectural installations.",
+  "location": "Karakoram Range, Ladakh region, northern India",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 38022,
+    "height": 7759
+  },
+  "megapixels": 295,
+  "aspect_ratio": 4.9,
+  "file_size_bytes": 95181165,
+  "file_size_mb": 90.8,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 126.7,
+    "height_in": 25.9,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 253.5,
+    "height_in": 51.7,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2024:02:23 15:28:50",
+    "FocalLength": "200.0",
+    "ExposureTime": "0.000625",
+    "FNumber": "4.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF70-200mm F2.8 L IS USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260224-0129.jpg",
+    "preview": "previews/A35-20260224-0129.jpg",
+    "thumbnail": "thumbnails/A35-20260224-0129.jpg"
+  },
+  "scanned_at": "2026-02-24T22:03:53.255587+00:00"
+}

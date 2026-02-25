@@ -214,11 +214,28 @@ function renderCollectionGallery() {
 
 // ===== Render Featured (Home Page) =====
 function renderFeatured(container) {
-  // Show first 6 photos as featured
-  const featured = window.photosData.photos.slice(0, 6);
+  const photos = window.photosData.photos;
+  if (!photos || !photos.length) return;
+
+  // Group photos by collection, then pick 1 random photo from 6 random collections
+  const byCollection = {};
+  photos.forEach(p => {
+    if (!byCollection[p.collection]) byCollection[p.collection] = [];
+    byCollection[p.collection].push(p);
+  });
+  const collections = Object.keys(byCollection);
+
+  // Shuffle collections and pick up to 6
+  const shuffled = collections.sort(() => Math.random() - 0.5).slice(0, 6);
+
+  // Pick 1 random photo from each selected collection
+  const featured = shuffled.map(c => {
+    const arr = byCollection[c];
+    return arr[Math.floor(Math.random() * arr.length)];
+  });
 
   container.innerHTML = featured.map((photo) => `
-    <a href="collection.html?id=${photo.collection}" class="gallery-item" data-id="${photo.id}">
+    <a href="gallery.html?gallery=${encodeURIComponent(photo.collection)}" class="gallery-item" data-id="${photo.id}">
       <img
         data-src="${photo.thumbnail}"
         alt="${photo.title}"

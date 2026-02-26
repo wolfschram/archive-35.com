@@ -838,7 +838,9 @@
         const div = document.createElement('div');
         div.className = 'template-thumb';
         div.dataset.id = t.id;
-        div.innerHTML = '<img src="' + TEMPLATES_BASE + t.file + '" alt="' + t.label + '" loading="lazy"><div class="tmpl-label">' + t.label + '</div>';
+        // Use preview images (with default photo composited) — no green zones visible
+        const previewFile = t.file.replace('.jpg', '-preview.jpg');
+        div.innerHTML = '<img src="' + TEMPLATES_BASE + previewFile + '" alt="' + t.label + '" loading="lazy"><div class="tmpl-label">' + t.label + '</div>';
         div.addEventListener('click', () => selectTemplate(t));
         el.appendChild(div);
       });
@@ -852,18 +854,31 @@
         el.classList.toggle('active', el.dataset.id === t.id);
       });
 
-      // Load template image
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        templateImg = img;
+      // Load preview image first (has default photo composited — no green)
+      const previewFile = t.file.replace('.jpg', '-preview.jpg');
+      const preview = new Image();
+      preview.crossOrigin = 'anonymous';
+      preview.onload = () => {
+        templateImg = preview;
         canvas.width = t.w;
         canvas.height = t.h;
         resetPhotoPosition();
         filterPhotos();
         render();
+
+        // Then load raw template in background for future compositing
+        const raw = new Image();
+        raw.crossOrigin = 'anonymous';
+        raw.onload = () => {
+          // Only swap if we're still on the same template
+          if (currentTemplate && currentTemplate.id === t.id) {
+            templateImg = raw;
+            render();
+          }
+        };
+        raw.src = TEMPLATES_BASE + t.file;
       };
-      img.src = TEMPLATES_BASE + t.file;
+      preview.src = TEMPLATES_BASE + previewFile;
     }
 
     // --- Photo Loading ---
@@ -992,26 +1007,28 @@
       // Draw the template
       ctx.drawImage(templateImg, 0, 0, canvas.width, canvas.height);
 
-      if (photoImg && currentTemplate) {
+      if (currentTemplate) {
         const z = currentTemplate.zone;
-        const pw = photoImg.naturalWidth * photoZoom;
-        const ph = photoImg.naturalHeight * photoZoom;
-
-        // Calculate source rect from photo
-        const cx = photoImg.naturalWidth / 2 - photoOffX / photoZoom;
-        const cy = photoImg.naturalHeight / 2 - photoOffY / photoZoom;
-        const sw = z.w / photoZoom;
-        const sh = z.h / photoZoom;
-        const sx = cx - sw / 2;
-        const sy = cy - sh / 2;
-
-        // Clip to zone (inset 3px to hide green chroma-key edge)
         const inset = 3;
+
+        // Always fill zone with dark color first (covers any green remnants)
         ctx.save();
         ctx.beginPath();
         ctx.rect(z.x + inset, z.y + inset, z.w - inset * 2, z.h - inset * 2);
         ctx.clip();
-        ctx.drawImage(photoImg, sx, sy, sw, sh, z.x, z.y, z.w, z.h);
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(z.x, z.y, z.w, z.h);
+
+        // Then draw the photo on top if loaded
+        if (photoImg) {
+          const cx = photoImg.naturalWidth / 2 - photoOffX / photoZoom;
+          const cy = photoImg.naturalHeight / 2 - photoOffY / photoZoom;
+          const sw = z.w / photoZoom;
+          const sh = z.h / photoZoom;
+          const sx = cx - sw / 2;
+          const sy = cy - sh / 2;
+          ctx.drawImage(photoImg, sx, sy, sw, sh, z.x, z.y, z.w, z.h);
+        }
         ctx.restore();
       }
     }

@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARCHIVE-35 | For Designers & Hotels</title>
+  <meta name="description" content="Fine art photography engineered for architectural scale. Statement pieces, guest room programs, and custom commissions for hospitality and commercial interiors.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ARCHIVE-35">
+  <meta property="og:title" content="ARCHIVE-35 | For Designers & Hotels">
+  <meta property="og:description" content="Fine art photography engineered for architectural scale. Statement pieces, guest room programs, and custom commissions.">
+  <meta property="og:url" content="https://archive-35.com/hospitality.html">
+  <meta property="og:image" content="https://archive-35.com/logos/archive35-og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="robots" content="noai, noimageai">
+  <link rel="canonical" href="https://archive-35.com/hospitality.html">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="logos/archive35-favicon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SE2WETEK5D"></script>
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('js',new Date());gtag('config','G-SE2WETEK5D',{anonymize_ip:true,allow_google_signals:false,allow_ad_personalization_signals:false});
+  </script>
+  <style>
+    /* ===== Hospitality Page Styles ===== */
+
+    .hosp-hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+      position: relative;
+    }
+
+    .hosp-hero-badge {
+      font-size: 0.7rem;
+      font-weight: 400;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      opacity: 0.8;
+    }
+
+    .hosp-hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 100;
+      letter-spacing: 0.15em;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+
+    .hosp-hero-sub {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+      max-width: 600px;
+      line-height: 1.7;
+      margin-bottom: 3rem;
+    }
+
+    /* ===== Interactive Visualizer ===== */
+    .visualizer-section {
+      padding: 0 0 6rem;
+    }
+
+    .visualizer-section h2 {
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .visualizer-intro {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+    }
+
+    /* Template selector carousel */
+    .template-carousel {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      padding: 0 2rem 1rem;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      margin-bottom: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .template-carousel::-webkit-scrollbar { display: none; }
+
+    .template-thumb {
+      flex: 0 0 auto;
+      width: 120px;
+      height: 72px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      opacity: 0.6;
+      scroll-snap-align: center;
+      position: relative;
+    }
+
+    .template-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .template-thumb:hover {
+      opacity: 0.9;
+      border-color: var(--glass-border-hover);
+    }
+
+    .template-thumb.active {
+      opacity: 1;
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(232, 184, 77, 0.3);
+    }
+
+    .template-thumb .tmpl-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 2px 4px;
+      background: rgba(0,0,0,0.7);
+      color: var(--text-secondary);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    /* Main canvas area */
+    .visualizer-canvas-wrap {
+      position: relative;
+      max-width: 1200px;
+      margin: 0 auto 2rem;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      cursor: grab;
+      touch-action: none;
+    }
+    .visualizer-canvas-wrap:active { cursor: grabbing; }
+
+    .visualizer-canvas-wrap canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .viz-hint {
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(0,0,0,0.6);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+
+    /* Gallery browser */
+    .gallery-browser {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .gb-controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .gb-controls label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .gb-select {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-family: var(--font-main);
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .gb-select:focus { border-color: var(--accent); }
+
+    .gb-count {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    .gb-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.5rem;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg-secondary);
+      border: 1px solid var(--glass-border);
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) var(--bg-tertiary);
+    }
+
+    .gb-grid::-webkit-scrollbar { width: 6px; }
+    .gb-grid::-webkit-scrollbar-track { background: var(--bg-tertiary); border-radius: 3px; }
+    .gb-grid::-webkit-scrollbar-thumb { background: rgba(232,184,77,0.4); border-radius: 3px; }
+
+    .gb-photo {
+      position: relative;
+      aspect-ratio: 3/2;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .gb-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gb-photo:hover {
+      border-color: var(--glass-border-hover);
+      transform: scale(1.03);
+    }
+
+    .gb-photo.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(232,184,77,0.3);
+    }
+
+    .gb-photo .gb-title {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      font-size: 0.6rem;
+      padding: 3px 5px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .gb-photo:hover .gb-title { opacity: 1; }
+
+    /* ===== Services Section ===== */
+    .services-section {
+      padding: 6rem 2rem;
+    }
+
+    .services-section h2 {
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .services-intro {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      max-width: 700px;
+      margin: 0 auto 3rem;
+      font-weight: 300;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .service-card {
+      padding: 2.5rem 2rem;
+    }
+
+    .service-card .sc-icon {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      display: block;
+    }
+
+    .service-card h3 {
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .service-card p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    .service-card ul {
+      list-style: none;
+      margin-top: 1rem;
+    }
+
+    .service-card ul li {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      padding: 0.35rem 0;
+      padding-left: 1.2rem;
+      position: relative;
+      font-weight: 300;
+    }
+
+    .service-card ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.7rem;
+      width: 4px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    /* ===== Advantage Section ===== */
+    .advantage-section {
+      padding: 6rem 2rem;
+      background: var(--bg-secondary);
+    }
+
+    .advantage-section h2 {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .advantage-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .advantage-item {
+      text-align: center;
+      padding: 2rem 1.5rem;
+    }
+
+    .advantage-item .adv-num {
+      font-size: 3rem;
+      font-weight: 100;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.75rem;
+    }
+
+    .advantage-item h3 {
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.75rem;
+    }
+
+    .advantage-item p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* ===== Process Section ===== */
+    .process-section {
+      padding: 6rem 2rem;
+    }
+
+    .process-section h2 {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .process-step {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      position: relative;
+    }
+
+    .process-step .step-num {
+      font-size: 2.5rem;
+      font-weight: 100;
+      color: var(--accent);
+      opacity: 0.5;
+      margin-bottom: 0.5rem;
+    }
+
+    .process-step h3 {
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.5rem;
+    }
+
+    .process-step p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* ===== Artist Bio Section ===== */
+    .bio-section {
+      padding: 6rem 2rem;
+      background: var(--bg-secondary);
+    }
+
+    .bio-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .bio-section h2 {
+      margin-bottom: 2rem;
+    }
+
+    .bio-text {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+      line-height: 1.8;
+      font-style: italic;
+    }
+
+    .bio-credit {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* ===== CTA Section ===== */
+    .cta-section {
+      padding: 8rem 2rem;
+      text-align: center;
+    }
+
+    .cta-section h2 {
+      margin-bottom: 1rem;
+    }
+
+    .cta-section p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 300;
+      margin-bottom: 2.5rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.7;
+    }
+
+    .cta-email {
+      display: inline-block;
+      font-size: 1.1rem;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      border-bottom: 1px solid rgba(232,184,77,0.3);
+      padding-bottom: 2px;
+      transition: all 0.3s;
+    }
+
+    .cta-email:hover {
+      color: var(--accent-hover);
+      border-bottom-color: var(--accent);
+      text-shadow: var(--glow-text);
+    }
+
+    .cta-note {
+      margin-top: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* ===== Mobile ===== */
+    @media (max-width: 768px) {
+      .template-carousel {
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+      }
+      .template-thumb {
+        width: 100px;
+        height: 60px;
+      }
+      .gb-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        max-height: 300px;
+      }
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+      .gb-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .gb-count { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header (matches site-wide nav) -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><span class="logo-white">ARCHIVE</span><span class="logo-gold">-35</span></a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="licensing.html">Licensing</a>
+        <a href="hospitality.html" class="active">Trade</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="search.html">Search</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hosp-hero">
+    <div class="hosp-hero-badge">For Designers & Hotels</div>
+    <h1>Art Engineered for<br>Architectural Scale</h1>
+    <p class="hosp-hero-sub">
+      Source files up to 40,000 pixels wide. 1,000 curated images from 55+ countries.
+      Statement pieces, guest room programs, and custom commissions
+      — all fulfilled through professional fine art printing.
+    </p>
+    <a href="#visualizer" class="btn btn-primary" style="scroll-behavior:smooth;">See It In Your Space</a>
+  </section>
+
+  <!-- Interactive Visualizer -->
+  <section class="visualizer-section" id="visualizer">
+    <div class="container">
+      <h2>See It In Your Space</h2>
+      <p class="visualizer-intro">Select a room setting, then browse the archive to find the perfect image. Drag to reposition, scroll to zoom.</p>
+    </div>
+
+    <!-- Template selector -->
+    <div class="template-carousel" id="tmplCarousel"></div>
+
+    <!-- Canvas display -->
+    <div class="visualizer-canvas-wrap" id="vizWrap">
+      <canvas id="vizCanvas"></canvas>
+      <div class="viz-hint" id="vizHint">Drag to reposition &middot; Scroll to zoom</div>
+    </div>
+
+    <!-- Gallery browser -->
+    <div class="gallery-browser" id="galleryBrowser">
+      <div class="gb-controls">
+        <label for="collSelect">Collection</label>
+        <select class="gb-select" id="collSelect">
+          <option value="all">All Collections</option>
+        </select>
+        <span class="gb-count" id="gbCount"></span>
+      </div>
+      <div class="gb-grid" id="gbGrid"></div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="services-section">
+    <h2>How We Work With You</h2>
+    <p class="services-intro">Three ways to bring Archive-35 photography into your project, from single lobby statements to full-property art programs.</p>
+    <div class="services-grid">
+      <div class="service-card glass-card">
+        <span class="sc-icon" aria-hidden="true">&#9670;</span>
+        <h3>Statement Pieces</h3>
+        <p>Large-format original prints for lobbies, restaurants, and amenity spaces. One-of-a-kind or limited edition, printed on canvas, metal, acrylic, or fine art paper.</p>
+        <ul>
+          <li>Prints up to 120 inches wide, flawless at any distance</li>
+          <li>Custom framing and substrate selection</li>
+          <li>Color grading to match interior palette</li>
+          <li>Limited edition numbering available</li>
+        </ul>
+      </div>
+      <div class="service-card glass-card">
+        <span class="sc-icon" aria-hidden="true">&#9632;</span>
+        <h3>Guest Room Programs</h3>
+        <p>Volume licensing for multi-room rollouts. One image, every room, one flat licensing fee — plus per-unit print fulfillment at wholesale pricing.</p>
+        <ul>
+          <li>Flat-fee image licensing for 100+ units</li>
+          <li>Consistent quality across all rooms</li>
+          <li>Custom cropping and aspect ratio adaptation</li>
+          <li>Geographic or time-bound exclusivity available</li>
+        </ul>
+      </div>
+      <div class="service-card glass-card">
+        <span class="sc-icon" aria-hidden="true">&#10022;</span>
+        <h3>Custom Commissions</h3>
+        <p>Original photography created specifically for your property's narrative. Wolf travels to capture the landscape, culture, or story that defines your location.</p>
+        <ul>
+          <li>Location-specific shoots designed around your vision</li>
+          <li>Full creative collaboration with design team</li>
+          <li>Exclusive ownership of commissioned work</li>
+          <li>25 years of international photography experience</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- The Archive-35 Advantage -->
+  <section class="advantage-section">
+    <h2>The Archive-35 Advantage</h2>
+    <div class="advantage-grid">
+      <div class="advantage-item">
+        <div class="adv-num">40K</div>
+        <h3>Massive Scale</h3>
+        <p>Source files up to 40,000 pixels wide. Flawless printing at 120+ inches without losing a single detail. Engineered for walls where most photography falls apart.</p>
+      </div>
+      <div class="advantage-item">
+        <div class="adv-num">55+</div>
+        <h3>Story-First</h3>
+        <p>25 years, 55+ countries, captured between world tours with The Rolling Stones, U2, Paul McCartney, and Queen. Every image carries a specific moment.</p>
+      </div>
+      <div class="advantage-item">
+        <div class="adv-num">5</div>
+        <h3>Any Substrate</h3>
+        <p>Professional fulfillment on canvas, metal, acrylic, fine art paper, and wood. Custom sizing, framing, and color adaptation for any interior scheme.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="process-section">
+    <h2>How It Works</h2>
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="step-num">01</div>
+        <h3>Browse</h3>
+        <p>Explore 1,000 curated images across 47 collections using the interactive visualizer above.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">02</div>
+        <h3>Select</h3>
+        <p>Choose images that fit your space, narrative, and design direction. We provide high-res previews for client presentations.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">03</div>
+        <h3>Customize</h3>
+        <p>We adapt cropping, aspect ratio, and color grading to integrate perfectly with your interior palette.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">04</div>
+        <h3>Fulfill</h3>
+        <p>Professional printing and delivery. Single statement pieces or 500-unit guest room rollouts — same quality, any scale.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Artist Bio -->
+  <section class="bio-section">
+    <div class="bio-inner">
+      <h2>About the Artist</h2>
+      <p class="bio-text">Wolf Schram spent fifteen years on the road with acts like The Rolling Stones, U2, Paul McCartney, Queen, and Beyonc&eacute; — not as a fan, but as the engineer designing the production systems that made the shows happen. While the crews slept, Wolf rented cars at dawn and drove into whatever city they'd landed in, chasing light through streets that hadn't woken up yet. Over 25 years and 55+ countries, he built a curated collection of 1,000 images — landscapes, cityscapes, and quiet moments captured between the chaos of world tours.</p>
+      <p class="bio-credit">Based in Los Angeles &middot; <a href="about.html">Full bio</a></p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>Let's Talk About Your Project</h2>
+    <p>Whether you're sourcing a single lobby statement piece or outfitting 300 guest rooms, we'd love to hear about your vision.</p>
+    <a href="mailto:wolf@archive-35.com?subject=Hospitality%20Art%20Inquiry" class="cta-email">wolf@archive-35.com</a>
+    <p class="cta-note">Volume discounts &middot; Custom commissions &middot; Licensing inquiries welcome</p>
+  </section>
+
+  <!-- Footer (matches site) -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner" style="display:flex; justify-content:space-between; align-items:center; padding:3rem 0; border-top:1px solid var(--glass-border); flex-wrap:wrap; gap:1rem;">
+        <div style="font-size:0.75rem; color:var(--text-muted); letter-spacing:0.1em;">
+          &copy; 2026 ARCHIVE-35. All rights reserved.
+        </div>
+        <div style="display:flex; gap:2rem; font-size:0.75rem;">
+          <a href="privacy.html" style="color:var(--text-muted);">Privacy</a>
+          <a href="terms.html" style="color:var(--text-muted);">Terms</a>
+          <a href="contact.html" style="color:var(--text-muted);">Contact</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Image Protection -->
+  <script src="js/image-protection.js"></script>
+
+  <!-- Mobile Nav Toggle -->
+  <script>
+    (function(){
+      const tog=document.querySelector('.nav-toggle');
+      const nav=document.querySelector('.nav');
+      if(tog&&nav){
+        tog.addEventListener('click',()=>{
+          nav.classList.toggle('open');
+          tog.classList.toggle('active');
+        });
+      }
+    })();
+  </script>
+
+  <!-- ===== INTERACTIVE VISUALIZER ENGINE ===== -->
+  <script>
+  (function(){
+    'use strict';
+
+    // --- Configuration ---
+    const TEMPLATES_BASE = 'images/hospitality/';
+    const PHOTOS_JSON = 'data/photos.json';
+
+    // Template metadata (from green zone detection)
+    const TEMPLATES = [
+      { id:'hotel-lobby-1', file:'template-hotel-lobby-1.jpg', label:'Modern Lobby', w:1920, h:814, zone:{x:557,y:214,w:538,h:227}, ar:2.37 },
+      { id:'hotel-lobby', file:'template-hotel-lobby.jpg', label:'Grand Lobby', w:1536, h:1024, zone:{x:411,y:337,w:624,h:241}, ar:2.59 },
+      { id:'bedroom-1', file:'template-bedroom-1.jpg', label:'Guest Room', w:1920, h:1047, zone:{x:711,y:98,w:1090,h:347}, ar:3.14 },
+      { id:'penthouse-bedroom-1', file:'template-penthouse-bedroom-1.jpg', label:'Penthouse Suite', w:1536, h:1024, zone:{x:581,y:223,w:438,h:153}, ar:2.86 },
+      { id:'hallway-long', file:'template-hallway-long.jpg', label:'Corridor', w:1920, h:634, zone:{x:961,y:82,w:650,h:448}, ar:1.45 },
+      { id:'restaurant-fine', file:'template-restaurant-fine.jpg', label:'Restaurant', w:1536, h:1024, zone:{x:423,y:240,w:660,h:305}, ar:2.16 },
+      { id:'conference-room', file:'template-conference-room.jpg', label:'Conference', w:1536, h:1024, zone:{x:440,y:322,w:629,h:278}, ar:2.26 },
+      { id:'living-room-modern', file:'template-living-room-modern.jpg', label:'Modern Suite', w:1536, h:1024, zone:{x:467,y:245,w:577,h:298}, ar:1.94 },
+      { id:'penthouse-luxury', file:'template-penthouse-luxury.jpg', label:'Penthouse Living', w:1536, h:1024, zone:{x:575,y:238,w:649,h:274}, ar:2.37 },
+      { id:'hotel-corridor-1', file:'template-hotel-corridor-1.jpg', label:'Elevator Lobby', w:1536, h:1024, zone:{x:412,y:242,w:711,h:245}, ar:2.9 },
+      { id:'hotel-corridor-2', file:'template-hotel-corridor-2.jpg', label:'Hallway Alcove', w:1536, h:1024, zone:{x:337,y:245,w:840,h:299}, ar:2.81 },
+      { id:'gallery-large', file:'template-gallery-large.jpg', label:'Gallery Wall', w:1536, h:1024, zone:{x:293,y:260,w:948,h:315}, ar:3.01 }
+    ];
+
+    // --- State ---
+    let allPhotos = [];
+    let filteredPhotos = [];
+    let currentTemplate = null;
+    let currentPhoto = null;
+    let templateImg = null;
+    let photoImg = null;
+    let canvas, ctx;
+    let scale = 1; // current display scale (canvas CSS vs template native)
+    let photoZoom = 1;
+    let photoOffX = 0, photoOffY = 0;
+    let minZoom = 1;
+    let dragging = false;
+    let dragStartX = 0, dragStartY = 0;
+    let dragStartOffX = 0, dragStartOffY = 0;
+    let hintTimer = null;
+
+    // --- Initialization ---
+    async function init() {
+      canvas = document.getElementById('vizCanvas');
+      ctx = canvas.getContext('2d');
+
+      buildTemplateCarousel();
+      await loadPhotos();
+      buildCollectionDropdown();
+
+      // Select first template
+      selectTemplate(TEMPLATES[0]);
+
+      // Event listeners
+      const wrap = document.getElementById('vizWrap');
+      wrap.addEventListener('mousedown', onDragStart);
+      wrap.addEventListener('mousemove', onDragMove);
+      wrap.addEventListener('mouseup', onDragEnd);
+      wrap.addEventListener('mouseleave', onDragEnd);
+      wrap.addEventListener('wheel', onWheel, { passive: false });
+
+      // Touch events
+      wrap.addEventListener('touchstart', onTouchStart, { passive: false });
+      wrap.addEventListener('touchmove', onTouchMove, { passive: false });
+      wrap.addEventListener('touchend', onTouchEnd);
+
+      document.getElementById('collSelect').addEventListener('change', filterPhotos);
+
+      // Hide hint after first interaction
+      hintTimer = setTimeout(() => {
+        const h = document.getElementById('vizHint');
+        if (h) h.style.opacity = '0';
+      }, 8000);
+    }
+
+    // --- Template Carousel ---
+    function buildTemplateCarousel() {
+      const el = document.getElementById('tmplCarousel');
+      TEMPLATES.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'template-thumb';
+        div.dataset.id = t.id;
+        div.innerHTML = '<img src="' + TEMPLATES_BASE + t.file + '" alt="' + t.label + '" loading="lazy"><div class="tmpl-label">' + t.label + '</div>';
+        div.addEventListener('click', () => selectTemplate(t));
+        el.appendChild(div);
+      });
+    }
+
+    function selectTemplate(t) {
+      currentTemplate = t;
+
+      // Update active state
+      document.querySelectorAll('.template-thumb').forEach(el => {
+        el.classList.toggle('active', el.dataset.id === t.id);
+      });
+
+      // Load template image
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        templateImg = img;
+        canvas.width = t.w;
+        canvas.height = t.h;
+        resetPhotoPosition();
+        filterPhotos();
+        render();
+      };
+      img.src = TEMPLATES_BASE + t.file;
+    }
+
+    // --- Photo Loading ---
+    async function loadPhotos() {
+      try {
+        const resp = await fetch(PHOTOS_JSON);
+        const data = await resp.json();
+        allPhotos = data.photos || data;
+        // Filter to only photos with dimensions
+        allPhotos = allPhotos.filter(p => p.dimensions && p.dimensions.aspectRatio);
+      } catch (e) {
+        console.error('Failed to load photos:', e);
+      }
+    }
+
+    function buildCollectionDropdown() {
+      const sel = document.getElementById('collSelect');
+      const colls = {};
+      allPhotos.forEach(p => {
+        if (!colls[p.collection]) colls[p.collection] = { title: p.collectionTitle || p.collection, count: 0 };
+        colls[p.collection].count++;
+      });
+      Object.keys(colls).sort((a, b) => colls[a].title.localeCompare(colls[b].title)).forEach(k => {
+        const opt = document.createElement('option');
+        opt.value = k;
+        opt.textContent = colls[k].title + ' (' + colls[k].count + ')';
+        sel.appendChild(opt);
+      });
+    }
+
+    function filterPhotos() {
+      if (!currentTemplate) return;
+      const coll = document.getElementById('collSelect').value;
+      const ar = currentTemplate.ar;
+      const tolerance = 0.5; // ±0.5 aspect ratio tolerance
+
+      filteredPhotos = allPhotos.filter(p => {
+        const pAr = p.dimensions.aspectRatio;
+        const arMatch = Math.abs(pAr - ar) < tolerance || pAr > ar * 0.6;
+        const collMatch = coll === 'all' || p.collection === coll;
+        return arMatch && collMatch;
+      });
+
+      // Sort: best aspect ratio match first
+      filteredPhotos.sort((a, b) => {
+        return Math.abs(a.dimensions.aspectRatio - ar) - Math.abs(b.dimensions.aspectRatio - ar);
+      });
+
+      buildPhotoGrid();
+      document.getElementById('gbCount').textContent = filteredPhotos.length + ' photos match this frame';
+
+      // Auto-select first photo if none selected or current doesn't match
+      if (filteredPhotos.length > 0 && (!currentPhoto || !filteredPhotos.find(p => p.id === currentPhoto.id))) {
+        selectPhoto(filteredPhotos[0]);
+      }
+    }
+
+    function buildPhotoGrid() {
+      const grid = document.getElementById('gbGrid');
+      grid.innerHTML = '';
+      filteredPhotos.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'gb-photo' + (currentPhoto && currentPhoto.id === p.id ? ' active' : '');
+        div.innerHTML = '<img src="' + p.thumbnail + '" alt="' + (p.title || '') + '" loading="lazy"><div class="gb-title">' + (p.title || p.id) + '</div>';
+        div.addEventListener('click', () => selectPhoto(p));
+        grid.appendChild(div);
+      });
+    }
+
+    function selectPhoto(p) {
+      currentPhoto = p;
+
+      // Update active state in grid
+      document.querySelectorAll('.gb-photo').forEach(el => el.classList.remove('active'));
+      const idx = filteredPhotos.indexOf(p);
+      const gridItems = document.querySelectorAll('.gb-photo');
+      if (gridItems[idx]) gridItems[idx].classList.add('active');
+
+      // Load full-size image
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        photoImg = img;
+        resetPhotoPosition();
+        render();
+      };
+      img.src = p.full;
+
+      // Show hint
+      const hint = document.getElementById('vizHint');
+      if (hint) {
+        hint.style.opacity = '1';
+        clearTimeout(hintTimer);
+        hintTimer = setTimeout(() => { hint.style.opacity = '0'; }, 4000);
+      }
+    }
+
+    // --- Rendering ---
+    function resetPhotoPosition() {
+      if (!currentTemplate || !photoImg) return;
+      const z = currentTemplate.zone;
+      // Calculate minimum zoom to fill the zone
+      const zoomX = z.w / photoImg.naturalWidth;
+      const zoomY = z.h / photoImg.naturalHeight;
+      minZoom = Math.max(zoomX, zoomY);
+      photoZoom = minZoom;
+      photoOffX = 0;
+      photoOffY = 0;
+    }
+
+    function clampOffset() {
+      if (!currentTemplate || !photoImg) return;
+      const z = currentTemplate.zone;
+      const pw = photoImg.naturalWidth * photoZoom;
+      const ph = photoImg.naturalHeight * photoZoom;
+      const maxOffX = Math.max(0, (pw - z.w) / 2);
+      const maxOffY = Math.max(0, (ph - z.h) / 2);
+      photoOffX = Math.max(-maxOffX, Math.min(maxOffX, photoOffX));
+      photoOffY = Math.max(-maxOffY, Math.min(maxOffY, photoOffY));
+    }
+
+    function render() {
+      if (!templateImg || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw the template
+      ctx.drawImage(templateImg, 0, 0, canvas.width, canvas.height);
+
+      if (photoImg && currentTemplate) {
+        const z = currentTemplate.zone;
+        const pw = photoImg.naturalWidth * photoZoom;
+        const ph = photoImg.naturalHeight * photoZoom;
+
+        // Calculate source rect from photo
+        const cx = photoImg.naturalWidth / 2 - photoOffX / photoZoom;
+        const cy = photoImg.naturalHeight / 2 - photoOffY / photoZoom;
+        const sw = z.w / photoZoom;
+        const sh = z.h / photoZoom;
+        const sx = cx - sw / 2;
+        const sy = cy - sh / 2;
+
+        // Clip to zone and draw photo
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(z.x, z.y, z.w, z.h);
+        ctx.clip();
+        ctx.drawImage(photoImg, sx, sy, sw, sh, z.x, z.y, z.w, z.h);
+        ctx.restore();
+      }
+    }
+
+    // --- Interaction: Drag ---
+    function getCanvasScale() {
+      return canvas.width / canvas.getBoundingClientRect().width;
+    }
+
+    function onDragStart(e) {
+      e.preventDefault();
+      dragging = true;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      dragStartOffX = photoOffX;
+      dragStartOffY = photoOffY;
+      // Hide hint on first interaction
+      const h = document.getElementById('vizHint');
+      if (h) h.style.opacity = '0';
+    }
+
+    function onDragMove(e) {
+      if (!dragging) return;
+      const s = getCanvasScale();
+      photoOffX = dragStartOffX + (e.clientX - dragStartX) * s;
+      photoOffY = dragStartOffY + (e.clientY - dragStartY) * s;
+      clampOffset();
+      render();
+    }
+
+    function onDragEnd() {
+      dragging = false;
+    }
+
+    // --- Interaction: Zoom ---
+    function onWheel(e) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? 0.95 : 1.05;
+      const newZoom = photoZoom * delta;
+      const maxZoom = minZoom * 4;
+      photoZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+      clampOffset();
+      render();
+    }
+
+    // --- Touch Support ---
+    let lastTouchDist = 0;
+    let lastTouchCenter = null;
+
+    function onTouchStart(e) {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        dragging = true;
+        dragStartX = e.touches[0].clientX;
+        dragStartY = e.touches[0].clientY;
+        dragStartOffX = photoOffX;
+        dragStartOffY = photoOffY;
+      } else if (e.touches.length === 2) {
+        dragging = false;
+        lastTouchDist = getTouchDist(e.touches);
+        lastTouchCenter = getTouchCenter(e.touches);
+      }
+      const h = document.getElementById('vizHint');
+      if (h) h.style.opacity = '0';
+    }
+
+    function onTouchMove(e) {
+      e.preventDefault();
+      if (e.touches.length === 1 && dragging) {
+        const s = getCanvasScale();
+        photoOffX = dragStartOffX + (e.touches[0].clientX - dragStartX) * s;
+        photoOffY = dragStartOffY + (e.touches[0].clientY - dragStartY) * s;
+        clampOffset();
+        render();
+      } else if (e.touches.length === 2) {
+        const dist = getTouchDist(e.touches);
+        const ratio = dist / lastTouchDist;
+        const maxZoom = minZoom * 4;
+        photoZoom = Math.max(minZoom, Math.min(maxZoom, photoZoom * ratio));
+        lastTouchDist = dist;
+        clampOffset();
+        render();
+      }
+    }
+
+    function onTouchEnd(e) {
+      if (e.touches.length === 0) dragging = false;
+    }
+
+    function getTouchDist(touches) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function getTouchCenter(touches) {
+      return {
+        x: (touches[0].clientX + touches[1].clientX) / 2,
+        y: (touches[0].clientY + touches[1].clientY) / 2
+      };
+    }
+
+    // --- Start ---
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+</body>
+</html>

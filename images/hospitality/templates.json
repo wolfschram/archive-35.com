@@ -1,0 +1,194 @@
+[
+  {
+    "id": "bedroom-1",
+    "filename": "template-bedroom-1.jpg",
+    "width": 1920,
+    "height": 1047,
+    "zone": {
+      "x": 711,
+      "y": 98,
+      "w": 1090,
+      "h": 347
+    },
+    "aspect_ratio": 3.14,
+    "original_size": "2816x1536",
+    "web_size": "1920x1047",
+    "file_size_kb": 273
+  },
+  {
+    "id": "conference-room",
+    "filename": "template-conference-room.jpg",
+    "width": 1536,
+    "height": 1024,
+    "zone": {
+      "x": 440,
+      "y": 322,
+      "w": 629,
+      "h": 278
+    },
+    "aspect_ratio": 2.26,
+    "original_size": "1536x1024",
+    "web_size": "1536x1024",
+    "file_size_kb": 255
+  },
+  {
+    "id": "gallery-large",
+    "filename": "template-gallery-large.jpg",
+    "width": 1536,
+    "height": 1024,
+    "zone": {
+      "x": 293,
+      "y": 260,
+      "w": 948,
+      "h": 315
+    },
+    "aspect_ratio": 3.01,
+    "original_size": "1536x1024",
+    "web_size": "1536x1024",
+    "file_size_kb": 142
+  },
+  {
+    "id": "hallway-long",
+    "filename": "template-hallway-long.jpg",
+    "width": 1920,
+    "height": 634,
+    "zone": {
+      "x": 961,
+      "y": 82,
+      "w": 650,
+      "h": 448
+    },
+    "aspect_ratio": 1.45,
+    "original_size": "3584x1184",
+    "web_size": "1920x634",
+    "file_size_kb": 141
+  },
+  {
+    "id": "hotel-lobby-1",
+    "filename": "template-hotel-lobby-1.jpg",
+    "width": 1920,
+    "height": 814,
+    "zone": {
+      "x": 557,
+      "y": 214,
+      "w": 538,
+      "h": 227
+    },
+    "aspect_ratio": 2.37,
+    "original_size": "3168x1344",
+    "web_size": "1920x814",
+    "file_size_kb": 294
+  },
+  {
+    "id": "hotel-corridor-1",
+    "filename": "template-hotel-corridor-1.jpg",
+    "width": 1536,
+    "height": 1024,
+    "zone": {
+      "x": 412,
+      "y": 242,
+      "w": 711,
+      "h": 245
+    },
+    "aspect_ratio": 2.9,
+    "original_size": "1536x1024",
+    "web_size": "1536x1024",
+    "file_size_kb": 326
+  },
+  {
+    "id": "hotel-corridor-2",
+    "filename": "template-hotel-corridor-2.jpg",
+    "width": 1536,
+    "height": 1024,
+    "zone": {
+      "x": 337,
+      "y": 245,
+      "w": 840,
+      "h": 299
+    },
+    "aspect_ratio": 2.81,
+    "original_size": "1536x1024",
+    "web_size": "1536x1024",
+    "file_size_kb": 288
+  },
+  {
+    "id": "hotel-lobby",
+    "filename": "template-hotel-lobby.jpg",
+    "width": 1536,
+    "height": 1024,
+    "zone": {
+      "x": 411,
+      "y": 337,
+      "w": 624,
+      "h": 241
+    },
+    "aspect_ratio": 2.59,
+    "original_size": "1536x1024",
+    "web_size": "1536x1024",
+    "file_size_kb": 429
+  },
+  {
+    "id": "living-room-modern",
+    "filename": "template-living-room-modern.jpg",
+    "width": 1536,
+    "height": 1024,
+    "zone": {
+      "x": 467,
+      "y": 245,
+      "w": 577,
+      "h": 298
+    },
+    "aspect_ratio": 1.94,
+    "original_size": "1536x1024",
+    "web_size": "1536x1024",
+    "file_size_kb": 295
+  },
+  {
+    "id": "penthouse-bedroom-1",
+    "filename": "template-penthouse-bedroom-1.jpg",
+    "width": 1536,
+    "height": 1024,
+    "zone": {
+      "x": 581,
+      "y": 223,
+      "w": 438,
+      "h": 153
+    },
+    "aspect_ratio": 2.86,
+    "original_size": "1536x1024",
+    "web_size": "1536x1024",
+    "file_size_kb": 357
+  },
+  {
+    "id": "penthouse-luxury",
+    "filename": "template-penthouse-luxury.jpg",
+    "width": 1536,
+    "height": 1024,
+    "zone": {
+      "x": 575,
+      "y": 238,
+      "w": 649,
+      "h": 274
+    },
+    "aspect_ratio": 2.37,
+    "original_size": "1536x1024",
+    "web_size": "1536x1024",
+    "file_size_kb": 320
+  },
+  {
+    "id": "restaurant-fine",
+    "filename": "template-restaurant-fine.jpg",
+    "width": 1536,
+    "height": 1024,
+    "zone": {
+      "x": 423,
+      "y": 240,
+      "w": 660,
+      "h": 305
+    },
+    "aspect_ratio": 2.16,
+    "original_size": "1536x1024",
+    "web_size": "1536x1024",
+    "file_size_kb": 349
+  }
+]

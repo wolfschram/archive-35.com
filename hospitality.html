@@ -534,14 +534,38 @@
       .template-carousel {
         justify-content: flex-start;
         flex-wrap: nowrap;
+        gap: 0.5rem;
+        padding: 0 0.75rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
       }
+      .template-carousel::-webkit-scrollbar { display: none; }
       .template-thumb {
-        width: 100px;
-        height: 60px;
+        min-width: 90px;
+        width: 90px;
+        height: 56px;
+        flex-shrink: 0;
+      }
+      .visualizer-canvas-wrap {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        margin: 0 -1rem 1.5rem;
+      }
+      .gallery-browser {
+        padding: 0 0.75rem;
       }
       .gb-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        max-height: 300px;
+        grid-template-columns: repeat(3, 1fr);
+        max-height: 280px;
+        gap: 0.4rem;
+      }
+      .gb-photo {
+        aspect-ratio: 3/2;
+      }
+      .gb-title {
+        display: none;
       }
       .services-grid {
         grid-template-columns: 1fr;
@@ -549,8 +573,13 @@
       .gb-controls {
         flex-direction: column;
         align-items: stretch;
+        gap: 0.5rem;
       }
-      .gb-count { margin-left: 0; }
+      .gb-count { margin-left: 0; font-size: 0.7rem; }
+      .visualizer-intro {
+        font-size: 0.8rem;
+        padding: 0 0.75rem;
+      }
     }
   </style>
 </head>
@@ -765,18 +794,18 @@
     const PHOTOS_JSON = 'data/photos.json';
 
     // Template metadata (from green zone detection)
+    // overlay: WebP with alpha — foreground elements (plants, vases) that render ON TOP of photo
     const TEMPLATES = [
-      { id:'hotel-lobby-1', file:'template-hotel-lobby-1.jpg', label:'Modern Lobby', w:1920, h:814, zone:{x:557,y:214,w:538,h:227}, ar:2.37 },
+      { id:'hotel-lobby-1', file:'template-hotel-lobby-1.jpg', label:'Modern Lobby', w:1920, h:814, zone:{x:557,y:214,w:538,h:227}, ar:2.37, overlay:'template-hotel-lobby-1-overlay.webp' },
       { id:'hotel-lobby', file:'template-hotel-lobby.jpg', label:'Grand Lobby', w:1536, h:1024, zone:{x:411,y:337,w:624,h:241}, ar:2.59 },
-      { id:'bedroom-1', file:'template-bedroom-1.jpg', label:'Guest Room', w:1920, h:1047, zone:{x:711,y:98,w:1090,h:347}, ar:3.14 },
+      { id:'bedroom-1', file:'template-bedroom-1.jpg', label:'Guest Room', w:1920, h:1047, zone:{x:709,y:96,w:1095,h:352}, ar:3.11 },
       { id:'penthouse-bedroom-1', file:'template-penthouse-bedroom-1.jpg', label:'Penthouse Suite', w:1536, h:1024, zone:{x:581,y:223,w:438,h:153}, ar:2.86 },
-      { id:'hallway-long', file:'template-hallway-long.jpg', label:'Corridor', w:1920, h:634, zone:{x:961,y:82,w:650,h:448}, ar:1.45 },
       { id:'restaurant-fine', file:'template-restaurant-fine.jpg', label:'Restaurant', w:1536, h:1024, zone:{x:423,y:240,w:660,h:305}, ar:2.16 },
       { id:'conference-room', file:'template-conference-room.jpg', label:'Conference', w:1536, h:1024, zone:{x:440,y:322,w:629,h:278}, ar:2.26 },
       { id:'living-room-modern', file:'template-living-room-modern.jpg', label:'Modern Suite', w:1536, h:1024, zone:{x:467,y:245,w:577,h:298}, ar:1.94 },
-      { id:'penthouse-luxury', file:'template-penthouse-luxury.jpg', label:'Penthouse Living', w:1536, h:1024, zone:{x:575,y:238,w:649,h:274}, ar:2.37 },
-      { id:'hotel-corridor-1', file:'template-hotel-corridor-1.jpg', label:'Elevator Lobby', w:1536, h:1024, zone:{x:412,y:242,w:711,h:245}, ar:2.9 },
-      { id:'hotel-corridor-2', file:'template-hotel-corridor-2.jpg', label:'Hallway Alcove', w:1536, h:1024, zone:{x:337,y:245,w:840,h:299}, ar:2.81 },
+      { id:'penthouse-luxury', file:'template-penthouse-luxury.jpg', label:'Penthouse Living', w:1536, h:1024, zone:{x:575,y:238,w:649,h:274}, ar:2.37, overlay:'template-penthouse-luxury-overlay.webp' },
+      { id:'hotel-corridor-1', file:'template-hotel-corridor-1.jpg', label:'Elevator Lobby', w:1536, h:1024, zone:{x:411,y:242,w:714,h:246}, ar:2.9 },
+      { id:'hotel-corridor-2', file:'template-hotel-corridor-2.jpg', label:'Hallway Alcove', w:1536, h:1024, zone:{x:336,y:245,w:843,h:300}, ar:2.81, overlay:'template-hotel-corridor-2-overlay.webp' },
       { id:'gallery-large', file:'template-gallery-large.jpg', label:'Gallery Wall', w:1536, h:1024, zone:{x:293,y:260,w:948,h:315}, ar:3.01 }
     ];
 
@@ -786,6 +815,7 @@
     let currentTemplate = null;
     let currentPhoto = null;
     let templateImg = null;
+    let overlayImg = null; // foreground overlay (plants, vases) drawn ON TOP of photo
     let photoImg = null;
     let canvas, ctx;
     let scale = 1; // current display scale (canvas CSS vs template native)
@@ -848,6 +878,7 @@
 
     function selectTemplate(t) {
       currentTemplate = t;
+      overlayImg = null; // reset overlay
 
       // Update active state
       document.querySelectorAll('.template-thumb').forEach(el => {
@@ -877,6 +908,19 @@
           }
         };
         raw.src = TEMPLATES_BASE + t.file;
+
+        // Load overlay if this template has foreground elements (plants, vases, etc.)
+        if (t.overlay) {
+          const ov = new Image();
+          ov.crossOrigin = 'anonymous';
+          ov.onload = () => {
+            if (currentTemplate && currentTemplate.id === t.id) {
+              overlayImg = ov;
+              render();
+            }
+          };
+          ov.src = TEMPLATES_BASE + t.overlay;
+        }
       };
       preview.src = TEMPLATES_BASE + previewFile;
     }
@@ -1004,23 +1048,24 @@
       if (!templateImg || !canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw the template
-      ctx.drawImage(templateImg, 0, 0, canvas.width, canvas.height);
+      const hasOverlay = currentTemplate && currentTemplate.overlay && overlayImg;
 
-      if (currentTemplate) {
+      if (hasOverlay) {
+        // LAYERED COMPOSITING: for templates with foreground elements (plants, vases)
+        // 1. Fill zone with dark (covers green)
+        // 2. Draw photo at zone position (full size, no clip)
+        // 3. Draw full template on top — but the overlay has transparency where green was,
+        //    so foreground elements naturally cover the photo while photo shows through
         const z = currentTemplate.zone;
-
-        // Fill entire zone + 2px margin with dark color (covers ALL green pixels)
         ctx.fillStyle = '#0a0a0a';
-        ctx.fillRect(z.x - 2, z.y - 2, z.w + 4, z.h + 4);
+        ctx.fillRect(z.x, z.y, z.w, z.h);
 
-        // Then clip to inset zone and draw the photo on top
-        const inset = 4;
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(z.x + inset, z.y + inset, z.w - inset * 2, z.h - inset * 2);
-        ctx.clip();
         if (photoImg) {
+          // Clip to zone so photo doesn't spill outside
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(z.x, z.y, z.w, z.h);
+          ctx.clip();
           const cx = photoImg.naturalWidth / 2 - photoOffX / photoZoom;
           const cy = photoImg.naturalHeight / 2 - photoOffY / photoZoom;
           const sw = z.w / photoZoom;
@@ -1028,8 +1073,39 @@
           const sx = cx - sw / 2;
           const sy = cy - sh / 2;
           ctx.drawImage(photoImg, sx, sy, sw, sh, z.x, z.y, z.w, z.h);
+          ctx.restore();
         }
-        ctx.restore();
+
+        // Draw overlay on top — foreground elements cover the photo
+        ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
+      } else {
+        // STANDARD COMPOSITING: template → dark fill → clipped photo
+        ctx.drawImage(templateImg, 0, 0, canvas.width, canvas.height);
+
+        if (currentTemplate) {
+          const z = currentTemplate.zone;
+
+          // Fill zone + 1px margin with dark color (covers green bleed)
+          ctx.fillStyle = '#0a0a0a';
+          ctx.fillRect(z.x - 1, z.y - 1, z.w + 2, z.h + 2);
+
+          // Clip to zone with small inset (hides anti-aliased green edge)
+          const inset = 2;
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(z.x + inset, z.y + inset, z.w - inset * 2, z.h - inset * 2);
+          ctx.clip();
+          if (photoImg) {
+            const cx = photoImg.naturalWidth / 2 - photoOffX / photoZoom;
+            const cy = photoImg.naturalHeight / 2 - photoOffY / photoZoom;
+            const sw = z.w / photoZoom;
+            const sh = z.h / photoZoom;
+            const sx = cx - sw / 2;
+            const sy = cy - sh / 2;
+            ctx.drawImage(photoImg, sx, sy, sw, sh, z.x, z.y, z.w, z.h);
+          }
+          ctx.restore();
+        }
       }
     }
 

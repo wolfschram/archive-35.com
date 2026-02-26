@@ -976,6 +976,18 @@
         return arMatch && collMatch;
       });
 
+      // Deduplicate by filename when showing all collections
+      // (same photo can appear in e.g. "cuba" and "black-and-white")
+      if (coll === 'all') {
+        const seen = new Set();
+        filteredPhotos = filteredPhotos.filter(p => {
+          const key = p.filename || p.id;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      }
+
       // Sort: best aspect ratio match first
       filteredPhotos.sort((a, b) => {
         return Math.abs(a.dimensions.aspectRatio - ar) - Math.abs(b.dimensions.aspectRatio - ar);

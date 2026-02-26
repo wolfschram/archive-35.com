@@ -4130,27 +4130,45 @@ ipcMain.handle('run-command', async (event, command) => {
 // ── Licensing AI Analysis: name/describe/locate licensing images ────────────
 
 function buildLicensingAIPrompt(filename, exifData) {
+  const hasGPS = exifData?.gps && exifData.gps.lat && exifData.gps.lon;
+
   let prompt = 'You are a fine art photography metadata assistant for Archive-35, a landscape and nature photography brand by Wolfgang Schram.\n\n';
   prompt += 'This is a LICENSING image — ultra-high-resolution panoramic or large-format fine art photography.\n\n';
 
-  if (exifData?.gps) {
-    prompt += `GPS coordinates: ${exifData.gps.lat}, ${exifData.gps.lon}\n`;
-    prompt += 'Use these coordinates to determine the EXACT location. Be specific (e.g., "Zabriskie Point, Death Valley" not just "California").\n\n';
+  // === VISUAL ANALYSIS (primary location method) ===
+  prompt += '=== ANALYZE THE IMAGE CAREFULLY ===\n';
+  prompt += 'Study this photograph closely before responding. Identify the location by examining:\n';
+  prompt += '- Geological formations: rock types, colors, layering, erosion patterns, salt flats, sand dunes\n';
+  prompt += '- Vegetation: desert scrub, alpine meadows, tropical, temperate forest, cacti, etc.\n';
+  prompt += '- Water features: ocean, lake, river, dry lakebed, salt flats, hot springs\n';
+  prompt += '- Distinctive landmarks: recognize iconic landscapes (Death Valley badlands, Grand Canyon layers, Yosemite granite, White Sands gypsum, etc.)\n';
+  prompt += '- Man-made features: roads, buildings, power plants, infrastructure style\n';
+  prompt += '- Atmosphere and light: desert haze, tropical humidity, alpine clarity\n\n';
+
+  prompt += 'KNOWN SHOOTING LOCATIONS for this photographer (weight toward these):\n';
+  prompt += 'Western US: Death Valley, Mojave Desert, Utah national parks, Yosemite, Glacier NP, Sequoia, White Sands, Antelope Canyon, Colorado\n';
+  prompt += 'International: Iceland, Argentina/Patagonia, Tanzania, Cuba, South Africa, European Alps\n';
+  prompt += 'If the landscape could match ANY of these known locations, prefer that over an exotic guess.\n';
+  prompt += 'DO NOT hallucinate locations. A desert with colorful badlands is almost certainly Death Valley, NOT Iran or Chile.\n';
+  prompt += '=== END ANALYSIS ===\n\n';
+
+  if (hasGPS) {
+    prompt += `GPS coordinates: ${exifData.gps.lat}, ${exifData.gps.lon} — use to confirm your visual identification.\n\n`;
   }
 
   prompt += 'Respond with ONLY valid JSON (no markdown):\n';
   prompt += '{\n';
   prompt += '  "title": "short evocative title (3-6 words, fine art print style)",\n';
   prompt += '  "description": "1-2 sentence art description for commercial licensing buyers. Emphasize the scale, detail, and print potential of this ultra-high-res image.",\n';
-  prompt += '  "location": "specific place name — be as precise as possible (park name, landmark, region, country)"\n';
+  prompt += '  "location": "specific place identified from image analysis (park name, landmark, region, country)"\n';
   prompt += '}\n\n';
 
   prompt += 'RULES:\n';
   prompt += '- Title should be evocative, timeless, suitable for high-end commercial use\n';
   prompt += '- No time-of-day references (no sunrise, sunset, morning, evening)\n';
-  prompt += '- Location must be a real, verifiable place\n';
-  prompt += '- If GPS is provided, use it to determine the exact location\n';
-  prompt += '- Description should mention the exceptional resolution/detail available\n';
+  prompt += '- Location MUST be based on what you SEE in the image — recognize the landscape\n';
+  prompt += '- If you cannot confidently identify the exact spot, name the region/park (e.g., "Death Valley National Park, California")\n';
+  prompt += '- Description should mention the exceptional resolution/detail available for large-format printing and immersive architectural installations\n';
   prompt += `\nFilename: ${filename}`;
 
   return prompt;
@@ -4204,11 +4222,14 @@ ipcMain.handle('analyze-licensing-photos', async (event, { catalogIds }) => {
         const sourcePath = path.resolve(licensingDir, rawSourcePath);
         const imagePath = path.join(sourcePath, img.original_filename);
 
-        // Create a small thumbnail for API (these are 100-300+ MP images, need to shrink a lot)
+        // Resize for API — larger = better visual recognition for location identification
         // Must disable pixel limit — these panoramics can be 28000x11000+ (313 MP)
+        // Panoramas get extra width so the AI can see landscape details
+        const isPano = img.width && img.height && (img.width / img.height) > 2.0;
+        const maxDim = isPano ? 2500 : 1800;
         const thumbBuffer = await sharp(imagePath, { limitInputPixels: false })
-          .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
-          .jpeg({ quality: 70 })
+          .resize(maxDim, maxDim, { fit: 'inside', withoutEnlargement: true })
+          .jpeg({ quality: 85 })
           .toBuffer();
         const base64Image = thumbBuffer.toString('base64');
 

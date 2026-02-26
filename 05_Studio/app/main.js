@@ -843,44 +843,60 @@ function buildAIPrompt(galleryContext, filename, photoData) {
   const l = galleryContext?.location || '';
   // Derive geographic context: country field first, then gallery/folder name as fallback
   const geoContext = c || n;
+  const exif = photoData?.exif || {};
+  const dims = photoData?.dimensions || {};
+  const hasGPS = exif.gps && exif.gps.lat && exif.gps.lng;
 
   let prompt = 'You are a fine art photography metadata assistant for Archive-35, a landscape photography brand by Wolfgang Schram.\n\n';
 
-  // === EXIF CONTEXT (highest priority for location accuracy) ===
-  const exif = photoData?.exif || {};
-  const hasGPS = exif.gps && exif.gps.lat && exif.gps.lng;
+  // === VISUAL ANALYSIS INSTRUCTION ===
+  prompt += '=== ANALYZE THE IMAGE CAREFULLY ===\n';
+  prompt += 'Study this photograph closely before responding. Look at:\n';
+  prompt += '- Geological formations: rock types, colors, layering, erosion patterns\n';
+  prompt += '- Vegetation: desert scrub, alpine meadows, tropical, temperate forest, etc.\n';
+  prompt += '- Water features: ocean, lake, river, dry lakebed, salt flats\n';
+  prompt += '- Sky and atmosphere: haze patterns, altitude indicators\n';
+  prompt += '- Man-made features: roads, buildings, power lines, infrastructure\n';
+  prompt += '- Distinctive landmarks: recognize iconic landscapes (Death Valley salt flats, Grand Canyon layers, Iceland moss fields, etc.)\n';
+  prompt += 'Use these visual cues to identify the ACTUAL location. Do NOT guess randomly.\n';
+  prompt += '=== END ANALYSIS ===\n\n';
+
+  // === EXIF CONTEXT (bonus info when available) ===
   if (hasGPS || exif.camera || exif.dateTaken) {
-    prompt += '=== EXIF DATA FROM THIS PHOTO ===\n';
-    if (hasGPS) {
-      prompt += `GPS Coordinates: ${exif.gps.lat}, ${exif.gps.lng}\n`;
-      prompt += 'CRITICAL: Use these GPS coordinates to determine the EXACT location. Look up what place these coordinates correspond to. This is far more reliable than guessing from the image.\n';
-    }
-    if (exif.camera) prompt += `Camera: ${exif.camera}\n`;
-    if (exif.lens) prompt += `Lens: ${exif.lens}\n`;
-    if (exif.focalLength) prompt += `Focal Length: ${exif.focalLength}mm\n`;
-    if (exif.dateTaken) prompt += `Date Taken: ${exif.dateTaken}\n`;
-    prompt += '=== END EXIF ===\n\n';
+    prompt += 'EXIF metadata: ';
+    const parts = [];
+    if (hasGPS) parts.push(`GPS: ${exif.gps.lat}, ${exif.gps.lng} (use to confirm location)`);
+    if (exif.camera) parts.push(`Camera: ${exif.camera}`);
+    if (exif.lens) parts.push(`Lens: ${exif.lens}`);
+    if (exif.dateTaken) parts.push(`Date: ${exif.dateTaken}`);
+    prompt += parts.join(' | ') + '\n\n';
   }
 
-  // === GALLERY CONTEXT (user-provided geographic constraint) ===
+  // === GALLERY CONTEXT (user-provided geographic constraint — highest authority) ===
   if (geoContext) {
     prompt += '=== MANDATORY GEOGRAPHIC CONSTRAINT ===\n';
     prompt += `These photos were taken in ${geoContext}.${c ? ` Gallery: "${n}".` : ''}${l ? ' Region: ' + l + '.' : ''}\n`;
     prompt += 'RULES:\n';
     prompt += `- EVERY tag, description, and location MUST be consistent with ${geoContext}\n`;
-    prompt += `- NEVER use tags or words like "Antarctica", "polar", "Arctic", "Alpine", "Patagonia", "Iceland", "Norway", "Scandinavia", or ANY country/region that is NOT ${geoContext}\n`;
-    prompt += `- Even if a scene has glaciers, snow, or ice, it is in ${geoContext}. Describe it as ${geoContext} scenery.\n`;
-    prompt += `- The location field MUST be a real place within ${geoContext}\n`;
-    prompt += `- Geography tags MUST reference ${geoContext} and regions within ${geoContext} ONLY\n`;
+    prompt += `- NEVER reference ANY country or region that is NOT ${geoContext}\n`;
+    prompt += `- Even if a scene resembles another country, it IS in ${geoContext}\n`;
+    prompt += `- The location field MUST be a real, specific place within ${geoContext}\n`;
     prompt += '=== END CONSTRAINT ===\n\n';
-  } else if (!hasGPS) {
-    prompt += 'WARNING: No GPS data and no gallery context provided. Location accuracy may be limited.\n';
-    prompt += 'If you cannot confidently identify the location, use a general descriptive location like "Desert Landscape, Western United States" rather than guessing a specific place.\n';
-    prompt += 'DO NOT hallucinate specific place names. If unsure, be general.\n\n';
+  } else {
+    prompt += '=== LOCATION ACCURACY RULES ===\n';
+    prompt += 'No gallery context was provided. You MUST identify the location from the image.\n';
+    prompt += 'RULES:\n';
+    prompt += '- Study the geological features, vegetation, and landscape CHARACTER carefully\n';
+    prompt += '- Only name a specific location if you can see distinctive, recognizable features\n';
+    prompt += '- If you recognize the general region but not the exact spot, name the region (e.g., "Death Valley National Park, California")\n';
+    prompt += '- If you can only determine the biome/terrain type, use that (e.g., "Mojave Desert, Southwestern United States")\n';
+    prompt += '- NEVER fabricate exotic locations — a desert is more likely Death Valley or Utah than Iran or Chile\n';
+    prompt += '- This photographer primarily shoots in: Western US (California, Utah, Nevada, Arizona, Colorado), Iceland, Argentina, Tanzania, Cuba, South Africa, and European Alps\n';
+    prompt += '- Weight your guess toward these known regions when the landscape could match\n';
+    prompt += '=== END RULES ===\n\n';
   }
 
   // === IMAGE DIMENSIONS ===
-  const dims = photoData?.dimensions || {};
   if (dims.width && dims.height) {
     prompt += `Image: ${dims.width}x${dims.height}px (${dims.megapixels}MP, ${dims.orientation})\n\n`;
   }
@@ -888,27 +904,24 @@ function buildAIPrompt(galleryContext, filename, photoData) {
   prompt += 'Respond with ONLY valid JSON (no markdown):\n';
   prompt += '{\n';
   prompt += '  "title": "short evocative title (3-6 words)",\n';
-  prompt += `  "description": "1-2 sentence art description for fine art print buyers. Timeless tone. No time-of-day references (no sunrise, sunset, morning, evening).",\n`;
-  prompt += `  "location": "specific place or region${hasGPS ? ' (use GPS coordinates to determine)' : geoContext ? ' in ' + geoContext : ''}",\n`;
+  prompt += '  "description": "1-2 sentence art description for fine art print buyers. Timeless tone. No time-of-day references (no sunrise, sunset, morning, evening).",\n';
+  prompt += `  "location": "specific place identified from image analysis${geoContext ? ', within ' + geoContext : ''}",\n`;
   prompt += '  "tags": ["15-20 tags for maximum discoverability"]\n';
   prompt += '}\n\n';
 
   prompt += 'TAG STRATEGY (generate 15-20 tags across ALL these categories):\n';
-  prompt += '- Subject: what is in the photo (mountain, glacier, waterfall, forest, lake, etc.)\n';
-  prompt += `- Geography: ${geoContext || 'country'}, region, specific place names${hasGPS ? ' (derive from GPS)' : geoContext ? ' ONLY from ' + geoContext : ''}\n`;
+  prompt += '- Subject: what is in the photo (mountain, glacier, waterfall, desert, lake, etc.)\n';
+  prompt += `- Geography: ${geoContext || 'identified location'}, region, specific landmarks\n`;
   prompt += '- Mood/emotion: serene, dramatic, majestic, tranquil, powerful, etc.\n';
   prompt += '- Style: landscape-photography, fine-art, nature-photography, wall-art, etc.\n';
   prompt += '- Physical features: geological terms, water features, vegetation types\n';
-  prompt += '- Colors: dominant colors (emerald, azure, golden, etc.)\n';
+  prompt += '- Colors: dominant colors (emerald, azure, golden, ochre, etc.)\n';
   prompt += '- Buyer keywords: home-decor, office-art, canvas-print, gallery-wall, etc.\n';
-  prompt += '- Weather: mist, fog, clouds, clear-sky, overcast, etc.\n\n';
+  prompt += '- Weather/atmosphere: mist, fog, clouds, clear-sky, haze, etc.\n\n';
 
   prompt += 'REMINDER: Timeless tone. No time-of-day. Tags lowercase and hyphenated.';
   if (geoContext) {
-    prompt += ` ALL geographic references MUST be ${geoContext}. NEVER reference any other country or polar region.`;
-  }
-  if (hasGPS) {
-    prompt += ' TRUST the GPS coordinates for location — they are ground truth from the camera.';
+    prompt += ` ALL geographic references MUST be ${geoContext} only.`;
   }
   prompt += `\nFilename: ${filename}`;
 
@@ -1040,10 +1053,13 @@ ipcMain.handle('analyze-photos', async (event, { files, galleryContext }) => {
             });
           }
           try {
-            // Resize for API (max 1024px, keep small for speed)
+            // Resize for API — larger = better recognition, especially for panoramas
+            // Panoramas (>2:1) get extra width so the AI can see landscape details
+            const isPano = photo.dimensions && photo.dimensions.aspectRatio > 2.0;
+            const maxDim = isPano ? 2500 : 1800;
             const thumbBuffer = await sharp(photo.path)
-              .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
-              .jpeg({ quality: 70 })
+              .resize(maxDim, maxDim, { fit: 'inside', withoutEnlargement: true })
+              .jpeg({ quality: 85 })
               .toBuffer();
             const base64Image = thumbBuffer.toString('base64');
 

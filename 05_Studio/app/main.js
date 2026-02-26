@@ -2713,9 +2713,12 @@ function normalizeForMatch(str) {
 
 // Strip common geographic suffixes that inflate fuzzy scores
 // between unrelated locations (e.g. "Sequoia National Park" vs "Utah National Parks")
+// Must normalize underscores→spaces FIRST so "Glacier_National_Park_" strips like "Glacier National Park"
 function stripGeoSuffix(str) {
   return str.toLowerCase().trim()
+    .replace(/[_]+/g, ' ')                    // underscores → spaces (before suffix matching)
     .replace(/\b(national\s*parks?|national\s*forests?|national\s*monuments?|state\s*parks?|national\s*recreation\s*areas?)\b/gi, '')
+    .replace(/\bnp\b/gi, '')                  // "NP" abbreviation (e.g. "White Sands NP")
     .replace(/\s+/g, ' ').trim();
 }
 

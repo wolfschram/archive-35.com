@@ -1005,10 +1005,11 @@
         const sx = cx - sw / 2;
         const sy = cy - sh / 2;
 
-        // Clip to zone and draw photo
+        // Clip to zone (inset 3px to hide green chroma-key edge)
+        const inset = 3;
         ctx.save();
         ctx.beginPath();
-        ctx.rect(z.x, z.y, z.w, z.h);
+        ctx.rect(z.x + inset, z.y + inset, z.w - inset * 2, z.h - inset * 2);
         ctx.clip();
         ctx.drawImage(photoImg, sx, sy, sw, sh, z.x, z.y, z.w, z.h);
         ctx.restore();

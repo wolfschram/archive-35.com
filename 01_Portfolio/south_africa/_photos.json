@@ -261,7 +261,7 @@
     "id": "sa-006",
     "filename": "_MG_4076.jpg",
     "title": "Rock Hyrax on the Coast",
-    "description": "A rock hyrax — the dassie — hunkers down on a lichen-covered granite boulder above the ocean, its small form braced against the cool coastal light of the Cape Peninsula.",
+    "description": "A rock hyrax \u2014 the dassie \u2014 hunkers down on a lichen-covered granite boulder above the ocean, its small form braced against the cool coastal light of the Cape Peninsula.",
     "location": {
       "country": "South Africa",
       "region": "Western Cape",
@@ -824,7 +824,7 @@
     "id": "_mg_2395",
     "filename": "_MG_2395.jpg",
     "title": "Lioness Yawn, Kruger National Park",
-    "description": "A raw portrait of raw power and vulnerability—a lioness mid-yawn captures the primal essence of Africa's apex predator. This intimate study reveals the majestic creature in a moment of unguarded grace, showcasing the delicate balance between strength and repose in the wild.",
+    "description": "A raw portrait of raw power and vulnerability\u2014a lioness mid-yawn captures the primal essence of Africa's apex predator. This intimate study reveals the majestic creature in a moment of unguarded grace, showcasing the delicate balance between strength and repose in the wild.",
     "location": "Kruger National Park, South Africa",
     "tags": [
       "lioness",
@@ -1389,46 +1389,6 @@
     },
     "thumbnail": "_MG_4165-thumb.jpg",
     "full": "_MG_4165-full.jpg",
-    "c2pa": true
-  },
-  {
-    "id": "_mg_3975",
-    "filename": "_MG_3975.jpg",
-    "title": "Penguin on Rocky Shore",
-    "description": "A solitary African penguin stands sentinel on weathered rock, gazing toward the Atlantic swell. This intimate portrait captures the quiet dignity of South Africa's iconic coastal wildlife against the raw beauty of rocky shores and crashing waves.",
-    "location": "Boulders Beach, Simon's Town, Cape Peninsula, Western Cape, South Africa",
-    "tags": [
-      "african-penguin",
-      "penguin-portrait",
-      "boulders-beach",
-      "simon's-town",
-      "cape-peninsula",
-      "western-cape",
-      "south-africa",
-      "coastal-wildlife",
-      "rocky-shore",
-      "ocean-landscape",
-      "wildlife-photography",
-      "fine-art-photography",
-      "nature-wall-art",
-      "seabird",
-      "dramatic-coastline",
-      "atlantic-coast",
-      "monochrome-tones",
-      "serene-wildlife",
-      "gallery-print",
-      "south-african-nature"
-    ],
-    "dimensions": {
-      "width": 5472,
-      "height": 2632,
-      "aspectRatio": 2.079,
-      "aspectRatioString": "684:329",
-      "orientation": "panorama",
-      "megapixels": 14.4
-    },
-    "thumbnail": "_MG_3975-thumb.jpg",
-    "full": "_MG_3975-full.jpg",
     "c2pa": true
   }
 ]

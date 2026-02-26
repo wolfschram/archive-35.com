@@ -246,18 +246,24 @@
 
     .gb-photo {
       position: relative;
-      aspect-ratio: 3/2;
       border-radius: 6px;
       overflow: hidden;
       cursor: pointer;
       border: 2px solid transparent;
       transition: all 0.2s;
+      /* Use padding-bottom hack for bulletproof aspect ratio on all browsers */
+      padding-bottom: 66.67%; /* 2/3 = 0.6667 for 3:2 ratio */
+      height: 0;
     }
 
     .gb-photo img {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
 
     .gb-photo:hover {
@@ -558,11 +564,15 @@
       }
       .gb-grid {
         grid-template-columns: repeat(3, 1fr);
-        max-height: 280px;
+        max-height: 50vh;
         gap: 0.4rem;
+        padding: 0.4rem;
       }
       .gb-photo {
-        aspect-ratio: 3/2;
+        padding-bottom: 66.67%;
+      }
+      .gb-photo:hover {
+        transform: none;
       }
       .gb-title {
         display: none;
@@ -592,7 +602,7 @@
         <a href="index.html">Home</a>
         <a href="gallery.html">Gallery</a>
         <a href="licensing.html">Licensing</a>
-        <a href="hospitality.html" class="active">Trade</a>
+        <a href="hospitality.html" class="active">Hospitality</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
         <a href="search.html">Search</a>

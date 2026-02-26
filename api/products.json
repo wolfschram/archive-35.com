@@ -670,52 +670,6 @@
           }
         ]
       },
-      "iceland-ring-road": {
-        "title": "Iceland Ring Road",
-        "count": 67,
-        "url": "https://archive-35.com/gallery.html?collection=iceland-ring-road",
-        "samplePhotos": [
-          {
-            "title": "Turquoise river on Dark Stone",
-            "location": "Southern Iceland Coastline, Ring Road",
-            "dimensions": {
-              "width": 8064,
-              "height": 4536,
-              "aspectRatio": 1.778,
-              "aspectRatioString": "16:9",
-              "orientation": "wide",
-              "megapixels": 36.6
-            },
-            "c2pa": true
-          },
-          {
-            "title": "Moss-Covered Lava Fields",
-            "location": "Eldhraun Lava Field, South Iceland",
-            "dimensions": {
-              "width": 10000,
-              "height": 4958,
-              "aspectRatio": 2.017,
-              "aspectRatioString": "5000:2479",
-              "orientation": "panorama",
-              "megapixels": 49.6
-            },
-            "c2pa": true
-          },
-          {
-            "title": "Storm Light Over Moorland",
-            "location": "Central Iceland Highlands, near Kj\u00f6lur or Sprengisandur region",
-            "dimensions": {
-              "width": 10000,
-              "height": 3987,
-              "aspectRatio": 2.508,
-              "aspectRatioString": "10000:3987",
-              "orientation": "panorama",
-              "megapixels": 39.9
-            },
-            "c2pa": true
-          }
-        ]
-      },
       "lake-powell": {
         "title": "Lake Powell",
         "count": 7,
@@ -797,52 +751,6 @@
               "aspectRatioString": "250:157",
               "orientation": "wide",
               "megapixels": 15.7
-            },
-            "c2pa": true
-          }
-        ]
-      },
-      "mexico-city": {
-        "title": "Mexico city",
-        "count": 5,
-        "url": "https://archive-35.com/gallery.html?collection=mexico-city",
-        "samplePhotos": [
-          {
-            "title": "Ancient Pyramids of Teotihuacan",
-            "location": "Teotihuacan, State of Mexico",
-            "dimensions": {
-              "width": 8688,
-              "height": 5792,
-              "aspectRatio": 1.5,
-              "aspectRatioString": "3:2",
-              "orientation": "landscape",
-              "megapixels": 50.3
-            },
-            "c2pa": true
-          },
-          {
-            "title": "Pyramid's Shadow: Sacred Valley",
-            "location": "Teotihuac\u00e1n, Mexico City, Valley of Mexico",
-            "dimensions": {
-              "width": 8442,
-              "height": 5628,
-              "aspectRatio": 1.5,
-              "aspectRatioString": "3:2",
-              "orientation": "landscape",
-              "megapixels": 47.5
-            },
-            "c2pa": true
-          },
-          {
-            "title": "Chromatic Density",
-            "location": "Mexico City,",
-            "dimensions": {
-              "width": 8679,
-              "height": 4279,
-              "aspectRatio": 2.028,
-              "aspectRatioString": "789:389",
-              "orientation": "panorama",
-              "megapixels": 37.1
             },
             "c2pa": true
           }

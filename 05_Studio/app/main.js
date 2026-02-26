@@ -31,6 +31,9 @@ const EXCLUDED_PORTFOLIO_FOLDERS = [
   'Antilope_Canyon_',
   'Utha_National_Parks_',
   'Utha National Parks',
+  'Mexico_city',
+  'Mexico city',
+  'mexico-city',
   'Licensing',
   'licensing',
 ];

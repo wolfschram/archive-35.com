@@ -74,7 +74,7 @@ def get_credentials() -> dict[str, str]:
     env = _load_env_file()
     return {
         "api_key": env.get("ETSY_API_KEY", os.environ.get("ETSY_API_KEY", "")),
-        "shared_secret": env.get("ETSY_SHARED_SECRET", os.environ.get("ETSY_SHARED_SECRET", "")),
+        "shared_secret": env.get("ETSY_API_SECRET", env.get("ETSY_SHARED_SECRET", os.environ.get("ETSY_API_SECRET", os.environ.get("ETSY_SHARED_SECRET", "")))),
         "access_token": env.get("ETSY_ACCESS_TOKEN", os.environ.get("ETSY_ACCESS_TOKEN", "")),
         "refresh_token": env.get("ETSY_REFRESH_TOKEN", os.environ.get("ETSY_REFRESH_TOKEN", "")),
         "shop_id": env.get("ETSY_SHOP_ID", os.environ.get("ETSY_SHOP_ID", "")),

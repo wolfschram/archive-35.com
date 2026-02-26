@@ -1,0 +1,372 @@
+{
+  "title": "Tanzania Wildlife Photography Print | African Safari Fine Art Wall Decor | Nature Photography Gift",
+  "description": "TANZANIA WILDLIFE FINE ART PHOTOGRAPHY PRINT\n\nCapture the raw beauty of Africa with this stunning wildlife photograph from Tanzania. This museum-quality print brings the majesty of the African wilderness into your home, perfect for nature lovers and safari enthusiasts.\n\n\u2726 ABOUT THIS PHOTOGRAPH\nCaptured during an African safari adventure in Tanzania on September 6, 2017, using a Canon EOS 5DS camera with an EF100-400mm f/4.5-5.6L IS II USM lens at 400mm focal length. The technical precision of professional wildlife photography equipment ensures exceptional detail and clarity in every print.\n\n\u2726 PRINT QUALITY\nEach print is produced using premium archival inks on professional-grade paper, ensuring vibrant colors and sharp details that will last for generations. Our museum-quality printing process captures every nuance of the original photograph, from subtle tones to dramatic contrasts.\n\n\u2726 PAPER OPTIONS\nChoose from various premium paper stocks designed for fine art photography reproduction, each offering unique characteristics to complement your decor style.\n\n\u2726 ABOUT ARCHIVE-35\nArchive-35 by Wolf Schram specializes in authentic fine art photography that tells compelling stories from around the world. Each image is carefully curated from our extensive travel collection, bringing you genuine moments captured in remarkable locations.\n\nVisit archive-35.com to explore our complete collection of fine art photography prints.\n\n\u2726 PERFECT FOR\n\u2022 Safari and wildlife enthusiasts\n\u2022 African art collectors\n\u2022 Nature photography lovers\n\u2022 Travel-inspired home decor\n\u2022 Unique gifts for adventurers",
+  "tags": [
+    "tanzania print",
+    "africa photography",
+    "safari wall art",
+    "wildlife print",
+    "african decor",
+    "nature photography",
+    "travel photography",
+    "fine art print",
+    "safari art",
+    "tanzania art",
+    "wildlife wall art",
+    "african wildlife",
+    "adventure decor"
+  ],
+  "base_price": 51,
+  "category": "Art & Collectibles > Photography > Color",
+  "who_made": "i_did",
+  "when_made": "2020_2025",
+  "is_supply": false,
+  "processing_days": {
+    "min": 5,
+    "max": 7
+  },
+  "shipping_profile": "Fine Art Prints - Free Shipping",
+  "quantity": 999,
+  "gallery_name": "Tanzania",
+  "aspect_ratio": 1.5,
+  "aspect_category": "Standard 3:2",
+  "photo_dimensions": {
+    "width": 8688,
+    "height": 5792
+  },
+  "variations": [
+    {
+      "material": "Fine Art Paper",
+      "material_key": "paper",
+      "size": "12\"x8\"",
+      "width": 12,
+      "height": 8,
+      "website_price": 45,
+      "etsy_price": 51,
+      "dpi": 724,
+      "quality": "Museum Quality",
+      "label": "Fine Art Paper 12x8"
+    },
+    {
+      "material": "Fine Art Paper",
+      "material_key": "paper",
+      "size": "18\"x12\"",
+      "width": 18,
+      "height": 12,
+      "website_price": 83,
+      "etsy_price": 93,
+      "dpi": 483,
+      "quality": "Museum Quality",
+      "label": "Fine Art Paper 18x12"
+    },
+    {
+      "material": "Fine Art Paper",
+      "material_key": "paper",
+      "size": "24\"x16\"",
+      "width": 24,
+      "height": 16,
+      "website_price": 127,
+      "etsy_price": 141,
+      "dpi": 362,
+      "quality": "Museum Quality",
+      "label": "Fine Art Paper 24x16"
+    },
+    {
+      "material": "Fine Art Paper",
+      "material_key": "paper",
+      "size": "36\"x24\"",
+      "width": 36,
+      "height": 24,
+      "website_price": 234,
+      "etsy_price": 260,
+      "dpi": 241,
+      "quality": "Excellent",
+      "label": "Fine Art Paper 36x24"
+    },
+    {
+      "material": "Fine Art Paper",
+      "material_key": "paper",
+      "size": "48\"x32\"",
+      "width": 48,
+      "height": 32,
+      "website_price": 360,
+      "etsy_price": 399,
+      "dpi": 181,
+      "quality": "Good",
+      "label": "Fine Art Paper 48x32"
+    },
+    {
+      "material": "Canvas",
+      "material_key": "canvas",
+      "size": "12\"x8\"",
+      "width": 12,
+      "height": 8,
+      "website_price": 82,
+      "etsy_price": 92,
+      "dpi": 724,
+      "quality": "Museum Quality",
+      "label": "Canvas 12x8"
+    },
+    {
+      "material": "Canvas",
+      "material_key": "canvas",
+      "size": "18\"x12\"",
+      "width": 18,
+      "height": 12,
+      "website_price": 151,
+      "etsy_price": 168,
+      "dpi": 483,
+      "quality": "Museum Quality",
+      "label": "Canvas 18x12"
+    },
+    {
+      "material": "Canvas",
+      "material_key": "canvas",
+      "size": "24\"x16\"",
+      "width": 24,
+      "height": 16,
+      "website_price": 232,
+      "etsy_price": 257,
+      "dpi": 362,
+      "quality": "Museum Quality",
+      "label": "Canvas 24x16"
+    },
+    {
+      "material": "Canvas",
+      "material_key": "canvas",
+      "size": "36\"x24\"",
+      "width": 36,
+      "height": 24,
+      "website_price": 426,
+      "etsy_price": 472,
+      "dpi": 241,
+      "quality": "Excellent",
+      "label": "Canvas 36x24"
+    },
+    {
+      "material": "Canvas",
+      "material_key": "canvas",
+      "size": "48\"x32\"",
+      "width": 48,
+      "height": 32,
+      "website_price": 656,
+      "etsy_price": 726,
+      "dpi": 181,
+      "quality": "Good",
+      "label": "Canvas 48x32"
+    },
+    {
+      "material": "Wood",
+      "material_key": "wood",
+      "size": "12\"x8\"",
+      "width": 12,
+      "height": 8,
+      "website_price": 92,
+      "etsy_price": 103,
+      "dpi": 724,
+      "quality": "Museum Quality",
+      "label": "Wood 12x8"
+    },
+    {
+      "material": "Wood",
+      "material_key": "wood",
+      "size": "18\"x12\"",
+      "width": 18,
+      "height": 12,
+      "website_price": 169,
+      "etsy_price": 188,
+      "dpi": 483,
+      "quality": "Museum Quality",
+      "label": "Wood 18x12"
+    },
+    {
+      "material": "Wood",
+      "material_key": "wood",
+      "size": "24\"x16\"",
+      "width": 24,
+      "height": 16,
+      "website_price": 260,
+      "etsy_price": 288,
+      "dpi": 362,
+      "quality": "Museum Quality",
+      "label": "Wood 24x16"
+    },
+    {
+      "material": "Wood",
+      "material_key": "wood",
+      "size": "36\"x24\"",
+      "width": 36,
+      "height": 24,
+      "website_price": 478,
+      "etsy_price": 529,
+      "dpi": 241,
+      "quality": "Excellent",
+      "label": "Wood 36x24"
+    },
+    {
+      "material": "Wood",
+      "material_key": "wood",
+      "size": "48\"x32\"",
+      "width": 48,
+      "height": 32,
+      "website_price": 736,
+      "etsy_price": 814,
+      "dpi": 181,
+      "quality": "Good",
+      "label": "Wood 48x32"
+    },
+    {
+      "material": "Metal",
+      "material_key": "metal",
+      "size": "12\"x8\"",
+      "width": 12,
+      "height": 8,
+      "website_price": 99,
+      "etsy_price": 110,
+      "dpi": 724,
+      "quality": "Museum Quality",
+      "label": "Metal 12x8"
+    },
+    {
+      "material": "Metal",
+      "material_key": "metal",
+      "size": "18\"x12\"",
+      "width": 18,
+      "height": 12,
+      "website_price": 182,
+      "etsy_price": 202,
+      "dpi": 483,
+      "quality": "Museum Quality",
+      "label": "Metal 18x12"
+    },
+    {
+      "material": "Metal",
+      "material_key": "metal",
+      "size": "24\"x16\"",
+      "width": 24,
+      "height": 16,
+      "website_price": 280,
+      "etsy_price": 310,
+      "dpi": 362,
+      "quality": "Museum Quality",
+      "label": "Metal 24x16"
+    },
+    {
+      "material": "Metal",
+      "material_key": "metal",
+      "size": "36\"x24\"",
+      "width": 36,
+      "height": 24,
+      "website_price": 514,
+      "etsy_price": 569,
+      "dpi": 241,
+      "quality": "Excellent",
+      "label": "Metal 36x24"
+    },
+    {
+      "material": "Metal",
+      "material_key": "metal",
+      "size": "48\"x32\"",
+      "width": 48,
+      "height": 32,
+      "website_price": 792,
+      "etsy_price": 876,
+      "dpi": 181,
+      "quality": "Good",
+      "label": "Metal 48x32"
+    },
+    {
+      "material": "Acrylic",
+      "material_key": "acrylic",
+      "size": "12\"x8\"",
+      "width": 12,
+      "height": 8,
+      "website_price": 149,
+      "etsy_price": 166,
+      "dpi": 724,
+      "quality": "Museum Quality",
+      "label": "Acrylic 12x8"
+    },
+    {
+      "material": "Acrylic",
+      "material_key": "acrylic",
+      "size": "18\"x12\"",
+      "width": 18,
+      "height": 12,
+      "website_price": 274,
+      "etsy_price": 304,
+      "dpi": 483,
+      "quality": "Museum Quality",
+      "label": "Acrylic 18x12"
+    },
+    {
+      "material": "Acrylic",
+      "material_key": "acrylic",
+      "size": "24\"x16\"",
+      "width": 24,
+      "height": 16,
+      "website_price": 421,
+      "etsy_price": 466,
+      "dpi": 362,
+      "quality": "Museum Quality",
+      "label": "Acrylic 24x16"
+    },
+    {
+      "material": "Acrylic",
+      "material_key": "acrylic",
+      "size": "36\"x24\"",
+      "width": 36,
+      "height": 24,
+      "website_price": 774,
+      "etsy_price": 856,
+      "dpi": 241,
+      "quality": "Excellent",
+      "label": "Acrylic 36x24"
+    },
+    {
+      "material": "Acrylic",
+      "material_key": "acrylic",
+      "size": "48\"x32\"",
+      "width": 48,
+      "height": 32,
+      "website_price": 1192,
+      "etsy_price": 1318,
+      "dpi": 181,
+      "quality": "Good",
+      "label": "Acrylic 48x32"
+    }
+  ],
+  "images": [
+    {
+      "order": 1,
+      "type": "mockup",
+      "filename": "01-mockup-118a0071-gallery-white-etsy.jpg"
+    },
+    {
+      "order": 2,
+      "type": "mockup",
+      "filename": "02-mockup-118a0071-living-room-modern-etsy.jpg"
+    },
+    {
+      "order": 3,
+      "type": "mockup",
+      "filename": "03-mockup-118a0071-penthouse-living-etsy.jpg"
+    },
+    {
+      "order": 4,
+      "type": "mockup",
+      "filename": "04-mockup-118a0071-outdoor-patio-etsy.jpg"
+    },
+    {
+      "order": 5,
+      "type": "mockup",
+      "filename": "05-mockup-118a0071-restaurant-square-etsy.jpg"
+    },
+    {
+      "order": 6,
+      "type": "original",
+      "filename": "06-original-118A0069.jpg"
+    }
+  ],
+  "generated_at": "2026-02-25T22:17:52.781846+00:00"
+}

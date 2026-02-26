@@ -1131,16 +1131,30 @@
       }
     }
 
+    // --- Hit-test: is cursor over the photo zone? ---
+    function isOverPhotoZone(clientX, clientY) {
+      if (!currentTemplate || !photoImg) return false;
+      const rect = canvas.getBoundingClientRect();
+      const scale = canvas.width / rect.width;
+      const cx = (clientX - rect.left) * scale;
+      const cy = (clientY - rect.top) * scale;
+      const z = currentTemplate.zone;
+      return cx >= z.x && cx <= z.x + z.w && cy >= z.y && cy <= z.y + z.h;
+    }
+
     // --- Interaction: Drag ---
     function getCanvasScale() {
       return canvas.width / canvas.getBoundingClientRect().width;
     }
 
     function onDragStart(e) {
+      // Only capture drag if cursor is over the photo zone
+      const px = e.clientX, py = e.clientY;
+      if (!isOverPhotoZone(px, py)) return; // let page scroll normally
       e.preventDefault();
       dragging = true;
-      dragStartX = e.clientX;
-      dragStartY = e.clientY;
+      dragStartX = px;
+      dragStartY = py;
       dragStartOffX = photoOffX;
       dragStartOffY = photoOffY;
       // Hide hint on first interaction
@@ -1163,6 +1177,8 @@
 
     // --- Interaction: Zoom ---
     function onWheel(e) {
+      // Only capture scroll if cursor is over the photo zone
+      if (!isOverPhotoZone(e.clientX, e.clientY)) return; // let page scroll normally
       e.preventDefault();
       const delta = e.deltaY > 0 ? 0.95 : 1.05;
       const newZoom = photoZoom * delta;
@@ -1175,13 +1191,17 @@
     // --- Touch Support ---
     let lastTouchDist = 0;
     let lastTouchCenter = null;
+    let touchOverZone = false; // track if touch started over photo zone
 
     function onTouchStart(e) {
+      const tx = e.touches[0].clientX, ty = e.touches[0].clientY;
+      touchOverZone = isOverPhotoZone(tx, ty);
+      if (!touchOverZone) return; // let page scroll normally
       e.preventDefault();
       if (e.touches.length === 1) {
         dragging = true;
-        dragStartX = e.touches[0].clientX;
-        dragStartY = e.touches[0].clientY;
+        dragStartX = tx;
+        dragStartY = ty;
         dragStartOffX = photoOffX;
         dragStartOffY = photoOffY;
       } else if (e.touches.length === 2) {
@@ -1194,6 +1214,7 @@
     }
 
     function onTouchMove(e) {
+      if (!touchOverZone) return; // let page scroll normally
       e.preventDefault();
       if (e.touches.length === 1 && dragging) {
         const s = getCanvasScale();
@@ -1213,7 +1234,7 @@
     }
 
     function onTouchEnd(e) {
-      if (e.touches.length === 0) dragging = false;
+      if (e.touches.length === 0) { dragging = false; touchOverZone = false; }
     }
 
     function getTouchDist(touches) {

@@ -837,7 +837,7 @@ ipcMain.handle('archive-photos', async (event, { portfolioId, photoIds }) => {
 // ===================
 
 // Build the AI prompt with geographic constraints
-function buildAIPrompt(galleryContext, filename) {
+function buildAIPrompt(galleryContext, filename, photoData) {
   const c = galleryContext?.country || '';
   const n = galleryContext?.name || '';
   const l = galleryContext?.location || '';
@@ -846,6 +846,23 @@ function buildAIPrompt(galleryContext, filename) {
 
   let prompt = 'You are a fine art photography metadata assistant for Archive-35, a landscape photography brand by Wolfgang Schram.\n\n';
 
+  // === EXIF CONTEXT (highest priority for location accuracy) ===
+  const exif = photoData?.exif || {};
+  const hasGPS = exif.gps && exif.gps.lat && exif.gps.lng;
+  if (hasGPS || exif.camera || exif.dateTaken) {
+    prompt += '=== EXIF DATA FROM THIS PHOTO ===\n';
+    if (hasGPS) {
+      prompt += `GPS Coordinates: ${exif.gps.lat}, ${exif.gps.lng}\n`;
+      prompt += 'CRITICAL: Use these GPS coordinates to determine the EXACT location. Look up what place these coordinates correspond to. This is far more reliable than guessing from the image.\n';
+    }
+    if (exif.camera) prompt += `Camera: ${exif.camera}\n`;
+    if (exif.lens) prompt += `Lens: ${exif.lens}\n`;
+    if (exif.focalLength) prompt += `Focal Length: ${exif.focalLength}mm\n`;
+    if (exif.dateTaken) prompt += `Date Taken: ${exif.dateTaken}\n`;
+    prompt += '=== END EXIF ===\n\n';
+  }
+
+  // === GALLERY CONTEXT (user-provided geographic constraint) ===
   if (geoContext) {
     prompt += '=== MANDATORY GEOGRAPHIC CONSTRAINT ===\n';
     prompt += `These photos were taken in ${geoContext}.${c ? ` Gallery: "${n}".` : ''}${l ? ' Region: ' + l + '.' : ''}\n`;
@@ -856,19 +873,29 @@ function buildAIPrompt(galleryContext, filename) {
     prompt += `- The location field MUST be a real place within ${geoContext}\n`;
     prompt += `- Geography tags MUST reference ${geoContext} and regions within ${geoContext} ONLY\n`;
     prompt += '=== END CONSTRAINT ===\n\n';
+  } else if (!hasGPS) {
+    prompt += 'WARNING: No GPS data and no gallery context provided. Location accuracy may be limited.\n';
+    prompt += 'If you cannot confidently identify the location, use a general descriptive location like "Desert Landscape, Western United States" rather than guessing a specific place.\n';
+    prompt += 'DO NOT hallucinate specific place names. If unsure, be general.\n\n';
+  }
+
+  // === IMAGE DIMENSIONS ===
+  const dims = photoData?.dimensions || {};
+  if (dims.width && dims.height) {
+    prompt += `Image: ${dims.width}x${dims.height}px (${dims.megapixels}MP, ${dims.orientation})\n\n`;
   }
 
   prompt += 'Respond with ONLY valid JSON (no markdown):\n';
   prompt += '{\n';
   prompt += '  "title": "short evocative title (3-6 words)",\n';
   prompt += `  "description": "1-2 sentence art description for fine art print buyers. Timeless tone. No time-of-day references (no sunrise, sunset, morning, evening).",\n`;
-  prompt += `  "location": "specific place or region in ${geoContext || 'the photographed area'}",\n`;
+  prompt += `  "location": "specific place or region${hasGPS ? ' (use GPS coordinates to determine)' : geoContext ? ' in ' + geoContext : ''}",\n`;
   prompt += '  "tags": ["15-20 tags for maximum discoverability"]\n';
   prompt += '}\n\n';
 
   prompt += 'TAG STRATEGY (generate 15-20 tags across ALL these categories):\n';
   prompt += '- Subject: what is in the photo (mountain, glacier, waterfall, forest, lake, etc.)\n';
-  prompt += `- Geography: ${geoContext || 'country'}, region, specific place names ONLY from ${geoContext || 'the area'}\n`;
+  prompt += `- Geography: ${geoContext || 'country'}, region, specific place names${hasGPS ? ' (derive from GPS)' : geoContext ? ' ONLY from ' + geoContext : ''}\n`;
   prompt += '- Mood/emotion: serene, dramatic, majestic, tranquil, powerful, etc.\n';
   prompt += '- Style: landscape-photography, fine-art, nature-photography, wall-art, etc.\n';
   prompt += '- Physical features: geological terms, water features, vegetation types\n';
@@ -879,6 +906,9 @@ function buildAIPrompt(galleryContext, filename) {
   prompt += 'REMINDER: Timeless tone. No time-of-day. Tags lowercase and hyphenated.';
   if (geoContext) {
     prompt += ` ALL geographic references MUST be ${geoContext}. NEVER reference any other country or polar region.`;
+  }
+  if (hasGPS) {
+    prompt += ' TRUST the GPS coordinates for location — they are ground truth from the camera.';
   }
   prompt += `\nFilename: ${filename}`;
 
@@ -1024,7 +1054,7 @@ ipcMain.handle('analyze-photos', async (event, { files, galleryContext }) => {
                 role: 'user',
                 content: [
                   { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64Image } },
-                  { type: 'text', text: buildAIPrompt(galleryContext, photo.filename) }
+                  { type: 'text', text: buildAIPrompt(galleryContext, photo.filename, photo) }
                 ]
               }]
             });

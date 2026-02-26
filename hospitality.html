@@ -1009,17 +1009,17 @@
 
       if (currentTemplate) {
         const z = currentTemplate.zone;
-        const inset = 3;
 
-        // Always fill zone with dark color first (covers any green remnants)
+        // Fill entire zone + 2px margin with dark color (covers ALL green pixels)
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(z.x - 2, z.y - 2, z.w + 4, z.h + 4);
+
+        // Then clip to inset zone and draw the photo on top
+        const inset = 4;
         ctx.save();
         ctx.beginPath();
         ctx.rect(z.x + inset, z.y + inset, z.w - inset * 2, z.h - inset * 2);
         ctx.clip();
-        ctx.fillStyle = '#0a0a0a';
-        ctx.fillRect(z.x, z.y, z.w, z.h);
-
-        // Then draw the photo on top if loaded
         if (photoImg) {
           const cx = photoImg.naturalWidth / 2 - photoOffX / photoZoom;
           const cy = photoImg.naturalHeight / 2 - photoOffY / photoZoom;

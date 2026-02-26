@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Desert Basin: Layered Geology",
-  "description": "An expansive panoramic vista revealing the dramatic geological stratification of high desert terrain, with layered mountain ranges receding toward distant peaks. The ultra-high-resolution capture preserves exceptional detail across the entire composition—from foreground desert scrub to the intricate erosion patterns on distant ridges—making it ideal for large-format fine art prints and immersive commercial installations.",
+  "description": "An expansive panoramic vista revealing the dramatic geological stratification of high desert terrain, with layered mountain ranges receding toward distant peaks. The ultra-high-resolution capture preserves exceptional detail across the entire composition\u2014from foreground desert scrub to the intricate erosion patterns on distant ridges\u2014making it ideal for large-format fine art prints and immersive commercial installations.",
   "location": "Atacama Desert Region, Northern Chile (possibly near San Pedro de Atacama or Paso de Jama area)",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260224-0130.jpg",
     "thumbnail": "thumbnails/A35-20260224-0130.jpg"
   },
-  "scanned_at": "2026-02-24T22:03:53.256354+00:00"
+  "scanned_at": "2026-02-24T22:03:53.256354+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260224-0130.jpg",
+      "backed_up_at": "2026-02-26T22:34:36.912804+00:00",
+      "md5": "ef71914c679d3a9d86854fb5fef8491a"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260224-0130.jpg",
+      "backed_up_at": "2026-02-26T22:34:37.596087+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260224-0130.jpg",
+      "backed_up_at": "2026-02-26T22:34:38.311655+00:00"
+    }
+  }
 }

@@ -1,5 +1,45 @@
 [
   {
+    "id": "104a6134-edit",
+    "filename": "104A6134-Edit.jpg",
+    "title": "Desert Shrine Under Open Sky",
+    "description": "A haunting fine art study of Arizona's high desert landscape, where weathered structures stand sentinel against vast horizons. This work captures the raw beauty and solitude of the Sonoran wilderness, exploring themes of human presence within nature's expansive silence.",
+    "location": "Sonoran Desert, Arizona",
+    "tags": [
+      "arizona-landscape",
+      "sonoran-desert",
+      "desert-photography",
+      "fine-art-landscape",
+      "arizona-wilderness",
+      "high-desert",
+      "landscape-photography",
+      "nature-photography",
+      "desert-structures",
+      "arid-landscape",
+      "arizona-scenery",
+      "wall-art",
+      "gallery-print",
+      "canvas-art",
+      "dramatic-landscape",
+      "minimalist-desert",
+      "southwestern-art",
+      "solitude",
+      "remote-locations",
+      "arizona-culture"
+    ],
+    "dimensions": {
+      "width": 10000,
+      "height": 4169,
+      "aspectRatio": 2.399,
+      "aspectRatioString": "10000:4169",
+      "orientation": "panorama",
+      "megapixels": 41.7
+    },
+    "thumbnail": "104A6134-Edit-thumb.jpg",
+    "full": "104A6134-Edit-full.jpg",
+    "c2pa": true
+  },
+  {
     "id": "104a9624-pano",
     "filename": "104A9624-Pano.jpg",
     "title": "Badlands Expanse Under Arizona Sky",
@@ -360,46 +400,6 @@
     },
     "thumbnail": "104A6122-Edit-thumb.jpg",
     "full": "104A6122-Edit-full.jpg",
-    "c2pa": true
-  },
-  {
-    "id": "104a6134-edit",
-    "filename": "104A6134-Edit.jpg",
-    "title": "Desert Shrine Under Open Sky",
-    "description": "A haunting fine art study of Arizona's high desert landscape, where weathered structures stand sentinel against vast horizons. This work captures the raw beauty and solitude of the Sonoran wilderness, exploring themes of human presence within nature's expansive silence.",
-    "location": "Sonoran Desert, Arizona",
-    "tags": [
-      "arizona-landscape",
-      "sonoran-desert",
-      "desert-photography",
-      "fine-art-landscape",
-      "arizona-wilderness",
-      "high-desert",
-      "landscape-photography",
-      "nature-photography",
-      "desert-structures",
-      "arid-landscape",
-      "arizona-scenery",
-      "wall-art",
-      "gallery-print",
-      "canvas-art",
-      "dramatic-landscape",
-      "minimalist-desert",
-      "southwestern-art",
-      "solitude",
-      "remote-locations",
-      "arizona-culture"
-    ],
-    "dimensions": {
-      "width": 10000,
-      "height": 4169,
-      "aspectRatio": 2.399,
-      "aspectRatioString": "10000:4169",
-      "orientation": "panorama",
-      "megapixels": 41.7
-    },
-    "thumbnail": "104A6134-Edit-thumb.jpg",
-    "full": "104A6134-Edit-full.jpg",
     "c2pa": true
   },
   {

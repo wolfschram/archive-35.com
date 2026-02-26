@@ -3,7 +3,7 @@
   "original_filename": "Wolf 3987.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Los Angeles Skyline Panorama",
-  "description": "An expansive ultra-high-resolution panoramic capture of the Los Angeles downtown skyline showcasing the full architectural complexity of the city's urban landscape. The exceptional detail and scale of this fine art print reveals individual building facades, atmospheric depth, and dramatic cloud formations—ideal for large-format commercial installations and gallery presentations.",
+  "description": "An expansive ultra-high-resolution panoramic capture of the Los Angeles downtown skyline showcasing the full architectural complexity of the city's urban landscape. The exceptional detail and scale of this fine art print reveals individual building facades, atmospheric depth, and dramatic cloud formations\u2014ideal for large-format commercial installations and gallery presentations.",
   "location": "Los Angeles, California, United States",
   "classification": "ULTRA",
   "resolution": {
@@ -81,5 +81,23 @@
     "preview": "previews/A35-20260217-0056.jpg",
     "thumbnail": "thumbnails/A35-20260217-0056.jpg"
   },
-  "scanned_at": "2026-02-17T21:40:58.701429+00:00"
+  "scanned_at": "2026-02-17T21:40:58.701429+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260217-0056.jpg",
+      "backed_up_at": "2026-02-26T22:08:37.853624+00:00",
+      "md5": "1780656d4eee75c7726d9c4fd20ebf35"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260217-0056.jpg",
+      "backed_up_at": "2026-02-26T22:32:55.172328+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260217-0056.jpg",
+      "backed_up_at": "2026-02-26T22:32:55.447495+00:00"
+    }
+  }
 }

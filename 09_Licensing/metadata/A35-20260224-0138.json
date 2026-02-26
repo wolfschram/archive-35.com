@@ -3,9 +3,9 @@
   "original_filename": "Wolf 8611.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "Solitude",
+  "description": "A haunting panoramic study of resilience and isolation, capturing a solitary flowering plant against vast mountains This ultra-high-resolution image reveals extraordinary detail across the entire composition\u2014from fine textural gradations in the ash and cinder cones to crisp alpine peaks\u2014making it exceptional for large-format gallery installations and immersive landscape applications.",
+  "location": "Death Valley National Park, California (Badwater Basin or similar salt flat lake)",
   "classification": "ULTRA",
   "resolution": {
     "width": 22486,
@@ -22,7 +22,7 @@
     "300.0"
   ],
   "max_print_300dpi": {
-    "width_in": 75.0,
+    "width_in": 75,
     "height_in": 23.2,
     "dpi": 300
   },
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260224-0138.jpg",
     "thumbnail": "thumbnails/A35-20260224-0138.jpg"
   },
-  "scanned_at": "2026-02-24T22:03:53.262078+00:00"
+  "scanned_at": "2026-02-24T22:03:53.262078+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260224-0138.jpg",
+      "backed_up_at": "2026-02-26T22:35:56.314396+00:00",
+      "md5": "566858c8540ebe05cfb0e45401062737"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260224-0138.jpg",
+      "backed_up_at": "2026-02-26T22:35:56.564242+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260224-0138.jpg",
+      "backed_up_at": "2026-02-26T22:35:56.862284+00:00"
+    }
+  }
 }

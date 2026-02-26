@@ -1,5 +1,45 @@
 [
   {
+    "id": "_mg_7408",
+    "filename": "_MG_7408.jpg",
+    "title": "Golden Light Over Coastal Rocks",
+    "description": "A dramatic coastal landscape where golden light illuminates sea stacks and sandy shores, creating a timeless interplay between land, water, and sky. The composition captures the raw beauty and geological majesty of California's rugged Pacific coastline.",
+    "location": "Northern California Coast",
+    "tags": [
+      "coastal-landscape",
+      "sea-stacks",
+      "california-coast",
+      "fine-art-photography",
+      "nature-photography",
+      "golden-light",
+      "dramatic-seascape",
+      "beach-photography",
+      "pacific-ocean",
+      "rock-formations",
+      "sandy-beach",
+      "coastal-cliffs",
+      "wall-art",
+      "landscape-print",
+      "home-decor",
+      "gallery-wall",
+      "serene-mood",
+      "california-scenery",
+      "ocean-waves",
+      "canvas-print"
+    ],
+    "dimensions": {
+      "width": 5472,
+      "height": 2827,
+      "aspectRatio": 1.936,
+      "aspectRatioString": "5472:2827",
+      "orientation": "wide",
+      "megapixels": 15.5
+    },
+    "thumbnail": "_MG_7408-thumb.jpg",
+    "full": "_MG_7408-full.jpg",
+    "c2pa": true
+  },
+  {
     "id": "118a0013",
     "filename": "118A0013.jpg",
     "title": "Driftwood and Marshland Reflection",
@@ -522,46 +562,6 @@
     },
     "thumbnail": "_MG_7336-thumb.jpg",
     "full": "_MG_7336-full.jpg",
-    "c2pa": true
-  },
-  {
-    "id": "_mg_7408",
-    "filename": "_MG_7408.jpg",
-    "title": "Golden Light Over Coastal Rocks",
-    "description": "A dramatic coastal landscape where golden light illuminates sea stacks and sandy shores, creating a timeless interplay between land, water, and sky. The composition captures the raw beauty and geological majesty of California's rugged Pacific coastline.",
-    "location": "Northern California Coast",
-    "tags": [
-      "coastal-landscape",
-      "sea-stacks",
-      "california-coast",
-      "fine-art-photography",
-      "nature-photography",
-      "golden-light",
-      "dramatic-seascape",
-      "beach-photography",
-      "pacific-ocean",
-      "rock-formations",
-      "sandy-beach",
-      "coastal-cliffs",
-      "wall-art",
-      "landscape-print",
-      "home-decor",
-      "gallery-wall",
-      "serene-mood",
-      "california-scenery",
-      "ocean-waves",
-      "canvas-print"
-    ],
-    "dimensions": {
-      "width": 5472,
-      "height": 2827,
-      "aspectRatio": 1.936,
-      "aspectRatioString": "5472:2827",
-      "orientation": "wide",
-      "megapixels": 15.5
-    },
-    "thumbnail": "_MG_7408-thumb.jpg",
-    "full": "_MG_7408-full.jpg",
     "c2pa": true
   },
   {

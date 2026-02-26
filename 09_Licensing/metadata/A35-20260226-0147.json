@@ -1,0 +1,104 @@
+{
+  "catalog_id": "A35-20260226-0147",
+  "original_filename": "Wolf 10165.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Times Square Nocturne",
+  "description": "This ultra-high-resolution panoramic capture of Times Square presents an immersive urban landscape with exceptional detail throughout\u2014from the luminous billboard surfaces and architectural geometry of the surrounding towers to the intricate crowd dynamics below. The photograph's exceptional clarity and tonal range make it ideal for large-format fine art printing and immersive architectural installations in commercial or hospitality spaces.",
+  "location": "Times Square, New York City, New York, USA",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 12639,
+    "height": 6678
+  },
+  "megapixels": 84.4,
+  "aspect_ratio": 1.893,
+  "file_size_bytes": 31398838,
+  "file_size_mb": 29.9,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 42.1,
+    "height_in": 22.3,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 84.3,
+    "height_in": 44.5,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5m2",
+    "DateTimeOriginal": "2024:10:07 18:41:11",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.003125",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260226-0147.jpg",
+    "preview": "previews/A35-20260226-0147.jpg",
+    "thumbnail": "thumbnails/A35-20260226-0147.jpg"
+  },
+  "scanned_at": "2026-02-26T22:00:44.932447+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260226-0147.jpg",
+      "backed_up_at": "2026-02-26T22:37:29.033014+00:00",
+      "md5": "dc03149414cd16d96840e7fc17bdd510"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260226-0147.jpg",
+      "backed_up_at": "2026-02-26T22:37:29.332879+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260226-0147.jpg",
+      "backed_up_at": "2026-02-26T22:37:29.598144+00:00"
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "catalog_id": "A35-20260226-0166",
+  "original_filename": "Wolf 9809.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Urban Canyon: Glass and Steel",
+  "description": "A commanding ultra-high-resolution architectural photograph capturing the geometric interplay of modern skyscrapers framing an elevated transit structure. The exceptional detail and clarity of this image reveals the intricate patterns of glass facades, metal infrastructure, and urban geometry\u2014ideal for large-format commercial installations, corporate spaces, and architectural licensing applications.",
+  "location": "Downtown Chicago, Illinois, USA",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 14567,
+    "height": 8718
+  },
+  "megapixels": 127,
+  "aspect_ratio": 1.671,
+  "file_size_bytes": 40458187,
+  "file_size_mb": 38.6,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 48.6,
+    "height_in": 29.1,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 97.1,
+    "height_in": 58.1,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5m2",
+    "DateTimeOriginal": "2024:09:03 14:05:47",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.00125",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260226-0166.jpg",
+    "preview": "previews/A35-20260226-0166.jpg",
+    "thumbnail": "thumbnails/A35-20260226-0166.jpg"
+  },
+  "scanned_at": "2026-02-26T22:00:44.950285+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260226-0166.jpg",
+      "backed_up_at": "2026-02-26T22:42:24.736643+00:00",
+      "md5": "ba36817416eca8ea3d4392079c5123a1"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260226-0166.jpg",
+      "backed_up_at": "2026-02-26T22:42:25.314025+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260226-0166.jpg",
+      "backed_up_at": "2026-02-26T22:42:25.952576+00:00"
+    }
+  }
+}

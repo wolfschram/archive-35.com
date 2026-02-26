@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Stream Through Conifer Valley",
-  "description": "A pristine wilderness panorama capturing a meandering alpine stream flanked by dense coniferous forest and distant mountain peaks. The ultra-high-resolution capture preserves exceptional detail throughout the composition—from individual willow branches along the water's edge to atmospheric depth in the distant ridgeline—making this image ideal for monumental fine art prints and large-scale commercial installations.",
+  "description": "A pristine wilderness panorama capturing a meandering alpine stream flanked by dense coniferous forest and distant mountain peaks. The ultra-high-resolution capture preserves exceptional detail throughout the composition\u2014from individual willow branches along the water's edge to atmospheric depth in the distant ridgeline\u2014making this image ideal for monumental fine art prints and large-scale commercial installations.",
   "location": "Glacier National Park, Montana, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260219-0071.jpg",
     "thumbnail": "thumbnails/A35-20260219-0071.jpg"
   },
-  "scanned_at": "2026-02-19T01:39:42.831144+00:00"
+  "scanned_at": "2026-02-19T01:39:42.831144+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260219-0071.jpg",
+      "backed_up_at": "2026-02-26T22:10:29.018302+00:00",
+      "md5": "a7e889853a6edb8e2237716f4ee946bd"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260219-0071.jpg",
+      "backed_up_at": "2026-02-26T22:33:03.734677+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260219-0071.jpg",
+      "backed_up_at": "2026-02-26T22:33:04.001942+00:00"
+    }
+  }
 }

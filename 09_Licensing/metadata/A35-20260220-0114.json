@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Meadow Between Peaks",
-  "description": "A sweeping panoramic vista capturing the dramatic interplay between verdant alpine meadows and jagged limestone peaks. This ultra-high-resolution image reveals exceptional detail across the entire composition—from delicate wildflower textures in the foreground to intricate geological formations in the distant ranges—making it ideal for large-format fine art prints and expansive commercial installations.",
+  "description": "A sweeping panoramic vista capturing the dramatic interplay between verdant alpine meadows and jagged limestone peaks. This ultra-high-resolution image reveals exceptional detail across the entire composition\u2014from delicate wildflower textures in the foreground to intricate geological formations in the distant ranges\u2014making it ideal for large-format fine art prints and expansive commercial installations.",
   "location": "Tre Cime di Lavaredo National Park, Dolomites, Veneto, Italy",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0114.jpg",
     "thumbnail": "thumbnails/A35-20260220-0114.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.403085+00:00"
+  "scanned_at": "2026-02-20T23:23:58.403085+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0114.jpg",
+      "backed_up_at": "2026-02-26T22:22:09.407523+00:00",
+      "md5": "45e52f468a6416deab5ee2609d39a528"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0114.jpg",
+      "backed_up_at": "2026-02-26T22:33:29.779382+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0114.jpg",
+      "backed_up_at": "2026-02-26T22:33:30.054842+00:00"
+    }
+  }
 }

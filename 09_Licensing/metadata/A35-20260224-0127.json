@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Solitary Figure, Vast Shore",
-  "description": "A contemplative panoramic study of an expansive black sand beach with rolling Pacific swells and dramatic cloud formations. This ultra-high-resolution image captures exceptional detail across the entire composition—from the fine gravel texture in the foreground to the atmospheric nuance of the overcast sky—offering remarkable print potential for large-scale fine art installations.",
+  "description": "A contemplative panoramic study of an expansive black sand beach with rolling Pacific swells and dramatic cloud formations. This ultra-high-resolution image captures exceptional detail across the entire composition\u2014from the fine gravel texture in the foreground to the atmospheric nuance of the overcast sky\u2014offering remarkable print potential for large-scale fine art installations.",
   "location": "Pacific Northwest Coast, Washington or Oregon, United States",
   "classification": "PREMIUM",
   "resolution": {
@@ -79,5 +79,23 @@
     "preview": "previews/A35-20260224-0127.jpg",
     "thumbnail": "thumbnails/A35-20260224-0127.jpg"
   },
-  "scanned_at": "2026-02-24T22:03:53.253970+00:00"
+  "scanned_at": "2026-02-24T22:03:53.253970+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260224-0127.jpg",
+      "backed_up_at": "2026-02-26T22:33:53.180642+00:00",
+      "md5": "bd3cff7f04618e6c3382ca3e0fd1a704"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260224-0127.jpg",
+      "backed_up_at": "2026-02-26T22:33:53.457376+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260224-0127.jpg",
+      "backed_up_at": "2026-02-26T22:33:53.842636+00:00"
+    }
+  }
 }

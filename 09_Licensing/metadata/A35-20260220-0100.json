@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Lake and Dolomite Peaks",
-  "description": "A commanding panoramic vista capturing the pristine clarity of an alpine lake basin, framed by dramatic Dolomite limestone peaks and dense coniferous forests. This ultra-high-resolution image preserves extraordinary detail across the entire composition—from foreground vegetation to distant mountain geology—making it ideal for large-scale fine art printing and immersive commercial installations.",
+  "description": "A commanding panoramic vista capturing the pristine clarity of an alpine lake basin, framed by dramatic Dolomite limestone peaks and dense coniferous forests. This ultra-high-resolution image preserves extraordinary detail across the entire composition\u2014from foreground vegetation to distant mountain geology\u2014making it ideal for large-scale fine art printing and immersive commercial installations.",
   "location": "Lago di braies, Dolomites, Veneto, Italy",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0100.jpg",
     "thumbnail": "thumbnails/A35-20260220-0100.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.389034+00:00"
+  "scanned_at": "2026-02-20T23:23:58.389034+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0100.jpg",
+      "backed_up_at": "2026-02-26T22:17:53.334798+00:00",
+      "md5": "93df6ec38530142178d59d10a3011b2d"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0100.jpg",
+      "backed_up_at": "2026-02-26T22:33:21.987572+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0100.jpg",
+      "backed_up_at": "2026-02-26T22:33:22.280597+00:00"
+    }
+  }
 }

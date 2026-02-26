@@ -682,5 +682,45 @@
     "thumbnail": "Wolf 6878-thumb.jpg",
     "full": "Wolf 6878-full.jpg",
     "c2pa": true
+  },
+  {
+    "id": "wolf_11035",
+    "filename": "Wolf 11035.jpg",
+    "title": "Unfurling Fern in Temperate Forest",
+    "description": "A delicate fern frond emerges in tight spirals, captured in intimate detail against a soft, verdant background. The intricate geometry of new growth reveals nature's patient architecture, where each coil holds the promise of expansion.",
+    "location": "Temperate Forest Region, Flowers and Leaves",
+    "tags": [
+      "fern-frond",
+      "plant-spiral",
+      "botanical-detail",
+      "macro-nature",
+      "temperate-forest",
+      "new-growth",
+      "woodland-flora",
+      "fine-art-photography",
+      "nature-close-up",
+      "natural-geometry",
+      "forest-detail",
+      "emerald-tones",
+      "organic-shapes",
+      "botanical-art",
+      "wall-art",
+      "home-decor",
+      "gallery-print",
+      "nature-photography",
+      "tranquil-subject",
+      "delicate-forms"
+    ],
+    "dimensions": {
+      "width": 8192,
+      "height": 5464,
+      "aspectRatio": 1.499,
+      "aspectRatioString": "1024:683",
+      "orientation": "landscape",
+      "megapixels": 44.8
+    },
+    "thumbnail": "Wolf 11035-thumb.jpg",
+    "full": "Wolf 11035-full.jpg",
+    "c2pa": true
   }
 ]

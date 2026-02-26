@@ -4,8 +4,8 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Shelter: Mountain Solitude",
-  "description": "A meticulously detailed ultra-high-resolution capture of a traditional stone alpenhütte nestled in the verdant Appenzell Alps, showcasing exceptional clarity that reveals the weathered texture of stacked stone walls, pastoral landscape layers, and dramatic limestone formations. This panoramic fine art image offers museum-quality print potential with stunning detail retention across the entire compositional range.",
-  "location": "Säntis Region, Appenzell Alps, Switzerland",
+  "description": "A meticulously detailed ultra-high-resolution capture of a traditional stone alpenh\u00fctte nestled in the verdant Appenzell Alps, showcasing exceptional clarity that reveals the weathered texture of stacked stone walls, pastoral landscape layers, and dramatic limestone formations. This panoramic fine art image offers museum-quality print potential with stunning detail retention across the entire compositional range.",
+  "location": "S\u00e4ntis Region, Appenzell Alps, Switzerland",
   "classification": "PREMIUM",
   "resolution": {
     "width": 12014,
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0097.jpg",
     "thumbnail": "thumbnails/A35-20260220-0097.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.386538+00:00"
+  "scanned_at": "2026-02-20T23:23:58.386538+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0097.jpg",
+      "backed_up_at": "2026-02-26T22:16:49.344026+00:00",
+      "md5": "1447281799579e88cb9304fd3df70ed8"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0097.jpg",
+      "backed_up_at": "2026-02-26T22:33:20.145299+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0097.jpg",
+      "backed_up_at": "2026-02-26T22:33:20.418449+00:00"
+    }
+  }
 }

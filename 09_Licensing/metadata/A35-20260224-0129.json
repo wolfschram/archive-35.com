@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260224-0129.jpg",
     "thumbnail": "thumbnails/A35-20260224-0129.jpg"
   },
-  "scanned_at": "2026-02-24T22:03:53.255587+00:00"
+  "scanned_at": "2026-02-24T22:03:53.255587+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260224-0129.jpg",
+      "backed_up_at": "2026-02-26T22:34:25.527085+00:00",
+      "md5": "1039bb14c24f29964498809a1980bde2"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260224-0129.jpg",
+      "backed_up_at": "2026-02-26T22:34:25.767073+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260224-0129.jpg",
+      "backed_up_at": "2026-02-26T22:34:26.259758+00:00"
+    }
+  }
 }

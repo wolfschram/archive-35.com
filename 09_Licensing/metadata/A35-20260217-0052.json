@@ -3,7 +3,7 @@
   "original_filename": "Wolf 4549.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Alpine Mirror: Snow and Reflection",
-  "description": "A breathtaking panoramic landscape capturing pristine snow-covered peaks mirrored in crystalline alpine waters, rendered in exceptional ultra-high-resolution detail. This fine art photograph reveals extraordinary clarity across the entire composition—ideal for large-format gallery prints and premium commercial licensing applications.",
+  "description": "A breathtaking panoramic landscape capturing pristine snow-covered peaks mirrored in crystalline alpine waters, rendered in exceptional ultra-high-resolution detail. This fine art photograph reveals extraordinary clarity across the entire composition\u2014ideal for large-format gallery prints and premium commercial licensing applications.",
   "location": "Mammoth, California, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -81,5 +81,23 @@
     "preview": "previews/A35-20260217-0052.jpg",
     "thumbnail": "thumbnails/A35-20260217-0052.jpg"
   },
-  "scanned_at": "2026-02-17T16:58:47.409076+00:00"
+  "scanned_at": "2026-02-17T16:58:47.409076+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260217-0052.jpg",
+      "backed_up_at": "2026-02-26T22:07:49.363853+00:00",
+      "md5": "c911b1321327c49e0c46173aeef585e8"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260217-0052.jpg",
+      "backed_up_at": "2026-02-26T22:32:52.923829+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260217-0052.jpg",
+      "backed_up_at": "2026-02-26T22:32:53.189833+00:00"
+    }
+  }
 }

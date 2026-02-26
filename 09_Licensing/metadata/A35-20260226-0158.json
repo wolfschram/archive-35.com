@@ -1,0 +1,104 @@
+{
+  "catalog_id": "A35-20260226-0158",
+  "original_filename": "Wolf 9403.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Granite Cliffs and Forest Cathedral",
+  "description": "A breathtaking panoramic vista of towering granite monoliths framing a pristine coniferous forest valley, captured with exceptional clarity and tonal range. This ultra-high-resolution image reveals stunning detail across the entire composition\u2014from the weathered columnar rock formations to individual tree textures\u2014making it ideal for large-format fine art prints and immersive gallery installations.",
+  "location": "Yosemite Valley, Yosemite National Park, California, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 30037,
+    "height": 11091
+  },
+  "megapixels": 333.1,
+  "aspect_ratio": 2.708,
+  "file_size_bytes": 171079035,
+  "file_size_mb": 163.2,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 100.1,
+    "height_in": 37,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 200.2,
+    "height_in": 73.9,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2024:07:06 16:36:39",
+    "FocalLength": "85.0",
+    "ExposureTime": "0.00015625",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF85mm F1.2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260226-0158.jpg",
+    "preview": "previews/A35-20260226-0158.jpg",
+    "thumbnail": "thumbnails/A35-20260226-0158.jpg"
+  },
+  "scanned_at": "2026-02-26T22:00:44.942823+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260226-0158.jpg",
+      "backed_up_at": "2026-02-26T22:40:35.268806+00:00",
+      "md5": "6970f2cec7a83349e5f88536f6caa816"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260226-0158.jpg",
+      "backed_up_at": "2026-02-26T22:40:35.834679+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260226-0158.jpg",
+      "backed_up_at": "2026-02-26T22:40:36.207108+00:00"
+    }
+  }
+}

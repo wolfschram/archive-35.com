@@ -1,0 +1,104 @@
+{
+  "catalog_id": "A35-20260226-0148",
+  "original_filename": "Wolf 10189.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Manhattan Skyline: Architectural Density",
+  "description": "A sweeping panoramic view of Manhattan's iconic skyline showcasing the dense concentration of architectural landmarks, from the Empire State Building to distant East River vistas. This ultra-high-resolution capture reveals exceptional detail across the entire composition, making it ideal for large-scale commercial installations, corporate lobbies, and immersive urban environments.",
+  "location": "Manhattan, New York City, New York, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 19123,
+    "height": 10271
+  },
+  "megapixels": 196.4,
+  "aspect_ratio": 1.862,
+  "file_size_bytes": 49949607,
+  "file_size_mb": 47.6,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 63.7,
+    "height_in": 34.2,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 127.5,
+    "height_in": 68.5,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5m2",
+    "DateTimeOriginal": "2024:10:08 13:13:43",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.0003125",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260226-0148.jpg",
+    "preview": "previews/A35-20260226-0148.jpg",
+    "thumbnail": "thumbnails/A35-20260226-0148.jpg"
+  },
+  "scanned_at": "2026-02-26T22:00:44.933432+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260226-0148.jpg",
+      "backed_up_at": "2026-02-26T22:37:44.163628+00:00",
+      "md5": "3acba9146406318ce157c5b3f050ebd1"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260226-0148.jpg",
+      "backed_up_at": "2026-02-26T22:37:44.465514+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260226-0148.jpg",
+      "backed_up_at": "2026-02-26T22:37:44.748021+00:00"
+    }
+  }
+}

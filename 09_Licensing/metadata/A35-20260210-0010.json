@@ -87,13 +87,13 @@
     },
     "preview": {
       "verified": true,
-      "r2_key": "previews/A35-20260210-0010.jpg",
-      "backed_up_at": "2026-02-12T17:40:23.625221+00:00"
+      "r2_key": "previews/black-and-white/WOLF3446-Edit.jpg",
+      "backed_up_at": "2026-02-26T22:32:27.534377+00:00"
     },
     "thumbnail": {
       "verified": true,
-      "r2_key": "thumbnails/A35-20260210-0010.jpg",
-      "backed_up_at": "2026-02-12T17:40:23.956590+00:00"
+      "r2_key": "thumbnails/black-and-white/WOLF3446-Edit.jpg",
+      "backed_up_at": "2026-02-26T22:32:27.803903+00:00"
     }
   },
   "collection": "black-and-white"

@@ -87,13 +87,13 @@
     },
     "preview": {
       "verified": true,
-      "r2_key": "previews/A35-20260210-0041.jpg",
-      "backed_up_at": "2026-02-12T17:47:17.384679+00:00"
+      "r2_key": "previews/grand-teton/WOLF7301.jpg",
+      "backed_up_at": "2026-02-26T22:32:46.319706+00:00"
     },
     "thumbnail": {
       "verified": true,
-      "r2_key": "thumbnails/A35-20260210-0041.jpg",
-      "backed_up_at": "2026-02-12T17:47:17.663538+00:00"
+      "r2_key": "thumbnails/grand-teton/WOLF7301.jpg",
+      "backed_up_at": "2026-02-26T22:32:46.596546+00:00"
     }
   },
   "collection": "grand-teton"

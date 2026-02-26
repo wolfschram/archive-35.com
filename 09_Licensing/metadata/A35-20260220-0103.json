@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Wilderness: Stone and Summit",
-  "description": "A sweeping panoramic vista across the dramatic Dolomite landscape, capturing the intricate texture of rocky alpine terrain in the foreground transitioning to soaring jagged peaks and distant mountain ranges. This ultra-high-resolution image reveals exceptional detail throughout—from individual stones and alpine vegetation to the crystalline definition of distant summits—making it ideal for large-scale fine art prints and immersive commercial installations.",
+  "description": "A sweeping panoramic vista across the dramatic Dolomite landscape, capturing the intricate texture of rocky alpine terrain in the foreground transitioning to soaring jagged peaks and distant mountain ranges. This ultra-high-resolution image reveals exceptional detail throughout\u2014from individual stones and alpine vegetation to the crystalline definition of distant summits\u2014making it ideal for large-scale fine art prints and immersive commercial installations.",
   "location": "Tre Cime di Lavaredo area, Dolomites, Veneto, Italy",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0103.jpg",
     "thumbnail": "thumbnails/A35-20260220-0103.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.392170+00:00"
+  "scanned_at": "2026-02-20T23:23:58.392170+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0103.jpg",
+      "backed_up_at": "2026-02-26T22:18:57.681432+00:00",
+      "md5": "32369a8676dc15f52e213c305aecb854"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0103.jpg",
+      "backed_up_at": "2026-02-26T22:33:23.771148+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0103.jpg",
+      "backed_up_at": "2026-02-26T22:33:24.039580+00:00"
+    }
+  }
 }

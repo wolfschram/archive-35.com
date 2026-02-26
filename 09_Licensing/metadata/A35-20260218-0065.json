@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Jackson Peak Alpine Meadow",
-  "description": "A sweeping panoramic vista of Glacier National Park's iconic Jackson Peak rising majestically above subalpine meadows and coniferous forest. This ultra-high-resolution image captures extraordinary detail across multiple landscape layers—from foreground wildflower meadows to distant glaciated peaks—offering exceptional print potential for large-format fine art applications and commercial licensing.",
+  "description": "A sweeping panoramic vista of Glacier National Park's iconic Jackson Peak rising majestically above subalpine meadows and coniferous forest. This ultra-high-resolution image captures extraordinary detail across multiple landscape layers\u2014from foreground wildflower meadows to distant glaciated peaks\u2014offering exceptional print potential for large-format fine art applications and commercial licensing.",
   "location": "Glacier National Park, Montana, USA (Jackson Peak area)",
   "classification": "PREMIUM",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260218-0065.jpg",
     "thumbnail": "thumbnails/A35-20260218-0065.jpg"
   },
-  "scanned_at": "2026-02-18T16:38:08.147470+00:00"
+  "scanned_at": "2026-02-18T16:38:08.147470+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260218-0065.jpg",
+      "backed_up_at": "2026-02-26T22:09:40.895635+00:00",
+      "md5": "5022585e304c351959ba640d4b3571ed"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260218-0065.jpg",
+      "backed_up_at": "2026-02-26T22:33:00.365572+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260218-0065.jpg",
+      "backed_up_at": "2026-02-26T22:33:00.676242+00:00"
+    }
+  }
 }

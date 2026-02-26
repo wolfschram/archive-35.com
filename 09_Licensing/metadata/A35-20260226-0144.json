@@ -1,0 +1,104 @@
+{
+  "catalog_id": "A35-20260226-0144",
+  "original_filename": "WOLF6158-Pano.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Sculpted Ridges of the High Desert",
+  "description": "A sweeping panoramic vista of intricately layered badlands with dramatic erosion patterns and stratified geological formations. This ultra-high-resolution image captures extraordinary detail across an expansive landscape, revealing the textural complexity of ancient rock formations in vivid tonality\u2014ideal for monumental large-format fine art prints and immersive gallery installations.",
+  "location": "Death Valley National Park, California, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 16443,
+    "height": 5768
+  },
+  "megapixels": 94.8,
+  "aspect_ratio": 2.851,
+  "file_size_bytes": 37483134,
+  "file_size_mb": 35.7,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 54.8,
+    "height_in": 19.2,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 109.6,
+    "height_in": 38.5,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5m2",
+    "DateTimeOriginal": "2025:12:28 10:41:28",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.0004",
+    "FNumber": "4.5",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260226-0144.jpg",
+    "preview": "previews/A35-20260226-0144.jpg",
+    "thumbnail": "thumbnails/A35-20260226-0144.jpg"
+  },
+  "scanned_at": "2026-02-26T22:00:44.929512+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260226-0144.jpg",
+      "backed_up_at": "2026-02-26T22:36:52.345201+00:00",
+      "md5": "a544c9cedce766df8b7816885e14a266"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260226-0144.jpg",
+      "backed_up_at": "2026-02-26T22:36:52.680139+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260226-0144.jpg",
+      "backed_up_at": "2026-02-26T22:36:53.149155+00:00"
+    }
+  }
+}

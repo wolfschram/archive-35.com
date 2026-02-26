@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Joshua Tree Desert Convergence",
-  "description": "A vast desert panorama capturing the sculptural geometry of Joshua trees scattered across an expansive arid landscape, with dramatic storm clouds gathering overhead. This ultra-high-resolution image reveals exceptional detail across the entire composition—from the intricate texture of desert scrub vegetation to the nuanced tonal gradations of the sky—making it ideal for large-format fine art prints and immersive commercial installations.",
+  "description": "A vast desert panorama capturing the sculptural geometry of Joshua trees scattered across an expansive arid landscape, with dramatic storm clouds gathering overhead. This ultra-high-resolution image reveals exceptional detail across the entire composition\u2014from the intricate texture of desert scrub vegetation to the nuanced tonal gradations of the sky\u2014making it ideal for large-format fine art prints and immersive commercial installations.",
   "location": "Joshua Tree National Park, San Bernardino County, California, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0077.jpg",
     "thumbnail": "thumbnails/A35-20260220-0077.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.366017+00:00"
+  "scanned_at": "2026-02-20T23:23:58.366017+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0077.jpg",
+      "backed_up_at": "2026-02-26T22:11:40.234787+00:00",
+      "md5": "d3ee29e37fbebe19a21b4d9d95f00815"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0077.jpg",
+      "backed_up_at": "2026-02-26T22:33:07.474243+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0077.jpg",
+      "backed_up_at": "2026-02-26T22:33:07.779796+00:00"
+    }
+  }
 }

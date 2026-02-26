@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Passage Through Mountain Wilderness",
-  "description": "A breathtaking panoramic vista capturing a dramatic mountain road carved into sheer cliffside, overlooking a vast forested valley framed by jagged alpine peaks. The ultra-high-resolution capture preserves exquisite detail across the entire composition—from the precise road markings and layered geological formations to the fine texture of dense conifer forests and distant mountain ridges—making this image exceptionally suited for large-format fine art prints and expansive commercial installations.",
+  "description": "A breathtaking panoramic vista capturing a dramatic mountain road carved into sheer cliffside, overlooking a vast forested valley framed by jagged alpine peaks. The ultra-high-resolution capture preserves exquisite detail across the entire composition\u2014from the precise road markings and layered geological formations to the fine texture of dense conifer forests and distant mountain ridges\u2014making this image exceptionally suited for large-format fine art prints and expansive commercial installations.",
   "location": "Going-to-the-Sun Road, Glacier National Park, Montana, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260217-0062.jpg",
     "thumbnail": "thumbnails/A35-20260217-0062.jpg"
   },
-  "scanned_at": "2026-02-17T23:20:18.386097+00:00"
+  "scanned_at": "2026-02-17T23:20:18.386097+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260217-0062.jpg",
+      "backed_up_at": "2026-02-26T22:09:09.804849+00:00",
+      "md5": "c20faffc7c349efdec0c862cec783b8c"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260217-0062.jpg",
+      "backed_up_at": "2026-02-26T22:32:58.719235+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260217-0062.jpg",
+      "backed_up_at": "2026-02-26T22:32:58.977889+00:00"
+    }
+  }
 }

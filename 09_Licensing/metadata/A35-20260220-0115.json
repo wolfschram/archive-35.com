@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Grand Canal Perspective",
-  "description": "An expansive view of Venice's iconic Grand Canal framed by Renaissance palaces and Byzantine architecture, captured in ultra-high resolution revealing intricate architectural details across multiple façades. This panoramic composition showcases the interplay of water, historic stone, and spatial depth, ideal for large-format fine art prints and commercial licensing applications requiring exceptional tonal and detail clarity.",
+  "description": "An expansive view of Venice's iconic Grand Canal framed by Renaissance palaces and Byzantine architecture, captured in ultra-high resolution revealing intricate architectural details across multiple fa\u00e7ades. This panoramic composition showcases the interplay of water, historic stone, and spatial depth, ideal for large-format fine art prints and commercial licensing applications requiring exceptional tonal and detail clarity.",
   "location": "Grand Canal, Venice, Italy",
   "classification": "PREMIUM",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0115.jpg",
     "thumbnail": "thumbnails/A35-20260220-0115.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.403878+00:00"
+  "scanned_at": "2026-02-20T23:23:58.403878+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0115.jpg",
+      "backed_up_at": "2026-02-26T22:22:19.606213+00:00",
+      "md5": "b308631687a9daaa10b49c35901685af"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0115.jpg",
+      "backed_up_at": "2026-02-26T22:33:30.400583+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0115.jpg",
+      "backed_up_at": "2026-02-26T22:33:30.670680+00:00"
+    }
+  }
 }

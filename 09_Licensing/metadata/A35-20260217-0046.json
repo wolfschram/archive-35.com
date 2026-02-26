@@ -3,7 +3,7 @@
   "original_filename": "Wolf 3303.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Desert Lake Horizon",
-  "description": "A vast, contemplative panorama capturing the serene intersection of still water and arid mountains. This ultra-high-resolution image reveals extraordinary detail across the expansive landscape—from the subtle texture of the lakebed to the layered geological formations beyond—making it ideal for large-format fine art printing and immersive commercial applications.",
+  "description": "A vast, contemplative panorama capturing the serene intersection of still water and arid mountains. This ultra-high-resolution image reveals extraordinary detail across the expansive landscape\u2014from the subtle texture of the lakebed to the layered geological formations beyond\u2014making it ideal for large-format fine art printing and immersive commercial applications.",
   "location": "Race track Death Valley National Park, Inyo County, California, USA",
   "classification": "PREMIUM",
   "resolution": {
@@ -81,5 +81,23 @@
     "preview": "previews/A35-20260217-0046.jpg",
     "thumbnail": "thumbnails/A35-20260217-0046.jpg"
   },
-  "scanned_at": "2026-02-17T16:58:47.403618+00:00"
+  "scanned_at": "2026-02-17T16:58:47.403618+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260217-0046.jpg",
+      "backed_up_at": "2026-02-26T22:06:46.894687+00:00",
+      "md5": "c3ed23baedfd1c154a347ead6787b0df"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260217-0046.jpg",
+      "backed_up_at": "2026-02-26T22:32:49.192640+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260217-0046.jpg",
+      "backed_up_at": "2026-02-26T22:32:49.469710+00:00"
+    }
+  }
 }

@@ -82,5 +82,23 @@
     "thumbnail": "thumbnails/death-valley/Wolf 3375-Pano.jpg"
   },
   "scanned_at": "2026-02-17T16:58:47.405614+00:00",
-  "collection": "death-valley"
+  "collection": "death-valley",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "death-valley/Wolf 3375-Pano.jpg",
+      "backed_up_at": "2026-02-26T22:07:00.275321+00:00",
+      "md5": "0ccaa50475d9a26426b3fe2855c689d3"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/death-valley/Wolf 3375-Pano.jpg",
+      "backed_up_at": "2026-02-26T22:32:50.444985+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/death-valley/Wolf 3375-Pano.jpg",
+      "backed_up_at": "2026-02-26T22:32:50.792492+00:00"
+    }
+  }
 }

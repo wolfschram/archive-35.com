@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Desert Passage Through Stone",
-  "description": "A commanding ultra-high-resolution panoramic capture of an arid landscape punctuated by dramatic geological formations. The exceptional detail and scale of this fine art image reveals intricate textures of desert terrain, layered rock formations, and sparse vegetation—ideal for large-format gallery prints and premium commercial licensing applications.",
+  "description": "A commanding ultra-high-resolution panoramic capture of an arid landscape punctuated by dramatic geological formations. The exceptional detail and scale of this fine art image reveals intricate textures of desert terrain, layered rock formations, and sparse vegetation\u2014ideal for large-format gallery prints and premium commercial licensing applications.",
   "location": "Vasques Rocks  California, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0084.jpg",
     "thumbnail": "thumbnails/A35-20260220-0084.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.374222+00:00"
+  "scanned_at": "2026-02-20T23:23:58.374222+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0084.jpg",
+      "backed_up_at": "2026-02-26T22:12:58.983151+00:00",
+      "md5": "5883ddfc833ec78181bd22a3406be06d"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0084.jpg",
+      "backed_up_at": "2026-02-26T22:33:11.463244+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0084.jpg",
+      "backed_up_at": "2026-02-26T22:33:11.762526+00:00"
+    }
+  }
 }

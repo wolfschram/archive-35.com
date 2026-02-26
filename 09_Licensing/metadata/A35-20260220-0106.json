@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Tre Cime Alpine Cathedral",
-  "description": "A majestic panoramic capture of the Tre Cime di Lavaredo's iconic limestone towers rising dramatically above the Sorau Valley floor. This ultra-high-resolution image reveals extraordinary detail across the expansive alpine landscape—from intricate rock striations to distant peak textures—making it ideal for large-format fine art printing and premium commercial licensing applications.",
+  "description": "A majestic panoramic capture of the Tre Cime di Lavaredo's iconic limestone towers rising dramatically above the Sorau Valley floor. This ultra-high-resolution image reveals extraordinary detail across the expansive alpine landscape\u2014from intricate rock striations to distant peak textures\u2014making it ideal for large-format fine art printing and premium commercial licensing applications.",
   "location": "Tre Cime di Lavaredo, Cortina d'Ampezzo, Dolomites, Veneto, Italy",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0106.jpg",
     "thumbnail": "thumbnails/A35-20260220-0106.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.395802+00:00"
+  "scanned_at": "2026-02-20T23:23:58.395802+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0106.jpg",
+      "backed_up_at": "2026-02-26T22:19:52.605346+00:00",
+      "md5": "f94705cdb0fb65e3764069e2d51ecd7c"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0106.jpg",
+      "backed_up_at": "2026-02-26T22:33:25.341491+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0106.jpg",
+      "backed_up_at": "2026-02-26T22:33:25.611323+00:00"
+    }
+  }
 }

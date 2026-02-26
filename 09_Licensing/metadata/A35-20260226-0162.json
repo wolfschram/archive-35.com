@@ -1,0 +1,104 @@
+{
+  "catalog_id": "A35-20260226-0162",
+  "original_filename": "Wolf 9804.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Urban Canyons: Vertical Perspective",
+  "description": "A commanding upward perspective of a metropolitan skyline capturing the geometric interplay of modernist skyscrapers converging toward clear sky. This ultra-high-resolution capture reveals exceptional architectural detail\u2014window patterns, structural lines, and material textures\u2014ideal for large-format installations in corporate spaces, gallery exhibitions, and immersive commercial environments.",
+  "location": "Chicago New York City, USA",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 11804,
+    "height": 7226
+  },
+  "megapixels": 85.3,
+  "aspect_ratio": 1.634,
+  "file_size_bytes": 20342962,
+  "file_size_mb": 19.4,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 39.3,
+    "height_in": 24.1,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 78.7,
+    "height_in": 48.2,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5m2",
+    "DateTimeOriginal": "2024:09:03 13:22:34",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.0008",
+    "FNumber": "2.5",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260226-0162.jpg",
+    "preview": "previews/A35-20260226-0162.jpg",
+    "thumbnail": "thumbnails/A35-20260226-0162.jpg"
+  },
+  "scanned_at": "2026-02-26T22:00:44.946553+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260226-0162.jpg",
+      "backed_up_at": "2026-02-26T22:41:34.205756+00:00",
+      "md5": "b568ea1db0fc50525e698e43592f7723"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260226-0162.jpg",
+      "backed_up_at": "2026-02-26T22:41:34.616921+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260226-0162.jpg",
+      "backed_up_at": "2026-02-26T22:41:34.972818+00:00"
+    }
+  }
+}

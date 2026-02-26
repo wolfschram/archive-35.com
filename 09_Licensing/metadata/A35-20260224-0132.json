@@ -3,9 +3,9 @@
   "original_filename": "Wolf 8540.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "Snow-Capped Ranges Reflected in Desert Basin",
+  "description": "A pristine panoramic vista capturing a snow-laden mountain range mirrored in still desert waters, with expansive salt flats and sparse vegetation in the foreground. This ultra-high-resolution image reveals extraordinary detail across the entire composition\u2014from fine sediment patterns in the foreground to distant alpine peaks\u2014making it exceptional for large-format fine art printing and immersive architectural installations.",
+  "location": "Death Valley National Park, California (Badwater Basin area) or similar high-desert alkali lake basin, southwestern United States",
   "classification": "PREMIUM",
   "resolution": {
     "width": 12242,
@@ -28,7 +28,7 @@
   },
   "max_print_150dpi": {
     "width_in": 81.6,
-    "height_in": 45.0,
+    "height_in": 45,
     "dpi": 150
   },
   "exif": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260224-0132.jpg",
     "thumbnail": "thumbnails/A35-20260224-0132.jpg"
   },
-  "scanned_at": "2026-02-24T22:03:53.257841+00:00"
+  "scanned_at": "2026-02-24T22:03:53.257841+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260224-0132.jpg",
+      "backed_up_at": "2026-02-26T22:34:56.187811+00:00",
+      "md5": "3c360001aeebccbb1e4dbbc1d4bbdb6a"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260224-0132.jpg",
+      "backed_up_at": "2026-02-26T22:34:56.502841+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260224-0132.jpg",
+      "backed_up_at": "2026-02-26T22:34:56.768283+00:00"
+    }
+  }
 }

@@ -3,7 +3,7 @@
   "original_filename": "Wolf 4538.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Desert Road Toward Mountain Light",
-  "description": "A sweeping panoramic vista capturing a pristine desert highway stretching toward snow-capped peaks, rendered in exceptional ultra-high-resolution detail. The expansive composition reveals extraordinary clarity across the entire frame—from intimate sagebrush textures in the foreground to distant alpine ridges—making this image ideal for large-format fine art printing and commercial applications demanding maximum visual impact.",
+  "description": "A sweeping panoramic vista capturing a pristine desert highway stretching toward snow-capped peaks, rendered in exceptional ultra-high-resolution detail. The expansive composition reveals extraordinary clarity across the entire frame\u2014from intimate sagebrush textures in the foreground to distant alpine ridges\u2014making this image ideal for large-format fine art printing and commercial applications demanding maximum visual impact.",
   "location": "California, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -81,5 +81,23 @@
     "preview": "previews/A35-20260217-0050.jpg",
     "thumbnail": "thumbnails/A35-20260217-0050.jpg"
   },
-  "scanned_at": "2026-02-17T16:58:47.407419+00:00"
+  "scanned_at": "2026-02-17T16:58:47.407419+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260217-0050.jpg",
+      "backed_up_at": "2026-02-26T22:07:28.879690+00:00",
+      "md5": "ae3c2aae773f5febb93484a5219c2249"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260217-0050.jpg",
+      "backed_up_at": "2026-02-26T22:32:51.807804+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260217-0050.jpg",
+      "backed_up_at": "2026-02-26T22:32:52.078695+00:00"
+    }
+  }
 }

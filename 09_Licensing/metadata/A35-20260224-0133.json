@@ -3,9 +3,9 @@
   "original_filename": "Wolf 8541.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "Alpine Reflection and Desert Solitude",
+  "description": "A stunning panoramic composition capturing a pristine salt flat mirror reflecting snow-capped mountains under vast desert skies. This ultra-high-resolution image reveals exceptional detail across the entire landscape\u2014from crystalline salt deposits in the foreground to distant alpine peaks\u2014making it ideal for large-scale fine art printing and immersive gallery installations.",
+  "location": "Death Valley National Park, California (Badwater Basin area) or similar high-altitude desert salt flat, Western United States",
   "classification": "PREMIUM",
   "resolution": {
     "width": 10370,
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260224-0133.jpg",
     "thumbnail": "thumbnails/A35-20260224-0133.jpg"
   },
-  "scanned_at": "2026-02-24T22:03:53.258601+00:00"
+  "scanned_at": "2026-02-24T22:03:53.258601+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260224-0133.jpg",
+      "backed_up_at": "2026-02-26T22:35:01.255948+00:00",
+      "md5": "98476687e44ca0fc0f38ba9039366ea7"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260224-0133.jpg",
+      "backed_up_at": "2026-02-26T22:35:01.635438+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260224-0133.jpg",
+      "backed_up_at": "2026-02-26T22:35:01.928736+00:00"
+    }
+  }
 }

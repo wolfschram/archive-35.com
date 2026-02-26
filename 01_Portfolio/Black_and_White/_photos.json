@@ -1,5 +1,45 @@
 [
   {
+    "id": "104a9593-enhanced-nr",
+    "filename": "104A9593-Enhanced-NR.jpg",
+    "title": "Sentinel Dishes Across the Plain",
+    "description": "A striking alignment of massive radio telescope dishes stretches across an arid high-altitude plain, their geometric forms creating a powerful dialogue between human technology and vast landscape. This monumental installation speaks to humanity's quest to reach beyond the terrestrial realm, set against rolling mountains and expansive grassland.",
+    "location": "Very Large Array, Socorro, New Mexico, Black and White Region",
+    "tags": [
+      "radio-telescope",
+      "very-large-array",
+      "technology-landscape",
+      "astronomical-observatory",
+      "desert-plain",
+      "geometric-forms",
+      "high-altitude",
+      "monumental-architecture",
+      "arid-landscape",
+      "fine-art-photography",
+      "landscape-photography",
+      "black-and-white-photography",
+      "new-mexico",
+      "dramatic-composition",
+      "scientific-infrastructure",
+      "expansive-vista",
+      "human-achievement",
+      "wall-art",
+      "gallery-print",
+      "nature-and-technology"
+    ],
+    "dimensions": {
+      "width": 7848,
+      "height": 5235,
+      "aspectRatio": 1.499,
+      "aspectRatioString": "2616:1745",
+      "orientation": "landscape",
+      "megapixels": 41.1
+    },
+    "thumbnail": "104A9593-Enhanced-NR-thumb.jpg",
+    "full": "104A9593-Enhanced-NR-full.jpg",
+    "c2pa": true
+  },
+  {
     "id": "118a0498-enhanced-nr",
     "filename": "118A0498-Enhanced-NR.jpg",
     "title": "Elephant Herd Across the Savanna",
@@ -1777,46 +1817,6 @@
     "c2pa": true
   },
   {
-    "id": "104a9593-enhanced-nr",
-    "filename": "104A9593-Enhanced-NR.jpg",
-    "title": "Sentinel Dishes Across the Plain",
-    "description": "A striking alignment of massive radio telescope dishes stretches across an arid high-altitude plain, their geometric forms creating a powerful dialogue between human technology and vast landscape. This monumental installation speaks to humanity's quest to reach beyond the terrestrial realm, set against rolling mountains and expansive grassland.",
-    "location": "Very Large Array, Socorro, New Mexico, Black and White Region",
-    "tags": [
-      "radio-telescope",
-      "very-large-array",
-      "technology-landscape",
-      "astronomical-observatory",
-      "desert-plain",
-      "geometric-forms",
-      "high-altitude",
-      "monumental-architecture",
-      "arid-landscape",
-      "fine-art-photography",
-      "landscape-photography",
-      "black-and-white-photography",
-      "new-mexico",
-      "dramatic-composition",
-      "scientific-infrastructure",
-      "expansive-vista",
-      "human-achievement",
-      "wall-art",
-      "gallery-print",
-      "nature-and-technology"
-    ],
-    "dimensions": {
-      "width": 7848,
-      "height": 5235,
-      "aspectRatio": 1.499,
-      "aspectRatioString": "2616:1745",
-      "orientation": "landscape",
-      "megapixels": 41.1
-    },
-    "thumbnail": "104A9593-Enhanced-NR-thumb.jpg",
-    "full": "104A9593-Enhanced-NR-full.jpg",
-    "c2pa": true
-  },
-  {
     "id": "wolf_7723",
     "filename": "Wolf 7723.jpg",
     "title": "Monument Reflected in Stillness",
@@ -1854,6 +1854,46 @@
     },
     "thumbnail": "Wolf 7723-thumb.jpg",
     "full": "Wolf 7723-full.jpg",
+    "c2pa": true
+  },
+  {
+    "id": "wolf_9807",
+    "filename": "Wolf 9807.jpg",
+    "title": "Urban Geometry Under Steel",
+    "description": "A striking architectural study of elevated infrastructure framing a vibrant street corridor. The geometric interplay of steel beams and structural elements creates dramatic patterns while street-level commerce and pedestrian life unfold beneath, capturing the layered complexity of modern urban space.",
+    "location": "Wells Street, Chicago, Illinois",
+    "tags": [
+      "elevated-infrastructure",
+      "urban-architecture",
+      "street-photography",
+      "black-and-white",
+      "chicago-landmark",
+      "architectural-geometry",
+      "steel-structure",
+      "urban-landscape",
+      "fine-art-photography",
+      "downtown-chicago",
+      "pedestrian-street",
+      "commercial-district",
+      "structural-patterns",
+      "contrast-rich",
+      "monochrome-photography",
+      "city-life",
+      "industrial-aesthetic",
+      "wall-art",
+      "gallery-print",
+      "canvas-art"
+    ],
+    "dimensions": {
+      "width": 10000,
+      "height": 4212,
+      "aspectRatio": 2.374,
+      "aspectRatioString": "2500:1053",
+      "orientation": "panorama",
+      "megapixels": 42.1
+    },
+    "thumbnail": "Wolf 9807-thumb.jpg",
+    "full": "Wolf 9807-full.jpg",
     "c2pa": true
   }
 ]

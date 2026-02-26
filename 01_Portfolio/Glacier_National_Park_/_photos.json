@@ -1,5 +1,45 @@
 [
   {
+    "id": "wolf_5143",
+    "filename": "Wolf 5143.jpg",
+    "title": "Mountain Peaks Over Stillwater",
+    "description": "Majestic peaks rise dramatically above a pristine alpine lake, their sculpted forms reflected in glassy waters. Storm clouds gather overhead while golden light breaks through the mountainous landscape, creating a powerful interplay of shadow and illumination across Glacier National Park's iconic terrain.",
+    "location": "Swiftcurrent Lake, Many Glacier Valley, Glacier National Park",
+    "tags": [
+      "glacier-national-park",
+      "mountain-landscape",
+      "alpine-lake",
+      "dramatic-peaks",
+      "fine-art-photography",
+      "nature-photography",
+      "montana-landscape",
+      "pristine-wilderness",
+      "mountain-reflection",
+      "storm-clouds",
+      "glacier-peaks",
+      "landscape-wall-art",
+      "canvas-print",
+      "home-decor",
+      "gallery-worthy",
+      "moody-atmosphere",
+      "majestic-scenery",
+      "coniferous-forest",
+      "azure-waters",
+      "golden-light"
+    ],
+    "dimensions": {
+      "width": 10000,
+      "height": 3978,
+      "aspectRatio": 2.514,
+      "aspectRatioString": "5000:1989",
+      "orientation": "panorama",
+      "megapixels": 39.8
+    },
+    "thumbnail": "Wolf 5143-thumb.jpg",
+    "full": "Wolf 5143-full.jpg",
+    "c2pa": true
+  },
+  {
     "id": "wolf_5075",
     "filename": "Wolf 5075.jpg",
     "title": "Lake McDonald's Serene Reflection",
@@ -720,46 +760,6 @@
     },
     "thumbnail": "Wolf 5137-thumb.jpg",
     "full": "Wolf 5137-full.jpg",
-    "c2pa": true
-  },
-  {
-    "id": "wolf_5143",
-    "filename": "Wolf 5143.jpg",
-    "title": "Mountain Peaks Over Stillwater",
-    "description": "Majestic peaks rise dramatically above a pristine alpine lake, their sculpted forms reflected in glassy waters. Storm clouds gather overhead while golden light breaks through the mountainous landscape, creating a powerful interplay of shadow and illumination across Glacier National Park's iconic terrain.",
-    "location": "Swiftcurrent Lake, Many Glacier Valley, Glacier National Park",
-    "tags": [
-      "glacier-national-park",
-      "mountain-landscape",
-      "alpine-lake",
-      "dramatic-peaks",
-      "fine-art-photography",
-      "nature-photography",
-      "montana-landscape",
-      "pristine-wilderness",
-      "mountain-reflection",
-      "storm-clouds",
-      "glacier-peaks",
-      "landscape-wall-art",
-      "canvas-print",
-      "home-decor",
-      "gallery-worthy",
-      "moody-atmosphere",
-      "majestic-scenery",
-      "coniferous-forest",
-      "azure-waters",
-      "golden-light"
-    ],
-    "dimensions": {
-      "width": 10000,
-      "height": 3978,
-      "aspectRatio": 2.514,
-      "aspectRatioString": "5000:1989",
-      "orientation": "panorama",
-      "megapixels": 39.8
-    },
-    "thumbnail": "Wolf 5143-thumb.jpg",
-    "full": "Wolf 5143-full.jpg",
     "c2pa": true
   },
   {

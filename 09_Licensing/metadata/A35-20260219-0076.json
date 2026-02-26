@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Gilded Hall of Symmetry",
-  "description": "A masterfully composed architectural panorama capturing the soaring wooden barrel-vault ceiling and geometric floor patterns of this grand institutional interior. The ultra-high-resolution capture reveals exceptional detail throughout the expansive space—from the intricate coffered ceiling to the polished terrazzo floors—making this image ideal for large-format fine art prints and commercial architectural applications.",
+  "description": "A masterfully composed architectural panorama capturing the soaring wooden barrel-vault ceiling and geometric floor patterns of this grand institutional interior. The ultra-high-resolution capture reveals exceptional detail throughout the expansive space\u2014from the intricate coffered ceiling to the polished terrazzo floors\u2014making this image ideal for large-format fine art prints and commercial architectural applications.",
   "location": "Union Station, Los Angeles, California, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260219-0076.jpg",
     "thumbnail": "thumbnails/A35-20260219-0076.jpg"
   },
-  "scanned_at": "2026-02-19T01:39:42.836440+00:00"
+  "scanned_at": "2026-02-19T01:39:42.836440+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260219-0076.jpg",
+      "backed_up_at": "2026-02-26T22:11:29.822982+00:00",
+      "md5": "d4f5a5675c3c0585f89c61a4fce10114"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260219-0076.jpg",
+      "backed_up_at": "2026-02-26T22:33:06.868659+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260219-0076.jpg",
+      "backed_up_at": "2026-02-26T22:33:07.195575+00:00"
+    }
+  }
 }

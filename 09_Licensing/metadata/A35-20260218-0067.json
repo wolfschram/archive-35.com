@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Meadow with Distant Peaks",
-  "description": "A sweeping panoramic vista capturing the majesty of Glacier National Park's pristine meadowlands framed by dramatic mountain architecture. This ultra-high-resolution image reveals exceptional detail across the full composition—from foreground alpine grasses to the intricate geological formations of the distant peaks—offering extraordinary potential for large-format fine art prints and editorial licensing.",
+  "description": "A sweeping panoramic vista capturing the majesty of Glacier National Park's pristine meadowlands framed by dramatic mountain architecture. This ultra-high-resolution image reveals exceptional detail across the full composition\u2014from foreground alpine grasses to the intricate geological formations of the distant peaks\u2014offering extraordinary potential for large-format fine art prints and editorial licensing.",
   "location": "Glacier National Park, Montana, USA",
   "classification": "PREMIUM",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260218-0067.jpg",
     "thumbnail": "thumbnails/A35-20260218-0067.jpg"
   },
-  "scanned_at": "2026-02-18T16:38:08.149657+00:00"
+  "scanned_at": "2026-02-18T16:38:08.149657+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260218-0067.jpg",
+      "backed_up_at": "2026-02-26T22:09:54.342678+00:00",
+      "md5": "832315c11e56d09036c1c641e88571bd"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260218-0067.jpg",
+      "backed_up_at": "2026-02-26T22:33:01.548207+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260218-0067.jpg",
+      "backed_up_at": "2026-02-26T22:33:01.817246+00:00"
+    }
+  }
 }

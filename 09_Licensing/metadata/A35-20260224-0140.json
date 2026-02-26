@@ -3,9 +3,9 @@
   "original_filename": "Wolf 8630.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "Mineral Palette: Desert Badlands",
+  "description": "A striking panoramic study of dramatically stratified badlands revealing nature's mineral composition through rich earth tones\u2014from golden ochre to deep burgundy and pale cream. The ultra-high-resolution capture reveals extraordinary detail in eroded geological layers and scattered desert stones, ideal for immersive large-format installations and gallery-scale fine art prints.",
+  "location": "Death Valley National Park, California, USA",
   "classification": "PREMIUM",
   "resolution": {
     "width": 11245,
@@ -27,7 +27,7 @@
     "dpi": 300
   },
   "max_print_150dpi": {
-    "width_in": 75.0,
+    "width_in": 75,
     "height_in": 35.7,
     "dpi": 150
   },
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260224-0140.jpg",
     "thumbnail": "thumbnails/A35-20260224-0140.jpg"
   },
-  "scanned_at": "2026-02-24T22:03:53.263648+00:00"
+  "scanned_at": "2026-02-24T22:03:53.263648+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260224-0140.jpg",
+      "backed_up_at": "2026-02-26T22:36:16.189430+00:00",
+      "md5": "bfefd2ea2757c22bb29ad336848e7189"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260224-0140.jpg",
+      "backed_up_at": "2026-02-26T22:36:16.458413+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260224-0140.jpg",
+      "backed_up_at": "2026-02-26T22:36:16.760493+00:00"
+    }
+  }
 }

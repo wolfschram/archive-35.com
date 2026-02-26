@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Lake Beneath Dolomite Spires",
-  "description": "A breathtaking panoramic composition capturing the dramatic vertical geology of the Dolomites meeting serene alpine waters. This ultra-high-resolution capture reveals extraordinary detail across the entire frame—from delicate alpine meadow textures in the foreground to crisp geological stratification in the distant peaks—making it ideal for large-format fine art prints and commercial licensing applications.",
+  "description": "A breathtaking panoramic composition capturing the dramatic vertical geology of the Dolomites meeting serene alpine waters. This ultra-high-resolution capture reveals extraordinary detail across the entire frame\u2014from delicate alpine meadow textures in the foreground to crisp geological stratification in the distant peaks\u2014making it ideal for large-format fine art prints and commercial licensing applications.",
   "location": "Tre Cime di Lavaredo, Dolomites, Veneto, Italy",
   "classification": "PREMIUM",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0111.jpg",
     "thumbnail": "thumbnails/A35-20260220-0111.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.400776+00:00"
+  "scanned_at": "2026-02-20T23:23:58.400776+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0111.jpg",
+      "backed_up_at": "2026-02-26T22:20:56.842680+00:00",
+      "md5": "02f2608a231c710f967ff51256bbcb96"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0111.jpg",
+      "backed_up_at": "2026-02-26T22:33:28.136466+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0111.jpg",
+      "backed_up_at": "2026-02-26T22:33:28.449472+00:00"
+    }
+  }
 }

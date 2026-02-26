@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Lake with Glacier Peak",
-  "description": "A breathtaking panoramic capture of a pristine alpine lake framed by towering coniferous forests and dramatic glaciated peaks. This ultra-high-resolution image reveals exceptional detail across the entire composition—from the subtle ripples on the water's surface to the delicate texture of the evergreen canopy and distant mountain geology—making it ideal for large-format fine art prints and premium commercial licensing applications.",
+  "description": "A breathtaking panoramic capture of a pristine alpine lake framed by towering coniferous forests and dramatic glaciated peaks. This ultra-high-resolution image reveals exceptional detail across the entire composition\u2014from the subtle ripples on the water's surface to the delicate texture of the evergreen canopy and distant mountain geology\u2014making it ideal for large-format fine art prints and premium commercial licensing applications.",
   "location": "Lake McDonald, Glacier National Park, Montana, USA",
   "classification": "PREMIUM",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260219-0073.jpg",
     "thumbnail": "thumbnails/A35-20260219-0073.jpg"
   },
-  "scanned_at": "2026-02-19T01:39:42.833176+00:00"
+  "scanned_at": "2026-02-19T01:39:42.833176+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260219-0073.jpg",
+      "backed_up_at": "2026-02-26T22:10:48.791711+00:00",
+      "md5": "6656620836435b3f87992f0d0dd25e58"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260219-0073.jpg",
+      "backed_up_at": "2026-02-26T22:33:04.904326+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260219-0073.jpg",
+      "backed_up_at": "2026-02-26T22:33:05.228156+00:00"
+    }
+  }
 }

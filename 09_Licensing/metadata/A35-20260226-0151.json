@@ -1,0 +1,104 @@
+{
+  "catalog_id": "A35-20260226-0151",
+  "original_filename": "Wolf 11018.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Storm Light Over Rocky Coast",
+  "description": "A dramatic panoramic seascape capturing towering storm clouds illuminated by golden light over a rocky coastline, with exceptional atmospheric detail and luminous cloud formations. This ultra-high-resolution image reveals intricate textures in both the dramatic sky and weathered geological formations, ideal for large-format fine art printing and immersive gallery installations.",
+  "location": "Hawaii Big Island ",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 17354,
+    "height": 6521
+  },
+  "megapixels": 113.2,
+  "aspect_ratio": 2.661,
+  "file_size_bytes": 37298732,
+  "file_size_mb": 35.6,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 57.8,
+    "height_in": 21.7,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 115.7,
+    "height_in": 43.5,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5m2",
+    "DateTimeOriginal": "2025:04:04 09:03:37",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.008",
+    "FNumber": "2.5",
+    "ISOSpeedRatings": 400,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260226-0151.jpg",
+    "preview": "previews/A35-20260226-0151.jpg",
+    "thumbnail": "thumbnails/A35-20260226-0151.jpg"
+  },
+  "scanned_at": "2026-02-26T22:00:44.936116+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260226-0151.jpg",
+      "backed_up_at": "2026-02-26T22:38:15.243753+00:00",
+      "md5": "0c8501ac172e60aef50529b9e7569a43"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260226-0151.jpg",
+      "backed_up_at": "2026-02-26T22:38:15.582427+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260226-0151.jpg",
+      "backed_up_at": "2026-02-26T22:38:15.849096+00:00"
+    }
+  }
+}

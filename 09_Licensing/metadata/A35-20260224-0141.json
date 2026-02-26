@@ -3,9 +3,9 @@
   "original_filename": "Wolf 9184.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "Desert Highway Perspective",
+  "description": "A commanding panoramic vista of an American desert highway stretching toward distant mountains, captured with exceptional clarity and tonal range ideal for large-format fine art printing. The ultra-high resolution reveals intricate details of Joshua Tree woodland, desert scrub texture, and atmospheric depth across multiple miles of landscape.",
+  "location": "Mojave Desert, California (Interstate 15 corridor near San Bernardino)",
   "classification": "STANDARD",
   "resolution": {
     "width": 7874,
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260224-0141.jpg",
     "thumbnail": "thumbnails/A35-20260224-0141.jpg"
   },
-  "scanned_at": "2026-02-24T22:03:53.264457+00:00"
+  "scanned_at": "2026-02-24T22:03:53.264457+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260224-0141.jpg",
+      "backed_up_at": "2026-02-26T22:36:19.307296+00:00",
+      "md5": "98b4cc926fddc259c97c4a1d8c48ac57"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260224-0141.jpg",
+      "backed_up_at": "2026-02-26T22:36:19.554771+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260224-0141.jpg",
+      "backed_up_at": "2026-02-26T22:36:19.777590+00:00"
+    }
+  }
 }

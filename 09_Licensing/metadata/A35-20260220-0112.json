@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Tre Cime Reflected in Stone",
-  "description": "An iconic view of the Tre Cime di Lavaredo's distinctive limestone peaks mirrored in a pristine alpine pool, captured in ultra-high resolution that reveals the dramatic geological formations and textured scree in exquisite detail—ideal for large-format fine art prints and commercial licensing applications.",
+  "description": "An iconic view of the Tre Cime di Lavaredo's distinctive limestone peaks mirrored in a pristine alpine pool, captured in ultra-high resolution that reveals the dramatic geological formations and textured scree in exquisite detail\u2014ideal for large-format fine art prints and commercial licensing applications.",
   "location": "Tre Cime di Lavaredo, Dolomites, Veneto, Italy",
   "classification": "PREMIUM",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0112.jpg",
     "thumbnail": "thumbnails/A35-20260220-0112.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.401557+00:00"
+  "scanned_at": "2026-02-20T23:23:58.401557+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0112.jpg",
+      "backed_up_at": "2026-02-26T22:21:06.334257+00:00",
+      "md5": "8707cca3dc4e79f24cfe882dca5bf759"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0112.jpg",
+      "backed_up_at": "2026-02-26T22:33:28.713714+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0112.jpg",
+      "backed_up_at": "2026-02-26T22:33:28.966436+00:00"
+    }
+  }
 }

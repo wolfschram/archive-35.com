@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Bay and Bridge: Urban Geometry",
-  "description": "A panoramic vista capturing San Francisco's iconic skyline and Golden Gate Bridge from the Marin Headlands, rendered in exceptional detail across ultra-high resolution. This expansive composition reveals the intricate layering of water, urban architecture, and atmospheric perspective—ideal for large-format fine art printing with remarkable clarity throughout the entire frame.",
+  "description": "A panoramic vista capturing San Francisco's iconic skyline and Golden Gate Bridge from the Marin Headlands, rendered in exceptional detail across ultra-high resolution. This expansive composition reveals the intricate layering of water, urban architecture, and atmospheric perspective\u2014ideal for large-format fine art printing with remarkable clarity throughout the entire frame.",
   "location": "Marin Headlands, Golden Gate National Recreation Area, San Francisco Bay Area, California, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0088.jpg",
     "thumbnail": "thumbnails/A35-20260220-0088.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.377997+00:00"
+  "scanned_at": "2026-02-20T23:23:58.377997+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0088.jpg",
+      "backed_up_at": "2026-02-26T22:14:27.854720+00:00",
+      "md5": "f73165d59c5f3355e5280e7799448201"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0088.jpg",
+      "backed_up_at": "2026-02-26T22:33:13.877447+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0088.jpg",
+      "backed_up_at": "2026-02-26T22:33:14.138360+00:00"
+    }
+  }
 }

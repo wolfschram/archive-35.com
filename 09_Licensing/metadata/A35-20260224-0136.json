@@ -3,9 +3,9 @@
   "original_filename": "Wolf 8596.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "Desert Mirror: Snow-Capped Reflection",
+  "description": "A vast panoramic vista capturing the geometric serenity of an alkali lake basin, where snow-capped peaks frame crystalline water against sun-bleached terrain. This ultra-high-resolution composition reveals extraordinary detail across the entire landscape\u2014from mineral-rich foreground sediments to distant alpine ridges\u2014making it ideal for monumental large-format prints and immersive architectural installations.",
+  "location": "Death Valley National Park, California (Badwater Basin or similar salt flat lake)",
   "classification": "ULTRA",
   "resolution": {
     "width": 25029,
@@ -23,12 +23,12 @@
   ],
   "max_print_300dpi": {
     "width_in": 83.4,
-    "height_in": 28.0,
+    "height_in": 28,
     "dpi": 300
   },
   "max_print_150dpi": {
     "width_in": 166.9,
-    "height_in": 56.0,
+    "height_in": 56,
     "dpi": 150
   },
   "exif": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260224-0136.jpg",
     "thumbnail": "thumbnails/A35-20260224-0136.jpg"
   },
-  "scanned_at": "2026-02-24T22:03:53.260923+00:00"
+  "scanned_at": "2026-02-24T22:03:53.260923+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260224-0136.jpg",
+      "backed_up_at": "2026-02-26T22:35:38.399253+00:00",
+      "md5": "47fd70bb33a63855175772dec7bc7a7b"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260224-0136.jpg",
+      "backed_up_at": "2026-02-26T22:35:38.814499+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260224-0136.jpg",
+      "backed_up_at": "2026-02-26T22:35:39.157085+00:00"
+    }
+  }
 }

@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Golden Gate Under Grey Skies",
-  "description": "A sweeping panoramic vista of the iconic Golden Gate Bridge captured in moody, atmospheric conditions. This ultra-high-resolution image reveals exceptional detail across the entire composition—from the textured beach foreground through the layered water and distant bridge architecture—offering outstanding print potential for large-format fine art displays and commercial licensing applications.",
+  "description": "A sweeping panoramic vista of the iconic Golden Gate Bridge captured in moody, atmospheric conditions. This ultra-high-resolution image reveals exceptional detail across the entire composition\u2014from the textured beach foreground through the layered water and distant bridge architecture\u2014offering outstanding print potential for large-format fine art displays and commercial licensing applications.",
   "location": "Crissy Field, San Francisco, California, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0087.jpg",
     "thumbnail": "thumbnails/A35-20260220-0087.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.376974+00:00"
+  "scanned_at": "2026-02-20T23:23:58.376974+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0087.jpg",
+      "backed_up_at": "2026-02-26T22:14:01.090596+00:00",
+      "md5": "b485d24c9d69330384db07a0913ae25e"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0087.jpg",
+      "backed_up_at": "2026-02-26T22:33:13.278856+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0087.jpg",
+      "backed_up_at": "2026-02-26T22:33:13.536319+00:00"
+    }
+  }
 }

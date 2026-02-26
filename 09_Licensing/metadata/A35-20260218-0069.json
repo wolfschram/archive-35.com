@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Mount Jackson's Glacial Dominion",
-  "description": "A commanding panoramic study of Mount Jackson rising majestically above Swiftcurrent Lake, capturing the monumental scale of the Northern Rockies with exceptional detail across the full frame. This ultra-high-resolution image reveals intricate cloud formations, forest texture, and water surface detail throughout—ideal for large-format fine art prints and immersive commercial applications.",
+  "description": "A commanding panoramic study of Mount Jackson rising majestically above Swiftcurrent Lake, capturing the monumental scale of the Northern Rockies with exceptional detail across the full frame. This ultra-high-resolution image reveals intricate cloud formations, forest texture, and water surface detail throughout\u2014ideal for large-format fine art prints and immersive commercial applications.",
   "location": "Swiftcurrent Lake, Glacier National Park, Montana, USA",
   "classification": "PREMIUM",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260218-0069.jpg",
     "thumbnail": "thumbnails/A35-20260218-0069.jpg"
   },
-  "scanned_at": "2026-02-18T19:48:28.376041+00:00"
+  "scanned_at": "2026-02-18T19:48:28.376041+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260218-0069.jpg",
+      "backed_up_at": "2026-02-26T22:10:07.610647+00:00",
+      "md5": "5445744931830e2d33f7cad756e880a0"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260218-0069.jpg",
+      "backed_up_at": "2026-02-26T22:33:02.631041+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260218-0069.jpg",
+      "backed_up_at": "2026-02-26T22:33:02.909394+00:00"
+    }
+  }
 }

@@ -3,15 +3,15 @@
   "original_filename": "Wolf 9323.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
-  "title": "",
-  "description": "",
-  "location": "",
+  "title": "on the way to Las Vegas ",
+  "description": "A striking panoramic view of the stark Sonoran Desert landscape, where distant industrial energy towers punctuate the horizon against mountain ranges, creating an arresting dialogue between natural geology and human infrastructure. This ultra-high-resolution image captures extraordinary detail across the desert floor's texture and atmospheric depth, delivering exceptional clarity for large-format fine art printing and immersive gallery installations.",
+  "location": "California power station ",
   "classification": "ULTRA",
   "resolution": {
     "width": 15324,
     "height": 7637
   },
-  "megapixels": 117.0,
+  "megapixels": 117,
   "aspect_ratio": 2.007,
   "file_size_bytes": 33733791,
   "file_size_mb": 32.2,
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260224-0143.jpg",
     "thumbnail": "thumbnails/A35-20260224-0143.jpg"
   },
-  "scanned_at": "2026-02-24T22:03:53.265889+00:00"
+  "scanned_at": "2026-02-24T22:03:53.265889+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260224-0143.jpg",
+      "backed_up_at": "2026-02-26T22:36:42.919576+00:00",
+      "md5": "e732471865cbf52a6d4ae979f4a174fd"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260224-0143.jpg",
+      "backed_up_at": "2026-02-26T22:36:43.425099+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260224-0143.jpg",
+      "backed_up_at": "2026-02-26T22:36:43.797081+00:00"
+    }
+  }
 }

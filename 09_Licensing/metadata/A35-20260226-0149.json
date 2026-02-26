@@ -1,0 +1,104 @@
+{
+  "catalog_id": "A35-20260226-0149",
+  "original_filename": "Wolf 10918.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Desert Silence at the Edge",
+  "description": "A vast panoramic vista of the Mojave Desert at twilight, where sparse Joshua trees punctuate an endless expanse of desert scrub and sandy terrain beneath a gradient sky. This ultra-high-resolution image captures extraordinary atmospheric depth and tonal range, ideal for immersive large-format gallery installations or expansive architectural applications that demand exceptional clarity across panoramic dimensions.",
+  "location": "Mojave Desert, California (Joshua Tree region)",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 17371,
+    "height": 8492
+  },
+  "megapixels": 147.5,
+  "aspect_ratio": 2.046,
+  "file_size_bytes": 29657164,
+  "file_size_mb": 28.3,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 57.9,
+    "height_in": 28.3,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 115.8,
+    "height_in": 56.6,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5m2",
+    "DateTimeOriginal": "2025:03:09 06:54:34",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.0125",
+    "FNumber": "2.0",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260226-0149.jpg",
+    "preview": "previews/A35-20260226-0149.jpg",
+    "thumbnail": "thumbnails/A35-20260226-0149.jpg"
+  },
+  "scanned_at": "2026-02-26T22:00:44.934305+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260226-0149.jpg",
+      "backed_up_at": "2026-02-26T22:37:52.845204+00:00",
+      "md5": "a039555d8da2fedf6c87bed269929bd6"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260226-0149.jpg",
+      "backed_up_at": "2026-02-26T22:37:53.123114+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260226-0149.jpg",
+      "backed_up_at": "2026-02-26T22:37:53.392602+00:00"
+    }
+  }
+}

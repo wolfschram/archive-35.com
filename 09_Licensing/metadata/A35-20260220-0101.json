@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Lago di Sorapis, Dolomites",
-  "description": "A masterful panoramic composition capturing the dramatic Alpine landscape of northeastern Italy's Dolomites. This ultra-high-resolution image reveals extraordinary detail across multiple planes—from the emerald waters of Lago di Sorapis to the jagged limestone peaks shrouded in mist—making it ideal for large-format fine art printing and commercial licensing applications requiring museum-quality clarity.",
+  "description": "A masterful panoramic composition capturing the dramatic Alpine landscape of northeastern Italy's Dolomites. This ultra-high-resolution image reveals extraordinary detail across multiple planes\u2014from the emerald waters of Lago di Sorapis to the jagged limestone peaks shrouded in mist\u2014making it ideal for large-format fine art printing and commercial licensing applications requiring museum-quality clarity.",
   "location": "Lago di braies, Dolomites, Veneto, Italy",
   "classification": "PREMIUM",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0101.jpg",
     "thumbnail": "thumbnails/A35-20260220-0101.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.390074+00:00"
+  "scanned_at": "2026-02-20T23:23:58.390074+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0101.jpg",
+      "backed_up_at": "2026-02-26T22:18:10.327210+00:00",
+      "md5": "5e843dc5f623cba51045a5d667b7c439"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0101.jpg",
+      "backed_up_at": "2026-02-26T22:33:22.593747+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0101.jpg",
+      "backed_up_at": "2026-02-26T22:33:22.867695+00:00"
+    }
+  }
 }

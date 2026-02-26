@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Valley Gateway",
-  "description": "A commanding panoramic vista of a pristine alpine meadow framed by soaring limestone peaks and dense coniferous forest. This ultra-high-resolution capture reveals exceptional detail across the entire composition—from delicate alpine vegetation in the foreground to the dramatic geological formations and distant summits—making it ideal for large-format fine art prints and premium commercial licensing.",
+  "description": "A commanding panoramic vista of a pristine alpine meadow framed by soaring limestone peaks and dense coniferous forest. This ultra-high-resolution capture reveals exceptional detail across the entire composition\u2014from delicate alpine vegetation in the foreground to the dramatic geological formations and distant summits\u2014making it ideal for large-format fine art prints and premium commercial licensing.",
   "location": "Sorau Valley (Sorau), Dolomites, South Tyrol, Italy",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0113.jpg",
     "thumbnail": "thumbnails/A35-20260220-0113.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.402330+00:00"
+  "scanned_at": "2026-02-20T23:23:58.402330+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0113.jpg",
+      "backed_up_at": "2026-02-26T22:21:47.394824+00:00",
+      "md5": "964ddf9ca184817795aa4aa9ee5426e6"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0113.jpg",
+      "backed_up_at": "2026-02-26T22:33:29.254191+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0113.jpg",
+      "backed_up_at": "2026-02-26T22:33:29.508092+00:00"
+    }
+  }
 }

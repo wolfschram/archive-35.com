@@ -4,8 +4,8 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Valley in Green Descent",
-  "description": "A sweeping panoramic vista capturing the dramatic vertical relief of the Alpine landscape, where verdant valleys plunge beneath jagged limestone peaks dusted with lingering snow. This ultra-high-resolution image preserves extraordinary detail across the entire composition—from foreground geological strata to distant valley settlements—making it ideal for large-scale fine art reproduction and commercial licensing applications.",
-  "location": "Appenzell Alps, Eastern Switzerland (likely Säntis region or Alpstein massif)",
+  "description": "A sweeping panoramic vista capturing the dramatic vertical relief of the Alpine landscape, where verdant valleys plunge beneath jagged limestone peaks dusted with lingering snow. This ultra-high-resolution image preserves extraordinary detail across the entire composition\u2014from foreground geological strata to distant valley settlements\u2014making it ideal for large-scale fine art reproduction and commercial licensing applications.",
+  "location": "Appenzell Alps, Eastern Switzerland (likely S\u00e4ntis region or Alpstein massif)",
   "classification": "ULTRA",
   "resolution": {
     "width": 17437,
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0096.jpg",
     "thumbnail": "thumbnails/A35-20260220-0096.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.385675+00:00"
+  "scanned_at": "2026-02-20T23:23:58.385675+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0096.jpg",
+      "backed_up_at": "2026-02-26T22:16:31.626169+00:00",
+      "md5": "36a55ef81a27043f72eb4ea19e38ab01"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0096.jpg",
+      "backed_up_at": "2026-02-26T22:33:19.041318+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0096.jpg",
+      "backed_up_at": "2026-02-26T22:33:19.519477+00:00"
+    }
+  }
 }

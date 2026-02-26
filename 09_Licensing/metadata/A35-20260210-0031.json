@@ -90,13 +90,13 @@
     },
     "preview": {
       "verified": true,
-      "r2_key": "previews/A35-20260210-0031.jpg",
-      "backed_up_at": "2026-02-12T17:45:04.161667+00:00"
+      "r2_key": "previews/iceland/WOLF4838-Pano.jpg",
+      "backed_up_at": "2026-02-26T22:32:40.170902+00:00"
     },
     "thumbnail": {
       "verified": true,
-      "r2_key": "thumbnails/A35-20260210-0031.jpg",
-      "backed_up_at": "2026-02-12T17:45:04.473363+00:00"
+      "r2_key": "thumbnails/iceland/WOLF4838-Pano.jpg",
+      "backed_up_at": "2026-02-26T22:32:40.441220+00:00"
     }
   },
   "collection": "iceland"

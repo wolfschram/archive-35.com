@@ -1,0 +1,104 @@
+{
+  "catalog_id": "A35-20260226-0146",
+  "original_filename": "WOLF6485-Pano.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Desert Basin Beneath the Sierra",
+  "description": "A sweeping panoramic vista capturing the vast expanse of an arid desert basin framed by snow-capped mountains, with dramatic cloud formations and golden light creating exceptional depth and detail. This ultra-high-resolution image reveals intricate terrain textures and atmospheric layers ideal for museum-quality large-format printing and immersive installation work.",
+  "location": "Owens Valley, Eastern Sierra Nevada, California",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 15543,
+    "height": 6520
+  },
+  "megapixels": 101.3,
+  "aspect_ratio": 2.384,
+  "file_size_bytes": 28666754,
+  "file_size_mb": 27.3,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 51.8,
+    "height_in": 21.7,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 103.6,
+    "height_in": 43.5,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5m2",
+    "DateTimeOriginal": "2025:12:28 17:12:58",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.002",
+    "FNumber": "4.5",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260226-0146.jpg",
+    "preview": "previews/A35-20260226-0146.jpg",
+    "thumbnail": "thumbnails/A35-20260226-0146.jpg"
+  },
+  "scanned_at": "2026-02-26T22:00:44.931456+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260226-0146.jpg",
+      "backed_up_at": "2026-02-26T22:37:20.128345+00:00",
+      "md5": "2541b577ba7b8530837028e24f7f2654"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260226-0146.jpg",
+      "backed_up_at": "2026-02-26T22:37:20.381124+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260226-0146.jpg",
+      "backed_up_at": "2026-02-26T22:37:20.626544+00:00"
+    }
+  }
+}

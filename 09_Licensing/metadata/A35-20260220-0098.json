@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Reflections at Lago di Braies",
-  "description": "A serene panoramic vista of the Dolomites' most iconic turquoise alpine lake, captured in ultra-high resolution. The exceptional detail reveals intricate rock formations, pristine forest edges, and mirror-like water reflections—ideal for large-format fine art prints and luxury commercial applications.",
+  "description": "A serene panoramic vista of the Dolomites' most iconic turquoise alpine lake, captured in ultra-high resolution. The exceptional detail reveals intricate rock formations, pristine forest edges, and mirror-like water reflections\u2014ideal for large-format fine art prints and luxury commercial applications.",
   "location": "Lago di Braies, Dolomites, Veneto, Italy",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0098.jpg",
     "thumbnail": "thumbnails/A35-20260220-0098.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.387301+00:00"
+  "scanned_at": "2026-02-20T23:23:58.387301+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0098.jpg",
+      "backed_up_at": "2026-02-26T22:17:14.314634+00:00",
+      "md5": "365d3c1d13fbd8af760b24d4eb65a133"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0098.jpg",
+      "backed_up_at": "2026-02-26T22:33:20.683035+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0098.jpg",
+      "backed_up_at": "2026-02-26T22:33:20.984782+00:00"
+    }
+  }
 }

@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Lake in Mountain Splendor",
-  "description": "A breathtaking panoramic vista of a pristine alpine lake cradled within towering mountain peaks and dense coniferous forest. This ultra-high-resolution image captures extraordinary detail across multiple depth planes—from delicate foreground vegetation to the jewel-toned waters and distant mountain ridges—making it ideal for large-format fine art prints and expansive commercial installations.",
+  "description": "A breathtaking panoramic vista of a pristine alpine lake cradled within towering mountain peaks and dense coniferous forest. This ultra-high-resolution image captures extraordinary detail across multiple depth planes\u2014from delicate foreground vegetation to the jewel-toned waters and distant mountain ridges\u2014making it ideal for large-format fine art prints and expansive commercial installations.",
   "location": "Glacier National Park, Montana, USA (likely Saint Mary Lake or Going-to-the-Sun Road valley)",
   "classification": "PREMIUM",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260219-0075.jpg",
     "thumbnail": "thumbnails/A35-20260219-0075.jpg"
   },
-  "scanned_at": "2026-02-19T01:39:42.835235+00:00"
+  "scanned_at": "2026-02-19T01:39:42.835235+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260219-0075.jpg",
+      "backed_up_at": "2026-02-26T22:11:20.238112+00:00",
+      "md5": "774d2f4ab7222f1bfc3a91a363c6ed32"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260219-0075.jpg",
+      "backed_up_at": "2026-02-26T22:33:06.141020+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260219-0075.jpg",
+      "backed_up_at": "2026-02-26T22:33:06.582506+00:00"
+    }
+  }
 }

@@ -1,0 +1,104 @@
+{
+  "catalog_id": "A35-20260226-0163",
+  "original_filename": "Wolf 9805.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Chicago River Crossing",
+  "description": "A striking urban panorama capturing Chicago's architectural heritage and modern skyline converging at the Chicago River, with a historic iron bridge anchoring the composition. This ultra-high-resolution image reveals exceptional detail in both contemporary glass towers and vintage brick structures, ideal for large-scale commercial installations, corporate lobbies, and immersive architectural exhibitions.",
+  "location": "Chicago River, Downtown Chicago, Illinois, USA",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 15073,
+    "height": 7192
+  },
+  "megapixels": 108.4,
+  "aspect_ratio": 2.096,
+  "file_size_bytes": 35280835,
+  "file_size_mb": 33.6,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 50.2,
+    "height_in": 24,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 100.5,
+    "height_in": 47.9,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5m2",
+    "DateTimeOriginal": "2024:09:03 13:50:31",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.001",
+    "FNumber": "2.8",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260226-0163.jpg",
+    "preview": "previews/A35-20260226-0163.jpg",
+    "thumbnail": "thumbnails/A35-20260226-0163.jpg"
+  },
+  "scanned_at": "2026-02-26T22:00:44.947380+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260226-0163.jpg",
+      "backed_up_at": "2026-02-26T22:41:48.148460+00:00",
+      "md5": "9caed6bdc632ee829d6c13886b4be69f"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260226-0163.jpg",
+      "backed_up_at": "2026-02-26T22:41:48.404340+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260226-0163.jpg",
+      "backed_up_at": "2026-02-26T22:41:48.649569+00:00"
+    }
+  }
+}

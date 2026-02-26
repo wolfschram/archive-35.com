@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Valley: Mountain Cathedral",
-  "description": "A breathtaking panoramic vista of a pristine alpine valley framed by towering glaciated peaks and dense coniferous forest, with a serene mountain lake nestled in the heart of the wilderness. The ultra-high-resolution capture reveals extraordinary detail across multiple focal planes—from delicate foreground vegetation to distant summit geology—making this an exceptional choice for large-format fine art prints and premium commercial licensing applications.",
+  "description": "A breathtaking panoramic vista of a pristine alpine valley framed by towering glaciated peaks and dense coniferous forest, with a serene mountain lake nestled in the heart of the wilderness. The ultra-high-resolution capture reveals extraordinary detail across multiple focal planes\u2014from delicate foreground vegetation to distant summit geology\u2014making this an exceptional choice for large-format fine art prints and premium commercial licensing applications.",
   "location": "Glacier National Park, Montana, USA (Lake McDonald Valley region)",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260219-0074.jpg",
     "thumbnail": "thumbnails/A35-20260219-0074.jpg"
   },
-  "scanned_at": "2026-02-19T01:39:42.834209+00:00"
+  "scanned_at": "2026-02-19T01:39:42.834209+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260219-0074.jpg",
+      "backed_up_at": "2026-02-26T22:11:13.255936+00:00",
+      "md5": "5c9118645dee0ae1102926d0eff3a24f"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260219-0074.jpg",
+      "backed_up_at": "2026-02-26T22:33:05.525996+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260219-0074.jpg",
+      "backed_up_at": "2026-02-26T22:33:05.821904+00:00"
+    }
+  }
 }

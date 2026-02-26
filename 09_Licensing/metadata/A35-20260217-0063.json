@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Valley in Silence",
-  "description": "A commanding panoramic vista of a pristine mountain valley framed by coniferous forests and dramatic peaks, captured in ultra-high resolution to reveal exceptional detail across the entire composition—from foreground alpine meadow to distant summits. The exceptional tonal range and sharpness throughout makes this image ideal for large-format fine art printing and commercial licensing applications.",
+  "description": "A commanding panoramic vista of a pristine mountain valley framed by coniferous forests and dramatic peaks, captured in ultra-high resolution to reveal exceptional detail across the entire composition\u2014from foreground alpine meadow to distant summits. The exceptional tonal range and sharpness throughout makes this image ideal for large-format fine art printing and commercial licensing applications.",
   "location": "Altai Mountains, Altai Republic, Russia",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260217-0063.jpg",
     "thumbnail": "thumbnails/A35-20260217-0063.jpg"
   },
-  "scanned_at": "2026-02-17T23:20:18.386956+00:00"
+  "scanned_at": "2026-02-17T23:20:18.386956+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260217-0063.jpg",
+      "backed_up_at": "2026-02-26T22:09:19.622189+00:00",
+      "md5": "9163165cee111bc6648a6a03da1e38bd"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260217-0063.jpg",
+      "backed_up_at": "2026-02-26T22:32:59.291393+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260217-0063.jpg",
+      "backed_up_at": "2026-02-26T22:32:59.560018+00:00"
+    }
+  }
 }

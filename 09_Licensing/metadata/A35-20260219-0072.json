@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Mountain Sentinel Over Alpine Waters",
-  "description": "A breathtaking panoramic vista of pristine alpine lake waters reflecting dramatic peak formations under dynamic cloud formations. This ultra-high-resolution capture reveals exceptional detail throughout—from the textured mountain geology and forest edges to the luminous water surface and sky gradations—making it ideal for large-format fine art prints and premium commercial licensing applications.",
+  "description": "A breathtaking panoramic vista of pristine alpine lake waters reflecting dramatic peak formations under dynamic cloud formations. This ultra-high-resolution capture reveals exceptional detail throughout\u2014from the textured mountain geology and forest edges to the luminous water surface and sky gradations\u2014making it ideal for large-format fine art prints and premium commercial licensing applications.",
   "location": "Swiftcurrent Lake, Glacier National Park, Montana, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260219-0072.jpg",
     "thumbnail": "thumbnails/A35-20260219-0072.jpg"
   },
-  "scanned_at": "2026-02-19T01:39:42.832314+00:00"
+  "scanned_at": "2026-02-19T01:39:42.832314+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260219-0072.jpg",
+      "backed_up_at": "2026-02-26T22:10:43.186320+00:00",
+      "md5": "ab98cce7eeb560740d0146078fb61266"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260219-0072.jpg",
+      "backed_up_at": "2026-02-26T22:33:04.341667+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260219-0072.jpg",
+      "backed_up_at": "2026-02-26T22:33:04.599957+00:00"
+    }
+  }
 }

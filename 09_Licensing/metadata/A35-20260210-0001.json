@@ -94,12 +94,12 @@
     "preview": {
       "verified": true,
       "r2_key": "previews/A35-20260210-0001.jpg",
-      "backed_up_at": "2026-02-12T17:38:30.973928+00:00"
+      "backed_up_at": "2026-02-26T22:32:21.743106+00:00"
     },
     "thumbnail": {
       "verified": true,
       "r2_key": "thumbnails/A35-20260210-0001.jpg",
-      "backed_up_at": "2026-02-12T17:38:31.250674+00:00"
+      "backed_up_at": "2026-02-26T22:32:22.046428+00:00"
     }
   }
 }

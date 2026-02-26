@@ -1,0 +1,104 @@
+{
+  "catalog_id": "A35-20260226-0155",
+  "original_filename": "Wolf 11626.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Desert Canyon Infrastructure",
+  "description": "A dramatic panoramic vista of an arid mountain canyon system with a striking steel trestle bridge spanning the ravine below, showcasing the interplay of geological stratification, sparse desert vegetation, and human engineering against distant peaks. This ultra-high-resolution image captures extraordinary detail across multiple depth planes, ideal for large-format fine art prints and immersive gallery installations.",
+  "location": "Mojave Desert region, California ",
+  "classification": "PREMIUM",
+  "resolution": {
+    "width": 14111,
+    "height": 6302
+  },
+  "megapixels": 88.9,
+  "aspect_ratio": 2.239,
+  "file_size_bytes": 44536724,
+  "file_size_mb": 42.5,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 47,
+    "height_in": 21,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 94.1,
+    "height_in": 42,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5m2",
+    "DateTimeOriginal": "2025:05:17 17:35:40",
+    "FocalLength": "28.0",
+    "ExposureTime": "0.00125",
+    "FNumber": "5.6",
+    "ISOSpeedRatings": 100,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260226-0155.jpg",
+    "preview": "previews/A35-20260226-0155.jpg",
+    "thumbnail": "thumbnails/A35-20260226-0155.jpg"
+  },
+  "scanned_at": "2026-02-26T22:00:44.939985+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260226-0155.jpg",
+      "backed_up_at": "2026-02-26T22:39:11.805596+00:00",
+      "md5": "60827493b406d2aaf745562247c13473"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260226-0155.jpg",
+      "backed_up_at": "2026-02-26T22:39:12.120356+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260226-0155.jpg",
+      "backed_up_at": "2026-02-26T22:39:12.376387+00:00"
+    }
+  }
+}

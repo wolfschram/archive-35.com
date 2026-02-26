@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Valley Stillness",
-  "description": "A pristine panoramic vista of a crystalline alpine lake framed by towering glacier-carved peaks and dense coniferous forests. This ultra-high-resolution image captures extraordinary detail across the entire composition—from the delicate reflection of clouds on mirror-still water to the textured geology of distant mountainsides—making it ideal for large-format fine art prints and immersive commercial installations.",
+  "description": "A pristine panoramic vista of a crystalline alpine lake framed by towering glacier-carved peaks and dense coniferous forests. This ultra-high-resolution image captures extraordinary detail across the entire composition\u2014from the delicate reflection of clouds on mirror-still water to the textured geology of distant mountainsides\u2014making it ideal for large-format fine art prints and immersive commercial installations.",
   "location": "Lake McDonald, Glacier National Park, Montana, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260218-0070.jpg",
     "thumbnail": "thumbnails/A35-20260218-0070.jpg"
   },
-  "scanned_at": "2026-02-18T19:48:28.377467+00:00"
+  "scanned_at": "2026-02-18T19:48:28.377467+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260218-0070.jpg",
+      "backed_up_at": "2026-02-26T22:10:17.915880+00:00",
+      "md5": "4350b7b4fce7a12485f68dd52d853653"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260218-0070.jpg",
+      "backed_up_at": "2026-02-26T22:33:03.185650+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260218-0070.jpg",
+      "backed_up_at": "2026-02-26T22:33:03.446469+00:00"
+    }
+  }
 }

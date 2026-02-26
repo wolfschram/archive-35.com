@@ -3,7 +3,7 @@
   "original_filename": "Wolf 4552.jpg",
   "source_path": "../Photography/Large Scale Photography Stitch",
   "title": "Alpine Reflection: Perfect Symmetry",
-  "description": "A stunning ultra-high-resolution panoramic capture of pristine alpine lake waters creating mirror-perfect reflections of snow-capped peaks and surrounding forest. The exceptional detail and dynamic range of this large-format image reveals intricate mountain textures, crystalline water clarity, and nuanced tonal gradations—ideal for expansive fine art prints and commercial applications demanding museum-quality reproduction.",
+  "description": "A stunning ultra-high-resolution panoramic capture of pristine alpine lake waters creating mirror-perfect reflections of snow-capped peaks and surrounding forest. The exceptional detail and dynamic range of this large-format image reveals intricate mountain textures, crystalline water clarity, and nuanced tonal gradations\u2014ideal for expansive fine art prints and commercial applications demanding museum-quality reproduction.",
   "location": "Mammoth, California, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -81,5 +81,23 @@
     "preview": "previews/A35-20260217-0054.jpg",
     "thumbnail": "thumbnails/A35-20260217-0054.jpg"
   },
-  "scanned_at": "2026-02-17T16:58:47.410384+00:00"
+  "scanned_at": "2026-02-17T16:58:47.410384+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260217-0054.jpg",
+      "backed_up_at": "2026-02-26T22:08:12.249599+00:00",
+      "md5": "55a7b5c52f5c4cb2be82c774859e5fd5"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260217-0054.jpg",
+      "backed_up_at": "2026-02-26T22:32:54.017044+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260217-0054.jpg",
+      "backed_up_at": "2026-02-26T22:32:54.289045+00:00"
+    }
+  }
 }

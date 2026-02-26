@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Desert Basin with Distant Peaks",
-  "description": "A sweeping panoramic vista capturing the vast emptiness of a high desert basin with snow-capped mountains anchoring the distant horizon. This ultra-high-resolution image reveals exceptional detail across the entire composition—from the intricate textures of barren earth in the foreground to the subtle atmospheric layers and mountain definition, making it ideal for large-scale fine art prints and commercial landscape applications.",
+  "description": "A sweeping panoramic vista capturing the vast emptiness of a high desert basin with snow-capped mountains anchoring the distant horizon. This ultra-high-resolution image reveals exceptional detail across the entire composition\u2014from the intricate textures of barren earth in the foreground to the subtle atmospheric layers and mountain definition, making it ideal for large-scale fine art prints and commercial landscape applications.",
   "location": "Death Valley National Park or Mono Basin region, California-Nevada border, USA",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260224-0137.jpg",
     "thumbnail": "thumbnails/A35-20260224-0137.jpg"
   },
-  "scanned_at": "2026-02-24T22:03:53.261509+00:00"
+  "scanned_at": "2026-02-24T22:03:53.261509+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260224-0137.jpg",
+      "backed_up_at": "2026-02-26T22:35:48.528419+00:00",
+      "md5": "13d025be9a82f2f2313cfc33df523813"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260224-0137.jpg",
+      "backed_up_at": "2026-02-26T22:35:48.849681+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260224-0137.jpg",
+      "backed_up_at": "2026-02-26T22:35:49.104533+00:00"
+    }
+  }
 }

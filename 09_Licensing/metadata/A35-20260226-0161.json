@@ -1,0 +1,104 @@
+{
+  "catalog_id": "A35-20260226-0161",
+  "original_filename": "Wolf 9422.jpg",
+  "source_path": "../Photography/Large Scale Photography Stitch",
+  "collection": "",
+  "title": "Alpine Forest and Granite Peaks",
+  "description": "A sweeping panoramic vista captures the ethereal interplay of alpine forest, weathered granite domes, and atmospheric perspective across a high-elevation wilderness valley. The ultra-high-resolution capture preserves exceptional detail in the coniferous canopy and rock formations, making this image ideal for large-format fine art printing and immersive landscape installations.",
+  "location": "Yosemite National Park, Sierra Nevada, California",
+  "classification": "ULTRA",
+  "resolution": {
+    "width": 19676,
+    "height": 11293
+  },
+  "megapixels": 222.2,
+  "aspect_ratio": 1.742,
+  "file_size_bytes": 72632119,
+  "file_size_mb": 69.3,
+  "color_space": "RGB",
+  "format": "JPEG",
+  "dpi": [
+    "300.0",
+    "300.0"
+  ],
+  "max_print_300dpi": {
+    "width_in": 65.6,
+    "height_in": 37.6,
+    "dpi": 300
+  },
+  "max_print_150dpi": {
+    "width_in": 131.2,
+    "height_in": 75.3,
+    "dpi": 150
+  },
+  "exif": {
+    "Make": "Canon",
+    "Model": "Canon EOS R5",
+    "DateTimeOriginal": "2024:07:06 19:48:42",
+    "FocalLength": "70.0",
+    "ExposureTime": "0.008",
+    "FNumber": "2.5",
+    "ISOSpeedRatings": 400,
+    "LensModel": "RF28-70mm F2 L USM"
+  },
+  "gps": null,
+  "pricing": {
+    "web_social": {
+      "STANDARD": 175,
+      "PREMIUM": 280,
+      "ULTRA": 350
+    },
+    "editorial": {
+      "STANDARD": 350,
+      "PREMIUM": 525,
+      "ULTRA": 700
+    },
+    "commercial_print": {
+      "STANDARD": 700,
+      "PREMIUM": 1050,
+      "ULTRA": 1400
+    },
+    "billboard_ooh": {
+      "STANDARD": 1050,
+      "PREMIUM": 1750,
+      "ULTRA": 2450
+    },
+    "hospitality": {
+      "STANDARD": 1400,
+      "PREMIUM": 2450,
+      "ULTRA": 3500
+    },
+    "exclusive": {
+      "STANDARD": 3500,
+      "PREMIUM": 7000,
+      "ULTRA": 10500
+    }
+  },
+  "license_count": 0,
+  "licenses": [],
+  "status": "available",
+  "r2_keys": {
+    "original": "originals/A35-20260226-0161.jpg",
+    "preview": "previews/A35-20260226-0161.jpg",
+    "thumbnail": "thumbnails/A35-20260226-0161.jpg"
+  },
+  "scanned_at": "2026-02-26T22:00:44.945744+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260226-0161.jpg",
+      "backed_up_at": "2026-02-26T22:41:25.899977+00:00",
+      "md5": "a3824b3376b485e5a321c1aafe1be628"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260226-0161.jpg",
+      "backed_up_at": "2026-02-26T22:41:26.406159+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260226-0161.jpg",
+      "backed_up_at": "2026-02-26T22:41:26.813646+00:00"
+    }
+  }
+}

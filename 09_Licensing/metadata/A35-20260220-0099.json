@@ -4,7 +4,7 @@
   "source_path": "../Photography/Large Scale Photography Stitch",
   "collection": "",
   "title": "Alpine Lake Mirror",
-  "description": "A breathtaking panoramic vista of pristine turquoise waters reflecting towering limestone peaks and dense coniferous forests. This ultra-high-resolution image captures extraordinary detail across an expansive composition, revealing the luminous clarity of glacial waters and the intricate textures of alpine geology—ideal for large-format fine art printing and premium commercial licensing.",
+  "description": "A breathtaking panoramic vista of pristine turquoise waters reflecting towering limestone peaks and dense coniferous forests. This ultra-high-resolution image captures extraordinary detail across an expansive composition, revealing the luminous clarity of glacial waters and the intricate textures of alpine geology\u2014ideal for large-format fine art printing and premium commercial licensing.",
   "location": "Lago di Braies (Pragser Wildsee), Dolomites, Italy",
   "classification": "ULTRA",
   "resolution": {
@@ -82,5 +82,23 @@
     "preview": "previews/A35-20260220-0099.jpg",
     "thumbnail": "thumbnails/A35-20260220-0099.jpg"
   },
-  "scanned_at": "2026-02-20T23:23:58.388126+00:00"
+  "scanned_at": "2026-02-20T23:23:58.388126+00:00",
+  "r2_backup_status": {
+    "original": {
+      "verified": true,
+      "r2_key": "originals/A35-20260220-0099.jpg",
+      "backed_up_at": "2026-02-26T22:17:33.912096+00:00",
+      "md5": "45dd78e57aea683fcdf69e6244a48a65"
+    },
+    "preview": {
+      "verified": true,
+      "r2_key": "previews/A35-20260220-0099.jpg",
+      "backed_up_at": "2026-02-26T22:33:21.235846+00:00"
+    },
+    "thumbnail": {
+      "verified": true,
+      "r2_key": "thumbnails/A35-20260220-0099.jpg",
+      "backed_up_at": "2026-02-26T22:33:21.518466+00:00"
+    }
+  }
 }

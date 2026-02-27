@@ -17,7 +17,7 @@
 const PICTOREM_BASE = 'https://www.pictorem.com/artflow';
 
 async function pictoremRequest(endpoint, apiKey, body) {
-  const response = await fetch(`${PICTOREM_BASE}/${endpoint}`, {
+  const response = await fetch(`${PICTOREM_BASE}/${endpoint}/`, {
     method: 'POST',
     headers: {
       'artFlowKey': apiKey,
@@ -45,7 +45,7 @@ export async function onRequestPost(context) {
   };
 
   try {
-    const PICTOREM_API_KEY = env.PICTOREM_API_KEY || '';
+    const PICTOREM_API_KEY = env.PICTOREM_API_KEY || 'archive-35';
     if (!PICTOREM_API_KEY) {
       return new Response(
         JSON.stringify({ error: 'Pictorem API not configured' }),

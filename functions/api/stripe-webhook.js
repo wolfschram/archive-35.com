@@ -29,8 +29,9 @@
 // MATERIAL MAPPING: Website → Pictorem preordercode
 // ============================================================================
 
-// Default material configurations — used when checkout metadata doesn't specify sub-options.
-// Phase 2 will pass subType, mounting, and finish from the product configurator UI.
+// Default material configurations — fallback when checkout metadata doesn't include sub-options.
+// Phase 3: buildPreorderCode() now reads subType/mounting/finish/edge from Stripe metadata
+// and builds dynamic preorder codes. These defaults only apply to legacy checkouts.
 // CONSTRAINT: Never modify without testing against Pictorem's live preordercode validator.
 const MATERIAL_MAP = {
   canvas: {
@@ -84,28 +85,91 @@ function getCollectionFromPhotoId(photoId) {
 // BUILD PICTOREM PREORDER CODE
 // ============================================================================
 
-function buildPreorderCode(material, printWidth, printHeight) {
+/**
+ * Build Pictorem preorder code from material + dimensions + sub-options.
+ *
+ * Phase 3: When subOptions are provided (from product configurator), builds
+ * a dynamic preorder code. Falls back to MATERIAL_MAP defaults for legacy
+ * checkouts that don't include sub-options.
+ *
+ * Preorder code format: qty|material|type|orientation|width|height|additional1|additional2|...
+ *
+ * @param {string} material - Material key: canvas, metal, acrylic, paper, wood
+ * @param {number} printWidth - Print width in inches
+ * @param {number} printHeight - Print height in inches
+ * @param {object} [subOptions] - Optional sub-options from checkout metadata
+ * @param {string} [subOptions.subType] - Subtype code (e.g., 'hd', 'c15', 'da16')
+ * @param {string} [subOptions.mounting] - Mounting code (e.g., 'standoff', 'frenchcleat', 'none')
+ * @param {string} [subOptions.finish] - Finish code (e.g., 'semigloss', 'matte') — canvas only
+ * @param {string} [subOptions.edge] - Edge code (e.g., 'mirrorimage', 'gallerywrap') — canvas only
+ */
+function buildPreorderCode(material, printWidth, printHeight, subOptions = {}) {
   const mapping = MATERIAL_MAP[material];
   if (!mapping) {
     throw new Error(`Unknown material: ${material}`);
   }
 
   const orientation = printWidth >= printHeight ? 'horizontal' : 'vertical';
+  const hasSubOptions = subOptions.subType || subOptions.mounting || subOptions.finish || subOptions.edge;
 
-  // Build base code: qty|material|type|orientation|width|height
-  const parts = [
-    '1',
-    mapping.material,
-    mapping.type,
-    orientation,
-    String(printWidth),
-    String(printHeight),
-  ];
+  // No sub-options → use MATERIAL_MAP defaults (backward compatible with legacy checkouts)
+  if (!hasSubOptions) {
+    const parts = ['1', mapping.material, mapping.type, orientation, String(printWidth), String(printHeight)];
+    if (mapping.additionals && mapping.additionals.some(a => a !== 'none')) {
+      parts.push(...mapping.additionals);
+    }
+    return parts.join('|');
+  }
 
-  // Only append additionals that aren't all 'none'
-  // Pictorem sanitizes trailing none values and rejects codes with unnecessary ones
-  if (mapping.additionals && mapping.additionals.some(a => a !== 'none')) {
-    parts.push(...mapping.additionals);
+  // Sub-options provided → build dynamic preorder code
+  let type = subOptions.subType || mapping.type;
+  let additionals = [];
+
+  switch (material) {
+    case 'canvas': {
+      // Canvas subType codes: c15, c075 → pictoremType 'stretched'; rolled → pictoremType 'canvas'
+      if (type === 'rolled') {
+        type = 'canvas';
+      } else {
+        // c15 and c075 are frame thickness variants of 'stretched'
+        type = 'stretched';
+      }
+      const finish = subOptions.finish || 'semigloss';
+      const edge = subOptions.edge || 'mirrorimage';
+      additionals = [finish, edge];
+      // Add frame thickness code for stretched canvas (c15 or c075)
+      if (subOptions.subType === 'c15' || subOptions.subType === 'c075') {
+        additionals.push(subOptions.subType);
+      }
+      // Pictorem canvas format expects trailing 'none' placeholders
+      additionals.push('none', 'none');
+      break;
+    }
+    case 'metal':
+    case 'acrylic': {
+      // Mounting: standoff, backfloat, frenchcleat → append; 'none'/empty → omit
+      const mounting = subOptions.mounting || '';
+      if (mounting && mounting !== 'none') {
+        additionals = [mounting];
+      }
+      break;
+    }
+    case 'wood': {
+      // Wood: builtin has empty code (omit), only frenchcleat appends
+      const mounting = subOptions.mounting || '';
+      if (mounting === 'frenchcleat') {
+        additionals = ['frenchcleat'];
+      }
+      break;
+    }
+    case 'paper':
+      // Paper: type IS the subtype (art, satin, glossphoto, pearl), no additionals
+      break;
+  }
+
+  const parts = ['1', mapping.material, type, orientation, String(printWidth), String(printHeight)];
+  if (additionals.length > 0 && additionals.some(a => a !== 'none')) {
+    parts.push(...additionals);
   }
 
   return parts.join('|');
@@ -377,7 +441,8 @@ function buildWolfNotificationEmail(orderDetails) {
   const {
     photoId, photoTitle, materialName, material, sizeStr, price,
     imageUrl, pictoremImageUrl, imageSource, customerName, customerEmail, orderRef,
-    shippingAddress, preorderCode, pictoremResult, wholesalePrice
+    shippingAddress, preorderCode, pictoremResult, wholesalePrice,
+    subOptionSummary
   } = orderDetails;
 
   const addr = shippingAddress || {};
@@ -394,6 +459,7 @@ function buildWolfNotificationEmail(orderDetails) {
   <tr><td style="color:#999;">Customer</td><td style="color:#fff;"><strong>${customerName}</strong> &lt;${customerEmail}&gt;</td></tr>
   <tr><td style="color:#999;">Photo</td><td style="color:#fff;">${photoTitle} (${photoId})</td></tr>
   <tr><td style="color:#999;">Material</td><td style="color:#fff;">${materialName} (${material})</td></tr>
+  <tr><td style="color:#999;">Options</td><td style="color:#fff;">${subOptionSummary || 'defaults'}</td></tr>
   <tr><td style="color:#999;">Size</td><td style="color:#fff;">${sizeStr}</td></tr>
   <tr><td style="color:#999;">Customer Paid</td><td style="color:#c4973b;font-weight:600;">$${price}</td></tr>
   ${wholesalePrice ? `<tr><td style="color:#999;">Pictorem Cost</td><td style="color:#fff;">$${wholesalePrice}</td></tr>` : ''}
@@ -933,9 +999,15 @@ export async function onRequestPost(context) {
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
 
-    // Build Pictorem preorder code
-    const preorderCode = buildPreorderCode(material, printWidth, printHeight);
-    console.log('Pictorem preorder code:', preorderCode);
+    // Build Pictorem preorder code — Phase 3: use sub-options from metadata when available
+    const subOptions = {
+      subType: metadata.subType || '',
+      mounting: metadata.mounting || '',
+      finish: metadata.finish || '',
+      edge: metadata.edge || '',
+    };
+    const preorderCode = buildPreorderCode(material, printWidth, printHeight, subOptions);
+    console.log('Pictorem preorder code:', preorderCode, '| sub-options:', JSON.stringify(subOptions));
 
     // Step 1: Validate the preorder
     let validation, wholesalePrice;
@@ -1093,6 +1165,14 @@ export async function onRequestPost(context) {
       month: 'long', day: 'numeric', year: 'numeric'
     });
 
+    // Phase 3: Build human-readable sub-option summary for emails
+    const subOptionSummary = [
+      subOptions.subType ? `Type: ${subOptions.subType}` : '',
+      subOptions.mounting ? `Mounting: ${subOptions.mounting}` : '',
+      subOptions.finish ? `Finish: ${subOptions.finish}` : '',
+      subOptions.edge ? `Edge: ${subOptions.edge}` : '',
+    ].filter(Boolean).join(' · ') || 'defaults';
+
     const orderDetails = {
       photoId,
       photoTitle,
@@ -1111,6 +1191,8 @@ export async function onRequestPost(context) {
       preorderCode,
       pictoremResult: orderResult,
       wholesalePrice,
+      subOptions,
+      subOptionSummary,
     };
 
     // Only send customer confirmation if Pictorem actually accepted the order
@@ -1172,6 +1254,10 @@ export async function onRequestPost(context) {
       shipCountry: address.country || '',
       shipAddress: (address.line1 || '') + (address.line2 ? ', ' + address.line2 : ''),
       shipZip: address.postal_code || '',
+      subType: subOptions.subType || '',
+      mounting: subOptions.mounting || '',
+      finish: subOptions.finish || '',
+      edge: subOptions.edge || '',
       testMode: isTestMode,
       status: orderSucceeded ? 'completed' : 'FAILED',
       notes: !orderSucceeded ? 'Pictorem rejected order: ' + JSON.stringify(orderResult).substring(0, 200) : (originalResult.source !== 'r2-original' ? 'LOW-RES IMAGE WARNING' : ''),

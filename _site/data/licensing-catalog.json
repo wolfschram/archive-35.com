@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-24T22:09:16.218597+00:00",
-  "total_images": 143,
+  "generated_at": "2026-02-26T22:42:25.980229+00:00",
+  "total_images": 166,
   "classifications": {
     "ULTRA": {
       "min_width": 15000,
@@ -4559,16 +4559,16 @@
     },
     {
       "id": "A35-20260224-0126",
-      "title": "Wolf 7584.jpg",
+      "title": "Forest Edge in Autumn Transition",
       "classification": "PREMIUM",
       "collection": "",
       "filename": "Wolf 7584",
       "original_filename": "Wolf 7584.jpg",
       "width": 14859,
       "height": 7265,
-      "megapixels": 108.0,
+      "megapixels": 108,
       "file_size_mb": 46.1,
-      "location": "",
+      "location": "Coast of California ",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0126.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0126.jpg",
       "starting_price": 280,
@@ -4595,7 +4595,7 @@
     },
     {
       "id": "A35-20260224-0127",
-      "title": "Wolf 7608.jpg",
+      "title": "Solitary Figure, Vast Shore",
       "classification": "PREMIUM",
       "collection": "",
       "filename": "Wolf 7608",
@@ -4604,7 +4604,7 @@
       "height": 5464,
       "megapixels": 71.6,
       "file_size_mb": 19.7,
-      "location": "",
+      "location": "Pacific Northwest Coast, Washington or Oregon, United States",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0127.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0127.jpg",
       "starting_price": 280,
@@ -4631,7 +4631,7 @@
     },
     {
       "id": "A35-20260224-0128",
-      "title": "Wolf 7717.jpg",
+      "title": "Urban Sprawl and Distant Spires",
       "classification": "ULTRA",
       "collection": "",
       "filename": "Wolf 7717",
@@ -4640,7 +4640,7 @@
       "height": 7621,
       "megapixels": 158.8,
       "file_size_mb": 44.3,
-      "location": "",
+      "location": "Arlington, Virginia, USA (view toward Washington, D.C.)",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0128.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0128.jpg",
       "starting_price": 350,
@@ -4667,16 +4667,16 @@
     },
     {
       "id": "A35-20260224-0129",
-      "title": "Wolf 8511.jpg",
+      "title": "Alpine Ridges and Desert Foreground",
       "classification": "ULTRA",
       "collection": "",
       "filename": "Wolf 8511",
       "original_filename": "Wolf 8511.jpg",
       "width": 38022,
       "height": 7759,
-      "megapixels": 295.0,
+      "megapixels": 295,
       "file_size_mb": 90.8,
-      "location": "",
+      "location": "Karakoram Range, Ladakh region, northern India",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0129.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0129.jpg",
       "starting_price": 350,
@@ -4703,16 +4703,16 @@
     },
     {
       "id": "A35-20260224-0130",
-      "title": "Wolf 8515.jpg",
+      "title": "Desert Basin: Layered Geology",
       "classification": "ULTRA",
       "collection": "",
       "filename": "Wolf 8515",
       "original_filename": "Wolf 8515.jpg",
       "width": 16530,
       "height": 6956,
-      "megapixels": 115.0,
+      "megapixels": 115,
       "file_size_mb": 45.9,
-      "location": "",
+      "location": "Atacama Desert Region, Northern Chile (possibly near San Pedro de Atacama or Paso de Jama area)",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0130.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0130.jpg",
       "starting_price": 350,
@@ -4739,7 +4739,7 @@
     },
     {
       "id": "A35-20260224-0131",
-      "title": "Wolf 8522.jpg",
+      "title": "Desert Basin Under Luminous Skies",
       "classification": "ULTRA",
       "collection": "",
       "filename": "Wolf 8522",
@@ -4748,7 +4748,7 @@
       "height": 6652,
       "megapixels": 105.4,
       "file_size_mb": 32.6,
-      "location": "",
+      "location": "Mojave Desert, California, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0131.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0131.jpg",
       "starting_price": 350,
@@ -4775,7 +4775,7 @@
     },
     {
       "id": "A35-20260224-0132",
-      "title": "Wolf 8540.jpg",
+      "title": "Snow-Capped Ranges Reflected in Desert Basin",
       "classification": "PREMIUM",
       "collection": "",
       "filename": "Wolf 8540",
@@ -4784,7 +4784,7 @@
       "height": 6746,
       "megapixels": 82.6,
       "file_size_mb": 29.4,
-      "location": "",
+      "location": "Death Valley National Park, California (Badwater Basin area) or similar high-desert alkali lake basin, southwestern United States",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0132.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0132.jpg",
       "starting_price": 280,
@@ -4805,13 +4805,13 @@
       },
       "max_print_150dpi": {
         "width_in": 81.6,
-        "height_in": 45.0,
+        "height_in": 45,
         "dpi": 150
       }
     },
     {
       "id": "A35-20260224-0133",
-      "title": "Wolf 8541.jpg",
+      "title": "Alpine Reflection and Desert Solitude",
       "classification": "PREMIUM",
       "collection": "",
       "filename": "Wolf 8541",
@@ -4820,7 +4820,7 @@
       "height": 5039,
       "megapixels": 52.3,
       "file_size_mb": 17.9,
-      "location": "",
+      "location": "Death Valley National Park, California (Badwater Basin area) or similar high-altitude desert salt flat, Western United States",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0133.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0133.jpg",
       "starting_price": 280,
@@ -4847,7 +4847,7 @@
     },
     {
       "id": "A35-20260224-0134",
-      "title": "Wolf 8546.jpg",
+      "title": "Alpine Reflection, Mountain Silence",
       "classification": "PREMIUM",
       "collection": "",
       "filename": "Wolf 8546",
@@ -4856,7 +4856,7 @@
       "height": 8203,
       "megapixels": 121.2,
       "file_size_mb": 50.3,
-      "location": "",
+      "location": "High altitude alpine lake region, Central Asian mountains (likely Pamir or Hindu Kush range)",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0134.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0134.jpg",
       "starting_price": 280,
@@ -4883,7 +4883,7 @@
     },
     {
       "id": "A35-20260224-0135",
-      "title": "Wolf 8557.jpg",
+      "title": "Desert Mirror: Snow-Capped Reflection",
       "classification": "ULTRA",
       "collection": "",
       "filename": "Wolf 8557",
@@ -4892,7 +4892,7 @@
       "height": 6628,
       "megapixels": 115.1,
       "file_size_mb": 38.6,
-      "location": "",
+      "location": "Death Valley National Park, California (Badwater Basin or similar salt flat lake)",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0135.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0135.jpg",
       "starting_price": 350,
@@ -4919,7 +4919,7 @@
     },
     {
       "id": "A35-20260224-0136",
-      "title": "Wolf 8596.jpg",
+      "title": "Desert Mirror: Snow-Capped Reflection",
       "classification": "ULTRA",
       "collection": "",
       "filename": "Wolf 8596",
@@ -4928,7 +4928,7 @@
       "height": 8402,
       "megapixels": 210.3,
       "file_size_mb": 71.3,
-      "location": "",
+      "location": "Death Valley National Park, California (Badwater Basin or similar salt flat lake)",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0136.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0136.jpg",
       "starting_price": 350,
@@ -4944,18 +4944,18 @@
       "status": "available",
       "max_print_300dpi": {
         "width_in": 83.4,
-        "height_in": 28.0,
+        "height_in": 28,
         "dpi": 300
       },
       "max_print_150dpi": {
         "width_in": 166.9,
-        "height_in": 56.0,
+        "height_in": 56,
         "dpi": 150
       }
     },
     {
       "id": "A35-20260224-0137",
-      "title": "Wolf 8607.jpg",
+      "title": "Desert Basin with Distant Peaks",
       "classification": "ULTRA",
       "collection": "",
       "filename": "Wolf 8607",
@@ -4964,7 +4964,7 @@
       "height": 6979,
       "megapixels": 159.4,
       "file_size_mb": 38.1,
-      "location": "",
+      "location": "Death Valley National Park or Mono Basin region, California-Nevada border, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0137.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0137.jpg",
       "starting_price": 350,
@@ -4991,7 +4991,7 @@
     },
     {
       "id": "A35-20260224-0138",
-      "title": "Wolf 8611.jpg",
+      "title": "Solitude",
       "classification": "ULTRA",
       "collection": "",
       "filename": "Wolf 8611",
@@ -5000,7 +5000,7 @@
       "height": 6968,
       "megapixels": 156.7,
       "file_size_mb": 30.2,
-      "location": "",
+      "location": "Death Valley National Park, California (Badwater Basin or similar salt flat lake)",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0138.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0138.jpg",
       "starting_price": 350,
@@ -5015,7 +5015,7 @@
       "license_count": 0,
       "status": "available",
       "max_print_300dpi": {
-        "width_in": 75.0,
+        "width_in": 75,
         "height_in": 23.2,
         "dpi": 300
       },
@@ -5027,7 +5027,7 @@
     },
     {
       "id": "A35-20260224-0139",
-      "title": "Wolf 8613.jpg",
+      "title": "Mineral Palette: Badlands Study",
       "classification": "ULTRA",
       "collection": "",
       "filename": "Wolf 8613",
@@ -5036,7 +5036,7 @@
       "height": 6813,
       "megapixels": 143.8,
       "file_size_mb": 52.9,
-      "location": "",
+      "location": "Death Valley National Park, California, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0139.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0139.jpg",
       "starting_price": 350,
@@ -5063,7 +5063,7 @@
     },
     {
       "id": "A35-20260224-0140",
-      "title": "Wolf 8630.jpg",
+      "title": "Mineral Palette: Desert Badlands",
       "classification": "PREMIUM",
       "collection": "",
       "filename": "Wolf 8630",
@@ -5072,7 +5072,7 @@
       "height": 5348,
       "megapixels": 60.1,
       "file_size_mb": 27.4,
-      "location": "",
+      "location": "Death Valley National Park, California, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0140.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0140.jpg",
       "starting_price": 280,
@@ -5092,14 +5092,14 @@
         "dpi": 300
       },
       "max_print_150dpi": {
-        "width_in": 75.0,
+        "width_in": 75,
         "height_in": 35.7,
         "dpi": 150
       }
     },
     {
       "id": "A35-20260224-0141",
-      "title": "Wolf 9184.jpg",
+      "title": "Desert Highway Perspective",
       "classification": "STANDARD",
       "collection": "",
       "filename": "Wolf 9184",
@@ -5108,7 +5108,7 @@
       "height": 3207,
       "megapixels": 25.3,
       "file_size_mb": 8.9,
-      "location": "",
+      "location": "Mojave Desert, California (Interstate 15 corridor near San Bernardino)",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0141.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0141.jpg",
       "starting_price": 175,
@@ -5135,7 +5135,7 @@
     },
     {
       "id": "A35-20260224-0142",
-      "title": "Wolf 9300.jpg",
+      "title": "Desert Expanse with Distant Peak",
       "classification": "ULTRA",
       "collection": "",
       "filename": "Wolf 9300",
@@ -5144,7 +5144,7 @@
       "height": 7271,
       "megapixels": 217.4,
       "file_size_mb": 59.1,
-      "location": "",
+      "location": "Sonoran Desert, Arizona, USA",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0142.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0142.jpg",
       "starting_price": 350,
@@ -5171,16 +5171,16 @@
     },
     {
       "id": "A35-20260224-0143",
-      "title": "Wolf 9323.jpg",
+      "title": "on the way to Las Vegas ",
       "classification": "ULTRA",
       "collection": "",
       "filename": "Wolf 9323",
       "original_filename": "Wolf 9323.jpg",
       "width": 15324,
       "height": 7637,
-      "megapixels": 117.0,
+      "megapixels": 117,
       "file_size_mb": 32.2,
-      "location": "",
+      "location": "California power station ",
       "thumbnail": "09_Licensing/thumbnails/A35-20260224-0143.jpg",
       "preview": "09_Licensing/watermarked/A35-20260224-0143.jpg",
       "starting_price": 350,
@@ -5202,6 +5202,834 @@
       "max_print_150dpi": {
         "width_in": 102.2,
         "height_in": 50.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0144",
+      "title": "Sculpted Ridges of the High Desert",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "WOLF6158-Pano",
+      "original_filename": "WOLF6158-Pano.jpg",
+      "width": 16443,
+      "height": 5768,
+      "megapixels": 94.8,
+      "file_size_mb": 35.7,
+      "location": "Death Valley National Park, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0144.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0144.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 54.8,
+        "height_in": 19.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 109.6,
+        "height_in": 38.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0145",
+      "title": "Desert Basin and Distant Peaks",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "WOLF6451-Pano",
+      "original_filename": "WOLF6451-Pano.jpg",
+      "width": 28941,
+      "height": 7355,
+      "megapixels": 212.9,
+      "file_size_mb": 60.6,
+      "location": "Owens Valley, California (Eastern Sierra region)",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0145.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0145.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 96.5,
+        "height_in": 24.5,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 192.9,
+        "height_in": 49,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0146",
+      "title": "Desert Basin Beneath the Sierra",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "WOLF6485-Pano",
+      "original_filename": "WOLF6485-Pano.jpg",
+      "width": 15543,
+      "height": 6520,
+      "megapixels": 101.3,
+      "file_size_mb": 27.3,
+      "location": "Owens Valley, Eastern Sierra Nevada, California",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0146.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0146.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 51.8,
+        "height_in": 21.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 103.6,
+        "height_in": 43.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0147",
+      "title": "Times Square Nocturne",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 10165",
+      "original_filename": "Wolf 10165.jpg",
+      "width": 12639,
+      "height": 6678,
+      "megapixels": 84.4,
+      "file_size_mb": 29.9,
+      "location": "Times Square, New York City, New York, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0147.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0147.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 42.1,
+        "height_in": 22.3,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 84.3,
+        "height_in": 44.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0148",
+      "title": "Manhattan Skyline: Architectural Density",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 10189",
+      "original_filename": "Wolf 10189.jpg",
+      "width": 19123,
+      "height": 10271,
+      "megapixels": 196.4,
+      "file_size_mb": 47.6,
+      "location": "Manhattan, New York City, New York, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0148.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0148.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 63.7,
+        "height_in": 34.2,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 127.5,
+        "height_in": 68.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0149",
+      "title": "Desert Silence at the Edge",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 10918",
+      "original_filename": "Wolf 10918.jpg",
+      "width": 17371,
+      "height": 8492,
+      "megapixels": 147.5,
+      "file_size_mb": 28.3,
+      "location": "Mojave Desert, California (Joshua Tree region)",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0149.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0149.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 57.9,
+        "height_in": 28.3,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 115.8,
+        "height_in": 56.6,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0150",
+      "title": "Desert Solitude at Golden Hour",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 10919",
+      "original_filename": "Wolf 10919.jpg",
+      "width": 17371,
+      "height": 8492,
+      "megapixels": 147.5,
+      "file_size_mb": 18.7,
+      "location": "Mojave Desert, California",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0150.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0150.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 57.9,
+        "height_in": 28.3,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 115.8,
+        "height_in": 56.6,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0151",
+      "title": "Storm Light Over Rocky Coast",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 11018",
+      "original_filename": "Wolf 11018.jpg",
+      "width": 17354,
+      "height": 6521,
+      "megapixels": 113.2,
+      "file_size_mb": 35.6,
+      "location": "Hawaii Big Island ",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0151.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0151.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 57.8,
+        "height_in": 21.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 115.7,
+        "height_in": 43.5,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0152",
+      "title": "Volcanic Calderas at Cloud Level",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 11077",
+      "original_filename": "Wolf 11077.jpg",
+      "width": 14396,
+      "height": 7333,
+      "megapixels": 105.6,
+      "file_size_mb": 29.2,
+      "location": "Mauna Kea or Mauna Loa summit region, Hawaii Big Island, Hawaii",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0152.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0152.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 48,
+        "height_in": 24.4,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 96,
+        "height_in": 48.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0153",
+      "title": "Observatory at the Summit",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 11078",
+      "original_filename": "Wolf 11078.jpg",
+      "width": 21304,
+      "height": 8787,
+      "megapixels": 187.2,
+      "file_size_mb": 40.8,
+      "location": "Mauna Kea Observatory, Hawaii Island, Hawaii",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0153.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0153.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 71,
+        "height_in": 29.3,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 142,
+        "height_in": 58.6,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0154",
+      "title": "Desert Granite Valley in Bloom",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 11624",
+      "original_filename": "Wolf 11624.jpg",
+      "width": 16910,
+      "height": 8224,
+      "megapixels": 139.1,
+      "file_size_mb": 48.5,
+      "location": "Joshua Tree National Park, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0154.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0154.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 56.4,
+        "height_in": 27.4,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 112.7,
+        "height_in": 54.8,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0155",
+      "title": "Desert Canyon Infrastructure",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 11626",
+      "original_filename": "Wolf 11626.jpg",
+      "width": 14111,
+      "height": 6302,
+      "megapixels": 88.9,
+      "file_size_mb": 42.5,
+      "location": "Mojave Desert region, California ",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0155.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0155.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 47,
+        "height_in": 21,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 94.1,
+        "height_in": 42,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0156",
+      "title": "Iron Trestle Across Desert Canyon",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 11637",
+      "original_filename": "Wolf 11637.jpg",
+      "width": 15456,
+      "height": 7948,
+      "megapixels": 122.8,
+      "file_size_mb": 48.7,
+      "location": "california ",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0156.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0156.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 51.5,
+        "height_in": 26.5,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 103,
+        "height_in": 53,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0157",
+      "title": "Yosemite Valley Vista: Alpine Gateway",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 9399",
+      "original_filename": "Wolf 9399.jpg",
+      "width": 20373,
+      "height": 9596,
+      "megapixels": 195.5,
+      "file_size_mb": 79.8,
+      "location": "Yosemite National Park, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0157.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0157.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 67.9,
+        "height_in": 32,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 135.8,
+        "height_in": 64,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0158",
+      "title": "Granite Cliffs and Forest Cathedral",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 9403",
+      "original_filename": "Wolf 9403.jpg",
+      "width": 30037,
+      "height": 11091,
+      "megapixels": 333.1,
+      "file_size_mb": 163.2,
+      "location": "Yosemite Valley, Yosemite National Park, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0158.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0158.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 100.1,
+        "height_in": 37,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 200.2,
+        "height_in": 73.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0159",
+      "title": "Cathedral Granite and Alpine Meadow",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 9417",
+      "original_filename": "Wolf 9417.jpg",
+      "width": 16027,
+      "height": 6850,
+      "megapixels": 109.8,
+      "file_size_mb": 37.1,
+      "location": "Yosemite Valley, Yosemite National Park, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0159.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0159.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 53.4,
+        "height_in": 22.8,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 106.8,
+        "height_in": 45.7,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0160",
+      "title": "Stillwater Reflections in Alpine Forest",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 9418",
+      "original_filename": "Wolf 9418.jpg",
+      "width": 16093,
+      "height": 8886,
+      "megapixels": 143,
+      "file_size_mb": 46.8,
+      "location": "Yosemite Valley, Yosemite National Park, California, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0160.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0160.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 53.6,
+        "height_in": 29.6,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 107.3,
+        "height_in": 59.2,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0161",
+      "title": "Alpine Forest and Granite Peaks",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 9422",
+      "original_filename": "Wolf 9422.jpg",
+      "width": 19676,
+      "height": 11293,
+      "megapixels": 222.2,
+      "file_size_mb": 69.3,
+      "location": "Yosemite National Park, Sierra Nevada, California",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0161.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0161.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 65.6,
+        "height_in": 37.6,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 131.2,
+        "height_in": 75.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0162",
+      "title": "Urban Canyons: Vertical Perspective",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 9804",
+      "original_filename": "Wolf 9804.jpg",
+      "width": 11804,
+      "height": 7226,
+      "megapixels": 85.3,
+      "file_size_mb": 19.4,
+      "location": "Chicago New York City, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0162.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0162.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 39.3,
+        "height_in": 24.1,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 78.7,
+        "height_in": 48.2,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0163",
+      "title": "Chicago River Crossing",
+      "classification": "ULTRA",
+      "collection": "",
+      "filename": "Wolf 9805",
+      "original_filename": "Wolf 9805.jpg",
+      "width": 15073,
+      "height": 7192,
+      "megapixels": 108.4,
+      "file_size_mb": 33.6,
+      "location": "Chicago River, Downtown Chicago, Illinois, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0163.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0163.jpg",
+      "starting_price": 350,
+      "pricing": {
+        "web_social": 350,
+        "editorial": 700,
+        "commercial_print": 1400,
+        "billboard_ooh": 2450,
+        "hospitality": 3500,
+        "exclusive": 10500
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 50.2,
+        "height_in": 24,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 100.5,
+        "height_in": 47.9,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0164",
+      "title": "Urban Canyon: Glass and Brick",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 9806",
+      "original_filename": "Wolf 9806.jpg",
+      "width": 14427,
+      "height": 8302,
+      "megapixels": 119.8,
+      "file_size_mb": 38.7,
+      "location": "Downtown Chicago, Illinois, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0164.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0164.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 48.1,
+        "height_in": 27.7,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 96.2,
+        "height_in": 55.3,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0165",
+      "title": "Urban Geometry Under Steel",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 9807",
+      "original_filename": "Wolf 9807.jpg",
+      "width": 14652,
+      "height": 6171,
+      "megapixels": 90.4,
+      "file_size_mb": 19.2,
+      "location": "Chicago, Illinois, USA (elevated train infrastructure)",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0165.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0165.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 48.8,
+        "height_in": 20.6,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 97.7,
+        "height_in": 41.1,
+        "dpi": 150
+      }
+    },
+    {
+      "id": "A35-20260226-0166",
+      "title": "Urban Canyon: Glass and Steel",
+      "classification": "PREMIUM",
+      "collection": "",
+      "filename": "Wolf 9809",
+      "original_filename": "Wolf 9809.jpg",
+      "width": 14567,
+      "height": 8718,
+      "megapixels": 127,
+      "file_size_mb": 38.6,
+      "location": "Downtown Chicago, Illinois, USA",
+      "thumbnail": "09_Licensing/thumbnails/A35-20260226-0166.jpg",
+      "preview": "09_Licensing/watermarked/A35-20260226-0166.jpg",
+      "starting_price": 280,
+      "pricing": {
+        "web_social": 280,
+        "editorial": 525,
+        "commercial_print": 1050,
+        "billboard_ooh": 1750,
+        "hospitality": 2450,
+        "exclusive": 7000
+      },
+      "license_count": 0,
+      "status": "available",
+      "max_print_300dpi": {
+        "width_in": 48.6,
+        "height_in": 29.1,
+        "dpi": 300
+      },
+      "max_print_150dpi": {
+        "width_in": 97.1,
+        "height_in": 58.1,
         "dpi": 150
       }
     }

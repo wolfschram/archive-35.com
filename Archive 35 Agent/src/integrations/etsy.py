@@ -569,6 +569,179 @@ def delete_listing(listing_id: int) -> dict[str, Any]:
     return result
 
 
+# ── Listing Inventory (Variations) ───────────────────────────────────────
+
+def get_listing_inventory(listing_id: int) -> dict[str, Any]:
+    """Get current inventory/variations for a listing.
+
+    Useful for inspecting property IDs and variation structure
+    on existing listings.
+    """
+    return _api_request(f"/application/listings/{listing_id}/inventory")
+
+
+def update_listing_inventory(
+    listing_id: int,
+    inventory_payload: dict[str, Any],
+) -> dict[str, Any]:
+    """Set the full variation/pricing matrix for a listing.
+
+    This is the key endpoint that creates Material & Size × Frame
+    combinations with individual pricing and enabled/disabled state.
+
+    Args:
+        listing_id: Etsy listing ID
+        inventory_payload: Output from etsy_variations.build_etsy_inventory_payload()
+            Must contain: products, price_on_property, quantity_on_property, sku_on_property
+
+    Returns:
+        Updated inventory data or error dict.
+    """
+    return _api_request(
+        f"/application/listings/{listing_id}/inventory",
+        method="PUT",
+        data=inventory_payload,
+        content_type="application/json",
+    )
+
+
+def create_full_listing(
+    title: str,
+    description: str,
+    tags: list[str],
+    photo_width: int,
+    photo_height: int,
+    image_paths: list[str] | None = None,
+    image_urls: list[str] | None = None,
+    shipping_profile_id: Optional[int] = None,
+    taxonomy_id: int = DEFAULT_TAXONOMY_ID,
+    min_dpi: int = 150,
+    activate: bool = False,
+) -> dict[str, Any]:
+    """Create a complete Etsy listing with all variations, pricing, and images.
+
+    This is the one-shot orchestrator that does everything:
+    1. Creates a draft listing
+    2. Uploads images
+    3. Sets the full Material & Size × Frame inventory matrix
+    4. Optionally activates the listing
+
+    Args:
+        title: Listing title (max 140 chars)
+        description: Full listing description
+        tags: Up to 13 Etsy tags
+        photo_width: Source photo pixel width (for DPI calculations)
+        photo_height: Source photo pixel height
+        image_paths: Local file paths to upload as listing images
+        image_urls: URLs to download and upload as listing images
+        shipping_profile_id: Etsy shipping profile ID
+        taxonomy_id: Etsy category taxonomy ID
+        min_dpi: Minimum print DPI threshold
+        activate: If True, set listing to active after setup
+
+    Returns:
+        Result dict with listing_id, variant_count, price_range, or error.
+    """
+    from src.brand.etsy_variations import (
+        build_variation_matrix,
+        build_etsy_inventory_payload,
+        get_matrix_summary,
+    )
+
+    # Step 1: Build the variation matrix to get the base price
+    products = build_variation_matrix(photo_width, photo_height, min_dpi=min_dpi)
+    if not products:
+        return {"error": "No valid print sizes for this photo (check DPI/dimensions)"}
+
+    summary = get_matrix_summary(products)
+    base_price = summary["price_range"][0]  # Lowest price for draft creation
+
+    logger.info(
+        "Creating listing '%s' with %d variants ($%.0f–$%.0f)",
+        title[:50], summary["total_variants"],
+        summary["price_range"][0], summary["price_range"][1],
+    )
+
+    # Step 2: Create draft listing
+    result = create_listing(
+        title=title,
+        description=description,
+        price=base_price,
+        tags=tags,
+        quantity=999,
+        shipping_profile_id=shipping_profile_id,
+        taxonomy_id=taxonomy_id,
+    )
+
+    if "error" in result:
+        return {"error": f"Failed to create listing: {result['error']}",
+                "detail": result.get("detail", "")}
+
+    listing_id = result.get("listing_id")
+    if not listing_id:
+        return {"error": "Listing created but no listing_id returned", "result": result}
+
+    logger.info("Created draft listing %s", listing_id)
+
+    # Step 3: Upload images
+    uploaded_images = []
+    all_images = []
+    if image_paths:
+        all_images.extend(("path", p) for p in image_paths)
+    if image_urls:
+        all_images.extend(("url", u) for u in image_urls)
+
+    for rank, (img_type, img_source) in enumerate(all_images, start=1):
+        if img_type == "url":
+            img_result = upload_listing_image(listing_id, img_source, rank=rank)
+        else:
+            # For local paths, read the file and we'd need a file upload variant
+            # For now, skip local paths (TODO: add file upload support)
+            logger.warning("Local file upload not yet supported: %s", img_source)
+            continue
+
+        if "error" in img_result:
+            logger.error("Image upload %d failed: %s", rank, img_result["error"])
+        else:
+            uploaded_images.append(img_result)
+            logger.info("Uploaded image %d/%d for listing %s",
+                        rank, len(all_images), listing_id)
+
+    # Step 4: Set inventory (variations + pricing)
+    inventory_payload = build_etsy_inventory_payload(products)
+    inv_result = update_listing_inventory(listing_id, inventory_payload)
+
+    if "error" in inv_result:
+        return {
+            "error": f"Listing created but inventory update failed: {inv_result['error']}",
+            "listing_id": listing_id,
+            "detail": inv_result.get("detail", ""),
+            "note": "Listing exists as draft — fix inventory manually or retry",
+        }
+
+    logger.info("Set %d variants on listing %s", summary["total_variants"], listing_id)
+
+    # Step 5: Optionally activate
+    if activate:
+        activate_result = update_listing(listing_id, {"state": "active"})
+        if "error" in activate_result:
+            logger.warning("Failed to activate listing %s: %s",
+                           listing_id, activate_result["error"])
+
+    return {
+        "listing_id": listing_id,
+        "status": "active" if activate else "draft",
+        "total_variants": summary["total_variants"],
+        "enabled_variants": summary["enabled_variants"],
+        "disabled_variants": summary["disabled_variants"],
+        "price_range": summary["price_range"],
+        "materials": summary["materials"],
+        "sizes": summary["sizes"],
+        "frames": summary["frames"],
+        "images_uploaded": len(uploaded_images),
+    }
+
+
 # ── Order / Receipt Polling ──────────────────────────────────────────────
 
 def get_receipts(

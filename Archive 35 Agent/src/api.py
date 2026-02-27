@@ -1638,6 +1638,136 @@ def create_etsy_listing(req: EtsyListingCreate):
         conn.close()
 
 
+class EtsyFullListingCreate(BaseModel):
+    """Create a complete Etsy listing with all variations and pricing."""
+    content_id: str
+    shipping_profile_id: Optional[int] = None
+    min_dpi: int = 150
+    activate: bool = False
+
+
+@app.post("/etsy/listings/create-full")
+def create_full_etsy_listing(req: EtsyFullListingCreate):
+    """Create a complete Etsy listing with Material & Size × Frame variations.
+
+    This is the one-shot endpoint that:
+    1. Reads approved content + photo metadata from the database
+    2. Builds the full variation matrix (5 materials × N sizes × 4 frames)
+    3. Creates the listing, uploads images, sets all prices
+    4. Disables Wood + Frame combos automatically
+    5. Optionally activates the listing
+
+    Returns the full listing details including variant count and price range.
+    """
+    from src.integrations.etsy import create_full_listing
+    from src.brand.etsy_variations import build_variation_matrix, get_matrix_summary
+
+    conn = _get_conn()
+    try:
+        # Get approved content
+        content = conn.execute(
+            "SELECT * FROM content WHERE id = ? AND platform = 'etsy'",
+            (req.content_id,),
+        ).fetchone()
+        if not content:
+            raise HTTPException(status_code=404, detail="Content not found or not Etsy platform")
+        content = dict(content)
+
+        # Get photo metadata (need dimensions for DPI calc)
+        photo = conn.execute(
+            "SELECT * FROM photos WHERE id = ?",
+            (content["photo_id"],),
+        ).fetchone()
+        if not photo:
+            raise HTTPException(status_code=404, detail="Photo not found")
+        photo = dict(photo)
+
+        photo_w = photo.get("width") or photo.get("photo_width") or 6000
+        photo_h = photo.get("height") or photo.get("photo_height") or 4000
+
+        # Parse tags
+        import json as _json
+        try:
+            tags = _json.loads(content["tags"]) if content.get("tags") else []
+        except (ValueError, TypeError):
+            tags = []
+
+        # Build title
+        title = content.get("title") or ""
+        if not title:
+            first_line = (content.get("body") or "").split("\n")[0].strip()
+            title = first_line[:140] if first_line else "Fine Art Photography Print"
+
+        # Build description
+        description = content.get("body") or ""
+        if content.get("provenance"):
+            description += f"\n\n{content['provenance']}"
+        description += "\n\n© Wolfgang Schram / Archive-35 Studio"
+        description += "\nAll prints are made-to-order and shipped directly from our professional print lab."
+
+        # Build image URL from photo metadata
+        collection = photo.get("collection", "")
+        filename = photo.get("filename", "")
+        image_urls = []
+        if collection and filename:
+            # Use the full-res web image
+            base = filename.rsplit(".", 1)[0] if "." in filename else filename
+            image_urls.append(f"https://archive-35.com/images/{collection}/{base}-full.jpg")
+
+        # Preview: show what would be created (dry run info)
+        products = build_variation_matrix(photo_w, photo_h, min_dpi=req.min_dpi)
+        summary = get_matrix_summary(products)
+
+        # Create the full listing
+        result = create_full_listing(
+            title=title,
+            description=description,
+            tags=tags,
+            photo_width=photo_w,
+            photo_height=photo_h,
+            image_urls=image_urls if image_urls else None,
+            shipping_profile_id=req.shipping_profile_id,
+            min_dpi=req.min_dpi,
+            activate=req.activate,
+        )
+
+        if "error" in result:
+            raise HTTPException(status_code=502, detail=result["error"])
+
+        # Record in audit log
+        audit.log(conn, "etsy", "full_listing_created", {
+            "listing_id": result.get("listing_id"),
+            "content_id": req.content_id,
+            "variants": result.get("total_variants"),
+            "price_range": result.get("price_range"),
+            "activated": req.activate,
+        })
+
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Failed to create full Etsy listing: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
+@app.get("/etsy/listings/{listing_id}/inventory")
+def get_etsy_listing_inventory(listing_id: int):
+    """Get current inventory/variations for an existing listing.
+
+    Use this to inspect property IDs and variation structure
+    on listings created manually, to calibrate the automation.
+    """
+    from src.integrations.etsy import get_listing_inventory
+    result = get_listing_inventory(listing_id)
+    if "error" in result:
+        raise HTTPException(status_code=502, detail=result["error"])
+    return result
+
+
 class EtsyImageUpload(BaseModel):
     photo_id: str
 

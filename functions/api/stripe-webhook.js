@@ -102,6 +102,7 @@ function getCollectionFromPhotoId(photoId) {
  * @param {string} [subOptions.mounting] - Mounting code (e.g., 'standoff', 'frenchcleat', 'none')
  * @param {string} [subOptions.finish] - Finish code (e.g., 'semigloss', 'matte') — canvas only
  * @param {string} [subOptions.edge] - Edge code (e.g., 'mirrorimage', 'gallerywrap') — canvas only
+ * @param {string} [subOptions.frame] - Frame moulding code (e.g., '303-19' floating, '241-29' picture)
  */
 function buildPreorderCode(material, printWidth, printHeight, subOptions = {}) {
   const mapping = MATERIAL_MAP[material];
@@ -111,9 +112,10 @@ function buildPreorderCode(material, printWidth, printHeight, subOptions = {}) {
 
   const orientation = printWidth >= printHeight ? 'horizontal' : 'vertical';
   const hasSubOptions = subOptions.subType || subOptions.mounting || subOptions.finish || subOptions.edge;
+  const frameCode = subOptions.frame || '';
 
   // No sub-options → use MATERIAL_MAP defaults (backward compatible with legacy checkouts)
-  if (!hasSubOptions) {
+  if (!hasSubOptions && !frameCode) {
     const parts = ['1', mapping.material, mapping.type, orientation, String(printWidth), String(printHeight)];
     if (mapping.additionals && mapping.additionals.some(a => a !== 'none')) {
       parts.push(...mapping.additionals);
@@ -170,6 +172,14 @@ function buildPreorderCode(material, printWidth, printHeight, subOptions = {}) {
   const parts = ['1', mapping.material, type, orientation, String(printWidth), String(printHeight)];
   if (additionals.length > 0 && additionals.some(a => a !== 'none')) {
     parts.push(...additionals);
+  }
+
+  // Phase 4: Append frame moulding code if selected
+  // Floating frames (canvas/metal/acrylic): mountingType = 'moulding'
+  // Picture frames (paper): mountingType = 'frame'
+  if (frameCode) {
+    const frameMountingType = material === 'paper' ? 'frame' : 'moulding';
+    parts.push(frameMountingType, frameCode);
   }
 
   return parts.join('|');
@@ -1005,6 +1015,7 @@ export async function onRequestPost(context) {
       mounting: metadata.mounting || '',
       finish: metadata.finish || '',
       edge: metadata.edge || '',
+      frame: metadata.frame || '',
     };
     const preorderCode = buildPreorderCode(material, printWidth, printHeight, subOptions);
     console.log('Pictorem preorder code:', preorderCode, '| sub-options:', JSON.stringify(subOptions));
@@ -1165,12 +1176,13 @@ export async function onRequestPost(context) {
       month: 'long', day: 'numeric', year: 'numeric'
     });
 
-    // Phase 3: Build human-readable sub-option summary for emails
+    // Phase 3+4: Build human-readable sub-option summary for emails
     const subOptionSummary = [
       subOptions.subType ? `Type: ${subOptions.subType}` : '',
       subOptions.mounting ? `Mounting: ${subOptions.mounting}` : '',
       subOptions.finish ? `Finish: ${subOptions.finish}` : '',
       subOptions.edge ? `Edge: ${subOptions.edge}` : '',
+      subOptions.frame ? `Frame: ${subOptions.frame}` : '',
     ].filter(Boolean).join(' · ') || 'defaults';
 
     const orderDetails = {
@@ -1258,6 +1270,7 @@ export async function onRequestPost(context) {
       mounting: subOptions.mounting || '',
       finish: subOptions.finish || '',
       edge: subOptions.edge || '',
+      frame: subOptions.frame || '',
       testMode: isTestMode,
       status: orderSucceeded ? 'completed' : 'FAILED',
       notes: !orderSucceeded ? 'Pictorem rejected order: ' + JSON.stringify(orderResult).substring(0, 200) : (originalResult.source !== 'r2-original' ? 'LOW-RES IMAGE WARNING' : ''),

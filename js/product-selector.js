@@ -375,6 +375,11 @@ function createProductSelectorModal(photoData) {
           <div class="sub-option-grid" id="edge-grid"></div>
         </div>
 
+        <div id="frame-section" class="sub-option-section" style="display:none;">
+          <h3>Add Frame <span style="font-size:0.75em;color:#888;">(optional)</span></h3>
+          <div class="sub-option-grid" id="frame-grid"></div>
+        </div>
+
         <!-- Size Selection -->
         <div class="size-section">
           <h3 id="size-step-heading">Step 2: Choose Size</h3>
@@ -404,6 +409,10 @@ function createProductSelectorModal(photoData) {
           <div class="summary-row" id="summary-edge-row" style="display:none;">
             <span>Edge:</span>
             <span id="summary-edge">—</span>
+          </div>
+          <div class="summary-row" id="summary-frame-row" style="display:none;">
+            <span>Frame:</span>
+            <span id="summary-frame">—</span>
           </div>
           <div class="summary-row">
             <span>Size:</span>
@@ -585,6 +594,7 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
   let selectedMounting = null;
   let selectedFinish = null;
   let selectedEdge = null;
+  let selectedFrame = null; // Phase 4: optional frame moulding code (e.g., '303-19')
 
   // ── Tab switching ────────────────────────────────────────────────
   const tabs = modal.querySelectorAll('.selector-tab');
@@ -800,21 +810,24 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
     const mountingSection = modal.querySelector('#mounting-section');
     const finishSection = modal.querySelector('#finish-section');
     const edgeSection = modal.querySelector('#edge-section');
+    const frameSection = modal.querySelector('#frame-section');
     const subtypeGrid = modal.querySelector('#subtype-grid');
     const mountingGrid = modal.querySelector('#mounting-grid');
     const finishGrid = modal.querySelector('#finish-grid');
     const edgeGrid = modal.querySelector('#edge-grid');
+    const frameGrid = modal.querySelector('#frame-grid');
 
     // Reset all sub-option sections
-    [subtypeSection, mountingSection, finishSection, edgeSection].forEach(s => s.style.display = 'none');
-    [subtypeGrid, mountingGrid, finishGrid, edgeGrid].forEach(g => { g.innerHTML = ''; });
+    [subtypeSection, mountingSection, finishSection, edgeSection, frameSection].forEach(s => { if (s) s.style.display = 'none'; });
+    [subtypeGrid, mountingGrid, finishGrid, edgeGrid, frameGrid].forEach(g => { if (g) g.innerHTML = ''; });
     selectedSubtype = null;
     selectedMounting = null;
     selectedFinish = null;
     selectedEdge = null;
+    selectedFrame = null;
 
     // Hide summary rows
-    ['summary-subtype-row', 'summary-mounting-row', 'summary-finish-row', 'summary-edge-row'].forEach(id => {
+    ['summary-subtype-row', 'summary-mounting-row', 'summary-finish-row', 'summary-edge-row', 'summary-frame-row'].forEach(id => {
       const row = modal.querySelector('#' + id);
       if (row) row.style.display = 'none';
     });
@@ -966,6 +979,71 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
       });
     }
 
+    // Render frame options (Phase 4)
+    if (PRODUCT_CATALOG && PRODUCT_CATALOG.frameOptions && PRODUCT_CATALOG.frameOptions.enabled) {
+      const frameOpts = PRODUCT_CATALOG.frameOptions;
+      // Determine which frame type applies to this material
+      let frameType = null;
+      let mouldings = null;
+      if (frameOpts.floatingFrames && frameOpts.floatingFrames.applicableMaterials.includes(materialKey)) {
+        frameType = 'floating';
+        mouldings = frameOpts.floatingFrames.mouldings;
+      } else if (frameOpts.pictureFrames && frameOpts.pictureFrames.applicableMaterials.includes(materialKey)) {
+        frameType = 'picture';
+        mouldings = frameOpts.pictureFrames.mouldings;
+      }
+
+      if (mouldings && frameSection && frameGrid) {
+        frameSection.style.display = '';
+        // Build frame cards: "No Frame" + each moulding option
+        let frameHTML = `
+          <div class="sub-option-card selected" data-frame-code="">
+            <input type="radio" name="frame" value="" checked />
+            <label>
+              <div class="sub-option-name">No Frame</div>
+              <div class="sub-option-desc">Print only — ${frameType === 'picture' ? 'ships rolled in tube' : 'ready to hang as-is'}</div>
+            </label>
+          </div>
+        `;
+        frameHTML += Object.entries(mouldings).map(([code, frame]) => `
+          <div class="sub-option-card" data-frame-code="${code}">
+            <input type="radio" name="frame" value="${code}" />
+            <label>
+              <div class="sub-option-name">
+                <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${frame.colorHex};border:1px solid #555;vertical-align:middle;margin-right:6px;"></span>
+                ${frame.name}${frame.recommended ? ' <span class="rec-badge">Recommended</span>' : ''}
+              </div>
+              <div class="sub-option-desc">${frame.description}</div>
+            </label>
+          </div>
+        `).join('');
+        frameGrid.innerHTML = frameHTML;
+
+        // Click handlers for frame cards
+        frameGrid.querySelectorAll('.sub-option-card').forEach(card => {
+          card.addEventListener('click', () => {
+            frameGrid.querySelectorAll('.sub-option-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            card.querySelector('input').checked = true;
+            selectedFrame = card.dataset.frameCode || null;
+            const frameRow = modal.querySelector('#summary-frame-row');
+            const frameSummary = modal.querySelector('#summary-frame');
+            if (selectedFrame && mouldings[selectedFrame]) {
+              frameRow.style.display = '';
+              frameSummary.textContent = mouldings[selectedFrame].name;
+            } else {
+              frameRow.style.display = 'none';
+              frameSummary.textContent = '—';
+            }
+            // Re-calculate price with frame add-on
+            if (selectedSize) {
+              updatePriceSummary(modal, selectedMaterial, selectedSize, photoData);
+            }
+          });
+        });
+      }
+    }
+
     // Update step numbering for size
     const sizeHeading = modal.querySelector('#size-step-heading');
     if (sizeHeading) {
@@ -1070,11 +1148,26 @@ function populateSizes(container, sizes, photoData, materialKey, modal, onSelect
   });
 }
 
+// Phase 4: Frame add-on pricing (approximate, based on Pictorem getprice data)
+function getFrameAddOnPrice(size) {
+  const area = size.width * size.height;
+  if (area <= 144) return 60;       // 12x12 and under
+  if (area <= 288) return 70;       // up to 24x12
+  if (area <= 480) return 80;       // up to 30x16
+  if (area <= 864) return 100;      // up to 36x24
+  if (area <= 1536) return 130;     // up to 48x32
+  return 160;                        // 60x40 and up
+}
+
 function updatePriceSummary(modal, materialKey, size, photoData) {
   const { width: photoWidth, height: photoHeight } = photoData.dimensions;
   const dpi = calculateDPI(photoWidth, photoHeight, size.width, size.height);
   const quality = getQualityBadge(dpi);
-  const price = calculatePrice(materialKey, size.inches);
+  let price = calculatePrice(materialKey, size.inches);
+  // Phase 4: Add frame cost if selected
+  if (selectedFrame) {
+    price += getFrameAddOnPrice(size);
+  }
 
   modal.querySelector('#summary-size').textContent =
     `${size.width}" × ${size.height}"`;
@@ -1089,7 +1182,10 @@ function updatePriceSummary(modal, materialKey, size, photoData) {
 function addToCart(photoData, materialKey, size) {
   const { id, title, thumbnail, dimensions } = photoData;
   const material = MATERIALS[materialKey];
-  const price = calculatePrice(materialKey, size.inches);
+  let price = calculatePrice(materialKey, size.inches);
+  if (selectedFrame) {
+    price += getFrameAddOnPrice(size);
+  }
   const sizeStr = `${size.width}" × ${size.height}"`;
 
   // Create cart item
@@ -1111,6 +1207,7 @@ function addToCart(photoData, materialKey, size) {
       mounting: selectedMounting || '',
       finish: selectedFinish || '',
       edge: selectedEdge || '',
+      frame: selectedFrame || '',
       width: size.width.toString(),
       height: size.height.toString(),
       originalPhotoWidth: dimensions.width.toString(),
@@ -1145,7 +1242,10 @@ function addToCart(photoData, materialKey, size) {
 function initiateStripeCheckout(photoData, materialKey, size) {
   const { id, title, dimensions } = photoData;
   const material = MATERIALS[materialKey];
-  const price = calculatePrice(materialKey, size.inches);
+  let price = calculatePrice(materialKey, size.inches);
+  if (selectedFrame) {
+    price += getFrameAddOnPrice(size);
+  }
   const priceInCents = price * 100;
 
   // Create line item for Stripe
@@ -1154,7 +1254,7 @@ function initiateStripeCheckout(photoData, materialKey, size) {
       currency: 'usd',
       product_data: {
         name: `${title} - ${material.name}`,
-        description: `${size.width}" × ${size.height}" Print`,
+        description: `${size.width}" × ${size.height}" Print${selectedFrame ? ' + Frame' : ''}`,
         metadata: {
           photoId: id,
           material: materialKey,
@@ -1162,6 +1262,7 @@ function initiateStripeCheckout(photoData, materialKey, size) {
           mounting: selectedMounting || '',
           finish: selectedFinish || '',
           edge: selectedEdge || '',
+          frame: selectedFrame || '',
           width: size.width.toString(),
           height: size.height.toString(),
           originalPhotoWidth: dimensions.width.toString(),
@@ -1194,6 +1295,7 @@ function initiateStripeCheckout(photoData, materialKey, size) {
       mounting: selectedMounting || '',
       finish: selectedFinish || '',
       edge: selectedEdge || '',
+      frame: selectedFrame || '',
       dimensions: {
         width: size.width,
         height: size.height,

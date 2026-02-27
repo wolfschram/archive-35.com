@@ -1,6 +1,6 @@
 {
-  "version": "2.0",
-  "generated": "2026-02-27T03:30:00Z",
+  "version": "3.0",
+  "generated": "2026-02-27T22:00:00Z",
   "description": "Single source of truth for all product configuration. Read by: website product-selector.js, stripe-webhook.js, Agent pricing.py, Agent etsy.py",
 
   "materials": {
@@ -401,21 +401,76 @@
     }
   },
 
-  "standardFrames": {
-    "enabled": false,
-    "note": "Phase 4 — standard frames require mat calculation engine and Pictorem buildproductlist API integration",
-    "sizes": [
-      { "width": 16, "height": 22, "orientation": "portrait" },
-      { "width": 22, "height": 16, "orientation": "landscape" },
-      { "width": 20, "height": 28, "orientation": "portrait" },
-      { "width": 28, "height": 20, "orientation": "landscape" },
-      { "width": 28, "height": 28, "orientation": "square" },
-      { "width": 24, "height": 34, "orientation": "portrait" },
-      { "width": 34, "height": 24, "orientation": "landscape" },
-      { "width": 40, "height": 28, "orientation": "landscape" }
-    ],
-    "mouldings": ["black-satin", "natural-wood", "white"],
-    "includes": "2-inch white border, wire backing, felt pads, glass"
+  "frameOptions": {
+    "enabled": true,
+    "note": "Phase 4: Optional frame add-on for any material. Floating frames for canvas/metal/acrylic, picture frames for paper.",
+    "floatingFrames": {
+      "description": "Floating frames for stretched canvas, metal, and acrylic prints. Print appears to float inside the frame with a visible gap.",
+      "pictoremMountingType": "moulding",
+      "applicableMaterials": ["canvas", "metal", "acrylic"],
+      "mouldings": {
+        "303-19": {
+          "name": "Black Floating Frame",
+          "code": "303-19",
+          "color": "black",
+          "colorHex": "#1a1a1a",
+          "series": "303",
+          "description": "Clean matte black floating frame. Contemporary gallery standard.",
+          "default": true,
+          "recommended": true
+        },
+        "303-12": {
+          "name": "Natural Wood Floating Frame",
+          "code": "303-12",
+          "color": "natural",
+          "colorHex": "#c4a882",
+          "series": "303",
+          "description": "Light natural wood floating frame. Warm, organic complement to landscape photography."
+        },
+        "317-22": {
+          "name": "White Floating Frame",
+          "code": "317-22",
+          "color": "white",
+          "colorHex": "#f5f5f0",
+          "series": "317",
+          "description": "Clean white floating frame. Bright, modern aesthetic for minimalist interiors."
+        }
+      }
+    },
+    "pictureFrames": {
+      "description": "Traditional picture frames for fine art paper prints. Includes plexiglass protection (auto-added by Pictorem).",
+      "pictoremMountingType": "frame",
+      "applicableMaterials": ["paper"],
+      "includesPlexiglass": true,
+      "mouldings": {
+        "241-29": {
+          "name": "Black Picture Frame",
+          "code": "241-29",
+          "color": "black",
+          "colorHex": "#1a1a1a",
+          "series": "241",
+          "description": "Classic matte black picture frame. Timeless gallery presentation.",
+          "default": true,
+          "recommended": true
+        },
+        "241-22": {
+          "name": "White Picture Frame",
+          "code": "241-22",
+          "color": "white",
+          "colorHex": "#f5f5f0",
+          "series": "241",
+          "description": "Clean white picture frame. Modern, bright aesthetic."
+        },
+        "724-12": {
+          "name": "Natural Wood Picture Frame",
+          "code": "724-12",
+          "color": "natural",
+          "colorHex": "#c4a882",
+          "series": "724",
+          "description": "Light natural wood picture frame. Warm, organic finish."
+        }
+      }
+    }
   },
 
   "printQualityThresholds": {
@@ -432,7 +487,15 @@
   },
 
   "preorderCodeFormat": {
-    "pattern": "qty|material|type|orientation|width|height|additional1|additional2|...",
-    "orientationLogic": "width > height ? 'horizontal' : (height > width ? 'vertical' : 'square')"
+    "pattern": "qty|material|type|orientation|width|height|additional1|additional2|...|mountingType|frameCode",
+    "orientationLogic": "width >= height ? 'horizontal' : 'vertical'",
+    "apiBaseUrl": "https://www.pictorem.com/artflow/0.1",
+    "apiEndpoints": ["validatepreorder", "getprice", "getleadtime", "sendorder", "buildproductlist"],
+    "frameExamples": {
+      "metalWithFrame": "1|metal|hd|horizontal|24|16|moulding|303-19",
+      "canvasWithFrame": "1|canvas|stretched|horizontal|24|16|semigloss|mirrorimage|c15|moulding|303-19",
+      "paperWithFrame": "1|paper|art|horizontal|24|16|frame|241-29"
+    },
+    "note": "Frame code and mounting type go at end of additionals. Pictorem auto-sanitizes order. Paper frames auto-include plexiglass."
   }
 }

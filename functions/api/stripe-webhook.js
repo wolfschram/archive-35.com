@@ -29,6 +29,9 @@
 // MATERIAL MAPPING: Website → Pictorem preordercode
 // ============================================================================
 
+// Default material configurations — used when checkout metadata doesn't specify sub-options.
+// Phase 2 will pass subType, mounting, and finish from the product configurator UI.
+// CONSTRAINT: Never modify without testing against Pictorem's live preordercode validator.
 const MATERIAL_MAP = {
   canvas: {
     material: 'canvas',
@@ -38,15 +41,15 @@ const MATERIAL_MAP = {
   },
   metal: {
     material: 'metal',
-    type: 'al',
+    type: 'hd',
     displayName: 'Metal',
-    additionals: ['none', 'none'],
+    additionals: ['standoff'],
   },
   acrylic: {
     material: 'acrylic',
     type: 'ac220',
     displayName: 'Acrylic',
-    additionals: ['none', 'none'],
+    additionals: ['standoff'],
   },
   paper: {
     material: 'paper',

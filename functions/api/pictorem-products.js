@@ -14,7 +14,7 @@
  *   PICTOREM_API_KEY
  */
 
-const PICTOREM_BASE = 'https://www.pictorem.com/artflow';
+const PICTOREM_BASE = 'https://www.pictorem.com/artflow/0.1';
 
 async function pictoremRequest(endpoint, apiKey, body) {
   const response = await fetch(`${PICTOREM_BASE}/${endpoint}/`, {

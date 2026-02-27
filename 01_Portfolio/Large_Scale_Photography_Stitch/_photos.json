@@ -172,7 +172,7 @@
     "filename": "WOLF2943-Pano.jpg",
     "title": "Volcanic Moorland Under Gathering Storms",
     "description": "A dramatic Icelandic landscape where emerald moorlands stretch beneath towering volcanic peaks, their slopes cloaked in dark lava fields. Brooding storm clouds gather overhead, casting dynamic light across the pristine wilderness and creating a sense of raw, untamed power.",
-    "location": "Iceland - Highland Region, likely Landmannalaugar or Mývatn area",
+    "location": "Iceland - Highland Region, likely Landmannalaugar or M\u00fdvatn area",
     "tags": [
       "iceland",
       "volcanic-landscape",
@@ -299,14 +299,14 @@
     "filename": "WOLF3219-Pano.jpg",
     "title": "Gullfoss: Emerald Cascade",
     "description": "A monumental waterfall descends through verdant gorges in a symphonic display of raw power and pristine wilderness. The massive cascade contrasts dramatically against the lush green landscape, capturing the timeless majesty of Iceland's most iconic natural wonder.",
-    "location": "Gullfoss Waterfall, Hvítá River, South Iceland",
+    "location": "Gullfoss Waterfall, Hv\u00edt\u00e1 River, South Iceland",
     "tags": [
       "gullfoss",
       "iceland",
       "waterfall",
       "landscape-photography",
       "fine-art-print",
-      "hvítá-river",
+      "hv\u00edt\u00e1-river",
       "golden-circle",
       "dramatic-landscape",
       "nature-photography",
@@ -423,7 +423,7 @@
     "id": "wolf3537-pano",
     "filename": "WOLF3537-Pano.jpg",
     "title": "Behind the Veil of Water",
-    "description": "A breathtaking vista captured from within a cave, where a powerful waterfall emerges from towering cliffs into a pristine pool below. The interplay of cascading water, moss-covered rock walls, and verdant valleys beyond creates a sanctuary of raw natural beauty—a moment where the viewer stands at the threshold between two worlds.",
+    "description": "A breathtaking vista captured from within a cave, where a powerful waterfall emerges from towering cliffs into a pristine pool below. The interplay of cascading water, moss-covered rock walls, and verdant valleys beyond creates a sanctuary of raw natural beauty\u2014a moment where the viewer stands at the threshold between two worlds.",
     "location": "Seljalandsfoss, Iceland",
     "tags": [
       "waterfall",
@@ -507,9 +507,9 @@
   {
     "id": "wolf3592-pano",
     "filename": "WOLF3592-Pano.jpg",
-    "title": "Skógafoss: Emerald Veil and Stone",
+    "title": "Sk\u00f3gafoss: Emerald Veil and Stone",
     "description": "A powerful cascade descends between moss-draped basalt cliffs, creating an ethereal interplay of water and stone. The verdant landscape speaks to the raw geological forces that have sculpted Iceland's dramatic terrain, inviting contemplation of nature's enduring majesty.",
-    "location": "Skógafoss, South Iceland",
+    "location": "Sk\u00f3gafoss, South Iceland",
     "tags": [
       "waterfall",
       "iceland",
@@ -631,12 +631,12 @@
     "filename": "WOLF3768-Pano.jpg",
     "title": "Glacial Waters and Moss-Draped Mountains",
     "description": "A dramatic landscape where ancient glacial forces meet verdant slopes, captured in a moment of stark geological contrast. Icebergs drift across milky waters while moss-covered peaks rise majestically beneath a brooding sky, embodying the raw power and fragile beauty of untouched wilderness.",
-    "location": "Skaftafell, Vatnajökull National Park, Iceland",
+    "location": "Skaftafell, Vatnaj\u00f6kull National Park, Iceland",
     "tags": [
       "glacier",
       "glacial-lake",
       "iceland",
-      "vatnajökull",
+      "vatnaj\u00f6kull",
       "skaftafell",
       "icebergs",
       "mountain-landscape",
@@ -677,7 +677,7 @@
       "glacier-lake",
       "moss-mountain",
       "skaftafell",
-      "vatnajökull",
+      "vatnaj\u00f6kull",
       "glacial-waters",
       "volcanic-landscape",
       "fine-art-photography",
@@ -751,11 +751,11 @@
     "filename": "WOLF4187-Pano.jpg",
     "title": "Glacial Shores of Iceland's Wilderness",
     "description": "A sweeping panoramic vista capturing the raw majesty of Iceland's untamed landscape, where ancient glacial peaks rise beyond a turquoise glacial lake and volcanic terrain. Storm clouds gather overhead, lending dramatic intensity to this timeless scene of geological grandeur and Nordic wilderness.",
-    "location": "Jökulsárlón Glacial Lake region, Southeast Iceland",
+    "location": "J\u00f6kuls\u00e1rl\u00f3n Glacial Lake region, Southeast Iceland",
     "tags": [
       "iceland",
       "glacial-lake",
-      "jökulsárlón",
+      "j\u00f6kuls\u00e1rl\u00f3n",
       "glacier",
       "turquoise-water",
       "volcanic-landscape",
@@ -793,7 +793,7 @@
     "filename": "WOLF4427-Pano.jpg",
     "title": "Glacial Lagoon Under Storm Light",
     "description": "A sublime landscape of Iceland's glacial heartland, where icebergs drift in luminous turquoise waters beneath brooding skies. The interplay of ice, water, and atmospheric drama creates a meditation on nature's raw beauty and the profound stillness within an ever-changing world.",
-    "location": "Jökulsárlón Glacial Lagoon, Southeast Iceland",
+    "location": "J\u00f6kuls\u00e1rl\u00f3n Glacial Lagoon, Southeast Iceland",
     "tags": [
       "glacier",
       "iceberg",
@@ -833,7 +833,7 @@
     "filename": "WOLF4438-Edit.jpg",
     "title": "Glacial Waters Meet Storm Light",
     "description": "A contemplative study of Iceland's dramatic glacial landscape, where icebergs float in ethereal turquoise waters beneath brooding skies. The composition captures the raw geological power and serene isolation of this Nordic wilderness, inviting quiet reflection on nature's monumental scale.",
-    "location": "Jökulsárlón Glacier Lagoon, Southeast Iceland",
+    "location": "J\u00f6kuls\u00e1rl\u00f3n Glacier Lagoon, Southeast Iceland",
     "tags": [
       "glacier-lagoon",
       "iceland-landscape",
@@ -873,7 +873,7 @@
     "id": "wolf4448-edit",
     "filename": "WOLF4448-Edit.jpg",
     "title": "Vestrahorn's Black Sand Majesty",
-    "description": "A dramatic composition of Iceland's iconic Vestrahorn mountain rising majestically above black volcanic sand plains and coastal wetlands. The interplay of geological extremes—dark mineral-rich shores, verdant grasses, and moss-covered peaks—creates a timeless study in nature's raw sculptural power and chromatic contrast.",
+    "description": "A dramatic composition of Iceland's iconic Vestrahorn mountain rising majestically above black volcanic sand plains and coastal wetlands. The interplay of geological extremes\u2014dark mineral-rich shores, verdant grasses, and moss-covered peaks\u2014creates a timeless study in nature's raw sculptural power and chromatic contrast.",
     "location": "Vestrahorn, Southeast Iceland",
     "tags": [
       "vestrahorn",
@@ -1118,7 +1118,7 @@
     "filename": "WOLF4745-Pano.jpg",
     "title": "Geothermal Wilderness Steam Rising",
     "description": "A vast geothermal landscape unfolds where earth's raw power meets surface, steaming vents piercing through mineralized terraces in shades of rust and gold. This primal terrain captures the raw geological forces that shape our planet, inviting contemplation of nature's untamed majesty and ancient thermal energies.",
-    "location": "Námafjall geothermal area, North Iceland",
+    "location": "N\u00e1mafjall geothermal area, North Iceland",
     "tags": [
       "geothermal-landscape",
       "iceland-photography",
@@ -1239,7 +1239,7 @@
     "filename": "WOLF4872-Pano.jpg",
     "title": "Emerald Valley Beneath the Peak",
     "description": "A sweeping Icelandic landscape where verdant moorlands stretch toward distant volcanic mountains under brooding skies. The composition captures the raw, untamed beauty of Iceland's interior highlands, where solitary dwellings nestle within vast expanses of lava fields and moss-covered terrain.",
-    "location": "Iceland highlands, Snæfellsjökull region, South Iceland",
+    "location": "Iceland highlands, Sn\u00e6fellsj\u00f6kull region, South Iceland",
     "tags": [
       "iceland-landscape",
       "volcanic-mountain",
@@ -1247,7 +1247,7 @@
       "icelandic-highlands",
       "moorland",
       "emerald-valley",
-      "snæfellsjökull",
+      "sn\u00e6fellsj\u00f6kull",
       "fine-art-landscape",
       "nature-photography",
       "dramatic-skies",
@@ -1279,11 +1279,11 @@
     "filename": "WOLF4924.jpg",
     "title": "Kirkjufell's Emerald Solitude",
     "description": "A striking volcanic peak rises majestically from calm waters, its moss-draped slopes rendered in luminous greens beneath a brooding Nordic sky. This iconic Icelandic mountain commands the landscape with timeless presence, its geometric form reflected in the still bay below.",
-    "location": "Kirkjufell, Snæfellsnes Peninsula, Iceland",
+    "location": "Kirkjufell, Sn\u00e6fellsnes Peninsula, Iceland",
     "tags": [
       "kirkjufell",
       "iceland",
-      "snæfellsnes-peninsula",
+      "sn\u00e6fellsnes-peninsula",
       "volcanic-mountain",
       "landscape-photography",
       "fine-art-nature",
@@ -1805,5 +1805,2689 @@
     "thumbnail": "WOLF7470-thumb.jpg",
     "full": "WOLF7470-full.jpg",
     "c2pa": true
+  },
+  {
+    "id": "lsp-045",
+    "filename": "104A9021-Pano-2.jpg",
+    "title": "104A9021 Panorama 2",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14846,
+      "height": 6133,
+      "aspectRatio": 2.421
+    },
+    "thumbnail": "104A9021-Pano-2-thumb.jpg",
+    "full": "104A9021-Pano-2-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-046",
+    "filename": "104A9021-Pano.jpg",
+    "title": "104A9021 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14846,
+      "height": 6133,
+      "aspectRatio": 2.421
+    },
+    "thumbnail": "104A9021-Pano-thumb.jpg",
+    "full": "104A9021-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-047",
+    "filename": "104A9032-Pano.jpg",
+    "title": "104A9032 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 16102,
+      "height": 5447,
+      "aspectRatio": 2.956
+    },
+    "thumbnail": "104A9032-Pano-thumb.jpg",
+    "full": "104A9032-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-049",
+    "filename": "104A9122-Pano.jpg",
+    "title": "104A9122 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 11305,
+      "height": 5567,
+      "aspectRatio": 2.031
+    },
+    "thumbnail": "104A9122-Pano-thumb.jpg",
+    "full": "104A9122-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-050",
+    "filename": "104A9139-Pano.jpg",
+    "title": "104A9139 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14213,
+      "height": 5581,
+      "aspectRatio": 2.547
+    },
+    "thumbnail": "104A9139-Pano-thumb.jpg",
+    "full": "104A9139-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-052",
+    "filename": "104A9184-Pano.jpg",
+    "title": "104A9184 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 10528,
+      "height": 5521,
+      "aspectRatio": 1.907
+    },
+    "thumbnail": "104A9184-Pano-thumb.jpg",
+    "full": "104A9184-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-053",
+    "filename": "104A9245-Pano.jpg",
+    "title": "104A9245 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 19759,
+      "height": 8396,
+      "aspectRatio": 2.353
+    },
+    "thumbnail": "104A9245-Pano-thumb.jpg",
+    "full": "104A9245-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-054",
+    "filename": "104A9291-Pano.jpg",
+    "title": "104A9291 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 15629,
+      "height": 5468,
+      "aspectRatio": 2.858
+    },
+    "thumbnail": "104A9291-Pano-thumb.jpg",
+    "full": "104A9291-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-056",
+    "filename": "LA Flip.jpg",
+    "title": "LA Flip",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14577,
+      "height": 9662,
+      "aspectRatio": 1.509
+    },
+    "thumbnail": "LA-Flip-thumb.jpg",
+    "full": "LA-Flip-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-057",
+    "filename": "WOLF6158-Pano.jpg",
+    "title": "WOLF6158 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 16443,
+      "height": 5768,
+      "aspectRatio": 2.851
+    },
+    "thumbnail": "WOLF6158-Pano-thumb.jpg",
+    "full": "WOLF6158-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-059",
+    "filename": "WOLF6485-Pano.jpg",
+    "title": "WOLF6485 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 15543,
+      "height": 6520,
+      "aspectRatio": 2.384
+    },
+    "thumbnail": "WOLF6485-Pano-thumb.jpg",
+    "full": "WOLF6485-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-060",
+    "filename": "Wolf 10165.jpg",
+    "title": "Wolf 10165",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 12639,
+      "height": 6678,
+      "aspectRatio": 1.893
+    },
+    "thumbnail": "Wolf-10165-thumb.jpg",
+    "full": "Wolf-10165-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-062",
+    "filename": "Wolf 10918.jpg",
+    "title": "Wolf 10918",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 17371,
+      "height": 8492,
+      "aspectRatio": 2.046
+    },
+    "thumbnail": "Wolf-10918-thumb.jpg",
+    "full": "Wolf-10918-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-063",
+    "filename": "Wolf 10919.jpg",
+    "title": "Wolf 10919",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 17371,
+      "height": 8492,
+      "aspectRatio": 2.046
+    },
+    "thumbnail": "Wolf-10919-thumb.jpg",
+    "full": "Wolf-10919-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-064",
+    "filename": "Wolf 11018.jpg",
+    "title": "Wolf 11018",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 17354,
+      "height": 6521,
+      "aspectRatio": 2.661
+    },
+    "thumbnail": "Wolf-11018-thumb.jpg",
+    "full": "Wolf-11018-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-065",
+    "filename": "Wolf 11077.jpg",
+    "title": "Wolf 11077",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14396,
+      "height": 7333,
+      "aspectRatio": 1.963
+    },
+    "thumbnail": "Wolf-11077-thumb.jpg",
+    "full": "Wolf-11077-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-067",
+    "filename": "Wolf 11624.jpg",
+    "title": "Wolf 11624",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 16910,
+      "height": 8224,
+      "aspectRatio": 2.056
+    },
+    "thumbnail": "Wolf-11624-thumb.jpg",
+    "full": "Wolf-11624-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-068",
+    "filename": "Wolf 11626.jpg",
+    "title": "Wolf 11626",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14111,
+      "height": 6302,
+      "aspectRatio": 2.239
+    },
+    "thumbnail": "Wolf-11626-thumb.jpg",
+    "full": "Wolf-11626-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-069",
+    "filename": "Wolf 11637.jpg",
+    "title": "Wolf 11637",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 15456,
+      "height": 7948,
+      "aspectRatio": 1.945
+    },
+    "thumbnail": "Wolf-11637-thumb.jpg",
+    "full": "Wolf-11637-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-070",
+    "filename": "Wolf 3303.jpg",
+    "title": "Wolf 3303",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 13556,
+      "height": 3840,
+      "aspectRatio": 3.53
+    },
+    "thumbnail": "Wolf-3303-thumb.jpg",
+    "full": "Wolf-3303-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-071",
+    "filename": "Wolf 3343.jpg",
+    "title": "Wolf 3343",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 20064,
+      "height": 4172,
+      "aspectRatio": 4.809
+    },
+    "thumbnail": "Wolf-3343-thumb.jpg",
+    "full": "Wolf-3343-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-072",
+    "filename": "Wolf 3375-Pano.jpg",
+    "title": "Wolf 3375 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 10607,
+      "height": 5041,
+      "aspectRatio": 2.104
+    },
+    "thumbnail": "Wolf-3375-Pano-thumb.jpg",
+    "full": "Wolf-3375-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-073",
+    "filename": "Wolf 3987.jpg",
+    "title": "Wolf 3987",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 17345,
+      "height": 5101,
+      "aspectRatio": 3.4
+    },
+    "thumbnail": "Wolf-3987-thumb.jpg",
+    "full": "Wolf-3987-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-074",
+    "filename": "Wolf 3989.jpg",
+    "title": "Wolf 3989",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 24189,
+      "height": 5060,
+      "aspectRatio": 4.78
+    },
+    "thumbnail": "Wolf-3989-thumb.jpg",
+    "full": "Wolf-3989-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-075",
+    "filename": "Wolf 4001.jpg",
+    "title": "Wolf 4001",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 22727,
+      "height": 5035,
+      "aspectRatio": 4.514
+    },
+    "thumbnail": "Wolf-4001-thumb.jpg",
+    "full": "Wolf-4001-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-077",
+    "filename": "Wolf 4017.jpg",
+    "title": "Wolf 4017",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 24786,
+      "height": 5939,
+      "aspectRatio": 4.173
+    },
+    "thumbnail": "Wolf-4017-thumb.jpg",
+    "full": "Wolf-4017-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-078",
+    "filename": "Wolf 4390.jpg",
+    "title": "Wolf 4390",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 11977,
+      "height": 4307,
+      "aspectRatio": 2.781
+    },
+    "thumbnail": "Wolf-4390-thumb.jpg",
+    "full": "Wolf-4390-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-080",
+    "filename": "Wolf 4541.jpg",
+    "title": "Wolf 4541",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 23117,
+      "height": 4782,
+      "aspectRatio": 4.834
+    },
+    "thumbnail": "Wolf-4541-thumb.jpg",
+    "full": "Wolf-4541-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-081",
+    "filename": "Wolf 4549.jpg",
+    "title": "Wolf 4549",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 19994,
+      "height": 6745,
+      "aspectRatio": 2.964
+    },
+    "thumbnail": "Wolf-4549-thumb.jpg",
+    "full": "Wolf-4549-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-082",
+    "filename": "Wolf 4551.jpg",
+    "title": "Wolf 4551",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 17872,
+      "height": 6071,
+      "aspectRatio": 2.944
+    },
+    "thumbnail": "Wolf-4551-thumb.jpg",
+    "full": "Wolf-4551-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-083",
+    "filename": "Wolf 4552.jpg",
+    "title": "Wolf 4552",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 22673,
+      "height": 6642,
+      "aspectRatio": 3.414
+    },
+    "thumbnail": "Wolf-4552-thumb.jpg",
+    "full": "Wolf-4552-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-084",
+    "filename": "Wolf 5061.jpg",
+    "title": "Wolf 5061",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14625,
+      "height": 4948,
+      "aspectRatio": 2.956
+    },
+    "thumbnail": "Wolf-5061-thumb.jpg",
+    "full": "Wolf-5061-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-085",
+    "filename": "Wolf 5081.jpg",
+    "title": "Wolf 5081",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 16266,
+      "height": 5221,
+      "aspectRatio": 3.115
+    },
+    "thumbnail": "Wolf-5081-thumb.jpg",
+    "full": "Wolf-5081-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-086",
+    "filename": "Wolf 5085.jpg",
+    "title": "Wolf 5085",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 16358,
+      "height": 7297,
+      "aspectRatio": 2.242
+    },
+    "thumbnail": "Wolf-5085-thumb.jpg",
+    "full": "Wolf-5085-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-087",
+    "filename": "Wolf 5086.jpg",
+    "title": "Wolf 5086",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 20739,
+      "height": 8616,
+      "aspectRatio": 2.407
+    },
+    "thumbnail": "Wolf-5086-thumb.jpg",
+    "full": "Wolf-5086-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-088",
+    "filename": "Wolf 5090.jpg",
+    "title": "Wolf 5090",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14063,
+      "height": 5146,
+      "aspectRatio": 2.733
+    },
+    "thumbnail": "Wolf-5090-thumb.jpg",
+    "full": "Wolf-5090-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-089",
+    "filename": "Wolf 5092.jpg",
+    "title": "Wolf 5092",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 13617,
+      "height": 7839,
+      "aspectRatio": 1.737
+    },
+    "thumbnail": "Wolf-5092-thumb.jpg",
+    "full": "Wolf-5092-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-090",
+    "filename": "Wolf 5093.jpg",
+    "title": "Wolf 5093",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 13006,
+      "height": 5756,
+      "aspectRatio": 2.26
+    },
+    "thumbnail": "Wolf-5093-thumb.jpg",
+    "full": "Wolf-5093-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-091",
+    "filename": "Wolf 5110.jpg",
+    "title": "Wolf 5110",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 15116,
+      "height": 5167,
+      "aspectRatio": 2.925
+    },
+    "thumbnail": "Wolf-5110-thumb.jpg",
+    "full": "Wolf-5110-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-092",
+    "filename": "Wolf 5115.jpg",
+    "title": "Wolf 5115",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14375,
+      "height": 4142,
+      "aspectRatio": 3.471
+    },
+    "thumbnail": "Wolf-5115-thumb.jpg",
+    "full": "Wolf-5115-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-093",
+    "filename": "Wolf 5132-Pano-2.jpg",
+    "title": "Wolf 5132 Panorama 2",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 17082,
+      "height": 9241,
+      "aspectRatio": 1.849
+    },
+    "thumbnail": "Wolf-5132-Pano-2-thumb.jpg",
+    "full": "Wolf-5132-Pano-2-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-094",
+    "filename": "Wolf 5137.jpg",
+    "title": "Wolf 5137",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 15257,
+      "height": 6946,
+      "aspectRatio": 2.197
+    },
+    "thumbnail": "Wolf-5137-thumb.jpg",
+    "full": "Wolf-5137-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-096",
+    "filename": "Wolf 5146.jpg",
+    "title": "Wolf 5146",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 12143,
+      "height": 5045,
+      "aspectRatio": 2.407
+    },
+    "thumbnail": "Wolf-5146-thumb.jpg",
+    "full": "Wolf-5146-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-098",
+    "filename": "Wolf 5163.jpg",
+    "title": "Wolf 5163",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 8192,
+      "height": 5464,
+      "aspectRatio": 1.499
+    },
+    "thumbnail": "Wolf-5163-thumb.jpg",
+    "full": "Wolf-5163-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-099",
+    "filename": "Wolf 5787.jpg",
+    "title": "Wolf 5787",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 17850,
+      "height": 6966,
+      "aspectRatio": 2.562
+    },
+    "thumbnail": "Wolf-5787-thumb.jpg",
+    "full": "Wolf-5787-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-100",
+    "filename": "Wolf 5822.jpg",
+    "title": "Wolf 5822",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 18058,
+      "height": 7356,
+      "aspectRatio": 2.455
+    },
+    "thumbnail": "Wolf-5822-thumb.jpg",
+    "full": "Wolf-5822-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-102",
+    "filename": "Wolf 5871.jpg",
+    "title": "Wolf 5871",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 22185,
+      "height": 5176,
+      "aspectRatio": 4.286
+    },
+    "thumbnail": "Wolf-5871-thumb.jpg",
+    "full": "Wolf-5871-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-103",
+    "filename": "Wolf 5872.jpg",
+    "title": "Wolf 5872",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 11358,
+      "height": 4836,
+      "aspectRatio": 2.349
+    },
+    "thumbnail": "Wolf-5872-thumb.jpg",
+    "full": "Wolf-5872-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-104",
+    "filename": "Wolf 5876.jpg",
+    "title": "Wolf 5876",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 16905,
+      "height": 7095,
+      "aspectRatio": 2.383
+    },
+    "thumbnail": "Wolf-5876-thumb.jpg",
+    "full": "Wolf-5876-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-105",
+    "filename": "Wolf 5888.jpg",
+    "title": "Wolf 5888",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 15445,
+      "height": 7570,
+      "aspectRatio": 2.04
+    },
+    "thumbnail": "Wolf-5888-thumb.jpg",
+    "full": "Wolf-5888-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-106",
+    "filename": "Wolf 5908.jpg",
+    "title": "Wolf 5908",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 15551,
+      "height": 7487,
+      "aspectRatio": 2.077
+    },
+    "thumbnail": "Wolf-5908-thumb.jpg",
+    "full": "Wolf-5908-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-107",
+    "filename": "Wolf 5972.jpg",
+    "title": "Wolf 5972",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 19131,
+      "height": 8531,
+      "aspectRatio": 2.243
+    },
+    "thumbnail": "Wolf-5972-thumb.jpg",
+    "full": "Wolf-5972-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-108",
+    "filename": "Wolf 5973.jpg",
+    "title": "Wolf 5973",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 22466,
+      "height": 7162,
+      "aspectRatio": 3.137
+    },
+    "thumbnail": "Wolf-5973-thumb.jpg",
+    "full": "Wolf-5973-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-109",
+    "filename": "Wolf 5975.jpg",
+    "title": "Wolf 5975",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 23969,
+      "height": 6207,
+      "aspectRatio": 3.862
+    },
+    "thumbnail": "Wolf-5975-thumb.jpg",
+    "full": "Wolf-5975-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-110",
+    "filename": "Wolf 6012.jpg",
+    "title": "Wolf 6012",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 19194,
+      "height": 6257,
+      "aspectRatio": 3.068
+    },
+    "thumbnail": "Wolf-6012-thumb.jpg",
+    "full": "Wolf-6012-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-113",
+    "filename": "Wolf 6231.jpg",
+    "title": "Wolf 6231",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 11000,
+      "height": 5020,
+      "aspectRatio": 2.191
+    },
+    "thumbnail": "Wolf-6231-thumb.jpg",
+    "full": "Wolf-6231-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-114",
+    "filename": "Wolf 6232.jpg",
+    "title": "Wolf 6232",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 13516,
+      "height": 6008,
+      "aspectRatio": 2.25
+    },
+    "thumbnail": "Wolf-6232-thumb.jpg",
+    "full": "Wolf-6232-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-115",
+    "filename": "Wolf 6253.jpg",
+    "title": "Wolf 6253",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 15587,
+      "height": 6554,
+      "aspectRatio": 2.378
+    },
+    "thumbnail": "Wolf-6253-thumb.jpg",
+    "full": "Wolf-6253-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-116",
+    "filename": "Wolf 6678.jpg",
+    "title": "Wolf 6678",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 18750,
+      "height": 7578,
+      "aspectRatio": 2.474
+    },
+    "thumbnail": "Wolf-6678-thumb.jpg",
+    "full": "Wolf-6678-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-117",
+    "filename": "Wolf 6679.jpg",
+    "title": "Wolf 6679",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 17310,
+      "height": 7988,
+      "aspectRatio": 2.167
+    },
+    "thumbnail": "Wolf-6679-thumb.jpg",
+    "full": "Wolf-6679-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-118",
+    "filename": "Wolf 6878.jpg",
+    "title": "Wolf 6878",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 18610,
+      "height": 7589,
+      "aspectRatio": 2.452
+    },
+    "thumbnail": "Wolf-6878-thumb.jpg",
+    "full": "Wolf-6878-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-119",
+    "filename": "Wolf 6889.jpg",
+    "title": "Wolf 6889",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 17437,
+      "height": 6314,
+      "aspectRatio": 2.762
+    },
+    "thumbnail": "Wolf-6889-thumb.jpg",
+    "full": "Wolf-6889-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-120",
+    "filename": "Wolf 6898.jpg",
+    "title": "Wolf 6898",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 12014,
+      "height": 7492,
+      "aspectRatio": 1.604
+    },
+    "thumbnail": "Wolf-6898-thumb.jpg",
+    "full": "Wolf-6898-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-121",
+    "filename": "Wolf 6913.jpg",
+    "title": "Wolf 6913",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 19654,
+      "height": 6824,
+      "aspectRatio": 2.88
+    },
+    "thumbnail": "Wolf-6913-thumb.jpg",
+    "full": "Wolf-6913-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-122",
+    "filename": "Wolf 6914.jpg",
+    "title": "Wolf 6914",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 15602,
+      "height": 6754,
+      "aspectRatio": 2.31
+    },
+    "thumbnail": "Wolf-6914-thumb.jpg",
+    "full": "Wolf-6914-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-123",
+    "filename": "Wolf 6930.jpg",
+    "title": "Wolf 6930",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 16826,
+      "height": 6716,
+      "aspectRatio": 2.505
+    },
+    "thumbnail": "Wolf-6930-thumb.jpg",
+    "full": "Wolf-6930-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-124",
+    "filename": "Wolf 6931.jpg",
+    "title": "Wolf 6931",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 13936,
+      "height": 7957,
+      "aspectRatio": 1.751
+    },
+    "thumbnail": "Wolf-6931-thumb.jpg",
+    "full": "Wolf-6931-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-125",
+    "filename": "Wolf 6936.jpg",
+    "title": "Wolf 6936",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 18870,
+      "height": 7976,
+      "aspectRatio": 2.366
+    },
+    "thumbnail": "Wolf-6936-thumb.jpg",
+    "full": "Wolf-6936-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-126",
+    "filename": "Wolf 6937.jpg",
+    "title": "Wolf 6937",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 19984,
+      "height": 8824,
+      "aspectRatio": 2.265
+    },
+    "thumbnail": "Wolf-6937-thumb.jpg",
+    "full": "Wolf-6937-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-127",
+    "filename": "Wolf 6938.jpg",
+    "title": "Wolf 6938",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14787,
+      "height": 7635,
+      "aspectRatio": 1.937
+    },
+    "thumbnail": "Wolf-6938-thumb.jpg",
+    "full": "Wolf-6938-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-128",
+    "filename": "Wolf 6942.jpg",
+    "title": "Wolf 6942",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 15306,
+      "height": 7028,
+      "aspectRatio": 2.178
+    },
+    "thumbnail": "Wolf-6942-thumb.jpg",
+    "full": "Wolf-6942-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-129",
+    "filename": "Wolf 6945.jpg",
+    "title": "Wolf 6945",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 20391,
+      "height": 6361,
+      "aspectRatio": 3.206
+    },
+    "thumbnail": "Wolf-6945-thumb.jpg",
+    "full": "Wolf-6945-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-130",
+    "filename": "Wolf 6948.jpg",
+    "title": "Wolf 6948",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 9366,
+      "height": 9124,
+      "aspectRatio": 1.027
+    },
+    "thumbnail": "Wolf-6948-thumb.jpg",
+    "full": "Wolf-6948-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-131",
+    "filename": "Wolf 6949.jpg",
+    "title": "Wolf 6949",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 7953,
+      "height": 4100,
+      "aspectRatio": 1.94
+    },
+    "thumbnail": "Wolf-6949-thumb.jpg",
+    "full": "Wolf-6949-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-132",
+    "filename": "Wolf 6950.jpg",
+    "title": "Wolf 6950",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14104,
+      "height": 6210,
+      "aspectRatio": 2.271
+    },
+    "thumbnail": "Wolf-6950-thumb.jpg",
+    "full": "Wolf-6950-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-133",
+    "filename": "Wolf 6953.jpg",
+    "title": "Wolf 6953",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 19280,
+      "height": 7518,
+      "aspectRatio": 2.565
+    },
+    "thumbnail": "Wolf-6953-thumb.jpg",
+    "full": "Wolf-6953-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-134",
+    "filename": "Wolf 6956.jpg",
+    "title": "Wolf 6956",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14177,
+      "height": 5539,
+      "aspectRatio": 2.559
+    },
+    "thumbnail": "Wolf-6956-thumb.jpg",
+    "full": "Wolf-6956-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-135",
+    "filename": "Wolf 6960.jpg",
+    "title": "Wolf 6960",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 8405,
+      "height": 8642,
+      "aspectRatio": 0.973
+    },
+    "thumbnail": "Wolf-6960-thumb.jpg",
+    "full": "Wolf-6960-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-137",
+    "filename": "Wolf 6975.jpg",
+    "title": "Wolf 6975",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 19869,
+      "height": 8437,
+      "aspectRatio": 2.355
+    },
+    "thumbnail": "Wolf-6975-thumb.jpg",
+    "full": "Wolf-6975-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-138",
+    "filename": "Wolf 7183.jpg",
+    "title": "Wolf 7183",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 12075,
+      "height": 6724,
+      "aspectRatio": 1.796
+    },
+    "thumbnail": "Wolf-7183-thumb.jpg",
+    "full": "Wolf-7183-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-139",
+    "filename": "Wolf 7584.jpg",
+    "title": "Wolf 7584",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14859,
+      "height": 7265,
+      "aspectRatio": 2.045
+    },
+    "thumbnail": "Wolf-7584-thumb.jpg",
+    "full": "Wolf-7584-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-140",
+    "filename": "Wolf 7608.jpg",
+    "title": "Wolf 7608",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 13107,
+      "height": 5464,
+      "aspectRatio": 2.399
+    },
+    "thumbnail": "Wolf-7608-thumb.jpg",
+    "full": "Wolf-7608-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-141",
+    "filename": "Wolf 7717.jpg",
+    "title": "Wolf 7717",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 20842,
+      "height": 7621,
+      "aspectRatio": 2.735
+    },
+    "thumbnail": "Wolf-7717-thumb.jpg",
+    "full": "Wolf-7717-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-143",
+    "filename": "Wolf 8515.jpg",
+    "title": "Wolf 8515",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 16530,
+      "height": 6956,
+      "aspectRatio": 2.376
+    },
+    "thumbnail": "Wolf-8515-thumb.jpg",
+    "full": "Wolf-8515-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-144",
+    "filename": "Wolf 8522.jpg",
+    "title": "Wolf 8522",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 15843,
+      "height": 6652,
+      "aspectRatio": 2.382
+    },
+    "thumbnail": "Wolf-8522-thumb.jpg",
+    "full": "Wolf-8522-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-145",
+    "filename": "Wolf 8540.jpg",
+    "title": "Wolf 8540",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 12242,
+      "height": 6746,
+      "aspectRatio": 1.815
+    },
+    "thumbnail": "Wolf-8540-thumb.jpg",
+    "full": "Wolf-8540-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-146",
+    "filename": "Wolf 8541.jpg",
+    "title": "Wolf 8541",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 10370,
+      "height": 5039,
+      "aspectRatio": 2.058
+    },
+    "thumbnail": "Wolf-8541-thumb.jpg",
+    "full": "Wolf-8541-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-147",
+    "filename": "Wolf 8546.jpg",
+    "title": "Wolf 8546",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14777,
+      "height": 8203,
+      "aspectRatio": 1.801
+    },
+    "thumbnail": "Wolf-8546-thumb.jpg",
+    "full": "Wolf-8546-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-148",
+    "filename": "Wolf 8557.jpg",
+    "title": "Wolf 8557",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 17372,
+      "height": 6628,
+      "aspectRatio": 2.621
+    },
+    "thumbnail": "Wolf-8557-thumb.jpg",
+    "full": "Wolf-8557-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-150",
+    "filename": "Wolf 8607.jpg",
+    "title": "Wolf 8607",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 22833,
+      "height": 6979,
+      "aspectRatio": 3.272
+    },
+    "thumbnail": "Wolf-8607-thumb.jpg",
+    "full": "Wolf-8607-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-151",
+    "filename": "Wolf 8611.jpg",
+    "title": "Wolf 8611",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 22486,
+      "height": 6968,
+      "aspectRatio": 3.227
+    },
+    "thumbnail": "Wolf-8611-thumb.jpg",
+    "full": "Wolf-8611-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-152",
+    "filename": "Wolf 8613.jpg",
+    "title": "Wolf 8613",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 21100,
+      "height": 6813,
+      "aspectRatio": 3.097
+    },
+    "thumbnail": "Wolf-8613-thumb.jpg",
+    "full": "Wolf-8613-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-153",
+    "filename": "Wolf 8630.jpg",
+    "title": "Wolf 8630",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 11245,
+      "height": 5348,
+      "aspectRatio": 2.103
+    },
+    "thumbnail": "Wolf-8630-thumb.jpg",
+    "full": "Wolf-8630-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-154",
+    "filename": "Wolf 9184.jpg",
+    "title": "Wolf 9184",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 7874,
+      "height": 3207,
+      "aspectRatio": 2.455
+    },
+    "thumbnail": "Wolf-9184-thumb.jpg",
+    "full": "Wolf-9184-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-156",
+    "filename": "Wolf 9323.jpg",
+    "title": "Wolf 9323",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 15324,
+      "height": 7637,
+      "aspectRatio": 2.007
+    },
+    "thumbnail": "Wolf-9323-thumb.jpg",
+    "full": "Wolf-9323-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-159",
+    "filename": "Wolf 9417.jpg",
+    "title": "Wolf 9417",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 16027,
+      "height": 6850,
+      "aspectRatio": 2.34
+    },
+    "thumbnail": "Wolf-9417-thumb.jpg",
+    "full": "Wolf-9417-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-160",
+    "filename": "Wolf 9418.jpg",
+    "title": "Wolf 9418",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 16093,
+      "height": 8886,
+      "aspectRatio": 1.811
+    },
+    "thumbnail": "Wolf-9418-thumb.jpg",
+    "full": "Wolf-9418-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-162",
+    "filename": "Wolf 9804.jpg",
+    "title": "Wolf 9804",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 11804,
+      "height": 7226,
+      "aspectRatio": 1.634
+    },
+    "thumbnail": "Wolf-9804-thumb.jpg",
+    "full": "Wolf-9804-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-163",
+    "filename": "Wolf 9805.jpg",
+    "title": "Wolf 9805",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 15073,
+      "height": 7192,
+      "aspectRatio": 2.096
+    },
+    "thumbnail": "Wolf-9805-thumb.jpg",
+    "full": "Wolf-9805-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-164",
+    "filename": "Wolf 9806.jpg",
+    "title": "Wolf 9806",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14427,
+      "height": 8302,
+      "aspectRatio": 1.738
+    },
+    "thumbnail": "Wolf-9806-thumb.jpg",
+    "full": "Wolf-9806-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-165",
+    "filename": "Wolf 9807.jpg",
+    "title": "Wolf 9807",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14652,
+      "height": 6171,
+      "aspectRatio": 2.374
+    },
+    "thumbnail": "Wolf-9807-thumb.jpg",
+    "full": "Wolf-9807-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-166",
+    "filename": "Wolf 9809.jpg",
+    "title": "Wolf 9809",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 14567,
+      "height": 8718,
+      "aspectRatio": 1.671
+    },
+    "thumbnail": "Wolf-9809-thumb.jpg",
+    "full": "Wolf-9809-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-187",
+    "filename": "104A9055-Pano.jpg",
+    "title": "104A9055 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 24125,
+      "height": 9425,
+      "aspectRatio": 2.56
+    },
+    "thumbnail": "104A9055-Pano-thumb.jpg",
+    "full": "104A9055-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-188",
+    "filename": "104A9145-Pano.jpg",
+    "title": "104A9145 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 27868,
+      "height": 8005,
+      "aspectRatio": 3.481
+    },
+    "thumbnail": "104A9145-Pano-thumb.jpg",
+    "full": "104A9145-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-189",
+    "filename": "IMG_0140-Pano.jpg",
+    "title": "IMG 0140 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 27985,
+      "height": 11199,
+      "aspectRatio": 2.499
+    },
+    "thumbnail": "IMG_0140-Pano-thumb.jpg",
+    "full": "IMG_0140-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-190",
+    "filename": "WOLF6451-Pano.jpg",
+    "title": "WOLF6451 Panorama",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 28941,
+      "height": 7355,
+      "aspectRatio": 3.935
+    },
+    "thumbnail": "WOLF6451-Pano-thumb.jpg",
+    "full": "WOLF6451-Pano-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-191",
+    "filename": "Wolf 10189.jpg",
+    "title": "Wolf 10189",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 19123,
+      "height": 10271,
+      "aspectRatio": 1.862
+    },
+    "thumbnail": "Wolf-10189-thumb.jpg",
+    "full": "Wolf-10189-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-192",
+    "filename": "Wolf 11078.jpg",
+    "title": "Wolf 11078",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 21304,
+      "height": 8787,
+      "aspectRatio": 2.424
+    },
+    "thumbnail": "Wolf-11078-thumb.jpg",
+    "full": "Wolf-11078-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-193",
+    "filename": "Wolf 4011.jpg",
+    "title": "Wolf 4011",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 31504,
+      "height": 6565,
+      "aspectRatio": 4.799
+    },
+    "thumbnail": "Wolf-4011-thumb.jpg",
+    "full": "Wolf-4011-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-194",
+    "filename": "Wolf 4538.jpg",
+    "title": "Wolf 4538",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 48767,
+      "height": 6959,
+      "aspectRatio": 7.008
+    },
+    "thumbnail": "Wolf-4538-thumb.jpg",
+    "full": "Wolf-4538-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-195",
+    "filename": "Wolf 5143.jpg",
+    "title": "Wolf 5143",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 22227,
+      "height": 8842,
+      "aspectRatio": 2.514
+    },
+    "thumbnail": "Wolf-5143-thumb.jpg",
+    "full": "Wolf-5143-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-196",
+    "filename": "Wolf 5158.jpg",
+    "title": "Wolf 5158",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 23246,
+      "height": 13643,
+      "aspectRatio": 1.704
+    },
+    "thumbnail": "Wolf-5158-thumb.jpg",
+    "full": "Wolf-5158-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-197",
+    "filename": "Wolf 5853.jpg",
+    "title": "Wolf 5853",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 28029,
+      "height": 7782,
+      "aspectRatio": 3.602
+    },
+    "thumbnail": "Wolf-5853-thumb.jpg",
+    "full": "Wolf-5853-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-198",
+    "filename": "Wolf 6018.jpg",
+    "title": "Wolf 6018",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 26359,
+      "height": 8237,
+      "aspectRatio": 3.2
+    },
+    "thumbnail": "Wolf-6018-thumb.jpg",
+    "full": "Wolf-6018-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-199",
+    "filename": "Wolf 6071.jpg",
+    "title": "Wolf 6071",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 24170,
+      "height": 8774,
+      "aspectRatio": 2.755
+    },
+    "thumbnail": "Wolf-6071-thumb.jpg",
+    "full": "Wolf-6071-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-200",
+    "filename": "Wolf 6963.jpg",
+    "title": "Wolf 6963",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 28237,
+      "height": 11026,
+      "aspectRatio": 2.561
+    },
+    "thumbnail": "Wolf-6963-thumb.jpg",
+    "full": "Wolf-6963-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-201",
+    "filename": "Wolf 8511.jpg",
+    "title": "Wolf 8511",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 38022,
+      "height": 7759,
+      "aspectRatio": 4.9
+    },
+    "thumbnail": "Wolf-8511-thumb.jpg",
+    "full": "Wolf-8511-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-202",
+    "filename": "Wolf 8596.jpg",
+    "title": "Wolf 8596",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 25029,
+      "height": 8402,
+      "aspectRatio": 2.979
+    },
+    "thumbnail": "Wolf-8596-thumb.jpg",
+    "full": "Wolf-8596-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-203",
+    "filename": "Wolf 9300.jpg",
+    "title": "Wolf 9300",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 29901,
+      "height": 7271,
+      "aspectRatio": 4.112
+    },
+    "thumbnail": "Wolf-9300-thumb.jpg",
+    "full": "Wolf-9300-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-204",
+    "filename": "Wolf 9399.jpg",
+    "title": "Wolf 9399",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 20373,
+      "height": 9596,
+      "aspectRatio": 2.123
+    },
+    "thumbnail": "Wolf-9399-thumb.jpg",
+    "full": "Wolf-9399-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-205",
+    "filename": "Wolf 9403.jpg",
+    "title": "Wolf 9403",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 30037,
+      "height": 11091,
+      "aspectRatio": 2.708
+    },
+    "thumbnail": "Wolf-9403-thumb.jpg",
+    "full": "Wolf-9403-full.jpg",
+    "c2pa": false
+  },
+  {
+    "id": "lsp-206",
+    "filename": "Wolf 9422.jpg",
+    "title": "Wolf 9422",
+    "description": "",
+    "location": "",
+    "tags": [
+      "large-scale",
+      "panorama",
+      "stitch",
+      "fine-art-landscape",
+      "wall-art"
+    ],
+    "dimensions": {
+      "width": 19676,
+      "height": 11293,
+      "aspectRatio": 1.742
+    },
+    "thumbnail": "Wolf-9422-thumb.jpg",
+    "full": "Wolf-9422-full.jpg",
+    "c2pa": false
   }
 ]

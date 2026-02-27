@@ -22,9 +22,7 @@ const ARCHIVE_DIR = path.join(ARCHIVE_BASE, '_archived');
 // Add new exclusions HERE, not in individual handlers
 // See LESSONS_LEARNED.md Lesson 022, 026 for why this matters
 const EXCLUDED_PORTFOLIO_FOLDERS = [
-  'Large_Scale_Photography_Stitch',
-  'Large Scale Photography Stitch',
-  'large-scale-photography-stitch',
+  // Large_Scale_Photography_Stitch REMOVED — now live with 166 photos (Feb 2026)
   'Iceland_Ring_Road',
   'Iceland Ring Road',
   'iceland-ring-road',

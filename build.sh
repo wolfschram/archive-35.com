@@ -30,7 +30,6 @@ cp -r css js images data logos _site/ 2>/dev/null || true
 
 # Remove orphan image folders that exist on disk but are NOT in photos.json
 # (e.g., deleted collections whose source images couldn't be removed due to permissions)
-rm -rf _site/images/large-scale-photography-stitch 2>/dev/null || true
 rm -rf _site/images/africa 2>/dev/null || true
 rm -rf _site/images/iceland-ring-road 2>/dev/null || true
 rm -rf _site/images/mexico-city 2>/dev/null || true

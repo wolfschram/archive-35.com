@@ -296,7 +296,7 @@ function AgentCompose() {
         } else if (platform === 'etsy') {
           // Save to content queue for manual listing
           const result = await post('/content/create-manual', {
-            photo_id: firstImg.photoId || firstImg.filename,
+            photo_id: firstImg.photoId || '__mockup__',
             platform: 'etsy',
             body: fullCaption,
             title: title || firstImg.filename,

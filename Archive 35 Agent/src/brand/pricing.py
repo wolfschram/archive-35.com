@@ -9,6 +9,10 @@ Website formula:
     scale_factor = ratio ** 0.75
     price = round(base_price * scale_factor)
 
+Frame add-on formula (area-based tiers):
+    ≤144 sq in → $60, ≤288 → $70, ≤480 → $80,
+    ≤864 → $100, ≤1536 → $130, else → $160
+
 Etsy markup formula:
     etsy_price = website_price / (1 - total_etsy_fee_rate)
     Covers: 6.5% transaction + 3% payment processing + $0.25 flat + $0.20 listing
@@ -33,6 +37,28 @@ MATERIALS = {
     "wood": {"name": "Wood", "base_price": 92, "max_sq_in": 2400,
              "pictorem_type": "ru14", "pictorem_extras": "none|none"},
 }
+
+# ── Frame Mouldings (matches product-catalog.json v3) ───────────────────
+# Floating frames: canvas, metal, acrylic  |  Picture frames: paper only
+
+FRAME_MOULDINGS = {
+    "floating": {
+        "303-19": {"name": "Black Floating Frame", "color": "black"},
+        "303-12": {"name": "Natural Wood Floating Frame", "color": "natural"},
+        "317-22": {"name": "White Floating Frame", "color": "white"},
+    },
+    "picture": {
+        "241-29": {"name": "Black Picture Frame", "color": "black"},
+        "241-22": {"name": "White Picture Frame", "color": "white"},
+        "724-12": {"name": "Natural Wood Picture Frame", "color": "natural"},
+    },
+}
+
+# Materials that use floating frames (moulding type)
+FLOATING_FRAME_MATERIALS = {"canvas", "metal", "acrylic"}
+# Materials that use picture frames (frame type)
+PICTURE_FRAME_MATERIALS = {"paper"}
+
 
 # ── Aspect Ratio Size Tables (matches product-selector.js) ──────────────
 
@@ -141,6 +167,40 @@ def get_quality_badge(dpi: int) -> Optional[str]:
     return None  # Below minimum — don't offer this size
 
 
+def frame_addon_price(width_in: int, height_in: int) -> int:
+    """Calculate frame add-on price — mirrors product-selector.js getFrameAddOnPrice().
+
+    Area-based tiers (same breakpoints as the frontend):
+        ≤144 sq in (12×12 and under)  → $60
+        ≤288 sq in (up to 24×12)      → $70
+        ≤480 sq in (up to 30×16)      → $80
+        ≤864 sq in (up to 36×24)      → $100
+        ≤1536 sq in (up to 48×32)     → $130
+        >1536 sq in (60×40 and up)    → $160
+    """
+    area = width_in * height_in
+    if area <= 144:
+        return 60
+    if area <= 288:
+        return 70
+    if area <= 480:
+        return 80
+    if area <= 864:
+        return 100
+    if area <= 1536:
+        return 130
+    return 160
+
+
+def get_frame_type(material_key: str) -> Optional[str]:
+    """Return 'floating' or 'picture' based on material, or None if no frames."""
+    if material_key in FLOATING_FRAME_MATERIALS:
+        return "floating"
+    if material_key in PICTURE_FRAME_MATERIALS:
+        return "picture"
+    return None
+
+
 def get_matching_category(aspect_ratio: float) -> Optional[dict]:
     """Find the best aspect ratio category for a photo."""
     # Pass 1: exact range match
@@ -226,17 +286,69 @@ def get_available_products(
 
 
 def build_pictorem_preorder(
-    material_key: str, width: int, height: int, quantity: int = 1
+    material_key: str,
+    width: int,
+    height: int,
+    quantity: int = 1,
+    sub_type: str = "",
+    mounting: str = "",
+    finish: str = "",
+    edge: str = "",
+    frame: str = "",
 ) -> str:
     """Build a Pictorem preorder code for fulfillment.
 
-    Format: qty|material|type|orientation|width|height|extras...
+    Basic format:   qty|material|type|orientation|width|height|extras...
+    With frame:     qty|material|type|orientation|width|height|extras...|mountingType|frameCode
+
+    Mirrors stripe-webhook.js buildPreorderCode() logic exactly.
     """
     material = MATERIALS.get(material_key)
     if not material:
         return ""
 
     orientation = "horizontal" if width >= height else "vertical"
-    extras = material["pictorem_extras"]
 
-    return f"{quantity}|{material_key}|{material['pictorem_type']}|{orientation}|{width}|{height}|{extras}"
+    has_sub_options = any([sub_type, mounting, finish, edge])
+
+    if not has_sub_options and not frame:
+        # Legacy path — default extras
+        extras = material["pictorem_extras"]
+        parts = [str(quantity), material_key, material["pictorem_type"],
+                 orientation, str(width), str(height)]
+        if extras and any(e != "none" for e in extras.split("|")):
+            parts.extend(extras.split("|"))
+        return "|".join(parts)
+
+    # Sub-option path
+    mat_type = sub_type or material["pictorem_type"]
+    additionals: list[str] = []
+
+    if material_key == "canvas":
+        if mat_type == "rolled":
+            mat_type = "canvas"
+        else:
+            mat_type = "stretched"
+        fin = finish or "semigloss"
+        edg = edge or "mirrorimage"
+        additionals = [fin, edg]
+        if sub_type in ("c15", "c075"):
+            additionals.append(sub_type)
+        additionals.extend(["none", "none"])
+    elif material_key in ("metal", "acrylic"):
+        if mounting and mounting != "none":
+            additionals = [mounting]
+    elif material_key == "wood":
+        if mounting == "frenchcleat":
+            additionals = ["frenchcleat"]
+
+    parts = [str(quantity), material_key, mat_type,
+             orientation, str(width), str(height)]
+    if additionals and any(a != "none" for a in additionals):
+        parts.extend(additionals)
+
+    if frame:
+        frame_mounting_type = "frame" if material_key == "paper" else "moulding"
+        parts.extend([frame_mounting_type, frame])
+
+    return "|".join(parts)

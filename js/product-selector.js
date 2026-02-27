@@ -141,6 +141,30 @@ const MATERIALS = {
 };
 
 // ============================================================================
+// PRODUCT CATALOG (loaded from data/product-catalog.json)
+// ============================================================================
+
+let PRODUCT_CATALOG = null;
+
+/**
+ * Load product catalog JSON. Called once on first modal open.
+ * Falls back gracefully — sub-options simply won't render if load fails.
+ */
+async function loadProductCatalog() {
+  if (PRODUCT_CATALOG) return PRODUCT_CATALOG;
+  try {
+    const res = await fetch('/data/product-catalog.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    PRODUCT_CATALOG = await res.json();
+    console.log('[ARCHIVE-35] Product catalog loaded v' + PRODUCT_CATALOG.version);
+    return PRODUCT_CATALOG;
+  } catch (err) {
+    console.warn('[ARCHIVE-35] Product catalog unavailable, using defaults:', err.message);
+    return null;
+  }
+}
+
+// ============================================================================
 // PRICING CALCULATION
 // ============================================================================
 
@@ -308,23 +332,52 @@ function createProductSelectorModal(photoData) {
           <div class="material-grid">
             ${Object.entries(MATERIALS)
               .map(
-                ([key, material]) => `
+                ([key, material]) => {
+                  const fromText = key === 'paper' ? 'from $45' :
+                                   key === 'canvas' ? 'from $82' :
+                                   key === 'wood' ? 'from $92' :
+                                   key === 'metal' ? 'from $99' :
+                                   key === 'acrylic' ? 'from $149' : '';
+                  const hangReady = (key !== 'paper') ? '<span class="hang-ready-tag">Hang Ready</span>' : '<span class="needs-frame-tag">Needs Framing</span>';
+                  return `
               <div class="material-option" data-material="${key}">
                 <input type="radio" id="material-${key}" name="material" value="${key}" />
                 <label for="material-${key}">
                   <div class="material-name">${material.name}</div>
                   <div class="material-description">${material.description}</div>
+                  <div class="material-meta">${fromText} ${hangReady}</div>
                 </label>
               </div>
-            `
-              )
+            `;
+                })
               .join('')}
           </div>
         </div>
 
+        <!-- Sub-Options (populated dynamically per material) -->
+        <div id="subtype-section" class="sub-option-section" style="display:none;">
+          <h3>Material Type</h3>
+          <div class="sub-option-grid" id="subtype-grid"></div>
+        </div>
+
+        <div id="mounting-section" class="sub-option-section" style="display:none;">
+          <h3>Mounting Hardware</h3>
+          <div class="sub-option-grid" id="mounting-grid"></div>
+        </div>
+
+        <div id="finish-section" class="sub-option-section" style="display:none;">
+          <h3>Finish / Varnish</h3>
+          <div class="sub-option-grid" id="finish-grid"></div>
+        </div>
+
+        <div id="edge-section" class="sub-option-section" style="display:none;">
+          <h3>Edge Treatment</h3>
+          <div class="sub-option-grid" id="edge-grid"></div>
+        </div>
+
         <!-- Size Selection -->
         <div class="size-section">
-          <h3>Step 2: Choose Size</h3>
+          <h3 id="size-step-heading">Step 2: Choose Size</h3>
           <div class="size-grid" id="size-grid">
             <!-- Dynamically populated based on selected material -->
           </div>
@@ -335,6 +388,22 @@ function createProductSelectorModal(photoData) {
           <div class="summary-row">
             <span>Material:</span>
             <span id="summary-material">Select material</span>
+          </div>
+          <div class="summary-row" id="summary-subtype-row" style="display:none;">
+            <span>Type:</span>
+            <span id="summary-subtype">—</span>
+          </div>
+          <div class="summary-row" id="summary-mounting-row" style="display:none;">
+            <span>Mounting:</span>
+            <span id="summary-mounting">—</span>
+          </div>
+          <div class="summary-row" id="summary-finish-row" style="display:none;">
+            <span>Finish:</span>
+            <span id="summary-finish">—</span>
+          </div>
+          <div class="summary-row" id="summary-edge-row" style="display:none;">
+            <span>Edge:</span>
+            <span id="summary-edge">—</span>
           </div>
           <div class="summary-row">
             <span>Size:</span>
@@ -510,6 +579,12 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
   let selectedMaterial = null;
   let selectedSize = null;
   let termsAccepted = false;
+
+  // Sub-option state (Phase 2)
+  let selectedSubtype = null;
+  let selectedMounting = null;
+  let selectedFinish = null;
+  let selectedEdge = null;
 
   // ── Tab switching ────────────────────────────────────────────────
   const tabs = modal.querySelectorAll('.selector-tab');
@@ -719,6 +794,189 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
   overlay.addEventListener('click', closeModal);
   closeBtn.addEventListener('click', closeModal);
 
+  // ── Sub-option rendering (Phase 2) ─────────────────────────────
+  function renderSubOptions(materialKey) {
+    const subtypeSection = modal.querySelector('#subtype-section');
+    const mountingSection = modal.querySelector('#mounting-section');
+    const finishSection = modal.querySelector('#finish-section');
+    const edgeSection = modal.querySelector('#edge-section');
+    const subtypeGrid = modal.querySelector('#subtype-grid');
+    const mountingGrid = modal.querySelector('#mounting-grid');
+    const finishGrid = modal.querySelector('#finish-grid');
+    const edgeGrid = modal.querySelector('#edge-grid');
+
+    // Reset all sub-option sections
+    [subtypeSection, mountingSection, finishSection, edgeSection].forEach(s => s.style.display = 'none');
+    [subtypeGrid, mountingGrid, finishGrid, edgeGrid].forEach(g => { g.innerHTML = ''; });
+    selectedSubtype = null;
+    selectedMounting = null;
+    selectedFinish = null;
+    selectedEdge = null;
+
+    // Hide summary rows
+    ['summary-subtype-row', 'summary-mounting-row', 'summary-finish-row', 'summary-edge-row'].forEach(id => {
+      const row = modal.querySelector('#' + id);
+      if (row) row.style.display = 'none';
+    });
+
+    if (!PRODUCT_CATALOG || !PRODUCT_CATALOG.materials[materialKey]) return;
+
+    const matConfig = PRODUCT_CATALOG.materials[materialKey];
+
+    // Render subtype picker (if more than 1 subtype)
+    if (matConfig.subtypes && Object.keys(matConfig.subtypes).length > 1) {
+      subtypeSection.style.display = '';
+      subtypeGrid.innerHTML = Object.entries(matConfig.subtypes).map(([code, sub]) => `
+        <div class="sub-option-card${sub.default ? ' selected' : ''}" data-sub-key="${code}">
+          <input type="radio" name="subtype" value="${code}" ${sub.default ? 'checked' : ''} />
+          <label>
+            <div class="sub-option-name">${sub.name}${sub.recommended ? ' <span class="rec-badge">Recommended</span>' : ''}</div>
+            <div class="sub-option-desc">${sub.shortDescription || ''}</div>
+            ${sub.thickness ? `<div class="sub-option-meta">${sub.thickness}</div>` : ''}
+          </label>
+        </div>
+      `).join('');
+
+      // Set default
+      const defaultSub = Object.entries(matConfig.subtypes).find(([,s]) => s.default);
+      if (defaultSub) {
+        selectedSubtype = defaultSub[0];
+        modal.querySelector('#summary-subtype-row').style.display = '';
+        modal.querySelector('#summary-subtype').textContent = defaultSub[1].name;
+      }
+
+      // Click handlers
+      subtypeGrid.querySelectorAll('.sub-option-card').forEach(card => {
+        card.addEventListener('click', () => {
+          subtypeGrid.querySelectorAll('.sub-option-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          card.querySelector('input').checked = true;
+          selectedSubtype = card.dataset.subKey;
+          const subName = matConfig.subtypes[selectedSubtype]?.name || selectedSubtype;
+          modal.querySelector('#summary-subtype-row').style.display = '';
+          modal.querySelector('#summary-subtype').textContent = subName;
+        });
+      });
+    } else {
+      // Single subtype — auto-select it
+      const onlySub = Object.entries(matConfig.subtypes)[0];
+      if (onlySub) selectedSubtype = onlySub[0];
+    }
+
+    // Render mounting options
+    if (matConfig.mountingOptions && Object.keys(matConfig.mountingOptions).length > 1) {
+      mountingSection.style.display = '';
+      mountingGrid.innerHTML = Object.entries(matConfig.mountingOptions).map(([code, opt]) => `
+        <div class="sub-option-card${opt.default ? ' selected' : ''}" data-sub-key="${code}">
+          <input type="radio" name="mounting" value="${code}" ${opt.default ? 'checked' : ''} />
+          <label>
+            <div class="sub-option-name">${opt.name}${opt.recommended ? ' <span class="rec-badge">Recommended</span>' : ''}</div>
+            <div class="sub-option-desc">${opt.shortDescription || ''}</div>
+            ${opt.warning ? `<div class="sub-option-warning">${opt.warning}</div>` : ''}
+          </label>
+        </div>
+      `).join('');
+
+      const defaultMount = Object.entries(matConfig.mountingOptions).find(([,o]) => o.default);
+      if (defaultMount) {
+        selectedMounting = defaultMount[0];
+        modal.querySelector('#summary-mounting-row').style.display = '';
+        modal.querySelector('#summary-mounting').textContent = defaultMount[1].name;
+      }
+
+      mountingGrid.querySelectorAll('.sub-option-card').forEach(card => {
+        card.addEventListener('click', () => {
+          mountingGrid.querySelectorAll('.sub-option-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          card.querySelector('input').checked = true;
+          selectedMounting = card.dataset.subKey;
+          const mountName = matConfig.mountingOptions[selectedMounting]?.name || selectedMounting;
+          modal.querySelector('#summary-mounting-row').style.display = '';
+          modal.querySelector('#summary-mounting').textContent = mountName;
+        });
+      });
+    } else if (matConfig.mountingOptions) {
+      const onlyMount = Object.entries(matConfig.mountingOptions)[0];
+      if (onlyMount) selectedMounting = onlyMount[0];
+    }
+
+    // Render finish options (canvas)
+    if (matConfig.finishOptions && Object.keys(matConfig.finishOptions).length > 1) {
+      finishSection.style.display = '';
+      finishGrid.innerHTML = Object.entries(matConfig.finishOptions).map(([code, opt]) => `
+        <div class="sub-option-card${opt.default ? ' selected' : ''}" data-sub-key="${code}">
+          <input type="radio" name="finish" value="${code}" ${opt.default ? 'checked' : ''} />
+          <label>
+            <div class="sub-option-name">${opt.name}${opt.recommended ? ' <span class="rec-badge">Recommended</span>' : ''}</div>
+            <div class="sub-option-desc">${opt.shortDescription || ''}</div>
+          </label>
+        </div>
+      `).join('');
+
+      const defaultFinish = Object.entries(matConfig.finishOptions).find(([,o]) => o.default);
+      if (defaultFinish) {
+        selectedFinish = defaultFinish[0];
+        modal.querySelector('#summary-finish-row').style.display = '';
+        modal.querySelector('#summary-finish').textContent = defaultFinish[1].name;
+      }
+
+      finishGrid.querySelectorAll('.sub-option-card').forEach(card => {
+        card.addEventListener('click', () => {
+          finishGrid.querySelectorAll('.sub-option-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          card.querySelector('input').checked = true;
+          selectedFinish = card.dataset.subKey;
+          const finishName = matConfig.finishOptions[selectedFinish]?.name || selectedFinish;
+          modal.querySelector('#summary-finish-row').style.display = '';
+          modal.querySelector('#summary-finish').textContent = finishName;
+        });
+      });
+    }
+
+    // Render edge options (canvas)
+    if (matConfig.edgeOptions && Object.keys(matConfig.edgeOptions).length > 1) {
+      edgeSection.style.display = '';
+      edgeGrid.innerHTML = Object.entries(matConfig.edgeOptions).map(([code, opt]) => `
+        <div class="sub-option-card${opt.default ? ' selected' : ''}" data-sub-key="${code}">
+          <input type="radio" name="edge" value="${code}" ${opt.default ? 'checked' : ''} />
+          <label>
+            <div class="sub-option-name">${opt.name}</div>
+            <div class="sub-option-desc">${opt.shortDescription || ''}</div>
+          </label>
+        </div>
+      `).join('');
+
+      const defaultEdge = Object.entries(matConfig.edgeOptions).find(([,o]) => o.default);
+      if (defaultEdge) {
+        selectedEdge = defaultEdge[0];
+        modal.querySelector('#summary-edge-row').style.display = '';
+        modal.querySelector('#summary-edge').textContent = defaultEdge[1].name;
+      }
+
+      edgeGrid.querySelectorAll('.sub-option-card').forEach(card => {
+        card.addEventListener('click', () => {
+          edgeGrid.querySelectorAll('.sub-option-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          card.querySelector('input').checked = true;
+          selectedEdge = card.dataset.subKey;
+          const edgeName = matConfig.edgeOptions[selectedEdge]?.name || selectedEdge;
+          modal.querySelector('#summary-edge-row').style.display = '';
+          modal.querySelector('#summary-edge').textContent = edgeName;
+        });
+      });
+    }
+
+    // Update step numbering for size
+    const sizeHeading = modal.querySelector('#size-step-heading');
+    if (sizeHeading) {
+      const hasSubOptions = subtypeSection.style.display !== 'none' ||
+                            mountingSection.style.display !== 'none' ||
+                            finishSection.style.display !== 'none' ||
+                            edgeSection.style.display !== 'none';
+      sizeHeading.textContent = hasSubOptions ? 'Step 3: Choose Size' : 'Step 2: Choose Size';
+    }
+  }
+
   // Material selection
   materialOptions.forEach((option) => {
     option.addEventListener('click', () => {
@@ -742,6 +1000,9 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
       modal.querySelector('#summary-quality').textContent = '—';
       modal.querySelector('#summary-price').textContent = '$0';
       updateButtonStates();
+
+      // Render sub-options from catalog (Phase 2)
+      renderSubOptions(selectedMaterial);
 
       // Populate sizes for this material
       populateSizes(sizeGrid, applicableSizes, photoData, selectedMaterial, modal, (size) => {
@@ -846,6 +1107,10 @@ function addToCart(photoData, materialKey, size) {
       photoFilename: photoData.filename || id,
       collection: photoData.collection || '',
       material: materialKey,
+      subType: selectedSubtype || '',
+      mounting: selectedMounting || '',
+      finish: selectedFinish || '',
+      edge: selectedEdge || '',
       width: size.width.toString(),
       height: size.height.toString(),
       originalPhotoWidth: dimensions.width.toString(),
@@ -893,6 +1158,10 @@ function initiateStripeCheckout(photoData, materialKey, size) {
         metadata: {
           photoId: id,
           material: materialKey,
+          subType: selectedSubtype || '',
+          mounting: selectedMounting || '',
+          finish: selectedFinish || '',
+          edge: selectedEdge || '',
           width: size.width.toString(),
           height: size.height.toString(),
           originalPhotoWidth: dimensions.width.toString(),
@@ -921,6 +1190,10 @@ function initiateStripeCheckout(photoData, materialKey, size) {
       photoFilename: photoData.filename || id,
       collection: photoData.collection || '',
       material: materialKey,
+      subType: selectedSubtype || '',
+      mounting: selectedMounting || '',
+      finish: selectedFinish || '',
+      edge: selectedEdge || '',
       dimensions: {
         width: size.width,
         height: size.height,
@@ -995,7 +1268,10 @@ function initiateStripeCheckout(photoData, materialKey, size) {
  * Open product selector modal for a photo
  * @param {Object} photoData - Photo object from photos.json with dimensions
  */
-function openProductSelector(photoData) {
+async function openProductSelector(photoData) {
+  // Load product catalog (non-blocking — sub-options just won't show if it fails)
+  loadProductCatalog();
+
   // Inject styles if not already present
   if (!document.getElementById('product-selector-styles')) {
     const styleEl = document.createElement('style');
@@ -1178,6 +1454,38 @@ const STYLES = `
     font-size: 12px;
     color: #999;
     line-height: 1.3;
+  }
+
+  .material-meta {
+    font-size: 11px;
+    color: #777;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .hang-ready-tag {
+    font-size: 9px;
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .needs-frame-tag {
+    font-size: 9px;
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .size-grid {
@@ -1465,6 +1773,92 @@ const STYLES = `
     max-width: 300px;
   }
 
+  /* Sub-option sections (Phase 2 — material subtypes, mounting, finish, edge) */
+  .sub-option-section {
+    margin-bottom: 24px;
+  }
+
+  .sub-option-section h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #c4973b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .sub-option-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+  }
+
+  .sub-option-card {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .sub-option-card input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .sub-option-card label {
+    display: block;
+    padding: 12px 14px;
+    border: 2px solid #333;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #222;
+  }
+
+  .sub-option-card:hover label {
+    border-color: #555;
+  }
+
+  .sub-option-card.selected label,
+  .sub-option-card input[type='radio']:checked + label {
+    border-color: #c4973b;
+    background: rgba(196, 151, 59, 0.1);
+  }
+
+  .sub-option-name {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 3px;
+    color: #fff;
+  }
+
+  .sub-option-desc {
+    font-size: 11px;
+    color: #999;
+    line-height: 1.3;
+  }
+
+  .sub-option-meta {
+    font-size: 10px;
+    color: #777;
+    margin-top: 4px;
+  }
+
+  .sub-option-warning {
+    font-size: 10px;
+    color: #ff6b6b;
+    margin-top: 4px;
+  }
+
+  .rec-badge {
+    font-size: 9px;
+    background: rgba(196, 151, 59, 0.3);
+    color: #c4973b;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+  }
+
   @media (max-width: 600px) {
     .product-selector-content {
       width: 95%;
@@ -1477,6 +1871,10 @@ const STYLES = `
 
     .size-grid {
       grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .sub-option-grid {
+      grid-template-columns: 1fr;
     }
 
     .selector-tab {

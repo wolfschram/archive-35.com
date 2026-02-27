@@ -146,6 +146,13 @@ const MATERIALS = {
 
 let PRODUCT_CATALOG = null;
 
+// Sub-option state — module-level so top-level functions can access them
+let selectedSubtype = null;
+let selectedMounting = null;
+let selectedFinish = null;
+let selectedEdge = null;
+let selectedFrame = null; // Phase 4: optional frame moulding code (e.g., '303-19')
+
 /**
  * Load product catalog JSON. Called once on first modal open.
  * Falls back gracefully — sub-options simply won't render if load fails.
@@ -589,12 +596,12 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
   let selectedSize = null;
   let termsAccepted = false;
 
-  // Sub-option state (Phase 2)
-  let selectedSubtype = null;
-  let selectedMounting = null;
-  let selectedFinish = null;
-  let selectedEdge = null;
-  let selectedFrame = null; // Phase 4: optional frame moulding code (e.g., '303-19')
+  // Sub-option state — reset on each modal open (declared at module level)
+  selectedSubtype = null;
+  selectedMounting = null;
+  selectedFinish = null;
+  selectedEdge = null;
+  selectedFrame = null;
 
   // ── Tab switching ────────────────────────────────────────────────
   const tabs = modal.querySelectorAll('.selector-tab');

@@ -1,6 +1,6 @@
 /**
  * ARCHIVE-35 Pictorem Product List Proxy
- * Cloudflare Pages Function
+ * Cloudflare Pages Function (v2)
  *
  * POST /api/pictorem-products
  *

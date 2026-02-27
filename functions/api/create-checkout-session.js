@@ -156,6 +156,11 @@ export async function onRequestPost(context) {
       params.append('metadata[originalWidth]', String(pictorem.dimensions?.originalWidth || ''));
       params.append('metadata[originalHeight]', String(pictorem.dimensions?.originalHeight || ''));
       params.append('metadata[dpi]', String(pictorem.dimensions?.dpi || ''));
+      // Phase 3: Sub-options from product configurator (subtype, mounting, finish, edge)
+      params.append('metadata[subType]', pictorem.subType || '');
+      params.append('metadata[mounting]', pictorem.mounting || '');
+      params.append('metadata[finish]', pictorem.finish || '');
+      params.append('metadata[edge]', pictorem.edge || '');
     }
 
     if (license) {

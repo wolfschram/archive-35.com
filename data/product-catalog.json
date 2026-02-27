@@ -1,0 +1,438 @@
+{
+  "version": "2.0",
+  "generated": "2026-02-27T03:30:00Z",
+  "description": "Single source of truth for all product configuration. Read by: website product-selector.js, stripe-webhook.js, Agent pricing.py, Agent etsy.py",
+
+  "materials": {
+    "metal": {
+      "name": "Metal Print",
+      "category": "rigid",
+      "description": "Direct print on aluminum. Vibrant colors, exceptional durability, no glass needed.",
+      "archivalRating": "60+ years (ChromaLuxe tested by Wilhelm Imaging Research)",
+      "careInstructions": "Soft microfiber cloth or damp cloth with non-ammonia cleaner",
+      "subtypes": {
+        "hd": {
+          "name": "ChromaLuxe HD Gloss",
+          "code": "hd",
+          "pictoremMaterial": "metal",
+          "pictoremType": "hd",
+          "maxSize": [60, 40],
+          "thickness": "1mm",
+          "description": "Dye-sublimation on ChromaLuxe panel. Ultra-vivid colors, scratch-resistant, ultra-gloss finish. The gold standard for fine art photography on metal.",
+          "shortDescription": "Ultra-vivid sublimation, scratch-resistant",
+          "default": true,
+          "recommended": true
+        },
+        "al": {
+          "name": "Brushed Aluminum",
+          "code": "al",
+          "pictoremMaterial": "metal",
+          "pictoremType": "al",
+          "maxSize": [96, 48],
+          "thickness": "3mm",
+          "description": "UV print on brushed aluminum. Natural metallic grain shows through light areas, creating a unique industrial aesthetic. Best for high-contrast images.",
+          "shortDescription": "Metallic grain, industrial aesthetic"
+        },
+        "alw": {
+          "name": "White Matte Metal",
+          "code": "alw",
+          "pictoremMaterial": "metal",
+          "pictoremType": "alw",
+          "maxSize": [96, 60],
+          "thickness": "3mm",
+          "description": "White-coated aluminum with sophisticated matte finish. True-to-life colors without metallic interference. Elegant gallery presentation.",
+          "shortDescription": "True colors, no metallic grain"
+        },
+        "hds": {
+          "name": "ChromaLuxe Silver Gloss",
+          "code": "hds",
+          "pictoremMaterial": "metal",
+          "pictoremType": "hds",
+          "maxSize": [60, 40],
+          "thickness": "1mm",
+          "description": "HD sublimation on silver base panel. Metallic shimmer combined with sublimation quality. Creates a luminous, shifting effect with viewing angle.",
+          "shortDescription": "Silver shimmer, sublimation quality"
+        }
+      },
+      "mountingOptions": {
+        "standoff": {
+          "name": "Standoff Posts",
+          "code": "standoff",
+          "description": "4 polished aluminum posts at corners. Floats print approximately 1 inch from wall. Modern, gallery-style presentation.",
+          "shortDescription": "Floating modern look",
+          "default": true,
+          "recommended": true
+        },
+        "backfloat": {
+          "name": "Back Float Frame",
+          "code": "backfloat",
+          "description": "Hidden aluminum frame mounted to back of print. Creates clean floating appearance from the front with no visible hardware.",
+          "shortDescription": "Hidden frame, clean float"
+        },
+        "frenchcleat": {
+          "name": "French Cleat",
+          "code": "frenchcleat",
+          "description": "Heavy-duty angled bracket system. Distributes weight evenly. Recommended for prints larger than 36 inches or in high-traffic areas.",
+          "shortDescription": "Heavy-duty, large prints",
+          "recommendedMinSize": 36
+        },
+        "none": {
+          "name": "No Mounting Hardware",
+          "code": "",
+          "description": "Print ships without hanging hardware. Choose this only if you have your own mounting solution.",
+          "shortDescription": "No hardware included",
+          "warning": "This print will ship without any way to hang it on a wall."
+        }
+      },
+      "finishOptions": null,
+      "edgeOptions": null,
+      "basePrice": 99,
+      "pricingExponent": 0.75,
+      "baseSize": 96,
+      "hangReady": true,
+      "needsFraming": false
+    },
+
+    "canvas": {
+      "name": "Canvas Print",
+      "category": "stretched",
+      "description": "Museum-quality 410g/m² fine art canvas (70% cotton, 30% polyester). Acid-free, archival grade. Printed with Epson UltraChrome GS3 nine-color ink system.",
+      "archivalRating": "100+ years fade resistance",
+      "careInstructions": "Dust with soft brush. Avoid direct sunlight and high humidity.",
+      "subtypes": {
+        "c15": {
+          "name": "Gallery Wrap 1.5\"",
+          "code": "c15",
+          "pictoremMaterial": "canvas",
+          "pictoremType": "stretched",
+          "maxSize": [96, 54],
+          "thickness": "1.5 inches",
+          "description": "Canvas stretched on premium 1.5-inch wooden frame. Substantial gallery presence. The professional choice for fine art display.",
+          "shortDescription": "Thick gallery profile",
+          "default": true,
+          "recommended": true,
+          "additionals": ["c15"]
+        },
+        "c075": {
+          "name": "Slim Wrap 0.75\"",
+          "code": "c075",
+          "pictoremMaterial": "canvas",
+          "pictoremType": "stretched",
+          "maxSize": [96, 54],
+          "thickness": "0.75 inches",
+          "description": "Canvas stretched on 0.75-inch frame. Slimmer profile, lighter weight. More affordable option that still looks great.",
+          "shortDescription": "Slim profile, lighter weight",
+          "additionals": ["c075"]
+        },
+        "rolled": {
+          "name": "Rolled Canvas (Giclée)",
+          "code": "rolled",
+          "pictoremMaterial": "canvas",
+          "pictoremType": "canvas",
+          "maxSize": [150, 58],
+          "thickness": null,
+          "description": "Unframed archival canvas shipped rolled in a protective tube. You provide your own stretcher bars or framing. Largest size option available.",
+          "shortDescription": "Rolled in tube, you frame it",
+          "warning": "Ships unframed. You will need to stretch or frame this canvas yourself."
+        }
+      },
+      "mountingOptions": null,
+      "finishOptions": {
+        "semigloss": {
+          "name": "Semi-Gloss Varnish",
+          "code": "semigloss",
+          "description": "Protective semi-gloss varnish. Richer blacks, subtle sheen, scratch-resistant. The most popular choice for photography on canvas.",
+          "shortDescription": "Rich blacks, subtle sheen",
+          "default": true,
+          "recommended": true
+        },
+        "matte": {
+          "name": "Matte Varnish",
+          "code": "matte",
+          "description": "Fine art matte varnish. Deep color saturation with zero reflections. Museum-standard presentation for gallery settings.",
+          "shortDescription": "Zero reflections, museum standard"
+        },
+        "knife": {
+          "name": "Knife Varnish (Textured)",
+          "code": "knife",
+          "description": "Manually applied textured varnish creating visible brushstroke-like texture. Gives the canvas a hand-painted, impasto appearance.",
+          "shortDescription": "3D brushstroke texture"
+        },
+        "silver": {
+          "name": "Silver Canvas",
+          "code": "silver",
+          "description": "Metallic iridescent finish printed on silver-coated canvas. Light-reactive shimmer effect that shifts with viewing angle.",
+          "shortDescription": "Metallic shimmer effect"
+        }
+      },
+      "edgeOptions": {
+        "mirrorimage": {
+          "name": "Mirror Wrap",
+          "code": "mirrorimage",
+          "description": "Mirrors the photo edges around the frame sides. No cropping of the main image area. Most popular choice.",
+          "shortDescription": "Mirrored edges, no crop",
+          "default": true
+        },
+        "gallerywrap": {
+          "name": "Gallery Wrap",
+          "code": "gallerywrap",
+          "description": "Extends the image around the sides of the frame. Slight cropping of the visible image area.",
+          "shortDescription": "Image wraps around sides"
+        },
+        "solidcolor": {
+          "name": "Solid Color Border",
+          "code": "solidcolor",
+          "description": "Solid color edges. You choose the color. Clean, defined edge that frames the image.",
+          "shortDescription": "Custom color edges",
+          "requiresBorderColor": true,
+          "defaultBorderColor": "000000"
+        }
+      },
+      "basePrice": 82,
+      "pricingExponent": 0.75,
+      "baseSize": 96,
+      "hangReady": true,
+      "needsFraming": false
+    },
+
+    "acrylic": {
+      "name": "Acrylic Print",
+      "category": "rigid",
+      "description": "Edge-to-edge UV print on optically pure acrylic (99.9%). Stunning color depth and luminous clarity. UV-cured ink at 1200×1200 DPI.",
+      "archivalRating": "Museum-quality fade resistance",
+      "careInstructions": "Soft microfiber cloth or damp cloth with non-ammonia cleaner (e.g., Windex)",
+      "subtypes": {
+        "da16": {
+          "name": "Acrylic 3/16\"",
+          "code": "da16",
+          "pictoremMaterial": "acrylic",
+          "pictoremType": "da16",
+          "maxSize": [96, 60],
+          "thickness": "3/16 inch (4.8mm)",
+          "description": "Standard thickness acrylic with excellent optical depth. The recommended choice for most prints. Substantial feel without excessive weight.",
+          "shortDescription": "Standard thickness, great depth",
+          "default": true,
+          "recommended": true
+        },
+        "da8": {
+          "name": "Acrylic 1/8\"",
+          "code": "da8",
+          "pictoremMaterial": "acrylic",
+          "pictoremType": "da8",
+          "maxSize": [96, 60],
+          "thickness": "1/8 inch (3.2mm)",
+          "description": "Slim, lightweight acrylic. Budget-friendly option that still delivers vibrant colors and clarity. Ideal for smaller prints or grouped displays.",
+          "shortDescription": "Slim and lightweight"
+        },
+        "ac220": {
+          "name": "Acrylic 1/4\"",
+          "code": "ac220",
+          "pictoremMaterial": "acrylic",
+          "pictoremType": "ac220",
+          "maxSize": [96, 60],
+          "thickness": "1/4 inch (6.4mm)",
+          "description": "Premium thickness with maximum depth effect. Rich, jewel-like luminosity. A statement piece.",
+          "shortDescription": "Premium thickness, max depth"
+        },
+        "a38": {
+          "name": "Acrylic 3/8\"",
+          "code": "a38",
+          "pictoremMaterial": "acrylic",
+          "pictoremType": "a38",
+          "maxSize": [96, 60],
+          "thickness": "3/8 inch (9.5mm)",
+          "description": "Ultra-thick premium acrylic. Maximum perceived depth and substantial weight. For collectors who want the ultimate acrylic experience.",
+          "shortDescription": "Ultra-thick, collector grade"
+        },
+        "ng8": {
+          "name": "Non-Glare Acrylic 1/8\"",
+          "code": "ng8",
+          "pictoremMaterial": "acrylic",
+          "pictoremType": "ng8",
+          "maxSize": [96, 60],
+          "thickness": "1/8 inch (3.2mm)",
+          "description": "Satin matte finish that reduces reflections while preserving clarity. Ideal for bright rooms, near windows, or under direct lighting.",
+          "shortDescription": "Anti-glare for bright rooms"
+        }
+      },
+      "mountingOptions": {
+        "standoff": {
+          "name": "Standoff Posts",
+          "code": "standoff",
+          "description": "4 polished aluminum posts at corners. Floats print approximately 1 inch from wall. The most popular choice for acrylic.",
+          "shortDescription": "Floating modern look",
+          "default": true,
+          "recommended": true
+        },
+        "backfloat": {
+          "name": "Back Float Frame",
+          "code": "backfloat",
+          "description": "Hidden aluminum frame on back. Clean floating appearance from front.",
+          "shortDescription": "Hidden frame, clean float"
+        },
+        "frenchcleat": {
+          "name": "French Cleat",
+          "code": "frenchcleat",
+          "description": "Heavy-duty angled bracket. Recommended for large or heavy prints.",
+          "shortDescription": "Heavy-duty, large prints",
+          "recommendedMinSize": 36
+        },
+        "none": {
+          "name": "No Mounting Hardware",
+          "code": "",
+          "description": "Print ships without hanging hardware.",
+          "shortDescription": "No hardware included",
+          "warning": "This print will ship without any way to hang it on a wall."
+        }
+      },
+      "finishOptions": null,
+      "edgeOptions": null,
+      "basePrice": 149,
+      "pricingExponent": 0.75,
+      "baseSize": 96,
+      "hangReady": true,
+      "needsFraming": false
+    },
+
+    "paper": {
+      "name": "Fine Art Paper",
+      "category": "paper",
+      "description": "Archival giclée prints on premium paper. Printed with Epson SureColor, UltraChrome GS3 nine-color ink system at 300 DPI.",
+      "archivalRating": "100+ years fade resistance (HP Vivera inks)",
+      "careInstructions": "Handle by edges only. Frame behind glass for protection. Avoid direct sunlight.",
+      "subtypes": {
+        "art": {
+          "name": "Fine Art Matte",
+          "code": "art",
+          "pictoremMaterial": "paper",
+          "pictoremType": "art",
+          "maxSize": [100, 58],
+          "thickness": "9.5 mil (230gsm)",
+          "description": "Premium archival-quality neutral white paper. Instant-dry coating, fingerprint-resistant surface. The museum standard for fine art reproduction.",
+          "shortDescription": "Museum-grade archival matte",
+          "default": true,
+          "recommended": true
+        },
+        "satin": {
+          "name": "Satin Photo Paper",
+          "code": "satin",
+          "pictoremMaterial": "paper",
+          "pictoremType": "satin",
+          "maxSize": [100, 58],
+          "thickness": "240gsm",
+          "description": "Perfect balance between color vibrancy and minimal glare. Versatile all-around paper for photography.",
+          "shortDescription": "Balanced vibrancy, minimal glare"
+        },
+        "glossphoto": {
+          "name": "Glossy Photo Paper",
+          "code": "glossphoto",
+          "pictoremMaterial": "paper",
+          "pictoremType": "glossphoto",
+          "maxSize": [100, 58],
+          "thickness": "260gsm",
+          "description": "Resin-coated with soft glossy surface. Classic photographic reproduction with vibrant colors and sharp detail.",
+          "shortDescription": "Classic glossy photo finish"
+        },
+        "pearl": {
+          "name": "Pearlescent Metallic",
+          "code": "pearl",
+          "pictoremMaterial": "paper",
+          "pictoremType": "pearl",
+          "maxSize": [100, 58],
+          "thickness": "255gsm",
+          "description": "High-gloss metallic paper with subtle shimmer. Exceptionally rich and vibrant. A middle ground between matte and high-gloss metal prints.",
+          "shortDescription": "Shimmer finish, rich colors"
+        }
+      },
+      "mountingOptions": null,
+      "finishOptions": null,
+      "edgeOptions": null,
+      "basePrice": 45,
+      "pricingExponent": 0.75,
+      "baseSize": 96,
+      "hangReady": false,
+      "needsFraming": true,
+      "framingNote": "Paper prints ship rolled in a protective tube. Frame behind glass for display and protection."
+    },
+
+    "wood": {
+      "name": "Wood Print",
+      "category": "rigid",
+      "description": "Direct UV print on 3/16\" Baltic Birch plywood. Multi-layer hardwood with superior rigidity. White and light areas reveal natural wood texture and grain.",
+      "archivalRating": "Museum-quality fade resistance (UV-cured inks)",
+      "careInstructions": "Soft microfiber cloth or damp cloth with non-ammonia cleaner",
+      "subtypes": {
+        "ru14": {
+          "name": "Birch Wood",
+          "code": "ru14",
+          "pictoremMaterial": "wood",
+          "pictoremType": "ru14",
+          "maxSize": [96, 48],
+          "thickness": "3/16 inch (6mm)",
+          "description": "Direct UV print on premium Russian birch plywood. Natural wood grain visible through lighter areas creates a unique organic warmth that no other medium can replicate.",
+          "shortDescription": "Natural grain, organic warmth",
+          "default": true
+        }
+      },
+      "mountingOptions": {
+        "builtin": {
+          "name": "Built-in Float Frame",
+          "code": "",
+          "description": "3/4-inch floating frame built into the back. Ready to hang out of the box. Included at no extra cost.",
+          "shortDescription": "Included, ready to hang",
+          "default": true,
+          "included": true
+        },
+        "frenchcleat": {
+          "name": "French Cleat (upgrade)",
+          "code": "frenchcleat",
+          "description": "Heavy-duty angled bracket system. Recommended for prints over 36 inches.",
+          "shortDescription": "Heavy-duty upgrade",
+          "recommendedMinSize": 36
+        }
+      },
+      "finishOptions": null,
+      "edgeOptions": null,
+      "basePrice": 92,
+      "pricingExponent": 0.75,
+      "baseSize": 96,
+      "hangReady": true,
+      "needsFraming": false
+    }
+  },
+
+  "standardFrames": {
+    "enabled": false,
+    "note": "Phase 4 — standard frames require mat calculation engine and Pictorem buildproductlist API integration",
+    "sizes": [
+      { "width": 16, "height": 22, "orientation": "portrait" },
+      { "width": 22, "height": 16, "orientation": "landscape" },
+      { "width": 20, "height": 28, "orientation": "portrait" },
+      { "width": 28, "height": 20, "orientation": "landscape" },
+      { "width": 28, "height": 28, "orientation": "square" },
+      { "width": 24, "height": 34, "orientation": "portrait" },
+      { "width": 34, "height": 24, "orientation": "landscape" },
+      { "width": 40, "height": 28, "orientation": "landscape" }
+    ],
+    "mouldings": ["black-satin", "natural-wood", "white"],
+    "includes": "2-inch white border, wire backing, felt pads, glass"
+  },
+
+  "printQualityThresholds": {
+    "museum": 300,
+    "excellent": 200,
+    "good": 150,
+    "minimum": 150
+  },
+
+  "pricing": {
+    "formula": "Math.round(basePrice * Math.pow(sizeInches / baseSize, pricingExponent))",
+    "baseSizeInches": 96,
+    "note": "sizeInches = width * height in inches. Base size is 12x8 = 96 sq inches."
+  },
+
+  "preorderCodeFormat": {
+    "pattern": "qty|material|type|orientation|width|height|additional1|additional2|...",
+    "orientationLogic": "width > height ? 'horizontal' : (height > width ? 'vertical' : 'square')"
+  }
+}

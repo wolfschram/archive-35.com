@@ -7,13 +7,27 @@
  * Endpoint: GET /api/products.json
  */
 
-// Materials and base pricing (mirrors product-selector.js)
+// Materials and base pricing (mirrors product-catalog.json + product-selector.js)
 const MATERIALS = {
-  canvas: { name: 'Canvas', basePrice: 105, description: 'Museum-quality canvas wrap with professional stretching' },
-  metal: { name: 'Metal', basePrice: 130, description: 'Vibrant metal print with aluminum coating' },
-  acrylic: { name: 'Acrylic', basePrice: 195, description: 'Premium acrylic with stunning color depth' },
-  paper: { name: 'Fine Art Paper', basePrice: 60, description: 'Archival fine art paper with matte finish' },
-  wood: { name: 'Wood', basePrice: 120, description: 'Rustic wood print on premium plywood' }
+  canvas: { name: 'Canvas', basePrice: 82, description: 'Museum-quality canvas wrap with professional stretching', hangReady: true },
+  metal: { name: 'Metal', basePrice: 99, description: 'Vibrant metal print with aluminum coating', hangReady: true },
+  acrylic: { name: 'Acrylic', basePrice: 149, description: 'Premium acrylic with stunning color depth', hangReady: true },
+  paper: { name: 'Fine Art Paper', basePrice: 45, description: 'Archival fine art paper with matte finish', hangReady: false },
+  wood: { name: 'Wood', basePrice: 92, description: 'Rustic wood print on premium plywood', hangReady: true }
+};
+
+// Frame add-on options (from product-catalog.json v3)
+const FRAME_OPTIONS = {
+  floatingFrames: [
+    { code: '303-19', name: 'Black Floating Frame', applicableTo: ['canvas', 'metal', 'acrylic'] },
+    { code: '303-12', name: 'Natural Wood Floating Frame', applicableTo: ['canvas', 'metal', 'acrylic'] },
+    { code: '317-22', name: 'White Floating Frame', applicableTo: ['canvas', 'metal', 'acrylic'] },
+  ],
+  pictureFrames: [
+    { code: '241-29', name: 'Black Picture Frame', applicableTo: ['paper'] },
+    { code: '241-22', name: 'White Picture Frame', applicableTo: ['paper'] },
+    { code: '724-12', name: 'Natural Wood Picture Frame', applicableTo: ['paper'] },
+  ],
 };
 
 // Standard sizes for 3:2 aspect ratio (most common)
@@ -134,8 +148,10 @@ export async function onRequestGet(context) {
         key,
         name: m.name,
         description: m.description,
-        startingPrice: m.basePrice
+        startingPrice: m.basePrice,
+        hangReady: m.hangReady
       })),
+      frameOptions: FRAME_OPTIONS,
       totalProducts: products.length,
       products
     };

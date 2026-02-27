@@ -161,6 +161,8 @@ export async function onRequestPost(context) {
       params.append('metadata[mounting]', pictorem.mounting || '');
       params.append('metadata[finish]', pictorem.finish || '');
       params.append('metadata[edge]', pictorem.edge || '');
+      // Phase 4: Frame moulding code (e.g., '303-19' for floating, '241-29' for picture)
+      params.append('metadata[frame]', pictorem.frame || '');
     }
 
     if (license) {

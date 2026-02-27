@@ -336,6 +336,12 @@ class CartUI {
         photoFilename: meta.photoFilename || photoRecord.filename || photoId,
         collection: meta.collection || photoRecord.collection || '',
         material: meta.material || firstPrint.material || '',
+        // Phase 3+4: Sub-options from product configurator
+        subType: meta.subType || '',
+        mounting: meta.mounting || '',
+        finish: meta.finish || '',
+        edge: meta.edge || '',
+        frame: meta.frame || '',
         dimensions: {
           width: parseInt(meta.width) || fallbackWidth,
           height: parseInt(meta.height) || fallbackHeight,

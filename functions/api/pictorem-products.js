@@ -76,13 +76,6 @@ export async function onRequestPost(context) {
       preordercode: preordercode,
     });
 
-    // Include debug info (key length only, not the key itself)
-    result._debug = {
-      keyLength: PICTOREM_API_KEY.length,
-      keyPrefix: PICTOREM_API_KEY.substring(0, 4),
-      url: `${PICTOREM_BASE}/${action}/`,
-    };
-
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: corsHeaders,

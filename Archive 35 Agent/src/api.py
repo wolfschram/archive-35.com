@@ -947,6 +947,9 @@ def create_manual_content(req: CreateManualContentRequest):
             photo = conn.execute("SELECT * FROM photos WHERE id = ?", (req.photo_id,)).fetchone()
             if not photo:
                 raise HTTPException(status_code=404, detail="Photo not found")
+        else:
+            # Normalize all mockup IDs to the sentinel value (satisfies FK constraint)
+            req.photo_id = "__mockup__"
 
         from uuid import uuid4
         from datetime import timedelta

@@ -131,6 +131,10 @@ CREATE TABLE IF NOT EXISTS content_masters (
 
 CREATE INDEX IF NOT EXISTS idx_content_masters_photo_id ON content_masters(photo_id);
 CREATE INDEX IF NOT EXISTS idx_content_masters_platform ON content_masters(platform);
+
+-- Sentinel row for mockup content (satisfies FK constraint when no real photo)
+INSERT OR IGNORE INTO photos (id, filename, path, imported_at)
+    VALUES ('__mockup__', '__mockup__', '__mockup__', '2026-01-01T00:00:00Z');
 """
 
 

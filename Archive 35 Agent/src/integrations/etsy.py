@@ -285,8 +285,13 @@ def _api_request(
 
     url = f"{ETSY_API_BASE}{endpoint}"
 
+    # Etsy requires keystring:shared_secret format since Feb 2026
+    api_key_header = creds["api_key"]
+    if creds.get("shared_secret"):
+        api_key_header = f"{creds['api_key']}:{creds['shared_secret']}"
+
     headers = {
-        "x-api-key": creds["api_key"],
+        "x-api-key": api_key_header,
         "Authorization": f"Bearer {creds['access_token']}",
     }
 
@@ -488,8 +493,12 @@ def upload_listing_image(
     body += f"--{boundary}--\r\n".encode()
 
     url = f"{ETSY_API_BASE}/application/shops/{shop_id}/listings/{listing_id}/images"
+    # Etsy requires keystring:shared_secret format since Feb 2026
+    api_key_header = creds["api_key"]
+    if creds.get("shared_secret"):
+        api_key_header = f"{creds['api_key']}:{creds['shared_secret']}"
     headers = {
-        "x-api-key": creds["api_key"],
+        "x-api-key": api_key_header,
         "Authorization": f"Bearer {creds['access_token']}",
         "Content-Type": f"multipart/form-data; boundary={boundary}",
     }

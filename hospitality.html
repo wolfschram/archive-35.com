@@ -1029,9 +1029,13 @@
       back.classList.remove('visible');
       bread.textContent = 'All Collections';
 
-      const sorted = Object.keys(collectionsMap).sort((a, b) =>
-        collectionsMap[a].title.localeCompare(collectionsMap[b].title)
-      );
+      // Large Scale Photography Stitch always first, then alphabetical
+      const PRIORITY_COLLECTION = 'large-scale-photography-stitch';
+      const sorted = Object.keys(collectionsMap).sort((a, b) => {
+        if (a === PRIORITY_COLLECTION) return -1;
+        if (b === PRIORITY_COLLECTION) return 1;
+        return collectionsMap[a].title.localeCompare(collectionsMap[b].title);
+      });
 
       count.textContent = sorted.length + ' collections';
 
@@ -1048,10 +1052,10 @@
         grid.appendChild(card);
       });
 
-      // Auto-select first photo from first collection if nothing selected
+      // Auto-select first photo from Large Scale collection (or first available)
       if (!currentPhoto && sorted.length > 0) {
-        const firstColl = collectionsMap[sorted[0]];
-        if (firstColl && firstColl.hero) selectPhoto(firstColl.hero);
+        const priorityColl = collectionsMap[PRIORITY_COLLECTION] || collectionsMap[sorted[0]];
+        if (priorityColl && priorityColl.hero) selectPhoto(priorityColl.hero);
       }
     }
 
@@ -1069,19 +1073,15 @@
       back.classList.add('visible');
       bread.textContent = c.title;
 
-      // Filter photos for this collection that fit the current template
-      let photos = c.photos;
+      // Show ALL photos (zoom handles any aspect ratio) — sort best match first
+      let photos = c.photos.slice();
       if (currentTemplate) {
         const ar = currentTemplate.ar;
-        photos = photos.filter(p => {
-          if (!p.dimensions || !p.dimensions.aspectRatio) return true;
-          const pAr = p.dimensions.aspectRatio;
-          return Math.abs(pAr - ar) < 0.5 || pAr > ar * 0.6;
+        photos.sort((a, b) => {
+          const arA = (a.dimensions && a.dimensions.aspectRatio) || 1.5;
+          const arB = (b.dimensions && b.dimensions.aspectRatio) || 1.5;
+          return Math.abs(arA - ar) - Math.abs(arB - ar);
         });
-        // Sort: best aspect ratio match first
-        photos.sort((a, b) =>
-          Math.abs(a.dimensions.aspectRatio - ar) - Math.abs(b.dimensions.aspectRatio - ar)
-        );
       }
 
       filteredPhotos = photos;

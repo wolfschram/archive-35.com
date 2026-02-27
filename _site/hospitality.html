@@ -1017,9 +1017,13 @@
         }
         collectionsMap[p.collection].photos.push(p);
       });
-      // Set hero image (first photo of each collection)
-      Object.values(collectionsMap).forEach(c => {
-        if (c.photos.length > 0) c.hero = c.photos[0];
+      // Set hero image per collection (Wolf_10165 for Large Scale)
+      var HERO_OVERRIDES = { 'large-scale-photography-stitch': 'Wolf 10165' };
+      Object.entries(collectionsMap).forEach(function(entry) {
+        var slug = entry[0], c = entry[1];
+        var override = HERO_OVERRIDES[slug];
+        if (override) c.hero = c.photos.find(function(p){ return p.filename === override; }) || c.photos[0];
+        else if (c.photos.length > 0) c.hero = c.photos[0];
       });
     }
 
@@ -1087,6 +1091,11 @@
           const arB = (b.dimensions && b.dimensions.aspectRatio) || 1.5;
           return Math.abs(arA - ar) - Math.abs(arB - ar);
         });
+      }
+      // Pin hero image first (e.g. Wolf 10165 for Large Scale)
+      if (c.hero) {
+        var hi = photos.findIndex(function(p){ return p.id === c.hero.id; });
+        if (hi > 0) { photos.unshift(photos.splice(hi, 1)[0]); }
       }
 
       filteredPhotos = photos;

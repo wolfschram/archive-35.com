@@ -1495,6 +1495,41 @@ def list_etsy_listings():
         conn.close()
 
 
+@app.delete("/content/{content_id}")
+def delete_content_item(content_id: int):
+    """Delete a pending/approved content item from the queue."""
+    conn = _get_conn()
+    try:
+        row = conn.execute("SELECT id, status FROM content WHERE id = ?", (content_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Content item not found")
+        conn.execute("DELETE FROM content WHERE id = ?", (content_id,))
+        conn.commit()
+        return {"deleted": True, "id": content_id}
+    finally:
+        conn.close()
+
+
+@app.get("/etsy/listings/live")
+def list_live_etsy_listings(state: str = "active", limit: int = 100):
+    """Fetch real listings from the Etsy API (not the content DB).
+
+    Supports state: active, draft, inactive, expired
+    """
+    from src.integrations.etsy import get_listings, has_valid_token
+    if not has_valid_token():
+        return {"results": [], "count": 0, "note": "No Etsy OAuth token — connect in Settings"}
+    try:
+        data = get_listings(state=state, limit=limit)
+        if "error" in data:
+            return {"results": [], "count": 0, "error": data["error"]}
+        results = data.get("results", [])
+        return {"results": results, "count": len(results)}
+    except Exception as e:
+        logger.error("Failed to fetch live Etsy listings: %s", e)
+        return {"results": [], "count": 0, "error": str(e)}
+
+
 @app.get("/etsy/status")
 def etsy_status():
     """Check Etsy integration status — tokens, shop info, SKU count."""

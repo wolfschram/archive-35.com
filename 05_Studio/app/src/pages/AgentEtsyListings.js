@@ -32,11 +32,16 @@ function AgentEtsyListings() {
       setListings(listingData.items || []);
       setSkus(skuData.items || []);
 
-      // Also load live Etsy listings (if OAuth works)
-      const etsyData = await get('/etsy/listings').catch(() => null);
-      if (etsyData?.results) {
-        setEtsyListings(etsyData.results);
-      }
+      // Fetch live Etsy listings from the actual Etsy API
+      const [liveActive, liveDraft] = await Promise.all([
+        get('/etsy/listings/live?state=active&limit=100').catch(() => ({ results: [] })),
+        get('/etsy/listings/live?state=draft&limit=100').catch(() => ({ results: [] })),
+      ]);
+      const allLive = [
+        ...(liveActive?.results || []).map(l => ({ ...l, _state: 'active' })),
+        ...(liveDraft?.results || []).map(l => ({ ...l, _state: 'draft' })),
+      ];
+      setEtsyListings(allLive);
     } catch { /* error shown via hook */ }
   }, []);
 
@@ -193,6 +198,17 @@ function AgentEtsyListings() {
     });
   };
 
+  const handleDeleteContent = async (contentId) => {
+    if (!window.confirm('Delete this content item from the queue?')) return;
+    try {
+      await del(`/content/${contentId}`);
+      setActionMsg({ type: 'success', text: 'Content item deleted' });
+      loadData();
+    } catch (err) {
+      setActionMsg({ type: 'error', text: `Delete failed: ${err.message || err}` });
+    }
+  };
+
   const toggleEtsyListing = (id) => {
     setSelectedEtsyListings(prev => {
       const next = new Set(prev);
@@ -212,25 +228,26 @@ function AgentEtsyListings() {
         </p>
       </header>
 
-      {/* API status warning */}
-      <div style={{
-        padding: '12px 16px',
-        background: 'rgba(234, 179, 8, 0.08)',
-        border: '1px solid rgba(234, 179, 8, 0.3)',
-        borderRadius: '8px',
-        color: '#eab308',
-        fontSize: '13px',
-        marginBottom: '20px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-      }}>
-        <span style={{ fontSize: '18px' }}>{'⚠️'}</span>
-        <span>
-          <strong>API Pending Approval</strong> — Etsy OAuth is blocked until personal approval.
-          Use <strong>"Copy for Manual Listing"</strong> to create listings on etsy.com directly.
-        </span>
-      </div>
+      {/* Connection status — only show if no OAuth token */}
+      {etsyListings.length === 0 && listings.length === 0 && !loading && (
+        <div style={{
+          padding: '12px 16px',
+          background: 'rgba(212, 165, 116, 0.08)',
+          border: '1px solid rgba(212, 165, 116, 0.25)',
+          borderRadius: '8px',
+          color: 'var(--accent)',
+          fontSize: '13px',
+          marginBottom: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+        }}>
+          <span style={{ fontSize: '18px' }}>{'🏷️'}</span>
+          <span>
+            No listings yet. Use <strong>Compose</strong> to create Etsy drafts directly via the API.
+          </span>
+        </div>
+      )}
 
       {/* Action message toast */}
       {actionMsg && (
@@ -279,9 +296,14 @@ function AgentEtsyListings() {
         <div className="glass-card">
           <h3>{'🛒'} Live</h3>
           <div style={{ fontSize: '36px', fontWeight: 600, color: 'var(--accent)' }}>
-            {etsyListings.length}
+            {etsyListings.filter(l => (l._state || l.state) === 'active').length}
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Active on Etsy</div>
+          {etsyListings.filter(l => (l._state || l.state) === 'draft').length > 0 && (
+            <div style={{ fontSize: '11px', color: '#eab308', marginTop: '4px' }}>
+              + {etsyListings.filter(l => (l._state || l.state) === 'draft').length} drafts
+            </div>
+          )}
         </div>
         <div className="glass-card">
           <h3>{'📦'} SKUs</h3>
@@ -518,17 +540,17 @@ function AgentEtsyListings() {
                         </button>
                       )}
 
-                      {/* Copy for manual listing */}
-                      <button onClick={() => handleCopyForManualListing(item)}
+                      {/* Delete from queue */}
+                      <button onClick={() => handleDeleteContent(item.id)}
                         style={{
                           padding: '8px 20px', fontSize: '13px', fontWeight: 600,
-                          background: 'rgba(59, 130, 246, 0.12)',
-                          border: '1px solid rgba(59, 130, 246, 0.4)',
+                          background: 'rgba(239, 68, 68, 0.08)',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
                           borderRadius: 'var(--radius-sm)',
-                          color: copiedId === item.id ? 'var(--success)' : '#3b82f6',
+                          color: '#ef4444',
                           cursor: 'pointer',
                         }}>
-                        {copiedId === item.id ? 'Copied!' : 'Copy for Manual Listing'}
+                        Delete
                       </button>
 
                       <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
@@ -610,7 +632,7 @@ function AgentEtsyListings() {
 
           {etsyListings.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)', fontSize: '14px' }}>
-              {loading ? 'Loading...' : 'No live Etsy listings found (API may need OAuth)'}
+              {loading ? 'Loading...' : 'No live Etsy listings found — connect OAuth in Settings or create from Compose'}
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -637,11 +659,27 @@ function AgentEtsyListings() {
                       fontSize: '13px', color: 'var(--text)',
                       overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     }}>{listing.title}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                      #{listing.listing_id} · {listing.state}
-                      {listing.price?.amount && ` · $${(listing.price.amount / listing.price.divisor).toFixed(2)}`}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: 'var(--text-muted)' }}>
+                      <span>#{listing.listing_id}</span>
+                      <span style={{
+                        padding: '1px 8px', borderRadius: '10px', fontSize: '10px', fontWeight: 600,
+                        background: (listing._state || listing.state) === 'active' ? 'rgba(74, 222, 128, 0.15)' : 'rgba(234, 179, 8, 0.15)',
+                        color: (listing._state || listing.state) === 'active' ? 'var(--success)' : '#eab308',
+                      }}>{listing._state || listing.state}</span>
+                      {listing.price?.amount && <span>${(listing.price.amount / listing.price.divisor).toFixed(2)}</span>}
+                      {listing.quantity != null && <span>{listing.quantity} qty</span>}
                     </div>
                   </div>
+                  <a href={`https://www.etsy.com/your/shops/me/tools/listings/${listing.listing_id}`}
+                    target="_blank" rel="noopener noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    style={{
+                      padding: '4px 10px', fontSize: '11px',
+                      background: 'rgba(212, 165, 116, 0.08)',
+                      border: '1px solid rgba(212, 165, 116, 0.25)',
+                      borderRadius: '4px', color: 'var(--accent)',
+                      textDecoration: 'none', whiteSpace: 'nowrap',
+                    }}>View on Etsy</a>
                   <button onClick={() => handleDeleteEtsyListing(listing.listing_id)}
                     disabled={deleting}
                     style={{

@@ -85,17 +85,23 @@ function AgentCompose() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [mockupData, collData, boardData] = await Promise.all([
+        const [mockupData, collData] = await Promise.all([
           get('/mockups/list').catch(() => ({ items: [] })),
           get('/photos/collections/list').catch(() => ({ collections: [] })),
-          get('/pinterest/boards').catch(() => ({ items: [] })),
         ]);
         setMockups(mockupData?.items || []);
         const cols = (collData?.collections || []).map(c => typeof c === 'string' ? c : c.name).filter(Boolean);
         cols.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
         setCollections(cols);
-        const boards = boardData?.items || [];
-        setPinterestBoards(boards);
+        // Load Pinterest boards lazily — don't block page load or show DNS errors
+        try {
+          const boardData = await get('/pinterest/boards');
+          setPinterestBoards(boardData?.items || []);
+        } catch {
+          setPinterestBoards([]);
+        }
+        // Clear any transient errors from optional API calls
+        setError(null);
       } catch {}
     };
     load();

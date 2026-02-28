@@ -8,7 +8,7 @@ import useAgentApi from '../hooks/useAgentApi';
  * SHARED ZONE: Changes here must be tested in both Studio and Agent tabs.
  */
 function AgentEtsyListings() {
-  const { get, post, del, loading, error } = useAgentApi();
+  const { get, post, del, loading, error, setError } = useAgentApi();
   const [listings, setListings] = useState([]);
   const [etsyListings, setEtsyListings] = useState([]); // Live Etsy listings
   const [skus, setSkus] = useState([]);
@@ -33,15 +33,22 @@ function AgentEtsyListings() {
       setSkus(skuData.items || []);
 
       // Fetch live Etsy listings from the actual Etsy API
-      const [liveActive, liveDraft] = await Promise.all([
-        get('/etsy/listings/live?state=active&limit=100').catch(() => ({ results: [] })),
-        get('/etsy/listings/live?state=draft&limit=100').catch(() => ({ results: [] })),
-      ]);
-      const allLive = [
-        ...(liveActive?.results || []).map(l => ({ ...l, _state: 'active' })),
-        ...(liveDraft?.results || []).map(l => ({ ...l, _state: 'draft' })),
-      ];
-      setEtsyListings(allLive);
+      // These are optional — don't let failures block the page or show errors
+      try {
+        const [liveActive, liveDraft] = await Promise.all([
+          get('/etsy/listings/live?state=active&limit=100').catch(() => ({ results: [] })),
+          get('/etsy/listings/live?state=draft&limit=100').catch(() => ({ results: [] })),
+        ]);
+        const allLive = [
+          ...(liveActive?.results || []).map(l => ({ ...l, _state: 'active' })),
+          ...(liveDraft?.results || []).map(l => ({ ...l, _state: 'draft' })),
+        ];
+        setEtsyListings(allLive);
+      } catch {
+        setEtsyListings([]);
+      }
+      // Clear transient errors from optional live-listing calls
+      setError(null);
     } catch { /* error shown via hook */ }
   }, []);
 
@@ -205,7 +212,8 @@ function AgentEtsyListings() {
       setActionMsg({ type: 'success', text: 'Content item deleted' });
       loadData();
     } catch (err) {
-      setActionMsg({ type: 'error', text: `Delete failed: ${err.message || err}` });
+      const msg = typeof err === 'string' ? err : (err?.message || JSON.stringify(err) || 'Unknown error');
+      setActionMsg({ type: 'error', text: `Delete failed: ${msg.replace(/\[object Object\]/g, 'Agent may need restart')}` });
     }
   };
 

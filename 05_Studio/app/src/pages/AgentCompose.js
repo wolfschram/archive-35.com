@@ -294,15 +294,42 @@ function AgentCompose() {
             }
           }
         } else if (platform === 'etsy') {
-          // Save to content queue for manual listing
-          const result = await post('/content/create-manual', {
-            photo_id: firstImg.photoId || '__mockup__',
-            platform: 'etsy',
-            body: fullCaption,
-            title: title || firstImg.filename,
-            tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-          });
-          results[platform] = { success: true, message: 'Saved to Etsy queue — use Copy for Manual Listing', ...result };
+          // Create full Etsy draft listing with all variations via API
+          const etsyTags = tags.split(',').map(t => t.trim()).filter(Boolean).slice(0, 13);
+          const imageUrl = firstImg.fullUrl || firstImg.src;
+          try {
+            const result = await post('/etsy/listings/create-from-compose', {
+              title: (title || firstImg.filename || 'Fine Art Photography Print').slice(0, 140),
+              description: fullCaption,
+              tags: etsyTags,
+              photo_id: firstImg.photoId || null,
+              image_url: imageUrl.startsWith('http') ? imageUrl : null,
+              activate: false, // Always draft — Wolf reviews on Etsy before going live
+            });
+            if (result.error) {
+              results[platform] = { error: result.error };
+            } else {
+              const msg = result.listing_id
+                ? `Draft created on Etsy (#${result.listing_id}) — ${result.total_variants || '?'} variations, ${result.price_range || 'pricing set'}`
+                : 'Draft created — check Etsy Drafts';
+              results[platform] = { success: true, message: msg, ...result };
+            }
+          } catch (err) {
+            const msg = err?.message || String(err);
+            // Fallback: if API fails (e.g. no OAuth), save to content queue instead
+            if (msg.includes('401') || msg.includes('token') || msg.includes('OAuth')) {
+              const fallback = await post('/content/create-manual', {
+                photo_id: firstImg.photoId || '__mockup__',
+                platform: 'etsy',
+                body: fullCaption,
+                title: title || firstImg.filename,
+                tags: etsyTags,
+              });
+              results[platform] = { success: true, message: 'OAuth not connected — saved to Etsy queue instead. Connect OAuth in Agent Settings to push drafts directly.', ...fallback };
+            } else {
+              throw err;
+            }
+          }
         }
       } catch (err) {
         results[platform] = { error: err.message || 'Failed' };
@@ -832,7 +859,7 @@ function AgentCompose() {
                     <span style={{ fontSize: '16px' }}>{cfg.icon}</span>
                     <span style={{ fontSize: '14px', fontWeight: 600, color: cfg.color }}>{cfg.label}</span>
                     {platform === 'etsy' && (
-                      <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: 'auto' }}>Manual</span>
+                      <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: 'auto' }}>API Draft</span>
                     )}
                     {platform === 'instagram' && (
                       <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: 'auto' }}>Dev Mode</span>
@@ -993,21 +1020,41 @@ function AgentCompose() {
                   </div>
                   {platform === 'etsy' && success && (
                     <div style={{ marginTop: '8px' }}>
-                      <a href="https://www.etsy.com/your/shops/me/tools/listings/create"
-                        target="_blank" rel="noopener noreferrer"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          if (window.electronAPI?.openExternal) {
-                            window.electronAPI.openExternal('https://www.etsy.com/your/shops/me/tools/listings/create');
-                          } else {
-                            window.open('https://www.etsy.com/your/shops/me/tools/listings/create', '_blank');
-                          }
-                        }}
-                        style={{
-                          fontSize: '12px', color: '#f1641e', textDecoration: 'none',
-                        }}>
-                        → Open Etsy Manual Listing Page
-                      </a>
+                      {result.listing_id ? (
+                        <a href={`https://www.etsy.com/your/shops/me/tools/listings/${result.listing_id}`}
+                          target="_blank" rel="noopener noreferrer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const url = `https://www.etsy.com/your/shops/me/tools/listings/${result.listing_id}`;
+                            if (window.electronAPI?.openExternal) {
+                              window.electronAPI.openExternal(url);
+                            } else {
+                              window.open(url, '_blank');
+                            }
+                          }}
+                          style={{
+                            fontSize: '12px', color: '#f1641e', textDecoration: 'none',
+                          }}>
+                          → View Draft on Etsy (#{result.listing_id})
+                        </a>
+                      ) : (
+                        <a href="https://www.etsy.com/your/shops/me/tools/listings"
+                          target="_blank" rel="noopener noreferrer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const url = 'https://www.etsy.com/your/shops/me/tools/listings';
+                            if (window.electronAPI?.openExternal) {
+                              window.electronAPI.openExternal(url);
+                            } else {
+                              window.open(url, '_blank');
+                            }
+                          }}
+                          style={{
+                            fontSize: '12px', color: '#f1641e', textDecoration: 'none',
+                          }}>
+                          → Open Etsy Listings
+                        </a>
+                      )}
                     </div>
                   )}
                   {platform === 'etsy_export' && success && result.path && (

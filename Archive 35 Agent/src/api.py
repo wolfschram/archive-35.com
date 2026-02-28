@@ -1649,6 +1649,105 @@ class EtsyFullListingCreate(BaseModel):
     activate: bool = False
 
 
+class EtsyComposeCreate(BaseModel):
+    """Create a full Etsy draft listing directly from Compose Post."""
+    title: str
+    description: str
+    tags: list[str] = []
+    photo_id: Optional[str] = None
+    image_url: Optional[str] = None
+    shipping_profile_id: Optional[int] = None
+    min_dpi: int = 150
+    activate: bool = False
+
+
+@app.post("/etsy/listings/create-from-compose")
+def create_etsy_from_compose(req: EtsyComposeCreate):
+    """Create a complete Etsy draft listing directly from Compose Post.
+
+    Skips the content DB — goes straight to Etsy API with full
+    Material & Size × Frame variation matrix and pricing.
+    """
+    from src.integrations.etsy import create_full_listing
+    from src.brand.etsy_variations import build_variation_matrix, get_matrix_summary
+
+    conn = _get_conn()
+    try:
+        # Look up photo dimensions for DPI calculations
+        photo_w, photo_h = 6000, 4000  # Safe defaults for high-res
+        image_urls = []
+        if req.photo_id and req.photo_id != "__mockup__":
+            photo = conn.execute(
+                "SELECT * FROM photos WHERE id = ?", (req.photo_id,)
+            ).fetchone()
+            if photo:
+                photo = dict(photo)
+                photo_w = photo.get("width") or 6000
+                photo_h = photo.get("height") or 4000
+                # Build image URL from photo metadata
+                collection = photo.get("collection", "")
+                filename = photo.get("filename", "")
+                if collection and filename:
+                    base = filename.rsplit(".", 1)[0] if "." in filename else filename
+                    image_urls.append(
+                        f"https://archive-35.com/images/{collection}/{base}-full.jpg"
+                    )
+
+        # Use explicit image_url if provided (e.g. mockup)
+        if req.image_url and req.image_url not in image_urls:
+            image_urls.append(req.image_url)
+
+        # Validate title length
+        title = (req.title or "Fine Art Photography Print")[:140]
+
+        # Build description with copyright footer
+        description = req.description or ""
+        description += "\n\n© Wolfgang Schram / Archive-35 Studio"
+        description += "\nAll prints are made-to-order and shipped directly from our professional print lab."
+
+        # Cap tags at 13 (Etsy limit)
+        tags = (req.tags or [])[:13]
+
+        # Preview the matrix
+        products = build_variation_matrix(photo_w, photo_h, min_dpi=req.min_dpi)
+        summary = get_matrix_summary(products)
+
+        # Create the full listing via Etsy API
+        result = create_full_listing(
+            title=title,
+            description=description,
+            tags=tags,
+            photo_width=photo_w,
+            photo_height=photo_h,
+            image_urls=image_urls if image_urls else None,
+            shipping_profile_id=req.shipping_profile_id,
+            min_dpi=req.min_dpi,
+            activate=req.activate,
+        )
+
+        if "error" in result:
+            raise HTTPException(status_code=502, detail=result["error"])
+
+        # Record in audit log
+        audit.log(conn, "etsy", "compose_listing_created", {
+            "listing_id": result.get("listing_id"),
+            "title": title,
+            "variants": result.get("total_variants"),
+            "price_range": result.get("price_range"),
+            "activated": req.activate,
+        })
+
+        return {**result, "summary": summary}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Failed to create Etsy listing from Compose: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
 @app.post("/etsy/listings/create-full")
 def create_full_etsy_listing(req: EtsyFullListingCreate):
     """Create a complete Etsy listing with Material & Size × Frame variations.

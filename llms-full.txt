@@ -12,7 +12,7 @@
 - Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
 - Website: https://archive-35.com
 
-## Print Collections (942 photographs, 47 collections)
+## Print Collections (1108 photographs, 48 collections)
 
 ### Alps (2 photographs)
 - URL: https://archive-35.com/collection.html?id=alps
@@ -272,6 +272,17 @@
   - Horseshoe Bend's Turquoise Embrace | Horseshoe Bend, Colorado River, Page, Arizona, USA | 50.3MP | Tags: horseshoe-bend, colorado-river, arizona, page-arizona, canyon, meander, river-bend, turquoise-water
   - Canyon Portal: Stone's Silent Gateway | Canyon Country, Southwest USA - likely Utah or Arizona region | 12.3MP | Tags: natural-arch, canyon-landscape, sandstone-formation, desert-photography, arches-national-park, utah-landscape, arizona-desert, geological-formation
   - ... and 9 more photographs
+
+### Large Scale Photography Stitch (166 photographs)
+- URL: https://archive-35.com/collection.html?id=large-scale-photography-stitch
+- Gallery: https://archive-35.com/gallery.html?collection=large-scale-photography-stitch
+
+  - Desert Dunes in Golden Light | Gobi Desert, Mongolia | 250.8MP | Tags: desert-landscape, sand-dunes, gobi-desert, mongolia, arid-landscape, golden-sand, dune-formations, desert-photography
+  - Alpine Lake Mountain Reflections | Pacific Northwest Alpine Region, Cascade Mountains | 122.7MP | Tags: mountain-lake, alpine-landscape, evergreen-forest, cascade-mountains, pacific-northwest, landscape-photography, fine-art-print, nature-photography
+  - Mountain Valley Wilderness | Cascade Range, Oregon, Pacific Northwest USA | 41.8MP | Tags: mountain-landscape, valley-vista, coniferous-forest, snow-capped-peaks, wilderness-photography, fine-art-landscape, nature-photography, cascade-range
+  - Geothermal Valley in Repose | Iceland, Geothermal Region (likely Myvatn or Central Highlands) | 70.2MP | Tags: iceland, lava-field, geothermal, volcanic-landscape, mountain, steam, moss-covered, dramatic-sky
+  - Volcanic Moorland Under Gathering Storms | Iceland - Highland Region, likely Landmannalaugar or Mývatn area | 89.6MP | Tags: iceland, volcanic-landscape, moorland, mountain, lava-field, dramatic-sky, storm-clouds, tundra
+  - ... and 161 more photographs
 
 ### London (1 photographs)
 - URL: https://archive-35.com/collection.html?id=london

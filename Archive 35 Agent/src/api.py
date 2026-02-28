@@ -1534,13 +1534,20 @@ def etsy_status():
         conn.close()
 
 
+# Module-level PKCE state — persists between oauth/url and oauth/callback requests
+_etsy_oauth_verifier: Optional[str] = None
+
+
 @app.get("/etsy/oauth/url")
 def etsy_oauth_url():
     """Generate Etsy OAuth authorization URL for the user to visit."""
-    from src.integrations.etsy import EtsyClient
-    client = EtsyClient()
-    url, state = client.generate_oauth_url()
-    return {"url": url, "state": state}
+    global _etsy_oauth_verifier
+    from src.integrations.etsy import generate_oauth_url
+    result = generate_oauth_url()
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    _etsy_oauth_verifier = result["code_verifier"]
+    return {"url": result["auth_url"], "state": result["state"]}
 
 
 class EtsyOAuthCallback(BaseModel):
@@ -1551,13 +1558,24 @@ class EtsyOAuthCallback(BaseModel):
 @app.post("/etsy/oauth/callback")
 def etsy_oauth_callback(req: EtsyOAuthCallback):
     """Exchange OAuth authorization code for access tokens."""
-    from src.integrations.etsy import EtsyClient
+    global _etsy_oauth_verifier
+    from src.integrations.etsy import exchange_code, get_credentials
+    if not _etsy_oauth_verifier:
+        raise HTTPException(
+            status_code=400,
+            detail="No PKCE verifier — click 'Authorize on Etsy' first, then paste the code."
+        )
     conn = _get_conn()
     try:
-        client = EtsyClient()
-        tokens = client.exchange_code(req.code)
-        audit.log(conn, "etsy", "oauth_connected", {"shop_id": client.shop_id})
-        return {"success": True, "shop_id": client.shop_id}
+        result = exchange_code(req.code, _etsy_oauth_verifier)
+        if "error" in result:
+            raise HTTPException(status_code=400, detail=result.get("detail", result["error"]))
+        _etsy_oauth_verifier = None  # Clear after successful exchange
+        creds = get_credentials()
+        audit.log(conn, "etsy", "oauth_connected", {"shop_id": creds.get("shop_id", "")})
+        return {"success": True, "shop_id": creds.get("shop_id", "")}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     finally:

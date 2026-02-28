@@ -58,6 +58,8 @@ function AgentSettings({ setActiveTab }) {
   // Etsy integration status
   const [etsyStatus, setEtsyStatus] = useState(null);
   const [etsyLoading, setEtsyLoading] = useState(false);
+  const [etsyAuthCode, setEtsyAuthCode] = useState('');
+  const [etsyExchanging, setEtsyExchanging] = useState(false);
 
   // Agent config
   const [agentConfig, setAgentConfig] = useState({
@@ -183,10 +185,35 @@ function AgentSettings({ setActiveTab }) {
     try {
       const result = await get('/etsy/oauth/url');
       if (result?.url) {
-        window.open(result.url, '_blank');
+        if (window.electronAPI?.openExternal) {
+          window.electronAPI.openExternal(result.url);
+        } else {
+          window.open(result.url, '_blank');
+        }
       }
     } catch (err) {
       setError(`Etsy OAuth failed: ${err.message}`);
+    }
+  };
+
+  const exchangeEtsyCode = async () => {
+    if (!etsyAuthCode.trim()) return;
+    setEtsyExchanging(true);
+    try {
+      const result = await post('/etsy/oauth/callback', {
+        code: etsyAuthCode.trim(),
+        state: '',
+      });
+      if (result?.success) {
+        setEtsyAuthCode('');
+        await loadEtsyStatus();
+      } else {
+        setError(`Etsy code exchange failed: ${result?.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      setError(`Etsy code exchange failed: ${err.message}`);
+    } finally {
+      setEtsyExchanging(false);
     }
   };
 
@@ -771,16 +798,41 @@ function AgentSettings({ setActiveTab }) {
                 background: 'rgba(255, 152, 0, 0.08)',
                 border: '1px solid rgba(255, 152, 0, 0.2)',
               }}>
-                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                  Etsy app is pending approval. Once approved, connect via OAuth to enable listings and fulfillment.
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
+                  Step 1: Click "Authorize on Etsy" to open the Etsy consent screen in your browser.
+                  <br />Step 2: After approving, you'll see an authorization code — copy it and paste it below.
                 </p>
-                <button
-                  className="btn btn-primary"
-                  style={{ padding: '6px 16px', fontSize: '12px' }}
-                  onClick={startEtsyOAuth}
-                >
-                  Connect Etsy
-                </button>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    className="btn btn-primary"
+                    style={{ padding: '6px 16px', fontSize: '12px' }}
+                    onClick={startEtsyOAuth}
+                  >
+                    1. Authorize on Etsy
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '12px' }}>
+                  <input
+                    type="text"
+                    placeholder="Paste authorization code here..."
+                    value={etsyAuthCode}
+                    onChange={(e) => setEtsyAuthCode(e.target.value)}
+                    style={{
+                      flex: 1, padding: '8px 12px', fontSize: '13px',
+                      background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(212,165,116,0.3)',
+                      borderRadius: '6px', color: 'var(--text-primary)',
+                      fontFamily: 'monospace',
+                    }}
+                  />
+                  <button
+                    className="btn btn-primary"
+                    style={{ padding: '8px 16px', fontSize: '12px', opacity: etsyAuthCode.trim() ? 1 : 0.4 }}
+                    onClick={exchangeEtsyCode}
+                    disabled={!etsyAuthCode.trim() || etsyExchanging}
+                  >
+                    {etsyExchanging ? 'Connecting...' : '2. Connect'}
+                  </button>
+                </div>
               </div>
             )}
 

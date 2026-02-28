@@ -4556,7 +4556,10 @@ function agentApiProxy(apiPath, options = {}) {
         try {
           const data = JSON.parse(body);
           if (res.statusCode >= 400) {
-            reject(new Error(data.detail || `API error ${res.statusCode}`));
+            const detail = typeof data.detail === 'string' ? data.detail
+              : Array.isArray(data.detail) ? data.detail.map(d => d.msg || JSON.stringify(d)).join('; ')
+              : JSON.stringify(data.detail) || `API error ${res.statusCode}`;
+            reject(new Error(detail));
           } else {
             resolve(data);
           }

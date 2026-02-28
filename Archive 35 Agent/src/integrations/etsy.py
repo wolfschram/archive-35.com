@@ -216,11 +216,71 @@ def exchange_code(auth_code: str, code_verifier: str) -> dict[str, Any]:
                 result["refresh_token"],
                 result.get("expires_in", 3600),
             )
+            # Fetch and save shop_id using the new access token
+            try:
+                user_id = result.get("user_id")
+                if user_id:
+                    _fetch_and_save_shop_id(result["access_token"], creds["api_key"], creds.get("shared_secret", ""))
+            except Exception as shop_err:
+                logger.warning("Could not auto-fetch shop_id: %s", shop_err)
             return result
     except urllib.error.HTTPError as e:
         body = e.read().decode() if e.fp else ""
         logger.error("Etsy token exchange failed: %s %s", e.code, body)
         return {"error": f"Token exchange failed: {e.code}", "detail": body}
+
+
+def _fetch_and_save_shop_id(access_token: str, api_key: str, shared_secret: str = "") -> None:
+    """Fetch the user's shop ID from Etsy and save to .env."""
+    api_key_header = f"{api_key}:{shared_secret}" if shared_secret else api_key
+    headers = {
+        "x-api-key": api_key_header,
+        "Authorization": f"Bearer {access_token}",
+    }
+    # Get the authenticated user's shops
+    req = urllib.request.Request(
+        f"{ETSY_API_BASE}/application/users/me",
+        headers=headers,
+    )
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        user_data = json.loads(resp.read())
+    user_id = user_data.get("user_id")
+    if not user_id:
+        logger.warning("No user_id in /users/me response")
+        return
+
+    req2 = urllib.request.Request(
+        f"{ETSY_API_BASE}/application/users/{user_id}/shops",
+        headers=headers,
+    )
+    with urllib.request.urlopen(req2, timeout=15) as resp:
+        shops_data = json.loads(resp.read())
+
+    shops = shops_data.get("results", [])
+    if not shops:
+        logger.warning("No shops found for user %s", user_id)
+        return
+
+    shop_id = str(shops[0]["shop_id"])
+    shop_name = shops[0].get("shop_name", "")
+    logger.info("Found Etsy shop: %s (ID: %s)", shop_name, shop_id)
+
+    # Save shop_id to .env
+    agent_env = Path(__file__).parent.parent.parent / ".env"
+    if not agent_env.exists():
+        return
+    lines = agent_env.read_text().splitlines()
+    found = False
+    new_lines = []
+    for line in lines:
+        if line.strip().startswith("ETSY_SHOP_ID="):
+            new_lines.append(f"ETSY_SHOP_ID={shop_id}")
+            found = True
+        else:
+            new_lines.append(line)
+    if not found:
+        new_lines.append(f"ETSY_SHOP_ID={shop_id}")
+    agent_env.write_text("\n".join(new_lines) + "\n")
 
 
 def refresh_access_token() -> dict[str, Any]:

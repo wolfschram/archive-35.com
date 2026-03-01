@@ -101,6 +101,12 @@ def _api_request(
             return {"error": json.loads(body).get("error", {"message": body})}
         except json.JSONDecodeError:
             return {"error": {"message": body, "code": e.code}}
+    except urllib.error.URLError as e:
+        logger.error("Instagram API unreachable: %s", e.reason)
+        return {"error": {"message": f"Network error: {e.reason}", "type": "URLError"}}
+    except OSError as e:
+        logger.error("Instagram API network error: %s", e)
+        return {"error": {"message": f"Network error: {e}", "type": "OSError"}}
 
 
 # ── Token Management ─────────────────────────────────────────────

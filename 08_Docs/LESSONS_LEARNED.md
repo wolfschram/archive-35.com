@@ -979,6 +979,32 @@ In Cloudflare Workers, once the Response is returned to the client, the Worker r
 47. **Python on macOS: always handle SSL and DNS.** Browsers mask system-level failures that break Python. Fix both at process startup.
 48. **When an endpoint "doesn't exist" but clearly does, check route ordering first.** The code might be perfect — it's just never reached.
 
+### LESSON 040: Etsy API Requires readiness_state_id for Physical Listings
+**Date:** 2026-03-01
+**Category:** `etsy` `api` `integration` `CRITICAL`
+
+**Symptom:** `POST /application/shops/{shop_id}/listings` returned 400: `"A readiness_state_id is required for physical listings."`
+
+**Root Cause:** Etsy changed their API in late 2025 — physical listings now REQUIRE a `readiness_state_id` (processing profile). This replaced the deprecated `min_processing_time` / `max_processing_time` fields on shipping profiles. The processing profile tells Etsy whether a product is "ready_to_ship" or "made_to_order" and its processing time. Archive-35 is print-on-demand, so all listings are "made_to_order" with 3-7 business days (Pictorem fulfillment).
+
+**Fix:**
+1. Added `get_readiness_state_definitions()` — fetches existing profiles
+2. Added `create_readiness_state_definition()` — creates new profile if none exist
+3. Added `get_or_create_readiness_state_id()` — orchestrator with in-memory caching
+4. Updated `create_listing()` to include `readiness_state_id` in the payload
+
+**Prevention:**
+- **RULE: When an API returns a 400 about a "required" field, read the latest API docs FIRST.** Platform APIs change their required fields — especially Etsy, which has been migrating to processing profiles since Sept 2025.
+- **RULE: Cache shop-level Etsy config (readiness_state_id, shipping_profile_id) to avoid repeated API calls.** These rarely change.
+- **RULE: External API integrations need a "required fields" checklist that gets verified against current docs each session.**
+
+**Related Files:** `Archive 35 Agent/src/integrations/etsy.py`
+
+---
+
+49. **Etsy requires readiness_state_id for physical listings.** Create a processing profile via the API and include the ID in every createDraftListing call.
+50. **Platform APIs change required fields without warning.** Always check current docs when you get a 400 on a previously-working call.
+
 ---
 
 *This is a living document. Add new lessons as they're discovered. Every bug is a gift — it teaches us something we didn't know.*

@@ -43,12 +43,16 @@ ETSY_PAYMENT_FLAT_FEE = 0.25
 ETSY_LISTING_FEE = 0.20
 
 # Default taxonomy for fine art photography prints
-# "Art & Collectibles > Photography > Color"
-DEFAULT_TAXONOMY_ID = 69150467  # Etsy taxonomy ID for Photography > Color
+# Will be auto-discovered via get_photography_taxonomy_id() on first use.
+# Fallback only used if API lookup fails entirely.
+DEFAULT_TAXONOMY_ID = None  # Set dynamically — do NOT hardcode stale IDs
 
 # Shipping profile — must be created in Etsy shop settings first
 # This gets populated from .env or shop lookup
 DEFAULT_SHIPPING_PROFILE_ID = None
+
+# Cached taxonomy ID (discovered at runtime from Etsy's taxonomy API)
+_cached_taxonomy_id: Optional[int] = None
 
 
 # ── Environment & Credentials ────────────────────────────────────────────
@@ -452,6 +456,111 @@ def get_shipping_profiles() -> dict[str, Any]:
     return _api_request(f"/application/shops/{shop_id}/shipping-profiles")
 
 
+# ── Taxonomy Discovery ───────────────────────────────────────────────────
+# Etsy taxonomy IDs change over time. Instead of hardcoding, we discover
+# the correct ID for "Art & Collectibles > Photography" at runtime.
+
+def get_seller_taxonomy_nodes() -> dict[str, Any]:
+    """Fetch the full seller taxonomy tree from Etsy.
+
+    This is a public endpoint — requires API key but not OAuth token.
+    Returns the complete hierarchy of listing categories.
+    """
+    return _api_request("/application/seller-taxonomy/nodes")
+
+
+def _search_taxonomy_tree(nodes: list, target_names: list[str], depth: int = 0) -> Optional[int]:
+    """Recursively search taxonomy tree for a matching path.
+
+    Args:
+        nodes: List of taxonomy node dicts (each has 'id', 'name', 'children')
+        target_names: Names to match at successive levels (e.g., ["Art & Collectibles", "Photography"])
+        depth: Current depth in the target_names list
+
+    Returns:
+        taxonomy_id of the deepest matching node, or None.
+    """
+    if depth >= len(target_names):
+        return None
+
+    target = target_names[depth].lower()
+    for node in nodes:
+        node_name = (node.get("name") or "").lower()
+        if target in node_name or node_name in target:
+            # If this is the last target, return this node's ID
+            if depth == len(target_names) - 1:
+                return node.get("id")
+            # Otherwise, recurse into children
+            children = node.get("children", [])
+            if children:
+                result = _search_taxonomy_tree(children, target_names, depth + 1)
+                if result:
+                    return result
+            # If no children match deeper levels, return this node
+            return node.get("id")
+    return None
+
+
+def get_photography_taxonomy_id() -> Optional[int]:
+    """Discover the correct taxonomy ID for fine art photography prints.
+
+    Searches the Etsy taxonomy tree for the best match:
+    1. "Art & Collectibles" > "Photography" > "Color" (ideal)
+    2. "Art & Collectibles" > "Photography" (fallback)
+    3. "Art & Collectibles" > "Prints" (last resort)
+
+    Caches the result for the process lifetime.
+    """
+    global _cached_taxonomy_id
+    if _cached_taxonomy_id is not None:
+        return _cached_taxonomy_id
+
+    resp = get_seller_taxonomy_nodes()
+    if "error" in resp:
+        logger.error("Failed to fetch taxonomy: %s", resp)
+        return None
+
+    nodes = resp.get("results", [])
+    if not nodes:
+        logger.error("Taxonomy API returned no nodes")
+        return None
+
+    # Try progressively broader searches
+    search_paths = [
+        ["Art & Collectibles", "Photography", "Color"],
+        ["Art & Collectibles", "Photography"],
+        ["Art & Collectibles", "Prints"],
+        ["Art", "Photography"],
+        ["Art", "Prints"],
+    ]
+
+    for path in search_paths:
+        result = _search_taxonomy_tree(nodes, path)
+        if result:
+            _cached_taxonomy_id = result
+            logger.info("Discovered taxonomy ID %d for path %s", result, " > ".join(path))
+            return result
+
+    # Absolute last resort — search for any node with "Photography" in name
+    def _find_any(nodes_list, name):
+        for n in nodes_list:
+            if name.lower() in (n.get("name") or "").lower():
+                return n.get("id")
+            child_result = _find_any(n.get("children", []), name)
+            if child_result:
+                return child_result
+        return None
+
+    photo_id = _find_any(nodes, "Photography")
+    if photo_id:
+        _cached_taxonomy_id = photo_id
+        logger.info("Discovered taxonomy ID %d via broad 'Photography' search", photo_id)
+        return photo_id
+
+    logger.error("Could not find any photography taxonomy node!")
+    return None
+
+
 # ── Processing Profiles (readiness_state_id) ─────────────────────────────
 # Etsy requires a readiness_state_id for all physical listings (since late 2025).
 # This replaces the deprecated min/max_processing_time fields.
@@ -558,7 +667,7 @@ def create_listing(
     sku: str = "",
     quantity: int = 999,
     shipping_profile_id: Optional[int] = None,
-    taxonomy_id: int = DEFAULT_TAXONOMY_ID,
+    taxonomy_id: Optional[int] = None,
     who_made: str = "i_did",
     when_made: str = "made_to_order",
     is_supply: bool = False,
@@ -573,7 +682,7 @@ def create_listing(
         sku: Internal SKU reference
         quantity: Available quantity (999 = effectively unlimited for POD)
         shipping_profile_id: Etsy shipping profile ID
-        taxonomy_id: Etsy category taxonomy ID
+        taxonomy_id: Etsy category taxonomy ID (auto-discovered if None)
         who_made: "i_did", "someone_else", "collective"
         when_made: Date range string
         is_supply: False for finished products
@@ -585,6 +694,12 @@ def create_listing(
     shop_id = creds.get("shop_id")
     if not shop_id:
         return {"error": "ETSY_SHOP_ID not configured"}
+
+    # Auto-discover taxonomy ID if not provided
+    if not taxonomy_id:
+        taxonomy_id = get_photography_taxonomy_id()
+    if not taxonomy_id:
+        return {"error": "Could not discover a valid Etsy taxonomy ID for photography prints. Check API access."}
 
     # Enforce Etsy limits
     if len(title) > 140:
@@ -841,7 +956,7 @@ def create_full_listing(
     image_paths: list[str] | None = None,
     image_urls: list[str] | None = None,
     shipping_profile_id: Optional[int] = None,
-    taxonomy_id: int = DEFAULT_TAXONOMY_ID,
+    taxonomy_id: Optional[int] = None,
     min_dpi: int = 150,
     activate: bool = False,
 ) -> dict[str, Any]:

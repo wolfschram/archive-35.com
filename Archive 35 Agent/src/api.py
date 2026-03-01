@@ -1889,6 +1889,11 @@ def etsy_diagnostic():
     rid = get_or_create_readiness_state_id()
     checks["readiness_state_id"] = rid
 
+    # 6b. Taxonomy discovery
+    from src.integrations.etsy import get_photography_taxonomy_id
+    tax_id = get_photography_taxonomy_id()
+    checks["taxonomy_id"] = tax_id
+
     # 7. Existing listings count
     for state_name in ("active", "draft"):
         listings = get_listings(state=state_name, limit=1)

@@ -513,8 +513,19 @@ def create_listing(
     if sku:
         listing_data["sku"] = [sku]
 
-    if shipping_profile_id:
-        listing_data["shipping_profile_id"] = shipping_profile_id
+    # Shipping profile is REQUIRED for physical listings.
+    # Auto-fetch the first available profile if none provided.
+    if not shipping_profile_id:
+        profiles_resp = get_shipping_profiles()
+        results = profiles_resp.get("results", [])
+        if results:
+            shipping_profile_id = results[0].get("shipping_profile_id")
+            logger.info("Auto-selected shipping profile %s ('%s')",
+                        shipping_profile_id, results[0].get("title", "?"))
+        else:
+            return {"error": "No shipping profiles found on Etsy shop. Create one at etsy.com/your/shops/me/tools/shipping-profiles"}
+
+    listing_data["shipping_profile_id"] = shipping_profile_id
 
     return _api_request(
         f"/application/shops/{shop_id}/listings",

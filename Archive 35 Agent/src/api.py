@@ -2088,21 +2088,43 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
         photo_w, photo_h = 6000, 4000  # Safe defaults for high-res
         image_urls = []
         if req.photo_id and req.photo_id != "__mockup__":
-            photo = conn.execute(
-                "SELECT * FROM photos WHERE id = ?", (req.photo_id,)
-            ).fetchone()
-            if photo:
-                photo = dict(photo)
-                photo_w = photo.get("width") or 6000
-                photo_h = photo.get("height") or 4000
-                # Build image URL from photo metadata
-                collection = photo.get("collection", "")
-                filename = photo.get("filename", "")
+            if req.photo_id.startswith("fs:"):
+                # Filesystem photo — derive collection/filename from ID
+                fs_rel = req.photo_id[3:]  # "Hawaii/sunset.jpg"
+                parts = fs_rel.split("/", 1)
+                collection = parts[0] if len(parts) > 1 else ""
+                filename = parts[1] if len(parts) > 1 else parts[0]
+                # Try to get actual dimensions from the file
+                try:
+                    from PIL import Image as _PILImage
+                    repo_root = Path(__file__).resolve().parent.parent.parent
+                    img = _PILImage.open(repo_root / "photography" / fs_rel)
+                    photo_w, photo_h = img.size
+                    img.close()
+                except Exception:
+                    pass  # Keep 6000x4000 defaults
+                # Build image URL
                 if collection and filename:
                     base = filename.rsplit(".", 1)[0] if "." in filename else filename
                     image_urls.append(
                         f"https://archive-35.com/images/{collection}/{base}-full.jpg"
                     )
+            else:
+                # DB photo lookup
+                photo = conn.execute(
+                    "SELECT * FROM photos WHERE id = ?", (req.photo_id,)
+                ).fetchone()
+                if photo:
+                    photo = dict(photo)
+                    photo_w = photo.get("width") or 6000
+                    photo_h = photo.get("height") or 4000
+                    collection = photo.get("collection", "")
+                    filename = photo.get("filename", "")
+                    if collection and filename:
+                        base = filename.rsplit(".", 1)[0] if "." in filename else filename
+                        image_urls.append(
+                            f"https://archive-35.com/images/{collection}/{base}-full.jpg"
+                        )
 
         # Use explicit image_url if provided (e.g. mockup)
         if req.image_url and req.image_url not in image_urls:

@@ -3083,7 +3083,18 @@ def instagram_status():
         return {"configured": False, "valid": False, "error": "Instagram not configured in .env"}
 
     creds = get_credentials()
-    verification = verify_token()
+    try:
+        verification = verify_token()
+    except Exception as e:
+        logger.error("Instagram status check failed: %s", e)
+        return {
+            "configured": True,
+            "valid": False,
+            "username": "",
+            "user_id": "",
+            "token_expires": creds.get("token_expires", "unknown"),
+            "error": f"Network error: {e}",
+        }
 
     return {
         "configured": True,

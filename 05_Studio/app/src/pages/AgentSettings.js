@@ -92,11 +92,18 @@ function AgentSettings({ setActiveTab }) {
 
   // Load Agent settings
   useEffect(() => {
-    loadAgentKeys();
-    loadPhotoSource();
-    loadAgentConfig();
-    loadPinterestStatus();
-    loadEtsyStatus();
+    const init = async () => {
+      await Promise.all([
+        loadAgentKeys(),
+        loadPhotoSource(),
+        loadAgentConfig(),
+        loadPinterestStatus(),
+        loadEtsyStatus(),
+      ]);
+      // Clear transient errors from status checks (DNS, network)
+      setError(null);
+    };
+    init();
   }, []);
 
   const loadAgentKeys = async () => {

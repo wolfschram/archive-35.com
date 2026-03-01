@@ -60,6 +60,8 @@ function AgentSettings({ setActiveTab }) {
   const [etsyLoading, setEtsyLoading] = useState(false);
   const [etsyAuthCode, setEtsyAuthCode] = useState('');
   const [etsyExchanging, setEtsyExchanging] = useState(false);
+  const [etsyShopIdInput, setEtsyShopIdInput] = useState('');
+  const [etsyShopIdSaving, setEtsyShopIdSaving] = useState(false);
 
   // Agent config
   const [agentConfig, setAgentConfig] = useState({
@@ -221,6 +223,20 @@ function AgentSettings({ setActiveTab }) {
       setError(`Etsy code exchange failed: ${err.message}`);
     } finally {
       setEtsyExchanging(false);
+    }
+  };
+
+  const saveEtsyShopId = async () => {
+    if (!etsyShopIdInput.trim()) return;
+    setEtsyShopIdSaving(true);
+    try {
+      await post('/etsy/shop-id', { shop_id: etsyShopIdInput.trim() });
+      setEtsyShopIdInput('');
+      await loadEtsyStatus();
+    } catch (err) {
+      setError(`Failed to save Shop ID: ${err.message}`);
+    } finally {
+      setEtsyShopIdSaving(false);
     }
   };
 
@@ -838,6 +854,41 @@ function AgentSettings({ setActiveTab }) {
                     disabled={!etsyAuthCode.trim() || etsyExchanging}
                   >
                     {etsyExchanging ? 'Connecting...' : '2. Connect'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {etsyStatus.configured && !etsyStatus.shop_id && (
+              <div style={{
+                ...keyRowStyle,
+                background: 'rgba(255, 152, 0, 0.08)',
+                border: '1px solid rgba(255, 152, 0, 0.2)',
+              }}>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                  <strong style={{ color: '#ff9800' }}>Shop ID missing.</strong> Tokens are saved but your Shop ID couldn't be auto-detected.
+                  <br />Find it at <em>etsy.com → Shop Manager → Settings</em> (numeric ID in the URL).
+                </p>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    placeholder="Enter Etsy Shop ID (numeric)..."
+                    value={etsyShopIdInput}
+                    onChange={(e) => setEtsyShopIdInput(e.target.value)}
+                    style={{
+                      flex: 1, padding: '8px 12px', fontSize: '13px',
+                      background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(212,165,116,0.3)',
+                      borderRadius: '6px', color: 'var(--text-primary)',
+                      fontFamily: 'monospace',
+                    }}
+                  />
+                  <button
+                    className="btn btn-primary"
+                    style={{ padding: '8px 16px', fontSize: '12px', opacity: etsyShopIdInput.trim() ? 1 : 0.4 }}
+                    onClick={saveEtsyShopId}
+                    disabled={!etsyShopIdInput.trim() || etsyShopIdSaving}
+                  >
+                    {etsyShopIdSaving ? 'Saving...' : 'Save Shop ID'}
                   </button>
                 </div>
               </div>

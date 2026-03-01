@@ -1734,6 +1734,33 @@ def etsy_status():
         conn.close()
 
 
+@app.post("/etsy/shop-id")
+def set_etsy_shop_id(body: dict):
+    """Manually set the Etsy shop ID when auto-fetch fails."""
+    shop_id = str(body.get("shop_id", "")).strip()
+    if not shop_id:
+        raise HTTPException(status_code=400, detail="shop_id is required")
+
+    agent_env = Path(__file__).resolve().parent.parent / ".env"
+    if not agent_env.exists():
+        raise HTTPException(status_code=500, detail="Agent .env not found")
+
+    lines = agent_env.read_text().splitlines()
+    found = False
+    new_lines = []
+    for line in lines:
+        if line.strip().startswith("ETSY_SHOP_ID="):
+            new_lines.append(f"ETSY_SHOP_ID={shop_id}")
+            found = True
+        else:
+            new_lines.append(line)
+    if not found:
+        new_lines.append(f"ETSY_SHOP_ID={shop_id}")
+    agent_env.write_text("\n".join(new_lines) + "\n")
+    logger.info("Manually set ETSY_SHOP_ID=%s", shop_id)
+    return {"saved": True, "shop_id": shop_id}
+
+
 # PKCE verifier persistence — survives Agent restarts
 _PKCE_FILE = Path(__file__).resolve().parent.parent / "data" / ".etsy_pkce_verifier"
 

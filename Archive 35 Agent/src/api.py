@@ -1496,7 +1496,7 @@ def list_etsy_listings():
 
 
 @app.delete("/content/{content_id}")
-def delete_content_item(content_id: int):
+def delete_content_item(content_id: str):
     """Delete a pending/approved content item from the queue."""
     conn = _get_conn()
     try:
@@ -1569,19 +1569,39 @@ def etsy_status():
         conn.close()
 
 
-# Module-level PKCE state — persists between oauth/url and oauth/callback requests
-_etsy_oauth_verifier: Optional[str] = None
+# PKCE verifier persistence — survives Agent restarts
+_PKCE_FILE = Path(__file__).resolve().parent.parent / "data" / ".etsy_pkce_verifier"
+
+
+def _save_pkce_verifier(verifier: str):
+    """Persist PKCE code_verifier to file so it survives Agent restarts."""
+    _PKCE_FILE.write_text(verifier)
+    logger.info("Saved PKCE verifier to %s (%d chars)", _PKCE_FILE, len(verifier))
+
+
+def _load_pkce_verifier() -> Optional[str]:
+    """Load persisted PKCE code_verifier."""
+    if _PKCE_FILE.exists():
+        v = _PKCE_FILE.read_text().strip()
+        logger.info("Loaded PKCE verifier from file (%d chars)", len(v))
+        return v if v else None
+    return None
+
+
+def _clear_pkce_verifier():
+    """Remove persisted PKCE verifier after successful exchange."""
+    if _PKCE_FILE.exists():
+        _PKCE_FILE.unlink()
 
 
 @app.get("/etsy/oauth/url")
 def etsy_oauth_url():
     """Generate Etsy OAuth authorization URL for the user to visit."""
-    global _etsy_oauth_verifier
     from src.integrations.etsy import generate_oauth_url
     result = generate_oauth_url()
     if "error" in result:
         raise HTTPException(status_code=400, detail=result["error"])
-    _etsy_oauth_verifier = result["code_verifier"]
+    _save_pkce_verifier(result["code_verifier"])
     return {"url": result["auth_url"], "state": result["state"]}
 
 
@@ -1593,19 +1613,22 @@ class EtsyOAuthCallback(BaseModel):
 @app.post("/etsy/oauth/callback")
 def etsy_oauth_callback(req: EtsyOAuthCallback):
     """Exchange OAuth authorization code for access tokens."""
-    global _etsy_oauth_verifier
     from src.integrations.etsy import exchange_code, get_credentials
-    if not _etsy_oauth_verifier:
+    verifier = _load_pkce_verifier()
+    if not verifier:
         raise HTTPException(
             status_code=400,
             detail="No PKCE verifier — click 'Authorize on Etsy' first, then paste the code."
         )
+    logger.info("Exchanging Etsy OAuth code (verifier: %d chars, code: %s...)",
+                len(verifier), req.code[:8] if req.code else "?")
     conn = _get_conn()
     try:
-        result = exchange_code(req.code, _etsy_oauth_verifier)
+        result = exchange_code(req.code, verifier)
         if "error" in result:
-            raise HTTPException(status_code=400, detail=result.get("detail", result["error"]))
-        _etsy_oauth_verifier = None  # Clear after successful exchange
+            detail = result.get("error_description", result.get("detail", result["error"]))
+            raise HTTPException(status_code=400, detail=detail)
+        _clear_pkce_verifier()
         creds = get_credentials()
         audit.log(conn, "etsy", "oauth_connected", {"shop_id": creds.get("shop_id", "")})
         return {"success": True, "shop_id": creds.get("shop_id", "")}

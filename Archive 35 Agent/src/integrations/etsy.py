@@ -227,7 +227,13 @@ def exchange_code(auth_code: str, code_verifier: str) -> dict[str, Any]:
     except urllib.error.HTTPError as e:
         body = e.read().decode() if e.fp else ""
         logger.error("Etsy token exchange failed: %s %s", e.code, body)
-        return {"error": f"Token exchange failed: {e.code}", "detail": body}
+        # Parse Etsy's error JSON for a readable message
+        try:
+            err_data = json.loads(body)
+            desc = err_data.get("error_description", err_data.get("error", body))
+        except (json.JSONDecodeError, TypeError):
+            desc = body or f"HTTP {e.code}"
+        return {"error": desc, "detail": desc}
 
 
 def _fetch_and_save_shop_id(access_token: str, api_key: str, shared_secret: str = "") -> None:

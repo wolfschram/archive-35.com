@@ -1823,6 +1823,83 @@ def list_live_etsy_listings(state: str = "active", limit: int = 100):
         return {"results": [], "count": 0, "error": str(e)}
 
 
+@app.get("/etsy/diagnostic")
+def etsy_diagnostic():
+    """Run a full diagnostic of the Etsy API connection and capabilities.
+
+    Tests: credentials, token validity, shop info, shipping profiles,
+    readiness states, and listing permissions. Returns detailed results
+    for each check so we can identify exactly what's failing.
+    """
+    from src.integrations.etsy import (
+        get_credentials, has_valid_token, get_shop_info,
+        get_shipping_profiles, get_readiness_state_definitions,
+        get_or_create_readiness_state_id, get_listings,
+    )
+    checks = {}
+
+    # 1. Credentials present?
+    creds = get_credentials()
+    checks["credentials"] = {
+        "api_key": bool(creds.get("api_key")),
+        "access_token": bool(creds.get("access_token")),
+        "refresh_token": bool(creds.get("refresh_token")),
+        "shop_id": creds.get("shop_id", ""),
+        "token_expires": creds.get("token_expires", ""),
+    }
+
+    # 2. Token valid?
+    checks["token_valid"] = has_valid_token()
+
+    if not checks["token_valid"]:
+        checks["note"] = "Token invalid or expired — run OAuth flow first"
+        return checks
+
+    # 3. Shop info
+    shop = get_shop_info()
+    checks["shop_info"] = {
+        "success": "error" not in shop,
+        "shop_name": shop.get("shop_name", ""),
+        "error": shop.get("error", ""),
+        "detail": shop.get("detail", ""),
+    }
+
+    # 4. Shipping profiles
+    profiles = get_shipping_profiles()
+    profile_list = profiles.get("results", [])
+    checks["shipping_profiles"] = {
+        "count": len(profile_list),
+        "profiles": [
+            {"id": p.get("shipping_profile_id"), "title": p.get("title", "?")}
+            for p in profile_list
+        ],
+        "error": profiles.get("error", ""),
+    }
+
+    # 5. Readiness states
+    readiness = get_readiness_state_definitions()
+    readiness_list = readiness.get("results", [])
+    checks["readiness_states"] = {
+        "count": len(readiness_list),
+        "states": readiness_list,
+        "error": readiness.get("error", ""),
+    }
+
+    # 6. Get or create readiness_state_id
+    rid = get_or_create_readiness_state_id()
+    checks["readiness_state_id"] = rid
+
+    # 7. Existing listings count
+    for state_name in ("active", "draft"):
+        listings = get_listings(state=state_name, limit=1)
+        checks[f"listings_{state_name}"] = {
+            "count": listings.get("count", len(listings.get("results", []))),
+            "error": listings.get("error", ""),
+        }
+
+    return checks
+
+
 @app.get("/etsy/status")
 def etsy_status():
     """Check Etsy integration status — tokens, shop info, SKU count."""
@@ -2159,7 +2236,12 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
         )
 
         if "error" in result:
-            raise HTTPException(status_code=502, detail=result["error"])
+            # Preserve the full Etsy error detail so the UI shows what's actually wrong
+            etsy_detail = result.get("detail", "")
+            error_msg = result["error"]
+            if etsy_detail:
+                error_msg = f"{error_msg} | Etsy says: {etsy_detail}"
+            raise HTTPException(status_code=502, detail=error_msg)
 
         # Record in audit log
         audit.log(conn, "etsy", "compose_listing_created", {
@@ -2267,7 +2349,11 @@ def create_full_etsy_listing(req: EtsyFullListingCreate):
         )
 
         if "error" in result:
-            raise HTTPException(status_code=502, detail=result["error"])
+            etsy_detail = result.get("detail", "")
+            error_msg = result["error"]
+            if etsy_detail:
+                error_msg = f"{error_msg} | Etsy says: {etsy_detail}"
+            raise HTTPException(status_code=502, detail=error_msg)
 
         # Record in audit log
         audit.log(conn, "etsy", "full_listing_created", {

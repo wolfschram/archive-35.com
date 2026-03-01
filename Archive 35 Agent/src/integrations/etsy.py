@@ -591,7 +591,7 @@ def create_listing(
         title = title[:137] + "..."
     tags = [t[:20] for t in tags[:13]]
 
-    # Price in USD cents (Etsy uses float with 2 decimal places)
+    # Price in USD (Etsy accepts float with 2 decimal places for createDraftListing)
     listing_data = {
         "title": title,
         "description": description,
@@ -603,7 +603,8 @@ def create_listing(
         "is_supply": is_supply,
         "taxonomy_id": taxonomy_id,
         "type": "physical",  # POD prints are physical goods
-        "state": "draft",  # Start as draft for review
+        # NOTE: Do NOT include "state" — createDraftListing always creates drafts.
+        # Sending "state": "draft" causes a 400 error (invalid parameter).
     }
 
     if sku:
@@ -631,11 +632,20 @@ def create_listing(
     else:
         return {"error": "Could not get or create a readiness_state_id. Check Etsy API access."}
 
-    return _api_request(
+    # Log the exact payload for debugging (redact nothing — we need to see it all)
+    logger.info("createDraftListing payload: %s", json.dumps(listing_data, indent=2))
+
+    result = _api_request(
         f"/application/shops/{shop_id}/listings",
         method="POST",
         data=listing_data,
     )
+
+    if "error" in result:
+        logger.error("createDraftListing FAILED — payload: %s", json.dumps(listing_data))
+        logger.error("createDraftListing FAILED — response: %s", json.dumps(result))
+
+    return result
 
 
 def update_listing(listing_id: int, updates: dict) -> dict[str, Any]:

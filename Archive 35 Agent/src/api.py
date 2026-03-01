@@ -472,7 +472,27 @@ def browse_thumbnail(path: str, size: int = Query(default=300, le=800)):
 
 @app.get("/photos/{photo_id}")
 def get_photo(photo_id: str):
-    """Get photo detail with related content."""
+    """Get photo detail with related content. Handles fs: filesystem IDs too."""
+    # Handle filesystem photo IDs — return basic info without DB
+    if photo_id.startswith("fs:"):
+        fs_rel = photo_id[3:]
+        parts = fs_rel.split("/", 1)
+        collection = parts[0] if len(parts) > 1 else ""
+        filename = parts[1] if len(parts) > 1 else parts[0]
+        repo_root = Path(__file__).resolve().parent.parent.parent
+        photo_path = repo_root / "photography" / fs_rel
+        return {
+            "photo": {
+                "id": photo_id,
+                "filename": filename,
+                "collection": collection,
+                "path": f"photography/{fs_rel}",
+                "exists": photo_path.exists(),
+            },
+            "content": [],
+            "skus": [],
+        }
+
     conn = _get_conn()
     try:
         photo = conn.execute("SELECT * FROM photos WHERE id = ?", (photo_id,)).fetchone()
@@ -496,49 +516,63 @@ def get_photo(photo_id: str):
         conn.close()
 
 
-@app.get("/photos/{photo_id}/thumbnail")
+@app.get("/photos/{photo_id:path}/thumbnail")
 def get_photo_thumbnail(photo_id: str, size: int = Query(default=300, le=800)):
     """Serve a resized thumbnail for fast grid display.
 
     Generates a small JPEG on first request, caches it in data/thumbnails/.
     Subsequent requests serve the cached file instantly.
+    Handles both DB photo IDs and filesystem IDs (fs:Collection/file.jpg).
     """
-    conn = _get_conn()
-    try:
-        photo = conn.execute("SELECT path FROM photos WHERE id = ?", (photo_id,)).fetchone()
-        if not photo:
-            raise HTTPException(status_code=404, detail="Photo not found")
+    import hashlib as _hashlib
+    repo_root = Path(__file__).resolve().parent.parent.parent
 
-        photo_path = Path(photo["path"])
-        # Resolve relative paths against repo root
-        if not photo_path.is_absolute():
-            repo_root = Path(__file__).parent.parent.parent  # Archive 35 Agent -> repo root
-            photo_path = repo_root / photo_path
+    # Handle filesystem photo IDs (fs:Collection/filename.jpg)
+    if photo_id.startswith("fs:"):
+        fs_rel = photo_id[3:]  # Strip "fs:" prefix → "Hawaii/photo.jpg"
+        photo_path = repo_root / "photography" / fs_rel
+        if not photo_path.exists():
+            raise HTTPException(status_code=404, detail=f"Photo not found: {fs_rel}")
+        # Security: ensure within photography/
+        try:
+            photo_path.resolve().relative_to((repo_root / "photography").resolve())
+        except ValueError:
+            raise HTTPException(status_code=403, detail="Path must be within photography/")
+        cache_key = _hashlib.md5(photo_id.encode()).hexdigest()[:12]
+    else:
+        # Standard DB lookup
+        conn = _get_conn()
+        try:
+            photo = conn.execute("SELECT path FROM photos WHERE id = ?", (photo_id,)).fetchone()
+            if not photo:
+                raise HTTPException(status_code=404, detail="Photo not found")
+            photo_path = Path(photo["path"])
+            if not photo_path.is_absolute():
+                photo_path = repo_root / photo_path
+        finally:
+            conn.close()
         if not photo_path.exists():
             raise HTTPException(status_code=404, detail=f"Photo file not found on disk: {photo_path}")
+        cache_key = photo_id
 
-        # Check for cached thumbnail
-        thumb_dir = Path("data/thumbnails")
-        thumb_dir.mkdir(parents=True, exist_ok=True)
-        thumb_path = thumb_dir / f"{photo_id}_{size}.jpg"
+    # Check for cached thumbnail
+    thumb_dir = Path("data/thumbnails")
+    thumb_dir.mkdir(parents=True, exist_ok=True)
+    thumb_path = thumb_dir / f"{cache_key}_{size}.jpg"
 
-        if not thumb_path.exists():
-            # Generate thumbnail from original
-            from PIL import Image
-            img = Image.open(photo_path)
-            img.thumbnail((size, size), Image.LANCZOS)
-            # Convert to RGB if needed (handles RGBA, CMYK, etc.)
-            if img.mode not in ("RGB", "L"):
-                img = img.convert("RGB")
-            img.save(str(thumb_path), "JPEG", quality=80, optimize=True)
+    if not thumb_path.exists():
+        from PIL import Image
+        img = Image.open(photo_path)
+        img.thumbnail((size, size), Image.LANCZOS)
+        if img.mode not in ("RGB", "L"):
+            img = img.convert("RGB")
+        img.save(str(thumb_path), "JPEG", quality=80, optimize=True)
 
-        return FileResponse(
-            path=str(thumb_path),
-            media_type="image/jpeg",
-            headers={"Cache-Control": "public, max-age=604800"},  # 7 days
-        )
-    finally:
-        conn.close()
+    return FileResponse(
+        path=str(thumb_path),
+        media_type="image/jpeg",
+        headers={"Cache-Control": "public, max-age=604800"},  # 7 days
+    )
 
 
 class ImportRequest(BaseModel):
@@ -1127,7 +1161,38 @@ def generate_draft(req: GenerateDraftRequest):
         result = _parse_content_response(response.content[0].text)
         return result
 
-    # Standard photo draft
+    # Handle filesystem photo IDs (fs:Collection/filename.jpg)
+    if req.photo_id.startswith("fs:"):
+        client = _get_anthropic_client()
+        if not client:
+            raise HTTPException(status_code=503, detail="No Anthropic API key configured")
+
+        from src.agents.content import PLATFORM_PROMPTS, _parse_content_response
+
+        fs_path = req.photo_id[3:]  # Strip "fs:" prefix
+        parts = fs_path.split("/", 1)
+        collection = parts[0] if len(parts) > 1 else ""
+        filename = parts[1] if len(parts) > 1 else parts[0]
+
+        fs_context = (
+            f"This is a fine art photograph from the Archive-35 collection.\n"
+            f"Collection/Gallery: {collection}\n"
+            f"Filename: {filename}\n"
+            f"The photograph is available as museum-quality prints."
+        )
+
+        prompt = PLATFORM_PROMPTS.get(req.platform, PLATFORM_PROMPTS["instagram"])
+        full_prompt = f"Photo context:\n{fs_context}\n\n{prompt}"
+
+        response = client.messages.create(
+            model="claude-sonnet-4-5-20250929",
+            max_tokens=1000,
+            messages=[{"role": "user", "content": full_prompt}],
+        )
+        result = _parse_content_response(response.content[0].text)
+        return result
+
+    # Standard DB photo draft
     conn = _get_conn()
     try:
         photo = conn.execute("SELECT * FROM photos WHERE id = ?", (req.photo_id,)).fetchone()

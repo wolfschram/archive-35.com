@@ -345,6 +345,12 @@ def _api_request(
 
         logger.error("Pinterest API error %s: %s", e.code, error_body)
         return {"error": f"API request failed: {e.code}", "detail": error_body}
+    except urllib.error.URLError as e:
+        logger.error("Pinterest API unreachable: %s", e.reason)
+        return {"error": f"Network error: {e.reason}"}
+    except OSError as e:
+        logger.error("Pinterest API network error: %s", e)
+        return {"error": f"Network error: {e}"}
 
 
 # ── Board Operations ─────────────────────────────────────────────────────

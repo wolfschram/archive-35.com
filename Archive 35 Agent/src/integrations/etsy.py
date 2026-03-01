@@ -234,6 +234,12 @@ def exchange_code(auth_code: str, code_verifier: str) -> dict[str, Any]:
         except (json.JSONDecodeError, TypeError):
             desc = body or f"HTTP {e.code}"
         return {"error": desc, "detail": desc}
+    except urllib.error.URLError as e:
+        logger.error("Etsy token exchange network error: %s", e.reason)
+        return {"error": f"Network error — cannot reach Etsy: {e.reason}", "detail": str(e.reason)}
+    except OSError as e:
+        logger.error("Etsy token exchange OS error: %s", e)
+        return {"error": f"Network error: {e}", "detail": str(e)}
 
 
 def _fetch_and_save_shop_id(access_token: str, api_key: str, shared_secret: str = "") -> None:

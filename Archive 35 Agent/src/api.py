@@ -49,12 +49,25 @@ app = FastAPI(title="Archive-35 Agent API", version="0.2.0")
 
 
 # Global exception handler — ensures ALL errors return JSON (never plain text)
+import urllib.error
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """Catch unhandled exceptions and return JSON instead of plain text 500."""
+    # Network/DNS errors — return 200 with error field instead of 500
+    # This prevents red error banners on every page when internet is down
+    is_network_err = isinstance(exc, (urllib.error.URLError, OSError)) or (
+        "nodename nor servname" in str(exc) or "ECONNREFUSED" in str(exc)
+        or "urlopen error" in str(exc) or "Name or service not known" in str(exc)
+    )
+    if is_network_err:
+        logger.warning("Network error on %s %s: %s", request.method, request.url.path, exc)
+        return JSONResponse(
+            status_code=200,
+            content={"error": f"Network unavailable: {exc}", "network_error": True},
+        )
     logger.error("Unhandled exception on %s %s: %s", request.method, request.url.path, exc)
     return JSONResponse(
         status_code=500,

@@ -44,6 +44,111 @@ def _fix_ssl_certificates():
 
 _fix_ssl_certificates()
 
+
+# ── DNS Fallback for broken macOS mDNSResponder ──────────────────────
+# macOS mDNSResponder (system DNS) periodically gets stuck, causing all
+# Python/curl DNS to fail while browsers (using DNS-over-HTTPS) still
+# work. This patches socket.getaddrinfo to fall back to a direct UDP
+# query to Google DNS (8.8.8.8) when the system resolver fails.
+def _install_dns_fallback():
+    """Monkey-patch socket.getaddrinfo with a Google DNS fallback."""
+    import socket
+    import struct
+
+    _original_getaddrinfo = socket.getaddrinfo
+    _dns_cache: dict[str, tuple[list[str], float]] = {}  # hostname → (ips, expiry)
+    _CACHE_TTL = 300  # 5 minutes
+    _logger = logging.getLogger(__name__ + ".dns")
+
+    def _resolve_via_google_dns(hostname: str) -> list[str]:
+        """Direct UDP DNS query to 8.8.8.8, bypassing system resolver."""
+        import time as _time
+        # Check cache first
+        cached = _dns_cache.get(hostname)
+        if cached and cached[1] > _time.time():
+            return cached[0]
+
+        # Build DNS query packet
+        query_id = os.urandom(2)
+        header = query_id + b'\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00'
+        question = b''
+        for part in hostname.encode().split(b'.'):
+            question += bytes([len(part)]) + part
+        question += b'\x00\x00\x01\x00\x01'  # Type A, Class IN
+        packet = header + question
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.settimeout(5)
+        try:
+            sock.sendto(packet, ('8.8.8.8', 53))
+            response, _ = sock.recvfrom(1024)
+
+            # Parse answer count from header
+            ancount = struct.unpack('!H', response[6:8])[0]
+            if ancount == 0:
+                return []
+
+            # Skip header (12 bytes) and question section
+            pos = 12
+            while pos < len(response) and response[pos] != 0:
+                pos += response[pos] + 1
+            pos += 5  # null terminator + QTYPE(2) + QCLASS(2)
+
+            # Parse answer records
+            ips = []
+            for _ in range(ancount):
+                if pos >= len(response):
+                    break
+                # Handle name compression pointer or label
+                if response[pos] & 0xC0 == 0xC0:
+                    pos += 2
+                else:
+                    while pos < len(response) and response[pos] != 0:
+                        pos += response[pos] + 1
+                    pos += 1
+                if pos + 10 > len(response):
+                    break
+                rtype, _rclass, _ttl, rdlength = struct.unpack('!HHIH', response[pos:pos + 10])
+                pos += 10
+                if rtype == 1 and rdlength == 4 and pos + 4 <= len(response):
+                    ip = '.'.join(str(b) for b in response[pos:pos + 4])
+                    ips.append(ip)
+                pos += rdlength
+
+            if ips:
+                _dns_cache[hostname] = (ips, _time.time() + _CACHE_TTL)
+            return ips
+        except Exception:
+            return []
+        finally:
+            sock.close()
+
+    def _patched_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+        try:
+            return _original_getaddrinfo(host, port, family, type, proto, flags)
+        except socket.gaierror as e:
+            # System resolver failed — try Google DNS fallback
+            if not isinstance(host, str) or host in ('localhost', '127.0.0.1', '::1'):
+                raise
+            _logger.warning("System DNS failed for %s, trying Google DNS fallback", host)
+            ips = _resolve_via_google_dns(host)
+            if not ips:
+                _logger.error("Google DNS fallback also failed for %s", host)
+                raise
+            _logger.info("Resolved %s via Google DNS: %s", host, ips[0])
+            # Return results in getaddrinfo format
+            results = []
+            p = int(port) if port else 443
+            for ip in ips:
+                results.append((socket.AF_INET, socket.SOCK_STREAM, 6, '', (ip, p)))
+            return results
+
+    socket.getaddrinfo = _patched_getaddrinfo
+    _logger.info("DNS fallback installed (Google 8.8.8.8)")
+
+_install_dns_fallback()
+
+
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse

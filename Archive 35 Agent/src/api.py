@@ -8,9 +8,41 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import ssl
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
+
+# ── SSL Certificate Fix for python.org Python 3.13 on macOS ──────────
+# The python.org installer doesn't auto-install root certificates.
+# This patches urllib globally so all HTTPS calls work without running
+# the "Install Certificates.command" script manually.
+def _fix_ssl_certificates():
+    """Find a valid CA bundle and install it as urllib's default context."""
+    import ssl as _ssl
+    import urllib.request as _ureq
+    _cert_paths = [
+        "/etc/ssl/cert.pem",                    # macOS system certs
+        "/etc/ssl/certs/ca-certificates.crt",   # Debian/Ubuntu
+        "/etc/pki/tls/certs/ca-bundle.crt",     # RHEL/CentOS
+    ]
+    # Try certifi first (best option if installed)
+    try:
+        import certifi
+        _cert_paths.insert(0, certifi.where())
+    except ImportError:
+        pass
+    for cp in _cert_paths:
+        if Path(cp).exists():
+            ctx = _ssl.create_default_context(cafile=cp)
+            _ureq.install_opener(_ureq.build_opener(_ureq.HTTPSHandler(context=ctx)))
+            os.environ.setdefault("SSL_CERT_FILE", cp)
+            logging.getLogger(__name__).info("SSL certs loaded from %s", cp)
+            return
+    logging.getLogger(__name__).warning("No CA certificate bundle found — HTTPS calls may fail")
+
+_fix_ssl_certificates()
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware

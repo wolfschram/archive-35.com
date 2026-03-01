@@ -1683,7 +1683,7 @@ def list_live_etsy_listings(state: str = "active", limit: int = 100):
 @app.get("/etsy/status")
 def etsy_status():
     """Check Etsy integration status — tokens, shop info, SKU count."""
-    from src.integrations.etsy import EtsyClient
+    from src.integrations.etsy import EtsyClient, get_credentials, _fetch_and_save_shop_id
     conn = _get_conn()
     try:
         client = EtsyClient()
@@ -1691,15 +1691,30 @@ def etsy_status():
 
         sku_count = conn.execute("SELECT COUNT(*) FROM sku_catalog WHERE active = 1").fetchone()[0]
 
+        # Auto-recover shop_id if tokens exist but shop_id is missing
+        shop_id = client.shop_id
+        if has_tokens and not shop_id:
+            logger.info("Etsy tokens present but shop_id missing — auto-fetching...")
+            try:
+                creds = get_credentials()
+                _fetch_and_save_shop_id(
+                    creds["access_token"], creds["api_key"], creds.get("shared_secret", "")
+                )
+                # Re-read credentials after saving
+                shop_id = get_credentials().get("shop_id", "")
+                logger.info("Auto-fetched shop_id: %s", shop_id)
+            except Exception as e:
+                logger.warning("Auto-fetch shop_id failed: %s", e)
+
         result = {
             "configured": has_tokens,
             "connected": False,
-            "shop_id": client.shop_id or None,
+            "shop_id": shop_id or None,
             "active_skus": sku_count,
         }
 
         # If tokens exist, try to fetch shop info
-        if has_tokens and client.shop_id:
+        if has_tokens and shop_id:
             try:
                 shop = client.get_shop_info()
                 if "error" not in shop:

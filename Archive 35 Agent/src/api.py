@@ -392,80 +392,11 @@ def list_collections():
         conn.close()
 
 
-@app.get("/photos/{photo_id}")
-def get_photo(photo_id: str):
-    """Get photo detail with related content."""
-    conn = _get_conn()
-    try:
-        photo = conn.execute("SELECT * FROM photos WHERE id = ?", (photo_id,)).fetchone()
-        if not photo:
-            raise HTTPException(status_code=404, detail="Photo not found")
-
-        content = conn.execute(
-            "SELECT * FROM content WHERE photo_id = ? ORDER BY platform, variant",
-            (photo_id,),
-        ).fetchall()
-        skus = conn.execute(
-            "SELECT * FROM sku_catalog WHERE photo_id = ?", (photo_id,),
-        ).fetchall()
-
-        return {
-            "photo": dict(photo),
-            "content": [dict(c) for c in content],
-            "skus": [dict(s) for s in skus],
-        }
-    finally:
-        conn.close()
-
-
-@app.get("/photos/{photo_id}/thumbnail")
-def get_photo_thumbnail(photo_id: str, size: int = Query(default=300, le=800)):
-    """Serve a resized thumbnail for fast grid display.
-
-    Generates a small JPEG on first request, caches it in data/thumbnails/.
-    Subsequent requests serve the cached file instantly.
-    """
-    conn = _get_conn()
-    try:
-        photo = conn.execute("SELECT path FROM photos WHERE id = ?", (photo_id,)).fetchone()
-        if not photo:
-            raise HTTPException(status_code=404, detail="Photo not found")
-
-        photo_path = Path(photo["path"])
-        # Resolve relative paths against repo root
-        if not photo_path.is_absolute():
-            repo_root = Path(__file__).parent.parent.parent  # Archive 35 Agent -> repo root
-            photo_path = repo_root / photo_path
-        if not photo_path.exists():
-            raise HTTPException(status_code=404, detail=f"Photo file not found on disk: {photo_path}")
-
-        # Check for cached thumbnail
-        thumb_dir = Path("data/thumbnails")
-        thumb_dir.mkdir(parents=True, exist_ok=True)
-        thumb_path = thumb_dir / f"{photo_id}_{size}.jpg"
-
-        if not thumb_path.exists():
-            # Generate thumbnail from original
-            from PIL import Image
-            img = Image.open(photo_path)
-            img.thumbnail((size, size), Image.LANCZOS)
-            # Convert to RGB if needed (handles RGBA, CMYK, etc.)
-            if img.mode not in ("RGB", "L"):
-                img = img.convert("RGB")
-            img.save(str(thumb_path), "JPEG", quality=80, optimize=True)
-
-        return FileResponse(
-            path=str(thumb_path),
-            media_type="image/jpeg",
-            headers={"Cache-Control": "public, max-age=604800"},  # 7 days
-        )
-    finally:
-        conn.close()
-
-
 # ── Filesystem-based photo browsing (for Compose page) ───────────────
 # Reads directly from photography/ — the source of truth with all 744+ images.
 # No database import needed — instant access to every published photo.
+# NOTE: These routes MUST be defined BEFORE /photos/{photo_id} to avoid
+# FastAPI matching "browse" as a photo_id parameter.
 
 @app.get("/photos/browse/collections")
 def browse_collections():
@@ -537,6 +468,77 @@ def browse_thumbnail(path: str, size: int = Query(default=300, le=800)):
         media_type="image/jpeg",
         headers={"Cache-Control": "public, max-age=604800"},
     )
+
+
+@app.get("/photos/{photo_id}")
+def get_photo(photo_id: str):
+    """Get photo detail with related content."""
+    conn = _get_conn()
+    try:
+        photo = conn.execute("SELECT * FROM photos WHERE id = ?", (photo_id,)).fetchone()
+        if not photo:
+            raise HTTPException(status_code=404, detail="Photo not found")
+
+        content = conn.execute(
+            "SELECT * FROM content WHERE photo_id = ? ORDER BY platform, variant",
+            (photo_id,),
+        ).fetchall()
+        skus = conn.execute(
+            "SELECT * FROM sku_catalog WHERE photo_id = ?", (photo_id,),
+        ).fetchall()
+
+        return {
+            "photo": dict(photo),
+            "content": [dict(c) for c in content],
+            "skus": [dict(s) for s in skus],
+        }
+    finally:
+        conn.close()
+
+
+@app.get("/photos/{photo_id}/thumbnail")
+def get_photo_thumbnail(photo_id: str, size: int = Query(default=300, le=800)):
+    """Serve a resized thumbnail for fast grid display.
+
+    Generates a small JPEG on first request, caches it in data/thumbnails/.
+    Subsequent requests serve the cached file instantly.
+    """
+    conn = _get_conn()
+    try:
+        photo = conn.execute("SELECT path FROM photos WHERE id = ?", (photo_id,)).fetchone()
+        if not photo:
+            raise HTTPException(status_code=404, detail="Photo not found")
+
+        photo_path = Path(photo["path"])
+        # Resolve relative paths against repo root
+        if not photo_path.is_absolute():
+            repo_root = Path(__file__).parent.parent.parent  # Archive 35 Agent -> repo root
+            photo_path = repo_root / photo_path
+        if not photo_path.exists():
+            raise HTTPException(status_code=404, detail=f"Photo file not found on disk: {photo_path}")
+
+        # Check for cached thumbnail
+        thumb_dir = Path("data/thumbnails")
+        thumb_dir.mkdir(parents=True, exist_ok=True)
+        thumb_path = thumb_dir / f"{photo_id}_{size}.jpg"
+
+        if not thumb_path.exists():
+            # Generate thumbnail from original
+            from PIL import Image
+            img = Image.open(photo_path)
+            img.thumbnail((size, size), Image.LANCZOS)
+            # Convert to RGB if needed (handles RGBA, CMYK, etc.)
+            if img.mode not in ("RGB", "L"):
+                img = img.convert("RGB")
+            img.save(str(thumb_path), "JPEG", quality=80, optimize=True)
+
+        return FileResponse(
+            path=str(thumb_path),
+            media_type="image/jpeg",
+            headers={"Cache-Control": "public, max-age=604800"},  # 7 days
+        )
+    finally:
+        conn.close()
 
 
 class ImportRequest(BaseModel):

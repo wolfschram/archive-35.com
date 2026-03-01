@@ -452,6 +452,102 @@ def get_shipping_profiles() -> dict[str, Any]:
     return _api_request(f"/application/shops/{shop_id}/shipping-profiles")
 
 
+# ── Processing Profiles (readiness_state_id) ─────────────────────────────
+# Etsy requires a readiness_state_id for all physical listings (since late 2025).
+# This replaces the deprecated min/max_processing_time fields.
+# For Archive-35, all prints are made-to-order (print on demand via Pictorem).
+
+_cached_readiness_state_id: Optional[int] = None
+
+
+def get_readiness_state_definitions() -> dict[str, Any]:
+    """Fetch existing processing profiles for the shop."""
+    creds = get_credentials()
+    shop_id = creds.get("shop_id")
+    if not shop_id:
+        return {"error": "ETSY_SHOP_ID not configured"}
+    return _api_request(f"/application/shops/{shop_id}/readiness-state-definitions")
+
+
+def create_readiness_state_definition(
+    readiness_state: str = "made_to_order",
+    min_processing_time: int = 3,
+    max_processing_time: int = 7,
+    processing_time_unit: str = "days",
+) -> dict[str, Any]:
+    """Create a processing profile for the shop.
+
+    Args:
+        readiness_state: "made_to_order" or "ready_to_ship"
+        min_processing_time: Min processing days/weeks
+        max_processing_time: Max processing days/weeks
+        processing_time_unit: "days" or "weeks"
+
+    Returns:
+        Created profile with readiness_state_id, or error.
+    """
+    creds = get_credentials()
+    shop_id = creds.get("shop_id")
+    if not shop_id:
+        return {"error": "ETSY_SHOP_ID not configured"}
+    return _api_request(
+        f"/application/shops/{shop_id}/readiness-state-definitions",
+        method="POST",
+        data={
+            "readiness_state": readiness_state,
+            "min_processing_time": min_processing_time,
+            "max_processing_time": max_processing_time,
+            "processing_time_unit": processing_time_unit,
+        },
+    )
+
+
+def get_or_create_readiness_state_id() -> Optional[int]:
+    """Get a 'made_to_order' readiness_state_id, creating one if needed.
+
+    Caches the result for the lifetime of the process to avoid
+    repeated API calls.
+
+    Returns:
+        readiness_state_id (int) or None if all attempts fail.
+    """
+    global _cached_readiness_state_id
+    if _cached_readiness_state_id is not None:
+        return _cached_readiness_state_id
+
+    # Try to find an existing 'made_to_order' profile
+    existing = get_readiness_state_definitions()
+    results = existing.get("results", [])
+    for profile in results:
+        if profile.get("readiness_state") == "made_to_order":
+            _cached_readiness_state_id = profile["readiness_state_id"]
+            logger.info("Found existing made_to_order profile: %s", _cached_readiness_state_id)
+            return _cached_readiness_state_id
+
+    # Fall back to any existing profile
+    if results:
+        _cached_readiness_state_id = results[0]["readiness_state_id"]
+        logger.info("Using existing profile: %s (state: %s)",
+                    _cached_readiness_state_id, results[0].get("readiness_state"))
+        return _cached_readiness_state_id
+
+    # None exist — create one (3–7 business days for Pictorem POD)
+    logger.info("No readiness state definitions found — creating 'made_to_order' profile")
+    created = create_readiness_state_definition(
+        readiness_state="made_to_order",
+        min_processing_time=3,
+        max_processing_time=7,
+        processing_time_unit="days",
+    )
+    if "error" in created:
+        logger.error("Failed to create readiness state: %s", created)
+        return None
+
+    _cached_readiness_state_id = created.get("readiness_state_id")
+    logger.info("Created made_to_order profile: %s", _cached_readiness_state_id)
+    return _cached_readiness_state_id
+
+
 # ── Listing Management ───────────────────────────────────────────────────
 
 def create_listing(
@@ -526,6 +622,14 @@ def create_listing(
             return {"error": "No shipping profiles found on Etsy shop. Create one at etsy.com/your/shops/me/tools/shipping-profiles"}
 
     listing_data["shipping_profile_id"] = shipping_profile_id
+
+    # Readiness state is REQUIRED for physical listings (Etsy API change late 2025).
+    # This links the listing to a processing profile (made_to_order, 3-7 days).
+    readiness_id = get_or_create_readiness_state_id()
+    if readiness_id:
+        listing_data["readiness_state_id"] = readiness_id
+    else:
+        return {"error": "Could not get or create a readiness_state_id. Check Etsy API access."}
 
     return _api_request(
         f"/application/shops/{shop_id}/listings",

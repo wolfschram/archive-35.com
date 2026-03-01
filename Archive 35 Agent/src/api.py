@@ -463,6 +463,82 @@ def get_photo_thumbnail(photo_id: str, size: int = Query(default=300, le=800)):
         conn.close()
 
 
+# ── Filesystem-based photo browsing (for Compose page) ───────────────
+# Reads directly from photography/ — the source of truth with all 744+ images.
+# No database import needed — instant access to every published photo.
+
+@app.get("/photos/browse/collections")
+def browse_collections():
+    """List all collections from the photography/ filesystem directory."""
+    repo_root = Path(__file__).resolve().parent.parent.parent
+    photo_dir = repo_root / "photography"
+    if not photo_dir.exists():
+        return {"collections": []}
+    collections = []
+    for d in sorted(photo_dir.iterdir()):
+        if d.is_dir() and not d.name.startswith('.'):
+            count = len([f for f in d.iterdir() if f.suffix.lower() in ('.jpg', '.jpeg', '.png', '.tif', '.tiff', '.webp')])
+            if count > 0:
+                collections.append({"name": d.name, "count": count})
+    collections.sort(key=lambda c: c["count"], reverse=True)
+    return {"collections": collections}
+
+
+@app.get("/photos/browse")
+def browse_photos(collection: str, limit: int = Query(default=200, le=1000)):
+    """List photos from photography/{collection}/ on the filesystem."""
+    repo_root = Path(__file__).resolve().parent.parent.parent
+    col_dir = repo_root / "photography" / collection
+    if not col_dir.exists() or not col_dir.is_dir():
+        return {"items": [], "total": 0}
+    exts = ('.jpg', '.jpeg', '.png', '.tif', '.tiff', '.webp')
+    files = sorted([f for f in col_dir.iterdir() if f.suffix.lower() in exts])
+    items = []
+    for f in files[:limit]:
+        items.append({
+            "id": f"fs:{collection}/{f.name}",
+            "filename": f.name,
+            "collection": collection,
+            "path": str(f.relative_to(repo_root)),
+        })
+    return {"items": items, "total": len(files)}
+
+
+@app.get("/photos/browse/thumbnail")
+def browse_thumbnail(path: str, size: int = Query(default=300, le=800)):
+    """Serve a thumbnail for a filesystem photo (path relative to repo root)."""
+    import hashlib as _hashlib
+    repo_root = Path(__file__).resolve().parent.parent.parent
+    photo_path = repo_root / path
+    if not photo_path.exists():
+        raise HTTPException(status_code=404, detail="Photo not found")
+    # Security: ensure path is within photography/
+    try:
+        photo_path.resolve().relative_to((repo_root / "photography").resolve())
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Path must be within photography/")
+
+    # Cache thumbnail
+    path_hash = _hashlib.md5(path.encode()).hexdigest()[:12]
+    thumb_dir = Path("data/thumbnails")
+    thumb_dir.mkdir(parents=True, exist_ok=True)
+    thumb_path = thumb_dir / f"fs_{path_hash}_{size}.jpg"
+
+    if not thumb_path.exists():
+        from PIL import Image
+        img = Image.open(photo_path)
+        img.thumbnail((size, size), Image.LANCZOS)
+        if img.mode not in ("RGB", "L"):
+            img = img.convert("RGB")
+        img.save(str(thumb_path), "JPEG", quality=80, optimize=True)
+
+    return FileResponse(
+        path=str(thumb_path),
+        media_type="image/jpeg",
+        headers={"Cache-Control": "public, max-age=604800"},
+    )
+
+
 class ImportRequest(BaseModel):
     directory: Optional[str] = None
 

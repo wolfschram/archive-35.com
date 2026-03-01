@@ -87,7 +87,7 @@ function AgentCompose() {
       try {
         const [mockupData, collData] = await Promise.all([
           get('/mockups/list').catch(() => ({ items: [] })),
-          get('/photos/collections/list').catch(() => ({ collections: [] })),
+          get('/photos/browse/collections').catch(() => ({ collections: [] })),
         ]);
         setMockups(mockupData?.items || []);
         const cols = (collData?.collections || []).map(c => typeof c === 'string' ? c : c.name).filter(Boolean);
@@ -107,13 +107,13 @@ function AgentCompose() {
     load();
   }, []);
 
-  // Load photos when collection changes
+  // Load photos when collection changes (from filesystem — all 744+ images)
   useEffect(() => {
     if (!selectedCollection) { setPhotos([]); return; }
     const loadPhotos = async () => {
       try {
-        const data = await get(`/photos?collection=${encodeURIComponent(selectedCollection)}&limit=200`);
-        setPhotos(data?.items || data?.photos || []);
+        const data = await get(`/photos/browse?collection=${encodeURIComponent(selectedCollection)}&limit=500`);
+        setPhotos(data?.items || []);
       } catch {}
     };
     loadPhotos();
@@ -163,10 +163,18 @@ function AgentCompose() {
   const togglePhotoImage = useCallback((photo) => {
     const collection = (photo.collection || '').toLowerCase();
     const baseName = (photo.filename || '').replace(/\.[^.]+$/, '');
+    // Support both DB photos (numeric id) and filesystem photos (fs:collection/file)
+    const isFs = photo.id?.startsWith('fs:');
+    const thumbUrl = isFs
+      ? `${AGENT_BASE}/photos/browse/thumbnail?path=${encodeURIComponent(photo.path)}&size=400`
+      : `${AGENT_BASE}/photos/${photo.id}/thumbnail?size=400`;
+    const thumbSmall = isFs
+      ? `${AGENT_BASE}/photos/browse/thumbnail?path=${encodeURIComponent(photo.path)}&size=200`
+      : `${AGENT_BASE}/photos/${photo.id}/thumbnail?size=200`;
     const entry = {
       type: 'photo',
-      src: `${AGENT_BASE}/photos/${photo.id}/thumbnail?size=400`,
-      thumb: `${AGENT_BASE}/photos/${photo.id}/thumbnail?size=200`,
+      src: thumbUrl,
+      thumb: thumbSmall,
       filename: photo.filename,
       photoId: photo.id,
       collection: photo.collection,
@@ -677,7 +685,9 @@ function AgentCompose() {
                         aspectRatio: '1', background: 'rgba(255,255,255,0.03)',
                         transition: 'border-color 0.2s',
                       }}>
-                        <img src={`${AGENT_BASE}/photos/${photo.id}/thumbnail?size=200`}
+                        <img src={photo.id?.startsWith('fs:')
+                            ? `${AGENT_BASE}/photos/browse/thumbnail?path=${encodeURIComponent(photo.path)}&size=200`
+                            : `${AGENT_BASE}/photos/${photo.id}/thumbnail?size=200`}
                           alt={photo.filename} loading="lazy"
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           onError={(e) => { e.target.style.display = 'none'; }}

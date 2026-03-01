@@ -895,4 +895,90 @@ In Cloudflare Workers, once the Response is returned to the client, the Worker r
 
 ---
 
+### LESSON 036: FastAPI Route Ordering — Literal Paths Before Path Parameters
+**Date:** 2026-03-01
+**Category:** `fastapi` `routing` `agent` `ROOT-CAUSE`
+
+**Symptom:** `GET /photos/browse?collection=Hawaii&limit=500` returned 404 "Photo not found" even though the `/photos/browse` endpoint existed and had correct code. Compose page showed 0 photos.
+
+**Root Cause:** FastAPI matches routes in **definition order**. The route `@app.get("/photos/{photo_id}")` was defined at line 395, BEFORE `@app.get("/photos/browse")` at line 487. FastAPI matched `/photos/browse` as `photo_id="browse"`, queried the database for a photo with ID "browse", didn't find it, and returned 404.
+
+**Fix:** Moved all three `/photos/browse/*` endpoints ABOVE the `/photos/{photo_id}` catch-all route. Added a comment documenting WHY the ordering matters.
+
+**Prevention:**
+- **RULE: In FastAPI, ALWAYS define literal path routes BEFORE parameterized routes at the same path depth.** `/photos/browse` must come before `/photos/{photo_id}`.
+- **RULE: When adding new endpoints under an existing path prefix, check for catch-all `{param}` routes that could intercept the new path.**
+- **RULE: When you get a 404 from an endpoint that clearly exists, check route ordering FIRST.** Don't assume the endpoint code is wrong — it might never be reached.
+
+**Related Files:** `Archive 35 Agent/src/api.py`
+
+---
+
+### LESSON 037: Filesystem vs Database — Two Photo ID Systems Must Coexist
+**Date:** 2026-03-01
+**Category:** `agent` `compose` `photos` `architecture`
+
+**Symptom:** After fixing route ordering (Lesson 036), `/photos/browse` returned 200 OK, but clicking "AI Generate" and loading selected photo thumbnails still failed with "Photo not found." Multiple endpoints assumed all photo IDs are database integer IDs.
+
+**Root Cause:** The Compose page's "Original Photos" tab was updated to use filesystem-based browsing (reading directly from `photography/`), which generates IDs like `fs:Hawaii/sunset.jpg`. But three other endpoints — `get_photo`, `get_photo_thumbnail`, and `generate-draft` — still only handled database IDs. They'd receive `fs:Hawaii/sunset.jpg`, query SQLite for it, fail, and return 404.
+
+**The Deeper Pattern:** When you introduce a new ID format (here: `fs:` prefix for filesystem photos), you must update **every consumer** of that ID. Grep the entire codebase for all endpoints/functions that accept a `photo_id` parameter. This is Lesson 015 ("Ask Who Else Consumes This Data?") applied to ID formats.
+
+**Fix:** Added `fs:` prefix handling to all three endpoints:
+- `get_photo`: Returns basic filesystem info (filename, collection, path) without DB
+- `get_photo_thumbnail`: Reads from `photography/` directory, caches thumbnail
+- `generate-draft`: Builds context from collection/filename for AI caption generation
+
+**Prevention:**
+- **RULE: When introducing a new ID format, grep for ALL consumers of that ID type and update them ALL in the same commit.**
+- **RULE: Filesystem photo IDs use `fs:` prefix. Any endpoint accepting `photo_id` must check for this prefix.**
+- **RULE: The `photography/` directory is the source of truth for all published images. Any photo feature should work from filesystem first, database second.**
+
+**Related Files:** `Archive 35 Agent/src/api.py`, `05_Studio/app/src/pages/AgentCompose.js`
+
+---
+
+### LESSON 038: Python 3.13 on macOS — SSL Certificates Not Auto-Installed
+**Date:** 2026-03-01
+**Category:** `python` `ssl` `macos` `agent`
+
+**Symptom:** Etsy OAuth token exchange failed with `CERTIFICATE_VERIFY_FAILED`. All HTTPS requests from Python failed, even though browsers worked fine.
+
+**Root Cause:** Python 3.13 from python.org on macOS does NOT automatically install root certificates. The `Install Certificates.command` script must be run manually, or the app must provide its own SSL context. Browsers use the system keychain, Python uses its own cert bundle — which is empty after install.
+
+**Fix:** Patched `urllib.request` globally at module load with `install_opener()` using an SSL context pointing to `/etc/ssl/cert.pem` (macOS system certs). Also sets `SSL_CERT_FILE` environment variable as fallback for other libraries.
+
+**Prevention:**
+- **RULE: Any Python app making HTTPS calls on macOS must handle missing certificates.** Don't assume `certifi` is installed or system certs are linked.
+- **RULE: Fix SSL at the process level (urllib opener or env var), not per-request.** One fix covers all downstream libraries.
+
+**Related Files:** `Archive 35 Agent/src/api.py` (top-level `_fix_ssl_certificates()`)
+
+---
+
+### LESSON 039: macOS DNS Resolver Fails but Browsers Don't
+**Date:** 2026-03-01
+**Category:** `dns` `macos` `networking` `agent`
+
+**Symptom:** Python's `socket.getaddrinfo()` raised `[Errno 8] nodename nor servname provided` for Etsy/Instagram/Pinterest domains. But Chrome and Safari resolved the same domains fine.
+
+**Root Cause:** macOS `mDNSResponder` (the system DNS resolver) gets stuck periodically. Browsers bypass this by using DNS-over-HTTPS (DoH) to Cloudflare/Google. Python uses the system resolver directly and has no DoH fallback.
+
+**Fix:** Monkey-patched `socket.getaddrinfo` with a fallback that sends direct UDP DNS queries to Google DNS (8.8.8.8) when the system resolver fails. Includes a 5-minute cache to avoid hammering DNS on repeated lookups.
+
+**Prevention:**
+- **RULE: Any long-running Python service on macOS should have a DNS fallback.** The system resolver WILL fail eventually.
+- **RULE: When diagnosing "works in browser but not in Python," check both SSL certificates AND DNS resolution.** They're the two most common macOS-specific Python failures.
+
+**Related Files:** `Archive 35 Agent/src/api.py` (top-level `_install_dns_fallback()`)
+
+---
+
+45. **FastAPI route ordering matters.** Literal paths (`/photos/browse`) must be defined BEFORE parameterized paths (`/photos/{photo_id}`) — or the parameter swallows the literal.
+46. **New ID format = update ALL consumers.** When you add `fs:` prefix IDs, grep for every endpoint that takes `photo_id` and handle both formats.
+47. **Python on macOS: always handle SSL and DNS.** Browsers mask system-level failures that break Python. Fix both at process startup.
+48. **When an endpoint "doesn't exist" but clearly does, check route ordering first.** The code might be perfect — it's just never reached.
+
+---
+
 *This is a living document. Add new lessons as they're discovered. Every bug is a gift — it teaches us something we didn't know.*

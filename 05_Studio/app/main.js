@@ -4584,11 +4584,21 @@ function agentApiProxy(apiPath, options = {}) {
 }
 
 // IPC: Generic API proxy — React pages call this for all Agent API requests
+// Auto-retries ECONNREFUSED during startup (server takes ~10s to boot)
 ipcMain.handle('agent-api-call', async (event, apiPath, options) => {
-  try {
-    return await agentApiProxy(apiPath, options);
-  } catch (err) {
-    throw err;
+  const MAX_RETRIES = 5;
+  const RETRY_DELAY_MS = 2000;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await agentApiProxy(apiPath, options);
+    } catch (err) {
+      const isConnRefused = err.message && err.message.includes('ECONNREFUSED');
+      if (isConnRefused && attempt < MAX_RETRIES) {
+        await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+        continue;
+      }
+      throw err;
+    }
   }
 });
 

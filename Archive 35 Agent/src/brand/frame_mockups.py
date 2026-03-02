@@ -179,13 +179,6 @@ def generate_framed_mockups(
         photo_y = fy + frame_w + mat_w
         canvas.paste(photo, (photo_x, photo_y))
 
-        # Add Archive-35 branding banner
-        try:
-            from src.brand.watermark import add_banner
-            canvas = add_banner(canvas)
-        except Exception as e:
-            logger.warning("Could not add banner to %s mockup: %s", frame_key, e)
-
         # Save
         out_path = out_dir / f"frame-{frame_key}.jpg"
         canvas.save(str(out_path), "JPEG", quality=JPEG_QUALITY)

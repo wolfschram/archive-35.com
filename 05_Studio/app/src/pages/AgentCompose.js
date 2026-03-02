@@ -307,15 +307,20 @@ function AgentCompose() {
           }
         } else if (platform === 'etsy') {
           // Create full Etsy draft listing with all variations via API
+          // Send ALL selected images (mockups + original photo), not just the first
           const etsyTags = tags.split(',').map(t => t.trim()).filter(Boolean).slice(0, 13);
-          const imageUrl = firstImg.fullUrl || firstImg.src;
+          const allImageUrls = selectedImages
+            .map(img => img.fullUrl || img.src)
+            .filter(url => url && url.startsWith('http'));
+          // Find the original photo (not a mockup) for photo_id / DPI lookup
+          const photoImg = selectedImages.find(img => img.type === 'photo') || firstImg;
           try {
             const result = await post('/etsy/listings/create-from-compose', {
               title: (title || firstImg.filename || 'Fine Art Photography Print').slice(0, 140),
               description: fullCaption,
               tags: etsyTags,
-              photo_id: firstImg.photoId || null,
-              image_url: imageUrl.startsWith('http') ? imageUrl : null,
+              photo_id: photoImg.photoId || null,
+              image_urls: allImageUrls,
               activate: false, // Always draft — Wolf reviews on Etsy before going live
             });
             if (result.error) {

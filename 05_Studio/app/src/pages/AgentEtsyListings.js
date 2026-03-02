@@ -454,7 +454,7 @@ function AgentEtsyListings() {
                             borderRadius: '50%', background: 'var(--accent)',
                           }}></span>
                           <span style={{ fontSize: '12px', color: 'var(--text-primary)' }}>
-                            5 mockups <span style={{ color: 'var(--text-muted)' }}>(you select)</span>
+                            6 mockups <span style={{ color: 'var(--text-muted)' }}>(you select)</span>
                           </span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -472,15 +472,15 @@ function AgentEtsyListings() {
                             borderRadius: '50%', background: '#f1641e',
                           }}></span>
                           <span style={{ fontSize: '12px', color: 'var(--text-primary)' }}>
-                            4 material images <span style={{ color: 'var(--text-muted)' }}>(auto-attached)</span>
+                            3 frame images <span style={{ color: 'var(--text-muted)' }}>(auto-attached)</span>
                           </span>
                         </div>
                       </div>
                       <div style={{
                         marginTop: '8px', fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.5,
                       }}>
-                        Material images are automatically added and linked to Material &amp; Size variations.
-                        Frame/mat/border options are set as personalization fields.
+                        Frame moulding images (Black, White, Natural Wood) are automatically added and linked to Frame variations.
+                        Mat/border options are set as personalization fields.
                       </div>
                     </div>
 

@@ -3989,7 +3989,12 @@ ipcMain.handle('load-about-content', async () => {
   try {
     const aboutPath = path.join(ARCHIVE_BASE, 'data', 'about.json');
     const raw = await fs.readFile(aboutPath, 'utf-8');
-    return JSON.parse(raw);
+    const data = JSON.parse(raw);
+    // Provide local file:// URL for portrait preview (avoids SSL errors)
+    if (data.photoPath) {
+      data.localPhotoUrl = `file://${path.join(ARCHIVE_BASE, data.photoPath)}`;
+    }
+    return data;
   } catch (err) {
     console.error('Failed to load about.json:', err.message);
     return null;

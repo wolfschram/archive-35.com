@@ -1048,34 +1048,34 @@ def create_full_listing(
             logger.info("Uploaded image %d/%d for listing %s",
                         rank, len(all_images), listing_id)
 
-    # Step 3b: Auto-attach material reference images
+    # Step 3b: Auto-attach frame reference images
     # These are always appended after the user's mockups — no manual selection needed.
-    # Maps material_key → uploaded image_id for variation linking in Step 4b.
-    material_image_ids = {}
+    # Maps frame_key → uploaded image_id for variation linking in Step 4b.
+    frame_image_ids = {}
     next_rank = len(uploaded_images) + 1
     project_root = Path(__file__).parent.parent.parent.parent  # repo root
 
-    for mat_key in MATERIAL_IMAGES_FOR_ETSY:
-        img_rel_path = MATERIAL_IMAGES.get(mat_key)
+    for frame_key in FRAME_IMAGES_FOR_ETSY:
+        img_rel_path = FRAME_IMAGES.get(frame_key)
         if not img_rel_path:
             continue
         img_abs_path = str(project_root / img_rel_path)
-        mat_result = upload_listing_image_from_file(listing_id, img_abs_path, rank=next_rank)
-        if "error" in mat_result:
-            logger.error("Material image upload failed (%s): %s", mat_key, mat_result["error"])
+        frame_result = upload_listing_image_from_file(listing_id, img_abs_path, rank=next_rank)
+        if "error" in frame_result:
+            logger.error("Frame image upload failed (%s): %s", frame_key, frame_result["error"])
         else:
-            image_id = mat_result.get("listing_image_id")
+            image_id = frame_result.get("listing_image_id")
             if image_id:
-                material_image_ids[mat_key] = image_id
-                logger.info("Auto-attached %s material image (rank %d, image_id %s)",
-                            mat_key, next_rank, image_id)
-            uploaded_images.append(mat_result)
+                frame_image_ids[frame_key] = image_id
+                logger.info("Auto-attached %s frame image (rank %d, image_id %s)",
+                            frame_key, next_rank, image_id)
+            uploaded_images.append(frame_result)
             next_rank += 1
 
-    logger.info("Total images uploaded: %d (user: %d, materials: %d)",
+    logger.info("Total images uploaded: %d (user: %d, frames: %d)",
                 len(uploaded_images),
-                len(uploaded_images) - len(material_image_ids),
-                len(material_image_ids))
+                len(uploaded_images) - len(frame_image_ids),
+                len(frame_image_ids))
 
     # Step 4: Set inventory (variations + pricing)
     inventory_payload = build_etsy_inventory_payload(products)
@@ -1091,10 +1091,10 @@ def create_full_listing(
 
     logger.info("Set %d variants on listing %s", summary["total_variants"], listing_id)
 
-    # Step 4b: Link material images to their variation values
-    # This makes Etsy swap the displayed image when a buyer picks a material.
-    if material_image_ids:
-        _link_material_images_to_variations(listing_id, inv_result, material_image_ids)
+    # Step 4b: Link frame images to their Frame variation values
+    # This makes Etsy swap the displayed image when a buyer picks a frame style.
+    if frame_image_ids:
+        _link_frame_images_to_variations(listing_id, inv_result, frame_image_ids)
 
     # Step 5: Set personalization instructions (legacy field — until multi-personalization GA)
     _set_personalization(listing_id)
@@ -1117,74 +1117,68 @@ def create_full_listing(
         "sizes": summary["sizes"],
         "frames": summary["frames"],
         "images_uploaded": len(uploaded_images),
-        "material_images_linked": len(material_image_ids),
+        "frame_images_linked": len(frame_image_ids),
         "personalization": True,
     }
 
 
 # ── Internal Helpers ─────────────────────────────────────────────────────
 
-def _link_material_images_to_variations(
+def _link_frame_images_to_variations(
     listing_id: int,
     inventory_result: dict,
-    material_image_ids: dict[str, int],
+    frame_image_ids: dict[str, int],
 ) -> None:
-    """Link uploaded material reference images to their Material & Size variation values.
+    """Link uploaded frame reference images to their Frame variation values.
 
-    Reads the inventory response to find value_ids for each material,
+    Reads the inventory response to find value_ids for each frame option,
     then calls updateVariationImages to associate the correct image.
 
     This runs automatically — Wolf never has to think about it.
     """
-    from src.brand.etsy_variations import (
-        PROPERTY_ID_MATERIAL_SIZE,
-        MATERIAL_DISPLAY_NAMES,
-    )
+    from src.brand.etsy_variations import PROPERTY_ID_FRAME
 
-    # Build lookup: material display name → image_id
+    # Build lookup: frame display name → image_id
     name_to_image = {}
-    for mat_key, image_id in material_image_ids.items():
-        display_name = MATERIAL_DISPLAY_NAMES.get(mat_key, mat_key.title())
+    for frame_key, image_id in frame_image_ids.items():
+        display_name = FRAME_DISPLAY_NAMES.get(frame_key, frame_key.replace("_", " ").title())
         name_to_image[display_name] = image_id
 
-    # Parse inventory response to find value_ids for each material
+    # Parse inventory response to find value_ids for each frame option
     variation_links = []
-    seen_materials = set()
+    seen_frames = set()
     inv_products = inventory_result.get("products", [])
 
     for product in inv_products:
         for pv in product.get("property_values", []):
-            if pv.get("property_id") != PROPERTY_ID_MATERIAL_SIZE:
+            if pv.get("property_id") != PROPERTY_ID_FRAME:
                 continue
-            # The variation value includes "Material SIZExSIZE" — extract material name
             values = pv.get("values", [])
             value_ids = pv.get("value_ids", [])
             if not values or not value_ids:
                 continue
 
-            variation_label = values[0]  # e.g. "Canvas 24x10"
+            frame_label = values[0]  # e.g. "Black Frame", "White Frame", "Natural Wood Frame"
             value_id = value_ids[0]
 
-            # Match material name from the variation label
-            for mat_display, image_id in name_to_image.items():
-                if variation_label.startswith(mat_display) and mat_display not in seen_materials:
-                    variation_links.append({
-                        "property_id": PROPERTY_ID_MATERIAL_SIZE,
-                        "value_id": value_id,
-                        "image_id": image_id,
-                    })
-                    seen_materials.add(mat_display)
-                    break
+            # Match frame name from the variation label
+            if frame_label in name_to_image and frame_label not in seen_frames:
+                variation_links.append({
+                    "property_id": PROPERTY_ID_FRAME,
+                    "value_id": value_id,
+                    "image_id": name_to_image[frame_label],
+                })
+                seen_frames.add(frame_label)
 
     if variation_links:
         result = update_variation_images(listing_id, variation_links)
         if "error" in result:
-            logger.error("Failed to link variation images: %s", result["error"])
+            logger.error("Failed to link frame variation images: %s", result["error"])
         else:
-            logger.info("Linked %d material images to variations on listing %s",
+            logger.info("Linked %d frame images to variations on listing %s",
                         len(variation_links), listing_id)
     else:
-        logger.warning("No material variations matched for image linking on listing %s", listing_id)
+        logger.warning("No frame variations matched for image linking on listing %s", listing_id)
 
 
 def _set_personalization(listing_id: int) -> None:
@@ -1328,28 +1322,30 @@ def upload_listing_image_from_file(
         return {"error": f"Image upload failed: {e.code}", "detail": resp_body}
 
 
-# ── Material Reference Images (Auto-attach) ─────────────────────────────
+# ── Frame Reference Images (Auto-attach) ─────────────────────────────────
 
-# Standard material reference images — always appended to Etsy listings.
-# These show customers what each print material looks like.
+# Frame moulding reference images — always appended to Etsy listings.
+# These show customers what each frame option looks like around the print.
 # Paths are relative to the project root.
-MATERIAL_IMAGES = {
-    "paper": "images/products/paper.jpg",
-    "canvas": "images/products/canvas.jpg",
-    "metal": "images/products/metal-hd.jpg",
-    "acrylic": "images/products/acrylic.jpg",
-    "wood": "images/products/wood.jpg",
+FRAME_IMAGES = {
+    "black":        "images/products/frame-303-12.jpg",
+    "white":        "images/products/frame-317-22.jpg",
+    "natural_wood":  "images/products/frame-241-29.jpg",
 }
 
+# Display names matching FRAME_OPTIONS in etsy_variations.py
+FRAME_DISPLAY_NAMES = {
+    "black":        "Black Frame",
+    "white":        "White Frame",
+    "natural_wood":  "Natural Wood Frame",
+}
 
 # ── Etsy Image Budget ───────────────────────────────────────────────────
 
 ETSY_MAX_IMAGES = 10        # Etsy allows 10 per listing
-MATERIAL_IMAGE_SLOTS = 4    # Reserve 4 slots for material reference images
-# Paper is not shown because paper is the default/base material —
-# the original photo already represents the paper print look.
-MATERIAL_IMAGES_FOR_ETSY = ["canvas", "metal", "acrylic", "wood"]
-MOCKUP_SLOTS = ETSY_MAX_IMAGES - MATERIAL_IMAGE_SLOTS - 1  # = 5 mockups + 1 original
+FRAME_IMAGE_SLOTS = 3       # Reserve 3 slots for frame reference images
+FRAME_IMAGES_FOR_ETSY = ["black", "white", "natural_wood"]
+MOCKUP_SLOTS = ETSY_MAX_IMAGES - FRAME_IMAGE_SLOTS - 1  # = 6 mockups + 1 original
 
 
 # ── Personalization Fields ──────────────────────────────────────────────

@@ -2148,7 +2148,8 @@ class EtsyComposeCreate(BaseModel):
     description: str
     tags: list[str] = []
     photo_id: Optional[str] = None
-    image_url: Optional[str] = None
+    image_url: Optional[str] = None           # Single image (legacy compat)
+    image_urls: list[str] = []                # Multiple images from Compose selection
     shipping_profile_id: Optional[int] = None
     min_dpi: int = 150
     activate: bool = False
@@ -2208,7 +2209,12 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
                             f"https://archive-35.com/images/{collection}/{base}-full.jpg"
                         )
 
-        # Use explicit image_url if provided (e.g. mockup)
+        # Add all images from Compose selection (mockups + original photo)
+        for url in req.image_urls:
+            if url and url.startswith('http') and url not in image_urls:
+                image_urls.append(url)
+
+        # Legacy: single image_url field (backwards compat)
         if req.image_url and req.image_url not in image_urls:
             image_urls.append(req.image_url)
 

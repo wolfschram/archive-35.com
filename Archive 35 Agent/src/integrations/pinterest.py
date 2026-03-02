@@ -323,7 +323,7 @@ def _api_request(
     req = urllib.request.Request(url, data=body, method=method, headers=headers)
 
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=15) as resp:
             response_body = resp.read().decode()
             if response_body:
                 return json.loads(response_body)

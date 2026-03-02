@@ -84,25 +84,23 @@ function AgentCompose() {
   // ── Load data on mount ──
   useEffect(() => {
     const load = async () => {
-      try {
-        const [mockupData, collData] = await Promise.all([
-          get('/mockups/list').catch(() => ({ items: [] })),
-          get('/photos/browse/collections').catch(() => ({ collections: [] })),
-        ]);
-        setMockups(mockupData?.items || []);
-        const cols = (collData?.collections || []).map(c => typeof c === 'string' ? c : c.name).filter(Boolean);
-        cols.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
-        setCollections(cols);
-        // Load Pinterest boards lazily — don't block page load or show DNS errors
-        try {
-          const boardData = await get('/pinterest/boards');
-          setPinterestBoards(boardData?.items || []);
-        } catch {
-          setPinterestBoards([]);
-        }
-        // Clear any transient errors from optional API calls
-        setError(null);
-      } catch {}
+      // All calls use .catch() fallbacks — none should block the page.
+      // Clear errors after each call to prevent transient errors from sticking.
+      const mockupData = await get('/mockups/list').catch(() => ({ items: [] }));
+      setError(null);
+      const collData = await get('/photos/browse/collections').catch(() => ({ collections: [] }));
+      setError(null);
+
+      setMockups(mockupData?.items || []);
+      const cols = (collData?.collections || []).map(c => typeof c === 'string' ? c : c.name).filter(Boolean);
+      cols.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+      setCollections(cols);
+
+      // Load Pinterest boards — optional, never blocks the page
+      const boardData = await get('/pinterest/boards').catch(() => ({ items: [] }));
+      setPinterestBoards(boardData?.items || []);
+      // Final clear — any transient error from optional calls gets wiped
+      setError(null);
     };
     load();
   }, []);

@@ -52,7 +52,8 @@ function AboutEditor() {
           setArtistQuote(data.artistQuote || '');
           setPrintsInfoText(Array.isArray(data.printsInfo) ? data.printsInfo.join('\n\n') : (data.printsInfo || ''));
           setPhotoPath(data.photoPath || '');
-          setPhotoPreview(data.photoPath || '');
+          // Use local file URL for preview (avoids SSL errors from archive-35.com)
+          setPhotoPreview(data.localPhotoUrl || data.photoPath || '');
         }
       }
     } catch (err) {
@@ -144,7 +145,7 @@ function AboutEditor() {
           <div style={{ flex: '0 0 200px' }}>
             {photoPreview && (
               <img
-                src={newPhotoPath ? `file://${newPhotoPath}` : `https://archive-35.com/${photoPreview}`}
+                src={newPhotoPath ? `file://${newPhotoPath}` : photoPreview}
                 alt="Portrait preview"
                 style={{ width: '200px', height: '200px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #333' }}
               />

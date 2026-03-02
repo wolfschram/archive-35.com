@@ -111,28 +111,43 @@ const MATERIALS = {
   canvas: {
     name: 'Canvas',
     maxInches: 2400,
-    description: 'Museum-quality canvas wrap with professional stretching'
+    description: 'Museum-quality canvas wrap with professional stretching',
+    image: '/images/products/canvas.jpg'
   },
   metal: {
     name: 'Metal',
     maxInches: 2400,
-    description: 'Vibrant ChromaLuxe HD metal with standoff mounting'
+    description: 'Vibrant ChromaLuxe HD metal with standoff mounting',
+    image: '/images/products/metal-hd.jpg'
   },
   acrylic: {
     name: 'Acrylic',
     maxInches: 2400,
-    description: 'Premium acrylic with stunning color depth'
+    description: 'Premium acrylic with stunning color depth',
+    image: '/images/products/acrylic.jpg'
   },
   paper: {
     name: 'Fine Art Paper',
     maxInches: 2400,
-    description: 'Archival fine art paper with matte finish'
+    description: 'Archival fine art paper with matte finish',
+    image: '/images/products/paper.jpg'
   },
   wood: {
     name: 'Wood',
     maxInches: 2400,
-    description: 'Rustic wood print on premium plywood'
+    description: 'Rustic wood print on premium plywood',
+    image: '/images/products/wood.jpg'
   }
+};
+
+// Frame moulding image paths
+const FRAME_IMAGES = {
+  '303-19': '/images/products/frame-303-19.jpg',
+  '303-12': '/images/products/frame-303-12.jpg',
+  '317-22': '/images/products/frame-317-22.jpg',
+  '241-29': '/images/products/frame-241-29.jpg',
+  '241-22': '/images/products/frame-241-22.jpg',
+  '724-12': '/images/products/frame-724-12.jpg',
 };
 
 // ============================================================================
@@ -368,6 +383,7 @@ function createProductSelectorModal(photoData) {
               <div class="material-option" data-material="${key}">
                 <input type="radio" id="material-${key}" name="material" value="${key}" />
                 <label for="material-${key}">
+                  <div class="material-thumb"><img src="${material.image}" alt="${material.name}" loading="lazy" /></div>
                   <div class="material-name">${material.name}</div>
                   <div class="material-description">${material.description}</div>
                   <div class="material-meta">${fromText} ${hangReady}</div>
@@ -1067,15 +1083,18 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
         `;
 
         frameHTML += Object.entries(mouldings).map(([code, frame]) => {
-          // CSS frame preview strip: a visual representation of the moulding
-          const frameStrip = `
+          // Real frame moulding image (with CSS gradient fallback)
+          const frameImgSrc = FRAME_IMAGES[code] || '';
+          const fallbackBg = frame.color === 'natural' ? 'linear-gradient(135deg, #c4a882 0%, #a88960 40%, #d4b894 60%, #b89a72 100%)'
+            : frame.color === 'white' ? 'linear-gradient(135deg, #f5f5f0 0%, #e8e8e3 50%, #f5f5f0 100%)'
+            : frame.color === 'black' ? 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #333 100%)'
+            : frame.colorHex;
+          const frameStrip = frameImgSrc ? `
             <div class="frame-card-preview">
-              <div class="frame-card-sample" style="
-                background: ${frame.colorHex};
-                ${frame.color === 'natural' ? 'background: linear-gradient(135deg, #c4a882 0%, #a88960 40%, #d4b894 60%, #b89a72 100%);' : ''}
-                ${frame.color === 'white' ? 'background: linear-gradient(135deg, #f5f5f0 0%, #e8e8e3 50%, #f5f5f0 100%);' : ''}
-                ${frame.color === 'black' ? 'background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #333 100%);' : ''}
-              ">
+              <img class="frame-card-img" src="${frameImgSrc}" alt="${frame.name}" loading="lazy" />
+            </div>` : `
+            <div class="frame-card-preview">
+              <div class="frame-card-sample" style="background: ${fallbackBg};">
                 <div class="frame-card-inner-preview"></div>
               </div>
             </div>`;
@@ -1814,12 +1833,32 @@ const STYLES = `
 
   .material-option label {
     display: block;
-    padding: 16px;
+    padding: 0;
     border: 2px solid #333;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
     background: #222;
+    overflow: hidden;
+  }
+
+  .material-thumb {
+    width: 100%;
+    height: 90px;
+    overflow: hidden;
+    background: #1a1a1a;
+  }
+
+  .material-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  .material-option:hover .material-thumb img {
+    transform: scale(1.05);
   }
 
   .material-option input[type='radio']:checked + label {
@@ -1830,18 +1869,21 @@ const STYLES = `
   .material-name {
     font-weight: 600;
     margin-bottom: 4px;
+    padding: 12px 12px 0 12px;
   }
 
   .material-description {
     font-size: 12px;
     color: #999;
     line-height: 1.3;
+    padding: 0 12px;
   }
 
   .material-meta {
     font-size: 11px;
     color: #777;
     margin-top: 6px;
+    padding: 0 12px 12px 12px;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -2282,6 +2324,14 @@ const STYLES = `
     justify-content: center;
     margin-bottom: 8px;
     overflow: hidden;
+  }
+
+  .frame-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 4px;
   }
 
   .frame-card-sample {

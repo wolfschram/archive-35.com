@@ -992,18 +992,27 @@ In Cloudflare Workers, once the Response is returned to the client, the Worker r
 2. Added `create_readiness_state_definition()` — creates new profile if none exist
 3. Added `get_or_create_readiness_state_id()` — orchestrator with in-memory caching
 4. Updated `create_listing()` to include `readiness_state_id` in the payload
+5. Updated `build_etsy_inventory_payload()` to include `readiness_state_id` on **every offering** (inventory update also requires it!)
+6. Replaced hardcoded `taxonomy_id` with `get_photography_taxonomy_id()` auto-discovery (old ID was stale)
+7. Removed invalid `"state": "draft"` from createDraftListing payload (not an accepted field)
+8. Added full error detail propagation so Etsy's actual error messages reach the UI
 
 **Prevention:**
 - **RULE: When an API returns a 400 about a "required" field, read the latest API docs FIRST.** Platform APIs change their required fields — especially Etsy, which has been migrating to processing profiles since Sept 2025.
-- **RULE: Cache shop-level Etsy config (readiness_state_id, shipping_profile_id) to avoid repeated API calls.** These rarely change.
+- **RULE: `readiness_state_id` is required in TWO places:** createDraftListing body AND every offering in updateListingInventory. Missing either causes a 400.
+- **RULE: Never hardcode Etsy taxonomy IDs.** They change. Auto-discover via `getSellerTaxonomyNodes` and cache.
+- **RULE: Cache shop-level Etsy config (readiness_state_id, shipping_profile_id, taxonomy_id) to avoid repeated API calls.** These rarely change.
 - **RULE: External API integrations need a "required fields" checklist that gets verified against current docs each session.**
+- **RULE: Error detail must propagate all the way to the UI.** Without the actual Etsy error message, debugging is blind guessing.
 
-**Related Files:** `Archive 35 Agent/src/integrations/etsy.py`
+**Related Files:** `Archive 35 Agent/src/integrations/etsy.py`, `Archive 35 Agent/src/brand/etsy_variations.py`, `Archive 35 Agent/src/api.py`
 
 ---
 
-49. **Etsy requires readiness_state_id for physical listings.** Create a processing profile via the API and include the ID in every createDraftListing call.
+49. **Etsy requires readiness_state_id for physical listings.** Include it in BOTH createDraftListing AND every offering in updateListingInventory.
 50. **Platform APIs change required fields without warning.** Always check current docs when you get a 400 on a previously-working call.
+51. **Never hardcode Etsy taxonomy IDs.** Use `getSellerTaxonomyNodes` to auto-discover and cache at runtime.
+52. **Error messages must reach the UI.** Strip nothing — the full API error detail is the only way to debug integration failures without guessing.
 
 ---
 

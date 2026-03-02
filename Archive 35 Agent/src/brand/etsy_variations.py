@@ -172,12 +172,15 @@ def build_variation_matrix(
 def build_etsy_inventory_payload(
     products: list[dict],
     quantity: int = 999,
+    readiness_state_id: Optional[int] = None,
 ) -> dict[str, Any]:
     """Convert a product matrix into the Etsy updateListingInventory API payload.
 
     Args:
         products: Output from build_variation_matrix()
         quantity: Stock quantity per variant (999 = unlimited for POD)
+        readiness_state_id: Required for physical listings (Etsy API late 2025+).
+            If None, will be auto-fetched from etsy.get_or_create_readiness_state_id().
 
     Returns:
         Dict matching the Etsy PUT /v3/application/listings/{id}/inventory schema:
@@ -188,9 +191,27 @@ def build_etsy_inventory_payload(
             "sku_on_property": []
         }
     """
+    # Auto-fetch readiness_state_id if not provided
+    if readiness_state_id is None:
+        from src.integrations.etsy import get_or_create_readiness_state_id
+        readiness_state_id = get_or_create_readiness_state_id()
+        if readiness_state_id:
+            logger.info("Auto-fetched readiness_state_id=%d for inventory payload", readiness_state_id)
+        else:
+            logger.warning("Could not get readiness_state_id — inventory update may fail")
+
     etsy_products = []
 
     for p in products:
+        offering = {
+            "price": round(p["etsy_price"], 2),
+            "quantity": quantity,
+            "is_enabled": p["is_enabled"],
+        }
+        # Etsy requires readiness_state_id on every offering for physical listings
+        if readiness_state_id is not None:
+            offering["readiness_state_id"] = readiness_state_id
+
         product_entry = {
             "property_values": [
                 {
@@ -204,13 +225,7 @@ def build_etsy_inventory_payload(
                     "values": [p["frame"]],
                 },
             ],
-            "offerings": [
-                {
-                    "price": round(p["etsy_price"], 2),
-                    "quantity": quantity,
-                    "is_enabled": p["is_enabled"],
-                },
-            ],
+            "offerings": [offering],
         }
         etsy_products.append(product_entry)
 

@@ -96,12 +96,13 @@ def add_banner(image, banner_height_ratio: float = BANNER_HEIGHT_RATIO):
     from PIL import Image, ImageDraw, ImageFont
 
     img_w, img_h = image.size
-    banner_h = max(int(img_h * banner_height_ratio), 60)
 
-    # For very wide images (panoramas), ensure banner is tall enough
-    # Minimum: 5% of width so text is always readable
-    min_banner_from_width = max(int(img_w * 0.05), 60)
-    banner_h = max(banner_h, min_banner_from_width)
+    # Banner height must match the room mockups (compositor.js).
+    # Room mockups are 2000x2000 with 10% = 200px banner.
+    # For panoramics (2000x850), percentage-of-height gives a tiny banner.
+    # Fix: use 10% of the LONGEST edge — same as a square mockup would use.
+    longest = max(img_w, img_h)
+    banner_h = max(int(longest * banner_height_ratio), 120)
 
     # Create banner as RGBA for transparency
     banner = Image.new("RGBA", (img_w, banner_h), (0, 0, 0, 0))

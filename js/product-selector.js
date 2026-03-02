@@ -1111,7 +1111,7 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
 
         frameGrid.innerHTML = frameHTML;
 
-        // Helper: update frame preview mockup
+        // Helper: update frame preview mockup with real textures
         function updateFramePreview() {
           if (!framePreviewSection) return;
           const previewImg = modal.querySelector('#frame-preview-image');
@@ -1131,33 +1131,57 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
             previewImg.src = thumbSrc;
           }
 
-          // Frame color
+          // Frame styling: use real moulding texture if available
           const frameInfo = mouldings[selectedFrame];
           const frameColor = frameInfo ? frameInfo.colorHex : '#333';
-          const frameColorStyle = frameInfo?.color === 'natural'
-            ? 'linear-gradient(135deg, #c4a882 0%, #a88960 40%, #d4b894 60%, #b89a72 100%)'
-            : frameColor;
+          const frameImgSrc = FRAME_IMAGES[selectedFrame] || '';
+          const frameWidth = 18; // px — visual frame border thickness
 
           if (previewOuter) {
-            previewOuter.style.background = frameColorStyle;
-            previewOuter.style.padding = '12px';
-            previewOuter.style.borderRadius = '4px';
-            previewOuter.style.boxShadow = '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)';
+            // Reset styles
+            previewOuter.style.borderImage = '';
+            previewOuter.style.border = '';
+            previewOuter.style.background = '';
+            previewOuter.style.padding = '';
+
+            if (frameImgSrc) {
+              // Use real frame moulding image as border texture
+              previewOuter.style.borderImage = `url('${frameImgSrc}') 80 stretch`;
+              previewOuter.style.borderWidth = `${frameWidth}px`;
+              previewOuter.style.borderStyle = 'solid';
+              previewOuter.style.padding = '0';
+            } else {
+              // Fallback: CSS color/gradient
+              const frameColorStyle = frameInfo?.color === 'natural'
+                ? 'linear-gradient(135deg, #c4a882 0%, #a88960 40%, #d4b894 60%, #b89a72 100%)'
+                : frameColor;
+              previewOuter.style.background = frameColorStyle;
+              previewOuter.style.padding = `${frameWidth}px`;
+            }
+            previewOuter.style.borderRadius = '2px';
+            previewOuter.style.boxShadow = '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)';
           }
 
-          // Mat border
+          // Mat border — proportional to selected width
           if (previewMat) {
             if (selectedMat && selectedMat !== 'none') {
               const matColor = selectedMat === 'blackmatboard' ? '#1a1a1a' : '#f5f5f0';
+              // Scale: 1" mat ≈ 8px, 5" mat ≈ 40px in preview
+              const matPx = Math.round(selectedMatWidth * 8);
               previewMat.style.background = matColor;
-              previewMat.style.padding = `${Math.max(8, selectedMatWidth * 6)}px`;
+              previewMat.style.padding = `${matPx}px`;
+              // Subtle bevel effect for matboard realism
+              previewMat.style.boxShadow = selectedMat === 'blackmatboard'
+                ? 'inset 0 1px 3px rgba(255,255,255,0.06)'
+                : 'inset 0 1px 3px rgba(0,0,0,0.08)';
             } else {
               previewMat.style.background = 'transparent';
               previewMat.style.padding = '0';
+              previewMat.style.boxShadow = 'none';
             }
           }
 
-          // Label
+          // Label: frame + mat description
           if (previewLabel) {
             let label = frameInfo ? frameInfo.name : '';
             if (selectedMat && selectedMat !== 'none') {
@@ -1200,10 +1224,13 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
                 <div class="mat-width-control" style="margin-top:8px;display:none;">
                   <label style="font-size:10px;color:#999;cursor:default;">Width:
                     <select class="mat-width-select" style="background:#333;color:#fff;border:1px solid #555;border-radius:4px;padding:2px 6px;font-size:11px;margin-left:4px;">
+                      <option value="0.5">½"</option>
                       <option value="1">1"</option>
+                      <option value="1.5">1½"</option>
                       <option value="2" selected>2"</option>
                       <option value="3">3"</option>
                       <option value="4">4"</option>
+                      <option value="5">5"</option>
                     </select>
                   </label>
                 </div>
@@ -1220,10 +1247,13 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
                 <div class="mat-width-control" style="margin-top:8px;display:none;">
                   <label style="font-size:10px;color:#999;cursor:default;">Width:
                     <select class="mat-width-select" style="background:#333;color:#fff;border:1px solid #555;border-radius:4px;padding:2px 6px;font-size:11px;margin-left:4px;">
+                      <option value="0.5">½"</option>
                       <option value="1">1"</option>
+                      <option value="1.5">1½"</option>
                       <option value="2" selected>2"</option>
                       <option value="3">3"</option>
                       <option value="4">4"</option>
+                      <option value="5">5"</option>
                     </select>
                   </label>
                 </div>
@@ -1274,7 +1304,7 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
           matGrid.querySelectorAll('.mat-width-select').forEach(sel => {
             sel.addEventListener('change', (e) => {
               e.stopPropagation();
-              selectedMatWidth = parseInt(sel.value) || 2;
+              selectedMatWidth = parseFloat(sel.value) || 2;
               if (matSummaryRow && selectedMat && selectedMat !== 'none') {
                 const matName = selectedMat === 'blackmatboard' ? 'Black Mat' : 'White Mat';
                 modal.querySelector('#summary-mat').textContent = `${selectedMatWidth}" ${matName}`;
@@ -2362,22 +2392,29 @@ const STYLES = `
     color: #c4973b;
   }
 
-  /* Phase 5: Frame Preview Mockup */
+  /* Phase 5: Frame Preview Mockup — Gallery Wall Simulation */
   .frame-preview-container {
-    background: #111;
+    background: linear-gradient(180deg, #1a1916 0%, #1e1c19 50%, #16150f 100%);
     border: 1px solid #333;
     border-radius: 8px;
-    padding: 24px;
+    padding: 32px 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-bottom: 24px;
+    position: relative;
+    /* Subtle wall texture noise */
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.03) 0%, transparent 70%),
+      linear-gradient(180deg, #1a1916 0%, #1e1c19 50%, #16150f 100%);
   }
 
   .frame-preview-outer {
     display: inline-block;
     max-width: 100%;
     transition: all 0.3s ease;
+    /* Drop shadow as if hanging on a wall */
+    filter: drop-shadow(0 12px 24px rgba(0,0,0,0.6)) drop-shadow(0 2px 4px rgba(0,0,0,0.4));
   }
 
   .frame-preview-mat {
@@ -2394,11 +2431,12 @@ const STYLES = `
   }
 
   .frame-preview-label {
-    margin-top: 12px;
-    font-size: 12px;
-    color: #999;
+    margin-top: 16px;
+    font-size: 11px;
+    color: #888;
     text-align: center;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
   }
 
   @media (max-width: 600px) {

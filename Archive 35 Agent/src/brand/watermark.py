@@ -7,10 +7,9 @@ Adds a semi-transparent bottom banner with:
   - "35" in gold (bold)
   - "ARCHIVE-35.COM" underneath in white
 
-Used on:
-  - Original photo before Etsy upload
-  - Generated framed mockup images
-  - Any other Etsy-bound images that need branding
+Used on the original photo before Etsy upload.
+The room mockup images get their banner from compositor.js (Sharp/SVG).
+Frame mockup images do NOT get a banner — the original photo carries the branding.
 """
 
 from __future__ import annotations
@@ -27,6 +26,9 @@ BANNER_BG_OPACITY = 191      # 75% of 255
 BANNER_BG_COLOR = (0, 0, 0)
 GOLD = (255, 215, 0)
 WHITE = (255, 255, 255)
+
+# Etsy max image size — resize before bannering so text is proportional
+ETSY_MAX_DIMENSION = 2000
 
 # Font paths — Liberation Sans is the Linux Helvetica equivalent
 FONT_LIGHT = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
@@ -62,11 +64,30 @@ def _load_bold_font(size: int):
     return ImageFont.load_default()
 
 
+def _resize_for_etsy(image):
+    """Resize image so longest edge is ETSY_MAX_DIMENSION.
+
+    Etsy displays at max 2000px. Resizing before bannering ensures
+    the text is proportionally correct — not microscopic on 13000px panoramas.
+    """
+    from PIL import Image
+
+    w, h = image.size
+    longest = max(w, h)
+    if longest <= ETSY_MAX_DIMENSION:
+        return image
+
+    scale = ETSY_MAX_DIMENSION / longest
+    new_w = int(w * scale)
+    new_h = int(h * scale)
+    return image.resize((new_w, new_h), Image.LANCZOS)
+
+
 def add_banner(image, banner_height_ratio: float = BANNER_HEIGHT_RATIO):
     """Add Archive-35 branding banner to the bottom of a PIL Image.
 
     Args:
-        image: PIL Image (RGB mode)
+        image: PIL Image (RGB mode). Should already be resized for Etsy.
         banner_height_ratio: Banner height as fraction of image height
 
     Returns:
@@ -75,7 +96,12 @@ def add_banner(image, banner_height_ratio: float = BANNER_HEIGHT_RATIO):
     from PIL import Image, ImageDraw, ImageFont
 
     img_w, img_h = image.size
-    banner_h = max(int(img_h * banner_height_ratio), 40)
+    banner_h = max(int(img_h * banner_height_ratio), 60)
+
+    # For very wide images (panoramas), ensure banner is tall enough
+    # Minimum: 5% of width so text is always readable
+    min_banner_from_width = max(int(img_w * 0.05), 60)
+    banner_h = max(banner_h, min_banner_from_width)
 
     # Create banner as RGBA for transparency
     banner = Image.new("RGBA", (img_w, banner_h), (0, 0, 0, 0))
@@ -86,9 +112,9 @@ def add_banner(image, banner_height_ratio: float = BANNER_HEIGHT_RATIO):
                    fill=(*BANNER_BG_COLOR, BANNER_BG_OPACITY))
 
     # Font sizes scale with banner height
-    main_font_size = max(int(banner_h * 0.36), 14)
-    num_font_size = max(int(main_font_size * 1.15), 16)
-    url_font_size = max(int(banner_h * 0.18), 10)
+    main_font_size = max(int(banner_h * 0.38), 18)
+    num_font_size = max(int(main_font_size * 1.20), 22)
+    url_font_size = max(int(banner_h * 0.20), 12)
 
     font_light = _load_font(FONT_LIGHT, main_font_size)
     font_bold = _load_bold_font(num_font_size)
@@ -109,15 +135,15 @@ def add_banner(image, banner_height_ratio: float = BANNER_HEIGHT_RATIO):
     url_w = url_bbox[2] - url_bbox[0]
 
     # Layout: "ARCHIVE  |  35" centered, with divider
-    gap = max(int(banner_h * 0.08), 4)       # gap between elements
-    divider_w = max(int(banner_h * 0.015), 1)  # divider line width
+    gap = max(int(banner_h * 0.10), 6)        # gap between elements
+    divider_w = max(int(banner_h * 0.02), 2)  # divider line width
 
     total_w = archive_w + gap + divider_w + gap + num_w
     start_x = (img_w - total_w) // 2
 
-    # Vertical positions
-    main_y = int(banner_h * 0.16)  # top line
-    url_y = int(banner_h * 0.68)   # bottom line
+    # Vertical positions — main text at ~20% from top, URL at ~72%
+    main_y = int(banner_h * 0.14)
+    url_y = int(banner_h * 0.68)
 
     # Draw "ARCHIVE" in white
     draw.text((start_x, main_y), archive_text,
@@ -125,15 +151,15 @@ def add_banner(image, banner_height_ratio: float = BANNER_HEIGHT_RATIO):
 
     # Draw gold divider line
     divider_x = start_x + archive_w + gap
-    divider_top = int(banner_h * 0.15)
-    divider_bottom = int(banner_h * 0.58)
+    divider_top = int(banner_h * 0.12)
+    divider_bottom = int(banner_h * 0.55)
     draw.line([(divider_x, divider_top), (divider_x, divider_bottom)],
               fill=(*GOLD, 255), width=divider_w)
 
-    # Draw "35" in gold
+    # Draw "35" in gold bold
     num_x = divider_x + divider_w + gap
-    # Vertically align "35" with "ARCHIVE" (adjust for different font sizes)
-    num_y_offset = int((main_font_size - num_font_size) * 0.3)
+    # Vertically align "35" baseline with "ARCHIVE"
+    num_y_offset = int((main_font_size - num_font_size) * 0.35)
     draw.text((num_x, main_y + num_y_offset), num_text,
               fill=(*GOLD, 255), font=font_bold)
 
@@ -153,14 +179,18 @@ def add_banner(image, banner_height_ratio: float = BANNER_HEIGHT_RATIO):
 def add_banner_to_file(
     input_path: str,
     output_path: Optional[str] = None,
-    jpeg_quality: int = 88,
+    jpeg_quality: int = 90,
 ) -> str:
-    """Add Archive-35 banner to an image file.
+    """Add Archive-35 banner to an image file for Etsy upload.
+
+    Resizes to Etsy max dimensions (2000px) first, then applies banner.
+    This ensures the banner text is proportionally correct regardless
+    of original photo resolution (even 13000px panoramas).
 
     Args:
         input_path: Path to input image
         output_path: Path to save result (default: overwrites input)
-        jpeg_quality: JPEG quality (default 88)
+        jpeg_quality: JPEG quality (default 90)
 
     Returns:
         Path to the output file
@@ -175,9 +205,14 @@ def add_banner_to_file(
         if img.mode != "RGB":
             img = img.convert("RGB")
 
+        # Resize to Etsy dimensions first — banner proportions depend on this
+        img = _resize_for_etsy(img)
+
         result = add_banner(img)
         result.save(output_path, "JPEG", quality=jpeg_quality)
-        logger.info("Added banner to %s → %s", Path(input_path).name, Path(output_path).name)
+        logger.info("Branded for Etsy: %s → %s (%dx%d)",
+                     Path(input_path).name, Path(output_path).name,
+                     result.size[0], result.size[1])
         return output_path
 
     except Exception as e:

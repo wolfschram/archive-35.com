@@ -86,9 +86,9 @@
       },
       "finishOptions": null,
       "edgeOptions": null,
-      "basePrice": 99,
-      "pricingExponent": 0.75,
-      "baseSize": 96,
+      "pricingMethod": "lookup_table",
+      "pricingNote": "Prices from PRICE_TABLE in product-selector.js (Pictorem API cost × 2, 50% margin, verified 2026-03-02)",
+      "startingPrice": 90,
       "hangReady": true,
       "needsFraming": false
     },
@@ -188,9 +188,9 @@
           "defaultBorderColor": "000000"
         }
       },
-      "basePrice": 82,
-      "pricingExponent": 0.75,
-      "baseSize": 96,
+      "pricingMethod": "lookup_table",
+      "pricingNote": "Prices from PRICE_TABLE in product-selector.js (Pictorem API cost × 2, 50% margin, verified 2026-03-02)",
+      "startingPrice": 90,
       "hangReady": true,
       "needsFraming": false
     },
@@ -287,9 +287,9 @@
       },
       "finishOptions": null,
       "edgeOptions": null,
-      "basePrice": 149,
-      "pricingExponent": 0.75,
-      "baseSize": 96,
+      "pricingMethod": "lookup_table",
+      "pricingNote": "Prices from PRICE_TABLE in product-selector.js (Pictorem API cost × 2, 50% margin, verified 2026-03-02)",
+      "startingPrice": 123,
       "hangReady": true,
       "needsFraming": false
     },
@@ -347,9 +347,9 @@
       "mountingOptions": null,
       "finishOptions": null,
       "edgeOptions": null,
-      "basePrice": 45,
-      "pricingExponent": 0.75,
-      "baseSize": 96,
+      "pricingMethod": "lookup_table",
+      "pricingNote": "Prices from PRICE_TABLE in product-selector.js (Pictorem API cost × 2, 50% margin, verified 2026-03-02)",
+      "startingPrice": 33,
       "hangReady": false,
       "needsFraming": true,
       "framingNote": "Paper prints ship rolled in a protective tube. Frame behind glass for display and protection."
@@ -393,9 +393,9 @@
       },
       "finishOptions": null,
       "edgeOptions": null,
-      "basePrice": 92,
-      "pricingExponent": 0.75,
-      "baseSize": 96,
+      "pricingMethod": "lookup_table",
+      "pricingNote": "Prices from PRICE_TABLE in product-selector.js (Pictorem API cost × 2, 50% margin, verified 2026-03-02)",
+      "startingPrice": 54,
       "hangReady": true,
       "needsFraming": false
     }
@@ -483,7 +483,7 @@
   "pricing": {
     "formula": "Math.round(basePrice * Math.pow(sizeInches / baseSize, pricingExponent))",
     "baseSizeInches": 96,
-    "note": "sizeInches = width * height in inches. Base size is 12x8 = 96 sq inches."
+    "note": "sizeInches = width * height in inches. Base size is 12x8 = 96 sq inches. Each material has its own pricingExponent tuned for ~50% margin over Pictorem wholesale cost. Base prices = 2× Pictorem cost at 12×8."
   },
 
   "preorderCodeFormat": {

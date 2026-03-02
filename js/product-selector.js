@@ -1131,33 +1131,38 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
             previewImg.src = thumbSrc;
           }
 
-          // Frame styling: use real moulding texture if available
+          // Frame styling: beveled CSS frame (realistic light/shadow)
           const frameInfo = mouldings[selectedFrame];
           const frameColor = frameInfo ? frameInfo.colorHex : '#333';
-          const frameImgSrc = FRAME_IMAGES[selectedFrame] || '';
           const frameWidth = 18; // px — visual frame border thickness
 
           if (previewOuter) {
-            // Reset styles
+            // Reset all frame styles
             previewOuter.style.borderImage = '';
             previewOuter.style.border = '';
             previewOuter.style.background = '';
             previewOuter.style.padding = '';
 
-            if (frameImgSrc) {
-              // Use real frame moulding image as border texture
-              previewOuter.style.borderImage = `url('${frameImgSrc}') 80 stretch`;
-              previewOuter.style.borderWidth = `${frameWidth}px`;
-              previewOuter.style.borderStyle = 'solid';
-              previewOuter.style.padding = '0';
+            // Beveled frame using graduated border colors
+            // Top/left = highlight, bottom/right = shadow (classic frame look)
+            const fc = frameInfo?.color || 'black';
+            let topC, rightC, bottomC, leftC, bgC;
+            if (fc === 'natural') {
+              topC = '#d4b894'; rightC = '#a88960'; bottomC = '#8a7050'; leftC = '#b89a72'; bgC = '#c4a882';
+            } else if (fc === 'white') {
+              topC = '#ffffff'; rightC = '#d8d8d3'; bottomC = '#c0c0bb'; leftC = '#e8e8e3'; bgC = '#f0f0eb';
             } else {
-              // Fallback: CSS color/gradient
-              const frameColorStyle = frameInfo?.color === 'natural'
-                ? 'linear-gradient(135deg, #c4a882 0%, #a88960 40%, #d4b894 60%, #b89a72 100%)'
-                : frameColor;
-              previewOuter.style.background = frameColorStyle;
-              previewOuter.style.padding = `${frameWidth}px`;
+              // Black and default
+              topC = '#444'; rightC = '#1a1a1a'; bottomC = '#0a0a0a'; leftC = '#2a2a2a'; bgC = '#222';
             }
+            previewOuter.style.borderStyle = 'solid';
+            previewOuter.style.borderWidth = `${frameWidth}px`;
+            previewOuter.style.borderTopColor = topC;
+            previewOuter.style.borderRightColor = rightC;
+            previewOuter.style.borderBottomColor = bottomC;
+            previewOuter.style.borderLeftColor = leftC;
+            previewOuter.style.background = bgC;
+            previewOuter.style.padding = '0';
             previewOuter.style.borderRadius = '2px';
             previewOuter.style.boxShadow = '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)';
           }

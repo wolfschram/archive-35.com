@@ -433,6 +433,57 @@ function AgentEtsyListings() {
                       </div>
                     )}
 
+                    {/* Image budget info — Etsy allows 10 images total */}
+                    <div style={{
+                      marginBottom: '16px', padding: '12px 16px',
+                      background: 'rgba(212, 165, 116, 0.06)',
+                      border: '1px solid rgba(212, 165, 116, 0.2)',
+                      borderRadius: 'var(--radius-sm)',
+                    }}>
+                      <div style={{
+                        fontSize: '11px', color: 'var(--text-secondary)',
+                        textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px',
+                        fontWeight: 600,
+                      }}>
+                        Image Budget (10 max)
+                      </div>
+                      <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{
+                            display: 'inline-block', width: '10px', height: '10px',
+                            borderRadius: '50%', background: 'var(--accent)',
+                          }}></span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-primary)' }}>
+                            5 mockups <span style={{ color: 'var(--text-muted)' }}>(you select)</span>
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{
+                            display: 'inline-block', width: '10px', height: '10px',
+                            borderRadius: '50%', background: 'var(--success)',
+                          }}></span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-primary)' }}>
+                            1 original photo <span style={{ color: 'var(--text-muted)' }}>(auto)</span>
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{
+                            display: 'inline-block', width: '10px', height: '10px',
+                            borderRadius: '50%', background: '#f1641e',
+                          }}></span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-primary)' }}>
+                            4 material images <span style={{ color: 'var(--text-muted)' }}>(auto-attached)</span>
+                          </span>
+                        </div>
+                      </div>
+                      <div style={{
+                        marginTop: '8px', fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.5,
+                      }}>
+                        Material images are automatically added and linked to Material &amp; Size variations.
+                        Frame/mat/border options are set as personalization fields.
+                      </div>
+                    </div>
+
                     {/* SKU table */}
                     {photoSkus.length > 0 && (
                       <div>

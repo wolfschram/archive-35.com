@@ -2169,29 +2169,42 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
     try:
         # Look up photo dimensions for DPI calculations
         photo_w, photo_h = 6000, 4000  # Safe defaults for high-res
-        image_urls = []
+        image_paths = []  # Local files (original photo — reliable, no URL guessing)
+        image_urls = []   # Remote URLs (mockups from localhost, etc.)
+        original_photo_url = None  # Track the frontend's URL for the original photo (for dedup)
+
         if req.photo_id and req.photo_id != "__mockup__":
+            repo_root = Path(__file__).resolve().parent.parent.parent
+
             if req.photo_id.startswith("fs:"):
-                # Filesystem photo — derive collection/filename from ID
+                # Filesystem photo — resolve to local file for direct upload
                 fs_rel = req.photo_id[3:]  # "Hawaii/sunset.jpg"
                 parts = fs_rel.split("/", 1)
-                collection = (parts[0] if len(parts) > 1 else "").lower()  # URL paths are lowercase
+                collection = (parts[0] if len(parts) > 1 else "").lower()
                 filename = parts[1] if len(parts) > 1 else parts[0]
-                # Try to get actual dimensions from the file
+
+                # Get actual dimensions from the file
+                photo_path = repo_root / "photography" / fs_rel
                 try:
                     from PIL import Image as _PILImage
-                    repo_root = Path(__file__).resolve().parent.parent.parent
-                    img = _PILImage.open(repo_root / "photography" / fs_rel)
+                    img = _PILImage.open(photo_path)
                     photo_w, photo_h = img.size
                     img.close()
                 except Exception:
                     pass  # Keep 6000x4000 defaults
-                # Build image URL
+
+                # Upload original directly from disk (no URL guessing)
+                if photo_path.exists():
+                    image_paths.append(str(photo_path))
+                    logger.info("Original photo from filesystem: %s (%dx%d)", photo_path.name, photo_w, photo_h)
+                else:
+                    logger.warning("Original photo not found on disk: %s", photo_path)
+
+                # Track the URL the frontend would have for dedup
                 if collection and filename:
                     base = filename.rsplit(".", 1)[0] if "." in filename else filename
-                    image_urls.append(
-                        f"https://archive-35.com/images/{collection}/{base}-full.jpg"
-                    )
+                    original_photo_url = f"https://archive-35.com/images/{collection}/{base}-full.jpg"
+
             else:
                 # DB photo lookup
                 photo = conn.execute(
@@ -2201,28 +2214,54 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
                     photo = dict(photo)
                     photo_w = photo.get("width") or 6000
                     photo_h = photo.get("height") or 4000
-                    collection = (photo.get("collection", "") or "").lower()  # URL paths are lowercase
+                    collection = (photo.get("collection", "") or "").lower()
                     filename = photo.get("filename", "")
+
+                    # Try local file first
                     if collection and filename:
+                        photo_path = repo_root / "photography" / photo.get("collection", "") / filename
+                        if photo_path.exists():
+                            image_paths.append(str(photo_path))
+                            logger.info("Original photo from DB+disk: %s (%dx%d)", photo_path.name, photo_w, photo_h)
+                        else:
+                            # Fall back to URL
+                            base = filename.rsplit(".", 1)[0] if "." in filename else filename
+                            image_urls.append(
+                                f"https://archive-35.com/images/{collection}/{base}-full.jpg"
+                            )
+                            logger.info("Original photo from URL (file not on disk): %s", image_urls[-1])
+
+                        # Track frontend URL for dedup
                         base = filename.rsplit(".", 1)[0] if "." in filename else filename
-                        image_urls.append(
-                            f"https://archive-35.com/images/{collection}/{base}-full.jpg"
-                        )
+                        original_photo_url = f"https://archive-35.com/images/{collection}/{base}-full.jpg"
 
         # Add all images from Compose selection (mockups + original photo)
+        # Skip the original photo URL if we already have it as a local file
         for url in req.image_urls:
-            if url and url.startswith('http') and url not in image_urls:
-                image_urls.append(url)
+            if not url or not url.startswith('http'):
+                continue
+            if url in image_urls:
+                continue
+            # Skip the original photo URL — we're uploading from disk instead
+            if original_photo_url and url == original_photo_url:
+                continue
+            image_urls.append(url)
 
         # Legacy: single image_url field (backwards compat)
         if req.image_url and req.image_url not in image_urls:
-            image_urls.append(req.image_url)
+            if not (original_photo_url and req.image_url == original_photo_url):
+                image_urls.append(req.image_url)
+
+        logger.info("Etsy image plan: %d local files + %d URLs", len(image_paths), len(image_urls))
 
         # Validate title length
         title = (req.title or "Fine Art Photography Print")[:140]
 
         # Build description with copyright footer
         description = req.description or ""
+        description += "\n\n— FRAMING OPTIONS —"
+        description += "\nThe last 3 images show this print in our Black, White, and Natural Wood frames."
+        description += "\nUse the personalization field to select your frame, mat, and border preferences."
         description += "\n\n© Wolfgang Schram / Archive-35 Studio"
         description += "\nAll prints are made-to-order and shipped directly from our professional print lab."
 
@@ -2240,6 +2279,7 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
             tags=tags,
             photo_width=photo_w,
             photo_height=photo_h,
+            image_paths=image_paths if image_paths else None,
             image_urls=image_urls if image_urls else None,
             shipping_profile_id=req.shipping_profile_id,
             min_dpi=req.min_dpi,

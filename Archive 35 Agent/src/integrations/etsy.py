@@ -1124,29 +1124,93 @@ def create_full_listing(
             logger.info("Uploaded image %d/%d for listing %s",
                         rank, len(all_images), listing_id)
 
-    # Step 3b: Auto-attach frame reference images
-    # These are always appended after the user's mockups — no manual selection needed.
-    # Maps frame_key → uploaded image_id for variation linking in Step 4b.
+    # Step 3b: Generate and upload framed mockup images
+    # Instead of raw moulding close-ups, generate actual mockups showing
+    # the photo inside each frame type. Much more useful for customers.
     frame_image_ids = {}
     next_rank = len(uploaded_images) + 1
-    project_root = Path(__file__).parent.parent.parent.parent  # repo root
 
-    for frame_key in FRAME_IMAGES_FOR_ETSY:
-        img_rel_path = FRAME_IMAGES.get(frame_key)
-        if not img_rel_path:
-            continue
-        img_abs_path = str(project_root / img_rel_path)
-        frame_result = upload_listing_image_from_file(listing_id, img_abs_path, rank=next_rank)
-        if "error" in frame_result:
-            logger.error("Frame image upload failed (%s): %s", frame_key, frame_result["error"])
-        else:
-            image_id = frame_result.get("listing_image_id")
-            if image_id:
-                frame_image_ids[frame_key] = image_id
-                logger.info("Auto-attached %s frame image (rank %d, image_id %s)",
-                            frame_key, next_rank, image_id)
-            uploaded_images.append(frame_result)
-            next_rank += 1
+    # Find the original photo file for mockup generation
+    original_photo_path = None
+    if image_paths:
+        original_photo_path = image_paths[0]
+    elif image_urls:
+        # Try to find a local file from the first URL
+        # (mockups are localhost URLs — skip those, look for real photos)
+        for url in (image_urls or []):
+            if url.startswith("https://archive-35.com/images/"):
+                # Derive local path: images/{collection}/{base}-full.jpg → photography/{Collection}/{base}.jpg
+                # This is best-effort; if it fails, we skip frame mockups
+                parts = url.replace("https://archive-35.com/images/", "").split("/")
+                if len(parts) >= 2:
+                    project_root = Path(__file__).parent.parent.parent.parent
+                    # Try photography/ directory (case-insensitive search)
+                    for d in project_root.glob("photography/*/"):
+                        if d.name.lower() == parts[0].lower():
+                            base_name = parts[1].replace("-full.jpg", "")
+                            for ext in [".jpg", ".JPG", ".jpeg", ".png"]:
+                                candidate = d / f"{base_name}{ext}"
+                                if candidate.exists():
+                                    original_photo_path = str(candidate)
+                                    break
+                        if original_photo_path:
+                            break
+                break
+
+    if original_photo_path:
+        try:
+            from src.brand.frame_mockups import generate_framed_mockups, FRAME_PRESETS
+            mockup_paths = generate_framed_mockups(
+                original_photo_path,
+                frame_keys=FRAME_IMAGES_FOR_ETSY,
+            )
+            for frame_key in FRAME_IMAGES_FOR_ETSY:
+                mockup_path = mockup_paths.get(frame_key)
+                if not mockup_path:
+                    continue
+                frame_result = upload_listing_image_from_file(listing_id, mockup_path, rank=next_rank)
+                if "error" in frame_result:
+                    logger.error("Frame mockup upload failed (%s): %s", frame_key, frame_result["error"])
+                else:
+                    image_id = frame_result.get("listing_image_id")
+                    if image_id:
+                        frame_image_ids[frame_key] = image_id
+                        logger.info("Auto-attached %s frame mockup (rank %d, image_id %s)",
+                                    frame_key, next_rank, image_id)
+                    uploaded_images.append(frame_result)
+                    next_rank += 1
+        except Exception as e:
+            logger.error("Frame mockup generation failed: %s", e)
+            # Fall back to static frame images
+            logger.info("Falling back to static frame reference images")
+            project_root = Path(__file__).parent.parent.parent.parent
+            for frame_key in FRAME_IMAGES_FOR_ETSY:
+                img_rel_path = FRAME_IMAGES.get(frame_key)
+                if not img_rel_path:
+                    continue
+                img_abs_path = str(project_root / img_rel_path)
+                frame_result = upload_listing_image_from_file(listing_id, img_abs_path, rank=next_rank)
+                if "error" not in frame_result:
+                    image_id = frame_result.get("listing_image_id")
+                    if image_id:
+                        frame_image_ids[frame_key] = image_id
+                    uploaded_images.append(frame_result)
+                    next_rank += 1
+    else:
+        logger.warning("No original photo available — falling back to static frame images")
+        project_root = Path(__file__).parent.parent.parent.parent
+        for frame_key in FRAME_IMAGES_FOR_ETSY:
+            img_rel_path = FRAME_IMAGES.get(frame_key)
+            if not img_rel_path:
+                continue
+            img_abs_path = str(project_root / img_rel_path)
+            frame_result = upload_listing_image_from_file(listing_id, img_abs_path, rank=next_rank)
+            if "error" not in frame_result:
+                image_id = frame_result.get("listing_image_id")
+                if image_id:
+                    frame_image_ids[frame_key] = image_id
+                uploaded_images.append(frame_result)
+                next_rank += 1
 
     logger.info("Total images uploaded: %d (user: %d, frames: %d)",
                 len(uploaded_images),

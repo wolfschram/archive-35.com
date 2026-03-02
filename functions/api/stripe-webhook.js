@@ -174,6 +174,14 @@ function buildPreorderCode(material, printWidth, printHeight, subOptions = {}) {
     parts.push(...additionals);
   }
 
+  // Phase 5: Append mat/border if selected (before frame code)
+  // Mat types: whitematboard, blackmatboard, whitespace — with width in inches
+  const matType = subOptions.mat || '';
+  const matWidth = subOptions.matWidth || '';
+  if (matType && matType !== 'none' && matWidth) {
+    parts.push(matType, String(matWidth));
+  }
+
   // Phase 4: Append frame moulding code if selected
   // Floating frames (canvas/metal/acrylic): mountingType = 'moulding'
   // Picture frames (paper): mountingType = 'frame'
@@ -1016,6 +1024,8 @@ export async function onRequestPost(context) {
       finish: metadata.finish || '',
       edge: metadata.edge || '',
       frame: metadata.frame || '',
+      mat: metadata.mat || '',
+      matWidth: metadata.matWidth || '',
     };
     const preorderCode = buildPreorderCode(material, printWidth, printHeight, subOptions);
     console.log('Pictorem preorder code:', preorderCode, '| sub-options:', JSON.stringify(subOptions));
@@ -1183,6 +1193,7 @@ export async function onRequestPost(context) {
       subOptions.finish ? `Finish: ${subOptions.finish}` : '',
       subOptions.edge ? `Edge: ${subOptions.edge}` : '',
       subOptions.frame ? `Frame: ${subOptions.frame}` : '',
+      subOptions.mat && subOptions.mat !== 'none' ? `Mat: ${subOptions.mat} ${subOptions.matWidth}"` : '',
     ].filter(Boolean).join(' · ') || 'defaults';
 
     const orderDetails = {

@@ -163,6 +163,9 @@ export async function onRequestPost(context) {
       params.append('metadata[edge]', pictorem.edge || '');
       // Phase 4: Frame moulding code (e.g., '303-19' for floating, '241-29' for picture)
       params.append('metadata[frame]', pictorem.frame || '');
+      // Phase 5: Mat/border options
+      params.append('metadata[mat]', pictorem.mat || '');
+      params.append('metadata[matWidth]', String(pictorem.matWidth || ''));
     }
 
     if (license) {

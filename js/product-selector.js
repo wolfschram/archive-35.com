@@ -165,6 +165,8 @@ let selectedMounting = null;
 let selectedFinish = null;
 let selectedEdge = null;
 let selectedFrame = null; // Phase 4: optional frame moulding code (e.g., '303-19')
+let selectedMat = null;   // Phase 5: mat/border option ('none', 'whitematboard', 'blackmatboard')
+let selectedMatWidth = 2; // Phase 5: mat width in inches (default 2")
 
 /**
  * Load product catalog JSON. Called once on first modal open.
@@ -403,6 +405,24 @@ function createProductSelectorModal(photoData) {
           <div class="sub-option-grid" id="frame-grid"></div>
         </div>
 
+        <div id="mat-section" class="sub-option-section" style="display:none;">
+          <h3>Border / Mat <span style="font-size:0.75em;color:#888;">(optional)</span></h3>
+          <div class="sub-option-grid" id="mat-grid"></div>
+        </div>
+
+        <!-- Frame Preview Mockup -->
+        <div id="frame-preview-section" style="display:none;">
+          <h3 style="margin:0 0 12px;font-size:14px;color:#c4973b;text-transform:uppercase;letter-spacing:1px;">Preview</h3>
+          <div id="frame-preview-container" class="frame-preview-container">
+            <div id="frame-preview-outer" class="frame-preview-outer">
+              <div id="frame-preview-mat" class="frame-preview-mat">
+                <img id="frame-preview-image" class="frame-preview-image" src="" alt="Preview" />
+              </div>
+            </div>
+            <div id="frame-preview-label" class="frame-preview-label"></div>
+          </div>
+        </div>
+
         <!-- Size Selection -->
         <div class="size-section">
           <h3 id="size-step-heading">Step 2: Choose Size</h3>
@@ -436,6 +456,10 @@ function createProductSelectorModal(photoData) {
           <div class="summary-row" id="summary-frame-row" style="display:none;">
             <span>Frame:</span>
             <span id="summary-frame">—</span>
+          </div>
+          <div class="summary-row" id="summary-mat-row" style="display:none;">
+            <span>Border/Mat:</span>
+            <span id="summary-mat">—</span>
           </div>
           <div class="summary-row">
             <span>Size:</span>
@@ -618,6 +642,8 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
   selectedFinish = null;
   selectedEdge = null;
   selectedFrame = null;
+  selectedMat = null;
+  selectedMatWidth = 2;
 
   // ── Tab switching ────────────────────────────────────────────────
   const tabs = modal.querySelectorAll('.selector-tab');
@@ -840,17 +866,25 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
     const edgeGrid = modal.querySelector('#edge-grid');
     const frameGrid = modal.querySelector('#frame-grid');
 
+    const matSection = modal.querySelector('#mat-section');
+    const matGrid = modal.querySelector('#mat-grid');
+    const framePreviewSection = modal.querySelector('#frame-preview-section');
+
     // Reset all sub-option sections
-    [subtypeSection, mountingSection, finishSection, edgeSection, frameSection].forEach(s => { if (s) s.style.display = 'none'; });
+    [subtypeSection, mountingSection, finishSection, edgeSection, frameSection, matSection].forEach(s => { if (s) s.style.display = 'none'; });
     [subtypeGrid, mountingGrid, finishGrid, edgeGrid, frameGrid].forEach(g => { if (g) g.innerHTML = ''; });
+    if (matGrid) matGrid.innerHTML = '';
+    if (framePreviewSection) framePreviewSection.style.display = 'none';
     selectedSubtype = null;
     selectedMounting = null;
     selectedFinish = null;
     selectedEdge = null;
     selectedFrame = null;
+    selectedMat = null;
+    selectedMatWidth = 2;
 
     // Hide summary rows
-    ['summary-subtype-row', 'summary-mounting-row', 'summary-finish-row', 'summary-edge-row', 'summary-frame-row'].forEach(id => {
+    ['summary-subtype-row', 'summary-mounting-row', 'summary-finish-row', 'summary-edge-row', 'summary-frame-row', 'summary-mat-row'].forEach(id => {
       const row = modal.querySelector('#' + id);
       if (row) row.style.display = 'none';
     });
@@ -1002,10 +1036,9 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
       });
     }
 
-    // Render frame options (Phase 4)
+    // Render frame options (Phase 4+5: visual cards, mat/border, preview mockup)
     if (PRODUCT_CATALOG && PRODUCT_CATALOG.frameOptions && PRODUCT_CATALOG.frameOptions.enabled) {
       const frameOpts = PRODUCT_CATALOG.frameOptions;
-      // Determine which frame type applies to this material
       let frameType = null;
       let mouldings = null;
       if (frameOpts.floatingFrames && frameOpts.floatingFrames.applicableMaterials.includes(materialKey)) {
@@ -1018,34 +1051,224 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
 
       if (mouldings && frameSection && frameGrid) {
         frameSection.style.display = '';
-        // Build frame cards: "No Frame" + each moulding option
+
+        // Build enhanced visual frame cards
         let frameHTML = `
-          <div class="sub-option-card selected" data-frame-code="">
+          <div class="frame-visual-card selected" data-frame-code="">
             <input type="radio" name="frame" value="" checked />
             <label>
-              <div class="sub-option-name">No Frame</div>
-              <div class="sub-option-desc">Print only — ${frameType === 'picture' ? 'ships rolled in tube' : 'ready to hang as-is'}</div>
+              <div class="frame-card-preview" style="background:#222;border:2px dashed #444;">
+                <span style="color:#666;font-size:11px;">No Frame</span>
+              </div>
+              <div class="frame-card-name">Print Only</div>
+              <div class="frame-card-price">Included</div>
             </label>
           </div>
         `;
-        frameHTML += Object.entries(mouldings).map(([code, frame]) => `
-          <div class="sub-option-card" data-frame-code="${code}">
-            <input type="radio" name="frame" value="${code}" />
-            <label>
-              <div class="sub-option-name">
-                <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${frame.colorHex};border:1px solid #555;vertical-align:middle;margin-right:6px;"></span>
-                ${frame.name}${frame.recommended ? ' <span class="rec-badge">Recommended</span>' : ''}
+
+        frameHTML += Object.entries(mouldings).map(([code, frame]) => {
+          // CSS frame preview strip: a visual representation of the moulding
+          const frameStrip = `
+            <div class="frame-card-preview">
+              <div class="frame-card-sample" style="
+                background: ${frame.colorHex};
+                ${frame.color === 'natural' ? 'background: linear-gradient(135deg, #c4a882 0%, #a88960 40%, #d4b894 60%, #b89a72 100%);' : ''}
+                ${frame.color === 'white' ? 'background: linear-gradient(135deg, #f5f5f0 0%, #e8e8e3 50%, #f5f5f0 100%);' : ''}
+                ${frame.color === 'black' ? 'background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #333 100%);' : ''}
+              ">
+                <div class="frame-card-inner-preview"></div>
               </div>
-              <div class="sub-option-desc">${frame.description}</div>
-            </label>
-          </div>
-        `).join('');
+            </div>`;
+          return `
+            <div class="frame-visual-card" data-frame-code="${code}">
+              <input type="radio" name="frame" value="${code}" />
+              <label>
+                ${frameStrip}
+                <div class="frame-card-name">${frame.name}${frame.recommended ? ' <span class="rec-badge">Rec</span>' : ''}</div>
+                <div class="frame-card-price" id="frame-price-${code}">+ pricing by size</div>
+              </label>
+            </div>`;
+        }).join('');
+
         frameGrid.innerHTML = frameHTML;
 
-        // Click handlers for frame cards
-        frameGrid.querySelectorAll('.sub-option-card').forEach(card => {
+        // Helper: update frame preview mockup
+        function updateFramePreview() {
+          if (!framePreviewSection) return;
+          const previewImg = modal.querySelector('#frame-preview-image');
+          const previewOuter = modal.querySelector('#frame-preview-outer');
+          const previewMat = modal.querySelector('#frame-preview-mat');
+          const previewLabel = modal.querySelector('#frame-preview-label');
+
+          if (!selectedFrame) {
+            framePreviewSection.style.display = 'none';
+            return;
+          }
+
+          // Show preview with photo thumbnail
+          framePreviewSection.style.display = '';
+          const thumbSrc = photoData.thumbnail || photoData.thumbUrl || '';
+          if (previewImg && thumbSrc) {
+            previewImg.src = thumbSrc;
+          }
+
+          // Frame color
+          const frameInfo = mouldings[selectedFrame];
+          const frameColor = frameInfo ? frameInfo.colorHex : '#333';
+          const frameColorStyle = frameInfo?.color === 'natural'
+            ? 'linear-gradient(135deg, #c4a882 0%, #a88960 40%, #d4b894 60%, #b89a72 100%)'
+            : frameColor;
+
+          if (previewOuter) {
+            previewOuter.style.background = frameColorStyle;
+            previewOuter.style.padding = '12px';
+            previewOuter.style.borderRadius = '4px';
+            previewOuter.style.boxShadow = '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)';
+          }
+
+          // Mat border
+          if (previewMat) {
+            if (selectedMat && selectedMat !== 'none') {
+              const matColor = selectedMat === 'blackmatboard' ? '#1a1a1a' : '#f5f5f0';
+              previewMat.style.background = matColor;
+              previewMat.style.padding = `${Math.max(8, selectedMatWidth * 6)}px`;
+            } else {
+              previewMat.style.background = 'transparent';
+              previewMat.style.padding = '0';
+            }
+          }
+
+          // Label
+          if (previewLabel) {
+            let label = frameInfo ? frameInfo.name : '';
+            if (selectedMat && selectedMat !== 'none') {
+              const matName = selectedMat === 'blackmatboard' ? 'Black Mat' : 'White Mat';
+              label += ` + ${selectedMatWidth}" ${matName}`;
+            }
+            previewLabel.textContent = label;
+          }
+        }
+
+        // Helper: show/hide mat section based on frame selection
+        function updateMatSection() {
+          if (!matSection || !matGrid) return;
+          if (!selectedFrame) {
+            matSection.style.display = 'none';
+            selectedMat = null;
+            const matRow = modal.querySelector('#summary-mat-row');
+            if (matRow) matRow.style.display = 'none';
+            return;
+          }
+
+          // Show mat options when a frame is selected
+          matSection.style.display = '';
+          matGrid.innerHTML = `
+            <div class="sub-option-card selected" data-mat-type="none">
+              <input type="radio" name="mat" value="none" checked />
+              <label>
+                <div class="sub-option-name">No Border</div>
+                <div class="sub-option-desc">Print fills the frame edge to edge</div>
+              </label>
+            </div>
+            <div class="sub-option-card" data-mat-type="whitematboard">
+              <input type="radio" name="mat" value="whitematboard" />
+              <label>
+                <div class="sub-option-name">
+                  <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#f5f5f0;border:1px solid #555;vertical-align:middle;margin-right:4px;"></span>
+                  White Mat
+                </div>
+                <div class="sub-option-desc">Acid-free matboard with beveled window. Classic gallery look.</div>
+                <div class="mat-width-control" style="margin-top:8px;display:none;">
+                  <label style="font-size:10px;color:#999;cursor:default;">Width:
+                    <select class="mat-width-select" style="background:#333;color:#fff;border:1px solid #555;border-radius:4px;padding:2px 6px;font-size:11px;margin-left:4px;">
+                      <option value="1">1"</option>
+                      <option value="2" selected>2"</option>
+                      <option value="3">3"</option>
+                      <option value="4">4"</option>
+                    </select>
+                  </label>
+                </div>
+              </label>
+            </div>
+            <div class="sub-option-card" data-mat-type="blackmatboard">
+              <input type="radio" name="mat" value="blackmatboard" />
+              <label>
+                <div class="sub-option-name">
+                  <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#1a1a1a;border:1px solid #555;vertical-align:middle;margin-right:4px;"></span>
+                  Black Mat
+                </div>
+                <div class="sub-option-desc">Dramatic contrast for high-impact photography.</div>
+                <div class="mat-width-control" style="margin-top:8px;display:none;">
+                  <label style="font-size:10px;color:#999;cursor:default;">Width:
+                    <select class="mat-width-select" style="background:#333;color:#fff;border:1px solid #555;border-radius:4px;padding:2px 6px;font-size:11px;margin-left:4px;">
+                      <option value="1">1"</option>
+                      <option value="2" selected>2"</option>
+                      <option value="3">3"</option>
+                      <option value="4">4"</option>
+                    </select>
+                  </label>
+                </div>
+              </label>
+            </div>
+          `;
+
+          selectedMat = null;
+          const matSummaryRow = modal.querySelector('#summary-mat-row');
+          if (matSummaryRow) matSummaryRow.style.display = 'none';
+
+          // Mat click handlers
+          matGrid.querySelectorAll('.sub-option-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+              // Don't steal click from select dropdown
+              if (e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION') return;
+              matGrid.querySelectorAll('.sub-option-card').forEach(c => c.classList.remove('selected'));
+              card.classList.add('selected');
+              card.querySelector('input').checked = true;
+              selectedMat = card.dataset.matType;
+
+              // Show/hide width controls
+              matGrid.querySelectorAll('.mat-width-control').forEach(ctrl => ctrl.style.display = 'none');
+              if (selectedMat && selectedMat !== 'none') {
+                const widthCtrl = card.querySelector('.mat-width-control');
+                if (widthCtrl) widthCtrl.style.display = '';
+              }
+
+              // Update summary
+              if (matSummaryRow) {
+                if (selectedMat && selectedMat !== 'none') {
+                  matSummaryRow.style.display = '';
+                  const matName = selectedMat === 'blackmatboard' ? 'Black Mat' : 'White Mat';
+                  modal.querySelector('#summary-mat').textContent = `${selectedMatWidth}" ${matName}`;
+                } else {
+                  matSummaryRow.style.display = 'none';
+                }
+              }
+
+              updateFramePreview();
+              if (selectedSize) {
+                updatePriceSummary(modal, selectedMaterial, selectedSize, photoData);
+              }
+            });
+          });
+
+          // Mat width change handlers
+          matGrid.querySelectorAll('.mat-width-select').forEach(sel => {
+            sel.addEventListener('change', (e) => {
+              e.stopPropagation();
+              selectedMatWidth = parseInt(sel.value) || 2;
+              if (matSummaryRow && selectedMat && selectedMat !== 'none') {
+                const matName = selectedMat === 'blackmatboard' ? 'Black Mat' : 'White Mat';
+                modal.querySelector('#summary-mat').textContent = `${selectedMatWidth}" ${matName}`;
+              }
+              updateFramePreview();
+            });
+          });
+        }
+
+        // Frame card click handlers
+        frameGrid.querySelectorAll('.frame-visual-card').forEach(card => {
           card.addEventListener('click', () => {
-            frameGrid.querySelectorAll('.sub-option-card').forEach(c => c.classList.remove('selected'));
+            frameGrid.querySelectorAll('.frame-visual-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             card.querySelector('input').checked = true;
             selectedFrame = card.dataset.frameCode || null;
@@ -1053,17 +1276,36 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
             const frameSummary = modal.querySelector('#summary-frame');
             if (selectedFrame && mouldings[selectedFrame]) {
               frameRow.style.display = '';
-              frameSummary.textContent = mouldings[selectedFrame].name;
+              const addonPrice = selectedSize ? getFrameAddOnPrice(selectedSize) : null;
+              frameSummary.textContent = mouldings[selectedFrame].name + (addonPrice ? ` (+$${addonPrice})` : '');
             } else {
               frameRow.style.display = 'none';
               frameSummary.textContent = '—';
             }
-            // Re-calculate price with frame add-on
+            updateMatSection();
+            updateFramePreview();
             if (selectedSize) {
               updatePriceSummary(modal, selectedMaterial, selectedSize, photoData);
             }
           });
         });
+
+        // Store updateFramePreview so it can be called from size selection
+        modal._updateFramePreview = updateFramePreview;
+        // Store a function to update frame addon prices when size is selected
+        modal._updateFrameAddonPrices = function(size) {
+          if (!size) return;
+          const addonPrice = getFrameAddOnPrice(size);
+          Object.keys(mouldings).forEach(code => {
+            const priceEl = modal.querySelector(`#frame-price-${code}`);
+            if (priceEl) priceEl.textContent = `+ $${addonPrice}`;
+          });
+          // Also update frame summary if frame selected
+          const frameSummary = modal.querySelector('#summary-frame');
+          if (selectedFrame && mouldings[selectedFrame] && frameSummary) {
+            frameSummary.textContent = mouldings[selectedFrame].name + ` (+$${addonPrice})`;
+          }
+        };
       }
     }
 
@@ -1192,11 +1434,21 @@ function updatePriceSummary(modal, materialKey, size, photoData) {
   if (selectedFrame) {
     price += getFrameAddOnPrice(size);
   }
+  // Phase 5: Mat has no additional cost per Pictorem API (included in frame addon)
 
   modal.querySelector('#summary-size').textContent =
     `${size.width}" × ${size.height}"`;
   modal.querySelector('#summary-quality').textContent = quality ? quality.level : '—';
   modal.querySelector('#summary-price').textContent = `$${price}`;
+
+  // Update frame addon prices for selected size
+  if (modal._updateFrameAddonPrices) {
+    modal._updateFrameAddonPrices(size);
+  }
+  // Update frame preview
+  if (modal._updateFramePreview) {
+    modal._updateFramePreview();
+  }
 }
 
 // ============================================================================
@@ -1232,6 +1484,8 @@ function addToCart(photoData, materialKey, size) {
       finish: selectedFinish || '',
       edge: selectedEdge || '',
       frame: selectedFrame || '',
+      mat: selectedMat || '',
+      matWidth: selectedMat && selectedMat !== 'none' ? selectedMatWidth.toString() : '',
       width: size.width.toString(),
       height: size.height.toString(),
       originalPhotoWidth: dimensions.width.toString(),
@@ -1278,7 +1532,7 @@ function initiateStripeCheckout(photoData, materialKey, size) {
       currency: 'usd',
       product_data: {
         name: `${title} - ${material.name}`,
-        description: `${size.width}" × ${size.height}" Print${selectedFrame ? ' + Frame' : ''}`,
+        description: `${size.width}" × ${size.height}" Print${selectedFrame ? ' + Frame' : ''}${selectedMat && selectedMat !== 'none' ? ' + ' + selectedMatWidth + '" Mat' : ''}`,
         metadata: {
           photoId: id,
           material: materialKey,
@@ -1320,6 +1574,8 @@ function initiateStripeCheckout(photoData, materialKey, size) {
       finish: selectedFinish || '',
       edge: selectedEdge || '',
       frame: selectedFrame || '',
+      mat: selectedMat || '',
+      matWidth: selectedMat && selectedMat !== 'none' ? selectedMatWidth : 0,
       dimensions: {
         width: size.width,
         height: size.height,
@@ -1985,6 +2241,116 @@ const STYLES = `
     vertical-align: middle;
   }
 
+  /* Phase 5: Visual Frame Cards */
+  .frame-visual-card {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .frame-visual-card input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .frame-visual-card label {
+    display: block;
+    padding: 10px;
+    border: 2px solid #333;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #222;
+    text-align: center;
+  }
+
+  .frame-visual-card:hover label {
+    border-color: #555;
+  }
+
+  .frame-visual-card.selected label,
+  .frame-visual-card input[type='radio']:checked + label {
+    border-color: #c4973b;
+    background: rgba(196, 151, 59, 0.1);
+  }
+
+  .frame-card-preview {
+    width: 100%;
+    height: 64px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .frame-card-sample {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+  }
+
+  .frame-card-inner-preview {
+    width: 60%;
+    height: 70%;
+    background: #0a0a0a;
+    border-radius: 2px;
+  }
+
+  .frame-card-name {
+    font-weight: 600;
+    font-size: 12px;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+
+  .frame-card-price {
+    font-size: 11px;
+    color: #c4973b;
+  }
+
+  /* Phase 5: Frame Preview Mockup */
+  .frame-preview-container {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .frame-preview-outer {
+    display: inline-block;
+    max-width: 100%;
+    transition: all 0.3s ease;
+  }
+
+  .frame-preview-mat {
+    display: inline-block;
+    transition: all 0.3s ease;
+    line-height: 0;
+  }
+
+  .frame-preview-image {
+    max-width: 280px;
+    max-height: 200px;
+    display: block;
+    object-fit: contain;
+  }
+
+  .frame-preview-label {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+
   @media (max-width: 600px) {
     .product-selector-content {
       width: 95%;
@@ -2006,6 +2372,11 @@ const STYLES = `
     .selector-tab {
       padding: 8px 14px;
       font-size: 11px;
+    }
+
+    .frame-preview-image {
+      max-width: 200px;
+      max-height: 150px;
     }
   }
 `;

@@ -4588,7 +4588,7 @@ function agentApiProxy(apiPath, options = {}) {
       reject(new Error(`Agent API unreachable: ${err.message}`));
     });
 
-    req.setTimeout(30000, () => {
+    req.setTimeout(90000, () => {
       req.destroy();
       reject(new Error('Agent API request timed out'));
     });

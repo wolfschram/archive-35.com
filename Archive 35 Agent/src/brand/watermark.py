@@ -30,21 +30,30 @@ WHITE = (255, 255, 255)
 # Etsy max image size — resize before bannering so text is proportional
 ETSY_MAX_DIMENSION = 2000
 
-# Font paths — Liberation Sans is the Linux Helvetica equivalent
-FONT_LIGHT = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
-FONT_BOLD = "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf"
-FONT_FALLBACK = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
-FONT_FALLBACK_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+# Font paths — macOS first (where the Agent actually runs), Linux fallbacks
+import platform as _platform
+if _platform.system() == "Darwin":
+    # macOS — Helvetica Neue is pre-installed on every Mac
+    FONT_LIGHT = "/System/Library/Fonts/HelveticaNeue.ttc"
+    FONT_BOLD = "/System/Library/Fonts/HelveticaNeue.ttc"
+    FONT_FALLBACK = "/System/Library/Fonts/Helvetica.ttc"
+    FONT_FALLBACK_BOLD = "/System/Library/Fonts/Helvetica.ttc"
+else:
+    # Linux — Liberation Sans (Helvetica equivalent)
+    FONT_LIGHT = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
+    FONT_BOLD = "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf"
+    FONT_FALLBACK = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+    FONT_FALLBACK_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
 
-def _load_font(path: str, size: int):
-    """Load a TrueType font with fallback."""
+def _load_font(path: str, size: int, index: int = 0):
+    """Load a TrueType font with fallback. Handles .ttc collections."""
     from PIL import ImageFont
 
     try:
-        return ImageFont.truetype(path, size)
+        return ImageFont.truetype(path, size, index=index)
     except (IOError, OSError):
-        logger.warning("Font not found: %s, trying fallback", path)
+        logger.warning("Font not found: %s (index %d), trying fallback", path, index)
         try:
             return ImageFont.truetype(FONT_FALLBACK, size)
         except (IOError, OSError):
@@ -53,8 +62,21 @@ def _load_font(path: str, size: int):
 
 
 def _load_bold_font(size: int):
-    """Load bold font with fallback chain."""
+    """Load bold font with fallback chain.
+
+    For macOS .ttc files: HelveticaNeue.ttc index 0 = Regular, index ~8 = Bold.
+    PIL handles .ttc index selection. We try bold index first, then regular.
+    """
     from PIL import ImageFont
+    import platform
+
+    if platform.system() == "Darwin":
+        # macOS: HelveticaNeue.ttc — try bold face (index varies, try common ones)
+        for idx in [8, 4, 1, 0]:
+            try:
+                return ImageFont.truetype(FONT_BOLD, size, index=idx)
+            except (IOError, OSError, IndexError):
+                continue
 
     for p in [FONT_BOLD, FONT_FALLBACK_BOLD, FONT_FALLBACK]:
         try:

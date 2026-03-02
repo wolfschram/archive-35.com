@@ -657,6 +657,75 @@ def get_or_create_readiness_state_id() -> Optional[int]:
     return _cached_readiness_state_id
 
 
+# ── Return Policy Management ─────────────────────────────────────────────
+# Archive-35 prints are custom-made (POD) — no returns or exchanges.
+
+_cached_return_policy_id: Optional[int] = None
+
+
+def get_return_policies() -> dict[str, Any]:
+    """Get shop return policies."""
+    creds = get_credentials()
+    shop_id = creds.get("shop_id")
+    if not shop_id:
+        return {"error": "ETSY_SHOP_ID not configured"}
+    return _api_request(f"/application/shops/{shop_id}/policies/return")
+
+
+def create_no_returns_policy() -> dict[str, Any]:
+    """Create a 'no returns, no exchanges' return policy.
+
+    All Archive-35 prints are made-to-order (POD) — returns not accepted.
+    """
+    creds = get_credentials()
+    shop_id = creds.get("shop_id")
+    if not shop_id:
+        return {"error": "ETSY_SHOP_ID not configured"}
+    return _api_request(
+        f"/application/shops/{shop_id}/policies/return",
+        method="POST",
+        data={
+            "accepts_returns": False,
+            "accepts_exchanges": False,
+        },
+    )
+
+
+def get_or_create_no_returns_policy_id() -> Optional[int]:
+    """Get a 'no returns' return_policy_id, creating one if needed.
+
+    Caches the result for the process lifetime.
+    """
+    global _cached_return_policy_id
+    if _cached_return_policy_id is not None:
+        return _cached_return_policy_id
+
+    # Look for existing no-returns policy
+    existing = get_return_policies()
+    results = existing.get("results", [])
+    for policy in results:
+        if not policy.get("accepts_returns") and not policy.get("accepts_exchanges"):
+            _cached_return_policy_id = policy.get("return_policy_id")
+            logger.info("Found existing no-returns policy: %s", _cached_return_policy_id)
+            return _cached_return_policy_id
+
+    # None found — create one
+    logger.info("No 'no returns' policy found — creating one")
+    created = create_no_returns_policy()
+    if "error" in created:
+        logger.error("Failed to create no-returns policy: %s", created)
+        # Fall back to any existing policy
+        if results:
+            _cached_return_policy_id = results[0].get("return_policy_id")
+            logger.warning("Falling back to existing policy: %s", _cached_return_policy_id)
+            return _cached_return_policy_id
+        return None
+
+    _cached_return_policy_id = created.get("return_policy_id")
+    logger.info("Created no-returns policy: %s", _cached_return_policy_id)
+    return _cached_return_policy_id
+
+
 # ── Listing Management ───────────────────────────────────────────────────
 
 def create_listing(
@@ -746,6 +815,13 @@ def create_listing(
         listing_data["readiness_state_id"] = readiness_id
     else:
         return {"error": "Could not get or create a readiness_state_id. Check Etsy API access."}
+
+    # Return policy — POD prints are custom, no returns accepted.
+    return_policy_id = get_or_create_no_returns_policy_id()
+    if return_policy_id:
+        listing_data["return_policy_id"] = return_policy_id
+    else:
+        logger.warning("Could not set no-returns policy — listing will use shop default")
 
     # Log the exact payload for debugging (redact nothing — we need to see it all)
     logger.info("createDraftListing payload: %s", json.dumps(listing_data, indent=2))
@@ -1328,9 +1404,9 @@ def upload_listing_image_from_file(
 # These show customers what each frame option looks like around the print.
 # Paths are relative to the project root.
 FRAME_IMAGES = {
-    "black":        "images/products/frame-303-12.jpg",
-    "white":        "images/products/frame-317-22.jpg",
-    "natural_wood":  "images/products/frame-241-29.jpg",
+    "black":        "images/products/frame-303-19.jpg",   # Black frame border (full square view)
+    "white":        "images/products/frame-241-22.jpg",   # White moulding cross-section
+    "natural_wood":  "images/products/frame-303-12.jpg",   # Natural wood corner (grain visible)
 }
 
 # Display names matching FRAME_OPTIONS in etsy_variations.py
@@ -1353,20 +1429,10 @@ MOCKUP_SLOTS = ETSY_MAX_IMAGES - FRAME_IMAGE_SLOTS - 1  # = 6 mockups + 1 origin
 # Etsy multi-personalization (available April 2026 GA).
 # Until then, use the legacy personalization field with instructions.
 PERSONALIZATION_INSTRUCTIONS = (
-    "Please specify your customization preferences:\n\n"
-    "1. FRAME STYLE (if applicable):\n"
-    "   - Black Picture Frame\n"
-    "   - White Picture Frame\n"
-    "   - Natural Wood Frame\n"
-    "   - No Frame (print only)\n\n"
-    "2. MAT / BORDER (for framed prints):\n"
-    "   - White Mat\n"
-    "   - Black Mat\n"
-    "   - No Mat (edge to edge)\n\n"
-    "3. MAT WIDTH (if mat selected):\n"
-    "   - 0.5\" / 1\" / 1.5\" / 2\" / 3\" / 4\" / 5\"\n"
-    "   - Default: 2\" if not specified\n\n"
-    "If no preferences specified, print ships unframed."
+    "Frame: Black / White / Natural Wood / None\n"
+    "Mat: White / Black / None\n"
+    "Mat Width: 0.5-5 inches (default 2\")\n\n"
+    "No selection = unframed print only."
 )
 
 # For Etsy multi-personalization API (Q2 2026):

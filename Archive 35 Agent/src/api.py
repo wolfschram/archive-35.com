@@ -2175,7 +2175,7 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
                 # Filesystem photo — derive collection/filename from ID
                 fs_rel = req.photo_id[3:]  # "Hawaii/sunset.jpg"
                 parts = fs_rel.split("/", 1)
-                collection = parts[0] if len(parts) > 1 else ""
+                collection = (parts[0] if len(parts) > 1 else "").lower()  # URL paths are lowercase
                 filename = parts[1] if len(parts) > 1 else parts[0]
                 # Try to get actual dimensions from the file
                 try:
@@ -2201,7 +2201,7 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
                     photo = dict(photo)
                     photo_w = photo.get("width") or 6000
                     photo_h = photo.get("height") or 4000
-                    collection = photo.get("collection", "")
+                    collection = (photo.get("collection", "") or "").lower()  # URL paths are lowercase
                     filename = photo.get("filename", "")
                     if collection and filename:
                         base = filename.rsplit(".", 1)[0] if "." in filename else filename

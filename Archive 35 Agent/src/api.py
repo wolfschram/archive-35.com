@@ -2193,10 +2193,20 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
                 except Exception:
                     pass  # Keep 6000x4000 defaults
 
-                # Upload original directly from disk (no URL guessing)
+                # Upload original directly from disk — with Archive-35 banner
                 if photo_path.exists():
-                    image_paths.append(str(photo_path))
-                    logger.info("Original photo from filesystem: %s (%dx%d)", photo_path.name, photo_w, photo_h)
+                    try:
+                        from src.brand.watermark import add_banner_to_file
+                        import tempfile
+                        tmp_dir = tempfile.mkdtemp(prefix="a35_etsy_orig_")
+                        branded_path = str(Path(tmp_dir) / f"branded-{photo_path.name}")
+                        add_banner_to_file(str(photo_path), branded_path)
+                        image_paths.append(branded_path)
+                        logger.info("Original photo branded + queued: %s (%dx%d)", photo_path.name, photo_w, photo_h)
+                    except Exception as e:
+                        logger.warning("Banner failed, uploading raw original: %s", e)
+                        image_paths.append(str(photo_path))
+                        logger.info("Original photo from filesystem: %s (%dx%d)", photo_path.name, photo_w, photo_h)
                 else:
                     logger.warning("Original photo not found on disk: %s", photo_path)
 
@@ -2217,12 +2227,22 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
                     collection = (photo.get("collection", "") or "").lower()
                     filename = photo.get("filename", "")
 
-                    # Try local file first
+                    # Try local file first — with Archive-35 banner
                     if collection and filename:
                         photo_path = repo_root / "photography" / photo.get("collection", "") / filename
                         if photo_path.exists():
-                            image_paths.append(str(photo_path))
-                            logger.info("Original photo from DB+disk: %s (%dx%d)", photo_path.name, photo_w, photo_h)
+                            try:
+                                from src.brand.watermark import add_banner_to_file
+                                import tempfile
+                                tmp_dir = tempfile.mkdtemp(prefix="a35_etsy_orig_")
+                                branded_path = str(Path(tmp_dir) / f"branded-{photo_path.name}")
+                                add_banner_to_file(str(photo_path), branded_path)
+                                image_paths.append(branded_path)
+                                logger.info("Original photo (DB) branded + queued: %s (%dx%d)", photo_path.name, photo_w, photo_h)
+                            except Exception as e:
+                                logger.warning("Banner failed for DB photo, uploading raw: %s", e)
+                                image_paths.append(str(photo_path))
+                                logger.info("Original photo from DB+disk: %s (%dx%d)", photo_path.name, photo_w, photo_h)
                         else:
                             # Fall back to URL
                             base = filename.rsplit(".", 1)[0] if "." in filename else filename

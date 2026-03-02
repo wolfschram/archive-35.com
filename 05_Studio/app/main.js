@@ -3990,9 +3990,19 @@ ipcMain.handle('load-about-content', async () => {
     const aboutPath = path.join(ARCHIVE_BASE, 'data', 'about.json');
     const raw = await fs.readFile(aboutPath, 'utf-8');
     const data = JSON.parse(raw);
-    // Provide local file:// URL for portrait preview (avoids SSL errors)
+    // Provide base64 data URL for portrait preview (file:// blocked by Electron security)
     if (data.photoPath) {
-      data.localPhotoUrl = `file://${path.join(ARCHIVE_BASE, data.photoPath)}`;
+      try {
+        const imgAbsPath = path.join(ARCHIVE_BASE, data.photoPath);
+        const imgBuf = await fs.readFile(imgAbsPath);
+        const ext = path.extname(data.photoPath).toLowerCase();
+        const mime = ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : 'image/jpeg';
+        data.localPhotoUrl = `data:${mime};base64,${imgBuf.toString('base64')}`;
+      } catch (imgErr) {
+        console.warn('Could not read portrait image for preview:', imgErr.message);
+        // Fall back to the live website URL
+        data.localPhotoUrl = `https://archive-35.com/${data.photoPath}`;
+      }
     }
     return data;
   } catch (err) {

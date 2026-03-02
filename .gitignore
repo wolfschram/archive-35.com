@@ -57,3 +57,34 @@ Archive-35_Agent_Handover*.docx
 07_C2PA/*.key
 07_C2PA/ca/
 mockups/
+
+# ===========================================
+# NOT WEBSITE — DO NOT TRACK IN GIT
+# These stay on Wolf's machine only.
+# ===========================================
+
+# Stale build output (complete duplicate of live site)
+_site/
+
+# Etsy listing exports — local workflow only (machine → Etsy)
+06_Automation/etsy-export/
+
+# Licensing watermarked images — generated locally
+09_Licensing/
+
+# Mockup room templates — Studio tool, not web content
+templates/
+
+# Hospitality mockups and docs — not served by website
+hospitalety/
+
+# Shared docs — not web content
+Shared for Archive 35/
+
+# Session handoff docs (generated per session)
+*_Session_Handoff_*.docx
+*_Session_Handover_*.docx
+Frame_Material_Border_Research.docx
+
+# Any generated .docx in repo root
+/*.docx

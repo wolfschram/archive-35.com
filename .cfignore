@@ -17,10 +17,23 @@ Photography/
 
 # Dev/build artifacts
 _CLAUDE/
+_site/
 _files_to_delete/
 archive35-context-folder/
 memory/
 website documents /
+
+# Not website content
+09_Licensing/
+Shared for Archive 35/
+templates/
+hospitalety/
+Archive 35 Agent/
+Editor integration in studio/
+AI driven templates/
+Tax paperwork/
+mockup-service/
+test-reports/
 
 # Scripts & config not needed in deploy
 *.py

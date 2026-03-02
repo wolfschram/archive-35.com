@@ -104,40 +104,53 @@ const ASPECT_RATIO_CATEGORIES = {
 };
 
 // ============================================================================
-// MATERIALS & BASE PRICING
+// MATERIALS
 // ============================================================================
 
 const MATERIALS = {
   canvas: {
     name: 'Canvas',
-    basePrice: 82,
     maxInches: 2400,
     description: 'Museum-quality canvas wrap with professional stretching'
   },
   metal: {
     name: 'Metal',
-    basePrice: 99,
     maxInches: 2400,
-    description: 'Vibrant metal print with aluminum coating'
+    description: 'Vibrant ChromaLuxe HD metal with standoff mounting'
   },
   acrylic: {
     name: 'Acrylic',
-    basePrice: 149,
     maxInches: 2400,
     description: 'Premium acrylic with stunning color depth'
   },
   paper: {
     name: 'Fine Art Paper',
-    basePrice: 45,
     maxInches: 2400,
     description: 'Archival fine art paper with matte finish'
   },
   wood: {
     name: 'Wood',
-    basePrice: 92,
     maxInches: 2400,
     description: 'Rustic wood print on premium plywood'
   }
+};
+
+// ============================================================================
+// PRICE LOOKUP TABLE — Based on REAL Pictorem API costs (2026-03-02)
+// retail = round(Pictorem_cost × 2) → exact 50% margin on every size
+// Metal: HD subtype + standoff mounting (default)
+// Acrylic: ac220 + standoff mounting (default)
+// Canvas: gallery wrap (semigloss, mirror edge, 1.5" depth)
+// Paper: fine art paper bare
+// Wood: rustic plywood bare (french cleat is free)
+// ============================================================================
+
+const PRICE_TABLE = {
+  canvas: { '12x8': 101, '16x9': 109, '12x12': 90, '16x12': 98, '18x12': 120, '24x10': 124, '24x12': 113, '20x16': 137, '24x14': 140, '24x16': 129, '20x20': 151, '24x18': 156, '36x12': 137, '42x12': 168, '36x15': 174, '32x18': 179, '36x18': 191, '48x16': 192, '36x24': 208, '56x16': 232, '30x30': 214, '60x15': 233, '48x20': 242, '48x24': 255, '40x30': 282, '60x20': 282, '48x27': 298, '72x18': 459, '60x25': 331, '48x32': 337, '60x40': 640 },
+  metal: { '12x8': 90, '16x9': 110, '12x12': 110, '16x12': 130, '18x12': 140, '24x10': 150, '24x12': 170, '20x16': 183, '24x14': 190, '24x16': 210, '20x20': 217, '24x18': 230, '36x12': 230, '42x12': 260, '36x15': 275, '32x18': 290, '36x18': 320, '48x16': 370, '36x24': 409, '56x16': 423, '30x30': 424, '60x15': 424, '48x20': 449, '48x24': 529, '40x30': 549, '60x20': 549, '48x27': 589, '72x18': 750, '60x25': 674, '48x32': 689, '60x40': 1209 },
+  acrylic: { '12x8': 123, '16x9': 142, '12x12': 142, '16x12': 160, '18x12': 170, '24x10': 179, '24x12': 197, '20x16': 210, '24x14': 216, '24x16': 234, '20x20': 240, '24x18': 253, '36x12': 253, '42x12': 281, '36x15': 294, '32x18': 308, '36x18': 336, '48x16': 382, '36x24': 419, '56x16': 432, '30x30': 433, '60x15': 433, '48x20': 456, '48x24': 530, '40x30': 549, '60x20': 549, '48x27': 586, '72x18': 747, '60x25': 664, '48x32': 678, '60x40': 1173 },
+  paper: { '12x8': 33, '16x9': 37, '12x12': 37, '16x12': 42, '18x12': 44, '24x10': 46, '24x12': 50, '20x16': 53, '24x14': 54, '24x16': 59, '20x20': 60, '24x18': 63, '36x12': 63, '42x12': 69, '36x15': 72, '32x18': 75, '36x18': 82, '48x16': 92, '36x24': 101, '56x16': 104, '30x30': 104, '60x15': 104, '48x20': 109, '48x24': 126, '40x30': 131, '60x20': 131, '48x27': 139, '72x18': 139, '60x25': 157, '48x32': 160, '60x40': 237 },
+  wood: { '12x8': 54, '16x9': 66, '12x12': 66, '16x12': 79, '18x12': 85, '24x10': 92, '24x12': 104, '20x16': 113, '24x14': 117, '24x16': 130, '20x20': 134, '24x18': 143, '36x12': 143, '42x12': 162, '36x15': 171, '32x18': 181, '36x18': 200, '48x16': 231, '36x24': 257, '56x16': 265, '30x30': 266, '60x15': 266, '48x20': 282, '48x24': 333, '40x30': 346, '60x20': 346, '48x27': 371, '72x18': 533, '60x25': 425, '48x32': 435, '60x40': 825 },
 };
 
 // ============================================================================
@@ -172,20 +185,23 @@ async function loadProductCatalog() {
 }
 
 // ============================================================================
-// PRICING CALCULATION
+// PRICING CALCULATION — Lookup table (exact 50% margin per API data)
 // ============================================================================
 
-function calculatePrice(materialKey, sizeInches) {
-  const material = MATERIALS[materialKey];
-  if (!material) return 0;
-
-  // Price scales with area using a logarithmic curve
-  // Base price for base size (smallest), increases with area
-  const baseSize = 96; // 12x8
-  const ratio = sizeInches / baseSize;
-  const scaleFactor = Math.pow(ratio, 0.75); // Sub-linear scaling
-
-  return Math.round(material.basePrice * scaleFactor);
+function calculatePrice(materialKey, sizeInches, width, height) {
+  // Primary: exact lookup from PRICE_TABLE
+  const sizeKey = `${width}x${height}`;
+  if (PRICE_TABLE[materialKey] && PRICE_TABLE[materialKey][sizeKey]) {
+    return PRICE_TABLE[materialKey][sizeKey];
+  }
+  // Fallback: try reversed dimensions (portrait vs landscape)
+  const altKey = `${height}x${width}`;
+  if (PRICE_TABLE[materialKey] && PRICE_TABLE[materialKey][altKey]) {
+    return PRICE_TABLE[materialKey][altKey];
+  }
+  // Emergency fallback: should never hit this with complete table
+  console.warn(`[ARCHIVE-35] Price lookup miss: ${materialKey} ${sizeKey} (${sizeInches} sq in)`);
+  return 0;
 }
 
 // ============================================================================
@@ -340,11 +356,11 @@ function createProductSelectorModal(photoData) {
             ${Object.entries(MATERIALS)
               .map(
                 ([key, material]) => {
-                  const fromText = key === 'paper' ? 'from $45' :
-                                   key === 'canvas' ? 'from $82' :
-                                   key === 'wood' ? 'from $92' :
-                                   key === 'metal' ? 'from $99' :
-                                   key === 'acrylic' ? 'from $149' : '';
+                  const fromText = key === 'paper' ? 'from $33' :
+                                   key === 'wood' ? 'from $54' :
+                                   key === 'metal' ? 'from $90' :
+                                   key === 'canvas' ? 'from $90' :
+                                   key === 'acrylic' ? 'from $123' : '';
                   const hangReady = (key !== 'paper') ? '<span class="hang-ready-tag">Hang Ready</span>' : '<span class="needs-frame-tag">Needs Framing</span>';
                   return `
               <div class="material-option" data-material="${key}">
@@ -1122,7 +1138,7 @@ function populateSizes(container, sizes, photoData, materialKey, modal, onSelect
     .map((size) => {
       const dpi = calculateDPI(photoWidth, photoHeight, size.width, size.height);
       const quality = getQualityBadge(dpi);
-      const price = calculatePrice(materialKey, size.inches);
+      const price = calculatePrice(materialKey, size.inches, size.width, size.height);
 
       // Skip if quality is too low
       if (!quality) {
@@ -1155,22 +1171,23 @@ function populateSizes(container, sizes, photoData, materialKey, modal, onSelect
   });
 }
 
-// Phase 4: Frame add-on pricing (approximate, based on Pictorem getprice data)
+// Phase 4: Frame add-on pricing (~20% margin over estimated Pictorem frame cost)
 function getFrameAddOnPrice(size) {
+  // Frame addon tiers: ~20% margin over Pictorem frame cost (API-verified 2026-03-02)
   const area = size.width * size.height;
-  if (area <= 144) return 60;       // 12x12 and under
-  if (area <= 288) return 70;       // up to 24x12
-  if (area <= 480) return 80;       // up to 30x16
-  if (area <= 864) return 100;      // up to 36x24
-  if (area <= 1536) return 130;     // up to 48x32
-  return 160;                        // 60x40 and up
+  if (area <= 144) return 65;       // 12x12 and under (est cost ~$53)
+  if (area <= 288) return 75;       // up to 24x12 (est cost ~$60)
+  if (area <= 480) return 85;       // up to 24x16 (API cost $68)
+  if (area <= 864) return 130;      // up to 36x24 (API cost $102)
+  if (area <= 1536) return 170;     // up to 48x32 (API cost $136)
+  return 235;                        // 60x40 and up (est cost ~$188)
 }
 
 function updatePriceSummary(modal, materialKey, size, photoData) {
   const { width: photoWidth, height: photoHeight } = photoData.dimensions;
   const dpi = calculateDPI(photoWidth, photoHeight, size.width, size.height);
   const quality = getQualityBadge(dpi);
-  let price = calculatePrice(materialKey, size.inches);
+  let price = calculatePrice(materialKey, size.inches, size.width, size.height);
   // Phase 4: Add frame cost if selected
   if (selectedFrame) {
     price += getFrameAddOnPrice(size);
@@ -1189,7 +1206,7 @@ function updatePriceSummary(modal, materialKey, size, photoData) {
 function addToCart(photoData, materialKey, size) {
   const { id, title, thumbnail, dimensions } = photoData;
   const material = MATERIALS[materialKey];
-  let price = calculatePrice(materialKey, size.inches);
+  let price = calculatePrice(materialKey, size.inches, size.width, size.height);
   if (selectedFrame) {
     price += getFrameAddOnPrice(size);
   }
@@ -1249,7 +1266,7 @@ function addToCart(photoData, materialKey, size) {
 function initiateStripeCheckout(photoData, materialKey, size) {
   const { id, title, dimensions } = photoData;
   const material = MATERIALS[materialKey];
-  let price = calculatePrice(materialKey, size.inches);
+  let price = calculatePrice(materialKey, size.inches, size.width, size.height);
   if (selectedFrame) {
     price += getFrameAddOnPrice(size);
   }

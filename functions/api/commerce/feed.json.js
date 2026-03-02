@@ -8,12 +8,26 @@
  */
 
 const MATERIALS = {
-  canvas: { name: 'Canvas', basePrice: 105 },
-  metal: { name: 'Metal', basePrice: 130 },
-  acrylic: { name: 'Acrylic', basePrice: 195 },
-  paper: { name: 'Fine Art Paper', basePrice: 60 },
-  wood: { name: 'Wood', basePrice: 120 }
+  canvas: { name: 'Canvas' },
+  metal: { name: 'Metal' },
+  acrylic: { name: 'Acrylic' },
+  paper: { name: 'Fine Art Paper' },
+  wood: { name: 'Wood' }
 };
+
+// Price lookup table — real Pictorem API costs × 2 (50% margin, verified 2026-03-02)
+const PRICE_TABLE = {
+  canvas: { '12x8': 101, '18x12': 120, '24x16': 129, '36x24': 208, '48x32': 337, '60x40': 640 },
+  metal: { '12x8': 90, '18x12': 140, '24x16': 210, '36x24': 409, '48x32': 689, '60x40': 1209 },
+  acrylic: { '12x8': 123, '18x12': 170, '24x16': 234, '36x24': 419, '48x32': 678, '60x40': 1173 },
+  paper: { '12x8': 33, '18x12': 44, '24x16': 59, '36x24': 101, '48x32': 160, '60x40': 237 },
+  wood: { '12x8': 54, '18x12': 85, '24x16': 130, '36x24': 257, '48x32': 435, '60x40': 825 },
+};
+
+function lookupPrice(materialKey, w, h) {
+  const key = `${w}x${h}`;
+  return (PRICE_TABLE[materialKey] && PRICE_TABLE[materialKey][key]) || 0;
+}
 
 const STANDARD_SIZES = [
   { width: 12, height: 8, label: '12" x 8"' },
@@ -23,12 +37,6 @@ const STANDARD_SIZES = [
   { width: 48, height: 32, label: '48" x 32"' },
   { width: 60, height: 40, label: '60" x 40"' }
 ];
-
-function calculatePrice(basePrice, sizeInches) {
-  const baseSize = 96;
-  const ratio = sizeInches / baseSize;
-  return Math.round(basePrice * Math.pow(ratio, 0.75));
-}
 
 export async function onRequestGet(context) {
   const headers = {
@@ -65,7 +73,8 @@ export async function onRequestGet(context) {
           ));
 
           if (dpi >= 150) {
-            const priceUsd = calculatePrice(mat.basePrice, sizeInches);
+            const priceUsd = lookupPrice(matKey, size.width, size.height);
+            if (!priceUsd) continue;
             const priceCents = priceUsd * 100;
             if (priceUsd < minPrice) minPrice = priceUsd;
             if (priceUsd > maxPrice) maxPrice = priceUsd;

@@ -1025,22 +1025,21 @@ def create_full_listing(
 
     logger.info("Created draft listing %s", listing_id)
 
-    # Step 3: Upload images
+    # Step 3: Upload user-selected images (mockups + original photo)
+    # Budget: max MOCKUP_SLOTS mockups + 1 original photo
     uploaded_images = []
     all_images = []
     if image_paths:
-        all_images.extend(("path", p) for p in image_paths)
+        all_images.extend(("path", p) for p in image_paths[:MOCKUP_SLOTS + 1])
     if image_urls:
-        all_images.extend(("url", u) for u in image_urls)
+        remaining = (MOCKUP_SLOTS + 1) - len(all_images)
+        all_images.extend(("url", u) for u in image_urls[:remaining])
 
     for rank, (img_type, img_source) in enumerate(all_images, start=1):
         if img_type == "url":
             img_result = upload_listing_image(listing_id, img_source, rank=rank)
         else:
-            # For local paths, read the file and we'd need a file upload variant
-            # For now, skip local paths (TODO: add file upload support)
-            logger.warning("Local file upload not yet supported: %s", img_source)
-            continue
+            img_result = upload_listing_image_from_file(listing_id, img_source, rank=rank)
 
         if "error" in img_result:
             logger.error("Image upload %d failed: %s", rank, img_result["error"])
@@ -1048,6 +1047,35 @@ def create_full_listing(
             uploaded_images.append(img_result)
             logger.info("Uploaded image %d/%d for listing %s",
                         rank, len(all_images), listing_id)
+
+    # Step 3b: Auto-attach material reference images
+    # These are always appended after the user's mockups — no manual selection needed.
+    # Maps material_key → uploaded image_id for variation linking in Step 4b.
+    material_image_ids = {}
+    next_rank = len(uploaded_images) + 1
+    project_root = Path(__file__).parent.parent.parent.parent  # repo root
+
+    for mat_key in MATERIAL_IMAGES_FOR_ETSY:
+        img_rel_path = MATERIAL_IMAGES.get(mat_key)
+        if not img_rel_path:
+            continue
+        img_abs_path = str(project_root / img_rel_path)
+        mat_result = upload_listing_image_from_file(listing_id, img_abs_path, rank=next_rank)
+        if "error" in mat_result:
+            logger.error("Material image upload failed (%s): %s", mat_key, mat_result["error"])
+        else:
+            image_id = mat_result.get("listing_image_id")
+            if image_id:
+                material_image_ids[mat_key] = image_id
+                logger.info("Auto-attached %s material image (rank %d, image_id %s)",
+                            mat_key, next_rank, image_id)
+            uploaded_images.append(mat_result)
+            next_rank += 1
+
+    logger.info("Total images uploaded: %d (user: %d, materials: %d)",
+                len(uploaded_images),
+                len(uploaded_images) - len(material_image_ids),
+                len(material_image_ids))
 
     # Step 4: Set inventory (variations + pricing)
     inventory_payload = build_etsy_inventory_payload(products)
@@ -1063,7 +1091,15 @@ def create_full_listing(
 
     logger.info("Set %d variants on listing %s", summary["total_variants"], listing_id)
 
-    # Step 5: Optionally activate
+    # Step 4b: Link material images to their variation values
+    # This makes Etsy swap the displayed image when a buyer picks a material.
+    if material_image_ids:
+        _link_material_images_to_variations(listing_id, inv_result, material_image_ids)
+
+    # Step 5: Set personalization instructions (legacy field — until multi-personalization GA)
+    _set_personalization(listing_id)
+
+    # Step 6: Optionally activate
     if activate:
         activate_result = update_listing(listing_id, {"state": "active"})
         if "error" in activate_result:
@@ -1081,7 +1117,283 @@ def create_full_listing(
         "sizes": summary["sizes"],
         "frames": summary["frames"],
         "images_uploaded": len(uploaded_images),
+        "material_images_linked": len(material_image_ids),
+        "personalization": True,
     }
+
+
+# ── Internal Helpers ─────────────────────────────────────────────────────
+
+def _link_material_images_to_variations(
+    listing_id: int,
+    inventory_result: dict,
+    material_image_ids: dict[str, int],
+) -> None:
+    """Link uploaded material reference images to their Material & Size variation values.
+
+    Reads the inventory response to find value_ids for each material,
+    then calls updateVariationImages to associate the correct image.
+
+    This runs automatically — Wolf never has to think about it.
+    """
+    from src.brand.etsy_variations import (
+        PROPERTY_ID_MATERIAL_SIZE,
+        MATERIAL_DISPLAY_NAMES,
+    )
+
+    # Build lookup: material display name → image_id
+    name_to_image = {}
+    for mat_key, image_id in material_image_ids.items():
+        display_name = MATERIAL_DISPLAY_NAMES.get(mat_key, mat_key.title())
+        name_to_image[display_name] = image_id
+
+    # Parse inventory response to find value_ids for each material
+    variation_links = []
+    seen_materials = set()
+    inv_products = inventory_result.get("products", [])
+
+    for product in inv_products:
+        for pv in product.get("property_values", []):
+            if pv.get("property_id") != PROPERTY_ID_MATERIAL_SIZE:
+                continue
+            # The variation value includes "Material SIZExSIZE" — extract material name
+            values = pv.get("values", [])
+            value_ids = pv.get("value_ids", [])
+            if not values or not value_ids:
+                continue
+
+            variation_label = values[0]  # e.g. "Canvas 24x10"
+            value_id = value_ids[0]
+
+            # Match material name from the variation label
+            for mat_display, image_id in name_to_image.items():
+                if variation_label.startswith(mat_display) and mat_display not in seen_materials:
+                    variation_links.append({
+                        "property_id": PROPERTY_ID_MATERIAL_SIZE,
+                        "value_id": value_id,
+                        "image_id": image_id,
+                    })
+                    seen_materials.add(mat_display)
+                    break
+
+    if variation_links:
+        result = update_variation_images(listing_id, variation_links)
+        if "error" in result:
+            logger.error("Failed to link variation images: %s", result["error"])
+        else:
+            logger.info("Linked %d material images to variations on listing %s",
+                        len(variation_links), listing_id)
+    else:
+        logger.warning("No material variations matched for image linking on listing %s", listing_id)
+
+
+def _set_personalization(listing_id: int) -> None:
+    """Set personalization instructions on a listing.
+
+    Uses the legacy personalization field (is_personalizable + personalization_instructions).
+    When Etsy multi-personalization API goes GA (Q2 2026), switch to PERSONALIZATION_QUESTIONS.
+    """
+    result = update_listing(listing_id, {
+        "is_personalizable": True,
+        "personalization_is_required": False,
+        "personalization_instructions": PERSONALIZATION_INSTRUCTIONS,
+        "personalization_char_count_max": 500,
+    })
+    if "error" in result:
+        logger.warning("Failed to set personalization on listing %s: %s",
+                        listing_id, result.get("error"))
+    else:
+        logger.info("Set personalization instructions on listing %s", listing_id)
+
+
+# ── Variation-Image Linking ──────────────────────────────────────────────
+
+def update_variation_images(
+    listing_id: int,
+    variation_images: list[dict],
+) -> dict[str, Any]:
+    """Link uploaded images to specific variation values.
+
+    After uploading material reference images, call this to make Etsy
+    display the correct image when a buyer selects a material variation.
+
+    Uses the Etsy updateVariationImages endpoint:
+    PUT /v3/application/shops/{shop_id}/listings/{listing_id}/variation-images
+
+    Args:
+        listing_id: Etsy listing ID
+        variation_images: List of dicts, each with:
+            - property_id: 513 (Material & Size) or 514 (Frame)
+            - value_id: The specific variation value ID
+            - image_id: The uploaded image's listing_image_id
+
+    Returns:
+        API response or error dict.
+    """
+    creds = get_credentials()
+    shop_id = creds.get("shop_id")
+    if not shop_id:
+        return {"error": "ETSY_SHOP_ID not configured"}
+
+    return _api_request(
+        f"/application/shops/{shop_id}/listings/{listing_id}/variation-images",
+        method="PUT",
+        data={"variation_images": variation_images},
+        content_type="application/json",
+    )
+
+
+def get_variation_images(listing_id: int) -> dict[str, Any]:
+    """Get current variation-image associations for a listing.
+
+    Returns:
+        API response with variation_images array, or error dict.
+    """
+    creds = get_credentials()
+    shop_id = creds.get("shop_id")
+    if not shop_id:
+        return {"error": "ETSY_SHOP_ID not configured"}
+
+    return _api_request(
+        f"/application/shops/{shop_id}/listings/{listing_id}/variation-images",
+    )
+
+
+def upload_listing_image_from_file(
+    listing_id: int,
+    file_path: str,
+    rank: int = 1,
+) -> dict[str, Any]:
+    """Upload a local image file to a listing.
+
+    Args:
+        listing_id: Etsy listing ID
+        file_path: Local file path to the image
+        rank: Image position (1 = primary)
+
+    Returns:
+        Upload result with listing_image_id, or error dict.
+    """
+    from pathlib import Path
+
+    img_path = Path(file_path)
+    if not img_path.exists():
+        return {"error": f"Image file not found: {file_path}"}
+
+    image_data = img_path.read_bytes()
+    filename = img_path.name
+
+    creds = get_credentials()
+    shop_id = creds.get("shop_id")
+    if not shop_id:
+        return {"error": "ETSY_SHOP_ID not configured"}
+
+    # Build multipart upload
+    boundary = f"----Archive35Boundary{secrets.token_hex(8)}"
+    body = bytearray()
+
+    # rank field
+    body += f"--{boundary}\r\n".encode()
+    body += b'Content-Disposition: form-data; name="rank"\r\n\r\n'
+    body += f"{rank}\r\n".encode()
+
+    # image field
+    content_type = "image/webp" if filename.endswith(".webp") else "image/jpeg"
+    body += f"--{boundary}\r\n".encode()
+    body += f'Content-Disposition: form-data; name="image"; filename="{filename}"\r\n'.encode()
+    body += f"Content-Type: {content_type}\r\n\r\n".encode()
+    body += image_data
+    body += b"\r\n"
+
+    body += f"--{boundary}--\r\n".encode()
+
+    url = f"{ETSY_API_BASE}/application/shops/{shop_id}/listings/{listing_id}/images"
+    api_key_header = creds["api_key"]
+    if creds.get("shared_secret"):
+        api_key_header = f"{creds['api_key']}:{creds['shared_secret']}"
+    headers = {
+        "x-api-key": api_key_header,
+        "Authorization": f"Bearer {creds['access_token']}",
+        "Content-Type": f"multipart/form-data; boundary={boundary}",
+    }
+
+    upload_req = urllib.request.Request(url, data=bytes(body), method="POST", headers=headers)
+
+    try:
+        with urllib.request.urlopen(upload_req, timeout=60) as resp:
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        resp_body = e.read().decode() if e.fp else ""
+        logger.error("Etsy file image upload failed: %s %s", e.code, resp_body)
+        return {"error": f"Image upload failed: {e.code}", "detail": resp_body}
+
+
+# ── Material Reference Images (Auto-attach) ─────────────────────────────
+
+# Standard material reference images — always appended to Etsy listings.
+# These show customers what each print material looks like.
+# Paths are relative to the project root.
+MATERIAL_IMAGES = {
+    "paper": "images/products/paper.jpg",
+    "canvas": "images/products/canvas.jpg",
+    "metal": "images/products/metal-hd.jpg",
+    "acrylic": "images/products/acrylic.jpg",
+    "wood": "images/products/wood.jpg",
+}
+
+
+# ── Etsy Image Budget ───────────────────────────────────────────────────
+
+ETSY_MAX_IMAGES = 10        # Etsy allows 10 per listing
+MATERIAL_IMAGE_SLOTS = 4    # Reserve 4 slots for material reference images
+# Paper is not shown because paper is the default/base material —
+# the original photo already represents the paper print look.
+MATERIAL_IMAGES_FOR_ETSY = ["canvas", "metal", "acrylic", "wood"]
+MOCKUP_SLOTS = ETSY_MAX_IMAGES - MATERIAL_IMAGE_SLOTS - 1  # = 5 mockups + 1 original
+
+
+# ── Personalization Fields ──────────────────────────────────────────────
+
+# Etsy multi-personalization (available April 2026 GA).
+# Until then, use the legacy personalization field with instructions.
+PERSONALIZATION_INSTRUCTIONS = (
+    "Please specify your customization preferences:\n\n"
+    "1. FRAME STYLE (if applicable):\n"
+    "   - Black Picture Frame\n"
+    "   - White Picture Frame\n"
+    "   - Natural Wood Frame\n"
+    "   - No Frame (print only)\n\n"
+    "2. MAT / BORDER (for framed prints):\n"
+    "   - White Mat\n"
+    "   - Black Mat\n"
+    "   - No Mat (edge to edge)\n\n"
+    "3. MAT WIDTH (if mat selected):\n"
+    "   - 0.5\" / 1\" / 1.5\" / 2\" / 3\" / 4\" / 5\"\n"
+    "   - Default: 2\" if not specified\n\n"
+    "If no preferences specified, print ships unframed."
+)
+
+# For Etsy multi-personalization API (Q2 2026):
+PERSONALIZATION_QUESTIONS = [
+    {
+        "question_text": "Frame Style",
+        "question_type": "dropdown",
+        "options": ["No Frame", "Black Picture Frame", "White Picture Frame", "Natural Wood Frame"],
+        "is_required": False,
+    },
+    {
+        "question_text": "Mat / Border",
+        "question_type": "dropdown",
+        "options": ["No Mat (edge to edge)", "White Mat", "Black Mat"],
+        "is_required": False,
+    },
+    {
+        "question_text": "Mat Width (inches)",
+        "question_type": "dropdown",
+        "options": ['0.5"', '1"', '1.5"', '2" (default)', '3"', '4"', '5"'],
+        "is_required": False,
+    },
+]
 
 
 # ── Order / Receipt Polling ──────────────────────────────────────────────

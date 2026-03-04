@@ -23,8 +23,13 @@ archive35-context-folder/
 memory/
 website documents /
 
-# Not website content
-09_Licensing/
+# Not website content (but 09_Licensing/thumbnails/ IS deployed for licensing page)
+09_Licensing/originals/
+09_Licensing/watermarked/
+09_Licensing/zoom/
+09_Licensing/metadata/
+09_Licensing/data/
+09_Licensing/__pycache__/
 Shared for Archive 35/
 templates/
 hospitalety/

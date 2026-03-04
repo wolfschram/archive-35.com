@@ -86,20 +86,61 @@
       imageFiles.clear();
       let metaText = null;
       let metaFilename = null;
+      const allFiles = [];       // Debug: track all files found
+      const csvFiles = [];       // All CSV files found
+      const jsonFiles = [];      // All JSON files found
 
       for await (const [name, handle] of folderHandle.entries()) {
         if (handle.kind !== 'file') continue;
-        const lower = name.toLowerCase();
+        const lower = name.toLowerCase().trim();
+        allFiles.push(name);
 
         if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
           imageFiles.set(name, handle);
         }
-        if (lower === 'cafe_metadata.csv' || lower === 'submission.json') {
-          const file = await handle.getFile();
-          metaText = await file.text();
-          metaFilename = name;
+
+        // Collect all CSV and JSON files for flexible matching
+        if (lower.endsWith('.csv')) {
+          csvFiles.push({ name, handle });
+        }
+        if (lower.endsWith('.json')) {
+          jsonFiles.push({ name, handle });
         }
       }
+
+      // Find metadata file — prioritize exact names, then fall back to any CSV/JSON
+      const metaCandidates = [
+        // Priority 1: exact matches
+        ...csvFiles.filter(f => f.name.toLowerCase().trim() === 'cafe_metadata.csv'),
+        ...jsonFiles.filter(f => f.name.toLowerCase().trim() === 'submission.json'),
+        // Priority 2: any file with "metadata" or "cafe" in name
+        ...csvFiles.filter(f => {
+          const n = f.name.toLowerCase();
+          return n.includes('metadata') || n.includes('cafe');
+        }),
+        ...jsonFiles.filter(f => {
+          const n = f.name.toLowerCase();
+          return n.includes('submission') || n.includes('cafe');
+        }),
+        // Priority 3: any CSV file at all (likely the metadata)
+        ...csvFiles,
+      ];
+
+      if (metaCandidates.length > 0) {
+        const best = metaCandidates[0];
+        const file = await best.handle.getFile();
+        metaText = await file.text();
+        metaFilename = best.name;
+      }
+
+      console.log('[CaFE Uploader] Folder scan:', {
+        totalFiles: allFiles.length,
+        images: imageFiles.size,
+        csvFiles: csvFiles.map(f => f.name),
+        jsonFiles: jsonFiles.map(f => f.name),
+        metadataFile: metaFilename,
+        allFiles,
+      });
 
       // Update UI
       folderInfo.style.display = 'block';
@@ -112,7 +153,12 @@
       }
 
       if (!metaText) {
-        showToast('No metadata file found (cafe_metadata.csv or submission.json)', 'warning');
+        // Show what files WERE found to help debug
+        const nonImages = allFiles.filter(f => !f.toLowerCase().match(/\.(jpg|jpeg)$/));
+        const hint = nonImages.length > 0
+          ? ` Found: ${nonImages.join(', ')}`
+          : ' Folder only contains images.';
+        showToast(`No metadata file found.${hint}`, 'warning');
         return;
       }
 

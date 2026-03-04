@@ -312,27 +312,24 @@
         const base64 = await fileToBase64(file);
 
         const result = await sendToBackground({
-          action: 'relayToContent',
-          payload: {
-            action: 'uploadImage',
-            metadata: {
-              title: entry.title,
-              alt_text: entry.alt_text,
-              medium: entry.medium,
-              description: entry.description,
-              height: entry.height,
-              width: entry.width,
-              depth: entry.depth,
-              units: entry.units,
-              for_sale: entry.for_sale,
-              price: entry.price,
-              year: entry.year,
-              discipline: entry.discipline,
-              public_art: entry.public_art,
-            },
-            imageBase64: base64,
-            filename: fname,
+          action: 'uploadToPage',
+          metadata: {
+            title: entry.title,
+            alt_text: entry.alt_text,
+            medium: entry.medium,
+            description: entry.description,
+            height: entry.height,
+            width: entry.width,
+            depth: entry.depth,
+            units: entry.units,
+            for_sale: entry.for_sale,
+            price: entry.price,
+            year: entry.year,
+            discipline: entry.discipline,
+            public_art: entry.public_art,
           },
+          imageBase64: base64,
+          filename: fname,
         });
 
         if (result?.success) {

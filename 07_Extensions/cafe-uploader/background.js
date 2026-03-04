@@ -9,7 +9,7 @@
  * 1. Fill DOM fields + set file via DataTransfer
  * 2. Call validateForm() which sets hidden fields and calls form.submit()
  * 3. Native form submission includes DataTransfer files
- * 4. Background watches tab URL change: media_preview.php = success
+ * 4. Poll tab URL until it changes: media_preview.php = success
  * 5. Navigate back to media_upload.php for next image
  */
 
@@ -124,7 +124,7 @@ async function relayToContent(payload) {
 // This is the main upload orchestrator. It:
 // 1. Ensures the tab is on media_upload.php
 // 2. Injects a script to fill the form and trigger submission
-// 3. Watches the tab URL to detect success (redirect to media_preview.php)
+// 3. Polls the tab URL to detect success (redirect to media_preview.php)
 // 4. Navigates back to media_upload.php for the next image
 
 async function uploadToPage(metadata, imageBase64, filename) {
@@ -136,7 +136,7 @@ async function uploadToPage(metadata, imageBase64, filename) {
   }
 
   try {
-    // 1. Ensure tab is on media_upload.php
+    // 1. Ensure tab is on media_upload.php and fully loaded
     const tab = await chrome.tabs.get(cafeTabId);
     if (!tab.url.includes('media_upload.php')) {
       console.log('[BG] Navigating to media_upload.php');
@@ -144,12 +144,11 @@ async function uploadToPage(metadata, imageBase64, filename) {
       await waitForTabLoad(cafeTabId, 15000);
     }
 
-    // 2. Set up navigation listener BEFORE executing the script.
-    //    This prevents a race where form.submit() triggers navigation
-    //    before we start listening for it.
-    const navTracker = createNavigationTracker(cafeTabId, 45000);
+    // Capture the starting URL before form submission
+    const startUrl = (await chrome.tabs.get(cafeTabId)).url;
+    console.log(`[BG] Start URL: ${startUrl}`);
 
-    // 3. Inject script to fill form and submit
+    // 2. Inject script to fill form and submit
     console.log(`[BG] Injecting fillFormAndSubmit for "${metadata.title}"`);
     let fillResult;
     try {
@@ -161,28 +160,25 @@ async function uploadToPage(metadata, imageBase64, filename) {
       });
       fillResult = results?.[0]?.result;
     } catch (execErr) {
-      navTracker.cancel();
       return { success: false, error: `Script injection failed: ${execErr.message}` };
     }
 
     if (fillResult && !fillResult.submitted) {
-      // validateForm returned false — form wasn't submitted
-      navTracker.cancel();
       return { success: false, error: fillResult.error || 'Form validation failed' };
     }
 
-    // 4. Wait for the tab to navigate after form submission
-    //    Success = redirect to media_preview.php
-    //    Failure = stays on media_upload.php (with errors)
-    console.log('[BG] Waiting for navigation after form submit...');
-    const navResult = await navTracker.promise;
-    console.log(`[BG] Navigation result: ${JSON.stringify(navResult)}`);
+    console.log('[BG] Form submitted. Polling for URL change...');
+
+    // 3. Poll the tab URL until it changes from the starting URL
+    //    This is race-condition-free — no event listeners to miss.
+    const navResult = await pollForUrlChange(cafeTabId, startUrl, 45000);
+    console.log(`[BG] Poll result: ${JSON.stringify(navResult)}`);
 
     if (navResult.url && navResult.url.includes('media_preview')) {
       // SUCCESS! Image was uploaded
       console.log(`[BG] Upload SUCCESS: "${metadata.title}"`);
 
-      // 5. Navigate back to media_upload.php for the next image
+      // 4. Navigate back to media_upload.php for the next image
       console.log('[BG] Navigating back to media_upload.php');
       await chrome.tabs.update(cafeTabId, { url: 'https://artist.callforentry.org/media_upload.php' });
       await waitForTabLoad(cafeTabId, 15000);
@@ -192,7 +188,7 @@ async function uploadToPage(metadata, imageBase64, filename) {
     }
 
     if (navResult.url && navResult.url.includes('media_upload.php')) {
-      // Page reloaded to upload form — likely an error
+      // Page reloaded to upload form — likely server-side error
       try {
         const errResults = await chrome.scripting.executeScript({
           target: { tabId: cafeTabId },
@@ -224,7 +220,7 @@ async function uploadToPage(metadata, imageBase64, filename) {
     }
 
     if (navResult.timeout) {
-      return { success: false, error: 'Upload timed out (45s) — page did not respond' };
+      return { success: false, error: 'Upload timed out (45s) — page did not navigate' };
     }
 
     return { success: false, error: `Unexpected navigation: ${navResult.url}` };
@@ -240,7 +236,7 @@ async function uploadToPage(metadata, imageBase64, filename) {
  * calls form.submit() natively. The function returns IMMEDIATELY after
  * triggering submission — it does NOT wait for the page to navigate.
  *
- * The background script watches the tab URL to detect success/failure.
+ * The background script polls the tab URL to detect success/failure.
  */
 function fillFormAndSubmit(metadata, imageBase64, filename) {
   const UNITS = { 'Inches': '1', 'Feet': '2', 'Centimeter': '3', 'Meters': '4' };
@@ -333,90 +329,71 @@ function fillFormAndSubmit(metadata, imageBase64, filename) {
 
 // ── Tab Helpers ───────────────────────────────────────────────
 
-/**
- * Wait for the tab to finish loading after a URL change.
- */
-function waitForTabLoad(tabId, maxWait = 10000) {
-  return new Promise((resolve) => {
-    const timeout = setTimeout(() => {
-      chrome.tabs.onUpdated.removeListener(listener);
-      resolve();
-    }, maxWait);
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-    const listener = (id, changeInfo) => {
-      if (id === tabId && changeInfo.status === 'complete') {
-        clearTimeout(timeout);
-        chrome.tabs.onUpdated.removeListener(listener);
-        // Extra delay for JS initialization
-        setTimeout(resolve, 1000);
+/**
+ * Poll the tab URL until it changes from startUrl.
+ * Returns { url } when URL changes and page is loaded, or { timeout: true }.
+ *
+ * This approach has ZERO race conditions — no event listeners that can
+ * miss events. Just simple polling every 500ms.
+ */
+async function pollForUrlChange(tabId, startUrl, maxWait = 45000) {
+  const deadline = Date.now() + maxWait;
+  let pollCount = 0;
+
+  while (Date.now() < deadline) {
+    await sleep(500);
+    pollCount++;
+
+    try {
+      const tab = await chrome.tabs.get(tabId);
+
+      // URL changed AND page is fully loaded
+      if (tab.url !== startUrl && tab.status === 'complete') {
+        console.log(`[BG] URL changed after ${pollCount} polls: ${tab.url}`);
+        // Small extra delay to let JS initialize
+        await sleep(300);
+        return { url: tab.url };
       }
-    };
-    chrome.tabs.onUpdated.addListener(listener);
-  });
+
+      // URL changed but still loading — keep waiting
+      if (tab.url !== startUrl) {
+        console.log(`[BG] URL changing (status: ${tab.status})...`);
+      }
+    } catch (err) {
+      // Tab was closed or something went wrong
+      console.error(`[BG] Poll error: ${err.message}`);
+      return { timeout: true, error: err.message };
+    }
+  }
+
+  console.log(`[BG] pollForUrlChange timed out after ${pollCount} polls`);
+  return { timeout: true };
 }
 
 /**
- * Create a navigation tracker that starts listening IMMEDIATELY.
- * Call this BEFORE injecting the script that triggers form submission.
- *
- * Returns { promise, cancel } where:
- * - promise resolves to { url } on navigation or { timeout: true }
- * - cancel() cleans up the listener without resolving
- *
- * The tracker ignores the first 'complete' event if the URL hasn't changed
- * from the starting URL — this prevents catching stale events from the
- * current page load.
+ * Wait for the tab to finish loading after a URL change.
+ * Uses polling instead of event listeners to avoid race conditions.
  */
-function createNavigationTracker(tabId, maxWait = 45000) {
-  let listener;
-  let timeoutId;
-  let cancelled = false;
-  let resolvePromise;
+async function waitForTabLoad(tabId, maxWait = 15000) {
+  const deadline = Date.now() + maxWait;
 
-  const promise = new Promise((resolve) => {
-    resolvePromise = resolve;
-
-    // Capture the starting URL to detect when navigation actually happens
-    chrome.tabs.get(tabId).then(startTab => {
-      const startUrl = startTab.url;
-      console.log(`[BG] NavTracker: watching tab ${tabId}, start URL: ${startUrl}`);
-
-      timeoutId = setTimeout(() => {
-        chrome.tabs.onUpdated.removeListener(listener);
-        console.log('[BG] NavTracker: TIMEOUT');
-        resolve({ timeout: true });
-      }, maxWait);
-
-      listener = (id, changeInfo) => {
-        if (id !== tabId || cancelled) return;
-
-        // We want to detect when the page finishes loading at a NEW URL
-        if (changeInfo.status === 'complete') {
-          chrome.tabs.get(tabId).then(tab => {
-            // Skip if URL hasn't changed (stale event from current page)
-            if (tab.url === startUrl) {
-              console.log('[BG] NavTracker: ignoring stale complete (same URL)');
-              return;
-            }
-            // Real navigation detected!
-            clearTimeout(timeoutId);
-            chrome.tabs.onUpdated.removeListener(listener);
-            console.log(`[BG] NavTracker: navigation detected → ${tab.url}`);
-            setTimeout(() => resolve({ url: tab.url }), 500);
-          }).catch(() => {});
-        }
-      };
-      chrome.tabs.onUpdated.addListener(listener);
-    }).catch(() => resolve({ timeout: true }));
-  });
-
-  const cancel = () => {
-    cancelled = true;
-    if (timeoutId) clearTimeout(timeoutId);
-    if (listener) chrome.tabs.onUpdated.removeListener(listener);
-  };
-
-  return { promise, cancel };
+  while (Date.now() < deadline) {
+    await sleep(500);
+    try {
+      const tab = await chrome.tabs.get(tabId);
+      if (tab.status === 'complete') {
+        // Extra delay for JS initialization
+        await sleep(1000);
+        return;
+      }
+    } catch {
+      return; // Tab gone
+    }
+  }
+  // Timed out waiting — proceed anyway
+  console.log('[BG] waitForTabLoad timed out');
 }
 
 // ── Tab Lifecycle ──────────────────────────────────────────────

@@ -3160,7 +3160,49 @@ class CaFEExportRequest(BaseModel):
     """Request body for CaFE portfolio export."""
     photo_ids: list[str] = []
     metadata_overrides: dict = {}  # {photo_id: {title, description, ...}}
-    call_name: str = "submission"
+    call_name: str = ""  # Optional override; auto-generated from gallery_source if empty
+    gallery_source: str = ""  # Gallery folder name (e.g., "Argentina")
+
+
+@app.get("/cafe/galleries")
+def get_cafe_galleries():
+    """List all portfolio galleries with photo counts for CaFE selection."""
+    project_root = Path(__file__).resolve().parent.parent.parent
+    portfolio_root = project_root / "01_Portfolio"
+
+    galleries = []
+    if portfolio_root.exists():
+        for d in sorted(portfolio_root.iterdir()):
+            if d.is_dir() and not d.name.startswith('_'):
+                photos_json = d / "_photos.json"
+                photo_count = 0
+                has_metadata = False
+                sample_title = None
+
+                if photos_json.exists():
+                    try:
+                        with open(photos_json) as f:
+                            photos = json.load(f)
+                        if isinstance(photos, list):
+                            photo_count = len(photos)
+                            has_metadata = all(
+                                p.get("title") and p.get("description")
+                                for p in photos
+                            )
+                            if photos:
+                                sample_title = photos[0].get("title", "")
+                    except Exception:
+                        pass
+
+                galleries.append({
+                    "name": d.name,
+                    "display_name": d.name.replace("_", " ").strip(),
+                    "photo_count": photo_count,
+                    "has_metadata": has_metadata,
+                    "sample_title": sample_title,
+                })
+
+    return {"galleries": galleries, "total": len(galleries)}
 
 
 @app.get("/cafe/photos")
@@ -3168,32 +3210,60 @@ def get_cafe_photos(
     collection: Optional[str] = None,
     limit: int = Query(default=500, le=2000),
 ):
-    """List photos from photos.json for CaFE submission selection.
+    """List photos from portfolio galleries for CaFE submission selection.
 
-    Returns canonical gallery photos with titles, collections, and thumbnail URLs.
-    This is separate from GET /photos which reads from the Agent DB.
+    Reads directly from 01_Portfolio/{gallery}/_photos.json files.
+    When collection is specified, only returns photos from that gallery.
     """
     project_root = Path(__file__).resolve().parent.parent.parent
-    photos_json = project_root / "data" / "photos.json"
+    portfolio_root = project_root / "01_Portfolio"
 
-    if not photos_json.exists():
+    all_photos = []
+
+    if not portfolio_root.exists():
         return {"photos": [], "total": 0}
 
     try:
-        with open(photos_json) as f:
-            data = json.load(f)
-
-        photos = data.get("photos", [])
-
+        # If collection specified, only read that gallery
         if collection:
-            photos = [p for p in photos if p.get("collection") == collection]
+            gallery_dir = portfolio_root / collection
+            photos_json = gallery_dir / "_photos.json"
+            if photos_json.exists():
+                with open(photos_json) as f:
+                    photos = json.load(f)
+                if isinstance(photos, list):
+                    for p in photos:
+                        p["collection"] = collection
+                        # Add thumbnail URL for UI
+                        fname = p.get("filename", "")
+                        base = fname.rsplit(".", 1)[0] if "." in fname else fname
+                        p["thumbnail_url"] = f"https://archive-35.com/images/{collection}/{base}-thumb.jpg"
+                    all_photos = photos
+        else:
+            # Read all galleries
+            for d in sorted(portfolio_root.iterdir()):
+                if d.is_dir() and not d.name.startswith('_'):
+                    photos_json = d / "_photos.json"
+                    if photos_json.exists():
+                        try:
+                            with open(photos_json) as f:
+                                photos = json.load(f)
+                            if isinstance(photos, list):
+                                for p in photos:
+                                    p["collection"] = d.name
+                                    fname = p.get("filename", "")
+                                    base = fname.rsplit(".", 1)[0] if "." in fname else fname
+                                    p["thumbnail_url"] = f"https://archive-35.com/images/{d.name}/{base}-thumb.jpg"
+                                all_photos.extend(photos)
+                        except Exception:
+                            continue
 
-        # Return up to limit
-        photos = photos[:limit]
+        total = len(all_photos)
+        all_photos = all_photos[:limit]
 
-        return {"photos": photos, "total": len(photos)}
+        return {"photos": all_photos, "total": total}
     except Exception as e:
-        logger.error("Failed to load photos.json for CaFE: %s", e)
+        logger.error("Failed to load portfolio photos for CaFE: %s", e)
         return {"photos": [], "total": 0}
 
 
@@ -3239,43 +3309,78 @@ def export_cafe(req: CaFEExportRequest):
       ├── submission.json  (array of image metadata for CaFE form)
       ├── README.txt       (validation report)
       └── images/          (resized JPEGs, <5MB, 1200-3000px)
+
+    Auto-generates call_name from gallery_source + date if not provided.
+    Resolves photo metadata from 01_Portfolio/{gallery}/_photos.json files.
     """
     from src.brand.cafe_export import export_cafe_folder
 
     project_root = Path(__file__).resolve().parent.parent.parent
-    photos_json = project_root / "data" / "photos.json"
+    portfolio_root = project_root / "01_Portfolio"
 
-    # Resolve photo file paths from photos.json
+    # Auto-generate call_name from gallery source + date
+    call_name = req.call_name
+    if not call_name:
+        source = req.gallery_source or "submission"
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        call_name = f"{source}_{date_str}"
+
+    # Build photo lookup from per-gallery _photos.json files
     photo_lookup = {}
-    if photos_json.exists():
+    if portfolio_root.exists():
+        for d in portfolio_root.iterdir():
+            if d.is_dir() and not d.name.startswith('_'):
+                photos_json = d / "_photos.json"
+                if photos_json.exists():
+                    try:
+                        with open(photos_json) as f:
+                            photos = json.load(f)
+                        if isinstance(photos, list):
+                            for p in photos:
+                                p["collection"] = d.name
+                                photo_lookup[p["id"]] = p
+                    except Exception:
+                        continue
+
+    # Also try data/photos.json as fallback
+    photos_json_path = project_root / "data" / "photos.json"
+    if photos_json_path.exists():
         try:
-            with open(photos_json) as f:
+            with open(photos_json_path) as f:
                 data = json.load(f)
             for p in data.get("photos", []):
-                photo_lookup[p["id"]] = p
-        except Exception as e:
-            logger.warning("Failed to load photos.json: %s", e)
+                if p["id"] not in photo_lookup:
+                    photo_lookup[p["id"]] = p
+        except Exception:
+            pass
 
-    # Build image spec list for cafe_export
+    # Build image spec list
     images = []
     for pid in req.photo_ids:
         photo = photo_lookup.get(pid)
         if not photo:
-            logger.warning("Photo %s not in photos.json, skipping", pid)
+            logger.warning("Photo %s not found in any metadata source, skipping", pid)
             continue
 
-        # Find source file in Photography/ folder
-        collection = photo.get("collection", "")
+        # Find source file
+        collection = photo.get("collection", req.gallery_source or "")
         filename = photo.get("filename", "")
-        photo_dir = project_root / "Photography" / collection
-        src = photo_dir / filename
-        if not src.exists():
-            # Try with common extensions
-            for ext in [".jpg", ".jpeg", ".JPG", ".JPEG"]:
-                candidate = photo_dir / (filename.rsplit(".", 1)[0] + ext if "." in filename else filename + ext)
-                if candidate.exists():
-                    src = candidate
-                    break
+
+        # Try multiple locations for source files
+        src = None
+        search_paths = [
+            portfolio_root / collection / "originals" / filename,
+            portfolio_root / collection / filename,
+            project_root / "Photography" / collection / filename,
+        ]
+        for sp in search_paths:
+            if sp.exists():
+                src = sp
+                break
+
+        if not src:
+            logger.warning("Source file not found for %s in %s", filename, collection)
+            continue
 
         images.append({
             "photo_id": pid,
@@ -3284,14 +3389,14 @@ def export_cafe(req: CaFEExportRequest):
         })
 
     result = export_cafe_folder(
-        call_name=req.call_name,
+        call_name=call_name,
         images=images,
         project_root=project_root,
     )
 
     return {
         "success": result["success"],
-        "folder_name": req.call_name,
+        "folder_name": call_name,
         "export_path": result["export_path"],
         "images_count": result["images_count"],
         "errors": result.get("errors"),

@@ -161,10 +161,10 @@ async function getPortfolioTitles() {
 
     const html = await resp.text();
 
-    // Parse titles from HTML — links to media_preview contain title text
-    // Pattern: <a href="media_preview.php?id=XXX">Title Text</a>
+    // Parse titles from HTML — portfolio wraps each image in:
+    //   <a href="/media_preview.php?id=XXX"><figure>...<figcaption>Title</figcaption></figure></a>
     const titles = [];
-    const regex = /media_preview\.php\?id=\d+[^>]*>([^<]+)</g;
+    const regex = /<figcaption[^>]*>([^<]+)<\/figcaption>/gi;
     let match;
     while ((match = regex.exec(html)) !== null) {
       const text = match[1].trim();

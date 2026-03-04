@@ -230,13 +230,26 @@
   }
 
   function checkForAlerts() {
-    const selectors = '.alert-danger, .alert.alert-danger, .error-message, [class*="alert"][class*="danger"]';
+    const selectors = '.alert-danger, .alert.alert-danger, .error-message';
     const alerts = document.querySelectorAll(selectors);
     for (const alert of alerts) {
+      // Only check VISIBLE alerts — CaFE has hidden alert divs in the DOM
+      // (e.g. #upload_limit_warning parent is display:none when not at limit)
+      if (!isElementVisible(alert)) continue;
       const text = alert.textContent.trim();
       if (text && text.length > 5) return text.substring(0, 200);
     }
     return null;
+  }
+
+  function isElementVisible(el) {
+    // Walk up the DOM tree — if ANY ancestor is hidden, the element is hidden
+    while (el && el !== document.body) {
+      const style = window.getComputedStyle(el);
+      if (style.display === 'none' || style.visibility === 'hidden') return false;
+      el = el.parentElement;
+    }
+    return true;
   }
 
   function setHiddenValue(nameOrId, value) {

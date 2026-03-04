@@ -243,12 +243,25 @@
     try {
       const connected = await checkCafeConnection();
       if (!connected) { portfolioImages = []; return; }
-      const result = await sendToBackground({
-        action: 'relayToContent',
-        payload: { action: 'scrapePortfolio' },
-      });
-      portfolioImages = result?.success ? (result.images || []) : [];
-    } catch { portfolioImages = []; }
+
+      // Use background script to scrape portfolio titles (navigates to portfolio.php,
+      // scrapes, then navigates back to media_upload.php) — works regardless of
+      // which page the content script is on.
+      showToast('Scanning CaFE portfolio for duplicates...', 'info');
+      const result = await sendToBackground({ action: 'getPortfolioTitles' });
+
+      if (result?.success && result.titles?.length > 0) {
+        // Convert title strings to objects for compatibility with existing code
+        portfolioImages = result.titles.map(t => ({ title: t }));
+        console.log(`[Popup] Portfolio has ${portfolioImages.length} existing images`);
+      } else {
+        portfolioImages = [];
+        if (result?.error) console.warn('[Popup] Portfolio scrape issue:', result.error);
+      }
+    } catch (err) {
+      console.error('[Popup] syncPortfolio failed:', err);
+      portfolioImages = [];
+    }
   }
 
   function renderImageGrid(entries) {

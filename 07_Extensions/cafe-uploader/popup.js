@@ -346,8 +346,21 @@
       } catch (err) {
         statusEl.textContent = 'Failed';
         statusEl.className = 'qi-status failed';
+        statusEl.title = err.message; // Hover to see error
         entry._error = err.message;
         failed++;
+        // Show the error in toast so user can see it
+        showToast(err.message, 'error');
+
+        // If it's a capacity/limit error, stop uploading — all will fail
+        if (err.message.includes('maximum') || err.message.includes('limit') || err.message.includes('allowed')) {
+          showToast('Portfolio is full — cannot upload more images', 'error');
+          for (let j = i + 1; j < uploadQueue.length; j++) {
+            const s = document.getElementById(`qis-${j}`);
+            if (s) { s.textContent = 'Blocked'; s.className = 'qi-status failed'; }
+          }
+          break;
+        }
       }
 
       const done = completed + failed;

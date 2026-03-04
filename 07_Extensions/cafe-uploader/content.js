@@ -88,6 +88,13 @@
 
       console.log(`[CaFE Upload] Starting: "${metadata.title}" (${filename})`);
 
+      // 0. Pre-flight: check for CaFE error alerts (e.g. portfolio full)
+      const preflightAlert = checkForAlerts();
+      if (preflightAlert) {
+        console.error(`[CaFE Upload] Blocked by alert: ${preflightAlert}`);
+        return { success: false, error: preflightAlert };
+      }
+
       // 1. Convert base64 → File
       const byteChars = atob(imageBase64);
       const byteArray = new Uint8Array(byteChars.length);
@@ -220,6 +227,16 @@
     } else {
       console.warn(`[CaFE Upload] Select not found: ${nameOrId}`);
     }
+  }
+
+  function checkForAlerts() {
+    const selectors = '.alert-danger, .alert.alert-danger, .error-message, [class*="alert"][class*="danger"]';
+    const alerts = document.querySelectorAll(selectors);
+    for (const alert of alerts) {
+      const text = alert.textContent.trim();
+      if (text && text.length > 5) return text.substring(0, 200);
+    }
+    return null;
   }
 
   function setHiddenValue(nameOrId, value) {

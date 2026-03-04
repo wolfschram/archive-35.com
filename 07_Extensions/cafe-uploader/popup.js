@@ -2,7 +2,7 @@
  * CaFE Uploader — Popup Script
  *
  * Flow:
- * 1. Select images (multi-file JPG picker) + select metadata (CSV/JSON picker)
+ * 1. Select folder (scans ALL subfolders for images + metadata)
  * 2. Review (thumbnails, portfolio sync, stats)
  * 3. Upload to CaFE via content script
  */
@@ -14,8 +14,6 @@
 
   let imageFiles = new Map();    // filename → File object
   let metadataEntries = [];      // Parsed metadata array
-  let metaText = null;           // Raw metadata text
-  let metaFilename = null;       // Metadata filename
   let portfolioImages = [];      // Already in CaFE portfolio
   let uploadQueue = [];          // Items to upload
   let isUploading = false;
@@ -25,8 +23,8 @@
   const $ = (id) => document.getElementById(id);
   const statusBadge = $('statusBadge');
   const toastArea = $('toastArea');
-  const imageInput = $('imageInput');
-  const metaInput = $('metaInput');
+  const folderInput = $('folderInput');
+  const scanResults = $('scanResults');
   const imageStatus = $('imageStatus');
   const metaStatus = $('metaStatus');
   const step2 = $('step2');
@@ -46,19 +44,11 @@
   // ── Init ───────────────────────────────────────────────────
 
   async function init() {
-    // Image picker
-    $('selectImagesBtn').addEventListener('click', () => imageInput.click());
-    imageInput.addEventListener('change', handleImagesSelected);
-
-    // Metadata picker
-    $('selectMetaBtn').addEventListener('click', () => metaInput.click());
-    metaInput.addEventListener('change', handleMetaSelected);
-
-    // Upload
+    $('selectFolderBtn').addEventListener('click', () => folderInput.click());
+    folderInput.addEventListener('change', handleFolderSelected);
     uploadAllBtn.addEventListener('click', handleUploadAll);
     retryBtn.addEventListener('click', handleRetryFailed);
 
-    // Check CaFE connection
     await checkCafeConnection();
   }
 
@@ -82,55 +72,85 @@
     return false;
   }
 
-  // ── Step 1a: Image Selection ──────────────────────────────
+  // ── Step 1: Folder Selection (deep scan) ──────────────────
 
-  function handleImagesSelected(e) {
+  async function handleFolderSelected(e) {
     const files = Array.from(e.target.files || []);
-    imageFiles.clear();
+    if (files.length === 0) return;
 
-    for (const file of files) {
-      const lower = file.name.toLowerCase();
-      if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
-        imageFiles.set(file.name, file);
+    try {
+      imageFiles.clear();
+      let metaText = null;
+      let metaFilename = null;
+
+      // webkitdirectory returns ALL files at ALL levels
+      // Scan everything — no depth filtering
+      const allCsvFiles = [];
+      const allJsonFiles = [];
+
+      for (const file of files) {
+        const lower = file.name.toLowerCase();
+
+        // Collect images (from any subfolder)
+        if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
+          imageFiles.set(file.name, file);
+        }
+
+        // Collect metadata candidates (from any subfolder)
+        if (lower.endsWith('.csv')) {
+          allCsvFiles.push(file);
+        }
+        if (lower.endsWith('.json') && !lower.startsWith('.')) {
+          allJsonFiles.push(file);
+        }
       }
-    }
 
-    imageStatus.textContent = imageFiles.size > 0
-      ? `✅ ${imageFiles.size} JPEGs loaded`
-      : '⚠️ No JPEGs found';
-    imageStatus.className = imageFiles.size > 0 ? 'file-status success' : 'file-status warning';
+      // Find best metadata file — prioritize cafe_metadata.csv, then submission.json
+      const metaCandidates = [
+        ...allCsvFiles.filter(f => f.name.toLowerCase() === 'cafe_metadata.csv'),
+        ...allJsonFiles.filter(f => f.name.toLowerCase() === 'submission.json'),
+        ...allCsvFiles.filter(f => f.name.toLowerCase().includes('metadata')),
+        ...allCsvFiles.filter(f => f.name.toLowerCase().includes('cafe')),
+        ...allCsvFiles, // any CSV as last resort
+      ];
 
-    console.log('[CaFE] Images loaded:', [...imageFiles.keys()]);
-    tryProceed();
-  }
+      if (metaCandidates.length > 0) {
+        const best = metaCandidates[0];
+        metaText = await best.text();
+        metaFilename = best.name;
+      }
 
-  // ── Step 1b: Metadata Selection ───────────────────────────
+      console.log('[CaFE] Folder scan:', {
+        totalFiles: files.length,
+        images: imageFiles.size,
+        csvFiles: allCsvFiles.map(f => `${f.webkitRelativePath}`),
+        jsonFiles: allJsonFiles.map(f => `${f.webkitRelativePath}`),
+        metadataFile: metaFilename,
+      });
 
-  async function handleMetaSelected(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+      // Update scan results
+      scanResults.style.display = 'block';
 
-    try {
-      metaText = await file.text();
-      metaFilename = file.name;
+      imageStatus.textContent = imageFiles.size > 0
+        ? `📷 ${imageFiles.size} JPEGs found`
+        : '⚠️ No JPEGs found';
+      imageStatus.className = imageFiles.size > 0 ? 'file-status success' : 'file-status warning';
 
-      metaStatus.textContent = `✅ ${file.name} loaded`;
-      metaStatus.className = 'file-status success';
+      metaStatus.textContent = metaFilename
+        ? `📄 ${metaFilename}`
+        : '⚠️ No metadata file found';
+      metaStatus.className = metaFilename ? 'file-status success' : 'file-status warning';
 
-      console.log('[CaFE] Metadata loaded:', file.name, `(${metaText.length} chars)`);
-      tryProceed();
-    } catch (err) {
-      metaStatus.textContent = `⚠️ Error: ${err.message}`;
-      metaStatus.className = 'file-status warning';
-    }
-  }
+      if (imageFiles.size === 0) {
+        showToast('No JPEG images found in folder or subfolders', 'warning');
+        return;
+      }
 
-  // ── Auto-proceed when both are loaded ─────────────────────
+      if (!metaText) {
+        showToast('No cafe_metadata.csv found in folder or subfolders', 'warning');
+        return;
+      }
 
-  async function tryProceed() {
-    if (imageFiles.size === 0 || !metaText) return;
-
-    try {
       // Parse metadata
       metadataEntries = MetadataParser.parse(metaText, metaFilename);
       metadataEntries.forEach(e => MetadataParser.validate(e));
@@ -138,7 +158,6 @@
       // Match metadata to actual image files
       metadataEntries = metadataEntries.filter(entry => {
         if (imageFiles.has(entry.file)) return true;
-        // Fuzzy match
         for (const [fname] of imageFiles) {
           if (fname.includes(entry.file) || entry.file.includes(fname)) {
             entry._matchedFile = fname;
@@ -150,10 +169,9 @@
         return true;
       });
 
-      showToast(`Matched ${metadataEntries.filter(e => e._valid).length} of ${metadataEntries.length} images`, 'success');
-
-      // Move to Step 2
+      showToast(`Matched ${metadataEntries.filter(e => e._valid).length} images with metadata`, 'success');
       await showReview();
+
     } catch (err) {
       showToast(`Error: ${err.message}`, 'error');
     }
@@ -163,11 +181,8 @@
 
   async function showReview() {
     step2.style.display = 'block';
-
-    // Try to sync with CaFE portfolio
     await syncPortfolio();
 
-    // Classify entries
     const newEntries = [];
     const existingEntries = [];
     const issueEntries = [];
@@ -176,7 +191,6 @@
       const inPortfolio = portfolioImages.some(p =>
         p.title.toLowerCase().trim() === entry.title.toLowerCase().trim()
       );
-
       entry._inPortfolio = inPortfolio;
 
       if (!entry._valid) {
@@ -188,7 +202,6 @@
       }
     });
 
-    // Update stats
     statTotal.textContent = metadataEntries.length;
     statExisting.textContent = existingEntries.length;
     statNew.textContent = newEntries.length;
@@ -198,14 +211,10 @@
       statIssues.textContent = issueEntries.length;
     }
 
-    // Build image grid
     renderImageGrid(metadataEntries);
-
-    // Build upload queue (only new + valid)
     uploadQueue = newEntries;
     renderQueue();
 
-    // Enable upload button
     uploadAllBtn.disabled = uploadQueue.length === 0;
     uploadAllBtn.textContent = uploadQueue.length > 0
       ? `Upload ${uploadQueue.length} New`
@@ -215,21 +224,13 @@
   async function syncPortfolio() {
     try {
       const connected = await checkCafeConnection();
-      if (!connected) {
-        portfolioImages = [];
-        return;
-      }
+      if (!connected) { portfolioImages = []; return; }
 
       const result = await sendToBackground({
         action: 'relayToContent',
         payload: { action: 'scrapePortfolio' },
       });
-
-      if (result?.success) {
-        portfolioImages = result.images || [];
-      } else {
-        portfolioImages = [];
-      }
+      portfolioImages = result?.success ? (result.images || []) : [];
     } catch {
       portfolioImages = [];
     }
@@ -249,9 +250,7 @@
 
       const fname = entry._matchedFile || entry.file;
       const file = imageFiles.get(fname);
-      if (file) {
-        img.src = URL.createObjectURL(file);
-      }
+      if (file) img.src = URL.createObjectURL(file);
 
       card.appendChild(img);
 
@@ -261,17 +260,15 @@
       card.appendChild(label);
 
       if (entry._inPortfolio) {
-        const status = document.createElement('div');
-        status.className = 'card-status';
-        status.textContent = '✅';
-        status.title = 'Already in CaFE portfolio';
-        card.appendChild(status);
+        const s = document.createElement('div');
+        s.className = 'card-status'; s.textContent = '✅';
+        s.title = 'Already in CaFE portfolio';
+        card.appendChild(s);
       } else if (!entry._valid) {
-        const status = document.createElement('div');
-        status.className = 'card-status';
-        status.textContent = '⚠️';
-        status.title = entry._errors.join(', ');
-        card.appendChild(status);
+        const s = document.createElement('div');
+        s.className = 'card-status'; s.textContent = '⚠️';
+        s.title = entry._errors.join(', ');
+        card.appendChild(s);
       }
 
       imageGrid.appendChild(card);
@@ -280,17 +277,14 @@
 
   function renderQueue() {
     queueList.innerHTML = '';
-
     uploadQueue.forEach((entry, idx) => {
       const item = document.createElement('div');
       item.className = 'queue-item';
       item.id = `qi-${idx}`;
-
       item.innerHTML = `
         <span class="qi-title">${entry.title}</span>
         <span class="qi-status pending" id="qis-${idx}">Pending</span>
       `;
-
       queueList.appendChild(item);
     });
   }
@@ -356,7 +350,6 @@
         } else {
           throw new Error(result?.error || 'Upload failed');
         }
-
       } catch (err) {
         statusEl.textContent = 'Failed';
         statusEl.className = 'qi-status failed';
@@ -368,9 +361,7 @@
       progressFill.style.width = `${(done / total) * 100}%`;
       progressText.textContent = `${done} / ${total}${failed > 0 ? ` (${failed} failed)` : ''}`;
 
-      if (i < uploadQueue.length - 1) {
-        await sleep(1500);
-      }
+      if (i < uploadQueue.length - 1) await sleep(1500);
     }
 
     isUploading = false;
@@ -391,7 +382,6 @@
   async function handleRetryFailed() {
     const failedEntries = uploadQueue.filter(e => e._error && !e._uploaded);
     if (failedEntries.length === 0) return;
-
     failedEntries.forEach(entry => { entry._error = null; });
     uploadQueue = failedEntries;
     renderQueue();
@@ -420,10 +410,7 @@
     toast.textContent = text;
     toastArea.innerHTML = '';
     toastArea.appendChild(toast);
-
-    setTimeout(() => {
-      if (toast.parentNode) toast.remove();
-    }, 5000);
+    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 5000);
   }
 
   function sleep(ms) {

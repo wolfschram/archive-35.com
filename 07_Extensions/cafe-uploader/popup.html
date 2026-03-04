@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CaFE Uploader</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Header -->
+  <div class="popup-header">
+    <h1>CaFE Uploader</h1>
+    <span class="status-badge checking" id="statusBadge">Checking...</span>
+  </div>
+
+  <!-- Toast messages -->
+  <div id="toastArea" style="padding: 8px 16px 0;"></div>
+
+  <!-- Step 1: Select Folder -->
+  <div class="section" id="step1">
+    <h2>1 &mdash; Select Folder</h2>
+    <p class="hint">Choose your CaFE Ready folder with images + metadata</p>
+    <button class="btn btn-primary btn-full" id="selectFolderBtn">
+      Select CaFE Ready Folder
+    </button>
+    <div class="folder-info" id="folderInfo" style="display:none;">
+      <p><strong>Images:</strong> <span id="imageCount">0</span> JPEGs found</p>
+      <p><strong>Metadata:</strong> <span id="metadataFile">None</span></p>
+    </div>
+  </div>
+
+  <!-- Step 2: Review + Stats -->
+  <div class="section" id="step2" style="display:none;">
+    <h2>2 &mdash; Review</h2>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value" id="statTotal">0</div>
+        <div class="stat-label">Local</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-value" id="statExisting">0</div>
+        <div class="stat-label">In CaFE</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statNew">0</div>
+        <div class="stat-label">New</div>
+      </div>
+      <div class="stat-card danger" id="statIssuesCard" style="display:none;">
+        <div class="stat-value" id="statIssues">0</div>
+        <div class="stat-label">Issues</div>
+      </div>
+    </div>
+
+    <!-- Image Preview Grid -->
+    <div class="image-grid" id="imageGrid"></div>
+
+    <!-- Upload Queue -->
+    <div class="queue-list" id="queueList"></div>
+
+    <!-- Progress -->
+    <div id="progressArea" style="display:none;">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText">0 / 0</div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="button-group">
+      <button class="btn btn-success" id="uploadAllBtn" style="flex:1;" disabled>
+        Upload All New
+      </button>
+      <button class="btn btn-secondary" id="retryBtn" style="display:none;">
+        Retry Failed
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p class="info">Archive-35 Photography &middot; <a href="mailto:wolf@archive-35.com">wolf@archive-35.com</a></p>
+  </div>
+
+  <script src="lib/metadata-parser.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

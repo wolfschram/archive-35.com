@@ -2,9 +2,9 @@
  * CaFE Uploader — Popup Script
  *
  * Orchestrates the 3-step flow:
- * 1. Folder selection (File System Access API)
+ * 1. Folder selection (webkitdirectory file input — gets ALL files reliably)
  * 2. Review (metadata parsing + portfolio sync)
- * 3. Upload (relay images to content script)
+ * 3. Upload (relay images to content script on CaFE)
  */
 
 (() => {
@@ -12,8 +12,7 @@
 
   // ── State ──────────────────────────────────────────────────
 
-  let folderHandle = null;       // FileSystemDirectoryHandle
-  let imageFiles = new Map();    // filename → FileSystemFileHandle
+  let imageFiles = new Map();    // filename → File object
   let metadataEntries = [];      // Parsed metadata array
   let portfolioImages = [];      // Already in CaFE portfolio
   let uploadQueue = [];          // Items to upload
@@ -25,6 +24,7 @@
   const statusBadge = $('statusBadge');
   const toastArea = $('toastArea');
   const selectFolderBtn = $('selectFolderBtn');
+  const folderInput = $('folderInput');
   const folderInfo = $('folderInfo');
   const imageCount = $('imageCount');
   const metadataFile = $('metadataFile');
@@ -45,66 +45,14 @@
   // ── Init ───────────────────────────────────────────────────
 
   async function init() {
-    selectFolderBtn.addEventListener('click', handleSelectFolder);
+    // Button triggers the hidden file input
+    selectFolderBtn.addEventListener('click', () => folderInput.click());
+    folderInput.addEventListener('change', handleFolderSelected);
     uploadAllBtn.addEventListener('click', handleUploadAll);
     retryBtn.addEventListener('click', handleRetryFailed);
 
-    // Fallback: manual metadata file picker
-    const selectMetaBtn = $('selectMetaBtn');
-    const metaFileInput = $('metaFileInput');
-    if (selectMetaBtn && metaFileInput) {
-      selectMetaBtn.addEventListener('click', () => metaFileInput.click());
-      metaFileInput.addEventListener('change', handleManualMetaFile);
-    }
-
     // Check CaFE connection
     await checkCafeConnection();
-  }
-
-  /**
-   * Fallback handler: user manually picks the CSV/JSON metadata file
-   * when showDirectoryPicker() didn't return it.
-   */
-  async function handleManualMetaFile(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const metaText = await file.text();
-      const metaFilename = file.name;
-
-      console.log('[CaFE Uploader] Manual metadata file:', metaFilename, `(${metaText.length} chars)`);
-
-      // Update UI
-      metadataFile.textContent = metaFilename;
-      $('metaFallback').style.display = 'none';
-
-      // Parse metadata
-      metadataEntries = MetadataParser.parse(metaText, metaFilename);
-      metadataEntries.forEach(e => MetadataParser.validate(e));
-
-      // Match metadata to actual image files
-      metadataEntries = metadataEntries.filter(entry => {
-        if (imageFiles.has(entry.file)) return true;
-        for (const [fname] of imageFiles) {
-          if (fname.includes(entry.file) || entry.file.includes(fname)) {
-            entry._matchedFile = fname;
-            return true;
-          }
-        }
-        entry._errors.push('Image file not found in folder');
-        entry._valid = false;
-        return true;
-      });
-
-      showToast(`Found ${metadataEntries.length} images with metadata`, 'success');
-
-      // Move to Step 2
-      await showReview();
-
-    } catch (err) {
-      showToast(`Error reading metadata: ${err.message}`, 'error');
-    }
   }
 
   // ── CaFE Connection Check ─────────────────────────────────
@@ -129,71 +77,61 @@
 
   // ── Step 1: Folder Selection ──────────────────────────────
 
-  async function handleSelectFolder() {
-    try {
-      // File System Access API — opens OS folder picker
-      folderHandle = await window.showDirectoryPicker({
-        mode: 'read',
-      });
+  async function handleFolderSelected(e) {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
-      // Scan for JPEGs and metadata files
+    try {
+      // Clear previous state
       imageFiles.clear();
       let metaText = null;
       let metaFilename = null;
-      const allFiles = [];       // Debug: track all files found
-      const csvFiles = [];       // All CSV files found
-      const jsonFiles = [];      // All JSON files found
 
-      for await (const [name, handle] of folderHandle.entries()) {
-        if (handle.kind !== 'file') continue;
-        const lower = name.toLowerCase().trim();
-        allFiles.push(name);
+      // webkitdirectory gives us ALL files with their relative paths
+      // File.webkitRelativePath = "FolderName/filename.ext"
+      // We only care about top-level files (one path separator)
+
+      for (const file of files) {
+        const name = file.name;
+        const lower = name.toLowerCase();
+
+        // Only process files directly in the selected folder (not subfolders)
+        const parts = file.webkitRelativePath.split('/');
+        if (parts.length > 2) continue; // skip subfolder files
 
         if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
-          imageFiles.set(name, handle);
+          imageFiles.set(name, file);
         }
 
-        // Collect all CSV and JSON files for flexible matching
-        if (lower.endsWith('.csv')) {
-          csvFiles.push({ name, handle });
-        }
-        if (lower.endsWith('.json')) {
-          jsonFiles.push({ name, handle });
+        // Find metadata file (prioritize exact names)
+        if (!metaText) {
+          if (lower === 'cafe_metadata.csv' || lower === 'submission.json') {
+            metaText = await file.text();
+            metaFilename = name;
+          }
         }
       }
 
-      // Find metadata file — prioritize exact names, then fall back to any CSV/JSON
-      const metaCandidates = [
-        // Priority 1: exact matches
-        ...csvFiles.filter(f => f.name.toLowerCase().trim() === 'cafe_metadata.csv'),
-        ...jsonFiles.filter(f => f.name.toLowerCase().trim() === 'submission.json'),
-        // Priority 2: any file with "metadata" or "cafe" in name
-        ...csvFiles.filter(f => {
-          const n = f.name.toLowerCase();
-          return n.includes('metadata') || n.includes('cafe');
-        }),
-        ...jsonFiles.filter(f => {
-          const n = f.name.toLowerCase();
-          return n.includes('submission') || n.includes('cafe');
-        }),
-        // Priority 3: any CSV file at all (likely the metadata)
-        ...csvFiles,
-      ];
+      // If no exact match, try any CSV or JSON
+      if (!metaText) {
+        for (const file of files) {
+          const lower = file.name.toLowerCase();
+          const parts = file.webkitRelativePath.split('/');
+          if (parts.length > 2) continue;
 
-      if (metaCandidates.length > 0) {
-        const best = metaCandidates[0];
-        const file = await best.handle.getFile();
-        metaText = await file.text();
-        metaFilename = best.name;
+          if (lower.endsWith('.csv') || lower.endsWith('.json')) {
+            metaText = await file.text();
+            metaFilename = file.name;
+            break;
+          }
+        }
       }
 
       console.log('[CaFE Uploader] Folder scan:', {
-        totalFiles: allFiles.length,
+        totalFiles: files.length,
         images: imageFiles.size,
-        csvFiles: csvFiles.map(f => f.name),
-        jsonFiles: jsonFiles.map(f => f.name),
         metadataFile: metaFilename,
-        allFiles,
+        fileNames: files.map(f => f.name),
       });
 
       // Update UI
@@ -207,10 +145,7 @@
       }
 
       if (!metaText) {
-        // Show fallback button to manually pick the CSV file
-        const metaFallback = $('metaFallback');
-        if (metaFallback) metaFallback.style.display = 'block';
-        showToast('Metadata file not auto-detected. Click below to select it manually.', 'warning');
+        showToast('No metadata file found (cafe_metadata.csv or submission.json)', 'warning');
         return;
       }
 
@@ -218,11 +153,10 @@
       metadataEntries = MetadataParser.parse(metaText, metaFilename);
       metadataEntries.forEach(e => MetadataParser.validate(e));
 
-      // Match metadata to actual files
+      // Match metadata to actual image files
       metadataEntries = metadataEntries.filter(entry => {
-        // Check if file exists (exact match or fuzzy)
         if (imageFiles.has(entry.file)) return true;
-        // Try without path prefix (e.g., "001_Wolf 183.jpg" → "Wolf 183.jpg")
+        // Fuzzy match (handle path prefixes like "001_Wolf 183.jpg" → "Wolf 183.jpg")
         for (const [fname] of imageFiles) {
           if (fname.includes(entry.file) || entry.file.includes(fname)) {
             entry._matchedFile = fname;
@@ -240,7 +174,6 @@
       await showReview();
 
     } catch (err) {
-      if (err.name === 'AbortError') return; // User cancelled picker
       showToast(`Error: ${err.message}`, 'error');
     }
   }
@@ -335,13 +268,11 @@
       img.alt = entry.title;
       img.style.background = '#2a2a3a';
 
-      // Load thumbnail async
+      // Load thumbnail — imageFiles now stores File objects directly
       const fname = entry._matchedFile || entry.file;
-      const fh = imageFiles.get(fname);
-      if (fh) {
-        fh.getFile().then(file => {
-          img.src = URL.createObjectURL(file);
-        });
+      const file = imageFiles.get(fname);
+      if (file) {
+        img.src = URL.createObjectURL(file);
       }
 
       card.appendChild(img);
@@ -411,12 +342,11 @@
       statusEl.className = 'qi-status uploading';
 
       try {
-        // Read file into ArrayBuffer
+        // Read File object into ArrayBuffer
         const fname = entry._matchedFile || entry.file;
-        const fileHandle = imageFiles.get(fname);
-        if (!fileHandle) throw new Error('File not found');
+        const file = imageFiles.get(fname);
+        if (!file) throw new Error('File not found');
 
-        const file = await fileHandle.getFile();
         const arrayBuffer = await file.arrayBuffer();
 
         // Send to content script for upload

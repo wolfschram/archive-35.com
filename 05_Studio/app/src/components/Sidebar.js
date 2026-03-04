@@ -29,6 +29,7 @@ const agentTabs = [
   { id: 'agent-queue', label: 'Queue', icon: '📋' },
   { id: 'agent-pipeline', label: 'Pipeline', icon: '🔄' },
   { id: 'agent-etsy', label: 'Etsy', icon: '🏷️' },
+  { id: 'agent-cafe', label: 'CaFE', icon: '🏛️' },
   { id: 'agent-instagram', label: 'Instagram', icon: '📷' },
   { id: 'agent-pinterest', label: 'Pinterest', icon: '📌' },
   { id: 'agent-compose', label: 'Compose', icon: '✏️' },

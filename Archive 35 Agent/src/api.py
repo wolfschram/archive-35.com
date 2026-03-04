@@ -3153,6 +3153,134 @@ def export_etsy_folder(req: EtsyExportRequest):
     }
 
 
+# ── CaFE (CallForEntry.org) Endpoints ──────────────────────────────
+
+
+class CaFEExportRequest(BaseModel):
+    """Request body for CaFE portfolio export."""
+    photo_ids: list[str] = []
+    metadata_overrides: dict = {}  # {photo_id: {title, description, ...}}
+    call_name: str = "submission"
+
+
+@app.get("/cafe/submissions")
+def get_cafe_submissions():
+    """List existing CaFE submission export folders."""
+    project_root = Path(__file__).resolve().parent.parent.parent
+    cafe_root = project_root / "CaFE Ready"
+
+    items = []
+    if cafe_root.exists():
+        for d in sorted(cafe_root.iterdir()):
+            if d.is_dir():
+                sub_json = d / "submission.json"
+                readme = d / "README.txt"
+                images = []
+
+                if sub_json.exists():
+                    try:
+                        with open(sub_json) as f:
+                            images = json.load(f)
+                    except Exception:
+                        pass
+
+                items.append({
+                    "id": d.name,
+                    "call_name": d.name,
+                    "exported_at": datetime.fromtimestamp(
+                        d.stat().st_mtime, tz=timezone.utc
+                    ).isoformat(),
+                    "images": images,
+                    "has_readme": readme.exists(),
+                })
+
+    return {"items": items}
+
+
+@app.post("/cafe/export")
+def export_cafe(req: CaFEExportRequest):
+    """Generate CaFE submission folder from selected photos.
+
+    Creates: CaFE Ready/{call_name}/
+      ├── submission.json  (array of image metadata for CaFE form)
+      ├── README.txt       (validation report)
+      └── images/          (resized JPEGs, <5MB, 1200-3000px)
+    """
+    from src.brand.cafe_export import export_cafe_folder
+
+    project_root = Path(__file__).resolve().parent.parent.parent
+    photos_json = project_root / "data" / "photos.json"
+
+    # Resolve photo file paths from photos.json
+    photo_lookup = {}
+    if photos_json.exists():
+        try:
+            with open(photos_json) as f:
+                data = json.load(f)
+            for p in data.get("photos", []):
+                photo_lookup[p["id"]] = p
+        except Exception as e:
+            logger.warning("Failed to load photos.json: %s", e)
+
+    # Build image spec list for cafe_export
+    images = []
+    for pid in req.photo_ids:
+        photo = photo_lookup.get(pid)
+        if not photo:
+            logger.warning("Photo %s not in photos.json, skipping", pid)
+            continue
+
+        # Find source file in Photography/ folder
+        collection = photo.get("collection", "")
+        filename = photo.get("filename", "")
+        photo_dir = project_root / "Photography" / collection
+        src = photo_dir / filename
+        if not src.exists():
+            # Try with common extensions
+            for ext in [".jpg", ".jpeg", ".JPG", ".JPEG"]:
+                candidate = photo_dir / (filename.rsplit(".", 1)[0] + ext if "." in filename else filename + ext)
+                if candidate.exists():
+                    src = candidate
+                    break
+
+        images.append({
+            "photo_id": pid,
+            "file_path": str(src),
+            "overrides": req.metadata_overrides.get(pid, {}),
+        })
+
+    result = export_cafe_folder(
+        call_name=req.call_name,
+        images=images,
+        project_root=project_root,
+    )
+
+    return {
+        "success": result["success"],
+        "folder_name": req.call_name,
+        "export_path": result["export_path"],
+        "images_count": result["images_count"],
+        "errors": result.get("errors"),
+    }
+
+
+@app.post("/cafe/export-folder/{submission_id}")
+def cafe_export_folder(submission_id: str):
+    """Re-export an existing CaFE submission folder (regenerate images/metadata)."""
+    project_root = Path(__file__).resolve().parent.parent.parent
+    cafe_root = project_root / "CaFE Ready"
+    folder = cafe_root / submission_id
+
+    if not folder.exists():
+        raise HTTPException(status_code=404, detail=f"Submission folder not found: {submission_id}")
+
+    return {
+        "success": True,
+        "folder_path": str(folder),
+        "message": f"Folder {submission_id} exists at {folder}",
+    }
+
+
 # ── Pinterest Endpoints ────────────────────────────────────────────
 
 

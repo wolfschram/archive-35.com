@@ -17,6 +17,7 @@ import AgentPhotoImport from './pages/AgentPhotoImport';
 import AgentContentQueue from './pages/AgentContentQueue';
 import AgentPipelineMonitor from './pages/AgentPipelineMonitor';
 import AgentEtsyListings from './pages/AgentEtsyListings';
+import AgentCafeExport from './pages/AgentCafeExport';
 import AgentInstagram from './pages/AgentInstagram';
 import AgentPinterest from './pages/AgentPinterest';
 import AgentCompose from './pages/AgentCompose';
@@ -125,6 +126,9 @@ function App() {
         </TabPanel>
         <TabPanel id="agent-etsy" activeTab={activeTab}>
           <AgentEtsyListings />
+        </TabPanel>
+        <TabPanel id="agent-cafe" activeTab={activeTab}>
+          <AgentCafeExport />
         </TabPanel>
         <TabPanel id="agent-instagram" activeTab={activeTab}>
           <AgentInstagram />

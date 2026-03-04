@@ -17,6 +17,19 @@
 
 let cafeTabId = null;
 
+// ── Keepalive Port ─────────────────────────────────────────────
+// MV3 service workers die after ~30s of inactivity. An open port
+// from the popup keeps the worker alive for the entire upload session.
+
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name === 'keepalive') {
+    console.log('[BG] Keepalive port connected — service worker will stay alive');
+    port.onDisconnect.addListener(() => {
+      console.log('[BG] Keepalive port disconnected (popup closed)');
+    });
+  }
+});
+
 // ── Message Routing ────────────────────────────────────────────
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {

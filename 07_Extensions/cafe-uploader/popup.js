@@ -19,6 +19,27 @@
   let isUploading = false;
   let cancelRequested = false;   // Cancel flag
 
+  // ── Keepalive Port ──────────────────────────────────────────
+  // Keeps the MV3 service worker alive during long upload sessions.
+  // Without this, the service worker dies after ~30s of setTimeout activity.
+  let keepAlivePort = null;
+
+  function connectKeepAlive() {
+    try {
+      keepAlivePort = chrome.runtime.connect({ name: 'keepalive' });
+      keepAlivePort.onDisconnect.addListener(() => {
+        console.log('[Popup] Keepalive port disconnected, reconnecting...');
+        keepAlivePort = null;
+        // Reconnect after brief delay (worker may have restarted)
+        setTimeout(connectKeepAlive, 1000);
+      });
+      console.log('[Popup] Keepalive port connected');
+    } catch (err) {
+      console.error('[Popup] Keepalive connect failed:', err);
+      setTimeout(connectKeepAlive, 2000);
+    }
+  }
+
   // ── DOM Elements ───────────────────────────────────────────
 
   const $ = (id) => document.getElementById(id);
@@ -46,6 +67,9 @@
   // ── Init ───────────────────────────────────────────────────
 
   async function init() {
+    // Connect keepalive port FIRST — keeps service worker alive
+    connectKeepAlive();
+
     $('selectFolderBtn').addEventListener('click', () => folderInput.click());
     folderInput.addEventListener('change', handleFolderSelected);
     uploadAllBtn.addEventListener('click', handleUploadAll);
@@ -364,13 +388,14 @@
       progressFill.style.width = `${(done / total) * 100}%`;
       progressText.textContent = `${done} / ${total}${failed > 0 ? ` (${failed} failed)` : ''}`;
 
-      // Wait between uploads (page needs to be ready)
+      // Brief pause between uploads — background.js already navigated
+      // back to media_upload.php and waited for load, so just a small
+      // delay for stability.
       if (i < uploadQueue.length - 1 && !cancelRequested) {
         const nextStatus = document.getElementById(`qis-${i + 1}`);
-        if (nextStatus) { nextStatus.textContent = 'Waiting...'; nextStatus.className = 'qi-status uploading'; }
-        console.log(`[Popup] Upload ${i + 1}/${total} done. Waiting for page ready before #${i + 2}...`);
-        const ready = await waitForContentScript(20000);
-        console.log(`[Popup] Content script ready: ${ready}. Starting upload #${i + 2}`);
+        if (nextStatus) { nextStatus.textContent = 'Preparing...'; nextStatus.className = 'qi-status uploading'; }
+        console.log(`[Popup] Upload ${i + 1}/${total} done. Brief pause before #${i + 2}...`);
+        await sleep(2000);
       }
     }
 

@@ -208,7 +208,7 @@
     "id": "118a0695-2-2",
     "filename": "118A0695-2-2.jpg",
     "title": "The Magician's Contemplation",
-    "description": "A striking portrait of elegance and mystery, captured in monochromatic tones. The subject sits poised beside symbolic objects\u2014a top hat and draped fabric\u2014evoking themes of performance, illusion, and theatrical intrigue. This fine art photograph explores the intersection of identity and craft through carefully composed visual narrative.",
+    "description": "A striking portrait of elegance and mystery, captured in monochromatic tones. The subject sits poised beside symbolic objects—a top hat and draped fabric—evoking themes of performance, illusion, and theatrical intrigue. This fine art photograph explores the intersection of identity and craft through carefully composed visual narrative.",
     "location": "Studio setting",
     "tags": [
       "portrait-photography",
@@ -1654,6 +1654,46 @@
     },
     "thumbnail": "Wolf 9807-thumb.jpg",
     "full": "Wolf 9807-full.jpg",
+    "c2pa": true
+  },
+  {
+    "id": "118a4049",
+    "filename": "118A4049.jpg",
+    "title": "Urban Convergence",
+    "description": "A candid street portrait capturing two figures amid the pulse of city life, their composed expressions reflecting quiet dignity within the anonymous flow of urban movement. The interplay of light and shadow creates an intimate moment within the larger landscape of public space.",
+    "location": "Black and White, Urban Street",
+    "tags": [
+      "street-photography",
+      "black-and-white",
+      "urban-landscape",
+      "portrait-photography",
+      "candid-moment",
+      "city-life",
+      "human-interest",
+      "documentary-style",
+      "fine-art-photography",
+      "monochrome",
+      "crowd-scene",
+      "public-space",
+      "social-documentary",
+      "composition",
+      "depth-of-field",
+      "everyday-life",
+      "wall-art",
+      "gallery-print",
+      "timeless-aesthetic",
+      "narrative-photography"
+    ],
+    "dimensions": {
+      "width": 8517,
+      "height": 5678,
+      "aspectRatio": 1.5,
+      "aspectRatioString": "3:2",
+      "orientation": "landscape",
+      "megapixels": 48.4
+    },
+    "thumbnail": "118A4049-thumb.jpg",
+    "full": "118A4049-full.jpg",
     "c2pa": true
   }
 ]

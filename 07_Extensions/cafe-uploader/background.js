@@ -4,6 +4,13 @@
  * Coordinates communication between popup and content script.
  * Uses chrome.scripting.executeScript with world:'MAIN' for uploads
  * to run in the page's JavaScript context (not the isolated content script world).
+ *
+ * Upload strategy:
+ * 1. Fill DOM fields + set file via DataTransfer
+ * 2. Call validateForm() which sets hidden fields and calls form.submit()
+ * 3. Native form submission includes DataTransfer files
+ * 4. Background watches tab URL change: media_preview.php = success
+ * 5. Navigate back to media_upload.php for next image
  */
 
 // ── State ──────────────────────────────────────────────────────
@@ -112,7 +119,13 @@ async function relayToContent(payload) {
   }
 }
 
-// ── Upload to Page (runs in MAIN world via chrome.scripting) ──────
+// ── Upload to Page ─────────────────────────────────────────────
+//
+// This is the main upload orchestrator. It:
+// 1. Ensures the tab is on media_upload.php
+// 2. Injects a script to fill the form and trigger submission
+// 3. Watches the tab URL to detect success (redirect to media_preview.php)
+// 4. Navigates back to media_upload.php for the next image
 
 async function uploadToPage(metadata, imageBase64, filename) {
   if (!cafeTabId) {
@@ -123,60 +136,111 @@ async function uploadToPage(metadata, imageBase64, filename) {
   }
 
   try {
-    // Ensure tab is on media_upload.php before starting
+    // 1. Ensure tab is on media_upload.php
     const tab = await chrome.tabs.get(cafeTabId);
     if (!tab.url.includes('media_upload.php')) {
       await chrome.tabs.update(cafeTabId, { url: 'https://artist.callforentry.org/media_upload.php' });
-      // Wait for page to load
-      await waitForTabLoad(cafeTabId, 10000);
+      await waitForTabLoad(cafeTabId, 15000);
     }
 
+    // 2. Inject script to fill form and submit
+    //    This returns BEFORE the page navigates (it just fills + clicks submit)
     const results = await chrome.scripting.executeScript({
       target: { tabId: cafeTabId },
       world: 'MAIN',
       args: [metadata, imageBase64, filename],
-      func: pageContextUpload,
+      func: fillFormAndSubmit,
     });
 
-    // executeScript returns an array of results (one per frame)
-    const result = results?.[0]?.result;
-    const outcome = result || { success: false, error: 'No result from page script' };
-
-    // After upload, reload the page to get a fresh form for the next image
-    if (outcome.success) {
-      await chrome.tabs.update(cafeTabId, { url: 'https://artist.callforentry.org/media_upload.php' });
+    const fillResult = results?.[0]?.result;
+    if (fillResult && !fillResult.submitted) {
+      // validateForm returned false — form wasn't submitted
+      return { success: false, error: fillResult.error || 'Form validation failed' };
     }
 
-    return outcome;
+    // 3. Watch for the tab to navigate after form submission
+    //    Success = redirect to media_preview.php
+    //    Failure = stays on media_upload.php (with errors)
+    const navResult = await waitForNavigation(cafeTabId, 30000);
+
+    if (navResult.url && navResult.url.includes('media_preview')) {
+      // SUCCESS! Image was uploaded
+      console.log(`[BG] Upload success: "${metadata.title}"`);
+
+      // 4. Navigate back to media_upload.php for the next image
+      await chrome.tabs.update(cafeTabId, { url: 'https://artist.callforentry.org/media_upload.php' });
+      await waitForTabLoad(cafeTabId, 15000);
+
+      return { success: true, title: metadata.title };
+    }
+
+    if (navResult.url && navResult.url.includes('media_upload.php')) {
+      // Page reloaded to upload form — likely an error
+      // Try to extract the error from the page
+      try {
+        const errResults = await chrome.scripting.executeScript({
+          target: { tabId: cafeTabId },
+          world: 'MAIN',
+          func: () => {
+            // Look for visible error messages (not the always-hidden "maximum number" template)
+            const alerts = document.querySelectorAll('.alert-danger');
+            for (const alert of alerts) {
+              const parent = alert.parentElement;
+              const parentHidden = parent && window.getComputedStyle(parent).display === 'none';
+              if (!parentHidden) {
+                const text = alert.textContent.trim();
+                if (text) return text.substring(0, 200);
+              }
+            }
+            // Check for validation error text
+            const errs = [];
+            document.querySelectorAll('.text-danger').forEach(el => {
+              if (el.offsetParent !== null && el.textContent.trim()) {
+                errs.push(el.textContent.trim());
+              }
+            });
+            return errs.length > 0 ? errs.join('; ').substring(0, 200) : null;
+          },
+        });
+        const errText = errResults?.[0]?.result;
+        return { success: false, error: errText || 'Upload rejected by server' };
+      } catch {
+        return { success: false, error: 'Upload rejected by server' };
+      }
+    }
+
+    if (navResult.timeout) {
+      return { success: false, error: 'Upload timed out — page did not respond' };
+    }
+
+    return { success: false, error: `Unexpected navigation: ${navResult.url}` };
+
   } catch (err) {
-    return { success: false, error: `Script execution failed: ${err.message}` };
+    return { success: false, error: `Upload failed: ${err.message}` };
   }
 }
 
 /**
  * This function runs in the PAGE's JavaScript context (world: 'MAIN').
- * It has access to the page's DOM, jQuery, validateForm(), and cookies.
+ * It fills the form, sets the file, and triggers validateForm() which
+ * calls form.submit() natively. The function returns IMMEDIATELY after
+ * triggering submission — it does NOT wait for the page to navigate.
  *
- * Strategy: Fill DOM fields → set file via DataTransfer → let validateForm()
- * set hidden fields (mediaFileName, MAX_FILE_SIZE) → intercept the native
- * form submit → capture complete FormData → POST via fetch.
- *
- * This hybrid approach ensures we send exactly what the server expects,
- * including all fields that validateForm() prepares.
+ * The background script watches the tab URL to detect success/failure.
  */
-async function pageContextUpload(metadata, imageBase64, filename) {
+function fillFormAndSubmit(metadata, imageBase64, filename) {
   const UNITS = { 'Inches': '1', 'Feet': '2', 'Centimeter': '3', 'Meters': '4' };
   const DISCIPLINES = { 'Photography': '28', 'Digital Media': '7', 'Mixed Media': '23' };
 
   try {
     if (!window.location.href.includes('media_upload.php')) {
-      return { success: false, error: 'Not on media_upload.php' };
+      return { submitted: false, error: 'Not on media_upload.php' };
     }
 
     console.log(`[CaFE Page] Upload: "${metadata.title}" (${filename})`);
 
     const form = document.querySelector('#uploadForm');
-    if (!form) return { success: false, error: 'Form #uploadForm not found' };
+    if (!form) return { submitted: false, error: 'Form #uploadForm not found' };
 
     // 1. Convert base64 → File and set on file input via DataTransfer
     const byteChars = atob(imageBase64);
@@ -188,7 +252,7 @@ async function pageContextUpload(metadata, imageBase64, filename) {
     const file = new File([blob], filename, { type: 'image/jpeg' });
 
     const fileInput = form.querySelector('#mediaFile');
-    if (!fileInput) return { success: false, error: 'File input #mediaFile not found' };
+    if (!fileInput) return { submitted: false, error: 'File input #mediaFile not found' };
 
     const dt = new DataTransfer();
     dt.items.add(file);
@@ -225,107 +289,12 @@ async function pageContextUpload(metadata, imageBase64, filename) {
 
     console.log('[CaFE Page] DOM fields filled');
 
-    // 3. Intercept the form submit event so we can capture the
-    //    complete FormData (after validateForm sets hidden fields)
-    //    and POST via fetch instead of navigating.
-    let fetchResult = null;
-
-    const submitInterceptor = async (e) => {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-
-      console.log('[CaFE Page] Form submit intercepted — building FormData');
-
-      // Capture ALL form data including the DataTransfer file and
-      // any hidden fields validateForm() set (mediaFileName, MAX_FILE_SIZE)
-      const formData = new FormData(form);
-
-      // Verify the file is included
-      const capturedFile = formData.get('mediaFile');
-      if (!capturedFile || capturedFile.size === 0) {
-        console.error('[CaFE Page] File NOT in FormData — falling back to manual set');
-        formData.set('mediaFile', file, filename);
-      }
-
-      console.log('[CaFE Page] POSTing via fetch...');
-
-      try {
-        const response = await fetch(form.action, {
-          method: 'POST',
-          body: formData,
-          credentials: 'include',
-        });
-
-        console.log(`[CaFE Page] Response: ${response.status}, redirected: ${response.redirected}`);
-
-        // Success = redirect to media_preview.php
-        if (response.redirected && response.url.includes('media_preview')) {
-          fetchResult = { success: true, title: metadata.title };
-          return;
-        }
-
-        const html = await response.text();
-
-        // Check for the definitive success message
-        if (html.includes('was added to your portfolio') || html.includes('has been added')) {
-          fetchResult = { success: true, title: metadata.title };
-          return;
-        }
-
-        // Check for real errors (not template strings)
-        if (html.includes('Please select a media file')) {
-          fetchResult = { success: false, error: 'Server did not receive the file' };
-          return;
-        }
-
-        // Fallback: check if we ended up on media_preview.php
-        if (response.url.includes('media_preview')) {
-          fetchResult = { success: true, title: metadata.title };
-          return;
-        }
-
-        // If response is the upload form, check for non-template errors
-        // The only alert-danger that's always in the template is "maximum number"
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const alerts = doc.querySelectorAll('.alert-danger');
-        for (const alert of alerts) {
-          const text = alert.textContent.trim();
-          if (text && !text.includes('maximum number')) {
-            fetchResult = { success: false, error: text.substring(0, 200) };
-            return;
-          }
-        }
-
-        // Check for validation errors that appeared
-        const validationErrs = doc.querySelectorAll('.text-danger');
-        const realErrors = [];
-        validationErrs.forEach(el => {
-          const t = el.textContent.trim();
-          if (t && t !== 'required field') realErrors.push(t);
-        });
-        if (realErrors.length > 0) {
-          fetchResult = { success: false, error: realErrors.join('; ').substring(0, 200) };
-          return;
-        }
-
-        fetchResult = { success: false, error: 'Upload did not redirect to preview — likely rejected' };
-      } catch (err) {
-        fetchResult = { success: false, error: `Fetch failed: ${err.message}` };
-      }
-    };
-
-    // Add interceptor on capturing phase (runs before jQuery handlers)
-    form.addEventListener('submit', submitInterceptor, { capture: true, once: true });
-
-    // 4. Trigger validateForm via the submit button click
-    //    validateForm() sets mediaFileName, MAX_FILE_SIZE, then submits the form.
-    //    Our interceptor catches the submit and does fetch instead.
+    // 3. Trigger validateForm — this sets mediaFileName, MAX_FILE_SIZE,
+    //    then calls form.submit() natively. The page will navigate.
     const valid = validateForm(jQuery('#uploadForm'));
 
     if (!valid) {
-      // validateForm returned false — collect visible errors
-      form.removeEventListener('submit', submitInterceptor, { capture: true });
+      // Collect visible errors
       const errors = [];
       form.querySelectorAll('.text-danger').forEach(el => {
         if (el.offsetParent !== null && el.textContent.trim()) {
@@ -334,43 +303,30 @@ async function pageContextUpload(metadata, imageBase64, filename) {
       });
       const errMsg = errors.filter(e => e !== 'required field').join('; ') || 'Form validation failed';
       console.error(`[CaFE Page] Validation failed: ${errMsg}`);
-      return { success: false, error: errMsg.substring(0, 200) };
+      return { submitted: false, error: errMsg.substring(0, 200) };
     }
 
-    // 5. Wait for the async fetch in the interceptor to complete
-    //    (validateForm triggers form.submit synchronously, but our
-    //    interceptor's fetch is async)
-    const maxWait = 30000;
-    const start = Date.now();
-    while (!fetchResult && (Date.now() - start) < maxWait) {
-      await new Promise(r => setTimeout(r, 200));
-    }
-
-    if (!fetchResult) {
-      return { success: false, error: 'Upload timed out (30s)' };
-    }
-
-    if (fetchResult.success) {
-      console.log(`[CaFE Page] SUCCESS: "${metadata.title}"`);
-    } else {
-      console.error(`[CaFE Page] FAILED: ${fetchResult.error}`);
-    }
-
-    return fetchResult;
+    // validateForm returned true — form.submit() was called,
+    // page will navigate shortly. Return immediately.
+    console.log('[CaFE Page] Form submitted, waiting for navigation...');
+    return { submitted: true };
 
   } catch (err) {
     console.error('[CaFE Page] Error:', err);
-    return { success: false, error: err.message };
+    return { submitted: false, error: err.message };
   }
 }
 
 // ── Tab Helpers ───────────────────────────────────────────────
 
+/**
+ * Wait for the tab to finish loading after a URL change.
+ */
 function waitForTabLoad(tabId, maxWait = 10000) {
   return new Promise((resolve) => {
     const timeout = setTimeout(() => {
       chrome.tabs.onUpdated.removeListener(listener);
-      resolve(); // resolve even on timeout
+      resolve();
     }, maxWait);
 
     const listener = (id, changeInfo) => {
@@ -378,7 +334,35 @@ function waitForTabLoad(tabId, maxWait = 10000) {
         clearTimeout(timeout);
         chrome.tabs.onUpdated.removeListener(listener);
         // Extra delay for JS initialization
-        setTimeout(resolve, 500);
+        setTimeout(resolve, 1000);
+      }
+    };
+    chrome.tabs.onUpdated.addListener(listener);
+  });
+}
+
+/**
+ * Wait for the tab to navigate to a new URL after form submission.
+ * Returns { url } on navigation or { timeout: true } on timeout.
+ */
+function waitForNavigation(tabId, maxWait = 30000) {
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      chrome.tabs.onUpdated.removeListener(listener);
+      resolve({ timeout: true });
+    }, maxWait);
+
+    const listener = (id, changeInfo) => {
+      if (id !== tabId) return;
+
+      // Wait for the page to fully load after navigation
+      if (changeInfo.status === 'complete') {
+        clearTimeout(timeout);
+        chrome.tabs.onUpdated.removeListener(listener);
+        // Get the final URL
+        chrome.tabs.get(tabId).then(tab => {
+          setTimeout(() => resolve({ url: tab.url }), 500);
+        }).catch(() => resolve({ timeout: true }));
       }
     };
     chrome.tabs.onUpdated.addListener(listener);

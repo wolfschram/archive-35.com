@@ -16,23 +16,18 @@
   <!-- Toast messages -->
   <div id="toastArea" style="padding: 8px 16px 0;"></div>
 
-  <!-- Step 1: Select Files -->
+  <!-- Step 1: Select Folder -->
   <div class="section" id="step1">
-    <h2>1 &mdash; Load Files</h2>
-
-    <!-- Images -->
-    <button class="btn btn-primary btn-full" id="selectImagesBtn">
-      📷 Select Images
+    <h2>1 &mdash; Select Folder</h2>
+    <p class="hint">Pick your CaFE submissions folder — scans all subfolders</p>
+    <button class="btn btn-primary btn-full" id="selectFolderBtn">
+      Select CaFE Folder
     </button>
-    <input type="file" id="imageInput" multiple accept=".jpg,.jpeg" style="display:none;">
-    <p class="file-status" id="imageStatus"></p>
-
-    <!-- Metadata -->
-    <button class="btn btn-secondary btn-full" id="selectMetaBtn" style="margin-top:8px;">
-      📄 Select cafe_metadata.csv
-    </button>
-    <input type="file" id="metaInput" accept=".csv,.json" style="display:none;">
-    <p class="file-status" id="metaStatus"></p>
+    <input type="file" id="folderInput" webkitdirectory multiple style="display:none;">
+    <div id="scanResults" style="display:none;">
+      <p class="file-status" id="imageStatus"></p>
+      <p class="file-status" id="metaStatus"></p>
+    </div>
   </div>
 
   <!-- Step 2: Review + Stats -->

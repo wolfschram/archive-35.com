@@ -27,6 +27,13 @@
       <p><strong>Images:</strong> <span id="imageCount">0</span> JPEGs found</p>
       <p><strong>Metadata:</strong> <span id="metadataFile">None</span></p>
     </div>
+    <!-- Fallback: manual metadata file picker (shown when folder scan misses CSV) -->
+    <div id="metaFallback" style="display:none; padding: 0 16px;">
+      <button class="btn btn-secondary btn-full" id="selectMetaBtn" style="margin-top:8px; font-size:13px;">
+        📄 Select cafe_metadata.csv manually
+      </button>
+      <input type="file" id="metaFileInput" accept=".csv,.json" style="display:none;">
+    </div>
   </div>
 
   <!-- Step 2: Review + Stats -->

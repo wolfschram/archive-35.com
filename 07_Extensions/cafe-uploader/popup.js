@@ -103,19 +103,37 @@
         }
       }
 
-      // Find best metadata file
-      const metaCandidates = [
-        ...allCsvFiles.filter(f => f.name.toLowerCase() === 'cafe_metadata.csv'),
+      // Find best metadata file — try JSON first, fall back to CSV if empty
+      const jsonCandidates = [
         ...allJsonFiles.filter(f => f.name.toLowerCase() === 'submission.json'),
+        ...allJsonFiles,
+      ];
+      const csvCandidates = [
+        ...allCsvFiles.filter(f => f.name.toLowerCase() === 'cafe_metadata.csv'),
         ...allCsvFiles.filter(f => f.name.toLowerCase().includes('metadata')),
         ...allCsvFiles.filter(f => f.name.toLowerCase().includes('cafe')),
         ...allCsvFiles,
       ];
 
-      if (metaCandidates.length > 0) {
-        const best = metaCandidates[0];
-        metaText = await best.text();
-        metaFilename = best.name;
+      // Try JSON first
+      for (const candidate of jsonCandidates) {
+        const text = await candidate.text();
+        try {
+          const parsed = JSON.parse(text);
+          const items = Array.isArray(parsed) ? parsed : (parsed.metadata || parsed.images || []);
+          if (items.length > 0) {
+            metaText = text;
+            metaFilename = candidate.name;
+            break;
+          }
+          console.log(`[CaFE] ${candidate.name} is empty, trying next...`);
+        } catch { console.log(`[CaFE] ${candidate.name} invalid JSON, skipping`); }
+      }
+
+      // Fall back to CSV if no valid JSON
+      if (!metaText && csvCandidates.length > 0) {
+        metaText = await csvCandidates[0].text();
+        metaFilename = csvCandidates[0].name;
       }
 
       console.log('[CaFE] Folder scan:', {

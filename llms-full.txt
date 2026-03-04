@@ -12,7 +12,7 @@
 - Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
 - Website: https://archive-35.com
 
-## Print Collections (1108 photographs, 48 collections)
+## Print Collections (1109 photographs, 48 collections)
 
 ### Alps (2 photographs)
 - URL: https://archive-35.com/collection.html?id=alps
@@ -65,7 +65,7 @@
   - Coastal Frame: Ocean's Circle | New South Wales South Coast, Australia | 16.9MP | Tags: sculpture-art, coastal-landscape, fine-art-photography, australia-coast, ocean-view, geometric-frame, turquoise-water, sandy-beach
   - ... and 3 more photographs
 
-### Black and White (41 photographs)
+### Black and White (42 photographs)
 - URL: https://archive-35.com/collection.html?id=black-and-white
 - Gallery: https://archive-35.com/gallery.html?collection=black-and-white
 
@@ -74,7 +74,7 @@
   - Urban Dance Embrace | Buenos Aires Public plaza or street venue | 50.3MP | Tags: street-photography, dance-photography, urban-dance, black-and-white, fine-art-photography, couple-dance, contemporary-dance, public-performance
   - Zebra Family in the Grassland | African Savanna | 50.3MP | Tags: zebra, wildlife-photography, african-savanna, black-and-white, fine-art-photography, nature-photography, grassland, animal-portrait
   - Intimate Connection | Studio | 50.3MP | Tags: portrait-photography, black-and-white, fine-art, human-connection, intimate-moment, emotional-depth, monochromatic, studio-portrait
-  - ... and 36 more photographs
+  - ... and 37 more photographs
 
 ### Brazil (14 photographs)
 - URL: https://archive-35.com/collection.html?id=brazil

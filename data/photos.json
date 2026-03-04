@@ -4632,6 +4632,48 @@
       }
     },
     {
+      "id": "black-and-white-042",
+      "filename": "118A4049",
+      "title": "Urban Convergence",
+      "description": "A candid street portrait capturing two figures amid the pulse of city life, their composed expressions reflecting quiet dignity within the anonymous flow of urban movement. The interplay of light and shadow creates an intimate moment within the larger landscape of public space.",
+      "collection": "black-and-white",
+      "collectionTitle": "Black and White",
+      "tags": [
+        "street-photography",
+        "black-and-white",
+        "urban-landscape",
+        "portrait-photography",
+        "candid-moment",
+        "city-life",
+        "human-interest",
+        "documentary-style",
+        "fine-art-photography",
+        "monochrome",
+        "crowd-scene",
+        "public-space",
+        "social-documentary",
+        "composition",
+        "depth-of-field",
+        "everyday-life",
+        "wall-art",
+        "gallery-print",
+        "timeless-aesthetic",
+        "narrative-photography"
+      ],
+      "location": "Black and White, Urban Street",
+      "year": 2026,
+      "thumbnail": "images/black-and-white/118A4049-thumb.jpg",
+      "full": "images/black-and-white/118A4049-full.jpg",
+      "dimensions": {
+        "width": 8517,
+        "height": 5678,
+        "aspectRatio": 1.5,
+        "aspectRatioString": "3:2",
+        "orientation": "landscape",
+        "megapixels": 48.4
+      }
+    },
+    {
       "id": "brazil-001",
       "filename": "118A1758",
       "title": "Lightning Over Rio's Luminous Waters",

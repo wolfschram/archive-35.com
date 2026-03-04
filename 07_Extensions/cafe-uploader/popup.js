@@ -1,10 +1,10 @@
 /**
  * CaFE Uploader — Popup Script
  *
- * Orchestrates the 3-step flow:
- * 1. Folder selection (webkitdirectory file input — gets ALL files reliably)
- * 2. Review (metadata parsing + portfolio sync)
- * 3. Upload (relay images to content script on CaFE)
+ * Flow:
+ * 1. Select images (multi-file JPG picker) + select metadata (CSV/JSON picker)
+ * 2. Review (thumbnails, portfolio sync, stats)
+ * 3. Upload to CaFE via content script
  */
 
 (() => {
@@ -14,6 +14,8 @@
 
   let imageFiles = new Map();    // filename → File object
   let metadataEntries = [];      // Parsed metadata array
+  let metaText = null;           // Raw metadata text
+  let metaFilename = null;       // Metadata filename
   let portfolioImages = [];      // Already in CaFE portfolio
   let uploadQueue = [];          // Items to upload
   let isUploading = false;
@@ -23,11 +25,10 @@
   const $ = (id) => document.getElementById(id);
   const statusBadge = $('statusBadge');
   const toastArea = $('toastArea');
-  const selectFolderBtn = $('selectFolderBtn');
-  const folderInput = $('folderInput');
-  const folderInfo = $('folderInfo');
-  const imageCount = $('imageCount');
-  const metadataFile = $('metadataFile');
+  const imageInput = $('imageInput');
+  const metaInput = $('metaInput');
+  const imageStatus = $('imageStatus');
+  const metaStatus = $('metaStatus');
   const step2 = $('step2');
   const imageGrid = $('imageGrid');
   const queueList = $('queueList');
@@ -45,9 +46,15 @@
   // ── Init ───────────────────────────────────────────────────
 
   async function init() {
-    // Button triggers the hidden file input
-    selectFolderBtn.addEventListener('click', () => folderInput.click());
-    folderInput.addEventListener('change', handleFolderSelected);
+    // Image picker
+    $('selectImagesBtn').addEventListener('click', () => imageInput.click());
+    imageInput.addEventListener('change', handleImagesSelected);
+
+    // Metadata picker
+    $('selectMetaBtn').addEventListener('click', () => metaInput.click());
+    metaInput.addEventListener('change', handleMetaSelected);
+
+    // Upload
     uploadAllBtn.addEventListener('click', handleUploadAll);
     retryBtn.addEventListener('click', handleRetryFailed);
 
@@ -75,80 +82,55 @@
     return false;
   }
 
-  // ── Step 1: Folder Selection ──────────────────────────────
+  // ── Step 1a: Image Selection ──────────────────────────────
 
-  async function handleFolderSelected(e) {
+  function handleImagesSelected(e) {
     const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+    imageFiles.clear();
+
+    for (const file of files) {
+      const lower = file.name.toLowerCase();
+      if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
+        imageFiles.set(file.name, file);
+      }
+    }
+
+    imageStatus.textContent = imageFiles.size > 0
+      ? `✅ ${imageFiles.size} JPEGs loaded`
+      : '⚠️ No JPEGs found';
+    imageStatus.className = imageFiles.size > 0 ? 'file-status success' : 'file-status warning';
+
+    console.log('[CaFE] Images loaded:', [...imageFiles.keys()]);
+    tryProceed();
+  }
+
+  // ── Step 1b: Metadata Selection ───────────────────────────
+
+  async function handleMetaSelected(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     try {
-      // Clear previous state
-      imageFiles.clear();
-      let metaText = null;
-      let metaFilename = null;
+      metaText = await file.text();
+      metaFilename = file.name;
 
-      // webkitdirectory gives us ALL files with their relative paths
-      // File.webkitRelativePath = "FolderName/filename.ext"
-      // We only care about top-level files (one path separator)
+      metaStatus.textContent = `✅ ${file.name} loaded`;
+      metaStatus.className = 'file-status success';
 
-      for (const file of files) {
-        const name = file.name;
-        const lower = name.toLowerCase();
+      console.log('[CaFE] Metadata loaded:', file.name, `(${metaText.length} chars)`);
+      tryProceed();
+    } catch (err) {
+      metaStatus.textContent = `⚠️ Error: ${err.message}`;
+      metaStatus.className = 'file-status warning';
+    }
+  }
 
-        // Only process files directly in the selected folder (not subfolders)
-        const parts = file.webkitRelativePath.split('/');
-        if (parts.length > 2) continue; // skip subfolder files
+  // ── Auto-proceed when both are loaded ─────────────────────
 
-        if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
-          imageFiles.set(name, file);
-        }
+  async function tryProceed() {
+    if (imageFiles.size === 0 || !metaText) return;
 
-        // Find metadata file (prioritize exact names)
-        if (!metaText) {
-          if (lower === 'cafe_metadata.csv' || lower === 'submission.json') {
-            metaText = await file.text();
-            metaFilename = name;
-          }
-        }
-      }
-
-      // If no exact match, try any CSV or JSON
-      if (!metaText) {
-        for (const file of files) {
-          const lower = file.name.toLowerCase();
-          const parts = file.webkitRelativePath.split('/');
-          if (parts.length > 2) continue;
-
-          if (lower.endsWith('.csv') || lower.endsWith('.json')) {
-            metaText = await file.text();
-            metaFilename = file.name;
-            break;
-          }
-        }
-      }
-
-      console.log('[CaFE Uploader] Folder scan:', {
-        totalFiles: files.length,
-        images: imageFiles.size,
-        metadataFile: metaFilename,
-        fileNames: files.map(f => f.name),
-      });
-
-      // Update UI
-      folderInfo.style.display = 'block';
-      imageCount.textContent = imageFiles.size;
-      metadataFile.textContent = metaFilename || 'Not found';
-
-      if (imageFiles.size === 0) {
-        showToast('No JPEG images found in folder', 'warning');
-        return;
-      }
-
-      if (!metaText) {
-        showToast('No metadata file found (cafe_metadata.csv or submission.json)', 'warning');
-        return;
-      }
-
+    try {
       // Parse metadata
       metadataEntries = MetadataParser.parse(metaText, metaFilename);
       metadataEntries.forEach(e => MetadataParser.validate(e));
@@ -156,23 +138,22 @@
       // Match metadata to actual image files
       metadataEntries = metadataEntries.filter(entry => {
         if (imageFiles.has(entry.file)) return true;
-        // Fuzzy match (handle path prefixes like "001_Wolf 183.jpg" → "Wolf 183.jpg")
+        // Fuzzy match
         for (const [fname] of imageFiles) {
           if (fname.includes(entry.file) || entry.file.includes(fname)) {
             entry._matchedFile = fname;
             return true;
           }
         }
-        entry._errors.push('Image file not found in folder');
+        entry._errors.push('Image file not found');
         entry._valid = false;
-        return true; // Keep for display, mark as invalid
+        return true;
       });
 
-      showToast(`Found ${metadataEntries.length} images with metadata`, 'success');
+      showToast(`Matched ${metadataEntries.filter(e => e._valid).length} of ${metadataEntries.length} images`, 'success');
 
       // Move to Step 2
       await showReview();
-
     } catch (err) {
       showToast(`Error: ${err.message}`, 'error');
     }
@@ -192,7 +173,6 @@
     const issueEntries = [];
 
     metadataEntries.forEach(entry => {
-      // Check if already in CaFE
       const inPortfolio = portfolioImages.some(p =>
         p.title.toLowerCase().trim() === entry.title.toLowerCase().trim()
       );
@@ -258,17 +238,15 @@
   function renderImageGrid(entries) {
     imageGrid.innerHTML = '';
 
-    entries.forEach((entry, idx) => {
+    entries.forEach((entry) => {
       const card = document.createElement('div');
       card.className = 'image-card';
       if (entry._inPortfolio) card.classList.add('uploaded');
 
-      // Create thumbnail from file
       const img = document.createElement('img');
       img.alt = entry.title;
       img.style.background = '#2a2a3a';
 
-      // Load thumbnail — imageFiles now stores File objects directly
       const fname = entry._matchedFile || entry.file;
       const file = imageFiles.get(fname);
       if (file) {
@@ -277,13 +255,11 @@
 
       card.appendChild(img);
 
-      // Title label
       const label = document.createElement('div');
       label.className = 'card-label';
       label.textContent = entry.title;
       card.appendChild(label);
 
-      // Status icon
       if (entry._inPortfolio) {
         const status = document.createElement('div');
         status.className = 'card-status';
@@ -337,19 +313,16 @@
       const entry = uploadQueue[i];
       const statusEl = document.getElementById(`qis-${i}`);
 
-      // Update status
       statusEl.textContent = 'Uploading';
       statusEl.className = 'qi-status uploading';
 
       try {
-        // Read File object into ArrayBuffer
         const fname = entry._matchedFile || entry.file;
         const file = imageFiles.get(fname);
         if (!file) throw new Error('File not found');
 
         const arrayBuffer = await file.arrayBuffer();
 
-        // Send to content script for upload
         const result = await sendToBackground({
           action: 'relayToContent',
           payload: {
@@ -391,18 +364,15 @@
         failed++;
       }
 
-      // Update progress
       const done = completed + failed;
       progressFill.style.width = `${(done / total) * 100}%`;
       progressText.textContent = `${done} / ${total}${failed > 0 ? ` (${failed} failed)` : ''}`;
 
-      // Brief delay between uploads to avoid overwhelming CaFE
       if (i < uploadQueue.length - 1) {
         await sleep(1500);
       }
     }
 
-    // Done
     isUploading = false;
 
     if (failed === 0) {
@@ -414,7 +384,6 @@
       retryBtn.style.display = 'block';
     }
 
-    // Update stats
     statExisting.textContent = parseInt(statExisting.textContent) + completed;
     statNew.textContent = Math.max(0, parseInt(statNew.textContent) - completed);
   }
@@ -423,12 +392,7 @@
     const failedEntries = uploadQueue.filter(e => e._error && !e._uploaded);
     if (failedEntries.length === 0) return;
 
-    // Reset failed entries
-    failedEntries.forEach(entry => {
-      entry._error = null;
-    });
-
-    // Re-render and re-upload
+    failedEntries.forEach(entry => { entry._error = null; });
     uploadQueue = failedEntries;
     renderQueue();
     await handleUploadAll();
@@ -457,7 +421,6 @@
     toastArea.innerHTML = '';
     toastArea.appendChild(toast);
 
-    // Auto-dismiss after 5s
     setTimeout(() => {
       if (toast.parentNode) toast.remove();
     }, 5000);

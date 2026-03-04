@@ -49,8 +49,62 @@
     uploadAllBtn.addEventListener('click', handleUploadAll);
     retryBtn.addEventListener('click', handleRetryFailed);
 
+    // Fallback: manual metadata file picker
+    const selectMetaBtn = $('selectMetaBtn');
+    const metaFileInput = $('metaFileInput');
+    if (selectMetaBtn && metaFileInput) {
+      selectMetaBtn.addEventListener('click', () => metaFileInput.click());
+      metaFileInput.addEventListener('change', handleManualMetaFile);
+    }
+
     // Check CaFE connection
     await checkCafeConnection();
+  }
+
+  /**
+   * Fallback handler: user manually picks the CSV/JSON metadata file
+   * when showDirectoryPicker() didn't return it.
+   */
+  async function handleManualMetaFile(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const metaText = await file.text();
+      const metaFilename = file.name;
+
+      console.log('[CaFE Uploader] Manual metadata file:', metaFilename, `(${metaText.length} chars)`);
+
+      // Update UI
+      metadataFile.textContent = metaFilename;
+      $('metaFallback').style.display = 'none';
+
+      // Parse metadata
+      metadataEntries = MetadataParser.parse(metaText, metaFilename);
+      metadataEntries.forEach(e => MetadataParser.validate(e));
+
+      // Match metadata to actual image files
+      metadataEntries = metadataEntries.filter(entry => {
+        if (imageFiles.has(entry.file)) return true;
+        for (const [fname] of imageFiles) {
+          if (fname.includes(entry.file) || entry.file.includes(fname)) {
+            entry._matchedFile = fname;
+            return true;
+          }
+        }
+        entry._errors.push('Image file not found in folder');
+        entry._valid = false;
+        return true;
+      });
+
+      showToast(`Found ${metadataEntries.length} images with metadata`, 'success');
+
+      // Move to Step 2
+      await showReview();
+
+    } catch (err) {
+      showToast(`Error reading metadata: ${err.message}`, 'error');
+    }
   }
 
   // ── CaFE Connection Check ─────────────────────────────────
@@ -153,12 +207,10 @@
       }
 
       if (!metaText) {
-        // Show what files WERE found to help debug
-        const nonImages = allFiles.filter(f => !f.toLowerCase().match(/\.(jpg|jpeg)$/));
-        const hint = nonImages.length > 0
-          ? ` Found: ${nonImages.join(', ')}`
-          : ' Folder only contains images.';
-        showToast(`No metadata file found.${hint}`, 'warning');
+        // Show fallback button to manually pick the CSV file
+        const metaFallback = $('metaFallback');
+        if (metaFallback) metaFallback.style.display = 'block';
+        showToast('Metadata file not auto-detected. Click below to select it manually.', 'warning');
         return;
       }
 

@@ -16,18 +16,23 @@
   <!-- Toast messages -->
   <div id="toastArea" style="padding: 8px 16px 0;"></div>
 
-  <!-- Step 1: Select Folder -->
+  <!-- Step 1: Select Files -->
   <div class="section" id="step1">
-    <h2>1 &mdash; Select Folder</h2>
-    <p class="hint">Choose your CaFE Ready folder with images + metadata</p>
-    <button class="btn btn-primary btn-full" id="selectFolderBtn">
-      Select CaFE Ready Folder
+    <h2>1 &mdash; Load Files</h2>
+
+    <!-- Images -->
+    <button class="btn btn-primary btn-full" id="selectImagesBtn">
+      📷 Select Images
     </button>
-    <input type="file" id="folderInput" webkitdirectory multiple style="display:none;">
-    <div class="folder-info" id="folderInfo" style="display:none;">
-      <p><strong>Images:</strong> <span id="imageCount">0</span> JPEGs found</p>
-      <p><strong>Metadata:</strong> <span id="metadataFile">None</span></p>
-    </div>
+    <input type="file" id="imageInput" multiple accept=".jpg,.jpeg" style="display:none;">
+    <p class="file-status" id="imageStatus"></p>
+
+    <!-- Metadata -->
+    <button class="btn btn-secondary btn-full" id="selectMetaBtn" style="margin-top:8px;">
+      📄 Select cafe_metadata.csv
+    </button>
+    <input type="file" id="metaInput" accept=".csv,.json" style="display:none;">
+    <p class="file-status" id="metaStatus"></p>
   </div>
 
   <!-- Step 2: Review + Stats -->

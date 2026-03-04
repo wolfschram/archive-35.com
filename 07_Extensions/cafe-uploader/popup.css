@@ -102,6 +102,15 @@ body {
   margin-bottom: 10px;
 }
 
+.file-status {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 6px 0 0;
+  min-height: 18px;
+}
+.file-status.success { color: var(--success); }
+.file-status.warning { color: var(--warning); }
+
 /* ── Buttons ────────────────────────────────────── */
 
 .btn {

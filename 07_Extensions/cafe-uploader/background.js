@@ -140,15 +140,17 @@ async function uploadToPage(metadata, imageBase64, filename) {
 
 /**
  * This function runs in the PAGE's JavaScript context (world: 'MAIN').
- * It has access to jQuery, CaFE's validateForm(), and native DOM events.
- * Arguments are passed via chrome.scripting.executeScript args.
+ * It has access to the page's cookies for authenticated fetch requests.
+ *
+ * Uses fetch POST with FormData instead of native form submission because
+ * files set via DataTransfer API are NOT included in native form POSTs
+ * (browser security restriction). fetch() with FormData works correctly.
  */
-function pageContextUpload(metadata, imageBase64, filename) {
+async function pageContextUpload(metadata, imageBase64, filename) {
   const UNITS = { 'Inches': '1', 'Feet': '2', 'Centimeter': '3', 'Meters': '4' };
   const DISCIPLINES = { 'Photography': '28', 'Digital Media': '7', 'Mixed Media': '23' };
 
   try {
-    // Check we're on the upload page
     if (!window.location.href.includes('media_upload.php')) {
       return { success: false, error: 'Not on media_upload.php' };
     }
@@ -166,82 +168,100 @@ function pageContextUpload(metadata, imageBase64, filename) {
 
     console.log(`[CaFE Page] File: ${(file.size / 1024).toFixed(0)} KB`);
 
-    // 2. Set file on input
-    const fileInput = document.querySelector('#mediaFile');
-    if (!fileInput) return { success: false, error: 'File input #mediaFile not found' };
+    // 2. Build FormData with all hidden fields from the live form
+    const form = document.querySelector('#uploadForm');
+    if (!form) return { success: false, error: 'Form #uploadForm not found' };
 
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    fileInput.files = dt.files;
-    fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+    const formData = new FormData();
 
-    console.log(`[CaFE Page] File set: ${fileInput.files[0]?.name}`);
+    // Copy ALL hidden fields (pf_fk, pf_secret, etc.)
+    form.querySelectorAll('input[type="hidden"]').forEach(input => {
+      if (input.name) formData.append(input.name, input.value);
+    });
 
-    // 3. Fill form fields
-    function setVal(id, val) {
-      const el = document.getElementById(id) || document.querySelector(`[name="${id}"]`);
-      if (el) {
-        el.value = val;
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
+    // Override key hidden fields
+    formData.set('sample_type', 'image');
+    formData.set('newUpdateMedia', 'new');
+
+    // 3. Attach the file
+    formData.set('mediaFile', file, filename);
+
+    // 4. Set all metadata fields
+    formData.set('imageTitle', metadata.title || '');
+    formData.set('imageAltText', metadata.alt_text || '');
+    formData.set('imageMedium', metadata.medium || 'Digital photograph, archival pigment print');
+    formData.set('imageDescription', metadata.description || '');
+    formData.set('imageHeight', String(metadata.height || 20));
+    formData.set('imageWidth', String(metadata.width || 30));
+    formData.set('imageDepth', String(metadata.depth || 0.1));
+
+    const unitVal = UNITS[metadata.units] || '1';
+    formData.set('imageHeightDimensions', unitVal);
+    formData.set('imageWidthDimensions', unitVal);
+    formData.set('imageDepthDimensions', unitVal);
+
+    const forSaleVal = (metadata.for_sale === 'Yes' || metadata.for_sale === true) ? '1' : '0';
+    formData.set('imageForSale', forSaleVal);
+    if (metadata.price) formData.set('imagePrice', String(metadata.price));
+    formData.set('imageYearCompleted', String(metadata.year || new Date().getFullYear()));
+    formData.set('primaryDiscipline', DISCIPLINES[metadata.discipline] || '28');
+    formData.set('publicArt', (metadata.public_art === 'Yes') ? '1' : '0');
+
+    console.log('[CaFE Page] FormData built, POSTing via fetch...');
+
+    // 5. POST via fetch — CRITICAL: No Content-Type header!
+    //    Browser sets multipart boundary automatically.
+    //    Running in page context = cookies are included automatically.
+    const response = await fetch('https://artist.callforentry.org/media_upload.php', {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    });
+
+    console.log(`[CaFE Page] Response: ${response.status}, redirected: ${response.redirected}`);
+
+    if (!response.ok) {
+      return { success: false, error: `HTTP ${response.status}` };
+    }
+
+    const html = await response.text();
+
+    // 6. Check for errors in response
+    const errorMatch = html.match(/class="[^"]*alert[- ]danger[^"]*"[^>]*>([\s\S]*?)<\/div/i);
+    if (errorMatch) {
+      const errText = errorMatch[1].replace(/<[^>]+>/g, '').trim();
+      if (errText && !errText.includes('maximum number')) {
+        console.error(`[CaFE Page] Server error: ${errText}`);
+        return { success: false, error: errText.substring(0, 200) };
       }
     }
 
-    setVal('mediaTypeRadio', 'image');
-    setVal('imageTitle', metadata.title || '');
-    setVal('imageAltText', metadata.alt_text || '');
-    setVal('imageMedium', metadata.medium || 'Digital photograph, archival pigment print');
-    setVal('imageDescription', metadata.description || '');
-    setVal('imageHeight', String(metadata.height || 20));
-    setVal('imageWidth', String(metadata.width || 30));
-    setVal('imageDepth', String(metadata.depth || 0.1));
-
-    const unitVal = UNITS[metadata.units] || '1';
-    setVal('imageHeightDimensions', unitVal);
-    setVal('imageWidthDimensions', unitVal);
-    setVal('imageDepthDimensions', unitVal);
-
-    const forSaleVal = (metadata.for_sale === 'Yes' || metadata.for_sale === true) ? '1' : '0';
-    setVal('imageForSale', forSaleVal);
-    if (metadata.price) setVal('imagePrice', String(metadata.price));
-    setVal('imageYearCompleted', String(metadata.year || new Date().getFullYear()));
-    setVal('primaryDiscipline', DISCIPLINES[metadata.discipline] || '28');
-    setVal('publicArt', (metadata.public_art === 'Yes') ? '1' : '0');
-
-    // Set hidden fields
-    const sampleType = document.getElementById('sample_type');
-    if (sampleType) sampleType.value = 'image';
-    const newUpdate = document.getElementById('newUpdateMedia');
-    if (newUpdate) newUpdate.value = 'new';
-
-    console.log('[CaFE Page] All fields filled');
-
-    // 4. Hook form submit
-    const form = document.querySelector('#uploadForm');
-    let formSubmitted = false;
-    if (form) {
-      form.addEventListener('submit', () => { formSubmitted = true; }, { once: true });
+    // Check for specific file error
+    if (html.includes('Please select a media file')) {
+      return { success: false, error: 'Server did not receive the file' };
+    }
+    if (html.includes('not a jpeg')) {
+      return { success: false, error: 'Server rejected file — not recognized as JPEG' };
+    }
+    if (html.includes('minimum of 1200 pixels')) {
+      return { success: false, error: 'Image too small — minimum 1200px on longest side' };
     }
 
-    // 5. Click upload button
-    const btn = document.querySelector('#imageUploadButton');
-    if (!btn) return { success: false, error: 'Upload button not found' };
-
-    btn.click();
-    console.log('[CaFE Page] Button clicked');
-
-    // Note: We can't await here since this must return synchronously.
-    // The form submission is synchronous — if validateForm passes, it submits immediately.
-    // We check formSubmitted right after click.
-
-    if (formSubmitted) {
-      console.log(`[CaFE Page] Form submitted: "${metadata.title}"`);
+    // Success indicators
+    if (html.includes('has been added') || html.includes('successfully') || response.redirected) {
+      console.log(`[CaFE Page] SUCCESS: "${metadata.title}"`);
       return { success: true, title: metadata.title };
     }
 
-    // If not submitted yet, maybe validateForm hasn't run.
-    // Return a pending state — the popup will verify via page reload.
-    return { success: true, title: metadata.title, note: 'Button clicked, form processing' };
+    // If we see the upload form again without errors, likely success (page reloads to add more)
+    if (html.includes('Add Media') && !html.includes('Error adding')) {
+      console.log(`[CaFE Page] Likely success (form reloaded clean): "${metadata.title}"`);
+      return { success: true, title: metadata.title };
+    }
+
+    // Ambiguous
+    console.warn('[CaFE Page] Ambiguous response');
+    return { success: true, title: metadata.title, note: 'Verify in portfolio' };
 
   } catch (err) {
     console.error('[CaFE Page] Error:', err);

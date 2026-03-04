@@ -69,9 +69,10 @@ _site/
 # Etsy listing exports — local workflow only (machine → Etsy)
 06_Automation/etsy-export/
 
-# Licensing — ignore everything except thumbnails (needed for website)
+# Licensing — ignore everything except thumbnails + watermarked (needed for website)
 09_Licensing/*
 !09_Licensing/thumbnails/
+!09_Licensing/watermarked/
 
 # Mockup room templates — Studio tool, not web content
 templates/

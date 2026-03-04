@@ -23,9 +23,8 @@ archive35-context-folder/
 memory/
 website documents /
 
-# Not website content (but 09_Licensing/thumbnails/ IS deployed for licensing page)
+# Not website content (but thumbnails + watermarked ARE deployed for licensing page)
 09_Licensing/originals/
-09_Licensing/watermarked/
 09_Licensing/zoom/
 09_Licensing/metadata/
 09_Licensing/data/

@@ -361,7 +361,16 @@
       progressFill.style.width = `${(done / total) * 100}%`;
       progressText.textContent = `${done} / ${total}${failed > 0 ? ` (${failed} failed)` : ''}`;
 
-      if (i < uploadQueue.length - 1) await sleep(1500);
+      if (i < uploadQueue.length - 1) {
+        // CaFE reloads after each upload — wait for content script to be ready again
+        statusEl.textContent = statusEl.textContent === 'Done' ? 'Done' : 'Failed';
+        const nextStatus = document.getElementById(`qis-${i + 1}`);
+        if (nextStatus) {
+          nextStatus.textContent = 'Waiting...';
+          nextStatus.className = 'qi-status uploading';
+        }
+        await waitForContentScript(15000);
+      }
     }
 
     isUploading = false;
@@ -389,6 +398,29 @@
   }
 
   // ── Messaging Helpers ─────────────────────────────────────
+
+  /**
+   * Wait for the content script to be ready on the CaFE tab.
+   * After each upload, CaFE reloads the page, so we need to wait
+   * for the content script to re-inject and respond to pings.
+   */
+  async function waitForContentScript(maxWait = 15000) {
+    const start = Date.now();
+    while (Date.now() - start < maxWait) {
+      try {
+        const result = await sendToBackground({
+          action: 'relayToContent',
+          payload: { action: 'ping' },
+        });
+        if (result?.alive && result?.onUploadPage) {
+          await sleep(500); // Extra pause for page JS to finish loading
+          return true;
+        }
+      } catch {}
+      await sleep(1000);
+    }
+    return false;
+  }
 
   function sendToBackground(msg) {
     return new Promise((resolve, reject) => {

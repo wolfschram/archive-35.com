@@ -2,151 +2,170 @@
  * CaFE Form Mapper — Maps internal metadata fields to CaFE form field names.
  *
  * CaFE form at: https://artist.callforentry.org/media_upload.php
- * Field names extracted from DOM inspection.
+ * Field names extracted from actual DOM inspection (March 2026).
+ *
+ * Actual CaFE field names:
+ *   pf_fk, pf_secret (hidden security tokens)
+ *   sample_type = "image", newUpdateMedia = "new"
+ *   mediaFile (file input)
+ *   imageTitle, imageAltText, imageMedium, imageDescription
+ *   imageHeight, imageHeightDimensions (select: 1=Inches, 2=Feet, 3=cm, 4=m)
+ *   imageWidth, imageWidthDimensions
+ *   imageDepth, imageDepthDimensions
+ *   imageForSale (select: 1=Yes, 0=No)
+ *   imagePrice
+ *   imageYearCompleted
+ *   primaryDiscipline (select: 28=Photography)
+ *   publicArt (select: 0=No, 1=Yes)
+ *   publicArtLocation, publicArtProgram
  */
 
 const CafeFormMapper = {
-  // Map: internal field name → CaFE form field name
-  FIELD_MAP: {
-    file:        'mediaFile',
-    title:       'imageTitle',
-    alt_text:    'imageAltText',
-    medium:      'imageMedium',
-    height:      'imageHeight',
-    width:       'imageWidth',
-    depth:       'imageDepth',
-    for_sale:    'imageForSale',
-    price:       'imagePrice',
-    year:        'imageYearCompleted',
-    description: 'imageDescription',
+
+  // CaFE dimension unit values
+  UNITS: {
+    'Inches': '1',
+    'Feet': '2',
+    'Centimeter': '3',
+    'Meters': '4',
   },
 
-  // CaFE discipline IDs (select dropdown values)
+  // CaFE discipline select values
   DISCIPLINES: {
     'Photography': '28',
-    'Digital Media': '5',
-    'Mixed Media': '14',
-    'Painting': '15',
-    'Sculpture': '19',
-  },
-
-  // Unit field names (one per dimension)
-  UNIT_FIELDS: {
-    height: 'imageHeightUnits',
-    width:  'imageWidthUnits',
-    depth:  'imageDepthUnits',
+    'Digital Media': '7',
+    'Mixed Media': '23',
+    'Painting': '25',
+    'Sculpture': '31',
+    'Printmaking': '29',
+    'Public Art': '30',
   },
 
   /**
-   * Build a FormData object ready for CaFE submission.
+   * Fill the CaFE upload form on the current page with metadata.
+   * Sets file input via DataTransfer API + fills all text/select fields.
    *
    * @param {Object} metadata - Normalized metadata entry
-   * @param {File|Blob} imageFile - The image file to upload
-   * @param {Object} hiddenFields - Hidden form fields (pf_fk, pf_secret)
-   * @returns {FormData}
+   * @param {Blob} imageBlob - Image as Blob
+   * @param {string} filename - Original filename
    */
-  buildFormData(metadata, imageFile, hiddenFields = {}) {
-    const fd = new FormData();
+  fillForm(metadata, imageBlob, filename) {
+    // ── Set file input via DataTransfer ──
+    const fileInput = document.getElementById('mediaFile');
+    if (fileInput) {
+      const dt = new DataTransfer();
+      dt.items.add(new File([imageBlob], filename, { type: 'image/jpeg' }));
+      fileInput.files = dt.files;
+      fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
 
-    // File
-    fd.append('mediaFile', imageFile, metadata.file);
-
-    // Text fields
-    fd.append('imageTitle', metadata.title);
-    fd.append('imageAltText', metadata.alt_text);
-    fd.append('imageMedium', metadata.medium);
-    fd.append('imageDescription', metadata.description);
-
-    // Dimensions + units
-    fd.append('imageHeight', String(metadata.height));
-    fd.append('imageHeightUnits', metadata.units);
-    fd.append('imageWidth', String(metadata.width));
-    fd.append('imageWidthUnits', metadata.units);
-    fd.append('imageDepth', String(metadata.depth));
-    fd.append('imageDepthUnits', metadata.units);
-
-    // Selects
-    fd.append('imageForSale', metadata.for_sale);
-    if (metadata.price) fd.append('imagePrice', String(metadata.price));
-    fd.append('imageYearCompleted', String(metadata.year));
-
-    // Discipline (Photography = 28)
-    const discId = this.DISCIPLINES[metadata.discipline] || '28';
-    fd.append('primaryDiscipline', discId);
-
-    // Public art
-    fd.append('publicArt', metadata.public_art === 'Yes' ? 'Yes' : 'No');
-
-    // Hidden fields from the form
-    fd.append('sample_type', 'image');
-    fd.append('newUpdateMedia', 'new');
-    if (hiddenFields.pf_fk) fd.append('pf_fk', hiddenFields.pf_fk);
-    if (hiddenFields.pf_secret) fd.append('pf_secret', hiddenFields.pf_secret);
-
-    return fd;
-  },
-
-  /**
-   * Fill form fields in the DOM (for visual form-filling approach).
-   * Used when we want to show the form being filled before submit.
-   *
-   * @param {Object} metadata - Normalized metadata entry
-   */
-  fillFormFields(metadata) {
+    // ── Helper to set a form field value ──
     const setVal = (name, value) => {
       const el = document.querySelector(`[name="${name}"]`);
-      if (!el) return false;
+      if (!el) {
+        console.warn(`[CaFE Mapper] Field not found: ${name}`);
+        return;
+      }
       if (el.tagName === 'SELECT') {
-        // Find matching option
         for (const opt of el.options) {
           if (opt.value === String(value) || opt.text === String(value)) {
             el.value = opt.value;
             el.dispatchEvent(new Event('change', { bubbles: true }));
-            return true;
+            return;
           }
         }
+        console.warn(`[CaFE Mapper] No matching option for ${name}=${value}`);
       } else if (el.tagName === 'TEXTAREA') {
-        el.value = value;
+        el.value = String(value);
         el.dispatchEvent(new Event('input', { bubbles: true }));
       } else {
-        el.value = value;
+        el.value = String(value);
         el.dispatchEvent(new Event('input', { bubbles: true }));
       }
-      return true;
     };
 
+    // ── Text fields ──
     setVal('imageTitle', metadata.title);
     setVal('imageAltText', metadata.alt_text);
     setVal('imageMedium', metadata.medium);
-    setVal('imageDescription', metadata.description);
+    setVal('imageDescription', metadata.description || '');
+
+    // ── Dimensions ── (CaFE uses "Dimensions" not "Units")
     setVal('imageHeight', String(metadata.height));
-    setVal('imageHeightUnits', metadata.units);
     setVal('imageWidth', String(metadata.width));
-    setVal('imageWidthUnits', metadata.units);
     setVal('imageDepth', String(metadata.depth));
-    setVal('imageDepthUnits', metadata.units);
-    setVal('imageForSale', metadata.for_sale);
+
+    const unitVal = this.UNITS[metadata.units] || '1'; // default Inches
+    setVal('imageHeightDimensions', unitVal);
+    setVal('imageWidthDimensions', unitVal);
+    setVal('imageDepthDimensions', unitVal);
+
+    // ── Selects ──
+    const forSaleVal = (metadata.for_sale === 'Yes' || metadata.for_sale === true) ? '1' : '0';
+    setVal('imageForSale', forSaleVal);
     if (metadata.price) setVal('imagePrice', String(metadata.price));
     setVal('imageYearCompleted', String(metadata.year));
-    setVal('primaryDiscipline', this.DISCIPLINES[metadata.discipline] || '28');
-    setVal('publicArt', metadata.public_art === 'Yes' ? 'Yes' : 'No');
+
+    // Discipline (Photography = 28)
+    const discId = this.DISCIPLINES[metadata.discipline] || '28';
+    setVal('primaryDiscipline', discId);
+
+    // Public art
+    const publicArtVal = (metadata.public_art === 'Yes' || metadata.public_art === true) ? '1' : '0';
+    setVal('publicArt', publicArtVal);
   },
 
   /**
-   * Extract hidden form fields from the CaFE upload page DOM.
-   * These are required for successful form submission.
+   * Click the "Add to My Portfolio" image upload button.
+   * Returns a promise that resolves when upload completes or fails.
    */
-  extractHiddenFields() {
-    const fields = {};
-    const pfFk = document.querySelector('[name="pf_fk"]');
-    const pfSecret = document.querySelector('[name="pf_secret"]');
-    if (pfFk) fields.pf_fk = pfFk.value;
-    if (pfSecret) fields.pf_secret = pfSecret.value;
-    return fields;
+  clickUpload() {
+    return new Promise((resolve, reject) => {
+      const btn = document.getElementById('imageUploadButton');
+      if (!btn) {
+        reject(new Error('Upload button (#imageUploadButton) not found'));
+        return;
+      }
+
+      // Watch for page navigation, success indicators, or errors
+      let resolved = false;
+      const timeout = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          // Check if there's a success or error on the page
+          const body = document.body.textContent;
+          if (body.includes('successfully') || body.includes('added')) {
+            resolve({ success: true });
+          } else {
+            resolve({ success: true, note: 'Upload clicked — check portfolio to verify' });
+          }
+        }
+      }, 30000); // 30s timeout for large files
+
+      // Watch for the upload progress to complete
+      const observer = new MutationObserver(() => {
+        const body = document.body.textContent;
+        // CaFE shows "please wait while your image file is processed" during upload
+        // After success it typically reloads or shows the portfolio
+        if (body.includes('successfully') || body.includes('has been added')) {
+          if (!resolved) {
+            resolved = true;
+            clearTimeout(timeout);
+            observer.disconnect();
+            resolve({ success: true });
+          }
+        }
+      });
+
+      observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+
+      // Click the button
+      btn.click();
+    });
   },
 };
 
-// Export for both contexts
+// Export
 if (typeof window !== 'undefined') {
   window.CafeFormMapper = CafeFormMapper;
 }

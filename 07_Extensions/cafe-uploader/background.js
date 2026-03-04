@@ -77,6 +77,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     openCafeTab(msg.url).then(sendResponse);
     return true;
   }
+
+  // Popup asking for portfolio titles (for dedup)
+  if (msg.action === 'getPortfolioTitles') {
+    getPortfolioTitles().then(sendResponse).catch(err => {
+      sendResponse({ success: false, error: err.message, titles: [] });
+    });
+    return true;
+  }
 });
 
 // ── Tab Management ─────────────────────────────────────────────
@@ -129,6 +137,70 @@ async function relayToContent(payload) {
   } catch (err) {
     cafeTabId = null;
     throw new Error(`Could not reach CaFE tab: ${err.message}`);
+  }
+}
+
+// ── Portfolio Scraping (for dedup) ─────────────────────────────
+//
+// Navigates to portfolio.php, scrapes all image titles via executeScript,
+// then navigates back. Used before batch upload to skip duplicates.
+
+async function getPortfolioTitles() {
+  if (!cafeTabId) {
+    const result = await findCafeTab();
+    if (!result.found) {
+      return { success: false, titles: [], error: 'No CaFE tab' };
+    }
+  }
+
+  try {
+    // Remember where we were so we can go back
+    const tab = await chrome.tabs.get(cafeTabId);
+    const returnUrl = tab.url;
+
+    // Navigate to portfolio page
+    if (!tab.url.includes('portfolio.php')) {
+      console.log('[BG] Navigating to portfolio.php for dedup scrape');
+      await chrome.tabs.update(cafeTabId, { url: 'https://artist.callforentry.org/portfolio.php' });
+      await waitForTabLoad(cafeTabId, 15000);
+    }
+
+    // Scrape all image titles from the portfolio page
+    const results = await chrome.scripting.executeScript({
+      target: { tabId: cafeTabId },
+      world: 'MAIN',
+      func: () => {
+        const titles = [];
+        // Portfolio links to media_preview contain title text directly
+        // Structure: <a href="media_preview.php?id=XXX">Title Text</a>
+        // Some links wrap images (thumbnails), some contain just text (titles)
+        document.querySelectorAll('a[href*="media_preview"]').forEach(a => {
+          const text = a.textContent.trim();
+          // Skip links that are just image wrappers (very short or no text)
+          // Keep links that have actual title text
+          if (text && text.length > 2 && text.length < 100) {
+            // Avoid duplicates from thumbnail + text links to same item
+            if (!titles.includes(text)) {
+              titles.push(text);
+            }
+          }
+        });
+        return titles;
+      },
+    });
+
+    const titles = results?.[0]?.result || [];
+    console.log(`[BG] Scraped ${titles.length} portfolio titles for dedup`);
+
+    // Navigate back to upload page (where we'll need to be)
+    console.log('[BG] Navigating to media_upload.php after scrape');
+    await chrome.tabs.update(cafeTabId, { url: 'https://artist.callforentry.org/media_upload.php' });
+    await waitForTabLoad(cafeTabId, 15000);
+
+    return { success: true, titles };
+  } catch (err) {
+    console.error('[BG] Portfolio scrape failed:', err);
+    return { success: false, titles: [], error: err.message };
   }
 }
 

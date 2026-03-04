@@ -110,13 +110,13 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
 .filter-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);margin-left:auto}
 
 /* ── GRID ── */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:24px;padding:40px 60px;max-width:1800px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;padding:40px 60px;max-width:1800px;margin:0 auto;align-items:start}
 
 /* ── IMAGE CARD ── */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;cursor:pointer;transition:transform 0.2s,border-color 0.2s}
 .card:hover{transform:translateY(-2px);border-color:var(--gold-dim)}
-.card-img{position:relative;aspect-ratio:3/2;overflow:hidden;background:var(--raised)}
-.card-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.3s}
+.card-img{position:relative;overflow:hidden;background:var(--raised)}
+.card-img img{width:100%;height:auto;object-fit:contain;display:block;transition:transform 0.3s}
 .card:hover .card-img img{transform:scale(1.02)}
 .card-badges{position:absolute;top:10px;right:10px;display:flex;gap:6px}
 .badge{padding:3px 10px;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1px;backdrop-filter:blur(8px)}
@@ -197,7 +197,7 @@ a{color:var(--gold);text-decoration:none;transition:color 0.2s}a:hover{color:var
   .hero{height:50vh;min-height:360px}
   .filters{padding:16px;padding-top:80px;top:0;gap:8px}
   .filter-btn{padding:6px 14px;font-size:10px}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;padding:20px 16px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:20px 16px}
   .modal{grid-template-columns:1fr;margin:0 auto;padding:90px 16px 20px}
   .modal-details{padding:0 0 40px}
 }
@@ -375,7 +375,7 @@ function renderGrid() {
     return `
       <div class="card" onclick="openModal('${img.id}')">
         <div class="card-img">
-          <img src="${img.thumbnail}?v=2" alt="${cleanTitle(img.title)}" loading="lazy">
+          <img src="${img.thumbnail}?v=3" alt="${cleanTitle(img.title)}" loading="lazy" decoding="async">
           <div class="card-badges">
             <span class="badge ${badgeClass}">${img.classification}</span>
             <span class="badge badge-res mono">${img.width.toLocaleString()} × ${img.height.toLocaleString()}</span>
@@ -447,8 +447,12 @@ function loadProtectedPreview(previewPath) {
   if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  fetch(previewPath + '?v=2')
-    .then(r => r.blob())
+  fetch(previewPath + '?v=3', { cache: 'reload' })
+    .then(r => {
+      const ct = r.headers.get('content-type') || '';
+      if (!ct.startsWith('image/')) throw new Error('Not an image: ' + ct);
+      return r.blob();
+    })
     .then(blob => {
       currentBlobUrl = URL.createObjectURL(blob);
       const tempImg = new window.Image();
@@ -459,15 +463,21 @@ function loadProtectedPreview(previewPath) {
         URL.revokeObjectURL(currentBlobUrl);
         currentBlobUrl = null;
       };
+      tempImg.onerror = () => {
+        URL.revokeObjectURL(currentBlobUrl);
+        currentBlobUrl = null;
+        showPreviewError();
+      };
       tempImg.src = currentBlobUrl;
     })
-    .catch(() => {
-      // Fallback: if fetch fails, just show text
-      canvas.width = 800; canvas.height = 400;
-      ctx.fillStyle = '#1C1C1C'; ctx.fillRect(0, 0, 800, 400);
-      ctx.fillStyle = '#555'; ctx.font = '16px Inter, sans-serif';
-      ctx.textAlign = 'center'; ctx.fillText('Preview unavailable', 400, 200);
-    });
+    .catch(() => showPreviewError());
+
+  function showPreviewError() {
+    canvas.width = 800; canvas.height = 400;
+    ctx.fillStyle = '#1C1C1C'; ctx.fillRect(0, 0, 800, 400);
+    ctx.fillStyle = '#555'; ctx.font = '16px Inter, sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText('Preview unavailable — try refreshing', 400, 200);
+  }
 }
 
 function closeModal() {

@@ -35,7 +35,7 @@ function AgentCafeExport() {
     try {
       const [submissionsData, photosData] = await Promise.all([
         get('/cafe/submissions').catch(() => ({ items: [] })),
-        get('/photos').catch(() => ({ photos: [] })),
+        get('/cafe/photos?limit=1200').catch(() => ({ photos: [] })),
       ]);
       setSubmissions(submissionsData.items || []);
       setAllPhotos(photosData.photos || []);

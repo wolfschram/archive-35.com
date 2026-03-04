@@ -3163,6 +3163,40 @@ class CaFEExportRequest(BaseModel):
     call_name: str = "submission"
 
 
+@app.get("/cafe/photos")
+def get_cafe_photos(
+    collection: Optional[str] = None,
+    limit: int = Query(default=500, le=2000),
+):
+    """List photos from photos.json for CaFE submission selection.
+
+    Returns canonical gallery photos with titles, collections, and thumbnail URLs.
+    This is separate from GET /photos which reads from the Agent DB.
+    """
+    project_root = Path(__file__).resolve().parent.parent.parent
+    photos_json = project_root / "data" / "photos.json"
+
+    if not photos_json.exists():
+        return {"photos": [], "total": 0}
+
+    try:
+        with open(photos_json) as f:
+            data = json.load(f)
+
+        photos = data.get("photos", [])
+
+        if collection:
+            photos = [p for p in photos if p.get("collection") == collection]
+
+        # Return up to limit
+        photos = photos[:limit]
+
+        return {"photos": photos, "total": len(photos)}
+    except Exception as e:
+        logger.error("Failed to load photos.json for CaFE: %s", e)
+        return {"photos": [], "total": 0}
+
+
 @app.get("/cafe/submissions")
 def get_cafe_submissions():
     """List existing CaFE submission export folders."""

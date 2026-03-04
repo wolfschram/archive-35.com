@@ -4,7 +4,7 @@
  * Flow:
  * 1. Select folder (scans ALL subfolders for images + metadata)
  * 2. Review (thumbnails, portfolio sync, stats)
- * 3. Upload to CaFE via content script
+ * 3. Upload to CaFE via content script (base64 transfer + fetch POST)
  */
 
 (() => {
@@ -17,6 +17,7 @@
   let portfolioImages = [];      // Already in CaFE portfolio
   let uploadQueue = [];          // Items to upload
   let isUploading = false;
+  let cancelRequested = false;   // Cancel flag
 
   // ── DOM Elements ───────────────────────────────────────────
 
@@ -34,6 +35,7 @@
   const progressFill = $('progressFill');
   const progressText = $('progressText');
   const uploadAllBtn = $('uploadAllBtn');
+  const cancelBtn = $('cancelBtn');
   const retryBtn = $('retryBtn');
   const statTotal = $('statTotal');
   const statExisting = $('statExisting');
@@ -47,7 +49,8 @@
     $('selectFolderBtn').addEventListener('click', () => folderInput.click());
     folderInput.addEventListener('change', handleFolderSelected);
     uploadAllBtn.addEventListener('click', handleUploadAll);
-    retryBtn.addEventListener('click', handleRetryFailed);
+    if (cancelBtn) cancelBtn.addEventListener('click', handleCancel);
+    if (retryBtn) retryBtn.addEventListener('click', handleRetryFailed);
 
     await checkCafeConnection();
   }
@@ -83,20 +86,15 @@
       let metaText = null;
       let metaFilename = null;
 
-      // webkitdirectory returns ALL files at ALL levels
-      // Scan everything — no depth filtering
       const allCsvFiles = [];
       const allJsonFiles = [];
 
       for (const file of files) {
         const lower = file.name.toLowerCase();
 
-        // Collect images (from any subfolder)
         if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
           imageFiles.set(file.name, file);
         }
-
-        // Collect metadata candidates (from any subfolder)
         if (lower.endsWith('.csv')) {
           allCsvFiles.push(file);
         }
@@ -105,13 +103,13 @@
         }
       }
 
-      // Find best metadata file — prioritize cafe_metadata.csv, then submission.json
+      // Find best metadata file
       const metaCandidates = [
         ...allCsvFiles.filter(f => f.name.toLowerCase() === 'cafe_metadata.csv'),
         ...allJsonFiles.filter(f => f.name.toLowerCase() === 'submission.json'),
         ...allCsvFiles.filter(f => f.name.toLowerCase().includes('metadata')),
         ...allCsvFiles.filter(f => f.name.toLowerCase().includes('cafe')),
-        ...allCsvFiles, // any CSV as last resort
+        ...allCsvFiles,
       ];
 
       if (metaCandidates.length > 0) {
@@ -123,39 +121,26 @@
       console.log('[CaFE] Folder scan:', {
         totalFiles: files.length,
         images: imageFiles.size,
-        csvFiles: allCsvFiles.map(f => `${f.webkitRelativePath}`),
-        jsonFiles: allJsonFiles.map(f => `${f.webkitRelativePath}`),
+        csvFiles: allCsvFiles.map(f => f.webkitRelativePath),
+        jsonFiles: allJsonFiles.map(f => f.webkitRelativePath),
         metadataFile: metaFilename,
       });
 
-      // Update scan results
+      // Update UI
       scanResults.style.display = 'block';
-
-      imageStatus.textContent = imageFiles.size > 0
-        ? `📷 ${imageFiles.size} JPEGs found`
-        : '⚠️ No JPEGs found';
+      imageStatus.textContent = imageFiles.size > 0 ? `📷 ${imageFiles.size} JPEGs found` : '⚠️ No JPEGs found';
       imageStatus.className = imageFiles.size > 0 ? 'file-status success' : 'file-status warning';
-
-      metaStatus.textContent = metaFilename
-        ? `📄 ${metaFilename}`
-        : '⚠️ No metadata file found';
+      metaStatus.textContent = metaFilename ? `📄 ${metaFilename}` : '⚠️ No metadata file found';
       metaStatus.className = metaFilename ? 'file-status success' : 'file-status warning';
 
-      if (imageFiles.size === 0) {
-        showToast('No JPEG images found in folder or subfolders', 'warning');
-        return;
-      }
-
-      if (!metaText) {
-        showToast('No cafe_metadata.csv found in folder or subfolders', 'warning');
-        return;
-      }
+      if (imageFiles.size === 0) { showToast('No JPEG images found', 'warning'); return; }
+      if (!metaText) { showToast('No cafe_metadata.csv found', 'warning'); return; }
 
       // Parse metadata
       metadataEntries = MetadataParser.parse(metaText, metaFilename);
       metadataEntries.forEach(e => MetadataParser.validate(e));
 
-      // Match metadata to actual image files
+      // Match metadata to image files
       metadataEntries = metadataEntries.filter(entry => {
         if (imageFiles.has(entry.file)) return true;
         for (const [fname] of imageFiles) {
@@ -171,7 +156,6 @@
 
       showToast(`Matched ${metadataEntries.filter(e => e._valid).length} images with metadata`, 'success');
       await showReview();
-
     } catch (err) {
       showToast(`Error: ${err.message}`, 'error');
     }
@@ -183,9 +167,7 @@
     step2.style.display = 'block';
     await syncPortfolio();
 
-    const newEntries = [];
-    const existingEntries = [];
-    const issueEntries = [];
+    const newEntries = [], existingEntries = [], issueEntries = [];
 
     metadataEntries.forEach(entry => {
       const inPortfolio = portfolioImages.some(p =>
@@ -193,19 +175,14 @@
       );
       entry._inPortfolio = inPortfolio;
 
-      if (!entry._valid) {
-        issueEntries.push(entry);
-      } else if (inPortfolio) {
-        existingEntries.push(entry);
-      } else {
-        newEntries.push(entry);
-      }
+      if (!entry._valid) issueEntries.push(entry);
+      else if (inPortfolio) existingEntries.push(entry);
+      else newEntries.push(entry);
     });
 
     statTotal.textContent = metadataEntries.length;
     statExisting.textContent = existingEntries.length;
     statNew.textContent = newEntries.length;
-
     if (issueEntries.length > 0) {
       statIssuesCard.style.display = 'block';
       statIssues.textContent = issueEntries.length;
@@ -217,28 +194,23 @@
 
     uploadAllBtn.disabled = uploadQueue.length === 0;
     uploadAllBtn.textContent = uploadQueue.length > 0
-      ? `Upload ${uploadQueue.length} New`
-      : 'Nothing to Upload';
+      ? `Upload ${uploadQueue.length} New` : 'Nothing to Upload';
   }
 
   async function syncPortfolio() {
     try {
       const connected = await checkCafeConnection();
       if (!connected) { portfolioImages = []; return; }
-
       const result = await sendToBackground({
         action: 'relayToContent',
         payload: { action: 'scrapePortfolio' },
       });
       portfolioImages = result?.success ? (result.images || []) : [];
-    } catch {
-      portfolioImages = [];
-    }
+    } catch { portfolioImages = []; }
   }
 
   function renderImageGrid(entries) {
     imageGrid.innerHTML = '';
-
     entries.forEach((entry) => {
       const card = document.createElement('div');
       card.className = 'image-card';
@@ -247,11 +219,9 @@
       const img = document.createElement('img');
       img.alt = entry.title;
       img.style.background = '#2a2a3a';
-
       const fname = entry._matchedFile || entry.file;
       const file = imageFiles.get(fname);
       if (file) img.src = URL.createObjectURL(file);
-
       card.appendChild(img);
 
       const label = document.createElement('div');
@@ -261,16 +231,13 @@
 
       if (entry._inPortfolio) {
         const s = document.createElement('div');
-        s.className = 'card-status'; s.textContent = '✅';
-        s.title = 'Already in CaFE portfolio';
+        s.className = 'card-status'; s.textContent = '✅'; s.title = 'Already in CaFE';
         card.appendChild(s);
       } else if (!entry._valid) {
         const s = document.createElement('div');
-        s.className = 'card-status'; s.textContent = '⚠️';
-        s.title = entry._errors.join(', ');
+        s.className = 'card-status'; s.textContent = '⚠️'; s.title = entry._errors.join(', ');
         card.appendChild(s);
       }
-
       imageGrid.appendChild(card);
     });
   }
@@ -279,8 +246,7 @@
     queueList.innerHTML = '';
     uploadQueue.forEach((entry, idx) => {
       const item = document.createElement('div');
-      item.className = 'queue-item';
-      item.id = `qi-${idx}`;
+      item.className = 'queue-item'; item.id = `qi-${idx}`;
       item.innerHTML = `
         <span class="qi-title">${entry.title}</span>
         <span class="qi-status pending" id="qis-${idx}">Pending</span>
@@ -294,19 +260,28 @@
   async function handleUploadAll() {
     if (isUploading || uploadQueue.length === 0) return;
     isUploading = true;
+    cancelRequested = false;
 
-    uploadAllBtn.disabled = true;
-    uploadAllBtn.textContent = 'Uploading...';
+    uploadAllBtn.style.display = 'none';
+    if (cancelBtn) cancelBtn.style.display = 'block';
     progressArea.style.display = 'block';
 
     const total = uploadQueue.length;
-    let completed = 0;
-    let failed = 0;
+    let completed = 0, failed = 0;
 
     for (let i = 0; i < uploadQueue.length; i++) {
+      // Check cancel
+      if (cancelRequested) {
+        // Mark remaining as skipped
+        for (let j = i; j < uploadQueue.length; j++) {
+          const s = document.getElementById(`qis-${j}`);
+          if (s) { s.textContent = 'Cancelled'; s.className = 'qi-status failed'; }
+        }
+        break;
+      }
+
       const entry = uploadQueue[i];
       const statusEl = document.getElementById(`qis-${i}`);
-
       statusEl.textContent = 'Uploading';
       statusEl.className = 'qi-status uploading';
 
@@ -315,7 +290,8 @@
         const file = imageFiles.get(fname);
         if (!file) throw new Error('File not found');
 
-        const arrayBuffer = await file.arrayBuffer();
+        // Convert to base64 for reliable Chrome messaging
+        const base64 = await fileToBase64(file);
 
         const result = await sendToBackground({
           action: 'relayToContent',
@@ -335,9 +311,8 @@
               year: entry.year,
               discipline: entry.discipline,
               public_art: entry.public_art,
-              file: fname,
             },
-            imageData: Array.from(new Uint8Array(arrayBuffer)),
+            imageBase64: base64,
             filename: fname,
           },
         });
@@ -361,22 +336,24 @@
       progressFill.style.width = `${(done / total) * 100}%`;
       progressText.textContent = `${done} / ${total}${failed > 0 ? ` (${failed} failed)` : ''}`;
 
-      if (i < uploadQueue.length - 1) {
-        // CaFE reloads after each upload — wait for content script to be ready again
-        statusEl.textContent = statusEl.textContent === 'Done' ? 'Done' : 'Failed';
+      // Wait between uploads (page may reload)
+      if (i < uploadQueue.length - 1 && !cancelRequested) {
         const nextStatus = document.getElementById(`qis-${i + 1}`);
-        if (nextStatus) {
-          nextStatus.textContent = 'Waiting...';
-          nextStatus.className = 'qi-status uploading';
-        }
+        if (nextStatus) { nextStatus.textContent = 'Waiting...'; nextStatus.className = 'qi-status uploading'; }
         await waitForContentScript(15000);
       }
     }
 
     isUploading = false;
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    uploadAllBtn.style.display = 'block';
 
-    if (failed === 0) {
-      showToast(`All ${completed} images uploaded successfully!`, 'success');
+    if (cancelRequested) {
+      showToast(`Cancelled. ${completed} uploaded before cancel.`, 'warning');
+      uploadAllBtn.textContent = `Cancelled (${completed}/${total})`;
+      uploadAllBtn.disabled = true;
+    } else if (failed === 0) {
+      showToast(`All ${completed} images uploaded!`, 'success');
       uploadAllBtn.textContent = 'All Done';
     } else {
       showToast(`${completed} uploaded, ${failed} failed`, 'warning');
@@ -388,22 +365,37 @@
     statNew.textContent = Math.max(0, parseInt(statNew.textContent) - completed);
   }
 
+  function handleCancel() {
+    cancelRequested = true;
+    if (cancelBtn) cancelBtn.textContent = 'Cancelling...';
+    showToast('Cancelling after current upload finishes...', 'warning');
+  }
+
   async function handleRetryFailed() {
     const failedEntries = uploadQueue.filter(e => e._error && !e._uploaded);
     if (failedEntries.length === 0) return;
     failedEntries.forEach(entry => { entry._error = null; });
     uploadQueue = failedEntries;
     renderQueue();
+    retryBtn.style.display = 'none';
     await handleUploadAll();
   }
 
-  // ── Messaging Helpers ─────────────────────────────────────
+  // ── Helpers ────────────────────────────────────────────────
 
-  /**
-   * Wait for the content script to be ready on the CaFE tab.
-   * After each upload, CaFE reloads the page, so we need to wait
-   * for the content script to re-inject and respond to pings.
-   */
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        // result is "data:image/jpeg;base64,XXXX" — strip the prefix
+        const base64 = reader.result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function waitForContentScript(maxWait = 15000) {
     const start = Date.now();
     while (Date.now() - start < maxWait) {
@@ -413,7 +405,7 @@
           payload: { action: 'ping' },
         });
         if (result?.alive && result?.onUploadPage) {
-          await sleep(500); // Extra pause for page JS to finish loading
+          await sleep(500);
           return true;
         }
       } catch {}
@@ -425,16 +417,11 @@
   function sendToBackground(msg) {
     return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage(msg, (response) => {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
-        } else {
-          resolve(response);
-        }
+        if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
+        else resolve(response);
       });
     });
   }
-
-  // ── UI Helpers ────────────────────────────────────────────
 
   function showToast(text, type = 'info') {
     const toast = document.createElement('div');
@@ -445,9 +432,7 @@
     setTimeout(() => { if (toast.parentNode) toast.remove(); }, 5000);
   }
 
-  function sleep(ms) {
-    return new Promise(r => setTimeout(r, ms));
-  }
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
   // ── Start ─────────────────────────────────────────────────
 

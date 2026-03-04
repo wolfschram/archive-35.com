@@ -139,50 +139,65 @@ async function uploadToPage(metadata, imageBase64, filename) {
     // 1. Ensure tab is on media_upload.php
     const tab = await chrome.tabs.get(cafeTabId);
     if (!tab.url.includes('media_upload.php')) {
+      console.log('[BG] Navigating to media_upload.php');
       await chrome.tabs.update(cafeTabId, { url: 'https://artist.callforentry.org/media_upload.php' });
       await waitForTabLoad(cafeTabId, 15000);
     }
 
-    // 2. Inject script to fill form and submit
-    //    This returns BEFORE the page navigates (it just fills + clicks submit)
-    const results = await chrome.scripting.executeScript({
-      target: { tabId: cafeTabId },
-      world: 'MAIN',
-      args: [metadata, imageBase64, filename],
-      func: fillFormAndSubmit,
-    });
+    // 2. Set up navigation listener BEFORE executing the script.
+    //    This prevents a race where form.submit() triggers navigation
+    //    before we start listening for it.
+    const navTracker = createNavigationTracker(cafeTabId, 45000);
 
-    const fillResult = results?.[0]?.result;
+    // 3. Inject script to fill form and submit
+    console.log(`[BG] Injecting fillFormAndSubmit for "${metadata.title}"`);
+    let fillResult;
+    try {
+      const results = await chrome.scripting.executeScript({
+        target: { tabId: cafeTabId },
+        world: 'MAIN',
+        args: [metadata, imageBase64, filename],
+        func: fillFormAndSubmit,
+      });
+      fillResult = results?.[0]?.result;
+    } catch (execErr) {
+      navTracker.cancel();
+      return { success: false, error: `Script injection failed: ${execErr.message}` };
+    }
+
     if (fillResult && !fillResult.submitted) {
       // validateForm returned false — form wasn't submitted
+      navTracker.cancel();
       return { success: false, error: fillResult.error || 'Form validation failed' };
     }
 
-    // 3. Watch for the tab to navigate after form submission
+    // 4. Wait for the tab to navigate after form submission
     //    Success = redirect to media_preview.php
     //    Failure = stays on media_upload.php (with errors)
-    const navResult = await waitForNavigation(cafeTabId, 30000);
+    console.log('[BG] Waiting for navigation after form submit...');
+    const navResult = await navTracker.promise;
+    console.log(`[BG] Navigation result: ${JSON.stringify(navResult)}`);
 
     if (navResult.url && navResult.url.includes('media_preview')) {
       // SUCCESS! Image was uploaded
-      console.log(`[BG] Upload success: "${metadata.title}"`);
+      console.log(`[BG] Upload SUCCESS: "${metadata.title}"`);
 
-      // 4. Navigate back to media_upload.php for the next image
+      // 5. Navigate back to media_upload.php for the next image
+      console.log('[BG] Navigating back to media_upload.php');
       await chrome.tabs.update(cafeTabId, { url: 'https://artist.callforentry.org/media_upload.php' });
       await waitForTabLoad(cafeTabId, 15000);
+      console.log('[BG] Ready for next upload');
 
       return { success: true, title: metadata.title };
     }
 
     if (navResult.url && navResult.url.includes('media_upload.php')) {
       // Page reloaded to upload form — likely an error
-      // Try to extract the error from the page
       try {
         const errResults = await chrome.scripting.executeScript({
           target: { tabId: cafeTabId },
           world: 'MAIN',
           func: () => {
-            // Look for visible error messages (not the always-hidden "maximum number" template)
             const alerts = document.querySelectorAll('.alert-danger');
             for (const alert of alerts) {
               const parent = alert.parentElement;
@@ -192,7 +207,6 @@ async function uploadToPage(metadata, imageBase64, filename) {
                 if (text) return text.substring(0, 200);
               }
             }
-            // Check for validation error text
             const errs = [];
             document.querySelectorAll('.text-danger').forEach(el => {
               if (el.offsetParent !== null && el.textContent.trim()) {
@@ -210,7 +224,7 @@ async function uploadToPage(metadata, imageBase64, filename) {
     }
 
     if (navResult.timeout) {
-      return { success: false, error: 'Upload timed out — page did not respond' };
+      return { success: false, error: 'Upload timed out (45s) — page did not respond' };
     }
 
     return { success: false, error: `Unexpected navigation: ${navResult.url}` };
@@ -342,31 +356,67 @@ function waitForTabLoad(tabId, maxWait = 10000) {
 }
 
 /**
- * Wait for the tab to navigate to a new URL after form submission.
- * Returns { url } on navigation or { timeout: true } on timeout.
+ * Create a navigation tracker that starts listening IMMEDIATELY.
+ * Call this BEFORE injecting the script that triggers form submission.
+ *
+ * Returns { promise, cancel } where:
+ * - promise resolves to { url } on navigation or { timeout: true }
+ * - cancel() cleans up the listener without resolving
+ *
+ * The tracker ignores the first 'complete' event if the URL hasn't changed
+ * from the starting URL — this prevents catching stale events from the
+ * current page load.
  */
-function waitForNavigation(tabId, maxWait = 30000) {
-  return new Promise((resolve) => {
-    const timeout = setTimeout(() => {
-      chrome.tabs.onUpdated.removeListener(listener);
-      resolve({ timeout: true });
-    }, maxWait);
+function createNavigationTracker(tabId, maxWait = 45000) {
+  let listener;
+  let timeoutId;
+  let cancelled = false;
+  let resolvePromise;
 
-    const listener = (id, changeInfo) => {
-      if (id !== tabId) return;
+  const promise = new Promise((resolve) => {
+    resolvePromise = resolve;
 
-      // Wait for the page to fully load after navigation
-      if (changeInfo.status === 'complete') {
-        clearTimeout(timeout);
+    // Capture the starting URL to detect when navigation actually happens
+    chrome.tabs.get(tabId).then(startTab => {
+      const startUrl = startTab.url;
+      console.log(`[BG] NavTracker: watching tab ${tabId}, start URL: ${startUrl}`);
+
+      timeoutId = setTimeout(() => {
         chrome.tabs.onUpdated.removeListener(listener);
-        // Get the final URL
-        chrome.tabs.get(tabId).then(tab => {
-          setTimeout(() => resolve({ url: tab.url }), 500);
-        }).catch(() => resolve({ timeout: true }));
-      }
-    };
-    chrome.tabs.onUpdated.addListener(listener);
+        console.log('[BG] NavTracker: TIMEOUT');
+        resolve({ timeout: true });
+      }, maxWait);
+
+      listener = (id, changeInfo) => {
+        if (id !== tabId || cancelled) return;
+
+        // We want to detect when the page finishes loading at a NEW URL
+        if (changeInfo.status === 'complete') {
+          chrome.tabs.get(tabId).then(tab => {
+            // Skip if URL hasn't changed (stale event from current page)
+            if (tab.url === startUrl) {
+              console.log('[BG] NavTracker: ignoring stale complete (same URL)');
+              return;
+            }
+            // Real navigation detected!
+            clearTimeout(timeoutId);
+            chrome.tabs.onUpdated.removeListener(listener);
+            console.log(`[BG] NavTracker: navigation detected → ${tab.url}`);
+            setTimeout(() => resolve({ url: tab.url }), 500);
+          }).catch(() => {});
+        }
+      };
+      chrome.tabs.onUpdated.addListener(listener);
+    }).catch(() => resolve({ timeout: true }));
   });
+
+  const cancel = () => {
+    cancelled = true;
+    if (timeoutId) clearTimeout(timeoutId);
+    if (listener) chrome.tabs.onUpdated.removeListener(listener);
+  };
+
+  return { promise, cancel };
 }
 
 // ── Tab Lifecycle ──────────────────────────────────────────────

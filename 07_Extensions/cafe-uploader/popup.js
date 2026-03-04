@@ -364,11 +364,13 @@
       progressFill.style.width = `${(done / total) * 100}%`;
       progressText.textContent = `${done} / ${total}${failed > 0 ? ` (${failed} failed)` : ''}`;
 
-      // Wait between uploads (page may reload)
+      // Wait between uploads (page needs to be ready)
       if (i < uploadQueue.length - 1 && !cancelRequested) {
         const nextStatus = document.getElementById(`qis-${i + 1}`);
         if (nextStatus) { nextStatus.textContent = 'Waiting...'; nextStatus.className = 'qi-status uploading'; }
-        await waitForContentScript(15000);
+        console.log(`[Popup] Upload ${i + 1}/${total} done. Waiting for page ready before #${i + 2}...`);
+        const ready = await waitForContentScript(20000);
+        console.log(`[Popup] Content script ready: ${ready}. Starting upload #${i + 2}`);
       }
     }
 

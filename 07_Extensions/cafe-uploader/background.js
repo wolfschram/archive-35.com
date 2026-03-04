@@ -142,41 +142,58 @@ async function relayToContent(payload) {
 
 // ── Portfolio Scraping (for dedup) ─────────────────────────────
 //
-// Navigates to portfolio.php, scrapes all image titles via executeScript,
-// then navigates back. Used before batch upload to skip duplicates.
+// Opens a hidden background tab to portfolio.php, waits for JS to render,
+// scrapes all image titles, then closes the tab.
+// Uses active:false so the popup doesn't lose focus and close.
 
 async function getPortfolioTitles() {
+  let scrapeTabId = null;
+
   try {
-    // Fetch portfolio HTML directly — no tab navigation needed.
-    // This avoids flickering the tab (which closes the popup).
-    // host_permissions grant access; session cookies are sent automatically.
-    console.log('[BG] Fetching portfolio.php for dedup (no tab navigation)');
-    const resp = await fetch('https://artist.callforentry.org/portfolio.php', {
-      credentials: 'include',
+    console.log('[BG] Opening background tab for portfolio scrape');
+
+    // Create a background tab (active:false = no focus steal = popup stays open)
+    const scrapeTab = await chrome.tabs.create({
+      url: 'https://artist.callforentry.org/portfolio.php',
+      active: false,
+    });
+    scrapeTabId = scrapeTab.id;
+
+    // Wait for the page to fully load (including JS that renders titles)
+    await waitForTabLoad(scrapeTabId, 20000);
+    // Extra wait for client-side template rendering
+    await sleep(2000);
+
+    // Scrape titles from the rendered DOM
+    const results = await chrome.scripting.executeScript({
+      target: { tabId: scrapeTabId },
+      world: 'MAIN',
+      func: () => {
+        const titles = [];
+        document.querySelectorAll('figcaption').forEach(fig => {
+          const text = fig.textContent.trim();
+          if (text && text.length > 2 && text.length < 100
+              && !text.includes('{{') && !titles.includes(text)) {
+            titles.push(text);
+          }
+        });
+        return titles;
+      },
     });
 
-    if (!resp.ok) {
-      return { success: false, titles: [], error: `HTTP ${resp.status}` };
-    }
-
-    const html = await resp.text();
-
-    // Parse titles from HTML — portfolio wraps each image in:
-    //   <a href="/media_preview.php?id=XXX"><figure>...<figcaption>Title</figcaption></figure></a>
-    const titles = [];
-    const regex = /<figcaption[^>]*>([^<]+)<\/figcaption>/gi;
-    let match;
-    while ((match = regex.exec(html)) !== null) {
-      const text = match[1].trim();
-      if (text && text.length > 2 && text.length < 100 && !titles.includes(text)) {
-        titles.push(text);
-      }
-    }
-
+    const titles = results?.[0]?.result || [];
     console.log(`[BG] Scraped ${titles.length} portfolio titles for dedup`);
+
+    // Close the scrape tab
+    try { await chrome.tabs.remove(scrapeTabId); } catch {}
+
     return { success: true, titles };
   } catch (err) {
     console.error('[BG] Portfolio scrape failed:', err);
+    // Clean up scrape tab on error
+    if (scrapeTabId) {
+      try { await chrome.tabs.remove(scrapeTabId); } catch {}
+    }
     return { success: false, titles: [], error: err.message };
   }
 }

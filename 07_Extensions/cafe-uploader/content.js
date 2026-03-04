@@ -164,7 +164,13 @@
       // Small delay before clicking
       await sleep(200);
 
-      // 10. Click CaFE's own upload button — this triggers validateForm()
+      // 10. Hook into form submit to confirm it actually fires
+      const form = document.querySelector('#uploadForm');
+      let formSubmitted = false;
+      const submitHandler = () => { formSubmitted = true; };
+      if (form) form.addEventListener('submit', submitHandler, { once: true });
+
+      // 11. Click CaFE's own upload button — this triggers validateForm()
       const uploadBtn = document.querySelector('#imageUploadButton');
       if (!uploadBtn) {
         return { success: false, error: 'Upload button #imageUploadButton not found' };
@@ -173,32 +179,43 @@
       uploadBtn.click();
       console.log('[CaFE Upload] Button clicked — CaFE is handling submission');
 
-      // 11. Wait for form submission / page navigation
-      //     CaFE reloads the page after upload, so we wait for that.
-      //     The popup will detect the reload via ping.
-      //     We give it up to 30 seconds for large files.
-      const submitted = await waitForPageChange(30000);
+      // 12. Give validateForm a moment to run and potentially submit
+      await sleep(500);
 
-      if (submitted) {
-        console.log(`[CaFE Upload] Page changed — upload likely succeeded: "${metadata.title}"`);
+      // 13. Check if form submitted or if validation errors appeared
+      if (formSubmitted) {
+        // Form submitted! Return success IMMEDIATELY — do NOT wait for page
+        // reload, because the reload kills this content script and the
+        // sendResponse callback becomes invalid.
+        console.log(`[CaFE Upload] Form submitted: "${metadata.title}"`);
         return { success: true, title: metadata.title };
       }
 
-      // Check if there's an error alert on the page
-      const alert = document.querySelector('.alert-danger, .error-message, .alert.alert-danger');
-      if (alert) {
-        const errText = alert.textContent.trim().substring(0, 200);
-        console.error(`[CaFE Upload] Error on page: ${errText}`);
-        return { success: false, error: errText };
+      // Form didn't submit — check for validation errors
+      const errorLabels = document.querySelectorAll('.error, .text-danger, [style*="color: red"], .required-error');
+      const visibleErrors = [];
+      for (const el of errorLabels) {
+        if (isElementVisible(el) && el.textContent.trim().length > 3) {
+          visibleErrors.push(el.textContent.trim());
+        }
       }
 
-      // Check if file input still has a file (form wasn't submitted)
-      if (fileInput.files.length > 0) {
-        console.warn('[CaFE Upload] File still in input — form may not have submitted');
-        return { success: false, error: 'Form did not submit — check CaFE for validation errors' };
+      if (visibleErrors.length > 0) {
+        const errMsg = visibleErrors.slice(0, 3).join('; ');
+        console.error(`[CaFE Upload] Validation errors: ${errMsg}`);
+        return { success: false, error: `Validation: ${errMsg.substring(0, 200)}` };
       }
 
-      return { success: true, note: 'Upload appears complete — verify in portfolio' };
+      // No submit, no errors visible — might still be processing
+      // Wait a bit more and check again
+      await sleep(2000);
+
+      if (formSubmitted) {
+        console.log(`[CaFE Upload] Form submitted (delayed): "${metadata.title}"`);
+        return { success: true, title: metadata.title };
+      }
+
+      return { success: false, error: 'Form did not submit — unknown validation issue' };
 
     } catch (err) {
       console.error('[CaFE Upload] Exception:', err);
@@ -255,40 +272,6 @@
   function setHiddenValue(nameOrId, value) {
     const el = document.querySelector(`#${nameOrId}`) || document.querySelector(`input[name="${nameOrId}"]`);
     if (el) el.value = value;
-  }
-
-  function waitForPageChange(timeout = 30000) {
-    return new Promise((resolve) => {
-      const startUrl = window.location.href;
-      let resolved = false;
-
-      // Listen for beforeunload (page is navigating away)
-      const onBeforeUnload = () => {
-        if (!resolved) { resolved = true; resolve(true); }
-      };
-      window.addEventListener('beforeunload', onBeforeUnload);
-
-      // Also poll for URL change or DOM change
-      const interval = setInterval(() => {
-        if (resolved) { clearInterval(interval); return; }
-        if (window.location.href !== startUrl) {
-          resolved = true;
-          clearInterval(interval);
-          window.removeEventListener('beforeunload', onBeforeUnload);
-          resolve(true);
-        }
-      }, 500);
-
-      // Timeout
-      setTimeout(() => {
-        if (!resolved) {
-          resolved = true;
-          clearInterval(interval);
-          window.removeEventListener('beforeunload', onBeforeUnload);
-          resolve(false);
-        }
-      }, timeout);
-    });
   }
 
   function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }

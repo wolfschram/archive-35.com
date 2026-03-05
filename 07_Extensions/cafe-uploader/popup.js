@@ -10,6 +10,18 @@
 (() => {
   'use strict';
 
+  // ── Popup → Tab Promotion ─────────────────────────────────
+  // Extension popups auto-close when Chrome navigates tabs (focus loss).
+  // For batch uploads, we need the UI to stay open. If running as a popup
+  // (not already a tab), reopen as a stable tab and close the popup.
+  if (!window.location.search.includes('mode=tab')) {
+    chrome.tabs.create({ url: chrome.runtime.getURL('popup.html?mode=tab') });
+    window.close();
+    return;
+  }
+  // Running as a tab — apply tab-mode styling
+  document.body.classList.add('tab-mode');
+
   // ── State ──────────────────────────────────────────────────
 
   let imageFiles = new Map();    // filename → File object

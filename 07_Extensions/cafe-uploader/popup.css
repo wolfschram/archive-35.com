@@ -35,6 +35,16 @@ body {
   line-height: 1.5;
 }
 
+/* When opened as a full tab, center content and remove popup constraints */
+body.tab-mode {
+  width: 100%;
+  max-width: 560px;
+  max-height: none;
+  margin: 20px auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
 /* ── Header ─────────────────────────────────────── */
 
 .popup-header {

@@ -426,6 +426,8 @@
   <button class="tab-btn" data-tab="feedback">Feedback</button>
   <button class="tab-btn" data-tab="health">Health</button>
   <button class="tab-btn" data-tab="ats">ATS Bot <span class="badge" id="ats-queue-count">0</span></button>
+  <button class="tab-btn" data-tab="email">Email <span class="badge" id="email-count">0</span></button>
+  <button class="tab-btn" data-tab="questions">App Questions</button>
   <button class="tab-btn" data-tab="import">Import</button>
   <button class="tab-btn" data-tab="search">Job Search</button>
   <button class="tab-btn" data-tab="settings">Settings</button>
@@ -663,6 +665,186 @@
       </tr></thead>
       <tbody id="ats-submissions-body"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- ═══ Tab: Email Monitoring ═════════════════════════════════════════ -->
+<div class="tab-content" id="tab-email">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+    <h2 style="font-size:1.1rem;">Email Monitoring</h2>
+    <div style="display:flex;gap:0.5rem;">
+      <button class="btn-primary" id="email-scan-btn">Scan Inbox (Last 30 Days)</button>
+      <button class="btn-secondary" id="email-scan-7-btn">Last 7 Days</button>
+    </div>
+  </div>
+
+  <!-- Email Status -->
+  <div class="stats-grid" id="email-stats">
+    <div class="stat-card blue"><div class="label">Gmail Status</div><div class="value" id="email-gmail-status" style="font-size:1rem;">Checking...</div></div>
+    <div class="stat-card"><div class="label">Total Scanned</div><div class="value" id="email-total">0</div></div>
+    <div class="stat-card green"><div class="label">Matched to Jobs</div><div class="value" id="email-matched">0</div></div>
+    <div class="stat-card purple"><div class="label">Last Scan</div><div class="value" id="email-last-scan" style="font-size:0.9rem;">Never</div></div>
+  </div>
+
+  <div id="email-scan-status" style="margin-bottom:1rem;font-size:0.85rem;color:var(--text-secondary);"></div>
+
+  <!-- Response Type Filter -->
+  <div class="filter-bar">
+    <button class="filter-btn active" data-email-filter="">All</button>
+    <button class="filter-btn" data-email-filter="interview">Interview</button>
+    <button class="filter-btn" data-email-filter="application_received">Received</button>
+    <button class="filter-btn" data-email-filter="rejection">Rejection</button>
+    <button class="filter-btn" data-email-filter="offer">Offer</button>
+    <button class="filter-btn" data-email-filter="follow_up">Follow-up</button>
+    <button class="filter-btn" data-email-filter="unknown">Unknown</button>
+    <button class="filter-btn" data-email-filter="matched">Matched Only</button>
+    <button class="filter-btn" data-email-filter="unmatched">Unmatched</button>
+  </div>
+
+  <!-- Email Table -->
+  <div class="table-wrap">
+    <table id="email-table">
+      <thead>
+        <tr>
+          <th></th><th>Date</th><th>From</th><th>Subject</th>
+          <th>Type</th><th>Matched Job</th><th>Confidence</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="email-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ Tab: Application Questions ══════════════════════════════════ -->
+<div class="tab-content" id="tab-questions">
+  <h2 style="font-size:1.1rem;margin-bottom:1rem;">Application Questions</h2>
+  <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.5rem;">
+    Standard answers for common ATS application fields. Pre-fill these so the bot can auto-fill forms.
+  </p>
+
+  <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">Work Authorization & Legal</h3>
+  <div class="form-grid" id="aq-legal">
+    <div class="form-group">
+      <label>Authorized to work in the US?</label>
+      <select id="aq-us_work_auth"><option value="Yes">Yes</option><option value="No">No</option></select>
+    </div>
+    <div class="form-group">
+      <label>Require visa sponsorship?</label>
+      <select id="aq-visa_sponsorship"><option value="No">No</option><option value="Yes">Yes</option></select>
+    </div>
+    <div class="form-group">
+      <label>Are you 18 or older?</label>
+      <select id="aq-over_18"><option value="Yes">Yes</option><option value="No">No</option></select>
+    </div>
+    <div class="form-group">
+      <label>Willing to undergo background check?</label>
+      <select id="aq-background_check"><option value="Yes">Yes</option><option value="No">No</option></select>
+    </div>
+  </div>
+
+  <h3 style="font-size:0.9rem;margin:1.5rem 0 0.75rem;">Compensation & Availability</h3>
+  <div class="form-grid" id="aq-compensation">
+    <div class="form-group">
+      <label>Desired Salary Range</label>
+      <input type="text" id="aq-salary_range" placeholder="e.g. $250,000 - $350,000">
+    </div>
+    <div class="form-group">
+      <label>Earliest Start Date</label>
+      <input type="text" id="aq-start_date" placeholder="e.g. 2 weeks notice, Immediately, April 2026">
+    </div>
+    <div class="form-group">
+      <label>Work Preference</label>
+      <select id="aq-work_preference">
+        <option value="Remote">Remote</option>
+        <option value="Hybrid">Hybrid</option>
+        <option value="On-site">On-site</option>
+        <option value="Flexible">Flexible / Open to all</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Willing to Relocate?</label>
+      <select id="aq-willing_to_relocate"><option value="Yes">Yes</option><option value="No">No</option><option value="Depends on location">Depends</option></select>
+    </div>
+  </div>
+
+  <h3 style="font-size:0.9rem;margin:1.5rem 0 0.75rem;">Experience & Skills</h3>
+  <div class="form-grid" id="aq-experience">
+    <div class="form-group">
+      <label>Years of Experience</label>
+      <input type="text" id="aq-years_experience" placeholder="e.g. 25+">
+    </div>
+    <div class="form-group">
+      <label>Years in Management / Leadership</label>
+      <input type="text" id="aq-years_management" placeholder="e.g. 15+">
+    </div>
+    <div class="form-group">
+      <label>Highest Education Level</label>
+      <select id="aq-education_level">
+        <option value="">Select...</option>
+        <option value="High School">High School</option>
+        <option value="Associate's">Associate's</option>
+        <option value="Bachelor's">Bachelor's</option>
+        <option value="Master's">Master's</option>
+        <option value="PhD">PhD</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>How did you hear about us? (default)</label>
+      <input type="text" id="aq-hear_about_us" placeholder="e.g. LinkedIn, Company website, Referral">
+    </div>
+  </div>
+
+  <h3 style="font-size:0.9rem;margin:1.5rem 0 0.75rem;">Diversity & Inclusion (Optional)</h3>
+  <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem;">
+    These are voluntary. Most ATS forms ask but they're optional. Leave blank to skip.
+  </p>
+  <div class="form-grid" id="aq-diversity">
+    <div class="form-group">
+      <label>Gender</label>
+      <select id="aq-gender">
+        <option value="">Prefer not to say</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Non-binary">Non-binary</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Veteran Status</label>
+      <select id="aq-veteran_status">
+        <option value="">Prefer not to say</option>
+        <option value="Not a veteran">Not a veteran</option>
+        <option value="Veteran">Veteran</option>
+        <option value="Disabled veteran">Disabled veteran</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Disability Status</label>
+      <select id="aq-disability_status">
+        <option value="">Prefer not to say</option>
+        <option value="No">No, I don't have a disability</option>
+        <option value="Yes">Yes, I have a disability</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Race / Ethnicity</label>
+      <select id="aq-race_ethnicity">
+        <option value="">Prefer not to say</option>
+        <option value="White">White</option>
+        <option value="Hispanic or Latino">Hispanic or Latino</option>
+        <option value="Black or African American">Black or African American</option>
+        <option value="Asian">Asian</option>
+        <option value="Native American">Native American</option>
+        <option value="Two or More Races">Two or More Races</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-top:1.5rem;">
+    <button class="btn-primary" id="save-questions">Save All Answers</button>
+    <span id="questions-status" style="color:var(--green);font-size:0.85rem;"></span>
   </div>
 </div>
 
@@ -1988,12 +2170,179 @@ document.getElementById('google-auth-btn').addEventListener('click', async () =>
 });
 
 // ═══════════════════════════════════════════════════════════════════════
+// TAB: EMAIL MONITORING
+// ═══════════════════════════════════════════════════════════════════════
+let emailMessages = [];
+let currentEmailFilter = '';
+
+async function loadEmail() {
+  try {
+    const [status, summary] = await Promise.all([
+      api('/api/email/status'),
+      api('/api/email/summary'),
+    ]);
+
+    // Stats
+    document.getElementById('email-gmail-status').textContent = status.connected ? status.email : (status.has_refresh_token ? 'Authorized' : 'Not connected');
+    document.getElementById('email-gmail-status').style.color = status.connected ? 'var(--green)' : status.has_refresh_token ? 'var(--yellow)' : 'var(--text-muted)';
+    document.getElementById('email-total').textContent = summary.total;
+    document.getElementById('email-matched').textContent = summary.matched;
+    document.getElementById('email-count').textContent = summary.total || 0;
+    document.getElementById('email-last-scan').textContent = status.last_scan ? relTime(status.last_scan) : 'Never';
+
+    emailMessages = summary.recent || [];
+    renderEmails();
+  } catch (e) {
+    console.error('Email load error:', e);
+  }
+}
+
+async function scanEmails(daysBack) {
+  const statusEl = document.getElementById('email-scan-status');
+  statusEl.textContent = `Scanning inbox (last ${daysBack} days)...`;
+  statusEl.style.color = 'var(--accent-blue)';
+  try {
+    const res = await api('/api/email/scan', { method: 'POST', body: { days_back: daysBack } });
+    if (res.error) {
+      toast(res.error, true);
+      statusEl.textContent = res.error;
+      statusEl.style.color = 'var(--red)';
+    } else {
+      toast(`Scan complete: ${res.new_emails} new, ${res.matched} matched`);
+      statusEl.textContent = `Found ${res.total_found} emails, ${res.new_emails} new, ${res.matched} matched to jobs, ${res.skipped} already scanned`;
+      statusEl.style.color = 'var(--green)';
+      // Reload full list
+      emailMessages = await api('/api/email/messages');
+      renderEmails();
+      loadEmail();
+    }
+  } catch (e) {
+    toast('Scan failed: ' + e.message, true);
+    statusEl.textContent = '';
+  }
+}
+
+document.getElementById('email-scan-btn').addEventListener('click', () => scanEmails(30));
+document.getElementById('email-scan-7-btn').addEventListener('click', () => scanEmails(7));
+
+function renderEmails() {
+  let filtered = emailMessages;
+  if (currentEmailFilter === 'matched') filtered = filtered.filter(e => e.matched_job_id);
+  else if (currentEmailFilter === 'unmatched') filtered = filtered.filter(e => !e.matched_job_id);
+  else if (currentEmailFilter) filtered = filtered.filter(e => e.response_type === currentEmailFilter);
+
+  const typeColors = {
+    interview: 'var(--green)', rejection: 'var(--red)', offer: 'var(--accent-blue)',
+    application_received: 'var(--accent-purple)', follow_up: 'var(--yellow)', unknown: 'var(--text-muted)',
+  };
+
+  document.getElementById('email-tbody').innerHTML = filtered.map(e => {
+    const typeColor = typeColors[e.response_type] || 'var(--text-muted)';
+    const confColor = e.match_confidence === 'high' ? 'var(--green)' : e.match_confidence === 'medium' ? 'var(--yellow)' : 'var(--text-muted)';
+    return `
+      <tr>
+        <td><span class="timeline-dot ${e.matched_job_id ? 'fresh' : 'stale'}"></span></td>
+        <td style="font-size:0.8rem;white-space:nowrap;">${relTime(e.received_at)}</td>
+        <td style="font-size:0.8rem;">${esc(e.sender || e.sender_email)}</td>
+        <td>
+          <div style="font-weight:500;">${esc(e.subject)}</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(e.snippet || '')}</div>
+        </td>
+        <td><span style="color:${typeColor};font-weight:600;font-size:0.8rem;">${(e.response_type || 'unknown').replace(/_/g, ' ')}</span></td>
+        <td>${e.matched_job_id ? `<strong>${esc(e.company || '')}</strong><br><span style="font-size:0.75rem;color:var(--text-secondary);">${esc(e.title || '')}</span>` : '<span style="color:var(--text-muted);">—</span>'}</td>
+        <td><span style="color:${confColor};font-size:0.8rem;">${e.match_confidence || '—'}</span></td>
+        <td>
+          <button class="btn-secondary btn-sm email-match-btn" data-id="${e.id}">Match</button>
+          <button class="btn-secondary btn-sm email-reclassify-btn" data-id="${e.id}">Reclassify</button>
+        </td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="8" class="empty-state">No emails scanned yet. Click "Scan Inbox" to start.</td></tr>';
+
+  // Match buttons — let user pick a job
+  document.querySelectorAll('.email-match-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const jobs = state.jobs.filter(j => ['SUBMITTED','APPROVED','SUBMITTING','PENDING_APPROVAL','CLOSED'].includes(j.status));
+      const options = jobs.map(j => `${j.id}: ${j.company} — ${j.title}`).join('\n');
+      const pick = prompt('Enter job ID to match:\n\n' + options);
+      if (!pick) return;
+      const jobId = parseInt(pick, 10);
+      if (!jobId) return toast('Invalid job ID', true);
+      await api('/api/email/messages/' + btn.dataset.id, { method: 'PUT', body: { matched_job_id: jobId, match_confidence: 'high' }});
+      toast('Email matched to job #' + jobId);
+      emailMessages = await api('/api/email/messages');
+      renderEmails();
+    });
+  });
+
+  // Reclassify buttons
+  document.querySelectorAll('.email-reclassify-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const type = prompt('Response type (application_received, interview, rejection, offer, follow_up, unknown):');
+      if (!type) return;
+      await api('/api/email/messages/' + btn.dataset.id, { method: 'PUT', body: { response_type: type }});
+      toast('Email reclassified as ' + type);
+      emailMessages = await api('/api/email/messages');
+      renderEmails();
+    });
+  });
+}
+
+document.querySelectorAll('[data-email-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentEmailFilter = btn.dataset.emailFilter;
+    document.querySelectorAll('[data-email-filter]').forEach(b => b.classList.toggle('active', b.dataset.emailFilter === currentEmailFilter));
+    renderEmails();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB: APPLICATION QUESTIONS
+// ═══════════════════════════════════════════════════════════════════════
+const appQuestionFields = [
+  'us_work_auth', 'visa_sponsorship', 'over_18', 'background_check',
+  'salary_range', 'start_date', 'work_preference', 'willing_to_relocate',
+  'years_experience', 'years_management', 'education_level', 'hear_about_us',
+  'gender', 'veteran_status', 'disability_status', 'race_ethnicity',
+];
+
+async function loadQuestions() {
+  try {
+    const data = await api('/api/application-questions');
+    for (const key of appQuestionFields) {
+      const el = document.getElementById('aq-' + key);
+      if (el && data[key]) {
+        el.value = data[key].value || '';
+      }
+    }
+  } catch {}
+}
+
+document.getElementById('save-questions').addEventListener('click', async () => {
+  const data = {};
+  const categories = {
+    us_work_auth: 'legal', visa_sponsorship: 'legal', over_18: 'legal', background_check: 'legal',
+    salary_range: 'compensation', start_date: 'compensation', work_preference: 'compensation', willing_to_relocate: 'compensation',
+    years_experience: 'experience', years_management: 'experience', education_level: 'experience', hear_about_us: 'experience',
+    gender: 'diversity', veteran_status: 'diversity', disability_status: 'diversity', race_ethnicity: 'diversity',
+  };
+  for (const key of appQuestionFields) {
+    const el = document.getElementById('aq-' + key);
+    if (el) data[key] = { value: el.value, category: categories[key] || 'general' };
+  }
+  await api('/api/application-questions', { method: 'PUT', body: data });
+  document.getElementById('questions-status').textContent = 'Saved!';
+  setTimeout(() => document.getElementById('questions-status').textContent = '', 2000);
+  toast('Application answers saved');
+});
+
+// ═══════════════════════════════════════════════════════════════════════
 // INIT & AUTO-REFRESH
 // ═══════════════════════════════════════════════════════════════════════
 async function loadAll() {
   try {
     await loadPipeline();
-    await Promise.all([loadPersonal(), loadResearch(), loadChallenges(), loadApplied(), loadFeedback(), loadHealth(), loadATS(), loadImport(), loadSearch(), loadSettings()]);
+    await Promise.all([loadPersonal(), loadResearch(), loadChallenges(), loadApplied(), loadFeedback(), loadHealth(), loadATS(), loadEmail(), loadQuestions(), loadImport(), loadSearch(), loadSettings()]);
   } catch (e) {
     console.error('Load error:', e);
     toast('Failed to load data: ' + e.message, true);

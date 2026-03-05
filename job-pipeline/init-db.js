@@ -161,14 +161,14 @@ const seedAll = db.transaction(() => {
   insertJob.run(
     'Stripe', 'VP Engineering, Developer Platform',
     'Lead developer experience and platform engineering. Scale engineering org through hypergrowth. Establish engineering excellence practices.',
-    'APPLIED', 85, 'Direct', 'https://stripe.com/jobs/vp-eng',
-    'Applied with v1 cover letter — strong P→P→R opening', 'v1'
+    'SCORED', 85, 'Direct', 'https://stripe.com/jobs/vp-eng',
+    'Example job — replace with real applications', 'v1'
   );
   insertJob.run(
     'Warner Bros Discovery', 'SVP Engineering, Streaming',
     'Lead Max streaming platform engineering. Transform legacy systems to modern cloud infrastructure. Manage 300+ engineers globally.',
-    'INTERVIEW', 90, 'Network', 'https://wbd.com/careers/svp-eng',
-    'Second round scheduled — they love the broadcast-to-tech narrative', 'v1'
+    'SCORED', 90, 'Network', 'https://wbd.com/careers/svp-eng',
+    'Example job — replace with real applications', 'v1'
   );
 
   // Seed agents

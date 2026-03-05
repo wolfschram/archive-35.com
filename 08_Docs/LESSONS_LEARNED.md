@@ -1088,6 +1088,64 @@ When the extension creates a hidden tab for scraping, the content script auto-in
 55. **Hidden tabs trigger content script injection.** Track temporary tab IDs and exclude them from your main tab state management.
 56. **MV3 service workers die without active ports.** Use `chrome.runtime.connect()` keepalive from the popup/tab.
 57. **When 3+ fixes fail in a row, the problem is your debugging approach, not the code.** Stop, observe, verify your code is actually running.
+58. **API endpoints that return JSON for UI display must include thumbnail_url.** If the frontend renders `<img src={item.thumbnail_url}>`, the backend MUST provide that field — even if the source data doesn't have it.
+59. **Submission images need a serving endpoint.** Local files (CaFE Ready/) aren't on the web — they need an API route like `/cafe/image/{id}/{filename}` to serve them to the Electron renderer.
+60. **CaFE images must be under 5MB and JPEG only.** Original photography files are 5-23MB. Always resize (3000px longest, Q85) before export.
+
+---
+
+### LESSON 043: CaFE Submissions Tab Shows No Images — Missing thumbnail_url in API Response
+**Date:** 2026-03-05
+**Category:** `agent-api` `cafe` `ui` `data-contract`
+
+**Symptom:** Studio's CaFE Submissions tab showed submission cards with correct titles and metadata, but ALL image thumbnails were broken (grey placeholders). The Submission Rack also showed no images when expanding a submission.
+
+**Root Cause:** The `/cafe/submissions` API endpoint returns raw `submission.json` data from each CaFE Ready folder. The `submission.json` format (designed for CaFE form filling) has fields like `file`, `title`, `description` — but NO `thumbnail_url` field. The React frontend (`AgentCafeExport.js` line 914) renders `<img src={img.thumbnail_url}>`, which is `undefined` → broken image.
+
+**Why It Wasn't Caught:** The Galleries tab works fine because its photo data comes from `_photos.json` via `/cafe/photos`, which constructs `thumbnail_url` server-side. The Submissions tab uses a different data path (`submission.json`) that was never updated to include URLs.
+
+**Fix:**
+1. Added `GET /cafe/image/{submission_id}/{filename}` endpoint to serve images directly from CaFE Ready folders via FastAPI `FileResponse`
+2. Updated `/cafe/submissions` to inject `thumbnail_url` (`http://127.0.0.1:8035/cafe/image/{folder}/{filename}`) into each image entry
+3. Image serving handles both flat layouts (manual submissions) and `images/` subfolder (export-generated)
+
+**Prevention:**
+- **RULE: When an API returns data for UI rendering, ALWAYS include display-ready URLs.** Don't assume the frontend can construct them from filenames alone.
+- **RULE: When adding a new data display in the UI, trace the full data path: source → API → response → render.** Verify every field the component needs actually exists in the API response.
+- **RULE: Different data sources (submission.json vs _photos.json) may have different schemas.** The API layer must normalize them to the same shape the frontend expects.
+
+**Related Files:** `Archive 35 Agent/src/api.py` (endpoints), `05_Studio/app/src/pages/AgentCafeExport.js` (frontend), `CaFE Ready/*/submission.json` (source data)
+**Related Lessons:** 015 (Ask Who Else Consumes This Data)
+
+---
+
+### LESSON 044: CaFE Extension — Source Images Must Be Resized Before Upload
+**Date:** 2026-03-05
+**Category:** `cafe` `images` `extension` `upload`
+
+**Symptom:** CaFE uploader extension reported "This image is greater than 5mb" for every upload attempt, even after fixing the dedup and populating the submission folder with image files.
+
+**Root Cause:** The `CaFE Ready/submission/` folder was populated by copying raw source images from `photography/` (5.5–23MB each). CaFE's upload form enforces a strict 5MB limit per image. The extension correctly sent the files but CaFE's server-side validation rejected them.
+
+**Fix:** Resized all 10 images to 3000px longest edge, JPEG quality 85, resulting in 0.3–1.5MB each. Used Python PIL:
+```python
+from PIL import Image
+img = Image.open(src); img.thumbnail((3000, 3000), Image.LANCZOS)
+img.save(dest, 'JPEG', quality=85, optimize=True)
+```
+
+**Prevention:**
+- **RULE: The `cafe_export.py` module already handles resizing (`resize_for_cafe()`).** Always use the export pipeline instead of manually copying source images.
+- **RULE: CaFE constraints: JPEG only, 1200–3000px longest side, <5MB per file.** These are enforced server-side by CaFE — no workaround possible.
+- **RULE: Never copy raw photography files directly to CaFE Ready.** They're always too large. Use the Agent export or manual resize first.
+
+**Related Files:** `Archive 35 Agent/src/brand/cafe_export.py`, `CaFE Ready/submission/`
+
+---
+
+58. **API endpoints that return JSON for UI display must include thumbnail_url.** If the frontend renders `<img src={item.thumbnail_url}>`, the backend MUST provide that field — even if the source data doesn't have it.
+59. **Submission images need a serving endpoint.** Local files (CaFE Ready/) aren't on the web — they need an API route like `/cafe/image/{id}/{filename}` to serve them to the Electron renderer.
+60. **CaFE images must be under 5MB and JPEG only.** Original photography files are 5-23MB. Always resize (3000px longest, Q85) before export.
 
 ---
 

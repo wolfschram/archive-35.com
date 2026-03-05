@@ -335,8 +335,14 @@ CREATE TABLE jobs (
   title            TEXT NOT NULL,
   description      TEXT,
   status           TEXT NOT NULL DEFAULT 'NEW'
-                   CHECK(status IN ('NEW','SCRAPED','SCORED','APPLIED',
-                   'INTERVIEW','REJECTED','OFFER')),
+                   CHECK(status IN (
+                     'NEW','SCRAPED','SCORED',
+                     'COVER_LETTER_QUEUED','COVER_LETTER_READY',
+                     'PENDING_APPROVAL','APPROVED','SUBMITTING','SUBMITTED',
+                     'RESPONSE_RECEIVED','INTERVIEW','REJECTED','GHOSTED','OFFER',
+                     'SCORING_FAILED','GENERATION_FAILED','SUBMISSION_FAILED','ERROR_BLOCKED',
+                     'ARCHIVED','SKIPPED'
+                   )),
   score            INTEGER,
   source           TEXT,
   url              TEXT,
@@ -438,7 +444,7 @@ CREATE TABLE company_research (
 ```sql
 CREATE TABLE challenges (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
-  job_id         INTEGER REFERENCES jobs(id),
+  job_id         INTEGER REFERENCES jobs(id) ON DELETE CASCADE,
   question       TEXT NOT NULL,
   answer         TEXT,
   category       TEXT CHECK(category IN ('scenario','case_study','technical',
@@ -473,7 +479,7 @@ CREATE TABLE conductor_queue (
 ```sql
 CREATE TABLE cover_letter_versions (
   id                INTEGER PRIMARY KEY AUTOINCREMENT,
-  job_id            INTEGER NOT NULL REFERENCES jobs(id),
+  job_id            INTEGER NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
   version           INTEGER NOT NULL DEFAULT 1,
   content           TEXT NOT NULL,
   self_score        INTEGER,
@@ -514,6 +520,7 @@ CREATE TABLE application_submissions (
 - `idx_conductor_queue_status` on conductor_queue(status)
 - `idx_cover_letter_versions_job_id` on cover_letter_versions(job_id)
 - `idx_submissions_job_id` on application_submissions(job_id)
+- `idx_submissions_cover_letter_id` on application_submissions(cover_letter_id)
 
 ### 5.3 Job JSON Schema (Ingestion Format)
 

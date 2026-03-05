@@ -86,6 +86,20 @@ Before modifying any file listed here, READ the constraint. If the change violat
 - **Kill switches are safety-critical** — never bypass `is_active()` checks
 - **Why:** Port conflicts break service discovery. Rate limit bypass = runaway API costs.
 
+## Extension-Critical: 07_Extensions/cafe-uploader/
+
+- **NEVER push a fix without observing the actual behavior in Chrome first** — take a screenshot, run JS in console, check service worker logs
+- **NEVER assume Wolf has the latest code** — extension code on disk ≠ code loaded in Chrome. After every push, Wolf must `git pull` + reload in chrome://extensions
+- **NEVER remove the `scrapeTabIds` tracking** in background.js — hidden scrape tabs trigger content script injection which overwrites `cafeTabId`
+- **NEVER gate `syncPortfolio()` on `checkCafeConnection()`** — `getPortfolioTitles` creates its own tab, doesn't need a pre-existing CaFE tab
+- **NEVER use `fetch()` to scrape CaFE pages** — CaFE uses client-side JS templates (`{{details.title}}`), fetch returns unrendered HTML
+- **NEVER make multiple unrelated fixes in one commit** — each fix must be testable independently
+- **When 2+ fixes fail in a row:** STOP. Open the browser and observe. The problem is your debugging approach, not the code.
+- **Why:** 5+ hours were wasted on blind fix→push→test cycles without ever observing actual behavior. See Lessons 041, 042.
+- **Read first:** CLAUDE.md "Chrome Extension Development" section, LESSONS_LEARNED.md #041, #042, #023
+
+---
+
 ## Email-Critical: All Resend integrations
 
 - **`orders@archive-35.com`** for customer-facing transactional emails

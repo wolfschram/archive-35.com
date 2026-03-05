@@ -335,6 +335,61 @@ Before modifying shared files, verify impact on all three systems:
 
 ---
 
+## 🔧 Chrome Extension Development — MANDATORY Protocol
+
+**This section applies to ALL files in `07_Extensions/`.** Read LESSONS_LEARNED.md #041 and #042 before starting.
+
+### The #1 Rule: OBSERVE Before You Code
+
+**NEVER write a fix based on reasoning alone.** You have Chrome browser access — use it EVERY TIME:
+
+1. **Before writing any fix:** Open the target page in Chrome, take a screenshot, run JS in the console to verify your assumptions
+2. **After every push:** Tell Wolf to `git pull` + reload extension in `chrome://extensions` — extension code on disk ≠ code loaded in Chrome
+3. **When Wolf says "not working":** Check the browser FIRST. Don't theorize — observe
+4. **When 2+ fixes fail:** STOP. Read LESSONS_LEARNED.md #023 and #041. The problem is your debugging approach, not the code
+
+### MV3 Extension Architecture Rules
+
+- **Service workers die after ~30s** of only setTimeout activity → Use keepalive port (`chrome.runtime.connect`)
+- **Popups auto-close** when Chrome navigates any tab → Use tab promotion for long operations
+- **Content scripts auto-inject** on matching URLs, including hidden/scrape tabs → Track temporary tab IDs in a Set and exclude from state management
+- **`chrome.tabs.create()` triggers content script injection** → Any scrape tab will send `pageStatus` and clobber your tracked tab ID unless you exclude it
+
+### CaFE Uploader Specific
+
+| File | Purpose | Key gotcha |
+|------|---------|------------|
+| background.js | Upload orchestrator, portfolio scraping | `scrapeTabIds` Set prevents hidden tabs from overwriting `cafeTabId` |
+| popup.js | UI, folder scanning, portfolio sync | Opens as full tab (not popup) to survive navigations |
+| content.js | Ping, scrapePortfolio, pageStatus | Auto-injects on ALL callforentry.org pages including scrape tabs |
+| manifest.json | MV3, host_permissions for CaFE | `content_scripts` matches `artist.callforentry.org/*` |
+
+### CaFE Portfolio Scraping — How Dedup Works
+
+1. `getPortfolioTitles()` creates a **hidden background tab** to `portfolio.php` (active:false)
+2. Waits for page load + 3s for client-side JS rendering (CaFE uses `{{details.title}}` templates)
+3. Scrapes `<figcaption>` text from rendered DOM via `chrome.scripting.executeScript`
+4. Compares scraped titles against `submission.json` titles (case-insensitive trim)
+5. **Does NOT need a pre-existing CaFE tab** — creates its own
+
+**Known failure modes:**
+- `fetch()` of CaFE pages returns unrendered `{{templates}}` — must use hidden tab approach
+- Scrape tab's content script sends `pageStatus` → must be excluded via `scrapeTabIds`
+- If portfolio has 0 figcaptions, fallback selectors try `img[alt]` and `[data-title]`
+
+### Extension Testing Checklist
+
+Before telling Wolf a fix is ready:
+- [ ] `git pull` + reload extension in `chrome://extensions`
+- [ ] Open the extension (click icon) → verify it opens as a tab
+- [ ] Select the CaFE Ready folder
+- [ ] Verify stats show correct existing/new counts
+- [ ] Verify only NEW images appear in upload queue
+- [ ] Start upload → verify first image completes
+- [ ] Check service worker console (chrome://extensions → Inspect views) for errors
+
+---
+
 ## Preferences
 
 - Default to .docx for documents (not .md) unless it's actual code

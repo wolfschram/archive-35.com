@@ -1146,6 +1146,39 @@ img.save(dest, 'JPEG', quality=85, optimize=True)
 58. **API endpoints that return JSON for UI display must include thumbnail_url.** If the frontend renders `<img src={item.thumbnail_url}>`, the backend MUST provide that field — even if the source data doesn't have it.
 59. **Submission images need a serving endpoint.** Local files (CaFE Ready/) aren't on the web — they need an API route like `/cafe/image/{id}/{filename}` to serve them to the Electron renderer.
 60. **CaFE images must be under 5MB and JPEG only.** Original photography files are 5-23MB. Always resize (3000px longest, Q85) before export.
+61. **01_Portfolio/ folder names ≠ images/ directory names.** Portfolio uses PascalCase_Underscored (`Alps_`, `Black_and_White`), web images use lowercase-hyphenated (`alps`, `black-and-white`). Always apply `_portfolio_to_slug()` when constructing web URLs.
+62. **All 1,324 photos have zero alt_text.** The CaFE validation requires alt_text (125 chars). Use `generate_alt_text(title, description)` from cafe_export.py to auto-generate from existing metadata.
+
+---
+
+### LESSON 045: Portfolio Folder Names Don't Match Web Image Paths — Slug Normalization Required
+**Date:** 2026-03-05
+**Category:** `cafe` `images` `url-construction` `data-normalization` `CRITICAL`
+
+**Symptom:** CaFE Galleries tab showed gallery cards with correct photo counts, but clicking into any gallery showed broken image thumbnails for ALL photos. The grey placeholder SVGs appeared instead of actual photographs.
+
+**Root Cause:** The `/cafe/photos` API sets `collection = d.name` from `01_Portfolio/` directory names (e.g., `Alps_`, `Black_and_White`, `Glacier_National_Park_`). The frontend constructs thumbnail URLs: `https://archive-35.com/images/{collection}/{base}-thumb.jpg`. But the `images/` directory on the live site uses **slug-normalized names**: `alps`, `black-and-white`, `glacier-national-park`. Result: every URL 404s.
+
+**Why It Wasn't Caught:** The Studio deploy pipeline in `main.js` applies slug normalization (`name.toLowerCase().replace(/[_\s]+/g, '-').replace(/-+$/, '')`) when creating `images/` folders, but this logic was never shared with the Agent's CaFE API. Two independent systems constructing URLs from the same source data using different normalization rules.
+
+**Fix:**
+1. Added `_portfolio_to_slug()` helper in api.py matching Studio's slug convention
+2. API now returns both `collection` (raw name, for file lookups) and `collection_slug` (normalized, for URLs)
+3. API provides `thumbnail_url` directly — frontend uses it instead of constructing its own
+4. Frontend falls back to `collection_slug` if `thumbnail_url` is missing
+
+**Prevention:**
+- **RULE: When two systems construct URLs from the same source data, they MUST use the same normalization.** Extract the logic into a shared function or always provide pre-constructed URLs from the API.
+- **RULE: The API layer should provide display-ready URLs, not raw data that the frontend must transform.** This is Lesson 043 expanded to include slug normalization.
+- **RULE: `01_Portfolio/` folder names are raw source names. NEVER use them directly in web URLs.** Always apply slug normalization first.
+
+**Related Files:** `Archive 35 Agent/src/api.py`, `05_Studio/app/src/pages/AgentCafeExport.js`, `05_Studio/app/main.js` (slug generation)
+**Related Lessons:** 043 (thumbnail_url must be API-provided), 015 (check all consumers)
+
+---
+
+61. **01_Portfolio/ folder names ≠ images/ directory names.** Portfolio uses PascalCase_Underscored (`Alps_`, `Black_and_White`), web images use lowercase-hyphenated (`alps`, `black-and-white`). Always apply `_portfolio_to_slug()` when constructing web URLs.
+62. **All 1,324 photos have zero alt_text.** The CaFE validation requires alt_text (125 chars). Use `generate_alt_text(title, description)` from cafe_export.py to auto-generate from existing metadata.
 
 ---
 

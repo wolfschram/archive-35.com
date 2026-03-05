@@ -371,6 +371,23 @@ const migrate = db.transaction(() => {
   `);
   console.log('  ✓ job_current_state view created');
 
+  // ─── Monitored Companies (Phase 13D) ──────────────────────────────────
+  if (!hasTable('monitored_companies')) {
+    db.exec(`
+      CREATE TABLE monitored_companies (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        company      TEXT NOT NULL,
+        careers_url  TEXT NOT NULL,
+        status       TEXT DEFAULT 'active' CHECK(status IN ('active','paused','error')),
+        last_checked TEXT,
+        created_at   TEXT DEFAULT (datetime('now'))
+      );
+    `);
+    console.log('  ✓ monitored_companies table created');
+  } else {
+    console.log('  · monitored_companies table exists (skipping)');
+  }
+
   // ─── Step 4: Create indexes ──────────────────────────────────────────
 
   const indexes = [

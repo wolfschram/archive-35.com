@@ -426,6 +426,8 @@
   <button class="tab-btn" data-tab="feedback">Feedback</button>
   <button class="tab-btn" data-tab="health">Health</button>
   <button class="tab-btn" data-tab="ats">ATS Bot <span class="badge" id="ats-queue-count">0</span></button>
+  <button class="tab-btn" data-tab="import">Import</button>
+  <button class="tab-btn" data-tab="search">Job Search</button>
   <button class="tab-btn" data-tab="settings">Settings</button>
 </nav>
 
@@ -664,7 +666,140 @@
   </div>
 </div>
 
-<!-- ═══ Tab 9: Settings ═══════════════════════════════════════════════ -->
+<!-- ═══ Tab 9: Import Content (Phase 12A) ════════════════════════════ -->
+<div class="tab-content" id="tab-import">
+  <h2 style="font-size:1.1rem;margin-bottom:1rem;">Import Content</h2>
+  <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.5rem;">
+    Paste content from any AI tool, email, or document into the pipeline. Routed to the correct table automatically.
+  </p>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Content Type</label>
+      <select id="import-type">
+        <option value="cover_letter">Cover Letter</option>
+        <option value="research">Company Research</option>
+        <option value="qa_answers">Q&A / Interview Prep</option>
+        <option value="resume_notes">Resume Notes</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Target Job (optional for resume_notes/other)</label>
+      <select id="import-job-select">
+        <option value="">— No specific job —</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-group" style="margin-top:1rem;">
+    <label>Content</label>
+    <small style="display:block;color:var(--text-dim);font-size:0.75rem;margin-bottom:0.3rem;">Paste your text below. Max 50 KB.</small>
+    <textarea id="import-content" rows="12" placeholder="Paste cover letter, research notes, Q&A answers, or any content here..."></textarea>
+    <div style="text-align:right;font-size:0.75rem;color:var(--text-dim);margin-top:0.25rem;">
+      <span id="import-char-count">0</span> characters
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-top:1rem;">
+    <button class="btn-primary" id="import-submit">Import Content</button>
+    <span id="import-status" style="font-size:0.85rem;"></span>
+  </div>
+
+  <!-- Import History -->
+  <h3 style="font-size:0.9rem;margin:2rem 0 0.75rem;">Recent Imports</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Date</th><th>Type</th><th>Job</th><th>Size</th></tr></thead>
+      <tbody id="import-history-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ Tab 10: Job Search (Phase 13) ═══════════════════════════════ -->
+<div class="tab-content" id="tab-search">
+  <h2 style="font-size:1.1rem;margin-bottom:1rem;">Job Search</h2>
+  <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.5rem;">
+    Search multiple job platforms. Results are scored and added to the pipeline automatically.
+  </p>
+
+  <!-- Search Form -->
+  <div style="padding:1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:1.5rem;">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Search Query</label>
+        <input type="text" id="search-query" placeholder="VP Engineering, Director of Engineering, SVP..." value="VP Engineering">
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" id="search-location" placeholder="Los Angeles, Remote, etc." value="Los Angeles, CA">
+      </div>
+    </div>
+    <div class="form-grid" style="margin-top:0.75rem;">
+      <div class="form-group">
+        <label>Sources</label>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.85rem;cursor:pointer;">
+            <input type="checkbox" class="search-source" value="linkedin" checked> LinkedIn
+          </label>
+          <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.85rem;cursor:pointer;">
+            <input type="checkbox" class="search-source" value="indeed"> Indeed
+          </label>
+          <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.85rem;cursor:pointer;">
+            <input type="checkbox" class="search-source" value="glassdoor"> Glassdoor
+          </label>
+          <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.85rem;cursor:pointer;">
+            <input type="checkbox" class="search-source" value="builtin"> Built In
+          </label>
+          <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.85rem;cursor:pointer;">
+            <input type="checkbox" class="search-source" value="careers"> Company Pages
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Min Score Threshold</label>
+        <input type="number" id="search-min-score" value="70" min="0" max="100">
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:0.75rem;">
+      <button class="btn-primary" id="search-run">Search Jobs</button>
+      <button class="btn-secondary" id="search-add-company">Add Company to Monitor</button>
+      <span id="search-status" style="font-size:0.85rem;color:var(--text-dim);"></span>
+    </div>
+  </div>
+
+  <!-- Dedup Settings -->
+  <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem;">
+    <span style="font-size:0.8rem;color:var(--text-dim);">Dedup: same company + similar role within 90 days are auto-merged</span>
+  </div>
+
+  <!-- Search Results -->
+  <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">Search Results <span class="badge" id="search-result-count">0</span></h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th><input type="checkbox" id="search-select-all"></th>
+        <th>Score</th><th>Company</th><th>Role</th><th>Source</th><th>Location</th><th>Dedup</th><th>Actions</th>
+      </tr></thead>
+      <tbody id="search-results-body"></tbody>
+    </table>
+  </div>
+  <div class="btn-row" style="margin-top:0.5rem;">
+    <button class="btn-primary" id="search-add-selected" disabled>Add Selected to Pipeline</button>
+  </div>
+
+  <!-- Monitored Companies -->
+  <h3 style="font-size:0.9rem;margin:2rem 0 0.75rem;">Monitored Companies</h3>
+  <p style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem;">Career pages checked daily for new executive postings.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Company</th><th>Career URL</th><th>Last Checked</th><th>Status</th><th></th></tr></thead>
+      <tbody id="monitored-companies-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ Tab 11: Settings ═══════════════════════════════════════════════ -->
 <div class="tab-content" id="tab-settings">
   <h2 style="font-size:1.1rem;margin-bottom:1rem;">Settings</h2>
   <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.5rem;">
@@ -1580,7 +1715,203 @@ async function atsSubmitOne(jobId) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// TAB 9: SETTINGS
+// TAB 9: IMPORT CONTENT (Phase 12)
+// ═══════════════════════════════════════════════════════════════════════
+
+document.getElementById('import-content').addEventListener('input', () => {
+  document.getElementById('import-char-count').textContent = document.getElementById('import-content').value.length;
+});
+
+async function loadImport() {
+  // Populate job dropdown
+  const select = document.getElementById('import-job-select');
+  const jobs = state.jobs || [];
+  select.innerHTML = '<option value="">— No specific job —</option>' +
+    jobs.filter(j => !['REJECTED','ARCHIVED'].includes(j.status))
+      .map(j => `<option value="${j.id}">${esc(j.company)} — ${esc(j.title)}</option>`).join('');
+
+  // Load import history
+  try {
+    const events = await api('/api/bridge/events');
+    const tbody = document.getElementById('import-history-body');
+    tbody.innerHTML = (events || []).map(e => `
+      <tr>
+        <td style="font-size:0.8rem;">${relTime(e.created_at)}</td>
+        <td><span class="category-badge">${esc(e.content_type)}</span></td>
+        <td>${e.job_id ? (state.jobs.find(j => j.id === e.job_id)?.company || '#' + e.job_id) : '—'}</td>
+        <td style="font-size:0.8rem;">${Math.round(e.payload_size / 1024 * 10) / 10} KB</td>
+      </tr>
+    `).join('') || '<tr><td colspan="4" class="empty-state">No imports yet</td></tr>';
+  } catch {}
+}
+
+document.getElementById('import-submit').addEventListener('click', async () => {
+  const contentType = document.getElementById('import-type').value;
+  const jobId = document.getElementById('import-job-select').value;
+  const content = document.getElementById('import-content').value.trim();
+  if (!content) return toast('Paste some content first', true);
+  if ((contentType === 'cover_letter' || contentType === 'research' || contentType === 'qa_answers') && !jobId) {
+    return toast('Select a target job for this content type', true);
+  }
+
+  const statusEl = document.getElementById('import-status');
+  statusEl.textContent = 'Importing...';
+  statusEl.style.color = 'var(--text-dim)';
+  try {
+    const res = await api('/api/bridge/ingest', { method: 'POST', body: {
+      content_type: contentType,
+      job_id: jobId ? parseInt(jobId, 10) : null,
+      content,
+    }});
+    if (res.success) {
+      const jobLabel = jobId ? (state.jobs.find(j => j.id == jobId)?.company || '#' + jobId) : 'general';
+      toast(`Content imported for ${jobLabel} (${contentType})`);
+      statusEl.textContent = 'Imported!';
+      statusEl.style.color = 'var(--accent-green)';
+      document.getElementById('import-content').value = '';
+      document.getElementById('import-char-count').textContent = '0';
+      loadImport();
+      // Show notification in alert banner
+      showAlert(`Content imported: ${contentType} for ${jobLabel}`, 'info', 5000);
+    } else {
+      toast(res.error || 'Import failed', true);
+      statusEl.textContent = res.error || 'Failed';
+      statusEl.style.color = 'var(--accent-red, #f44)';
+    }
+  } catch (e) {
+    toast('Import error: ' + e.message, true);
+    statusEl.textContent = '';
+  }
+});
+
+function showAlert(message, type = 'info', duration = 5000) {
+  const banner = document.getElementById('alert-banner');
+  const color = type === 'error' ? 'var(--accent-red, #f44)' : type === 'warning' ? 'var(--accent-yellow)' : 'var(--accent-green)';
+  banner.innerHTML = `<div style="padding:0.75rem 1rem;background:${color}20;border:1px solid ${color};border-radius:var(--radius-lg);margin:0.5rem 1rem;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;">
+    <span>${esc(message)}</span>
+    <button onclick="this.parentElement.remove()" style="margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:1rem;">×</button>
+  </div>`;
+  if (duration) setTimeout(() => banner.innerHTML = '', duration);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB 10: JOB SEARCH (Phase 13)
+// ═══════════════════════════════════════════════════════════════════════
+
+let searchResults = [];
+
+async function loadSearch() {
+  // Load monitored companies
+  try {
+    const companies = await api('/api/search/monitored');
+    const tbody = document.getElementById('monitored-companies-body');
+    tbody.innerHTML = (companies || []).map(c => `
+      <tr>
+        <td><strong>${esc(c.company)}</strong></td>
+        <td><a href="${esc(c.careers_url)}" target="_blank" style="color:var(--accent-blue);font-size:0.8rem;">${esc(c.careers_url)}</a></td>
+        <td style="font-size:0.8rem;">${c.last_checked ? relTime(c.last_checked) : 'Never'}</td>
+        <td><span class="status-badge ${(c.status || 'active').toUpperCase()}">${c.status || 'active'}</span></td>
+        <td><button class="btn-secondary btn-sm remove-monitor" data-id="${c.id}">Remove</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" class="empty-state">No companies monitored yet</td></tr>';
+    document.querySelectorAll('.remove-monitor').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await api('/api/search/monitored/' + btn.dataset.id, { method: 'DELETE' });
+        toast('Company removed');
+        loadSearch();
+      });
+    });
+  } catch {}
+}
+
+document.getElementById('search-run').addEventListener('click', async () => {
+  const query = document.getElementById('search-query').value.trim();
+  const location = document.getElementById('search-location').value.trim();
+  if (!query) return toast('Enter a search query', true);
+
+  const sources = [];
+  document.querySelectorAll('.search-source:checked').forEach(cb => sources.push(cb.value));
+  if (!sources.length) return toast('Select at least one source', true);
+
+  const minScore = parseInt(document.getElementById('search-min-score').value || '70', 10);
+  const statusEl = document.getElementById('search-status');
+  statusEl.textContent = 'Searching...';
+
+  try {
+    const res = await api('/api/search/run', { method: 'POST', body: { query, location, sources, min_score: minScore } });
+    searchResults = res.results || [];
+    document.getElementById('search-result-count').textContent = searchResults.length;
+    statusEl.textContent = `Found ${searchResults.length} jobs (${res.duplicates_filtered || 0} duplicates filtered)`;
+    setTimeout(() => statusEl.textContent = '', 5000);
+    renderSearchResults();
+  } catch (e) {
+    toast('Search failed: ' + e.message, true);
+    statusEl.textContent = '';
+  }
+});
+
+function renderSearchResults() {
+  const tbody = document.getElementById('search-results-body');
+  tbody.innerHTML = searchResults.map((r, i) => `
+    <tr>
+      <td><input type="checkbox" class="search-result-cb" data-idx="${i}" ${r.is_duplicate ? 'disabled' : ''}></td>
+      <td><span style="font-weight:600;color:${r.score >= 80 ? 'var(--accent-green)' : r.score >= 60 ? 'var(--accent-yellow)' : 'var(--text-dim)'};">${r.score || '—'}</span></td>
+      <td><strong>${esc(r.company)}</strong></td>
+      <td>${esc(r.title)}</td>
+      <td><span class="category-badge">${esc(r.source)}</span></td>
+      <td style="font-size:0.8rem;">${esc(r.location || '')}</td>
+      <td>${r.is_duplicate ? '<span style="color:var(--accent-yellow);font-size:0.8rem;">Duplicate</span>' : '<span style="color:var(--accent-green);font-size:0.8rem;">New</span>'}</td>
+      <td>${r.url ? `<a href="${esc(r.url)}" target="_blank" style="color:var(--accent-blue);font-size:0.8rem;">View</a>` : ''}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="8" class="empty-state">No results. Run a search above.</td></tr>';
+
+  // Enable/disable add button
+  const updateBtn = () => {
+    const checked = document.querySelectorAll('.search-result-cb:checked').length;
+    document.getElementById('search-add-selected').disabled = checked === 0;
+  };
+  document.querySelectorAll('.search-result-cb').forEach(cb => cb.addEventListener('change', updateBtn));
+}
+
+document.getElementById('search-select-all').addEventListener('change', function() {
+  document.querySelectorAll('.search-result-cb:not(:disabled)').forEach(cb => { cb.checked = this.checked; });
+  document.getElementById('search-add-selected').disabled = !this.checked || !document.querySelectorAll('.search-result-cb:not(:disabled)').length;
+});
+
+document.getElementById('search-add-selected').addEventListener('click', async () => {
+  const indices = [];
+  document.querySelectorAll('.search-result-cb:checked').forEach(cb => indices.push(parseInt(cb.dataset.idx, 10)));
+  if (!indices.length) return;
+  const jobs = indices.map(i => searchResults[i]).filter(Boolean);
+  try {
+    const res = await api('/api/search/add-to-pipeline', { method: 'POST', body: { jobs } });
+    toast(`Added ${res.added || 0} jobs to pipeline`);
+    loadPipeline();
+    // Remove added from results
+    searchResults = searchResults.filter((_, i) => !indices.includes(i));
+    document.getElementById('search-result-count').textContent = searchResults.length;
+    renderSearchResults();
+  } catch (e) {
+    toast('Failed to add jobs: ' + e.message, true);
+  }
+});
+
+document.getElementById('search-add-company').addEventListener('click', async () => {
+  const company = prompt('Company name:');
+  if (!company) return;
+  const url = prompt('Careers page URL:');
+  if (!url) return;
+  try {
+    await api('/api/search/monitored', { method: 'POST', body: { company, careers_url: url } });
+    toast('Company added to monitoring');
+    loadSearch();
+  } catch (e) {
+    toast('Failed: ' + e.message, true);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB 11: SETTINGS
 // ═══════════════════════════════════════════════════════════════════════
 async function loadSettings() {
   try {
@@ -1662,7 +1993,7 @@ document.getElementById('google-auth-btn').addEventListener('click', async () =>
 async function loadAll() {
   try {
     await loadPipeline();
-    await Promise.all([loadPersonal(), loadResearch(), loadChallenges(), loadApplied(), loadFeedback(), loadHealth(), loadATS(), loadSettings()]);
+    await Promise.all([loadPersonal(), loadResearch(), loadChallenges(), loadApplied(), loadFeedback(), loadHealth(), loadATS(), loadImport(), loadSearch(), loadSettings()]);
   } catch (e) {
     console.error('Load error:', e);
     toast('Failed to load data: ' + e.message, true);

@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Pipeline — Wolf's Command Center</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-hover: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --orange: #d18616;
+      --cyan: #39d2c0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ─── Header ─── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+    .header h1 span { color: var(--accent); }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .refresh-indicator {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .refresh-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      margin-right: 6px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ─── Stats Bar ─── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      padding: 20px 24px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-card .number {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+    .stat-card .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .stat-new .number { color: var(--text-muted); }
+    .stat-scored .number { color: var(--accent); }
+    .stat-applied .number { color: var(--yellow); }
+    .stat-interview .number { color: var(--green); }
+    .stat-offer .number { color: var(--cyan); }
+    .stat-rejected .number { color: var(--red); }
+    .stat-rate .number { color: var(--purple); }
+
+    /* ─── Layout ─── */
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+      padding: 0 24px 24px;
+    }
+
+    /* ─── Panel ─── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    /* ─── Filter Tabs ─── */
+    .filter-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    .filter-tab {
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .filter-tab:hover { border-color: var(--accent); color: var(--text); }
+    .filter-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* ─── Jobs Table ─── */
+    .jobs-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .jobs-table th {
+      text-align: left;
+      padding: 8px 16px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .jobs-table th:hover { color: var(--accent); }
+    .jobs-table td {
+      padding: 10px 16px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .jobs-table tr:hover { background: var(--surface-hover); cursor: pointer; }
+
+    /* ─── Status Badge ─── */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-NEW { background: #30363d; color: var(--text-muted); }
+    .badge-SCRAPED { background: #1f2937; color: #9ca3af; }
+    .badge-SCORED { background: #1e3a5f; color: var(--accent); }
+    .badge-APPLIED { background: #3b2f04; color: var(--yellow); }
+    .badge-INTERVIEW { background: #0f3d1a; color: var(--green); }
+    .badge-OFFER { background: #0d3331; color: var(--cyan); }
+    .badge-REJECTED { background: #3d1014; color: var(--red); }
+
+    /* ─── Score Bar ─── */
+    .score-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .score-fill {
+      height: 6px;
+      border-radius: 3px;
+      background: var(--accent);
+      min-width: 4px;
+    }
+    .score-text { font-size: 12px; color: var(--text-muted); }
+
+    /* ─── Sidebar Panels ─── */
+    .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+    .agent-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .agent-info { flex: 1; }
+    .agent-name { font-size: 13px; font-weight: 600; }
+    .agent-meta { font-size: 11px; color: var(--text-muted); }
+    .agent-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .agent-status.idle { background: var(--text-muted); }
+    .agent-status.running { background: var(--green); animation: pulse 1s infinite; }
+    .agent-status.error { background: var(--red); }
+
+    .error-item {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .error-msg { color: var(--red); margin-bottom: 2px; }
+    .error-meta { color: var(--text-muted); font-size: 11px; }
+    .error-resolved { opacity: 0.5; }
+    .error-resolved .error-msg { color: var(--text-muted); text-decoration: line-through; }
+
+    /* ─── Modal ─── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 680px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 24px;
+    }
+    .modal-close {
+      float: right;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal h2 {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    .modal h3 {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-bottom: 16px;
+    }
+    .modal-field {
+      margin-bottom: 14px;
+    }
+    .modal-field label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .modal-field .value {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .modal-field .description {
+      background: var(--bg);
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1.6;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .modal-notes {
+      background: var(--bg);
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-style: italic;
+      color: var(--text-muted);
+    }
+
+    /* ─── Copy Prompt Button ─── */
+    .btn-copy-prompt {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-copy-prompt:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3); }
+    .btn-copy-prompt:active { transform: translateY(0); }
+    .btn-copy-prompt.copied {
+      background: var(--green);
+      pointer-events: none;
+    }
+    .btn-copy-prompt-hidden { display: none; }
+
+    /* ─── Empty State ─── */
+    .empty-state {
+      padding: 32px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 900px) {
+      .content { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <h1><span>Job Pipeline</span> — Command Center</h1>
+    <div class="header-right">
+      <span class="refresh-indicator">
+        <span class="refresh-dot"></span>
+        Auto-refresh: <span id="countdown">60</span>s
+      </span>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-card"><div class="number" id="stat-total">—</div><div class="label">Total Jobs</div></div>
+    <div class="stat-card stat-new"><div class="number" id="stat-new">—</div><div class="label">New</div></div>
+    <div class="stat-card stat-scored"><div class="number" id="stat-scored">—</div><div class="label">Scored</div></div>
+    <div class="stat-card stat-applied"><div class="number" id="stat-applied">—</div><div class="label">Applied</div></div>
+    <div class="stat-card stat-interview"><div class="number" id="stat-interview">—</div><div class="label">Interview</div></div>
+    <div class="stat-card stat-offer"><div class="number" id="stat-offer">—</div><div class="label">Offers</div></div>
+    <div class="stat-card stat-rate"><div class="number" id="stat-rate">—</div><div class="label">Conversion</div></div>
+  </div>
+
+  <!-- Content Grid -->
+  <div class="content">
+    <!-- Jobs Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <span>Pipeline</span>
+        <span id="job-count" style="font-weight: 400;">0 jobs</span>
+      </div>
+      <div class="filter-tabs" id="filter-tabs">
+        <button class="filter-tab active" data-status="ALL">All</button>
+        <button class="filter-tab" data-status="NEW">New</button>
+        <button class="filter-tab" data-status="SCRAPED">Scraped</button>
+        <button class="filter-tab" data-status="SCORED">Scored</button>
+        <button class="filter-tab" data-status="APPLIED">Applied</button>
+        <button class="filter-tab" data-status="INTERVIEW">Interview</button>
+        <button class="filter-tab" data-status="OFFER">Offer</button>
+        <button class="filter-tab" data-status="REJECTED">Rejected</button>
+      </div>
+      <table class="jobs-table">
+        <thead>
+          <tr>
+            <th data-sort="company">Company</th>
+            <th data-sort="title">Title</th>
+            <th data-sort="status">Status</th>
+            <th data-sort="score">Score</th>
+            <th data-sort="source">Source</th>
+            <th data-sort="date_updated">Updated</th>
+          </tr>
+        </thead>
+        <tbody id="jobs-body"></tbody>
+      </table>
+      <div class="empty-state" id="jobs-empty" style="display:none;">No jobs matching this filter.</div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Agents Panel -->
+      <div class="panel">
+        <div class="panel-header"><span>Agents</span></div>
+        <div id="agents-list"></div>
+        <div class="empty-state" id="agents-empty" style="display:none;">No agents configured.</div>
+      </div>
+
+      <!-- Errors Panel -->
+      <div class="panel">
+        <div class="panel-header"><span>Recent Errors</span></div>
+        <div id="errors-list"></div>
+        <div class="empty-state" id="errors-empty" style="display:none;">No errors. All clear.</div>
+      </div>
+
+      <!-- Template Metrics Panel (Phase 6) -->
+      <div class="panel">
+        <div class="panel-header"><span>Template Metrics</span><span style="font-weight:400;font-size:11px;">Phase 6</span></div>
+        <div id="metrics-list"></div>
+        <div class="empty-state" id="metrics-empty" style="display:none;">No template data yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Job Detail Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <button class="modal-close" id="modal-close">&times;</button>
+      <h2 id="modal-title"></h2>
+      <h3 id="modal-company"></h3>
+
+      <div class="modal-field">
+        <label>Status</label>
+        <div class="value" id="modal-status"></div>
+      </div>
+
+      <div class="modal-field">
+        <label>Score</label>
+        <div class="value" id="modal-score"></div>
+      </div>
+
+      <div class="modal-field">
+        <label>Source</label>
+        <div class="value" id="modal-source"></div>
+      </div>
+
+      <div class="modal-field">
+        <label>URL</label>
+        <div class="value" id="modal-url"></div>
+      </div>
+
+      <div class="modal-field">
+        <label>Template Version</label>
+        <div class="value" id="modal-template-version"></div>
+      </div>
+
+      <div class="modal-field">
+        <label>Description</label>
+        <div class="description" id="modal-description"></div>
+      </div>
+
+      <div class="modal-field">
+        <label>Notes</label>
+        <div class="modal-notes" id="modal-notes"></div>
+      </div>
+
+      <div class="modal-field">
+        <label>Added</label>
+        <div class="value" id="modal-date-added" style="font-size:12px;color:var(--text-muted);"></div>
+      </div>
+
+      <!-- Copy Prompt for Cowork — Phase 3 -->
+      <button class="btn-copy-prompt btn-copy-prompt-hidden" id="btn-copy-prompt">
+        Copy Prompt for Cowork
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ─── Configuration ───────────────────────────────────────────────
+    const API_BASE = window.location.origin;
+    const REFRESH_INTERVAL = 60; // seconds
+    let currentFilter = 'ALL';
+    let currentSort = 'date_updated';
+    let allJobs = [];
+    let countdown = REFRESH_INTERVAL;
+
+    // ─── API Helpers ─────────────────────────────────────────────────
+    async function apiFetch(endpoint) {
+      try {
+        const res = await fetch(`${API_BASE}${endpoint}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        console.warn(`API fetch failed: ${endpoint}`, err);
+        return null;
+      }
+    }
+
+    // ─── Render Stats ────────────────────────────────────────────────
+    function renderStats(stats) {
+      if (!stats) return;
+      document.getElementById('stat-total').textContent = stats.total;
+
+      const statusMap = {};
+      stats.byStatus.forEach(s => statusMap[s.status] = s.count);
+
+      document.getElementById('stat-new').textContent = (statusMap['NEW'] || 0) + (statusMap['SCRAPED'] || 0);
+      document.getElementById('stat-scored').textContent = statusMap['SCORED'] || 0;
+      document.getElementById('stat-applied').textContent = statusMap['APPLIED'] || 0;
+      document.getElementById('stat-interview').textContent = statusMap['INTERVIEW'] || 0;
+      document.getElementById('stat-offer').textContent = statusMap['OFFER'] || 0;
+      document.getElementById('stat-rate').textContent = stats.conversionRate + '%';
+    }
+
+    // ─── Render Jobs ─────────────────────────────────────────────────
+    function renderJobs(jobs) {
+      if (!jobs) return;
+      allJobs = jobs;
+      applyFilter();
+    }
+
+    function applyFilter() {
+      let filtered = allJobs;
+      if (currentFilter !== 'ALL') {
+        filtered = allJobs.filter(j => j.status === currentFilter);
+      }
+
+      const tbody = document.getElementById('jobs-body');
+      const empty = document.getElementById('jobs-empty');
+      const count = document.getElementById('job-count');
+
+      count.textContent = `${filtered.length} job${filtered.length !== 1 ? 's' : ''}`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      tbody.innerHTML = filtered.map(job => `
+        <tr data-id="${job.id}">
+          <td><strong>${esc(job.company)}</strong></td>
+          <td>${esc(job.title)}</td>
+          <td><span class="badge badge-${job.status}">${job.status}</span></td>
+          <td>${job.score ? renderScoreBar(job.score) : '<span style="color:var(--text-muted)">—</span>'}</td>
+          <td style="color:var(--text-muted);font-size:12px;">${esc(job.source || '—')}</td>
+          <td style="color:var(--text-muted);font-size:12px;">${formatDate(job.date_updated)}</td>
+        </tr>
+      `).join('');
+
+      // Row click handlers
+      tbody.querySelectorAll('tr').forEach(tr => {
+        tr.addEventListener('click', () => openJobModal(parseInt(tr.dataset.id)));
+      });
+    }
+
+    function renderScoreBar(score) {
+      const color = score >= 85 ? 'var(--green)' : score >= 70 ? 'var(--yellow)' : 'var(--text-muted)';
+      return `<div class="score-bar">
+        <div class="score-fill" style="width:${score}%;max-width:80px;background:${color}"></div>
+        <span class="score-text">${score}</span>
+      </div>`;
+    }
+
+    // ─── Render Agents ───────────────────────────────────────────────
+    function renderAgents(agents) {
+      const list = document.getElementById('agents-list');
+      const empty = document.getElementById('agents-empty');
+      if (!agents || agents.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      list.innerHTML = agents.map(a => `
+        <div class="agent-item">
+          <div class="agent-info">
+            <div class="agent-name">${esc(a.name)}</div>
+            <div class="agent-meta">${a.jobs_processed} processed &middot; ${a.errors} errors</div>
+          </div>
+          <div class="agent-status ${a.status}" title="${a.status}"></div>
+        </div>
+      `).join('');
+    }
+
+    // ─── Render Errors ───────────────────────────────────────────────
+    function renderErrors(errors) {
+      const list = document.getElementById('errors-list');
+      const empty = document.getElementById('errors-empty');
+      if (!errors || errors.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      list.innerHTML = errors.map(e => `
+        <div class="error-item ${e.resolved ? 'error-resolved' : ''}">
+          <div class="error-msg">${esc(e.error_message)}</div>
+          <div class="error-meta">
+            ${e.company ? esc(e.company) : 'Unknown'} &middot;
+            ${e.agent_name || 'Unknown agent'} &middot;
+            ${formatDate(e.timestamp)}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ─── Render Template Metrics ─────────────────────────────────────
+    function renderMetrics(metrics) {
+      const list = document.getElementById('metrics-list');
+      const empty = document.getElementById('metrics-empty');
+      if (!metrics || metrics.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      list.innerHTML = metrics.map(m => `
+        <div class="agent-item">
+          <div class="agent-info">
+            <div class="agent-name">${esc(m.template_version)}</div>
+            <div class="agent-meta">${m.total_applied} applied &middot; ${m.interviews} interviews &middot; ${m.conversion_rate || 0}% rate</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ─── Job Detail Modal ────────────────────────────────────────────
+    let currentModalJob = null;
+
+    async function openJobModal(jobId) {
+      const job = await apiFetch(`/api/jobs/${jobId}`);
+      if (!job) return;
+      currentModalJob = job;
+
+      document.getElementById('modal-title').textContent = job.title;
+      document.getElementById('modal-company').textContent = job.company;
+      document.getElementById('modal-status').innerHTML = `<span class="badge badge-${job.status}">${job.status}</span>`;
+      document.getElementById('modal-score').textContent = job.score || '—';
+      document.getElementById('modal-source').textContent = job.source || '—';
+      document.getElementById('modal-template-version').textContent = job.template_version || 'v1';
+      document.getElementById('modal-description').textContent = job.description || 'No description available.';
+      document.getElementById('modal-notes').textContent = job.notes || 'No notes.';
+      document.getElementById('modal-date-added').textContent = `Added: ${formatDate(job.date_added)} · Updated: ${formatDate(job.date_updated)}`;
+
+      // URL
+      const urlEl = document.getElementById('modal-url');
+      if (job.url) {
+        urlEl.innerHTML = `<a href="${esc(job.url)}" target="_blank" style="color:var(--accent);">${esc(job.url)}</a>`;
+      } else {
+        urlEl.textContent = '—';
+      }
+
+      // Copy Prompt button — only visible for SCORED status
+      const btnCopy = document.getElementById('btn-copy-prompt');
+      if (job.status === 'SCORED') {
+        btnCopy.classList.remove('btn-copy-prompt-hidden');
+        btnCopy.textContent = 'Copy Prompt for Cowork';
+        btnCopy.classList.remove('copied');
+      } else {
+        btnCopy.classList.add('btn-copy-prompt-hidden');
+      }
+
+      document.getElementById('modal-overlay').classList.add('active');
+    }
+
+    // Close modal
+    document.getElementById('modal-close').addEventListener('click', () => {
+      document.getElementById('modal-overlay').classList.remove('active');
+    });
+    document.getElementById('modal-overlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        document.getElementById('modal-overlay').classList.remove('active');
+      }
+    });
+
+    // ─── Copy Prompt for Cowork (Phase 3) ────────────────────────────
+    document.getElementById('btn-copy-prompt').addEventListener('click', async () => {
+      if (!currentModalJob) return;
+      const btn = document.getElementById('btn-copy-prompt');
+
+      try {
+        // Fetch the formatted prompt from the server
+        const data = await apiFetch(`/api/prompt/${currentModalJob.id}`);
+        if (!data || !data.prompt) throw new Error('Failed to generate prompt');
+
+        // Copy to clipboard
+        await navigator.clipboard.writeText(data.prompt);
+
+        // Visual feedback
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy Prompt for Cowork';
+          btn.classList.remove('copied');
+        }, 2000);
+      } catch (err) {
+        // Fallback: build prompt client-side
+        const prompt = buildPromptClientSide(currentModalJob);
+        try {
+          await navigator.clipboard.writeText(prompt);
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.textContent = 'Copy Prompt for Cowork';
+            btn.classList.remove('copied');
+          }, 2000);
+        } catch (clipErr) {
+          btn.textContent = 'Copy failed — check permissions';
+          setTimeout(() => {
+            btn.textContent = 'Copy Prompt for Cowork';
+          }, 2000);
+        }
+      }
+    });
+
+    // Client-side prompt builder (fallback if server unavailable)
+    function buildPromptClientSide(job) {
+      return `# Cover Letter Generation — Problem→Product→Result Framework
+
+You are helping Wolf write a cover letter for a specific job application. Wolf is a VP of Engineering in career transition with 25+ years of experience.
+
+## Wolf's Core Product
+**"Leadership for leaders, empowerment, and people development"**
+
+This is NOT about technical expertise. It's about servant leadership — creating ownership cultures where complex minds thrive.
+
+## The Framework: Problem→Product→Result
+Every cover letter paragraph should follow this structure:
+1. **Problem** — What leadership/people challenge existed?
+2. **Product** — How did Wolf apply his leadership approach?
+3. **Result** — What people-focused outcomes occurred?
+
+## Wolf's 30-Second Story
+"I've spent 25 years building leadership capabilities — from hands-on broadcast engineering in Germany, to designing touring systems for U2 and the Rolling Stones, to leading 250 engineers globally. But my product isn't technical expertise. It's leadership for leaders — creating ownership cultures where complex minds thrive."
+
+## Key Leadership Stories (Use 1-2 per letter)
+
+**The Ownership Culture:** Post-merger, unified 250 engineers under one leadership philosophy. Introduced 6-point accountability clarity framework, trained leaders to lead with questions not directives, gave regional leads full domain ownership. Result: self-organizing teams that deliver without constant oversight.
+
+**Developing the Developer:** Promising engineer struggling to make the leap to leadership. Weekly coaching (not status updates), asked questions instead of giving answers, let them fail safely. Result: they now lead their own team and develop others the same way.
+
+**The Complex Mind:** Brilliant engineer labeled "difficult." Recognized behavior came from not feeling heard. Created space for ideas, gave ownership of a challenging problem, protected from politics. Result: became highest performer, now mentors others.
+
+## Differentiators
+- Technical credibility + people focus (SMPTE 2110 deep, but leads with people development)
+- International perspective (Germany → UK → US)
+- High-stakes experience (live broadcast, touring — failure visible to millions)
+- Transformation track record (post-merger integration, building from scratch)
+- Servant leadership in practice (documented frameworks and results)
+
+## Cover Letter Rules
+- Lead with PEOPLE, not technology
+- Never open with "I am writing to apply for..."
+- Keep under 400 words
+- Warm but direct tone
+- Show, don't tell — use specific stories and numbers
+- Connect Wolf's experience to the COMPANY'S challenges
+
+---
+
+## JOB DETAILS
+
+**Company:** ${job.company}
+**Title:** ${job.title}
+**Description:**
+
+${job.description || 'No description available'}
+
+---
+
+Generate a cover letter following the framework above. Make it specific to this company and role. Lead with the most relevant Problem→Product→Result story for their needs.`;
+    }
+
+    // ─── Filter Tabs ─────────────────────────────────────────────────
+    document.getElementById('filter-tabs').addEventListener('click', (e) => {
+      const tab = e.target.closest('.filter-tab');
+      if (!tab) return;
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentFilter = tab.dataset.status;
+      applyFilter();
+    });
+
+    // ─── Sort Headers ────────────────────────────────────────────────
+    document.querySelectorAll('.jobs-table th[data-sort]').forEach(th => {
+      th.addEventListener('click', () => {
+        currentSort = th.dataset.sort;
+        allJobs.sort((a, b) => {
+          const va = a[currentSort] || '';
+          const vb = b[currentSort] || '';
+          if (typeof va === 'number') return vb - va;
+          return String(va).localeCompare(String(vb));
+        });
+        applyFilter();
+      });
+    });
+
+    // ─── Helpers ─────────────────────────────────────────────────────
+    function esc(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr);
+      const now = new Date();
+      const diff = now - d;
+      if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+      if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+      if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    // ─── Fetch All Data ──────────────────────────────────────────────
+    async function refreshAll() {
+      const [stats, jobs, agents, errors, metrics] = await Promise.all([
+        apiFetch('/api/stats'),
+        apiFetch('/api/jobs'),
+        apiFetch('/api/agents'),
+        apiFetch('/api/errors'),
+        apiFetch('/api/template-metrics')
+      ]);
+
+      renderStats(stats);
+      renderJobs(jobs);
+      renderAgents(agents);
+      renderErrors(errors);
+      renderMetrics(metrics);
+
+      countdown = REFRESH_INTERVAL;
+    }
+
+    // ─── Auto-Refresh ────────────────────────────────────────────────
+    refreshAll(); // Initial load
+
+    setInterval(() => {
+      countdown--;
+      document.getElementById('countdown').textContent = countdown;
+      if (countdown <= 0) {
+        refreshAll();
+      }
+    }, 1000);
+
+    // Keyboard shortcut: Escape closes modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.getElementById('modal-overlay').classList.remove('active');
+      }
+    });
+  </script>
+</body>
+</html>

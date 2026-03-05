@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wolf's Job Pipeline — Control Tower</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --bg: #0d0f14;
+    --surface: #161923;
+    --surface2: #1e2330;
+    --border: #2a3045;
+    --accent: #4f8ef7;
+    --accent2: #7c5cbf;
+    --green: #2ecc71;
+    --yellow: #f39c12;
+    --red: #e74c3c;
+    --grey: #5a6278;
+    --text: #e8ecf4;
+    --text-dim: #8892a8;
+    --font: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .logo h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  .logo span { color: var(--text-dim); font-weight: 400; }
+  .header-meta { display: flex; align-items: center; gap: 20px; }
+  .live-badge { background: rgba(46,204,113,0.15); border: 1px solid rgba(46,204,113,0.3); color: var(--green); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 1.5s infinite; }
+  .last-refresh { color: var(--text-dim); font-size: 12px; }
+  .refresh-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+  .refresh-btn:hover { background: var(--border); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; padding: 0 32px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 14px; color: var(--text-dim); border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+  .tab-badge { background: var(--accent); color: white; border-radius: 10px; padding: 1px 7px; font-size: 11px; margin-left: 6px; font-weight: 600; }
+  .tab-badge.warn { background: var(--yellow); }
+  .tab-badge.err { background: var(--red); }
+
+  /* MAIN */
+  main { padding: 28px 32px; max-width: 1400px; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* STAT CARDS */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .stat-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .stat-value { font-size: 32px; font-weight: 700; line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
+  .stat-card.green .stat-value { color: var(--green); }
+  .stat-card.yellow .stat-value { color: var(--yellow); }
+  .stat-card.red .stat-value { color: var(--red); }
+  .stat-card.blue .stat-value { color: var(--accent); }
+  .stat-card.purple .stat-value { color: var(--accent2); }
+
+  /* PIPELINE FLOW */
+  .pipeline-flow { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 28px; }
+  .pipeline-flow h3 { font-size: 14px; color: var(--text-dim); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .flow-stages { display: flex; align-items: center; gap: 0; overflow-x: auto; padding-bottom: 8px; }
+  .flow-stage { display: flex; flex-direction: column; align-items: center; min-width: 100px; }
+  .flow-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; text-align: center; width: 90px; }
+  .flow-box .flow-count { font-size: 22px; font-weight: 700; color: var(--accent); }
+  .flow-box .flow-name { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .flow-arrow { color: var(--border); font-size: 18px; padding: 0 6px; flex-shrink: 0; }
+
+  /* SECTION HEADERS */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-title { font-size: 16px; font-weight: 600; }
+  .section-actions { display: flex; gap: 8px; }
+
+  /* TABLE */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: var(--surface2); padding: 12px 16px; text-align: left; font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; border-bottom: 1px solid var(--border); }
+  td { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* BADGES */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge.HIGH { background: rgba(46,204,113,0.15); color: var(--green); border: 1px solid rgba(46,204,113,0.3); }
+  .badge.MEDIUM { background: rgba(243,156,18,0.15); color: var(--yellow); border: 1px solid rgba(243,156,18,0.3); }
+  .badge.SKIP { background: rgba(90,98,120,0.2); color: var(--grey); border: 1px solid rgba(90,98,120,0.3); }
+  .badge.SUBMITTED { background: rgba(79,142,247,0.15); color: var(--accent); border: 1px solid rgba(79,142,247,0.3); }
+  .badge.REJECTED { background: rgba(231,76,60,0.15); color: var(--red); border: 1px solid rgba(231,76,60,0.3); }
+  .badge.INTERVIEW { background: rgba(124,92,191,0.2); color: var(--accent2); border: 1px solid rgba(124,92,191,0.3); }
+  .badge.PENDING { background: rgba(243,156,18,0.15); color: var(--yellow); border: 1px solid rgba(243,156,18,0.3); }
+  .badge.ERROR { background: rgba(231,76,60,0.15); color: var(--red); border: 1px solid rgba(231,76,60,0.3); }
+  .badge.READY { background: rgba(46,204,113,0.15); color: var(--green); border: 1px solid rgba(46,204,113,0.3); }
+  .badge.running { background: rgba(46,204,113,0.15); color: var(--green); border: 1px solid rgba(46,204,113,0.3); }
+  .badge.stopped { background: rgba(231,76,60,0.15); color: var(--red); border: 1px solid rgba(231,76,60,0.3); }
+  .badge.idle { background: rgba(90,98,120,0.2); color: var(--grey); border: 1px solid rgba(90,98,120,0.3); }
+
+  /* SCORE BAR */
+  .score-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .score-bar { height: 4px; background: var(--border); border-radius: 2px; width: 60px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 2px; }
+  .score-num { font-size: 13px; font-weight: 600; min-width: 28px; }
+
+  /* AGENT CARDS */
+  .agent-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .agent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .agent-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .agent-name { font-weight: 600; font-size: 15px; }
+  .agent-meta { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .agent-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .agent-stat-box { background: var(--surface2); border-radius: 8px; padding: 10px 12px; }
+  .agent-stat-label { font-size: 11px; color: var(--text-dim); margin-bottom: 3px; }
+  .agent-stat-val { font-size: 14px; font-weight: 600; }
+  .agent-last-action { font-size: 12px; color: var(--text-dim); margin-bottom: 14px; padding: 10px 12px; background: var(--surface2); border-radius: 8px; }
+
+  /* BUTTONS */
+  .btn { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; border: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #3a7de8; }
+  .btn-secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-danger { background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.3); color: var(--red); }
+  .btn-danger:hover { background: rgba(231,76,60,0.25); }
+  .btn-success { background: rgba(46,204,113,0.15); border: 1px solid rgba(46,204,113,0.3); color: var(--green); }
+  .btn-success:hover { background: rgba(46,204,113,0.25); }
+  .btn-sm { padding: 5px 11px; font-size: 12px; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* TEST RESULT */
+  .test-result { margin-top: 12px; padding: 10px 12px; border-radius: 8px; font-size: 12px; font-family: 'SF Mono', monospace; display: none; }
+  .test-result.pass { background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); color: var(--green); }
+  .test-result.fail { background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); color: var(--red); }
+  .test-result.running { background: rgba(79,142,247,0.1); border: 1px solid rgba(79,142,247,0.3); color: var(--accent); }
+
+  /* SELF TEST */
+  .self-test-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  .self-test-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .self-test-items { display: flex; flex-direction: column; gap: 8px; }
+  .test-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--surface2); border-radius: 8px; font-size: 13px; }
+  .test-item .test-icon { font-size: 16px; width: 20px; text-align: center; }
+  .test-item .test-name { flex: 1; }
+  .test-item .test-status { font-size: 12px; }
+  .test-item .test-latency { font-size: 12px; color: var(--text-dim); min-width: 60px; text-align: right; }
+  .health-score { font-size: 28px; font-weight: 700; }
+
+  /* ERROR TABLE */
+  .error-detail { font-size: 12px; color: var(--text-dim); font-family: 'SF Mono', monospace; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* CHART PLACEHOLDERS */
+  .chart-area { background: var(--surface2); border-radius: 8px; height: 160px; display: flex; align-items: center; justify-content: center; color: var(--text-dim); font-size: 13px; margin-bottom: 16px; position: relative; overflow: hidden; }
+  .mini-bars { display: flex; align-items: flex-end; gap: 4px; height: 80px; padding: 0 16px; }
+  .mini-bar { background: var(--accent); border-radius: 3px 3px 0 0; opacity: 0.7; flex: 1; transition: height 0.5s; }
+  .mini-bar:hover { opacity: 1; }
+
+  /* FILTERS */
+  .filter-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-dim); font-size: 12px; cursor: pointer; transition: all 0.2s; }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .filter-btn:hover:not(.active) { border-color: var(--text-dim); color: var(--text); }
+
+  /* ACTIVITY FEED */
+  .activity-feed { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .activity-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .activity-content { flex: 1; }
+  .activity-text { font-size: 13px; }
+  .activity-time { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+  .modal h2 { font-size: 18px; margin-bottom: 20px; }
+  .modal pre { background: var(--surface2); padding: 16px; border-radius: 8px; font-size: 12px; font-family: 'SF Mono', monospace; overflow-x: auto; color: var(--text-dim); white-space: pre-wrap; }
+
+  /* INGESTION ALERT */
+  .alert-banner { background: rgba(243,156,18,0.1); border: 1px solid rgba(243,156,18,0.3); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; font-size: 14px; }
+  .alert-banner.hidden { display: none; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    main { padding: 16px; }
+    header { padding: 12px 16px; }
+    .tabs { padding: 0 16px; overflow-x: auto; }
+    .stat-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    <h1>Job Pipeline <span>Control Tower</span></h1>
+  </div>
+  <div class="header-meta">
+    <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+    <div class="last-refresh">Last refresh: <span id="refresh-time">just now</span></div>
+    <button class="refresh-btn" onclick="refreshAll()">↻ Refresh</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('overview')">📊 Pipeline Overview</div>
+  <div class="tab" onclick="switchTab('jobs')">💼 Job Inventory <span class="tab-badge" id="badge-jobs">0</span></div>
+  <div class="tab" onclick="switchTab('agents')">⚙️ Agent Status <span class="tab-badge warn" id="badge-agents">7</span></div>
+  <div class="tab" onclick="switchTab('errors')">🔴 Errors <span class="tab-badge err" id="badge-errors">0</span></div>
+  <div class="tab" onclick="switchTab('feedback')">📈 Feedback</div>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════ TAB 1: OVERVIEW -->
+<div id="tab-overview" class="tab-content active">
+  
+  <div class="alert-banner hidden" id="ingestion-alert">
+    ⚠️ <strong>Ingestion Alert:</strong> No new jobs received in the last 24 hours. Check Thunderbit or drop job JSONs manually into /incoming/
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card blue">
+      <div class="stat-label">Total Jobs</div>
+      <div class="stat-value" id="stat-total">0</div>
+      <div class="stat-sub">All time</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Ready to Apply</div>
+      <div class="stat-value" id="stat-ready">0</div>
+      <div class="stat-sub">Awaiting your approval</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-label">In Progress</div>
+      <div class="stat-value" id="stat-inprogress">0</div>
+      <div class="stat-sub">Being processed</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">Submitted</div>
+      <div class="stat-value" id="stat-submitted">0</div>
+      <div class="stat-sub">Applications sent</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-label">Interviews</div>
+      <div class="stat-value" id="stat-interviews">0</div>
+      <div class="stat-sub">Active conversations</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">Errors</div>
+      <div class="stat-value" id="stat-errors">0</div>
+      <div class="stat-sub">Need attention</div>
+    </div>
+  </div>
+
+  <div class="pipeline-flow">
+    <h3>Pipeline Flow — Today</h3>
+    <div class="flow-stages" id="flow-stages">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <div>
+      <div class="section-header">
+        <div class="section-title">Recent Activity</div>
+      </div>
+      <div class="activity-feed" id="activity-feed">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+    <div>
+      <div class="section-header">
+        <div class="section-title">Awaiting Your Approval</div>
+        <button class="btn btn-primary btn-sm" onclick="switchTab('jobs')">View All →</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Company</th><th>Role</th><th>Fit</th></tr></thead>
+          <tbody id="approval-queue"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ TAB 2: JOB INVENTORY -->
+<div id="tab-jobs" class="tab-content">
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="filterJobs('ALL', this)">All</button>
+    <button class="filter-btn" onclick="filterJobs('HIGH', this)">🟢 HIGH</button>
+    <button class="filter-btn" onclick="filterJobs('MEDIUM', this)">🟡 MEDIUM</button>
+    <button class="filter-btn" onclick="filterJobs('COVER_LETTER_READY', this)">Ready to Apply</button>
+    <button class="filter-btn" onclick="filterJobs('SUBMITTED', this)">Submitted</button>
+    <button class="filter-btn" onclick="filterJobs('INTERVIEW_SCHEDULED', this)">Interview</button>
+    <button class="filter-btn" onclick="filterJobs('REJECTED', this)">Rejected</button>
+    <button class="filter-btn" onclick="filterJobs('ERROR_BLOCKED', this)">🔴 Errors</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Role</th>
+          <th>Score</th>
+          <th>Fit</th>
+          <th>Status</th>
+          <th>Method</th>
+          <th>Added</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="jobs-table"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ TAB 3: AGENT STATUS -->
+<div id="tab-agents" class="tab-content">
+  
+  <div class="self-test-panel">
+    <div class="self-test-header">
+      <div>
+        <div class="section-title">🧪 System Self-Test</div>
+        <div style="font-size:13px;color:var(--text-dim);margin-top:4px">Tests all agent endpoints in sequence</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div>
+          <div style="font-size:12px;color:var(--text-dim)">Health Score</div>
+          <div class="health-score" id="health-score" style="color:var(--text-dim)">—/7</div>
+        </div>
+        <button class="btn btn-primary" id="run-all-tests-btn" onclick="runAllTests()">▶ Run All Tests</button>
+      </div>
+    </div>
+    <div class="self-test-items" id="self-test-items">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Agent Details</div>
+  </div>
+  <div class="agent-grid" id="agent-grid">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ TAB 4: ERRORS -->
+<div id="tab-errors" class="tab-content">
+  <div class="section-header">
+    <div class="section-title">Error Log</div>
+    <div class="section-actions">
+      <button class="btn btn-secondary btn-sm">Show Resolved</button>
+      <button class="btn btn-danger btn-sm" onclick="clearResolved()">Clear Resolved</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Agent</th>
+          <th>Job ID</th>
+          <th>Error Type</th>
+          <th>Detail</th>
+          <th>Retries</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="errors-table"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ TAB 5: FEEDBACK -->
+<div id="tab-feedback" class="tab-content">
+  <div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">
+    <div class="stat-card green">
+      <div class="stat-label">Response Rate</div>
+      <div class="stat-value" id="fb-response-rate">0%</div>
+      <div class="stat-sub">of submitted</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-label">Interview Rate</div>
+      <div class="stat-value" id="fb-interview-rate">0%</div>
+      <div class="stat-sub">of responses</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-label">Avg Cover Letter Score</div>
+      <div class="stat-value" id="fb-cl-score">—</div>
+      <div class="stat-sub">self-critique avg</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">QA Bank Size</div>
+      <div class="stat-value" id="fb-qa-count">0</div>
+      <div class="stat-sub">saved answers</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+    <div>
+      <div class="section-header"><div class="section-title">Applications by Outcome</div></div>
+      <div class="chart-area" id="outcome-chart">
+        <div class="mini-bars" id="outcome-bars"></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-header"><div class="section-title">Weekly Application Volume</div></div>
+      <div class="chart-area" id="volume-chart">
+        <div class="mini-bars" id="volume-bars"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header"><div class="section-title">Cover Letter Performance</div></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Job ID</th><th>Company</th><th>Self-Score</th><th>Outcome</th><th>Notes</th></tr></thead>
+      <tbody id="cl-performance-table"></tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<!-- JOB DETAIL MODAL -->
+<div class="modal-overlay" id="job-modal">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h2 id="modal-title">Job Detail</h2>
+      <button class="btn btn-secondary btn-sm" onclick="closeModal()">✕ Close</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DEMO DATA (Replace with SQLite API calls when backend is live)
+// ═══════════════════════════════════════════════
+
+const DEMO_JOBS = [
+  { id:'job_2026_001', company:'Diversified Broadcast', role:'VP Engineering', score:91, fit:'HIGH', status:'COVER_LETTER_READY', method:'email', added:'2026-03-01', wolf_approved:0 },
+  { id:'job_2026_002', company:'Riedel Communications', role:'Senior Director Engineering', score:85, fit:'HIGH', status:'PENDING_WOLF_APPROVAL', method:'ats', added:'2026-03-02', wolf_approved:0 },
+  { id:'job_2026_003', company:'Ross Video', role:'VP Product Engineering', score:78, fit:'HIGH', status:'SUBMITTED', method:'email', added:'2026-02-28', wolf_approved:1 },
+  { id:'job_2026_004', company:'Grass Valley', role:'Director Systems Engineering', score:72, fit:'MEDIUM', status:'SUBMITTED', method:'ats', added:'2026-02-27', wolf_approved:1 },
+  { id:'job_2026_005', company:'Veritone', role:'VP Engineering AI', score:68, fit:'MEDIUM', status:'RESPONSE_RECEIVED', method:'email', added:'2026-02-25', wolf_approved:1 },
+  { id:'job_2026_006', company:'Imagine Communications', role:'CTO', score:88, fit:'HIGH', status:'INTERVIEW_SCHEDULED', method:'email', added:'2026-02-20', wolf_approved:1 },
+  { id:'job_2026_007', company:'Evertz Microsystems', role:'VP Engineering', score:45, fit:'SKIP', status:'ARCHIVED', method:null, added:'2026-03-03', wolf_approved:0 },
+  { id:'job_2026_008', company:'Avid Technology', role:'Engineering Director', score:61, fit:'MEDIUM', status:'SCORING_FAILED', method:null, added:'2026-03-04', wolf_approved:0 },
+  { id:'job_2026_009', company:'Vizrt', role:'VP Engineering EMEA', score:79, fit:'HIGH', status:'COVER_LETTER_QUEUED', method:null, added:'2026-03-04', wolf_approved:0 },
+  { id:'job_2026_010', company:'Haivision', role:'Director Broadcast Engineering', score:55, fit:'MEDIUM', status:'INCOMING', method:null, added:'2026-03-04', wolf_approved:0 },
+];
+
+const DEMO_AGENTS = [
+  { id:'lead', name:'Lead Agent', desc:'Claude Code · Orchestrator', status:'running', lastAction:'Queued 2 jobs for Cowork', lastTime:'3 min ago', todayOps:47, tokenCost:'$0.42', icon:'🧠' },
+  { id:'cowork', name:'Cowork Agent', desc:'Claude Desktop · Cover Letters', status:'idle', lastAction:'Generated cover letter for job_2026_001', lastTime:'18 min ago', todayOps:3, tokenCost:'$0.00', icon:'✍️' },
+  { id:'gmail', name:'Gmail MCP', desc:'jobs.wolfschram@gmail.com', status:'running', lastAction:'Inbox polled — 0 new responses', lastTime:'7 min ago', todayOps:28, tokenCost:'$0.00', icon:'📬' },
+  { id:'filesystem', name:'Filesystem MCP', desc:'Watch folder manager', status:'running', lastAction:'New file detected: job_2026_010.json', lastTime:'12 min ago', todayOps:15, tokenCost:'$0.00', icon:'📁' },
+  { id:'evaluator', name:'Job Evaluator', desc:'FastMCP · Claude Sonnet', status:'running', lastAction:'Scored job_2026_010: 55/MEDIUM', lastTime:'12 min ago', todayOps:10, tokenCost:'$0.18', icon:'🔍' },
+  { id:'logger', name:'Application Logger', desc:'FastMCP · SQLite', status:'running', lastAction:'Updated job_2026_003 → SUBMITTED', lastTime:'1 hr ago', todayOps:23, tokenCost:'$0.00', icon:'📊' },
+  { id:'feedback', name:'Feedback Analyzer', desc:'FastMCP · Pattern analysis', status:'idle', lastAction:'Sunday report sent 2026-03-01', lastTime:'3 days ago', todayOps:0, tokenCost:'$0.00', icon:'🔄' },
+];
+
+const DEMO_ERRORS = [
+  { id:1, time:'09:14', agent:'Job Evaluator', jobId:'job_2026_008', type:'API_TIMEOUT', detail:'Claude Sonnet timeout after 30s — retry 2/2 failed', retries:2, resolved:false },
+  { id:2, time:'07:52', agent:'Gmail MCP', jobId:null, type:'AUTH_WARNING', detail:'OAuth token expires in 3 days — refresh recommended', retries:0, resolved:false },
+  { id:3, time:'Yesterday', agent:'Filesystem MCP', jobId:'job_2026_006', type:'JSON_PARSE', detail:'Malformed JSON in incoming file — self-healed on retry', retries:1, resolved:true },
+];
+
+const DEMO_ACTIVITY = [
+  { type:'green', text:'job_2026_010 ingested — Haivision Director role', time:'12 min ago' },
+  { type:'blue', text:'Cover letter generated for job_2026_001 (score: 8.5/10)', time:'18 min ago' },
+  { type:'yellow', text:'Daily digest sent to Wolf — 3 jobs awaiting approval', time:'1 hr ago' },
+  { type:'red', text:'job_2026_008 scoring failed — quarantined to /errors/', time:'2 hrs ago' },
+  { type:'green', text:'Imagine Communications replied — Interview scheduled!', time:'3 hrs ago' },
+  { type:'blue', text:'Ross Video application submitted via email', time:'Yesterday' },
+];
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let currentJobFilter = 'ALL';
+let allJobs = [...DEMO_JOBS];
+let allAgents = [...DEMO_AGENTS];
+let allErrors = [...DEMO_ERRORS];
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  renderAll();
+  setInterval(tickRefresh, 60000);
+});
+
+function renderAll() {
+  renderStats();
+  renderFlow();
+  renderActivity();
+  renderApprovalQueue();
+  renderJobsTable();
+  renderAgents();
+  renderSelfTest();
+  renderErrors();
+  renderFeedback();
+  updateBadges();
+  document.getElementById('refresh-time').textContent = 'just now';
+}
+
+function tickRefresh() {
+  document.getElementById('refresh-time').textContent = 'auto';
+  renderAll();
+}
+
+function refreshAll() {
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════
+// TAB 1: STATS + FLOW
+// ═══════════════════════════════════════════════
+function renderStats() {
+  const t = allJobs.length;
+  const ready = allJobs.filter(j => ['COVER_LETTER_READY','PENDING_WOLF_APPROVAL'].includes(j.status)).length;
+  const inprog = allJobs.filter(j => ['INCOMING','SCORED','COVER_LETTER_QUEUED'].includes(j.status)).length;
+  const submitted = allJobs.filter(j => ['SUBMITTED','RESPONSE_RECEIVED','INTERVIEW_SCHEDULED'].includes(j.status)).length;
+  const interviews = allJobs.filter(j => j.status === 'INTERVIEW_SCHEDULED').length;
+  const errors = allErrors.filter(e => !e.resolved).length;
+
+  document.getElementById('stat-total').textContent = t;
+  document.getElementById('stat-ready').textContent = ready;
+  document.getElementById('stat-inprogress').textContent = inprog;
+  document.getElementById('stat-submitted').textContent = submitted;
+  document.getElementById('stat-interviews').textContent = interviews;
+  document.getElementById('stat-errors').textContent = errors;
+
+  const ingestionAlert = document.getElementById('ingestion-alert');
+  const recent = allJobs.filter(j => {
+    const d = new Date(j.added);
+    const now = new Date();
+    return (now - d) < 24*60*60*1000;
+  });
+  if (recent.length === 0) ingestionAlert.classList.remove('hidden');
+  else ingestionAlert.classList.add('hidden');
+}
+
+function renderFlow() {
+  const stages = [
+    { name:'INCOMING', label:'Incoming' },
+    { name:'SCORED', label:'Scored' },
+    { name:'COVER_LETTER_QUEUED', label:'Queued' },
+    { name:'COVER_LETTER_READY', label:'Ready' },
+    { name:'PENDING_WOLF_APPROVAL', label:'Your Approval' },
+    { name:'SUBMITTED', label:'Submitted' },
+    { name:'INTERVIEW_SCHEDULED', label:'Interview' },
+  ];
+  const el = document.getElementById('flow-stages');
+  el.innerHTML = stages.map((s,i) => {
+    const count = allJobs.filter(j => j.status === s.name).length;
+    return `
+      <div class="flow-stage">
+        <div class="flow-box">
+          <div class="flow-count">${count}</div>
+          <div class="flow-name">${s.label}</div>
+        </div>
+      </div>
+      ${i < stages.length-1 ? '<div class="flow-arrow">→</div>' : ''}
+    `;
+  }).join('');
+}
+
+function renderActivity() {
+  const el = document.getElementById('activity-feed');
+  const colors = { green: '#2ecc71', blue: '#4f8ef7', yellow: '#f39c12', red: '#e74c3c', purple: '#7c5cbf' };
+  el.innerHTML = DEMO_ACTIVITY.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${colors[a.type]}"></div>
+      <div class="activity-content">
+        <div class="activity-text">${a.text}</div>
+        <div class="activity-time">${a.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderApprovalQueue() {
+  const el = document.getElementById('approval-queue');
+  const q = allJobs.filter(j => ['COVER_LETTER_READY','PENDING_WOLF_APPROVAL'].includes(j.status)).slice(0,5);
+  if (!q.length) { el.innerHTML = '<tr><td colspan="3" style="color:var(--text-dim);text-align:center;padding:20px;">No jobs awaiting approval</td></tr>'; return; }
+  el.innerHTML = q.map(j => `
+    <tr>
+      <td>${j.company}</td>
+      <td style="color:var(--text-dim);font-size:13px">${j.role}</td>
+      <td><span class="badge ${j.fit}">${j.fit}</span></td>
+    </tr>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+// TAB 2: JOB INVENTORY
+// ═══════════════════════════════════════════════
+function filterJobs(filter, btn) {
+  currentJobFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderJobsTable();
+}
+
+function renderJobsTable() {
+  const el = document.getElementById('jobs-table');
+  let jobs = allJobs;
+  if (currentJobFilter !== 'ALL') {
+    if (['HIGH','MEDIUM','SKIP'].includes(currentJobFilter)) {
+      jobs = jobs.filter(j => j.fit === currentJobFilter);
+    } else {
+      jobs = jobs.filter(j => j.status === currentJobFilter);
+    }
+  }
+  
+  if (!jobs.length) {
+    el.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:24px">No jobs match this filter</td></tr>';
+    return;
+  }
+
+  el.innerHTML = jobs.map(j => {
+    const scoreColor = j.score >= 75 ? '#2ecc71' : j.score >= 50 ? '#f39c12' : '#5a6278';
+    const scoreBar = j.score ? `<div class="score-bar-wrap">
+      <div class="score-bar"><div class="score-fill" style="width:${j.score}%;background:${scoreColor}"></div></div>
+      <span class="score-num" style="color:${scoreColor}">${j.score}</span>
+    </div>` : '—';
+    
+    const actionBtn = j.status === 'ERROR_BLOCKED' || j.status === 'SCORING_FAILED'
+      ? `<button class="btn btn-danger btn-sm" onclick="requeueJob('${j.id}')">↩ Re-queue</button>`
+      : `<button class="btn btn-secondary btn-sm" onclick="viewJob('${j.id}')">View</button>`;
+
+    return `<tr>
+      <td><strong>${j.company}</strong></td>
+      <td style="color:var(--text-dim);font-size:13px">${j.role}</td>
+      <td>${scoreBar}</td>
+      <td>${j.fit ? `<span class="badge ${j.fit}">${j.fit}</span>` : '—'}</td>
+      <td><span class="badge ${j.status.replace('_SCHEDULED','').replace('_READY','READY').replace('_BLOCKED','ERROR')}">${statusLabel(j.status)}</span></td>
+      <td style="font-size:12px;color:var(--text-dim)">${j.method ? j.method.toUpperCase() : '—'}</td>
+      <td style="font-size:12px;color:var(--text-dim)">${j.added}</td>
+      <td>${actionBtn}</td>
+    </tr>`;
+  }).join('');
+}
+
+function statusLabel(s) {
+  const labels = {
+    INCOMING: 'Incoming', SCORED: 'Scored', COVER_LETTER_QUEUED: 'Queued',
+    COVER_LETTER_READY: 'Letter Ready', PENDING_WOLF_APPROVAL: '⭐ Awaiting You',
+    APPROVED: 'Approved', SUBMITTED: 'Submitted', RESPONSE_RECEIVED: 'Response',
+    INTERVIEW_SCHEDULED: '🎯 Interview', REJECTED: 'Rejected', ARCHIVED: 'Archived',
+    SCORING_FAILED: '⚠ Score Failed', ERROR_BLOCKED: '🔴 Blocked', GHOSTED: 'Ghosted',
+  };
+  return labels[s] || s;
+}
+
+// ═══════════════════════════════════════════════
+// TAB 3: AGENTS
+// ═══════════════════════════════════════════════
+function renderAgents() {
+  const grid = document.getElementById('agent-grid');
+  grid.innerHTML = allAgents.map(a => `
+    <div class="agent-card">
+      <div class="agent-header">
+        <div>
+          <div class="agent-name">${a.icon} ${a.name}</div>
+          <div class="agent-meta">${a.desc}</div>
+        </div>
+        <span class="badge ${a.status}">${a.status.toUpperCase()}</span>
+      </div>
+      <div class="agent-stats">
+        <div class="agent-stat-box">
+          <div class="agent-stat-label">Ops Today</div>
+          <div class="agent-stat-val">${a.todayOps}</div>
+        </div>
+        <div class="agent-stat-box">
+          <div class="agent-stat-label">API Cost Today</div>
+          <div class="agent-stat-val">${a.tokenCost}</div>
+        </div>
+      </div>
+      <div class="agent-last-action">Last: ${a.lastAction}<br><span style="color:var(--grey)">${a.lastTime}</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="testEndpoint('${a.id}', this)">🧪 Test Endpoint</button>
+        ${a.status === 'stopped' ? `<button class="btn btn-success btn-sm">▶ Start</button>` : `<button class="btn btn-danger btn-sm" onclick="restartAgent('${a.id}')">↻ Restart</button>`}
+      </div>
+      <div class="test-result" id="test-result-${a.id}"></div>
+    </div>
+  `).join('');
+}
+
+function renderSelfTest() {
+  const el = document.getElementById('self-test-items');
+  el.innerHTML = allAgents.map(a => `
+    <div class="test-item" id="selftest-${a.id}">
+      <div class="test-icon">⬜</div>
+      <div class="test-name">${a.icon} ${a.name}</div>
+      <div class="test-status" style="color:var(--text-dim)">Not tested</div>
+      <div class="test-latency"></div>
+    </div>
+  `).join('');
+}
+
+let testQueue = [];
+let testRunning = false;
+
+async function runAllTests() {
+  const btn = document.getElementById('run-all-tests-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Running...';
+  document.getElementById('health-score').textContent = '…/7';
+  document.getElementById('health-score').style.color = 'var(--text-dim)';
+
+  let passed = 0;
+  for (const agent of allAgents) {
+    const row = document.getElementById(`selftest-${agent.id}`);
+    const icon = row.querySelector('.test-icon');
+    const status = row.querySelector('.test-status');
+    const latency = row.querySelector('.test-latency');
+    
+    icon.textContent = '⏳';
+    status.textContent = 'Testing...';
+    status.style.color = 'var(--accent)';
+
+    const start = Date.now();
+    await new Promise(r => setTimeout(r, 600 + Math.random() * 800));
+    const ms = Date.now() - start;
+    const ok = Math.random() > 0.15; // 85% pass rate in demo
+
+    if (ok) {
+      passed++;
+      icon.textContent = '✅';
+      status.textContent = 'PASS';
+      status.style.color = 'var(--green)';
+    } else {
+      icon.textContent = '❌';
+      status.textContent = 'FAIL';
+      status.style.color = 'var(--red)';
+    }
+    latency.textContent = `${ms}ms`;
+  }
+
+  const scoreEl = document.getElementById('health-score');
+  scoreEl.textContent = `${passed}/7`;
+  scoreEl.style.color = passed >= 6 ? 'var(--green)' : passed >= 4 ? 'var(--yellow)' : 'var(--red)';
+  btn.disabled = false;
+  btn.textContent = '▶ Run All Tests';
+}
+
+function testEndpoint(agentId, btn) {
+  const resultEl = document.getElementById(`test-result-${agentId}`);
+  resultEl.style.display = 'block';
+  resultEl.className = 'test-result running';
+  resultEl.textContent = '⏳ Sending test payload...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    const ok = Math.random() > 0.2;
+    resultEl.className = `test-result ${ok ? 'pass' : 'fail'}`;
+    if (ok) {
+      resultEl.textContent = `✓ PASS  200 OK  latency: ${Math.floor(200+Math.random()*600)}ms\n→ {"status":"success","agent":"${agentId}","test":true}`;
+    } else {
+      resultEl.textContent = `✗ FAIL  Connection refused\n→ Agent may not be running. Check launchd status.`;
+    }
+    btn.disabled = false;
+  }, 800 + Math.random() * 1000);
+}
+
+function restartAgent(id) {
+  const a = allAgents.find(a => a.id === id);
+  if (a) { a.status = 'running'; a.lastTime = 'just now'; renderAgents(); }
+}
+
+// ═══════════════════════════════════════════════
+// TAB 4: ERRORS
+// ═══════════════════════════════════════════════
+function renderErrors() {
+  const el = document.getElementById('errors-table');
+  const active = allErrors.filter(e => !e.resolved);
+  if (!active.length) {
+    el.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:24px">🟢 No active errors</td></tr>';
+    return;
+  }
+  el.innerHTML = active.map(e => `
+    <tr>
+      <td style="font-size:12px;color:var(--text-dim)">${e.time}</td>
+      <td><strong>${e.agent}</strong></td>
+      <td style="font-size:12px;color:var(--text-dim)">${e.jobId || '—'}</td>
+      <td><span class="badge ERROR">${e.type}</span></td>
+      <td class="error-detail" title="${e.detail}">${e.detail}</td>
+      <td style="text-align:center">${e.retries}</td>
+      <td><span class="badge ${e.resolved ? 'READY' : 'ERROR'}">${e.resolved ? 'Resolved' : 'Active'}</span></td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="resolveError(${e.id})">✓ Resolve</button>
+        ${e.jobId ? `<button class="btn btn-primary btn-sm" onclick="requeueJob('${e.jobId}')" style="margin-left:4px">↩ Re-queue</button>` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function resolveError(id) {
+  const e = allErrors.find(e => e.id === id);
+  if (e) { e.resolved = true; renderErrors(); updateBadges(); renderStats(); }
+}
+
+function clearResolved() {
+  allErrors = allErrors.filter(e => !e.resolved);
+  renderErrors(); updateBadges();
+}
+
+// ═══════════════════════════════════════════════
+// TAB 5: FEEDBACK
+// ═══════════════════════════════════════════════
+function renderFeedback() {
+  const submitted = allJobs.filter(j => ['SUBMITTED','RESPONSE_RECEIVED','INTERVIEW_SCHEDULED','REJECTED'].includes(j.status)).length;
+  const responses = allJobs.filter(j => ['RESPONSE_RECEIVED','INTERVIEW_SCHEDULED','REJECTED'].includes(j.status)).length;
+  const interviews = allJobs.filter(j => j.status === 'INTERVIEW_SCHEDULED').length;
+
+  document.getElementById('fb-response-rate').textContent = submitted ? Math.round(responses/submitted*100)+'%' : '0%';
+  document.getElementById('fb-interview-rate').textContent = responses ? Math.round(interviews/responses*100)+'%' : '0%';
+  document.getElementById('fb-cl-score').textContent = '8.2';
+  document.getElementById('fb-qa-count').textContent = '12';
+
+  // Outcome bars
+  const outcomes = [
+    { label:'Submitted', count:submitted, color:'#4f8ef7' },
+    { label:'Response', count:responses, color:'#7c5cbf' },
+    { label:'Interview', count:interviews, color:'#2ecc71' },
+    { label:'Rejected', count:allJobs.filter(j=>j.status==='REJECTED').length, color:'#e74c3c' },
+  ];
+  const max = Math.max(...outcomes.map(o=>o.count), 1);
+  document.getElementById('outcome-bars').innerHTML = outcomes.map(o => 
+    `<div class="mini-bar" title="${o.label}: ${o.count}" style="height:${Math.max(o.count/max*100,5)}%;background:${o.color}"></div>`
+  ).join('');
+
+  // Volume bars (mock weekly)
+  const vols = [2,5,3,8,4,7,10];
+  const maxV = Math.max(...vols);
+  document.getElementById('volume-bars').innerHTML = vols.map(v => 
+    `<div class="mini-bar" style="height:${v/maxV*100}%;background:var(--accent)"></div>`
+  ).join('');
+
+  // CL performance
+  const clJobs = allJobs.filter(j => j.status !== 'ARCHIVED' && j.status !== 'INCOMING');
+  document.getElementById('cl-performance-table').innerHTML = clJobs.slice(0,6).map(j => `
+    <tr>
+      <td style="font-size:12px;color:var(--text-dim)">${j.id}</td>
+      <td>${j.company}</td>
+      <td style="color:var(--green);font-weight:600">${(7 + Math.random()*3).toFixed(1)}/10</td>
+      <td><span class="badge ${j.status.includes('INTERVIEW') ? 'INTERVIEW' : j.status === 'SUBMITTED' ? 'SUBMITTED' : 'SKIP'}">${statusLabel(j.status)}</span></td>
+      <td style="font-size:12px;color:var(--text-dim)">—</td>
+    </tr>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+// SHARED UTILS
+// ═══════════════════════════════════════════════
+function updateBadges() {
+  document.getElementById('badge-jobs').textContent = allJobs.filter(j => ['COVER_LETTER_READY','PENDING_WOLF_APPROVAL'].includes(j.status)).length;
+  const errCount = allErrors.filter(e => !e.resolved).length;
+  document.getElementById('badge-errors').textContent = errCount;
+  document.getElementById('badge-errors').className = `tab-badge ${errCount > 0 ? 'err' : ''}`;
+}
+
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById(`tab-${id}`).classList.add('active');
+  const tabs = ['overview','jobs','agents','errors','feedback'];
+  document.querySelectorAll('.tab')[tabs.indexOf(id)].classList.add('active');
+}
+
+function viewJob(id) {
+  const job = allJobs.find(j => j.id === id);
+  if (!job) return;
+  document.getElementById('modal-title').textContent = `${job.company} — ${job.role}`;
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+      <div class="agent-stat-box"><div class="agent-stat-label">Score</div><div class="agent-stat-val" style="color:var(--green)">${job.score}/100</div></div>
+      <div class="agent-stat-box"><div class="agent-stat-label">Fit Label</div><div class="agent-stat-val"><span class="badge ${job.fit}">${job.fit}</span></div></div>
+      <div class="agent-stat-box"><div class="agent-stat-label">Status</div><div class="agent-stat-val">${statusLabel(job.status)}</div></div>
+      <div class="agent-stat-box"><div class="agent-stat-label">Method</div><div class="agent-stat-val">${job.method ? job.method.toUpperCase() : '—'}</div></div>
+    </div>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px">Cover letter and application materials will appear here when generated.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary btn-sm">✓ Approve</button>
+      <button class="btn btn-danger btn-sm">✗ Skip</button>
+      <button class="btn btn-secondary btn-sm">✏ Flag for Edit</button>
+    </div>
+  `;
+  document.getElementById('job-modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('job-modal').classList.remove('open'); }
+document.getElementById('job-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+function requeueJob(id) {
+  const job = allJobs.find(j => j.id === id);
+  if (job) {
+    job.status = 'INCOMING';
+    renderJobsTable(); renderStats(); renderFlow();
+    renderErrors();
+    alert(`Job ${id} re-queued to INCOMING. Job Evaluator will pick it up on next cycle.`);
+  }
+}
+</script>
+</body>
+</html>

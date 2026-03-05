@@ -454,6 +454,30 @@ addRoute('POST', '/api/conductor/retry/:id', (req, res) => {
   json(res, db.prepare('SELECT * FROM conductor_queue WHERE id = ?').get(req.params.id));
 });
 
+// ─── Conductor State Machine ────────────────────────────────────────
+const conductor = require('./conductor/scheduler');
+
+addRoute('POST', '/api/conductor/transition/:jobId', async (req, res) => {
+  const { status } = req.body;
+  if (!status) return json(res, { error: 'status is required' }, 400);
+  const result = conductor.transitionJob(parseInt(req.params.jobId, 10), status);
+  if (!result.success) return json(res, { error: result.error }, 400);
+  json(res, db.prepare('SELECT * FROM job_current_state WHERE id = ?').get(req.params.jobId));
+});
+
+addRoute('GET', '/api/conductor/health', (req, res) => {
+  const health = conductor.getQueueHealth();
+  const stalls = conductor.detectStalls();
+  const recentErrors = db.prepare(
+    "SELECT COUNT(*) as c FROM errors WHERE julianday('now') - julianday(timestamp) < 1"
+  ).get();
+  json(res, { ...health, stalls_detected: stalls, recent_errors: recentErrors.c });
+});
+
+addRoute('GET', '/api/conductor/transitions', (req, res) => {
+  json(res, conductor.VALID_TRANSITIONS);
+});
+
 // ─── Cover Letter Generation ───────────────────────────────────────
 const { generateCoverLetter, registerPrompts } = require('./lib/cover-letter-generator');
 

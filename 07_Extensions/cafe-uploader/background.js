@@ -148,92 +148,108 @@ async function relayToContent(payload) {
 
 // ── Portfolio Scraping (for dedup) ─────────────────────────────
 //
-// Opens a hidden background tab to portfolio.php, waits for JS to render,
-// scrapes all image titles, then closes the tab.
-// Uses active:false so the popup doesn't lose focus and close.
+// Strategy: Try scraping an EXISTING portfolio tab first (most reliable —
+// page is already loaded and rendered). Only create a hidden background tab
+// as fallback if no portfolio tab is open.
 
 async function getPortfolioTitles() {
-  let scrapeTabId = null;
+  // --- Approach 1: Find an existing portfolio tab and scrape it directly ---
+  try {
+    const existingTabs = await chrome.tabs.query({ url: 'https://artist.callforentry.org/portfolio.php*' });
+    if (existingTabs.length > 0) {
+      const tabId = existingTabs[0].id;
+      console.log(`[BG] Found existing portfolio tab ${tabId}, scraping directly`);
+      const titles = await scrapePortfolioTab(tabId);
+      if (titles.length > 0) {
+        console.log(`[BG] Scraped ${titles.length} titles from existing tab`);
+        return { success: true, titles };
+      }
+      console.log('[BG] Existing tab returned 0 titles, trying hidden tab fallback');
+    } else {
+      console.log('[BG] No existing portfolio tab found, using hidden tab');
+    }
+  } catch (err) {
+    console.warn('[BG] Existing tab scrape failed, trying hidden tab:', err.message);
+  }
 
+  // --- Approach 2: Create a hidden background tab ---
+  let scrapeTabId = null;
   try {
     console.log('[BG] Opening background tab for portfolio scrape');
-
-    // Create a background tab (active:false = no focus steal = popup stays open)
     const scrapeTab = await chrome.tabs.create({
       url: 'https://artist.callforentry.org/portfolio.php',
       active: false,
     });
     scrapeTabId = scrapeTab.id;
-
-    // Register as scrape tab so pageStatus doesn't overwrite cafeTabId
     scrapeTabIds.add(scrapeTabId);
 
-    // Wait for the page to fully load (including JS that renders titles)
     await waitForTabLoad(scrapeTabId, 20000);
-    // Extra wait for client-side template rendering
-    await sleep(3000);
+    // Extra wait for Ractive.js client-side template rendering
+    await sleep(4000);
 
-    // Scrape titles from the rendered DOM
-    const results = await chrome.scripting.executeScript({
-      target: { tabId: scrapeTabId },
-      world: 'MAIN',
-      func: () => {
-        const titles = [];
-        // Try figcaption first
-        document.querySelectorAll('figcaption').forEach(fig => {
-          const text = fig.textContent.trim();
-          if (text && text.length > 2 && text.length < 100
-              && !text.includes('{{') && !titles.includes(text)) {
-            titles.push(text);
-          }
-        });
-        // If figcaptions didn't work, try other selectors
-        if (titles.length === 0) {
-          // Try alt attributes on images
-          document.querySelectorAll('.portfolio-image img, .sample-image img').forEach(img => {
-            const alt = (img.alt || '').trim();
-            if (alt && alt.length > 2 && alt.length < 100 && !titles.includes(alt)) {
-              titles.push(alt);
-            }
-          });
-        }
-        // Also grab any title-like text from data attributes or hidden elements
-        if (titles.length === 0) {
-          document.querySelectorAll('[data-title]').forEach(el => {
-            const t = (el.dataset.title || '').trim();
-            if (t && t.length > 2 && !titles.includes(t)) titles.push(t);
-          });
-        }
-        return { titles, debug: {
-          figcaptions: document.querySelectorAll('figcaption').length,
-          bodyLen: document.body.innerHTML.length,
-          hasTemplates: document.body.innerHTML.includes('{{'),
-          sampleElements: document.querySelectorAll('.sample').length,
-        }};
-      },
-    });
+    const titles = await scrapePortfolioTab(scrapeTabId);
+    console.log(`[BG] Scraped ${titles.length} titles from hidden tab`);
 
-    const rawResult = results?.[0]?.result || { titles: [], debug: {} };
-    const titles = rawResult.titles || [];
-    console.log(`[BG] Scraped ${titles.length} portfolio titles. Debug:`, rawResult.debug);
-    if (titles.length > 0) {
-      console.log('[BG] Portfolio titles:', titles);
-    }
-
-    // Close the scrape tab and unregister
+    // Clean up
     scrapeTabIds.delete(scrapeTabId);
     try { await chrome.tabs.remove(scrapeTabId); } catch {}
 
     return { success: true, titles };
   } catch (err) {
     console.error('[BG] Portfolio scrape failed:', err);
-    // Clean up scrape tab on error
     if (scrapeTabId) {
       scrapeTabIds.delete(scrapeTabId);
       try { await chrome.tabs.remove(scrapeTabId); } catch {}
     }
     return { success: false, titles: [], error: err.message };
   }
+}
+
+/**
+ * Scrape portfolio titles from a tab that's already on portfolio.php.
+ * Runs in MAIN world to access the rendered DOM after Ractive.js rendering.
+ * Returns an array of title strings.
+ */
+async function scrapePortfolioTab(tabId) {
+  const results = await chrome.scripting.executeScript({
+    target: { tabId },
+    world: 'MAIN',
+    func: () => {
+      const titles = [];
+      // Primary: figcaption elements (CaFE renders image titles here)
+      document.querySelectorAll('figcaption').forEach(fig => {
+        const text = fig.textContent.trim();
+        if (text && text.length > 2 && text.length < 100
+            && !text.includes('{{') && !titles.includes(text)) {
+          titles.push(text);
+        }
+      });
+      // Fallback 1: alt attributes on portfolio images
+      if (titles.length === 0) {
+        document.querySelectorAll('figure img, .portfolio-image img, .sample-image img').forEach(img => {
+          const alt = (img.alt || '').trim();
+          if (alt && alt.length > 2 && alt.length < 100 && !titles.includes(alt)) {
+            titles.push(alt);
+          }
+        });
+      }
+      // Fallback 2: data-title attributes
+      if (titles.length === 0) {
+        document.querySelectorAll('[data-title]').forEach(el => {
+          const t = (el.dataset.title || '').trim();
+          if (t && t.length > 2 && !titles.includes(t)) titles.push(t);
+        });
+      }
+      console.log(`[CaFE Page] Scraped ${titles.length} portfolio titles`, {
+        figcaptions: document.querySelectorAll('figcaption').length,
+        url: window.location.href,
+        bodyLen: document.body.innerHTML.length,
+      });
+      return titles;
+    },
+  });
+
+  return results?.[0]?.result || [];
 }
 
 // ── Upload to Page ─────────────────────────────────────────────
@@ -254,7 +270,27 @@ async function uploadToPage(metadata, imageBase64, filename) {
 
   try {
     // 1. Ensure tab is on media_upload.php and fully loaded
-    const tab = await chrome.tabs.get(cafeTabId);
+    let tab;
+    try {
+      tab = await chrome.tabs.get(cafeTabId);
+    } catch {
+      // Tab was closed — try to find another CaFE tab or create one
+      console.log('[BG] CaFE tab gone, finding another...');
+      const result = await findCafeTab();
+      if (!result.found) {
+        // Create a new CaFE tab
+        const newTab = await chrome.tabs.create({
+          url: 'https://artist.callforentry.org/media_upload.php',
+          active: false,
+        });
+        cafeTabId = newTab.id;
+        await waitForTabLoad(cafeTabId, 15000);
+        tab = await chrome.tabs.get(cafeTabId);
+      } else {
+        tab = await chrome.tabs.get(cafeTabId);
+      }
+    }
+
     if (!tab.url.includes('media_upload.php')) {
       console.log('[BG] Navigating to media_upload.php');
       await chrome.tabs.update(cafeTabId, { url: 'https://artist.callforentry.org/media_upload.php' });
@@ -299,6 +335,8 @@ async function uploadToPage(metadata, imageBase64, filename) {
       console.log('[BG] Navigating back to media_upload.php');
       await chrome.tabs.update(cafeTabId, { url: 'https://artist.callforentry.org/media_upload.php' });
       await waitForTabLoad(cafeTabId, 15000);
+      // Extra wait for Ractive.js to render the form + validateForm to be available
+      await sleep(1500);
       console.log('[BG] Ready for next upload');
 
       return { success: true, title: metadata.title };

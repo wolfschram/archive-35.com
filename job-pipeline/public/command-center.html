@@ -425,6 +425,7 @@
   <button class="tab-btn" data-tab="applied">Applied <span class="badge" id="applied-count">0</span></button>
   <button class="tab-btn" data-tab="feedback">Feedback</button>
   <button class="tab-btn" data-tab="health">Health</button>
+  <button class="tab-btn" data-tab="ats">ATS Bot <span class="badge" id="ats-queue-count">0</span></button>
 </nav>
 
 <!-- ═══ Tab 1: Pipeline ═══════════════════════════════════════════════ -->
@@ -589,6 +590,62 @@
   <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">Job Activity (Last 30 Days)</h3>
   <div class="heatmap" id="job-heatmap"></div>
   <div id="health-details"></div>
+</div>
+
+<!-- ═══ Tab 8: ATS Bot ═══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-ats">
+  <h2 style="font-size:1.1rem;margin-bottom:1rem;">ATS Submission Bot</h2>
+
+  <!-- Connection Status -->
+  <div class="stat-grid" style="margin-bottom:1.5rem;">
+    <div class="stat-card">
+      <div class="stat-label">CDP Status</div>
+      <div class="stat-value" id="ats-cdp-status" style="font-size:0.9rem;">Disconnected</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Approved Jobs</div>
+      <div class="stat-value" id="ats-approved-count">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Adapters</div>
+      <div class="stat-value" id="ats-adapter-count">0</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <button class="btn-primary" id="ats-connect-btn" onclick="atsConnect()">Connect to Chrome</button>
+    <button class="btn-secondary" id="ats-disconnect-btn" onclick="atsDisconnect()" disabled>Disconnect</button>
+    <button class="btn-primary" id="ats-start-btn" onclick="atsStartQueue()" disabled style="background:var(--accent-green);">Start ATS Submissions</button>
+    <button class="btn-secondary" id="ats-dry-run-btn" onclick="atsStartQueue(true)">Dry Run</button>
+  </div>
+
+  <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:1rem;">
+    Pull-based: Click "Start ATS Submissions" when ready. Bot processes approved jobs one at a time, pauses before final submit for your review.
+    <br>Requires Chrome running with: <code>--remote-debugging-port=9222</code>
+  </p>
+
+  <!-- Approved Queue -->
+  <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">Submission Queue</h3>
+  <div class="table-wrap">
+    <table id="ats-queue-table">
+      <thead><tr>
+        <th>Score</th><th>Company</th><th>Role</th><th>URL</th><th>Cover Letter</th><th>Status</th><th>Action</th>
+      </tr></thead>
+      <tbody id="ats-queue-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Recent Submissions -->
+  <h3 style="font-size:0.9rem;margin:1.5rem 0 0.75rem;">Recent Submissions</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Date</th><th>Company</th><th>Role</th><th>Method</th><th>Platform</th><th>Response</th>
+      </tr></thead>
+      <tbody id="ats-submissions-body"></tbody>
+    </table>
+  </div>
 </div>
 
 <!-- Letter Modal -->
@@ -1317,12 +1374,110 @@ function renderHeatmap() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// TAB 8: ATS BOT
+// ═══════════════════════════════════════════════════════════════════════
+async function loadATS() {
+  try {
+    const [status, queue, submissions] = await Promise.all([
+      api('/api/ats/status'), api('/api/ats/queue'), api('/api/ats/submissions'),
+    ]);
+
+    // Connection status
+    const cdpEl = document.getElementById('ats-cdp-status');
+    cdpEl.textContent = status.connected ? 'Connected' : 'Disconnected';
+    cdpEl.style.color = status.connected ? 'var(--accent-green)' : 'var(--text-dim)';
+    document.getElementById('ats-approved-count').textContent = status.approved_count || 0;
+    document.getElementById('ats-adapter-count').textContent = (status.adapters || []).length;
+    document.getElementById('ats-queue-count').textContent = status.approved_count || 0;
+
+    // Button states
+    document.getElementById('ats-connect-btn').disabled = status.connected;
+    document.getElementById('ats-disconnect-btn').disabled = !status.connected;
+    document.getElementById('ats-start-btn').disabled = !status.connected || !status.approved_count;
+
+    // Queue table
+    const qBody = document.getElementById('ats-queue-body');
+    qBody.innerHTML = (queue.jobs || []).map(j => `
+      <tr>
+        <td>${j.score || '—'}</td>
+        <td>${esc(j.company)}</td>
+        <td>${esc(j.title)}</td>
+        <td>${j.url ? `<a href="${esc(j.url)}" target="_blank" style="color:var(--accent-blue);">Link</a>` : '—'}</td>
+        <td>${j.has_cover_letter ? 'Yes' : '<span style="color:var(--accent-yellow)">No</span>'}</td>
+        <td>${j.recent_submissions > 0 ? '<span style="color:var(--accent-yellow)">Already applied</span>' : 'Ready'}</td>
+        <td><button class="btn-primary btn-sm" onclick="atsSubmitOne(${j.id})" ${!status.connected ? 'disabled' : ''}>Fill Form</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);">No approved jobs with URLs</td></tr>';
+
+    // Submissions table
+    const sBody = document.getElementById('ats-submissions-body');
+    sBody.innerHTML = (submissions.submissions || []).map(s => `
+      <tr>
+        <td>${s.submitted_at ? new Date(s.submitted_at).toLocaleDateString() : '—'}</td>
+        <td>${esc(s.company)}</td>
+        <td>${esc(s.title)}</td>
+        <td>${esc(s.method || '—')}</td>
+        <td>${esc(s.platform || '—')}</td>
+        <td>${esc(s.response_type || '—')}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-dim);">No submissions yet</td></tr>';
+  } catch (e) {
+    console.error('ATS load error:', e);
+  }
+}
+
+async function atsConnect() {
+  toast('Connecting to Chrome via CDP...');
+  const res = await api('/api/ats/connect', { method: 'POST' });
+  if (res.success) {
+    toast('Connected to Chrome! ' + res.pages + ' tabs found.');
+  } else {
+    toast(res.error || 'Connection failed', true);
+  }
+  loadATS();
+}
+
+async function atsDisconnect() {
+  await api('/api/ats/disconnect', { method: 'POST' });
+  toast('Disconnected from Chrome.');
+  loadATS();
+}
+
+async function atsStartQueue(dryRun = false) {
+  toast(dryRun ? 'Running dry run...' : 'Starting ATS submissions...');
+  const res = await api('/api/ats/process-queue', { method: 'POST', body: { dry_run: dryRun } });
+  if (res.processed === 0) {
+    toast(res.message || 'No jobs to process');
+  } else {
+    const results = res.results || [];
+    const paused = results.filter(r => r.paused_for_review);
+    toast(`Processed ${res.processed} job(s). ${paused.length} paused for review.`);
+  }
+  loadATS();
+}
+
+async function atsSubmitOne(jobId) {
+  toast('Filling form for job #' + jobId + '...');
+  const res = await api('/api/ats/submit/' + jobId, { method: 'POST' });
+  if (res.paused_for_review) {
+    toast(res.message || 'Form filled — review and submit manually.');
+  } else if (res.captcha_detected) {
+    toast('CAPTCHA detected: ' + res.captcha_detected + '. Solve manually.', true);
+  } else if (!res.success) {
+    toast(res.error || 'Submission failed', true);
+  } else {
+    toast('Done!');
+  }
+  loadATS();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // INIT & AUTO-REFRESH
 // ═══════════════════════════════════════════════════════════════════════
 async function loadAll() {
   try {
     await loadPipeline();
-    await Promise.all([loadPersonal(), loadResearch(), loadChallenges(), loadApplied(), loadFeedback(), loadHealth()]);
+    await Promise.all([loadPersonal(), loadResearch(), loadChallenges(), loadApplied(), loadFeedback(), loadHealth(), loadATS()]);
   } catch (e) {
     console.error('Load error:', e);
     toast('Failed to load data: ' + e.message, true);

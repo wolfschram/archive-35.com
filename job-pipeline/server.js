@@ -607,6 +607,81 @@ addRoute('GET', '/api/health', (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════
+// APPLICATION BOT (ATS Submission)
+// ═══════════════════════════════════════════════════════════════════════
+
+const applicationBot = require('./conductor/application-bot');
+const platformAdapters = require('./conductor/platform_adapters');
+platformAdapters.registerAll(applicationBot);
+
+// GET /api/ats/status — CDP connection status + adapter info
+addRoute('GET', '/api/ats/status', (req, res) => {
+  const botStatus = applicationBot.getStatus();
+  const adapters = platformAdapters.list();
+  const approved = db.prepare(
+    "SELECT COUNT(*) as c FROM jobs WHERE status = 'APPROVED' AND url IS NOT NULL"
+  ).get();
+  json(res, { ...botStatus, adapters, approved_count: approved.c });
+});
+
+// POST /api/ats/connect — Connect to Chrome via CDP
+addRoute('POST', '/api/ats/connect', async (req, res) => {
+  const result = await applicationBot.connect();
+  json(res, result, result.success ? 200 : 503);
+});
+
+// POST /api/ats/disconnect — Disconnect from Chrome
+addRoute('POST', '/api/ats/disconnect', async (req, res) => {
+  await applicationBot.disconnect();
+  json(res, { success: true });
+});
+
+// GET /api/ats/queue — List jobs approved for ATS submission
+addRoute('GET', '/api/ats/queue', (req, res) => {
+  const jobs = db.prepare(`
+    SELECT j.id, j.company, j.title, j.url, j.score, j.status, j.date_updated,
+      (SELECT COUNT(*) FROM application_submissions s
+       WHERE s.job_id = j.id AND julianday('now') - julianday(s.submitted_at) < 90
+      ) as recent_submissions,
+      (SELECT cl.id FROM cover_letter_versions cl
+       WHERE cl.job_id = j.id ORDER BY cl.version DESC LIMIT 1
+      ) as has_cover_letter
+    FROM jobs j
+    WHERE j.status = 'APPROVED' AND j.url IS NOT NULL
+    ORDER BY j.score DESC
+  `).all();
+  json(res, { jobs });
+});
+
+// POST /api/ats/submit/:id — Submit a single job (pull-based, Wolf-triggered)
+addRoute('POST', '/api/ats/submit/:id', async (req, res) => {
+  const jobId = parseInt(req.params.id, 10);
+  const dryRun = req.body?.dry_run === true;
+  const result = await applicationBot.submitJob(db, jobId, { dryRun });
+  json(res, result, result.success ? 200 : 400);
+});
+
+// POST /api/ats/process-queue — Process all approved jobs (pull-based)
+addRoute('POST', '/api/ats/process-queue', async (req, res) => {
+  const dryRun = req.body?.dry_run === true;
+  const result = await applicationBot.processQueue(db, { dryRun });
+  json(res, result);
+});
+
+// GET /api/ats/submissions — List past submissions
+addRoute('GET', '/api/ats/submissions', (req, res) => {
+  const limit = parseInt(req.query?.limit || '50', 10);
+  const submissions = db.prepare(`
+    SELECT s.*, j.company, j.title
+    FROM application_submissions s
+    JOIN jobs j ON j.id = s.job_id
+    ORDER BY s.submitted_at DESC
+    LIMIT ?
+  `).all(limit);
+  json(res, { submissions });
+});
+
+// ═══════════════════════════════════════════════════════════════════════
 // HTTP SERVER
 // ═══════════════════════════════════════════════════════════════════════
 

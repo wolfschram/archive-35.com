@@ -106,7 +106,10 @@ function loadQABank(db) {
   try {
     const rows = db.prepare('SELECT question, answer, category FROM qa_bank').all();
     return rows.map(r => `Q: ${r.question}\nA: ${r.answer}\nCategory: ${r.category}`).join('\n\n');
-  } catch { return ''; }
+  } catch (e) {
+    console.warn('  ⚠ Failed to load QA bank:', e.message);
+    return '';
+  }
 }
 
 // ─── Call 1: Extraction ──────────────────────────────────────────────
@@ -380,9 +383,10 @@ async function generateCoverLetter(db, apiKey, jobId, options = {}) {
   let letterText = assembleResult.text.trim();
 
   // ─── Hallucination Filter ─────────────────────────────────────
+  const relevantFacts = (extractedFacts && extractedFacts.relevant_facts) || [];
   const halluResult = await callClaude(
     apiKey, HALLU_SYSTEM,
-    buildHallucinationPrompt(letterText, extractedFacts.relevant_facts || []),
+    buildHallucinationPrompt(letterText, relevantFacts),
     TOKEN_LIMITS.hallucination
   );
   costs.hallucination = { input_tokens: halluResult.input_tokens, output_tokens: halluResult.output_tokens };
@@ -436,7 +440,7 @@ async function generateCoverLetter(db, apiKey, jobId, options = {}) {
     }
 
     // Re-run hallucination check on new letter
-    const halluResult2 = await callClaude(apiKey, HALLU_SYSTEM, buildHallucinationPrompt(letterText, extractedFacts.relevant_facts || []), TOKEN_LIMITS.hallucination);
+    const halluResult2 = await callClaude(apiKey, HALLU_SYSTEM, buildHallucinationPrompt(letterText, relevantFacts), TOKEN_LIMITS.hallucination);
     costs.hallucination.input_tokens += halluResult2.input_tokens;
     costs.hallucination.output_tokens += halluResult2.output_tokens;
     try { halluCheck = parseJSON(halluResult2.text); } catch {}
@@ -448,9 +452,10 @@ async function generateCoverLetter(db, apiKey, jobId, options = {}) {
 
   // ─── Calculate cost ────────────────────────────────────────────
   // Claude Sonnet pricing: $3/M input, $15/M output
-  const totalInput = Object.values(costs).reduce((sum, c) => sum + (c.input_tokens || 0), 0);
-  const totalOutput = Object.values(costs).reduce((sum, c) => sum + (c.output_tokens || 0), 0);
-  costs.total_cost = (totalInput * 3 / 1000000) + (totalOutput * 15 / 1000000);
+  const costEntries = [costs.extraction, costs.assembly, costs.hallucination, costs.scoring];
+  const totalInput = costEntries.reduce((sum, c) => sum + (c.input_tokens || 0), 0);
+  const totalOutput = costEntries.reduce((sum, c) => sum + (c.output_tokens || 0), 0);
+  costs.total_cost = Math.max(0, (totalInput * 3 / 1000000) + (totalOutput * 15 / 1000000));
 
   // ─── Save to database ─────────────────────────────────────────
   const lastVersion = db.prepare('SELECT MAX(version) as v FROM cover_letter_versions WHERE job_id = ?').get(jobId);

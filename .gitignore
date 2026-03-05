@@ -45,6 +45,10 @@ Archive-35_Session_Handover_*.docx
 # Agent data (SQLite DB, cached thumbnails)
 Archive 35 Agent/data/
 
+# SQLite WAL runtime files
+*.db-shm
+*.db-wal
+
 # Agent handover docs
 Archive-35_Agent_Handover*.docx
 

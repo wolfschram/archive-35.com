@@ -667,7 +667,15 @@ addRoute('GET', '/api/health', (req, res) => {
   } catch (e) { components.sqlite = { status: 'error', error: e.message }; }
 
   components.express = { status: 'ok', uptime_seconds: Math.round(process.uptime()), response_ms: 0 };
-  components.gmail = { status: 'not_configured', token_expires: null, days_remaining: null };
+  const gmailEnv = loadEnv();
+  if (gmailEnv.GOOGLE_REFRESH_TOKEN) {
+    const tokenExpiry = parseInt(gmailEnv.GOOGLE_TOKEN_EXPIRY || '0', 10);
+    components.gmail = { status: 'ok', token_expires: new Date(tokenExpiry).toISOString(), days_remaining: Math.max(0, Math.floor((tokenExpiry - Date.now()) / 86400000)) };
+  } else if (gmailEnv.GOOGLE_CLIENT_ID) {
+    components.gmail = { status: 'warning', token_expires: null, days_remaining: null, hint: 'Credentials saved but not authorized' };
+  } else {
+    components.gmail = { status: 'not_configured', token_expires: null, days_remaining: null };
+  }
   components.playwright = { status: 'not_configured', cdp_connected: false, last_action: null };
   components.pm2 = { status: 'not_configured', conductor_pid: null, restarts: null };
 
@@ -1261,6 +1269,348 @@ addRoute('GET', '/api/cover-letter/:jobId/versions', (req, res) => {
     'SELECT id, version, content, model_used, created_at FROM cover_letter_versions WHERE job_id = ? ORDER BY version DESC'
   ).all(parseInt(req.params.jobId, 10));
   json(res, { versions });
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// GMAIL EMAIL INTEGRATION
+// ═══════════════════════════════════════════════════════════════════════
+
+// Ensure email_messages table exists (additive migration)
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS email_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      gmail_id TEXT UNIQUE,
+      thread_id TEXT,
+      subject TEXT,
+      sender TEXT,
+      sender_email TEXT,
+      snippet TEXT,
+      body_preview TEXT,
+      received_at TEXT,
+      matched_job_id INTEGER REFERENCES jobs(id),
+      match_confidence TEXT CHECK(match_confidence IN ('high','medium','low','none')),
+      response_type TEXT CHECK(response_type IN ('application_received','interview','rejection','offer','follow_up','unknown')),
+      is_read INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_email_messages_gmail_id ON email_messages(gmail_id);
+    CREATE INDEX IF NOT EXISTS idx_email_messages_matched_job ON email_messages(matched_job_id);
+    CREATE INDEX IF NOT EXISTS idx_email_messages_received ON email_messages(received_at);
+  `);
+} catch (e) { console.warn('  ⚠ email_messages table:', e.message); }
+
+// Ensure application_questions table exists
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS application_questions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      key TEXT UNIQUE NOT NULL,
+      value TEXT,
+      category TEXT DEFAULT 'general',
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+  `);
+} catch (e) { console.warn('  ⚠ application_questions table:', e.message); }
+
+// Helper: get a fresh Gmail access token using the refresh token
+async function getGmailAccessToken() {
+  const env = loadEnv();
+  const refreshToken = env.GOOGLE_REFRESH_TOKEN;
+  const clientId = env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+  if (!refreshToken || !clientId || !clientSecret) return null;
+
+  // Check if existing access token is still valid (simple time check)
+  if (env.GOOGLE_ACCESS_TOKEN && env.GOOGLE_TOKEN_EXPIRY) {
+    const expiry = parseInt(env.GOOGLE_TOKEN_EXPIRY, 10);
+    if (Date.now() < expiry - 60000) return env.GOOGLE_ACCESS_TOKEN;
+  }
+
+  const https = require('https');
+  const postData = `refresh_token=${encodeURIComponent(refreshToken)}&client_id=${clientId}&client_secret=${clientSecret}&grant_type=refresh_token`;
+  const result = await new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: 'oauth2.googleapis.com', path: '/token', method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded', 'content-length': Buffer.byteLength(postData) },
+    }, resp => {
+      let body = '';
+      resp.on('data', c => body += c);
+      resp.on('end', () => {
+        try { resolve(JSON.parse(body)); } catch { reject(new Error('Invalid token response')); }
+      });
+    });
+    req.on('error', reject);
+    req.setTimeout(15000, () => { req.destroy(); reject(new Error('Token refresh timeout')); });
+    req.write(postData);
+    req.end();
+  });
+
+  if (result.access_token) {
+    env.GOOGLE_ACCESS_TOKEN = result.access_token;
+    env.GOOGLE_TOKEN_EXPIRY = String(Date.now() + (result.expires_in || 3600) * 1000);
+    saveEnv(env);
+    return result.access_token;
+  }
+  throw new Error(result.error_description || result.error || 'Token refresh failed');
+}
+
+// Helper: call Gmail API
+async function gmailApi(accessToken, endpoint, method = 'GET') {
+  const https = require('https');
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: 'gmail.googleapis.com', path: `/gmail/v1/users/me/${endpoint}`, method,
+      headers: { 'Authorization': `Bearer ${accessToken}`, 'Accept': 'application/json' },
+    }, resp => {
+      let body = '';
+      resp.on('data', c => body += c);
+      resp.on('end', () => {
+        if (resp.statusCode === 200) {
+          try { resolve(JSON.parse(body)); } catch { resolve(body); }
+        } else {
+          reject(new Error(`Gmail API ${resp.statusCode}: ${body.slice(0, 300)}`));
+        }
+      });
+    });
+    req.on('error', reject);
+    req.setTimeout(30000, () => { req.destroy(); reject(new Error('Gmail API timeout')); });
+    req.end();
+  });
+}
+
+// Helper: classify email response type based on subject/snippet
+function classifyEmail(subject, snippet, body) {
+  const text = `${subject} ${snippet} ${body}`.toLowerCase();
+  if (/interview|schedule.*call|meet.*team|phone.*screen|video.*call|zoom.*link|calendar.*invite/i.test(text)) return 'interview';
+  if (/unfortunately|regret|not.*moving forward|decided.*not|other candidates|not.*selected|position.*filled/i.test(text)) return 'rejection';
+  if (/offer|compensation|salary|start date|congratulations.*position|pleased.*offer/i.test(text)) return 'offer';
+  if (/thank.*appl|received.*application|application.*received|confirm.*receipt|successfully.*submitted/i.test(text)) return 'application_received';
+  if (/follow.?up|checking in|status.*update|additional.*information|next.*steps/i.test(text)) return 'follow_up';
+  return 'unknown';
+}
+
+// Helper: match email to a job application
+function matchEmailToJob(senderEmail, subject, snippet) {
+  const text = `${subject} ${snippet}`.toLowerCase();
+  // Get all submitted/applied jobs
+  const jobs = db.prepare(
+    "SELECT j.id, j.company, j.title FROM jobs j WHERE j.status IN ('SUBMITTED','CLOSED','SUBMITTING','APPROVED','PENDING_APPROVAL') ORDER BY j.date_updated DESC"
+  ).all();
+
+  for (const job of jobs) {
+    const company = (job.company || '').toLowerCase();
+    const companyWords = company.split(/\s+/).filter(w => w.length > 2);
+    // Check if company name appears in sender email domain or subject/snippet
+    const senderDomain = (senderEmail || '').toLowerCase();
+    const companySlug = company.replace(/[^a-z0-9]/g, '');
+    if (senderDomain.includes(companySlug) || companyWords.some(w => text.includes(w) || senderDomain.includes(w))) {
+      return { job_id: job.id, confidence: senderDomain.includes(companySlug) ? 'high' : 'medium' };
+    }
+  }
+  return { job_id: null, confidence: 'none' };
+}
+
+// GET /api/email/status — Check Gmail integration status
+addRoute('GET', '/api/email/status', async (req, res) => {
+  const env = loadEnv();
+  const hasCredentials = !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
+  const hasRefreshToken = !!env.GOOGLE_REFRESH_TOKEN;
+  let connected = false;
+  let email = null;
+
+  if (hasRefreshToken) {
+    try {
+      const token = await getGmailAccessToken();
+      if (token) {
+        const profile = await gmailApi(token, 'profile');
+        connected = true;
+        email = profile.emailAddress;
+      }
+    } catch {}
+  }
+
+  const totalEmails = db.prepare('SELECT COUNT(*) as c FROM email_messages').get();
+  const matchedEmails = db.prepare('SELECT COUNT(*) as c FROM email_messages WHERE matched_job_id IS NOT NULL').get();
+  const lastScan = db.prepare('SELECT MAX(created_at) as last FROM email_messages').get();
+
+  json(res, {
+    has_credentials: hasCredentials,
+    has_refresh_token: hasRefreshToken,
+    connected,
+    email,
+    total_emails: totalEmails.c,
+    matched_emails: matchedEmails.c,
+    last_scan: lastScan.last,
+  });
+});
+
+// POST /api/email/scan — Scan Gmail for job-related emails (last 30 days)
+addRoute('POST', '/api/email/scan', async (req, res) => {
+  let accessToken;
+  try {
+    accessToken = await getGmailAccessToken();
+  } catch (e) {
+    return json(res, { error: 'Gmail not authorized. Go to Settings → Authorize Gmail Access.', details: e.message }, 401);
+  }
+  if (!accessToken) return json(res, { error: 'Gmail not configured. Add Google OAuth credentials in Settings.' }, 400);
+
+  const daysBack = parseInt(req.body.days_back || '30', 10);
+  const afterDate = new Date(Date.now() - daysBack * 86400000);
+  const afterEpoch = Math.floor(afterDate.getTime() / 1000);
+
+  // Search for job-related emails
+  const queries = [
+    'subject:(application OR applied OR interview OR position OR opportunity OR candidate)',
+    'from:(careers OR recruiting OR talent OR hiring OR jobs OR noreply OR no-reply)',
+  ];
+
+  try {
+    let allMessageIds = [];
+    for (const q of queries) {
+      const searchQuery = encodeURIComponent(`${q} after:${afterEpoch}`);
+      const result = await gmailApi(accessToken, `messages?q=${searchQuery}&maxResults=100`);
+      if (result.messages) {
+        allMessageIds.push(...result.messages.map(m => m.id));
+      }
+    }
+    // Deduplicate
+    allMessageIds = [...new Set(allMessageIds)];
+
+    let newCount = 0, matchedCount = 0, skippedCount = 0;
+
+    for (const msgId of allMessageIds) {
+      // Skip if already scanned
+      const existing = db.prepare('SELECT id FROM email_messages WHERE gmail_id = ?').get(msgId);
+      if (existing) { skippedCount++; continue; }
+
+      // Fetch message details
+      const msg = await gmailApi(accessToken, `messages/${msgId}?format=metadata&metadataHeaders=Subject&metadataHeaders=From&metadataHeaders=Date`);
+      const headers = msg.payload?.headers || [];
+      const subject = headers.find(h => h.name === 'Subject')?.value || '(no subject)';
+      const fromHeader = headers.find(h => h.name === 'From')?.value || '';
+      const dateHeader = headers.find(h => h.name === 'Date')?.value || '';
+
+      // Parse sender
+      const emailMatch = fromHeader.match(/<([^>]+)>/) || fromHeader.match(/([^\s<]+@[^\s>]+)/);
+      const senderEmail = emailMatch ? emailMatch[1] : fromHeader;
+      const senderName = fromHeader.replace(/<[^>]+>/, '').trim().replace(/"/g, '');
+
+      const snippet = msg.snippet || '';
+
+      // Classify and match
+      const responseType = classifyEmail(subject, snippet, '');
+      const match = matchEmailToJob(senderEmail, subject, snippet);
+
+      // Parse date
+      let receivedAt;
+      try {
+        receivedAt = new Date(dateHeader).toISOString().replace('T', ' ').split('.')[0];
+      } catch {
+        receivedAt = new Date(parseInt(msg.internalDate, 10)).toISOString().replace('T', ' ').split('.')[0];
+      }
+
+      db.prepare(`
+        INSERT INTO email_messages (gmail_id, thread_id, subject, sender, sender_email, snippet, received_at, matched_job_id, match_confidence, response_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(msgId, msg.threadId, subject, senderName, senderEmail, snippet, receivedAt, match.job_id, match.confidence, responseType);
+
+      newCount++;
+      if (match.job_id) {
+        matchedCount++;
+        // Auto-update submission response_type if we have a high-confidence match
+        if (match.confidence === 'high' && responseType !== 'unknown' && responseType !== 'application_received') {
+          const sub = db.prepare(
+            'SELECT id, response_type FROM application_submissions WHERE job_id = ? ORDER BY submitted_at DESC LIMIT 1'
+          ).get(match.job_id);
+          if (sub && sub.response_type === 'none') {
+            db.prepare("UPDATE application_submissions SET response_type = ?, response_date = datetime('now') WHERE id = ?")
+              .run(responseType, sub.id);
+          }
+        }
+      }
+    }
+
+    json(res, {
+      success: true,
+      total_found: allMessageIds.length,
+      new_emails: newCount,
+      matched: matchedCount,
+      skipped: skippedCount,
+    });
+  } catch (e) {
+    json(res, { error: e.message }, 500);
+  }
+});
+
+// GET /api/email/messages — List scanned emails
+addRoute('GET', '/api/email/messages', (req, res, query) => {
+  let sql = `SELECT e.*, j.company, j.title FROM email_messages e LEFT JOIN jobs j ON e.matched_job_id = j.id WHERE 1=1`;
+  const params = [];
+  if (query.matched === 'true') { sql += ' AND e.matched_job_id IS NOT NULL'; }
+  if (query.matched === 'false') { sql += ' AND e.matched_job_id IS NULL'; }
+  if (query.response_type) { sql += ' AND e.response_type = ?'; params.push(query.response_type); }
+  sql += ' ORDER BY e.received_at DESC';
+  const limit = Math.min(parseInt(query.limit || '100', 10), 500);
+  sql += ' LIMIT ?'; params.push(limit);
+  json(res, db.prepare(sql).all(...params));
+});
+
+// PUT /api/email/messages/:id — Update email match/classification
+addRoute('PUT', '/api/email/messages/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const email = db.prepare('SELECT * FROM email_messages WHERE id = ?').get(id);
+  if (!email) return json(res, { error: 'Email not found' }, 404);
+  const fields = ['matched_job_id', 'match_confidence', 'response_type', 'is_read'];
+  const updates = [], values = [];
+  for (const f of fields) {
+    if (req.body[f] !== undefined) { updates.push(`${f} = ?`); values.push(req.body[f]); }
+  }
+  if (!updates.length) return json(res, { error: 'No fields to update' }, 400);
+  values.push(id);
+  db.prepare(`UPDATE email_messages SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+  json(res, db.prepare('SELECT e.*, j.company, j.title FROM email_messages e LEFT JOIN jobs j ON e.matched_job_id = j.id WHERE e.id = ?').get(id));
+});
+
+// GET /api/email/summary — Summary stats for email tab
+addRoute('GET', '/api/email/summary', (req, res) => {
+  const total = db.prepare('SELECT COUNT(*) as c FROM email_messages').get();
+  const matched = db.prepare('SELECT COUNT(*) as c FROM email_messages WHERE matched_job_id IS NOT NULL').get();
+  const byType = db.prepare('SELECT response_type, COUNT(*) as count FROM email_messages GROUP BY response_type ORDER BY count DESC').all();
+  const recent = db.prepare(`
+    SELECT e.*, j.company, j.title FROM email_messages e
+    LEFT JOIN jobs j ON e.matched_job_id = j.id
+    ORDER BY e.received_at DESC LIMIT 10
+  `).all();
+  json(res, { total: total.c, matched: matched.c, by_type: byType, recent });
+});
+
+// ─── Application Questions ──────────────────────────────────────────
+addRoute('GET', '/api/application-questions', (req, res) => {
+  const rows = db.prepare('SELECT key, value, category FROM application_questions ORDER BY category, key').all();
+  const obj = {};
+  for (const r of rows) obj[r.key] = { value: r.value, category: r.category };
+  json(res, obj);
+});
+
+addRoute('PUT', '/api/application-questions', async (req, res) => {
+  const upsert = db.prepare(`
+    INSERT INTO application_questions (key, value, category, updated_at) VALUES (?, ?, ?, datetime('now'))
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value, category = excluded.category, updated_at = datetime('now')
+  `);
+  const entries = Object.entries(req.body);
+  if (!entries.length) return json(res, { error: 'No fields provided' }, 400);
+  for (const [k, v] of entries) {
+    if (typeof v === 'object' && v !== null) {
+      upsert.run(k, v.value || '', v.category || 'general');
+    } else {
+      upsert.run(k, String(v), 'general');
+    }
+  }
+  const rows = db.prepare('SELECT key, value, category FROM application_questions ORDER BY category, key').all();
+  const obj = {};
+  for (const r of rows) obj[r.key] = { value: r.value, category: r.category };
+  json(res, obj);
 });
 
 // ═══════════════════════════════════════════════════════════════════════

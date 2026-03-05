@@ -485,8 +485,8 @@ const { generateCoverLetter, registerPrompts } = require('./lib/cover-letter-gen
 try { registerPrompts(db); } catch (e) { console.warn('  ⚠ Could not register prompts:', e.message); }
 
 addRoute('POST', '/api/generate-letter/:jobId', async (req, res) => {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return json(res, { error: 'ANTHROPIC_API_KEY not configured. Set it in environment.' }, 503);
+  const apiKey = getApiKey();
+  if (!apiKey) return json(res, { error: 'ANTHROPIC_API_KEY not configured. Go to Settings tab.' }, 503);
 
   const jobId = parseInt(req.params.jobId, 10);
   const dryRun = req.body.dry_run === true;
@@ -679,6 +679,363 @@ addRoute('GET', '/api/ats/submissions', (req, res) => {
     LIMIT ?
   `).all(limit);
   json(res, { submissions });
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// SETTINGS (API Keys, Google OAuth, Budget)
+// ═══════════════════════════════════════════════════════════════════════
+
+const ENV_PATH = path.join(__dirname, '.env');
+
+function loadEnv() {
+  const env = {};
+  if (fs.existsSync(ENV_PATH)) {
+    for (const line of fs.readFileSync(ENV_PATH, 'utf8').split('\n')) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eq = trimmed.indexOf('=');
+      if (eq > 0) env[trimmed.slice(0, eq).trim()] = trimmed.slice(eq + 1).trim();
+    }
+  }
+  return env;
+}
+
+function saveEnv(env) {
+  const lines = Object.entries(env).map(([k, v]) => `${k}=${v}`);
+  fs.writeFileSync(ENV_PATH, lines.join('\n') + '\n');
+  // Update process.env
+  for (const [k, v] of Object.entries(env)) process.env[k] = v;
+}
+
+function maskKey(key) {
+  if (!key || key.length < 12) return key ? '***' : '';
+  return key.slice(0, 10) + '...' + key.slice(-4);
+}
+
+// GET /api/settings — Load current settings (keys masked)
+addRoute('GET', '/api/settings', (req, res) => {
+  const env = loadEnv();
+  json(res, {
+    ANTHROPIC_API_KEY: maskKey(env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY),
+    GOOGLE_CLIENT_ID: env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
+    GOOGLE_CLIENT_SECRET: maskKey(env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET),
+    GOOGLE_REFRESH_TOKEN: env.GOOGLE_REFRESH_TOKEN ? 'configured' : '',
+    DAILY_BUDGET: env.DAILY_BUDGET || '2.00',
+    MONTHLY_BUDGET: env.MONTHLY_BUDGET || '55.00',
+    MAX_COVER_LETTERS_PER_DAY: env.MAX_COVER_LETTERS_PER_DAY || '5',
+  });
+});
+
+// PUT /api/settings — Save settings to .env
+addRoute('PUT', '/api/settings', async (req, res) => {
+  const env = loadEnv();
+  const allowed = ['ANTHROPIC_API_KEY', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'DAILY_BUDGET', 'MONTHLY_BUDGET', 'MAX_COVER_LETTERS_PER_DAY'];
+  for (const key of allowed) {
+    if (req.body[key] !== undefined) {
+      const val = String(req.body[key]).trim();
+      // Don't overwrite with masked values
+      if (val && !val.includes('...')) env[key] = val;
+    }
+  }
+  saveEnv(env);
+  json(res, { success: true });
+});
+
+// POST /api/settings/test-anthropic — Test API key
+addRoute('POST', '/api/settings/test-anthropic', async (req, res) => {
+  const env = loadEnv();
+  const apiKey = env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return json(res, { success: false, error: 'No API key configured' });
+  try {
+    const https = require('https');
+    const result = await new Promise((resolve, reject) => {
+      const data = JSON.stringify({ model: 'claude-sonnet-4-5-20250929', max_tokens: 10, messages: [{ role: 'user', content: 'Say OK' }] });
+      const req = https.request({
+        hostname: 'api.anthropic.com', path: '/v1/messages', method: 'POST',
+        headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'content-length': data.length },
+      }, resp => {
+        let body = '';
+        resp.on('data', c => body += c);
+        resp.on('end', () => {
+          if (resp.statusCode === 200) resolve(JSON.parse(body));
+          else reject(new Error(`HTTP ${resp.statusCode}: ${body.slice(0, 200)}`));
+        });
+      });
+      req.on('error', reject);
+      req.write(data);
+      req.end();
+    });
+    json(res, { success: true, model: result.model });
+  } catch (e) {
+    json(res, { success: false, error: e.message });
+  }
+});
+
+// POST /api/settings/google-auth-url — Generate OAuth consent URL
+addRoute('POST', '/api/settings/google-auth-url', async (req, res) => {
+  const env = loadEnv();
+  const clientId = env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+  if (!clientId) return json(res, { error: 'Google Client ID not configured' });
+  const redirect = `http://localhost:${PORT}/api/settings/google-callback`;
+  const scope = encodeURIComponent('https://www.googleapis.com/auth/gmail.readonly');
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirect)}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
+  json(res, { url });
+});
+
+// GET /api/settings/google-callback — OAuth callback handler
+addRoute('GET', '/api/settings/google-callback', async (req, res, query) => {
+  const code = query.code;
+  if (!code) return json(res, { error: 'No authorization code' }, 400);
+  const env = loadEnv();
+  const clientId = env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return json(res, { error: 'Google credentials not configured' }, 400);
+
+  try {
+    const https = require('https');
+    const redirect = `http://localhost:${PORT}/api/settings/google-callback`;
+    const postData = `code=${encodeURIComponent(code)}&client_id=${clientId}&client_secret=${clientSecret}&redirect_uri=${encodeURIComponent(redirect)}&grant_type=authorization_code`;
+    const result = await new Promise((resolve, reject) => {
+      const req = https.request({
+        hostname: 'oauth2.googleapis.com', path: '/token', method: 'POST',
+        headers: { 'content-type': 'application/x-www-form-urlencoded', 'content-length': postData.length },
+      }, resp => {
+        let body = '';
+        resp.on('data', c => body += c);
+        resp.on('end', () => resolve(JSON.parse(body)));
+      });
+      req.on('error', reject);
+      req.write(postData);
+      req.end();
+    });
+    if (result.refresh_token) {
+      env.GOOGLE_REFRESH_TOKEN = result.refresh_token;
+      if (result.access_token) env.GOOGLE_ACCESS_TOKEN = result.access_token;
+      saveEnv(env);
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end('<html><body style="font-family:sans-serif;text-align:center;padding:4rem;"><h2>Google Authorization Successful</h2><p>You can close this tab and return to the Command Center.</p></body></html>');
+    } else {
+      json(res, { error: 'No refresh token received', details: result }, 400);
+    }
+  } catch (e) {
+    json(res, { error: e.message }, 500);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// AI RESEARCH & COVER LETTER GENERATION (Phase 11)
+// ═══════════════════════════════════════════════════════════════════════
+
+async function callClaude(apiKey, model, system, userMessage, maxTokens = 2000) {
+  const https = require('https');
+  const data = JSON.stringify({
+    model,
+    max_tokens: maxTokens,
+    system,
+    messages: [{ role: 'user', content: userMessage }],
+  });
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: 'api.anthropic.com', path: '/v1/messages', method: 'POST',
+      headers: {
+        'x-api-key': apiKey, 'anthropic-version': '2023-06-01',
+        'content-type': 'application/json', 'content-length': Buffer.byteLength(data),
+      },
+    }, resp => {
+      let body = '';
+      resp.on('data', c => body += c);
+      resp.on('end', () => {
+        if (resp.statusCode === 200) {
+          const parsed = JSON.parse(body);
+          resolve(parsed.content?.[0]?.text || '');
+        } else {
+          reject(new Error(`Claude API ${resp.statusCode}: ${body.slice(0, 300)}`));
+        }
+      });
+    });
+    req.on('error', reject);
+    req.setTimeout(60000, () => { req.destroy(); reject(new Error('Claude API timeout')); });
+    req.write(data);
+    req.end();
+  });
+}
+
+function getApiKey() {
+  const env = loadEnv();
+  return env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY || '';
+}
+
+// POST /api/research/:jobId/run — Run AI research on a company
+addRoute('POST', '/api/research/:jobId/run', async (req, res) => {
+  const apiKey = getApiKey();
+  if (!apiKey) return json(res, { error: 'Anthropic API key not configured. Go to Settings tab.' }, 400);
+
+  const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(req.params.jobId);
+  if (!job) return json(res, { error: 'Job not found' }, 404);
+
+  const query = req.body.query || `Research ${job.company} for the ${job.title} role.`;
+
+  try {
+    const system = `You are a job search research assistant. Respond with structured JSON containing these fields:
+- company_summary: 2-3 sentences about the company
+- culture_notes: What the work culture is like
+- key_people: Key leadership relevant to this role
+- recent_news: Recent developments, funding, layoffs, growth
+- research_notes: Any other relevant findings
+
+Return ONLY valid JSON, no markdown fencing.`;
+
+    const userMsg = `Company: ${job.company}\nRole: ${job.title}\nDescription: ${(job.description || '').slice(0, 1000)}\n\nResearch query: ${query}`;
+
+    const response = await callClaude(apiKey, 'claude-sonnet-4-5-20250929', system, userMsg, 1500);
+    let parsed;
+    try {
+      // Strip any markdown code fences
+      const cleaned = response.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
+      parsed = JSON.parse(cleaned);
+    } catch {
+      parsed = { research_notes: response };
+    }
+    json(res, parsed);
+  } catch (e) {
+    json(res, { error: e.message }, 500);
+  }
+});
+
+// POST /api/cover-letter/generate/:jobId — Generate cover letter (Phase 11)
+addRoute('POST', '/api/cover-letter/generate/:jobId', async (req, res) => {
+  const apiKey = getApiKey();
+  if (!apiKey) return json(res, { error: 'Anthropic API key not configured. Go to Settings tab.' }, 400);
+
+  const jobId = parseInt(req.params.jobId, 10);
+  const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(jobId);
+  if (!job) return json(res, { error: 'Job not found' }, 404);
+
+  // Budget check
+  const env = loadEnv();
+  const maxPerDay = parseInt(env.MAX_COVER_LETTERS_PER_DAY || '5', 10);
+  const todayCount = db.prepare(
+    "SELECT COUNT(*) as c FROM conductor_queue WHERE task_type = 'generate_letter' AND status = 'completed' AND date(completed_at) = date('now')"
+  ).get();
+  if (todayCount.c >= maxPerDay) {
+    return json(res, { error: `Daily limit reached (${maxPerDay} cover letters/day). Adjust in Settings.` }, 429);
+  }
+
+  // Load personal info
+  const piRows = db.prepare('SELECT key, value FROM personal_info').all();
+  const pi = {};
+  for (const r of piRows) pi[r.key] = r.value;
+
+  // Load company research
+  const research = db.prepare('SELECT * FROM company_research WHERE job_id = ?').get(jobId);
+
+  // Load cover letter templates
+  const templateDir = path.join(__dirname, 'templates');
+  let coverLetterExamples = '';
+  try {
+    const files = fs.readdirSync(templateDir).filter(f => f.includes('cover') && f.endsWith('.md'));
+    for (const f of files) {
+      coverLetterExamples += `\n--- ${f} ---\n` + fs.readFileSync(path.join(templateDir, f), 'utf8');
+    }
+  } catch {}
+
+  // Load capability profile
+  let capabilityProfile = '';
+  const capFile = path.join(templateDir, 'capability_profile.md');
+  if (fs.existsSync(capFile)) capabilityProfile = fs.readFileSync(capFile, 'utf8');
+
+  try {
+    // Two-Call Pattern: Extract → Assemble
+
+    // Call 1: Extraction
+    const extractSystem = `You are a cover letter research assistant. Extract specific facts, metrics, accomplishments, and stories from the candidate's profile that are relevant to this job. Output ONLY a JSON array of objects with: fact, source, relevance_to_job. Return valid JSON only, no markdown.`;
+
+    const extractMsg = `JOB: ${job.company} — ${job.title}
+DESCRIPTION: ${(job.description || '').slice(0, 2000)}
+
+CANDIDATE PROFILE:
+Name: ${pi.full_name || 'Wolfgang Schram'}
+Positioning: ${pi.positioning_statement || ''}
+Resume Summary: ${pi.resume_summary || ''}
+${capabilityProfile ? `\nCAPABILITY PROFILE:\n${capabilityProfile.slice(0, 3000)}` : ''}
+${coverLetterExamples ? `\nCOVER LETTER EXAMPLES:\n${coverLetterExamples.slice(0, 3000)}` : ''}`;
+
+    const extractedRaw = await callClaude(apiKey, 'claude-sonnet-4-5-20250929', extractSystem, extractMsg, 1500);
+    let extracted;
+    try {
+      const cleaned = extractedRaw.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
+      extracted = JSON.parse(cleaned);
+    } catch {
+      extracted = [{ fact: extractedRaw, source: 'raw', relevance_to_job: 'general' }];
+    }
+
+    // Call 2: Assembly
+    const assembleSystem = `You are a cover letter writer for ${pi.full_name || 'Wolfgang Schram'}, a senior engineering leader.
+
+Write a P→P→R (Problem → Proof → Result) cover letter:
+- Opening: Hook with a specific insight about the company's challenge
+- Body: 2-3 paragraphs connecting specific experience to job requirements
+- Close: Forward-looking statement about impact
+
+Rules:
+- Use ONLY facts from the provided extracted evidence — never fabricate
+- Professional but warm tone
+- Under 400 words
+- No generic filler phrases ("I am excited to apply", "I believe I would be a great fit")
+- Address the letter to "Hiring Manager" unless a specific name is known
+${research?.key_people ? `\nKey contacts at company: ${research.key_people}` : ''}`;
+
+    const assembleMsg = `COMPANY: ${job.company}
+ROLE: ${job.title}
+DESCRIPTION: ${(job.description || '').slice(0, 1500)}
+${research?.company_summary ? `\nCOMPANY RESEARCH: ${research.company_summary}` : ''}
+${research?.culture_notes ? `\nCULTURE: ${research.culture_notes}` : ''}
+
+EXTRACTED EVIDENCE:
+${JSON.stringify(extracted, null, 2)}
+
+Write the cover letter now.`;
+
+    const letter = await callClaude(apiKey, 'claude-sonnet-4-5-20250929', assembleSystem, assembleMsg, 2000);
+
+    // Get next version number
+    const lastVersion = db.prepare(
+      'SELECT MAX(version) as v FROM cover_letter_versions WHERE job_id = ?'
+    ).get(jobId);
+    const version = (lastVersion?.v || 0) + 1;
+
+    // Save to DB
+    const result = db.prepare(
+      "INSERT INTO cover_letter_versions (job_id, version, content, model_used) VALUES (?, ?, ?, 'claude-sonnet-4-5-20250929')"
+    ).run(jobId, version, letter);
+
+    // Update job status
+    db.prepare("UPDATE jobs SET status = 'COVER_LETTER_READY', date_updated = datetime('now') WHERE id = ? AND status IN ('SCORED', 'COVER_LETTER_QUEUED')").run(jobId);
+
+    // Log to conductor queue
+    db.prepare(
+      "INSERT INTO conductor_queue (job_id, task_type, status, completed_at) VALUES (?, 'generate_letter', 'completed', datetime('now'))"
+    ).run(jobId);
+
+    json(res, {
+      success: true,
+      version,
+      letter_id: result.lastInsertRowid,
+      content: letter,
+      extracted_facts: extracted.length,
+    });
+
+  } catch (e) {
+    json(res, { error: e.message }, 500);
+  }
+});
+
+// GET /api/cover-letter/:jobId/versions — List all versions
+addRoute('GET', '/api/cover-letter/:jobId/versions', (req, res) => {
+  const versions = db.prepare(
+    'SELECT id, version, content, model_used, created_at FROM cover_letter_versions WHERE job_id = ? ORDER BY version DESC'
+  ).all(req.params.jobId);
+  json(res, { versions });
 });
 
 // ═══════════════════════════════════════════════════════════════════════

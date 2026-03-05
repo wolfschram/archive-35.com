@@ -591,6 +591,17 @@
   <div id="health-details"></div>
 </div>
 
+<!-- Letter Modal -->
+<div id="letter-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;overflow-y:auto;padding:2rem;">
+  <div style="max-width:800px;margin:0 auto;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <h3 id="letter-modal-title" style="font-size:1rem;">Cover Letter Versions</h3>
+      <button class="btn-secondary btn-sm" onclick="document.getElementById('letter-modal').style.display='none'">Close</button>
+    </div>
+    <div id="letter-modal-body"></div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -727,7 +738,9 @@ function renderJobs() {
       <td style="color:var(--text-secondary)">${esc(j.source) || '—'}</td>
       <td style="color:var(--text-secondary);font-size:0.8rem;">${relTime(j.date_updated)}</td>
       <td>
+        ${j.status === 'SCORED' ? `<button class="btn-primary btn-sm generate-letter" data-id="${j.id}">Generate Letter</button>` : ''}
         ${j.status === 'SCORED' ? `<button class="btn-secondary btn-sm copy-prompt" data-id="${j.id}">Copy Prompt</button>` : ''}
+        ${['COVER_LETTER_READY','PENDING_APPROVAL','APPROVED','SUBMITTED'].includes(j.status) ? `<button class="btn-secondary btn-sm view-letters" data-id="${j.id}">Letters</button>` : ''}
         ${j.url ? `<a href="${esc(j.url)}" target="_blank" class="btn-secondary btn-sm" style="text-decoration:none;display:inline-block;">Link</a>` : ''}
       </td>
     </tr>
@@ -771,7 +784,99 @@ function renderJobs() {
       }
     });
   });
+
+  // Generate letter buttons
+  document.querySelectorAll('.generate-letter').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const jobId = btn.dataset.id;
+      if (!confirm('Generate a cover letter for this job? This uses the Anthropic API.')) return;
+      btn.textContent = 'Generating...';
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      try {
+        const result = await api('/api/generate-letter/' + jobId, { method: 'POST', body: {} });
+        if (result.success) {
+          toast(`Letter generated! Score: ${result.score}/10${result.needs_review ? ' (needs review)' : ''}`);
+          loadPipeline();
+        } else {
+          toast(result.error || 'Generation failed', true);
+        }
+      } catch (e) {
+        toast('Generation failed: ' + e.message, true);
+      } finally {
+        btn.textContent = 'Generate Letter';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    });
+  });
+
+  // View letters buttons
+  document.querySelectorAll('.view-letters').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const jobId = btn.dataset.id;
+      const letters = await api('/api/letters/' + jobId);
+      if (!letters.length) { toast('No letters found', true); return; }
+      showLetterModal(jobId, letters);
+    });
+  });
 }
+
+function showLetterModal(jobId, letters) {
+  const job = state.jobs.find(j => j.id == jobId);
+  document.getElementById('letter-modal-title').textContent = `Cover Letters — ${job ? job.company + ' / ' + job.title : 'Job #' + jobId}`;
+
+  document.getElementById('letter-modal-body').innerHTML = letters.map(l => `
+    <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+        <div>
+          <strong>Version ${l.version}</strong>
+          <span style="color:var(--text-secondary);font-size:0.8rem;margin-left:0.5rem;">${relTime(l.created_at)}</span>
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          <span style="font-weight:700;color:${l.self_score >= 7 ? 'var(--green)' : l.self_score >= 5 ? 'var(--yellow)' : 'var(--red)'}">
+            Score: ${l.self_score || '—'}/10
+          </span>
+          <span class="status-badge ${l.hallucination_check === 'pass' ? 'SCORED' : l.hallucination_check === 'fail' ? 'SCORING_FAILED' : 'NEW'}">
+            ${l.hallucination_check || 'pending'}
+          </span>
+          ${l.needs_review ? '<span class="status-badge PENDING_APPROVAL">Needs Review</span>' : ''}
+          ${l.hallucination_check === 'fail' || l.needs_review ? `<button class="btn-success btn-sm" onclick="overrideLetter(${l.job_id},${l.version})">Approve</button>` : ''}
+          <button class="btn-secondary btn-sm" onclick="copyLetter(this, ${l.job_id}, ${l.version})">Copy</button>
+        </div>
+      </div>
+      ${l.flagged_claims && l.flagged_claims !== '[]' ? `<div style="background:rgba(239,68,68,0.1);border:1px solid var(--red);border-radius:var(--radius);padding:0.5rem 0.75rem;margin-bottom:0.75rem;font-size:0.8rem;color:var(--red);"><strong>Flagged Claims:</strong> ${esc(l.flagged_claims)}</div>` : ''}
+      <div style="white-space:pre-wrap;font-size:0.85rem;line-height:1.6;color:var(--text-secondary);">${esc(l.content)}</div>
+      <div style="margin-top:0.5rem;font-size:0.7rem;color:var(--text-muted);">
+        Model: ${esc(l.model_used || '—')} | Tokens: ${(l.prompt_tokens || 0) + (l.completion_tokens || 0)} | Cost: $${(l.cost_estimate || 0).toFixed(4)}
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('letter-modal').style.display = 'block';
+}
+
+async function overrideLetter(jobId, version) {
+  await api('/api/letters/' + jobId + '/' + version + '/override', { method: 'PUT', body: {} });
+  toast('Letter approved!');
+  document.getElementById('letter-modal').style.display = 'none';
+  loadPipeline();
+}
+
+async function copyLetter(btn, jobId, version) {
+  const letter = await api('/api/letters/' + jobId + '/' + version);
+  if (letter.content) {
+    await navigator.clipboard.writeText(letter.content);
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  }
+}
+
+// Close modal on backdrop click
+document.getElementById('letter-modal').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
 
 // Filter buttons
 document.querySelectorAll('#tab-pipeline .filter-btn[data-status]').forEach(btn => {

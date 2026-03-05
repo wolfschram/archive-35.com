@@ -454,6 +454,68 @@ addRoute('POST', '/api/conductor/retry/:id', (req, res) => {
   json(res, db.prepare('SELECT * FROM conductor_queue WHERE id = ?').get(req.params.id));
 });
 
+// ─── Cover Letter Generation ───────────────────────────────────────
+const { generateCoverLetter, registerPrompts } = require('./lib/cover-letter-generator');
+
+// Register prompt versions on startup
+try { registerPrompts(db); } catch (e) { console.warn('  ⚠ Could not register prompts:', e.message); }
+
+addRoute('POST', '/api/generate-letter/:jobId', async (req, res) => {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return json(res, { error: 'ANTHROPIC_API_KEY not configured. Set it in environment.' }, 503);
+
+  const jobId = parseInt(req.params.jobId, 10);
+  const dryRun = req.body.dry_run === true;
+
+  try {
+    const result = await generateCoverLetter(db, apiKey, jobId, { dryRun });
+    json(res, result, result.success ? (result.dryRun ? 200 : 201) : 429);
+  } catch (e) {
+    json(res, { error: e.message }, 500);
+  }
+});
+
+// Override for hallucination claims (Wolf approves flagged content)
+addRoute('PUT', '/api/letters/:jobId/:version/override', async (req, res) => {
+  const letter = db.prepare('SELECT * FROM cover_letter_versions WHERE job_id = ? AND version = ?')
+    .get(req.params.jobId, req.params.version);
+  if (!letter) return json(res, { error: 'Letter version not found' }, 404);
+
+  db.prepare(`UPDATE cover_letter_versions SET hallucination_check = 'pass', needs_review = 0 WHERE job_id = ? AND version = ?`)
+    .run(req.params.jobId, req.params.version);
+  db.prepare("UPDATE jobs SET status = 'COVER_LETTER_READY', date_updated = datetime('now') WHERE id = ?")
+    .run(req.params.jobId);
+
+  json(res, { success: true, message: 'Override applied — letter approved' });
+});
+
+// Generation status (circuit breaker info)
+addRoute('GET', '/api/generation-status', (req, res) => {
+  const dailyCount = db.prepare("SELECT COUNT(*) as c FROM cover_letter_versions WHERE date(created_at) = date('now')").get();
+  const dailyCost = db.prepare("SELECT COALESCE(SUM(cost_estimate), 0) as total FROM cover_letter_versions WHERE date(created_at) = date('now')").get();
+  const monthlyCost = db.prepare("SELECT COALESCE(SUM(cost_estimate), 0) as total FROM cover_letter_versions WHERE created_at >= date('now', 'start of month')").get();
+  json(res, {
+    daily_generations: dailyCount.c,
+    daily_limit: 5,
+    daily_cost: Math.round(dailyCost.total * 100) / 100,
+    daily_budget: 2.00,
+    monthly_cost: Math.round(monthlyCost.total * 100) / 100,
+    monthly_budget: 55.00,
+    can_generate: dailyCount.c < 5 && dailyCost.total < 2.0,
+  });
+});
+
+// Prompt registry
+addRoute('GET', '/api/prompts', (req, res) => {
+  json(res, db.prepare('SELECT id, name, version, model_version, created_at FROM prompt_registry ORDER BY name, version DESC').all());
+});
+
+addRoute('GET', '/api/prompts/:name', (req, res) => {
+  const latest = db.prepare('SELECT * FROM prompt_registry WHERE name = ? ORDER BY version DESC LIMIT 1').get(req.params.name);
+  if (!latest) return json(res, { error: 'Prompt not found' }, 404);
+  json(res, latest);
+});
+
 // ─── Content Ingestion ──────────────────────────────────────────────
 addRoute('POST', '/api/bridge/ingest', async (req, res) => {
   const authToken = process.env.BRIDGE_AUTH_TOKEN;

@@ -3285,6 +3285,12 @@ def get_cafe_submissions():
                     try:
                         with open(sub_json) as f:
                             images = json.load(f)
+                        # Inject thumbnail_url for each image so the UI can display them
+                        # Use full URL since <img src> needs absolute URLs, not IPC paths
+                        for img in images:
+                            fname = img.get("file", "")
+                            if fname:
+                                img["thumbnail_url"] = f"http://127.0.0.1:8035/cafe/image/{d.name}/{fname}"
                     except Exception:
                         pass
 
@@ -3401,6 +3407,37 @@ def export_cafe(req: CaFEExportRequest):
         "images_count": result["images_count"],
         "errors": result.get("errors"),
     }
+
+
+@app.get("/cafe/image/{submission_id}/{filename}")
+def get_cafe_image(submission_id: str, filename: str):
+    """Serve an image from a CaFE submission folder.
+
+    Searches for the file in both the submission root and images/ subfolder
+    to handle both manual submissions and export-generated folders.
+    """
+    project_root = Path(__file__).resolve().parent.parent.parent
+    cafe_root = project_root / "CaFE Ready"
+    folder = cafe_root / submission_id
+
+    if not folder.exists():
+        raise HTTPException(status_code=404, detail=f"Submission folder not found: {submission_id}")
+
+    # Try multiple locations: root first, then images/ subfolder
+    search_paths = [
+        folder / filename,
+        folder / "images" / filename,
+    ]
+
+    for path in search_paths:
+        if path.exists() and path.is_file():
+            return FileResponse(
+                path,
+                media_type="image/jpeg",
+                headers={"Cache-Control": "public, max-age=3600"},
+            )
+
+    raise HTTPException(status_code=404, detail=f"Image not found: {filename}")
 
 
 @app.post("/cafe/export-folder/{submission_id}")

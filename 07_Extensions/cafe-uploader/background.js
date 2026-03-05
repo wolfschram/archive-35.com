@@ -16,6 +16,7 @@
 // ── State ──────────────────────────────────────────────────────
 
 let cafeTabId = null;
+let scrapeTabIds = new Set();  // Track scrape tabs so they don't overwrite cafeTabId
 
 // ── Keepalive Port ─────────────────────────────────────────────
 // MV3 service workers die after ~30s of inactivity. An open port
@@ -37,6 +38,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   // Content script reporting page status
   if (msg.action === 'pageStatus') {
     if (sender.tab) {
+      // Don't let scrape tabs overwrite the real CaFE tab ID
+      if (scrapeTabIds.has(sender.tab.id)) {
+        console.log(`[BG] Ignoring pageStatus from scrape tab ${sender.tab.id}`);
+        return false;
+      }
       cafeTabId = sender.tab.id;
       chrome.storage.local.set({
         cafeTab: {
@@ -159,10 +165,13 @@ async function getPortfolioTitles() {
     });
     scrapeTabId = scrapeTab.id;
 
+    // Register as scrape tab so pageStatus doesn't overwrite cafeTabId
+    scrapeTabIds.add(scrapeTabId);
+
     // Wait for the page to fully load (including JS that renders titles)
     await waitForTabLoad(scrapeTabId, 20000);
     // Extra wait for client-side template rendering
-    await sleep(2000);
+    await sleep(3000);
 
     // Scrape titles from the rendered DOM
     const results = await chrome.scripting.executeScript({
@@ -170,6 +179,7 @@ async function getPortfolioTitles() {
       world: 'MAIN',
       func: () => {
         const titles = [];
+        // Try figcaption first
         document.querySelectorAll('figcaption').forEach(fig => {
           const text = fig.textContent.trim();
           if (text && text.length > 2 && text.length < 100
@@ -177,14 +187,41 @@ async function getPortfolioTitles() {
             titles.push(text);
           }
         });
-        return titles;
+        // If figcaptions didn't work, try other selectors
+        if (titles.length === 0) {
+          // Try alt attributes on images
+          document.querySelectorAll('.portfolio-image img, .sample-image img').forEach(img => {
+            const alt = (img.alt || '').trim();
+            if (alt && alt.length > 2 && alt.length < 100 && !titles.includes(alt)) {
+              titles.push(alt);
+            }
+          });
+        }
+        // Also grab any title-like text from data attributes or hidden elements
+        if (titles.length === 0) {
+          document.querySelectorAll('[data-title]').forEach(el => {
+            const t = (el.dataset.title || '').trim();
+            if (t && t.length > 2 && !titles.includes(t)) titles.push(t);
+          });
+        }
+        return { titles, debug: {
+          figcaptions: document.querySelectorAll('figcaption').length,
+          bodyLen: document.body.innerHTML.length,
+          hasTemplates: document.body.innerHTML.includes('{{'),
+          sampleElements: document.querySelectorAll('.sample').length,
+        }};
       },
     });
 
-    const titles = results?.[0]?.result || [];
-    console.log(`[BG] Scraped ${titles.length} portfolio titles for dedup`);
+    const rawResult = results?.[0]?.result || { titles: [], debug: {} };
+    const titles = rawResult.titles || [];
+    console.log(`[BG] Scraped ${titles.length} portfolio titles. Debug:`, rawResult.debug);
+    if (titles.length > 0) {
+      console.log('[BG] Portfolio titles:', titles);
+    }
 
-    // Close the scrape tab
+    // Close the scrape tab and unregister
+    scrapeTabIds.delete(scrapeTabId);
     try { await chrome.tabs.remove(scrapeTabId); } catch {}
 
     return { success: true, titles };
@@ -192,6 +229,7 @@ async function getPortfolioTitles() {
     console.error('[BG] Portfolio scrape failed:', err);
     // Clean up scrape tab on error
     if (scrapeTabId) {
+      scrapeTabIds.delete(scrapeTabId);
       try { await chrome.tabs.remove(scrapeTabId); } catch {}
     }
     return { success: false, titles: [], error: err.message };
@@ -478,6 +516,9 @@ async function waitForTabLoad(tabId, maxWait = 15000) {
 // ── Tab Lifecycle ──────────────────────────────────────────────
 
 chrome.tabs.onRemoved.addListener((tabId) => {
+  // Clean up scrape tab tracking
+  scrapeTabIds.delete(tabId);
+
   if (tabId === cafeTabId) {
     cafeTabId = null;
     chrome.storage.local.remove('cafeTab');

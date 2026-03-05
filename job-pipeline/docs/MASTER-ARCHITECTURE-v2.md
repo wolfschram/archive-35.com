@@ -7,8 +7,12 @@
 # Hand this document to ANY reviewer (human or AI) and they
 # should be able to identify gaps, contradictions, or risks.
 # ─────────────────────────────────────────────────────────
-# Version: 2.1 · Last updated: 2026-03-05
-# Changelog: v2.1 — Incorporated 17 fixes from external review (Gemini + ChatGPT)
+# Version: 2.1.1 · Last updated: 2026-03-05
+# Changelog:
+#   v2.1   — Incorporated 17 fixes from external review (Gemini + ChatGPT)
+#   v2.1.1 — Fixed 2 spec bugs (unknown in response_type CHECK, DRAFT→PENDING_APPROVAL+needs_review).
+#            Added §17 Visual Monitoring (ADHD-friendly health tab, elkjs pipeline graph, alert banner).
+#            Added Tab 7 System Health to §7. Added /api/health to §6. Added Phase 12.5 to §12.
 # ─────────────────────────────────────────────────────────
 
 ---
@@ -252,7 +256,7 @@ Output: Cover letter text
 1. Run hallucination filter (§3.8) as safety net — should rarely trigger with this pattern
 2. Self-score output (must be ≥7/10)
 3. If <7, regenerate once with feedback
-4. If second attempt <7, flag as DRAFT for Wolf's review
+4. If second attempt <7, set job to `PENDING_APPROVAL`; mark `cover_letter_versions.needs_review = 1` for Wolf's manual edit
 5. Store in database with version tracking
 
 **Why two calls instead of one?** LLMs struggle with negative constraints. Telling it "don't hallucinate" doesn't work reliably. Forcing it to assemble from pre-approved facts eliminates the source of hallucinations. The filter becomes a safety net (catching edge cases) rather than the primary defense.
@@ -372,7 +376,7 @@ Every factual assertion in the cover letter is classified into one of two types:
 │  Call 1: Extract approved facts from context files → JSON           │
 │  Call 2: Assemble P→P→R letter from facts only                     │
 │  Hallucination filter (safety net) → Self-score ≥7/10              │
-│  <7 after 2 tries → DRAFT for Wolf review                          │
+│  <7 after 2 tries → PENDING_APPROVAL + needs_review flag            │
 │  Daily limit: max 5 generations/day (overflow queues for tomorrow)  │
 └──────────────────────────┬──────────────────────────────────────────┘
                            │
@@ -619,6 +623,7 @@ CREATE TABLE cover_letter_versions (
   prompt_tokens     INTEGER,
   completion_tokens INTEGER,
   cost_estimate     REAL,
+  needs_review      INTEGER DEFAULT 0,  -- 1 = score <7 after 2 tries, needs Wolf's manual edit
   created_at        TEXT DEFAULT (datetime('now')),
   UNIQUE(job_id, version)
 );
@@ -635,7 +640,7 @@ CREATE TABLE application_submissions (
   submitted_at    TEXT DEFAULT (datetime('now')),
   cover_letter_id INTEGER REFERENCES cover_letter_versions(id),
   response_type   TEXT CHECK(response_type IN ('none','rejection','interview',
-                  'request_info','offer','ghosted')),
+                  'request_info','offer','ghosted','unknown')),
   response_date   TEXT,
   response_notes  TEXT,
   follow_up_date  TEXT,
@@ -829,6 +834,11 @@ The `effective_status` field combines lifecycle + outcome for dashboard display.
 |--------|------|---------|
 | POST | `/api/bridge/ingest` | Receive pasted content from dashboard UI. Requires `Authorization: Bearer <BRIDGE_AUTH_TOKEN>`. Validates JSON schema. Logs to `bridge_events` table. |
 
+**System Health**
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/api/health` | Returns all connection statuses in one call: SQLite, Gmail OAuth, Playwright/CDP, Express, pm2, Disk. Used by Tab 7 health grid. |
+
 **ATS Submission (pull-based)**
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -937,11 +947,33 @@ For real-time dashboard updates. Deferred to after core functionality works — 
 - Cover letter performance scores
 - Weekly summary snapshot
 
+### Tab 7: System Health
+**New tab — ADHD-friendly visual monitoring**
+
+- **Pipeline Flow Graph:** Horizontal DAG rendered with elkjs (~100KB, lazy-loaded only when tab active)
+  - Nodes: Scraper → Scorer → Cover Letter Gen → Approval → ATS Submit → Gmail Monitor
+  - Each node shows: component name, status badge (green/yellow/red), queue depth, last activity timestamp
+  - Click a node → expands inline to show recent jobs at that pipeline stage
+  - Edges animate with CSS pulse when jobs flow between stages (lightweight, no JS animation)
+- **Connection Health Grid:** 2×3 card grid (pure HTML/CSS, no library)
+  - Cards: SQLite, Gmail OAuth, Playwright/CDP, Express API, pm2, Disk Space
+  - Each card: large colored circle (green/yellow/red) + one-line status text + last-checked time
+  - Powered by `GET /api/health` (single call returns all statuses)
+  - Auto-refresh every 60s
+- **Job Heatmap:** CSS Grid calendar showing jobs processed per day (last 30 days)
+  - Color intensity = daily volume (light blue → deep blue)
+  - Red cells = days with errors
+  - Click a day → filters Tab 1 job table to that date
+- **Alert Banner:** Top of dashboard (across all tabs), hidden when all systems green
+  - Triggers: OAuth expiring (<24h), daily budget >80%, queue stalled (>15min no progress), disk >90%
+  - Bold white text on red background, impossible to miss
+- **File:** `js/cc-health.js`
+
 ### Dashboard Design Principles
 - **Dark theme:** Backgrounds #0d0f14, #161923. Accent blue #4f8ef7, purple #7c5cbf
-- **Status colors:** Green #2ecc71 (success), yellow #f39c12 (warning), red #e74c3c (error)
+- **Status colors:** Green #22c55e (success), yellow #eab308 (warning), red #ef4444 (error) — high contrast on dark bg
 - **Mobile-friendly:** Responsive grid, works on iPhone (Wolf gets traffic from Instagram links)
-- **ADHD-friendly:** Bold headers, short text, scannable cards, clear visual hierarchy
+- **ADHD-friendly:** Color first, text second. Progressive disclosure (traffic lights → click for detail). No scrolling for critical status on 1920×1080. Large touch targets (cards min 120×120px). Animation = data flow (subtle edge pulse shows system is alive)
 - **Auto-refresh:** 60s interval (upgrade to WebSocket later)
 - **File structure:** Modular — `COMMAND_CENTER.html` shell + `css/command-center.css` + `js/cc-*.js` per tab
 
@@ -1078,7 +1110,7 @@ All confirmed by Wolf on 2026-03-05:
 - **Monthly ceiling: $55/month** (configurable — Conductor pauses generation, emails Wolf)
 - **Daily circuit breaker: max 5 cover letter generations/day** (overflow holds in COVER_LETTER_QUEUED, processes next day)
 - **Per-operation max tokens:** scoring=2K, extraction=4K, assembly=4K, hallucination filter=2K
-- **Regen loop limit:** max 2 retries per letter, then flag as DRAFT (never infinite loop)
+- **Regen loop limit:** max 2 retries per letter, then `PENDING_APPROVAL` + `needs_review = 1` (never infinite loop)
 - Token tracking: per-operation cost stored in `cover_letter_versions.cost_estimate` and `conductor_queue` logs
 - Dashboard shows running cost total (daily + monthly)
 
@@ -1207,6 +1239,22 @@ All confirmed by Wolf on 2026-03-05:
 ```
 
 **Test gate:** Paste cover letter text into dashboard UI. POST succeeds with valid token, fails without. Schema validation rejects missing fields. bridge_events table logs the event. Content appears on correct job record. Oversized payload (>50KB) rejected.
+
+### Phase 12.5 — System Health Tab (Visual Monitoring)
+
+**Goal:** Wolf can see entire system health at a glance — color-coded, clickable, zero reading required.
+
+```
+12.5A: GET /api/health endpoint — returns all component statuses + budget info
+12.5B: Tab 7 "System Health" added to COMMAND_CENTER.html
+12.5C: Pipeline flow graph (elkjs, lazy-loaded) — horizontal DAG with status badges
+12.5D: Connection health grid — 6 cards with traffic-light status
+12.5E: Job heatmap — 30-day calendar grid with volume + error indicators
+12.5F: Alert banner — top of dashboard, auto-shows on critical conditions
+12.5G: js/cc-health.js module
+```
+
+**Test gate:** `/api/health` returns valid JSON for all 6 components. Tab 7 loads with pipeline graph showing current queue depths. Health cards show correct status colors. Alert banner appears when Gmail OAuth <24h (can test by mocking). Job heatmap renders last 30 days. Click on pipeline node expands to show jobs. Click on heatmap day filters Tab 1.
 
 ### Phase 13 — Multi-Platform Search + Hardening
 
@@ -1387,6 +1435,123 @@ All confirmed by Wolf on 2026-03-05:
 - ATS applications filled by Playwright, Wolf confirms on 2nd monitor
 - Responses parsed, outcomes tracked, templates iterated
 - Wolf's total daily involvement: ~30 minutes
+
+---
+
+## 17. VISUAL MONITORING DESIGN (ADHD-Friendly)
+
+This section defines the technical approach for the System Health tab (Tab 7) and the design philosophy for making the entire dashboard accessible to operators with ADHD/dyslexia.
+
+### 17.1 Pipeline Flow Graph (elkjs)
+
+**Library:** elkjs (~100KB) — renders hierarchical DAGs as SVG. Lazy-loaded via CDN only when Tab 7 is active.
+
+**Why elkjs:**
+- 100KB footprint, SVG output, no framework dependencies (fits vanilla JS stack)
+- Hierarchical left-to-right layout is perfect for a linear pipeline
+- Not D3 (overkill — too much flexibility, hard to maintain)
+- Not react-flow (architecture specifies vanilla JS, not React)
+- Not vis-network (physics simulation is unnecessary for a fixed pipeline layout)
+
+**Node Schema:**
+```javascript
+{
+  id: 'scorer',
+  label: 'Scorer',
+  status: 'ok',           // ok | warning | error | stalled
+  queue_depth: 3,
+  last_activity: '2m ago',
+  active_job_ids: [42, 57, 63]
+}
+```
+
+**Edge Behavior:**
+- Static edges connect pipeline stages left-to-right
+- CSS `@keyframes` pulse animation on edges when `queue_depth > 0` (shows flow)
+- Edge color matches source node status (green = flowing, yellow = slow, red = blocked)
+
+**Click Interaction:**
+- Click node → inline expandable panel shows recent jobs at that stage (max 5, sortable)
+- Click job in expanded panel → navigates to Tab 1 filtered to that job
+
+### 17.2 Connection Health Grid
+
+**Implementation:** Pure HTML/CSS (no library needed)
+
+```
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│  🟢 SQLite       │  │  🟡 Gmail OAuth  │  │  🟢 Playwright   │
+│  12.4 MB, WAL ok │  │  Expires in 3d   │  │  CDP connected   │
+│  Checked: 30s    │  │  Checked: 30s    │  │  Checked: 30s    │
+├─────────────────┤  ├─────────────────┤  ├─────────────────┤
+│  🟢 Express API  │  │  🟢 pm2          │  │  🟢 Disk Space   │
+│  Uptime: 24h     │  │  0 restarts      │  │  45 GB free      │
+│  Checked: 30s    │  │  Checked: 30s    │  │  Checked: 30s    │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
+```
+
+**Status Thresholds:**
+| Component | Green | Yellow | Red |
+|-----------|-------|--------|-----|
+| SQLite | Responds <100ms | Responds <500ms | No response / locked |
+| Gmail OAuth | Token >7 days | Token 1-7 days | Token <24h or expired |
+| Playwright | CDP connected | CDP slow (>5s connect) | CDP disconnected |
+| Express API | Responds <200ms | Responds <1s | No response |
+| pm2 | Running, 0 restarts | 1-3 restarts | >3 restarts or stopped |
+| Disk | <80% used | 80-90% used | >90% used |
+
+### 17.3 `/api/health` Endpoint
+
+```javascript
+// GET /api/health
+// Response:
+{
+  timestamp: "2026-03-05T14:30:00Z",
+  overall: "ok",  // worst status of all components
+  components: {
+    sqlite: { status: "ok", size_mb: 12.4, wal_size_mb: 0.3, response_ms: 2 },
+    gmail: { status: "warning", token_expires: "2026-03-08T00:00:00Z", days_remaining: 3 },
+    playwright: { status: "ok", cdp_connected: true, last_action: "2026-03-05T14:28:00Z" },
+    express: { status: "ok", uptime_seconds: 86400, response_ms: 1 },
+    pm2: { status: "ok", conductor_pid: 1234, restarts: 0 },
+    disk: { status: "ok", free_gb: 45.2, percent_used: 68 }
+  },
+  budget: {
+    daily_spent: 0.85,
+    daily_limit: 2.00,
+    monthly_spent: 18.40,
+    monthly_limit: 55.00,
+    cover_letters_today: 3,
+    cover_letters_limit: 5
+  }
+}
+```
+
+### 17.4 Alert Banner
+
+Rendered at the top of `COMMAND_CENTER.html` (visible across all 7 tabs). Hidden by default (`display: none`).
+
+**Trigger Conditions (any one triggers the banner):**
+1. `gmail.days_remaining < 1` → "Gmail OAuth expires in X hours — re-authenticate now"
+2. `budget.daily_spent / budget.daily_limit > 0.8` → "Daily budget 85% used ($1.70 / $2.00)"
+3. Any component with `status: "error"` → "Component X is down — check logs"
+4. No `conductor:heartbeat` for >15 minutes → "Conductor may be stalled — last heartbeat Xm ago"
+5. `disk.percent_used > 90` → "Disk space critical — 90% used"
+
+**Style:** White bold text on `#ef4444` red background, 48px height, centered, `z-index: 1000`.
+
+### 17.5 ADHD/Dyslexia Design Principles
+
+These principles apply to **all** dashboard tabs, not just Tab 7:
+
+1. **Color first, text second** — Every status is communicated via color (green/yellow/red) before any text. A quick glance tells you if something is wrong without reading a single word.
+2. **Progressive disclosure** — Level 1: traffic-light overview (visible on load). Level 2: click to expand details. Level 3: click through to raw data. Never show Level 3 unprompted.
+3. **No scrolling for status** — All critical health info fits above the fold on 1920×1080. Tab 7 health grid + pipeline flow + alert banner = one screen.
+4. **High contrast, consistent palette** — Green #22c55e, Yellow #eab308, Red #ef4444 on dark #0d0f14. These specific colors chosen for WCAG AA contrast ratio on dark backgrounds.
+5. **Large touch targets** — Cards minimum 120×120px. Buttons minimum 44×44px (WCAG guideline). No tiny links.
+6. **Animation = meaningful data** — Edge pulse = jobs flowing. No decorative animation. Motion conveys information, never distraction.
+7. **Spatial consistency** — Components always in the same position. Wolf builds muscle memory for where to look. Never rearrange layout dynamically.
+8. **One number per card** — Each health card shows exactly one key metric. Details on click-expand only.
 
 ---
 

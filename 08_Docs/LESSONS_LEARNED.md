@@ -1016,4 +1016,79 @@ In Cloudflare Workers, once the Response is returned to the client, the Worker r
 
 ---
 
+### LESSON 041: Observe Before You Fix — The Chrome Extension Blind Coding Anti-Pattern
+**Date:** 2026-03-05
+**Category:** `chrome-extension` `process` `debugging` `ROOT-CAUSE` `CRITICAL`
+
+**Symptom:** CaFE Uploader Chrome extension development took 5+ hours across multiple sessions. Each fix addressed a different theory about why batch upload or dedup wasn't working. Fixes included: event listeners → URL polling, fetch() scraping → regex parsing → hidden background tab scraping, popup → tab promotion. Each change introduced new problems. Wolf said: "we are completely out of control again nowhere closer it gets worse again."
+
+**Root Cause:** The AI agent (me) never once **observed the actual behavior** before coding a fix. Every fix was based on reasoning about what MIGHT be wrong, not what WAS wrong. The pattern:
+1. Wolf reports "not working"
+2. I reason about possible causes from code reading
+3. I write a fix based on that theory
+4. Push and ask Wolf to test
+5. Wolf says still broken → new theory → repeat
+
+**What I should have done EVERY TIME:**
+1. Open the CaFE portfolio page in the browser
+2. Run the scraping JS directly to verify it works (it does — 8 figcaptions, exact title matches)
+3. Check the extension's service worker console for actual errors
+4. Verify the extension has the latest code loaded (reload after git pull)
+5. THEN write a targeted fix for the actual observed failure
+
+**The Compounding Problem:** Each "fix" introduced new complexity (hidden tabs, scrapeTabIds tracking, tab promotion) which created new failure modes, which required new fixes. Classic patch-on-patch spiral.
+
+**Key Discovery:** The figcaption scraping logic was correct from the start. The title matching was correct. The comparison logic was correct. The actual failures were:
+- `fetch()` returns unrendered templates → hidden tab approach was the right fix
+- `syncPortfolio()` gated on `checkCafeConnection()` → scrape never ran if no CaFE tab existed
+- Scrape tab's content script sent `pageStatus` → overwrote `cafeTabId` → uploads broke
+- DNS failure in sandbox → git push failed → Wolf never got the fix
+
+**Prevention:**
+- **RULE: Before writing ANY Chrome extension fix, open the browser and observe the actual behavior.** Take a screenshot. Run JS in the console. Read the service worker logs. You have Chrome access — USE IT.
+- **RULE: After EVERY push, verify the extension is reloaded in Chrome.** Unlike websites, extensions don't auto-update from git. The developer must reload in chrome://extensions.
+- **RULE: When a fix "doesn't work," the FIRST question is: "Did my code even run?"** Check console logs before writing new code.
+- **RULE: When 3+ fixes fail in a row, STOP. The problem isn't the code — it's the debugging approach.** Step back per Lesson 023.
+- **RULE: Chrome extensions have a unique deployment gap — code on disk ≠ code in Chrome.** Always confirm the loaded version matches.
+
+**Related Lessons:** 023 (Step Back Protocol), 027 (Fix the Source)
+
+---
+
+### LESSON 042: MV3 Service Workers and Hidden Tabs — The CaFE Extension Architecture
+**Date:** 2026-03-05
+**Category:** `chrome-extension` `mv3` `architecture`
+
+**Symptom:** Multiple interconnected failures in the CaFE uploader extension: service worker death, popup closing, content script ID conflicts.
+
+**Root Cause:** MV3 Chrome extensions have three separate execution contexts that interact in non-obvious ways:
+1. **Service worker** (background.js) — dies after ~30s of only setTimeout activity
+2. **Popup** — auto-closes when Chrome navigates ANY tab (focus loss)
+3. **Content scripts** — auto-inject on matching URLs, even hidden/scrape tabs
+
+When the extension creates a hidden tab for scraping, the content script auto-injects and sends `pageStatus`, overwriting the tracked `cafeTabId` with the scrape tab ID. When the scrape tab closes, `cafeTabId` becomes null.
+
+**Architecture Decisions Made:**
+- Keepalive port (`chrome.runtime.connect`) prevents service worker death
+- Tab promotion (popup → full tab) prevents UI closing during batch operations
+- `scrapeTabIds` Set tracks temporary tabs to exclude from `cafeTabId` tracking
+- `getPortfolioTitles` creates its own tab — doesn't need pre-existing CaFE tab
+
+**Prevention:**
+- **RULE: Any `chrome.tabs.create()` in a background script must consider that content scripts will auto-inject.** Track temporary tab IDs and exclude them from state management.
+- **RULE: Extension popups close on ANY tab navigation.** For long-running operations, use tab promotion (`chrome.runtime.getURL('popup.html?mode=tab')`).
+- **RULE: MV3 service workers need an active port to stay alive during long operations.** `setTimeout` alone won't keep them running.
+
+**Related Files:** `07_Extensions/cafe-uploader/background.js`, `popup.js`, `content.js`, `manifest.json`
+
+---
+
+53. **Observe before you fix.** Open the browser, run JS, check console logs, take screenshots. Never code a fix based purely on reasoning about what might be wrong.
+54. **Chrome extension code on disk ≠ code loaded in Chrome.** Extensions must be manually reloaded after every code change. Verify the loaded version.
+55. **Hidden tabs trigger content script injection.** Track temporary tab IDs and exclude them from your main tab state management.
+56. **MV3 service workers die without active ports.** Use `chrome.runtime.connect()` keepalive from the popup/tab.
+57. **When 3+ fixes fail in a row, the problem is your debugging approach, not the code.** Stop, observe, verify your code is actually running.
+
+---
+
 *This is a living document. Add new lessons as they're discovered. Every bug is a gift — it teaches us something we didn't know.*

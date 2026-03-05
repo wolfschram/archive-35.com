@@ -209,6 +209,9 @@
       });
 
       showToast(`Matched ${metadataEntries.filter(e => e._valid).length} images with metadata`, 'success');
+
+      // Re-check CaFE connection now (user may have opened CaFE tab since init)
+      await checkCafeConnection();
       await showReview();
     } catch (err) {
       showToast(`Error: ${err.message}`, 'error');
@@ -223,11 +226,17 @@
 
     const newEntries = [], existingEntries = [], issueEntries = [];
 
+    console.log(`[Popup] Comparing ${metadataEntries.length} local entries against ${portfolioImages.length} portfolio titles`);
+
     metadataEntries.forEach(entry => {
-      const inPortfolio = portfolioImages.some(p =>
-        p.title.toLowerCase().trim() === entry.title.toLowerCase().trim()
-      );
+      const localTitle = entry.title.toLowerCase().trim();
+      const inPortfolio = portfolioImages.some(p => {
+        const portfolioTitle = p.title.toLowerCase().trim();
+        return portfolioTitle === localTitle;
+      });
       entry._inPortfolio = inPortfolio;
+
+      console.log(`[Popup]  "${entry.title}" → ${inPortfolio ? '✅ IN PORTFOLIO' : '🆕 NEW'}`);
 
       if (!entry._valid) issueEntries.push(entry);
       else if (inPortfolio) existingEntries.push(entry);
@@ -253,26 +262,28 @@
 
   async function syncPortfolio() {
     try {
-      const connected = await checkCafeConnection();
-      if (!connected) { portfolioImages = []; return; }
-
-      // Use background script to scrape portfolio titles (navigates to portfolio.php,
-      // scrapes, then navigates back to media_upload.php) — works regardless of
-      // which page the content script is on.
+      // getPortfolioTitles creates its own hidden tab to scrape — it does NOT
+      // need a pre-existing CaFE tab. Don't gate on checkCafeConnection().
       showToast('Scanning CaFE portfolio for duplicates...', 'info');
+      console.log('[Popup] Starting portfolio sync...');
       const result = await sendToBackground({ action: 'getPortfolioTitles' });
+      console.log('[Popup] Portfolio scrape result:', JSON.stringify(result));
 
       if (result?.success && result.titles?.length > 0) {
-        // Convert title strings to objects for compatibility with existing code
         portfolioImages = result.titles.map(t => ({ title: t }));
-        console.log(`[Popup] Portfolio has ${portfolioImages.length} existing images`);
+        console.log(`[Popup] Portfolio titles found (${portfolioImages.length}):`,
+          portfolioImages.map(p => p.title));
+        showToast(`Found ${portfolioImages.length} images already in CaFE`, 'success');
       } else {
         portfolioImages = [];
-        if (result?.error) console.warn('[Popup] Portfolio scrape issue:', result.error);
+        const reason = result?.error || 'No titles found';
+        console.warn('[Popup] Portfolio scrape issue:', reason);
+        showToast(`Portfolio scan: ${reason}`, 'warning');
       }
     } catch (err) {
       console.error('[Popup] syncPortfolio failed:', err);
       portfolioImages = [];
+      showToast(`Portfolio scan failed: ${err.message}`, 'error');
     }
   }
 

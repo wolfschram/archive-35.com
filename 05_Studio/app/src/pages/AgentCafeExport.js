@@ -149,13 +149,19 @@ function AgentCafeExport() {
         setPhotoMetadata(newMeta);
       } else if (next.size < 10) {
         next.add(photo.id);
-        // Pre-populate metadata from photo
+        // Pre-populate metadata from photo, truncating to CaFE limits
+        const truncate = (s, max) => {
+          if (!s || s.length <= max) return s || '';
+          const cut = s.slice(0, max - 3);
+          const lastSpace = cut.lastIndexOf(' ');
+          return (lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut) + '...';
+        };
         setPhotoMetadata((prev) => ({
           ...prev,
           [photo.id]: {
-            title: photo.title || '',
-            description: photo.description || '',
-            alt_text: photo.alt_text || '',
+            title: truncate(photo.title, CAFE_LIMITS.title),
+            description: truncate(photo.description, CAFE_LIMITS.description),
+            alt_text: truncate(photo.alt_text, CAFE_LIMITS.alt_text),
           },
         }));
       }
@@ -284,315 +290,252 @@ function AgentCafeExport() {
   const allPhotos = Object.values(galleryPhotos).flat();
   const validPhotoCount = allPhotos.filter(isPhotoValid).length;
 
-  // ── Render: Submission Rack (sticky, always visible) ─────
+  // ── Render: Submission Rack (sticky, compact) ───────────
+  // Metadata editing state
+  const [metadataExpanded, setMetadataExpanded] = useState(false);
+  const [editingPhotoId, setEditingPhotoId] = useState(null);
 
-  const SubmissionRack = () => (
-    <div
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        backgroundColor: 'var(--bg-primary)',
-        borderBottom: '1px solid var(--glass-border)',
-        padding: '16px 20px',
-        marginBottom: '16px',
-      }}
-    >
+  const SubmissionRack = () => {
+    // Count how many selected photos have validation issues
+    const invalidCount = Array.from(selectedPhotos).filter((id) => {
+      const photo = allPhotos.find((p) => p.id === id);
+      return photo && !isPhotoValid(photo);
+    }).length;
+
+    return (
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: selectedPhotos.size > 0 && !rackCollapsed ? '12px' : '0',
-          cursor: 'pointer',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000,
+          backgroundColor: 'var(--bg-primary)',
+          borderBottom: '1px solid var(--glass-border)',
+          padding: '12px 20px',
+          marginBottom: '16px',
         }}
-        onClick={() => setRackCollapsed(!rackCollapsed)}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>📦 Submission Rack</h3>
-          <span
-            style={{
-              fontSize: '12px',
-              color: 'var(--text-muted)',
-              fontWeight: 600,
-            }}
-          >
-            {selectedPhotos.size} / 10 selected
+        {/* Header row: title + action buttons */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: selectedPhotos.size > 0 && !rackCollapsed ? '10px' : '0',
+            cursor: 'pointer',
+          }}
+          onClick={() => setRackCollapsed(!rackCollapsed)}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>📦 Submission Rack</h3>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>
+              {selectedPhotos.size} / 10
+            </span>
+            {invalidCount > 0 && (
+              <span style={{ fontSize: '11px', color: '#eab308', fontWeight: 600 }}>
+                ({invalidCount} need metadata)
+              </span>
+            )}
+          </div>
+          <span style={{ fontSize: '12px', color: 'var(--text-muted)', transform: rackCollapsed ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+            {rackCollapsed ? '▼' : '▲'}
           </span>
         </div>
-        <span
-          style={{
-            fontSize: '12px',
-            color: 'var(--text-muted)',
-            transform: rackCollapsed ? 'rotate(180deg)' : 'none',
-            transition: 'transform 0.2s',
-          }}
-        >
-          {rackCollapsed ? '▼' : '▲'}
-        </span>
+
+        {!rackCollapsed && selectedPhotos.size > 0 && (
+          <div>
+            {/* Compact thumbnail strip + inline action buttons */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '6px',
+                  overflowX: 'auto',
+                  flex: 1,
+                  paddingBottom: '4px',
+                }}
+              >
+                {Array.from(selectedPhotos).map((photoId) => {
+                  const photo = allPhotos.find((p) => p.id === photoId);
+                  if (!photo) return null;
+                  const thumbUrl = photo.thumbnail_url || `https://archive-35.com/images/${photo.collection_slug || photo.collection}/${photo.filename.replace(/\.[^/.]+$/, '')}-thumb.jpg`;
+                  const isEditing = editingPhotoId === photoId;
+                  const status = getValidationStatus(photo);
+
+                  return (
+                    <div
+                      key={photoId}
+                      style={{ position: 'relative', flexShrink: 0, cursor: 'pointer' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingPhotoId(isEditing ? null : photoId);
+                        setMetadataExpanded(true);
+                      }}
+                    >
+                      <img
+                        src={thumbUrl}
+                        alt={photo.title}
+                        style={{
+                          width: '56px',
+                          height: '56px',
+                          objectFit: 'cover',
+                          borderRadius: '4px',
+                          border: isEditing ? '2px solid #7c5cbf' : status === 'valid' ? '2px solid var(--success)' : '2px solid #eab308',
+                        }}
+                        onError={(e) => {
+                          e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="56" height="56"%3E%3Crect fill="%23333" width="56" height="56"/%3E%3C/svg%3E';
+                        }}
+                      />
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleTogglePhoto(photo); }}
+                        style={{
+                          position: 'absolute', top: '-6px', right: '-6px',
+                          width: '18px', height: '18px', borderRadius: '50%',
+                          backgroundColor: 'var(--danger)', border: 'none',
+                          color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: '11px',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}
+                      >×</button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Inline action buttons */}
+              <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleGenerateAltText(); }}
+                  disabled={generatingAlt}
+                  style={{
+                    padding: '8px 12px', fontSize: '12px', fontWeight: 600,
+                    background: 'rgba(74, 222, 128, 0.1)', border: '1px solid var(--success)',
+                    borderRadius: 'var(--radius-sm)', color: 'var(--success)',
+                    cursor: 'pointer', opacity: generatingAlt ? 0.6 : 1, whiteSpace: 'nowrap',
+                  }}
+                >
+                  {generatingAlt ? '...' : '✨ Alt Text'}
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setMetadataExpanded(!metadataExpanded); }}
+                  style={{
+                    padding: '8px 12px', fontSize: '12px', fontWeight: 600,
+                    background: metadataExpanded ? 'rgba(124, 92, 191, 0.15)' : 'rgba(255,255,255,0.05)',
+                    border: `1px solid ${metadataExpanded ? '#7c5cbf' : 'var(--glass-border)'}`,
+                    borderRadius: 'var(--radius-sm)',
+                    color: metadataExpanded ? '#7c5cbf' : 'var(--text-muted)',
+                    cursor: 'pointer', whiteSpace: 'nowrap',
+                  }}
+                >
+                  {metadataExpanded ? '▲ Hide' : '▼ Edit'}
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleGenerateExport(); }}
+                  disabled={exporting}
+                  style={{
+                    padding: '8px 16px', fontSize: '12px', fontWeight: 600,
+                    background: 'rgba(124, 92, 191, 0.15)', border: '1px solid #7c5cbf',
+                    borderRadius: 'var(--radius-sm)', color: '#7c5cbf',
+                    cursor: 'pointer', opacity: exporting ? 0.6 : 1, whiteSpace: 'nowrap',
+                  }}
+                >
+                  {exporting ? '...' : `📦 Export (${selectedPhotos.size})`}
+                </button>
+              </div>
+            </div>
+
+            {/* Expandable metadata editor — only shows when toggled */}
+            {metadataExpanded && (
+              <div
+                style={{
+                  maxHeight: '280px',
+                  overflowY: 'auto',
+                  borderTop: '1px solid var(--glass-border)',
+                  paddingTop: '10px',
+                }}
+              >
+                {editingPhotoId ? (
+                  // Single photo editor (click a thumbnail to edit one at a time)
+                  (() => {
+                    const photo = allPhotos.find((p) => p.id === editingPhotoId);
+                    if (!photo) return null;
+                    const meta = photoMetadata[editingPhotoId] || {};
+                    const title = meta.title || '';
+                    const desc = meta.description || '';
+                    const altText = meta.alt_text || '';
+
+                    return (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <div>
+                          <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                            {photo.title}
+                          </div>
+                          <div style={{ marginBottom: '6px' }}>
+                            <label style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                              <span>Title</span><CharCounter value={title} limit={CAFE_LIMITS.title} />
+                            </label>
+                            <input type="text" value={title} onChange={(e) => handleMetadataChange(editingPhotoId, 'title', e.target.value)}
+                              maxLength={CAFE_LIMITS.title} placeholder="Required"
+                              style={{ width: '100%', padding: '5px', fontSize: '12px', background: 'var(--bg-primary)', border: `1px solid ${title.length === 0 ? '#eab308' : 'var(--glass-border)'}`, borderRadius: '4px', color: 'var(--text-primary)', boxSizing: 'border-box' }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                              <span>Alt Text</span><CharCounter value={altText} limit={CAFE_LIMITS.alt_text} />
+                            </label>
+                            <input type="text" value={altText} onChange={(e) => handleMetadataChange(editingPhotoId, 'alt_text', e.target.value)}
+                              maxLength={CAFE_LIMITS.alt_text} placeholder="Required"
+                              style={{ width: '100%', padding: '5px', fontSize: '12px', background: 'var(--bg-primary)', border: `1px solid ${altText.length === 0 ? '#eab308' : 'var(--glass-border)'}`, borderRadius: '4px', color: 'var(--text-primary)', boxSizing: 'border-box' }}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                            <span>Description</span><CharCounter value={desc} limit={CAFE_LIMITS.description} />
+                          </label>
+                          <textarea value={desc} onChange={(e) => handleMetadataChange(editingPhotoId, 'description', e.target.value)}
+                            maxLength={CAFE_LIMITS.description} placeholder="Required"
+                            style={{ width: '100%', padding: '5px', fontSize: '12px', minHeight: '100px', background: 'var(--bg-primary)', border: `1px solid ${desc.length === 0 ? '#eab308' : 'var(--glass-border)'}`, borderRadius: '4px', color: 'var(--text-primary)', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'vertical' }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })()
+                ) : (
+                  // Overview: compact list of all selected photos with status
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '6px' }}>
+                    {Array.from(selectedPhotos).map((photoId) => {
+                      const photo = allPhotos.find((p) => p.id === photoId);
+                      if (!photo) return null;
+                      const status = getValidationStatus(photo);
+                      const meta = photoMetadata[photoId] || {};
+                      return (
+                        <div
+                          key={photoId}
+                          onClick={() => setEditingPhotoId(photoId)}
+                          style={{
+                            padding: '8px 10px', background: 'var(--bg-tertiary)',
+                            border: `1px solid ${status === 'valid' ? 'var(--success)' : '#eab308'}`,
+                            borderRadius: '4px', cursor: 'pointer', fontSize: '11px',
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          }}
+                        >
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, color: 'var(--text-primary)' }}>
+                            {meta.title || photo.title || 'Untitled'}
+                          </span>
+                          <span style={{ marginLeft: '8px', flexShrink: 0, color: status === 'valid' ? 'var(--success)' : '#eab308', fontWeight: 600 }}>
+                            {status === 'valid' ? '✓' : `missing ${status}`}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
-
-      {!rackCollapsed && selectedPhotos.size > 0 && (
-        <div>
-          {/* Horizontal thumbnail scroll */}
-          <div
-            style={{
-              display: 'flex',
-              gap: '12px',
-              overflowX: 'auto',
-              marginBottom: '16px',
-              paddingBottom: '8px',
-            }}
-          >
-            {Array.from(selectedPhotos).map((photoId) => {
-              const photo = allPhotos.find((p) => p.id === photoId);
-              if (!photo) return null;
-              const thumbUrl = photo.thumbnail_url || `https://archive-35.com/images/${photo.collection_slug || photo.collection}/${photo.filename.replace(
-                /\.[^/.]+$/,
-                ''
-              )}-thumb.jpg`;
-
-              return (
-                <div
-                  key={photoId}
-                  style={{
-                    position: 'relative',
-                    flexShrink: 0,
-                  }}
-                >
-                  <img
-                    src={thumbUrl}
-                    alt={photo.title}
-                    style={{
-                      width: '80px',
-                      height: '80px',
-                      objectFit: 'cover',
-                      borderRadius: '6px',
-                      border: '2px solid #7c5cbf',
-                    }}
-                    onError={(e) => {
-                      e.target.src =
-                        'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="80"%3E%3Crect fill="%23333" width="80" height="80"/%3E%3C/svg%3E';
-                    }}
-                  />
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleTogglePhoto(photo);
-                    }}
-                    style={{
-                      position: 'absolute',
-                      top: '-8px',
-                      right: '-8px',
-                      width: '24px',
-                      height: '24px',
-                      borderRadius: '50%',
-                      backgroundColor: 'var(--danger)',
-                      border: 'none',
-                      color: 'white',
-                      cursor: 'pointer',
-                      fontWeight: 600,
-                      fontSize: '14px',
-                    }}
-                  >
-                    ×
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Metadata editor */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '12px',
-              marginBottom: '16px',
-            }}
-          >
-            {Array.from(selectedPhotos).map((photoId) => {
-              const photo = allPhotos.find((p) => p.id === photoId);
-              if (!photo) return null;
-              const meta = photoMetadata[photoId] || {};
-              const title = meta.title || '';
-              const desc = meta.description || '';
-              const altText = meta.alt_text || '';
-              const status = getValidationStatus(photo);
-
-              return (
-                <div
-                  key={photoId}
-                  style={{
-                    padding: '12px',
-                    background: 'var(--bg-tertiary)',
-                    border: `1px solid ${status === 'valid' ? 'var(--success)' : 'var(--glass-border)'}`,
-                    borderRadius: '6px',
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: '11px',
-                      fontWeight: 600,
-                      marginBottom: '8px',
-                      color: 'var(--text-secondary)',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {photo.title}
-                  </div>
-
-                  {/* Title input */}
-                  <div style={{ marginBottom: '8px' }}>
-                    <label
-                      style={{
-                        fontSize: '10px',
-                        color: 'var(--text-muted)',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '4px',
-                      }}
-                    >
-                      <span>Title</span>
-                      <CharCounter value={title} limit={CAFE_LIMITS.title} />
-                    </label>
-                    <input
-                      type="text"
-                      value={title}
-                      onChange={(e) => handleMetadataChange(photoId, 'title', e.target.value)}
-                      maxLength={CAFE_LIMITS.title}
-                      placeholder="Required"
-                      style={{
-                        width: '100%',
-                        padding: '6px',
-                        fontSize: '12px',
-                        background: 'var(--bg-primary)',
-                        border: `1px solid ${title.length === 0 ? '#eab308' : 'var(--glass-border)'}`,
-                        borderRadius: '4px',
-                        color: 'var(--text-primary)',
-                        boxSizing: 'border-box',
-                      }}
-                    />
-                  </div>
-
-                  {/* Alt text input */}
-                  <div style={{ marginBottom: '8px' }}>
-                    <label
-                      style={{
-                        fontSize: '10px',
-                        color: 'var(--text-muted)',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '4px',
-                      }}
-                    >
-                      <span>Alt Text</span>
-                      <CharCounter value={altText} limit={CAFE_LIMITS.alt_text} />
-                    </label>
-                    <input
-                      type="text"
-                      value={altText}
-                      onChange={(e) => handleMetadataChange(photoId, 'alt_text', e.target.value)}
-                      maxLength={CAFE_LIMITS.alt_text}
-                      placeholder="Required"
-                      style={{
-                        width: '100%',
-                        padding: '6px',
-                        fontSize: '12px',
-                        background: 'var(--bg-primary)',
-                        border: `1px solid ${altText.length === 0 ? '#eab308' : 'var(--glass-border)'}`,
-                        borderRadius: '4px',
-                        color: 'var(--text-primary)',
-                        boxSizing: 'border-box',
-                      }}
-                    />
-                  </div>
-
-                  {/* Description textarea */}
-                  <div>
-                    <label
-                      style={{
-                        fontSize: '10px',
-                        color: 'var(--text-muted)',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '4px',
-                      }}
-                    >
-                      <span>Description</span>
-                      <CharCounter value={desc} limit={CAFE_LIMITS.description} />
-                    </label>
-                    <textarea
-                      value={desc}
-                      onChange={(e) => handleMetadataChange(photoId, 'description', e.target.value)}
-                      maxLength={CAFE_LIMITS.description}
-                      placeholder="Required"
-                      style={{
-                        width: '100%',
-                        padding: '6px',
-                        fontSize: '12px',
-                        minHeight: '60px',
-                        background: 'var(--bg-primary)',
-                        border: `1px solid ${desc.length === 0 ? '#eab308' : 'var(--glass-border)'}`,
-                        borderRadius: '4px',
-                        color: 'var(--text-primary)',
-                        boxSizing: 'border-box',
-                        fontFamily: 'inherit',
-                        resize: 'vertical',
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Action buttons */}
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              onClick={handleGenerateAltText}
-              disabled={generatingAlt || selectedPhotos.size === 0}
-              style={{
-                flex: 1,
-                padding: '12px 20px',
-                fontSize: '13px',
-                fontWeight: 600,
-                background: 'rgba(74, 222, 128, 0.1)',
-                border: '1px solid var(--success)',
-                borderRadius: 'var(--radius-sm)',
-                color: 'var(--success)',
-                cursor: selectedPhotos.size > 0 ? 'pointer' : 'not-allowed',
-                opacity: generatingAlt ? 0.6 : 1,
-              }}
-            >
-              {generatingAlt ? 'Generating...' : '✨ Generate Alt Text'}
-            </button>
-            <button
-              onClick={handleGenerateExport}
-              disabled={exporting || selectedPhotos.size === 0}
-              style={{
-                flex: 2,
-                padding: '12px 20px',
-                fontSize: '13px',
-                fontWeight: 600,
-                background:
-                  selectedPhotos.size > 0 ? 'rgba(124, 92, 191, 0.15)' : 'rgba(128, 128, 128, 0.1)',
-                border: `1px solid ${selectedPhotos.size > 0 ? '#7c5cbf' : 'var(--text-muted)'}`,
-                borderRadius: 'var(--radius-sm)',
-                color: selectedPhotos.size > 0 ? '#7c5cbf' : 'var(--text-muted)',
-                cursor: selectedPhotos.size > 0 ? 'pointer' : 'not-allowed',
-                opacity: exporting ? 0.6 : 1,
-              }}
-            >
-              {exporting ? 'Exporting...' : `📦 Export to CaFE Ready (${selectedPhotos.size} image${selectedPhotos.size !== 1 ? 's' : ''})`}
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    );
+  };
 
   // ── Render: Tab bar ──────────────────────────────────────
 

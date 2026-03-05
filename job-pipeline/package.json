@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "init-db": "node init-db.js",
+    "migrate": "node migrate-v2.js",
     "score": "node job-scorer.js",
     "score:all": "node job-scorer.js --all",
     "score:dry": "node job-scorer.js --dry-run",

@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Pipeline — Command Center v2</title>
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #0d0f14;
+      --bg-secondary: #161923;
+      --bg-card: #1e2233;
+      --bg-hover: #252a3a;
+      --accent-blue: #4f8ef7;
+      --accent-purple: #7c5cbf;
+      --text-primary: #e8eaf0;
+      --text-secondary: #8b8fa3;
+      --text-muted: #5c6178;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --orange: #f97316;
+      --border: #2a2f42;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    a { color: var(--accent-blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button {
+      cursor: pointer; border: none; border-radius: var(--radius);
+      font-family: inherit; font-size: 0.875rem; font-weight: 500;
+      padding: 0.5rem 1rem; transition: all 0.15s;
+    }
+    input, textarea, select {
+      background: var(--bg-secondary); color: var(--text-primary);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      font-family: inherit; font-size: 0.875rem; padding: 0.5rem 0.75rem;
+      width: 100%; transition: border-color 0.15s;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none; border-color: var(--accent-blue);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* ─── Alert Banner ─────────────────────────────────────────────── */
+    #alert-banner {
+      display: none; background: var(--red); color: #fff;
+      padding: 0.75rem 1.5rem; font-weight: 700; font-size: 0.95rem;
+      text-align: center; position: sticky; top: 0; z-index: 100;
+    }
+    #alert-banner.visible { display: block; }
+
+    /* ─── Header ───────────────────────────────────────────────────── */
+    .header {
+      background: var(--bg-secondary); border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem; display: flex; align-items: center;
+      justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+    .header h1 span { color: var(--accent-blue); }
+    .header-right { display: flex; align-items: center; gap: 1rem; font-size: 0.8rem; color: var(--text-secondary); }
+    .health-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .health-dot.ok { background: var(--green); }
+    .health-dot.warning { background: var(--yellow); }
+    .health-dot.error { background: var(--red); }
+
+    /* ─── Tab Navigation ───────────────────────────────────────────── */
+    .tab-nav {
+      display: flex; gap: 0; background: var(--bg-secondary);
+      border-bottom: 2px solid var(--border); overflow-x: auto;
+      -webkit-overflow-scrolling: touch; padding: 0 1rem;
+    }
+    .tab-btn {
+      background: none; color: var(--text-secondary); border-radius: 0;
+      padding: 0.75rem 1.25rem; font-size: 0.85rem; font-weight: 500;
+      white-space: nowrap; border-bottom: 2px solid transparent;
+      margin-bottom: -2px; transition: all 0.15s;
+    }
+    .tab-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
+    .tab-btn.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+    .tab-btn .badge {
+      background: var(--accent-purple); color: #fff; font-size: 0.7rem;
+      padding: 0.1rem 0.4rem; border-radius: 10px; margin-left: 0.4rem;
+    }
+
+    /* ─── Tab Content ──────────────────────────────────────────────── */
+    .tab-content { display: none; padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
+    .tab-content.active { display: block; }
+
+    /* ─── Cards / Stats ────────────────────────────────────────────── */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.25rem;
+    }
+    .stat-card .label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; line-height: 1.2; }
+    .stat-card .sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+    .stat-card.green .value { color: var(--green); }
+    .stat-card.blue .value { color: var(--accent-blue); }
+    .stat-card.purple .value { color: var(--accent-purple); }
+    .stat-card.yellow .value { color: var(--yellow); }
+
+    /* ─── Status Flow ──────────────────────────────────────────────── */
+    .status-flow {
+      display: flex; gap: 0.5rem; margin-bottom: 1.5rem;
+      overflow-x: auto; padding-bottom: 0.5rem;
+    }
+    .status-step {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 0.75rem 1rem;
+      text-align: center; min-width: 100px; flex-shrink: 0;
+      position: relative; cursor: pointer; transition: all 0.15s;
+    }
+    .status-step:hover { border-color: var(--accent-blue); }
+    .status-step.active { border-color: var(--accent-blue); background: rgba(79, 142, 247, 0.1); }
+    .status-step .count { font-size: 1.5rem; font-weight: 700; }
+    .status-step .name { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.03em; }
+    .status-step + .status-step::before {
+      content: '→'; position: absolute; left: -0.65rem; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;
+    }
+
+    /* ─── Tables ───────────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th {
+      text-align: left; padding: 0.75rem; font-weight: 600; font-size: 0.75rem;
+      text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary);
+      border-bottom: 2px solid var(--border); white-space: nowrap; cursor: pointer;
+    }
+    th:hover { color: var(--text-primary); }
+    td { padding: 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:hover td { background: var(--bg-hover); }
+
+    .status-badge {
+      display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px;
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .status-badge.NEW { background: rgba(79,142,247,0.15); color: var(--accent-blue); }
+    .status-badge.SCRAPED { background: rgba(124,92,191,0.15); color: var(--accent-purple); }
+    .status-badge.SCORED { background: rgba(34,197,94,0.15); color: var(--green); }
+    .status-badge.COVER_LETTER_QUEUED,
+    .status-badge.COVER_LETTER_READY { background: rgba(249,115,22,0.15); color: var(--orange); }
+    .status-badge.PENDING_APPROVAL { background: rgba(234,179,8,0.15); color: var(--yellow); }
+    .status-badge.APPROVED { background: rgba(34,197,94,0.2); color: var(--green); }
+    .status-badge.SUBMITTING,
+    .status-badge.SUBMITTED { background: rgba(34,197,94,0.25); color: var(--green); }
+    .status-badge.CLOSED { background: rgba(91,95,113,0.3); color: var(--text-secondary); }
+    .status-badge.SKIPPED,
+    .status-badge.ARCHIVED { background: rgba(91,95,113,0.2); color: var(--text-muted); }
+    .status-badge.SCORING_FAILED,
+    .status-badge.GENERATION_FAILED,
+    .status-badge.SUBMISSION_FAILED,
+    .status-badge.ERROR_BLOCKED { background: rgba(239,68,68,0.15); color: var(--red); }
+
+    .score-bar {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .score-bar .bar {
+      width: 60px; height: 6px; background: var(--bg-secondary);
+      border-radius: 3px; overflow: hidden;
+    }
+    .score-bar .bar .fill { height: 100%; border-radius: 3px; }
+
+    /* ─── Conductor Status ─────────────────────────────────────────── */
+    .conductor-bar {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 0.75rem 1rem; margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 1.5rem; font-size: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .conductor-bar .label { color: var(--text-secondary); }
+    .conductor-bar .val { font-weight: 600; }
+
+    /* ─── Filter Bar ───────────────────────────────────────────────── */
+    .filter-bar {
+      display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-btn {
+      background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border);
+      padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 20px;
+    }
+    .filter-btn:hover { border-color: var(--accent-blue); color: var(--text-primary); }
+    .filter-btn.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+    .search-input {
+      max-width: 250px; padding: 0.4rem 0.8rem; font-size: 0.8rem;
+      border-radius: 20px;
+    }
+
+    /* ─── Forms / Edit Panels ──────────────────────────────────────── */
+    .form-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block; font-size: 0.75rem; font-weight: 600;
+      color: var(--text-secondary); text-transform: uppercase;
+      letter-spacing: 0.04em; margin-bottom: 0.4rem;
+    }
+    .btn-primary { background: var(--accent-blue); color: #fff; }
+    .btn-primary:hover { background: #3d7ae5; }
+    .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--bg-hover); }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-success:hover { background: #16a34a; }
+    .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+    .btn-row { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+
+    /* ─── Cards Layout (Challenges) ────────────────────────────────── */
+    .card-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1rem;
+    }
+    .challenge-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.25rem;
+      transition: border-color 0.15s;
+    }
+    .challenge-card:hover { border-color: var(--accent-blue); }
+    .challenge-card .q { font-weight: 600; margin-bottom: 0.75rem; }
+    .challenge-card .a {
+      color: var(--text-secondary); font-size: 0.85rem;
+      max-height: 80px; overflow: hidden; transition: max-height 0.3s;
+    }
+    .challenge-card .a.expanded { max-height: 2000px; }
+    .challenge-card .meta {
+      display: flex; gap: 0.5rem; margin-top: 0.75rem; align-items: center;
+      flex-wrap: wrap;
+    }
+    .category-badge {
+      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px;
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      background: rgba(124,92,191,0.15); color: var(--accent-purple);
+    }
+
+    /* ─── Timeline Indicator ───────────────────────────────────────── */
+    .timeline-dot {
+      width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+      flex-shrink: 0;
+    }
+    .timeline-dot.fresh { background: var(--green); }
+    .timeline-dot.aging { background: var(--yellow); }
+    .timeline-dot.stale { background: var(--red); }
+
+    /* ─── Research Panel ───────────────────────────────────────────── */
+    .research-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .prompt-box {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem;
+      font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem;
+      white-space: pre-wrap; color: var(--text-secondary); max-height: 400px;
+      overflow-y: auto;
+    }
+
+    /* ─── Feedback Charts ──────────────────────────────────────────── */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+    .metric-panel {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.25rem;
+    }
+    .metric-panel h3 { font-size: 0.9rem; margin-bottom: 1rem; }
+    .bar-chart { display: flex; flex-direction: column; gap: 0.5rem; }
+    .bar-row { display: flex; align-items: center; gap: 0.75rem; }
+    .bar-label { width: 60px; font-size: 0.75rem; color: var(--text-secondary); text-align: right; flex-shrink: 0; }
+    .bar-track { flex: 1; height: 20px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+    .bar-value { width: 40px; font-size: 0.8rem; font-weight: 600; flex-shrink: 0; }
+
+    /* ─── Health Tab ───────────────────────────────────────────────── */
+    .health-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .health-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.25rem;
+      text-align: center; min-height: 120px;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 0.5rem; transition: border-color 0.15s;
+    }
+    .health-card:hover { border-color: var(--accent-blue); }
+    .health-circle {
+      width: 40px; height: 40px; border-radius: 50%;
+    }
+    .health-circle.ok { background: var(--green); box-shadow: 0 0 12px rgba(34,197,94,0.3); }
+    .health-circle.warning { background: var(--yellow); box-shadow: 0 0 12px rgba(234,179,8,0.3); }
+    .health-circle.error { background: var(--red); box-shadow: 0 0 12px rgba(239,68,68,0.3); }
+    .health-circle.not_configured { background: var(--text-muted); }
+    .health-card .name { font-size: 0.8rem; font-weight: 600; }
+    .health-card .detail { font-size: 0.7rem; color: var(--text-secondary); }
+
+    .heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 1.5rem; }
+    .heatmap-cell {
+      aspect-ratio: 1; border-radius: 3px; background: var(--bg-card);
+      border: 1px solid var(--border); position: relative; cursor: pointer;
+      min-width: 28px; transition: border-color 0.15s;
+    }
+    .heatmap-cell:hover { border-color: var(--accent-blue); }
+    .heatmap-cell .day-label {
+      position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+      font-size: 0.55rem; color: var(--text-muted);
+    }
+    .heatmap-cell.l1 { background: rgba(79,142,247,0.15); }
+    .heatmap-cell.l2 { background: rgba(79,142,247,0.3); }
+    .heatmap-cell.l3 { background: rgba(79,142,247,0.5); }
+    .heatmap-cell.l4 { background: rgba(79,142,247,0.7); }
+    .heatmap-cell.has-error { border-color: var(--red); }
+
+    .pipeline-flow {
+      display: flex; gap: 0.5rem; align-items: center;
+      overflow-x: auto; padding: 1rem 0; margin-bottom: 1.5rem;
+    }
+    .pipeline-node {
+      background: var(--bg-card); border: 2px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1rem;
+      min-width: 140px; text-align: center; cursor: pointer;
+      transition: all 0.15s; flex-shrink: 0;
+    }
+    .pipeline-node:hover { border-color: var(--accent-blue); transform: translateY(-2px); }
+    .pipeline-node .node-name { font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .pipeline-node .node-status { margin: 0.5rem auto; width: 16px; height: 16px; border-radius: 50%; }
+    .pipeline-node .node-queue { font-size: 0.7rem; color: var(--text-secondary); }
+    .pipeline-node .node-last { font-size: 0.6rem; color: var(--text-muted); }
+    .pipeline-edge { color: var(--text-muted); font-size: 1.2rem; flex-shrink: 0; }
+    @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+    .pipeline-edge.active { animation: pulse 2s infinite; color: var(--accent-blue); }
+
+    /* ─── Inline Form ──────────────────────────────────────────────── */
+    .inline-form {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.5rem;
+      display: none;
+    }
+    .inline-form.visible { display: block; }
+    .inline-form h3 { font-size: 0.95rem; margin-bottom: 1rem; }
+
+    /* ─── Toast ────────────────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: var(--bg-card); border: 1px solid var(--green);
+      color: var(--green); padding: 0.75rem 1.25rem;
+      border-radius: var(--radius); font-size: 0.85rem; font-weight: 500;
+      z-index: 200; opacity: 0; transform: translateY(10px);
+      transition: all 0.3s; pointer-events: none;
+    }
+    .toast.visible { opacity: 1; transform: translateY(0); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+
+    /* ─── Expand Row ───────────────────────────────────────────────── */
+    .expand-row { display: none; }
+    .expand-row.visible { display: table-row; }
+    .expand-content {
+      background: var(--bg-secondary); padding: 1rem;
+      border-radius: var(--radius); font-size: 0.8rem;
+    }
+
+    /* ─── Responsive ───────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .tab-content { padding: 1rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .stat-card .value { font-size: 1.5rem; }
+      .research-layout { grid-template-columns: 1fr; }
+      .card-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .health-grid { grid-template-columns: repeat(2, 1fr); }
+      .pipeline-flow { gap: 0.25rem; }
+      .pipeline-node { min-width: 100px; padding: 0.75rem; }
+      table { font-size: 0.75rem; }
+      td, th { padding: 0.5rem; }
+      .header h1 { font-size: 1rem; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .health-grid { grid-template-columns: 1fr; }
+      .tab-btn { padding: 0.6rem 0.75rem; font-size: 0.75rem; }
+    }
+
+    /* ─── Empty state ──────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center; padding: 3rem 1rem;
+      color: var(--text-muted); font-size: 0.9rem;
+    }
+    .empty-state .icon { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5; }
+
+    /* ─── Copy feedback ────────────────────────────────────────────── */
+    .copied { background: var(--green) !important; color: #fff !important; }
+  </style>
+</head>
+<body>
+
+<!-- Alert Banner -->
+<div id="alert-banner"></div>
+
+<!-- Header -->
+<div class="header">
+  <h1><span>Job Pipeline</span> Command Center</h1>
+  <div class="header-right">
+    <span id="health-indicator"><span class="health-dot ok"></span> System OK</span>
+    <span id="last-refresh">Auto-refresh: 60s</span>
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav">
+  <button class="tab-btn active" data-tab="pipeline">Pipeline</button>
+  <button class="tab-btn" data-tab="personal">Personal Info</button>
+  <button class="tab-btn" data-tab="research">Research</button>
+  <button class="tab-btn" data-tab="challenges">Challenges</button>
+  <button class="tab-btn" data-tab="applied">Applied <span class="badge" id="applied-count">0</span></button>
+  <button class="tab-btn" data-tab="feedback">Feedback</button>
+  <button class="tab-btn" data-tab="health">Health</button>
+</nav>
+
+<!-- ═══ Tab 1: Pipeline ═══════════════════════════════════════════════ -->
+<div class="tab-content active" id="tab-pipeline">
+  <div class="stats-grid" id="pipeline-stats"></div>
+  <div class="status-flow" id="status-flow"></div>
+  <div class="conductor-bar" id="conductor-bar"></div>
+  <div class="filter-bar">
+    <button class="filter-btn active" data-status="">All</button>
+    <button class="filter-btn" data-status="NEW">New</button>
+    <button class="filter-btn" data-status="SCORED">Scored</button>
+    <button class="filter-btn" data-status="PENDING_APPROVAL">Pending</button>
+    <button class="filter-btn" data-status="SUBMITTED">Submitted</button>
+    <input class="search-input" placeholder="Search jobs..." id="job-search">
+  </div>
+  <div class="table-wrap">
+    <table id="jobs-table">
+      <thead>
+        <tr>
+          <th>Company</th><th>Title</th><th>Status</th><th>Score</th>
+          <th>Source</th><th>Updated</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="jobs-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ Tab 2: Personal Info ══════════════════════════════════════════ -->
+<div class="tab-content" id="tab-personal">
+  <h2 style="font-size:1.1rem;margin-bottom:1rem;">Personal Information</h2>
+  <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.5rem;">
+    Used by automation to fill application forms and personalize cover letters.
+  </p>
+  <div class="form-grid" id="personal-form"></div>
+  <div class="btn-row">
+    <button class="btn-primary" id="save-personal">Save Changes</button>
+    <span id="personal-status" style="color:var(--green);font-size:0.85rem;"></span>
+  </div>
+</div>
+
+<!-- ═══ Tab 3: Research ═══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-research">
+  <h2 style="font-size:1.1rem;margin-bottom:1rem;">Company Research</h2>
+  <div style="margin-bottom:1rem;">
+    <label style="font-size:0.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.4rem;display:block;">Select Job</label>
+    <select id="research-job-select" style="max-width:400px;"></select>
+  </div>
+  <div class="research-layout">
+    <div>
+      <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">Research Prompt</h3>
+      <div class="prompt-box" id="research-prompt">Select a job above to generate research prompt...</div>
+      <div class="btn-row">
+        <button class="btn-primary" id="copy-research-prompt">Copy to Clipboard</button>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">Research Notes</h3>
+      <div id="research-fields">
+        <div class="form-group"><label>Company Summary</label><textarea id="r-summary" rows="3"></textarea></div>
+        <div class="form-group"><label>Culture Notes</label><textarea id="r-culture" rows="3"></textarea></div>
+        <div class="form-group"><label>Key People</label><textarea id="r-people" rows="2"></textarea></div>
+        <div class="form-group"><label>Recent News</label><textarea id="r-news" rows="2"></textarea></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" id="save-research">Save Research</button>
+        <span id="research-status" style="color:var(--green);font-size:0.85rem;"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Tab 4: Challenges ═════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-challenges">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+    <h2 style="font-size:1.1rem;">Application Challenges</h2>
+    <button class="btn-primary" id="add-challenge-btn">+ Add Challenge</button>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn active" data-cat="">All</button>
+    <button class="filter-btn" data-cat="behavioral">Behavioral</button>
+    <button class="filter-btn" data-cat="technical">Technical</button>
+    <button class="filter-btn" data-cat="scenario">Scenario</button>
+    <button class="filter-btn" data-cat="case_study">Case Study</button>
+    <button class="filter-btn" data-cat="portfolio">Portfolio</button>
+    <button class="filter-btn" data-cat="essay">Essay</button>
+    <input class="search-input" placeholder="Search challenges..." id="challenge-search">
+  </div>
+  <div class="inline-form" id="challenge-form">
+    <h3>New Challenge</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Question</label><textarea id="c-question" rows="2"></textarea></div>
+      <div class="form-group"><label>Answer</label><textarea id="c-answer" rows="3"></textarea></div>
+    </div>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+      <div class="form-group" style="flex:1;min-width:150px;">
+        <label>Category</label>
+        <select id="c-category">
+          <option value="behavioral">Behavioral</option>
+          <option value="technical">Technical</option>
+          <option value="scenario">Scenario</option>
+          <option value="case_study">Case Study</option>
+          <option value="portfolio">Portfolio</option>
+          <option value="essay">Essay</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:1;min-width:150px;">
+        <label>Source Job</label>
+        <select id="c-job-select"><option value="">None</option></select>
+      </div>
+      <div class="form-group" style="flex:0;display:flex;align-items:flex-end;">
+        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;white-space:nowrap;">
+          <input type="checkbox" id="c-reusable" checked style="width:auto;"> Reusable
+        </label>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" id="save-challenge">Save Challenge</button>
+      <button class="btn-secondary" id="cancel-challenge">Cancel</button>
+    </div>
+  </div>
+  <div class="card-grid" id="challenges-grid"></div>
+</div>
+
+<!-- ═══ Tab 5: Applied ════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-applied">
+  <h2 style="font-size:1.1rem;margin-bottom:1rem;">Applied / Submitted</h2>
+  <div class="filter-bar">
+    <button class="filter-btn active" data-response="">All</button>
+    <button class="filter-btn" data-response="none">Waiting</button>
+    <button class="filter-btn" data-response="interview">Interview</button>
+    <button class="filter-btn" data-response="rejection">Rejected</button>
+    <button class="filter-btn" data-response="offer">Offer</button>
+    <button class="filter-btn" data-response="ghosted">Ghosted</button>
+  </div>
+  <div class="table-wrap">
+    <table id="applied-table">
+      <thead>
+        <tr>
+          <th></th><th>Company</th><th>Role</th><th>Applied</th>
+          <th>Method</th><th>Response</th><th>Days</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="applied-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ Tab 6: Feedback ═══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-feedback">
+  <h2 style="font-size:1.1rem;margin-bottom:1.5rem;">Feedback & Analytics</h2>
+  <div class="metrics-grid" id="feedback-metrics"></div>
+</div>
+
+<!-- ═══ Tab 7: Health ═════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-health">
+  <h2 style="font-size:1.1rem;margin-bottom:1rem;">System Health</h2>
+  <div class="pipeline-flow" id="pipeline-graph"></div>
+  <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">Connection Status</h3>
+  <div class="health-grid" id="health-cards"></div>
+  <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">Job Activity (Last 30 Days)</h3>
+  <div class="heatmap" id="job-heatmap"></div>
+  <div id="health-details"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// STATE & HELPERS
+// ═══════════════════════════════════════════════════════════════════════
+const API = '';  // same origin
+let state = { jobs: [], stats: {}, submissions: [], health: {}, challenges: [], conductor: {}, personalInfo: {}, templateMetrics: [] };
+let currentFilter = '';
+let currentChallengeFilter = '';
+let currentResponseFilter = '';
+
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  return res.json();
+}
+
+function toast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast visible' + (isError ? ' error' : '');
+  setTimeout(() => t.className = 'toast', 2500);
+}
+
+function relTime(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr.replace(' ', 'T') + (dateStr.includes('Z') ? '' : 'Z'));
+  const diff = Date.now() - d.getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return 'Today';
+  if (days === 1) return '1d ago';
+  if (days < 30) return days + 'd ago';
+  return Math.floor(days / 30) + 'mo ago';
+}
+
+function daysBetween(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr.replace(' ', 'T') + (dateStr.includes('Z') ? '' : 'Z'));
+  return Math.floor((Date.now() - d.getTime()) / 86400000);
+}
+
+function scoreColor(score) {
+  if (!score) return 'var(--text-muted)';
+  if (score >= 85) return 'var(--green)';
+  if (score >= 70) return 'var(--yellow)';
+  return 'var(--red)';
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB 1: PIPELINE
+// ═══════════════════════════════════════════════════════════════════════
+async function loadPipeline() {
+  const [stats, jobs, conductor] = await Promise.all([
+    api('/api/stats'), api('/api/jobs'), api('/api/conductor/status')
+  ]);
+  state.stats = stats;
+  state.jobs = jobs;
+  state.conductor = conductor;
+
+  // Stats cards
+  document.getElementById('pipeline-stats').innerHTML = `
+    <div class="stat-card blue"><div class="label">Total Jobs</div><div class="value">${stats.total}</div></div>
+    <div class="stat-card ${stats.conversionRate > 0 ? 'green' : ''}"><div class="label">Conversion Rate</div><div class="value">${stats.conversionRate}%</div><div class="sub">Interviews / Submitted</div></div>
+    <div class="stat-card purple"><div class="label">Active Interviews</div><div class="value">${stats.interviews}</div></div>
+    <div class="stat-card yellow"><div class="label">Pending Approval</div><div class="value">${stats.pending}</div></div>
+  `;
+
+  // Status flow
+  const statusOrder = ['NEW','SCRAPED','SCORED','COVER_LETTER_QUEUED','COVER_LETTER_READY','PENDING_APPROVAL','APPROVED','SUBMITTING','SUBMITTED','CLOSED'];
+  const counts = {};
+  (stats.byStatus || []).forEach(s => counts[s.status] = s.count);
+  document.getElementById('status-flow').innerHTML = statusOrder.map(s =>
+    `<div class="status-step${currentFilter === s ? ' active' : ''}" data-status="${s}">
+      <div class="count">${counts[s] || 0}</div><div class="name">${s.replace(/_/g, ' ')}</div>
+    </div>`
+  ).join('');
+
+  document.querySelectorAll('.status-step').forEach(el => {
+    el.addEventListener('click', () => {
+      currentFilter = currentFilter === el.dataset.status ? '' : el.dataset.status;
+      renderJobs();
+      document.querySelectorAll('.status-step').forEach(s => s.classList.toggle('active', s.dataset.status === currentFilter));
+      document.querySelectorAll('#tab-pipeline .filter-btn[data-status]').forEach(b => b.classList.toggle('active', b.dataset.status === currentFilter));
+    });
+  });
+
+  // Conductor bar
+  document.getElementById('conductor-bar').innerHTML = `
+    <span><span class="label">Conductor: </span><span class="val">${conductor.status}</span></span>
+    <span><span class="label">Queued: </span><span class="val">${conductor.queued}</span></span>
+    <span><span class="label">Processing: </span><span class="val">${conductor.processing}</span></span>
+    <span><span class="label">Failed: </span><span class="val" style="color:${conductor.failed > 0 ? 'var(--red)' : 'inherit'}">${conductor.failed}</span></span>
+    <span><span class="label">Letters Today: </span><span class="val">${conductor.daily_generations}/${conductor.daily_generation_limit}</span></span>
+  `;
+
+  renderJobs();
+}
+
+function renderJobs() {
+  const search = (document.getElementById('job-search').value || '').toLowerCase();
+  let filtered = state.jobs;
+  if (currentFilter) filtered = filtered.filter(j => j.status === currentFilter);
+  if (search) filtered = filtered.filter(j =>
+    (j.company || '').toLowerCase().includes(search) ||
+    (j.title || '').toLowerCase().includes(search) ||
+    (j.notes || '').toLowerCase().includes(search)
+  );
+
+  document.getElementById('jobs-tbody').innerHTML = filtered.map(j => `
+    <tr class="job-row" data-id="${j.id}">
+      <td><strong>${esc(j.company)}</strong></td>
+      <td>${esc(j.title)}</td>
+      <td><span class="status-badge ${j.effective_status || j.status}">${(j.effective_status || j.status).replace(/_/g, ' ')}</span></td>
+      <td>${j.score ? `<div class="score-bar"><span style="color:${scoreColor(j.score)}">${j.score}</span><div class="bar"><div class="fill" style="width:${j.score}%;background:${scoreColor(j.score)}"></div></div></div>` : '<span style="color:var(--text-muted)">—</span>'}</td>
+      <td style="color:var(--text-secondary)">${esc(j.source) || '—'}</td>
+      <td style="color:var(--text-secondary);font-size:0.8rem;">${relTime(j.date_updated)}</td>
+      <td>
+        ${j.status === 'SCORED' ? `<button class="btn-secondary btn-sm copy-prompt" data-id="${j.id}">Copy Prompt</button>` : ''}
+        ${j.url ? `<a href="${esc(j.url)}" target="_blank" class="btn-secondary btn-sm" style="text-decoration:none;display:inline-block;">Link</a>` : ''}
+      </td>
+    </tr>
+    <tr class="expand-row" id="expand-${j.id}">
+      <td colspan="7">
+        <div class="expand-content">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+              <strong style="font-size:0.75rem;color:var(--text-secondary);">DESCRIPTION</strong>
+              <p style="margin-top:0.25rem;">${esc(j.description) || 'No description'}</p>
+            </div>
+            <div>
+              <strong style="font-size:0.75rem;color:var(--text-secondary);">NOTES</strong>
+              <p style="margin-top:0.25rem;">${esc(j.notes) || 'No notes'}</p>
+              ${j.score_reasoning ? `<strong style="font-size:0.75rem;color:var(--text-secondary);display:block;margin-top:0.5rem;">SCORE REASONING</strong><p style="margin-top:0.25rem;">${esc(j.score_reasoning)}</p>` : ''}
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="7" class="empty-state">No jobs found</td></tr>';
+
+  // Row click to expand
+  document.querySelectorAll('.job-row').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
+      const expand = document.getElementById('expand-' + row.dataset.id);
+      expand.classList.toggle('visible');
+    });
+  });
+
+  // Copy prompt buttons
+  document.querySelectorAll('.copy-prompt').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const data = await api('/api/prompt/' + btn.dataset.id);
+      if (data.prompt) {
+        await navigator.clipboard.writeText(data.prompt);
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy Prompt'; btn.classList.remove('copied'); }, 1500);
+      }
+    });
+  });
+}
+
+// Filter buttons
+document.querySelectorAll('#tab-pipeline .filter-btn[data-status]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentFilter = btn.dataset.status;
+    document.querySelectorAll('#tab-pipeline .filter-btn[data-status]').forEach(b => b.classList.toggle('active', b.dataset.status === currentFilter));
+    document.querySelectorAll('.status-step').forEach(s => s.classList.toggle('active', s.dataset.status === currentFilter));
+    renderJobs();
+  });
+});
+document.getElementById('job-search').addEventListener('input', renderJobs);
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB 2: PERSONAL INFO
+// ═══════════════════════════════════════════════════════════════════════
+const personalFields = [
+  { key: 'full_name', label: 'Full Name', type: 'text' },
+  { key: 'email', label: 'Email', type: 'email' },
+  { key: 'phone', label: 'Phone', type: 'tel' },
+  { key: 'linkedin_url', label: 'LinkedIn URL', type: 'url' },
+  { key: 'location', label: 'Location', type: 'text' },
+  { key: 'target_titles', label: 'Target Titles', type: 'text' },
+  { key: 'salary_range', label: 'Salary Range', type: 'text' },
+  { key: 'positioning_statement', label: 'Positioning Statement', type: 'textarea' },
+  { key: 'resume_summary', label: 'Resume Summary', type: 'textarea' },
+];
+
+async function loadPersonal() {
+  state.personalInfo = await api('/api/personal-info');
+  const form = document.getElementById('personal-form');
+  form.innerHTML = personalFields.map(f => `
+    <div class="form-group">
+      <label>${f.label}</label>
+      ${f.type === 'textarea'
+        ? `<textarea id="pi-${f.key}" rows="3">${esc(state.personalInfo[f.key] || '')}</textarea>`
+        : `<input type="${f.type}" id="pi-${f.key}" value="${esc(state.personalInfo[f.key] || '')}">`
+      }
+    </div>
+  `).join('');
+}
+
+document.getElementById('save-personal').addEventListener('click', async () => {
+  const data = {};
+  personalFields.forEach(f => {
+    data[f.key] = document.getElementById('pi-' + f.key).value;
+  });
+  await api('/api/personal-info', { method: 'PUT', body: data });
+  document.getElementById('personal-status').textContent = 'Saved!';
+  setTimeout(() => document.getElementById('personal-status').textContent = '', 2000);
+  toast('Personal info saved');
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB 3: RESEARCH
+// ═══════════════════════════════════════════════════════════════════════
+async function loadResearch() {
+  const select = document.getElementById('research-job-select');
+  const scored = state.jobs.filter(j => ['SCORED','COVER_LETTER_QUEUED','COVER_LETTER_READY','PENDING_APPROVAL','APPROVED'].includes(j.status));
+  select.innerHTML = '<option value="">— Select a job —</option>' +
+    scored.map(j => `<option value="${j.id}">${esc(j.company)} — ${esc(j.title)}</option>`).join('');
+}
+
+document.getElementById('research-job-select').addEventListener('change', async function() {
+  const jobId = this.value;
+  if (!jobId) {
+    document.getElementById('research-prompt').textContent = 'Select a job above to generate research prompt...';
+    ['r-summary','r-culture','r-people','r-news'].forEach(id => document.getElementById(id).value = '');
+    return;
+  }
+  const [prompt, research] = await Promise.all([
+    api('/api/research/' + jobId + '/copy-prompt', { method: 'POST', body: {} }),
+    api('/api/research/' + jobId).catch(() => ({})),
+  ]);
+  document.getElementById('research-prompt').textContent = prompt.prompt || 'No template available';
+  document.getElementById('r-summary').value = research.company_summary || '';
+  document.getElementById('r-culture').value = research.culture_notes || '';
+  document.getElementById('r-people').value = research.key_people || '';
+  document.getElementById('r-news').value = research.recent_news || '';
+});
+
+document.getElementById('copy-research-prompt').addEventListener('click', async () => {
+  const text = document.getElementById('research-prompt').textContent;
+  if (text && !text.startsWith('Select a')) {
+    await navigator.clipboard.writeText(text);
+    toast('Research prompt copied!');
+  }
+});
+
+document.getElementById('save-research').addEventListener('click', async () => {
+  const jobId = document.getElementById('research-job-select').value;
+  if (!jobId) return toast('Select a job first', true);
+  await api('/api/research/' + jobId, { method: 'PUT', body: {
+    company_summary: document.getElementById('r-summary').value,
+    culture_notes: document.getElementById('r-culture').value,
+    key_people: document.getElementById('r-people').value,
+    recent_news: document.getElementById('r-news').value,
+  }});
+  document.getElementById('research-status').textContent = 'Saved!';
+  setTimeout(() => document.getElementById('research-status').textContent = '', 2000);
+  toast('Research notes saved');
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB 4: CHALLENGES
+// ═══════════════════════════════════════════════════════════════════════
+async function loadChallenges() {
+  state.challenges = await api('/api/challenges');
+  renderChallenges();
+
+  // Populate job select in form
+  const select = document.getElementById('c-job-select');
+  select.innerHTML = '<option value="">None</option>' +
+    state.jobs.map(j => `<option value="${j.id}">${esc(j.company)} — ${esc(j.title)}</option>`).join('');
+}
+
+function renderChallenges() {
+  const search = (document.getElementById('challenge-search').value || '').toLowerCase();
+  let filtered = state.challenges;
+  if (currentChallengeFilter) filtered = filtered.filter(c => c.category === currentChallengeFilter);
+  if (search) filtered = filtered.filter(c =>
+    (c.question || '').toLowerCase().includes(search) ||
+    (c.answer || '').toLowerCase().includes(search)
+  );
+
+  const grid = document.getElementById('challenges-grid');
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">?</div>No challenges yet. Click "Add Challenge" to start building your answer bank.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(c => `
+    <div class="challenge-card" data-id="${c.id}">
+      <div class="q">${esc(c.question)}</div>
+      <div class="a" onclick="this.classList.toggle('expanded')">${esc(c.answer) || '<em style="color:var(--text-muted)">No answer yet — click to expand</em>'}</div>
+      <div class="meta">
+        <span class="category-badge">${esc(c.category || 'other')}</span>
+        ${c.company ? `<span style="font-size:0.75rem;color:var(--text-secondary);">${esc(c.company)}</span>` : ''}
+        ${c.reusable ? '<span style="font-size:0.7rem;color:var(--green);">Reusable</span>' : ''}
+        <button class="btn-secondary btn-sm copy-answer" style="margin-left:auto;" data-answer="${esc(c.answer || '')}">Copy</button>
+        <button class="btn-danger btn-sm delete-challenge" data-id="${c.id}">Delete</button>
+      </div>
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('.copy-answer').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      await navigator.clipboard.writeText(btn.dataset.answer);
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+
+  grid.querySelectorAll('.delete-challenge').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!confirm('Delete this challenge?')) return;
+      await api('/api/challenges/' + btn.dataset.id, { method: 'DELETE' });
+      toast('Challenge deleted');
+      loadChallenges();
+    });
+  });
+}
+
+document.querySelectorAll('#tab-challenges .filter-btn[data-cat]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentChallengeFilter = btn.dataset.cat;
+    document.querySelectorAll('#tab-challenges .filter-btn[data-cat]').forEach(b => b.classList.toggle('active', b.dataset.cat === currentChallengeFilter));
+    renderChallenges();
+  });
+});
+document.getElementById('challenge-search').addEventListener('input', renderChallenges);
+
+document.getElementById('add-challenge-btn').addEventListener('click', () => {
+  document.getElementById('challenge-form').classList.add('visible');
+});
+document.getElementById('cancel-challenge').addEventListener('click', () => {
+  document.getElementById('challenge-form').classList.remove('visible');
+});
+document.getElementById('save-challenge').addEventListener('click', async () => {
+  const q = document.getElementById('c-question').value.trim();
+  if (!q) return toast('Question is required', true);
+  await api('/api/challenges', { method: 'POST', body: {
+    question: q,
+    answer: document.getElementById('c-answer').value,
+    category: document.getElementById('c-category').value,
+    job_id: document.getElementById('c-job-select').value || null,
+    reusable: document.getElementById('c-reusable').checked ? 1 : 0,
+  }});
+  document.getElementById('challenge-form').classList.remove('visible');
+  document.getElementById('c-question').value = '';
+  document.getElementById('c-answer').value = '';
+  toast('Challenge saved');
+  loadChallenges();
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB 5: APPLIED
+// ═══════════════════════════════════════════════════════════════════════
+async function loadApplied() {
+  state.submissions = await api('/api/submissions');
+  document.getElementById('applied-count').textContent = state.submissions.length;
+  renderApplied();
+}
+
+function renderApplied() {
+  let filtered = state.submissions;
+  if (currentResponseFilter) filtered = filtered.filter(s => s.response_type === currentResponseFilter);
+
+  document.getElementById('applied-tbody').innerHTML = filtered.map(s => {
+    const days = daysBetween(s.submitted_at);
+    const timeClass = days === null ? '' : days <= 7 ? 'fresh' : days <= 21 ? 'aging' : 'stale';
+    return `
+      <tr>
+        <td><span class="timeline-dot ${timeClass}"></span></td>
+        <td><strong>${esc(s.company)}</strong></td>
+        <td>${esc(s.title)}</td>
+        <td style="font-size:0.8rem;color:var(--text-secondary);">${relTime(s.submitted_at)}</td>
+        <td><span class="category-badge">${esc(s.method)}</span></td>
+        <td><span class="status-badge ${(s.response_type || 'none').toUpperCase()}">${esc(s.response_type || 'none')}</span></td>
+        <td style="font-weight:600;">${days !== null ? days + 'd' : '—'}</td>
+        <td>
+          ${s.response_type === 'none' && days > 30 ?
+            `<button class="btn-secondary btn-sm mark-ghosted" data-id="${s.id}">Mark Ghosted</button>` : ''}
+          <button class="btn-secondary btn-sm update-response" data-id="${s.id}">Update</button>
+        </td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="8" class="empty-state">No submissions yet</td></tr>';
+
+  document.querySelectorAll('.mark-ghosted').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await api('/api/submissions/' + btn.dataset.id, { method: 'PUT', body: { response_type: 'ghosted' }});
+      toast('Marked as ghosted');
+      loadApplied();
+    });
+  });
+
+  document.querySelectorAll('.update-response').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const type = prompt('Response type (none, rejection, interview, request_info, offer, ghosted, unknown):');
+      if (!type) return;
+      await api('/api/submissions/' + btn.dataset.id, { method: 'PUT', body: { response_type: type, response_date: new Date().toISOString() }});
+      toast('Response updated');
+      loadApplied();
+    });
+  });
+}
+
+document.querySelectorAll('#tab-applied .filter-btn[data-response]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentResponseFilter = btn.dataset.response;
+    document.querySelectorAll('#tab-applied .filter-btn[data-response]').forEach(b => b.classList.toggle('active', b.dataset.response === currentResponseFilter));
+    renderApplied();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB 6: FEEDBACK
+// ═══════════════════════════════════════════════════════════════════════
+async function loadFeedback() {
+  const [metrics, submissions] = await Promise.all([
+    api('/api/template-metrics'),
+    api('/api/submissions'),
+  ]);
+  state.templateMetrics = metrics;
+
+  const container = document.getElementById('feedback-metrics');
+
+  // Template version comparison
+  let metricsHtml = '<div class="metric-panel"><h3>Template Version Performance</h3>';
+  if (metrics.length === 0) {
+    metricsHtml += '<div class="empty-state">No template metrics yet</div>';
+  } else {
+    metricsHtml += '<table style="width:100%;"><thead><tr><th>Version</th><th>Submitted</th><th>Interviews</th><th>Offers</th><th>Rejections</th><th>Conversion</th></tr></thead><tbody>';
+    metrics.forEach(m => {
+      metricsHtml += `<tr><td><strong>${esc(m.template_version)}</strong></td><td>${m.total_submitted}</td><td style="color:var(--green)">${m.interviews}</td><td style="color:var(--accent-blue)">${m.offers}</td><td style="color:var(--red)">${m.rejections}</td><td style="font-weight:700;">${m.conversion_rate || 0}%</td></tr>`;
+    });
+    metricsHtml += '</tbody></table>';
+  }
+  metricsHtml += '</div>';
+
+  // Response type breakdown
+  const responseCounts = {};
+  submissions.forEach(s => {
+    const t = s.response_type || 'none';
+    responseCounts[t] = (responseCounts[t] || 0) + 1;
+  });
+  const maxCount = Math.max(1, ...Object.values(responseCounts));
+
+  metricsHtml += '<div class="metric-panel"><h3>Response Breakdown</h3><div class="bar-chart">';
+  const responseColors = { interview: 'var(--green)', offer: 'var(--accent-blue)', rejection: 'var(--red)', none: 'var(--text-muted)', ghosted: 'var(--yellow)', unknown: 'var(--accent-purple)', request_info: 'var(--orange)' };
+  Object.entries(responseCounts).sort((a, b) => b[1] - a[1]).forEach(([type, count]) => {
+    metricsHtml += `<div class="bar-row"><span class="bar-label">${type}</span><div class="bar-track"><div class="bar-fill" style="width:${(count/maxCount)*100}%;background:${responseColors[type] || 'var(--accent-blue)'}"></div></div><span class="bar-value">${count}</span></div>`;
+  });
+  metricsHtml += '</div></div>';
+
+  // Method breakdown
+  const methodCounts = {};
+  submissions.forEach(s => { methodCounts[s.method] = (methodCounts[s.method] || 0) + 1; });
+  const maxMethod = Math.max(1, ...Object.values(methodCounts));
+
+  metricsHtml += '<div class="metric-panel"><h3>Application Method</h3><div class="bar-chart">';
+  Object.entries(methodCounts).sort((a, b) => b[1] - a[1]).forEach(([method, count]) => {
+    metricsHtml += `<div class="bar-row"><span class="bar-label">${method}</span><div class="bar-track"><div class="bar-fill" style="width:${(count/maxMethod)*100}%;background:var(--accent-purple)"></div></div><span class="bar-value">${count}</span></div>`;
+  });
+  metricsHtml += '</div></div>';
+
+  // Summary stats
+  const totalSub = submissions.length;
+  const avgDays = submissions.filter(s => s.response_date).map(s => daysBetween(s.submitted_at)).filter(d => d !== null);
+  const avgResponse = avgDays.length ? Math.round(avgDays.reduce((a, b) => a + b, 0) / avgDays.length) : 0;
+
+  metricsHtml += `<div class="metric-panel"><h3>Summary</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div><span style="font-size:0.75rem;color:var(--text-secondary);">Total Applications</span><div style="font-size:1.5rem;font-weight:700;">${totalSub}</div></div>
+      <div><span style="font-size:0.75rem;color:var(--text-secondary);">Avg Response Time</span><div style="font-size:1.5rem;font-weight:700;">${avgResponse}d</div></div>
+      <div><span style="font-size:0.75rem;color:var(--text-secondary);">Interviews</span><div style="font-size:1.5rem;font-weight:700;color:var(--green)">${responseCounts.interview || 0}</div></div>
+      <div><span style="font-size:0.75rem;color:var(--text-secondary);">Offers</span><div style="font-size:1.5rem;font-weight:700;color:var(--accent-blue)">${responseCounts.offer || 0}</div></div>
+    </div>
+  </div>`;
+
+  container.innerHTML = metricsHtml;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB 7: HEALTH
+// ═══════════════════════════════════════════════════════════════════════
+async function loadHealth() {
+  const health = await api('/api/health');
+  state.health = health;
+
+  // Update header indicator
+  const ind = document.getElementById('health-indicator');
+  const dot = ind.querySelector('.health-dot');
+  dot.className = 'health-dot ' + health.overall;
+  ind.querySelector('span:not(.health-dot)') || ind.appendChild(document.createTextNode(''));
+  ind.innerHTML = `<span class="health-dot ${health.overall}"></span> System ${health.overall === 'ok' ? 'OK' : health.overall === 'warning' ? 'Warning' : 'Error'}`;
+
+  // Alert banner
+  const alerts = [];
+  const c = health.components || {};
+  if (c.gmail?.days_remaining && c.gmail.days_remaining < 1) alerts.push('Gmail OAuth expiring in <24h!');
+  if (health.budget?.daily_spent >= health.budget?.daily_limit * 0.8) alerts.push('Daily budget >80% used!');
+  if (c.disk?.percent_used > 90) alerts.push('Disk usage >90%!');
+  const banner = document.getElementById('alert-banner');
+  if (alerts.length) { banner.textContent = alerts.join(' | '); banner.classList.add('visible'); }
+  else { banner.classList.remove('visible'); }
+
+  // Pipeline flow graph
+  const stages = [
+    { name: 'Scraper', key: 'SCRAPED' },
+    { name: 'Scorer', key: 'SCORED' },
+    { name: 'Letter Gen', key: 'COVER_LETTER_QUEUED' },
+    { name: 'Approval', key: 'PENDING_APPROVAL' },
+    { name: 'ATS Submit', key: 'SUBMITTING' },
+    { name: 'Gmail Monitor', key: 'SUBMITTED' },
+  ];
+  const counts = {};
+  state.jobs.forEach(j => { counts[j.status] = (counts[j.status] || 0) + 1; });
+
+  document.getElementById('pipeline-graph').innerHTML = stages.map((s, i) => {
+    const count = counts[s.key] || 0;
+    const status = count > 0 ? 'ok' : 'not_configured';
+    return (i > 0 ? `<div class="pipeline-edge${count > 0 ? ' active' : ''}">→</div>` : '') +
+      `<div class="pipeline-node" data-status="${s.key}">
+        <div class="node-name">${s.name}</div>
+        <div class="node-status health-circle ${status}"></div>
+        <div class="node-queue">${count} jobs</div>
+      </div>`;
+  }).join('');
+
+  // Health cards
+  const components = health.components || {};
+  const cardOrder = ['sqlite', 'gmail', 'playwright', 'express', 'pm2', 'disk'];
+  const cardLabels = { sqlite: 'SQLite', gmail: 'Gmail OAuth', playwright: 'Playwright/CDP', express: 'Express API', pm2: 'pm2', disk: 'Disk Space' };
+  const cardDetails = {
+    sqlite: c => `${c.size_mb}MB · ${c.response_ms}ms`,
+    gmail: c => c.status === 'not_configured' ? 'Not configured' : `Expires: ${c.days_remaining}d`,
+    playwright: c => c.cdp_connected ? 'CDP connected' : 'Not configured',
+    express: c => `Uptime: ${Math.floor((c.uptime_seconds || 0) / 60)}m`,
+    pm2: c => c.conductor_pid ? `PID: ${c.conductor_pid}` : 'Not configured',
+    disk: c => `${c.free_gb}GB free · ${c.percent_used}% used`,
+  };
+
+  document.getElementById('health-cards').innerHTML = cardOrder.map(key => {
+    const comp = components[key] || { status: 'not_configured' };
+    return `<div class="health-card">
+      <div class="health-circle ${comp.status}"></div>
+      <div class="name">${cardLabels[key]}</div>
+      <div class="detail">${cardDetails[key] ? cardDetails[key](comp) : ''}</div>
+    </div>`;
+  }).join('');
+
+  // Budget info
+  const b = health.budget || {};
+  document.getElementById('health-details').innerHTML = `
+    <h3 style="font-size:0.9rem;margin-bottom:0.75rem;margin-top:1rem;">Budget</h3>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="label">Daily Spend</div><div class="value">$${(b.daily_spent || 0).toFixed(2)}</div><div class="sub">Limit: $${(b.daily_limit || 0).toFixed(2)}</div></div>
+      <div class="stat-card"><div class="label">Monthly Spend</div><div class="value">$${(b.monthly_spent || 0).toFixed(2)}</div><div class="sub">Limit: $${(b.monthly_limit || 0).toFixed(2)}</div></div>
+      <div class="stat-card"><div class="label">Letters Today</div><div class="value">${b.cover_letters_today || 0}/${b.cover_letters_limit || 5}</div></div>
+    </div>
+  `;
+
+  // Heatmap (last 30 days)
+  renderHeatmap();
+}
+
+function renderHeatmap() {
+  const heatmap = document.getElementById('job-heatmap');
+  const days = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000);
+    days.push({ date: d, label: d.getDate() });
+  }
+
+  // Count jobs by date_added
+  const jobsByDay = {};
+  state.jobs.forEach(j => {
+    const d = (j.date_added || '').split(' ')[0].split('T')[0];
+    jobsByDay[d] = (jobsByDay[d] || 0) + 1;
+  });
+
+  // Pad to start on first day of week
+  const firstDay = days[0].date.getDay();
+  const padded = [];
+  for (let i = 0; i < firstDay; i++) padded.push(null);
+  padded.push(...days);
+
+  heatmap.innerHTML = padded.map(d => {
+    if (!d) return '<div class="heatmap-cell" style="visibility:hidden;"></div>';
+    const key = d.date.toISOString().split('T')[0];
+    const count = jobsByDay[key] || 0;
+    const level = count === 0 ? '' : count <= 1 ? 'l1' : count <= 3 ? 'l2' : count <= 5 ? 'l3' : 'l4';
+    return `<div class="heatmap-cell ${level}" title="${key}: ${count} jobs"><span class="day-label">${d.label}</span></div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// INIT & AUTO-REFRESH
+// ═══════════════════════════════════════════════════════════════════════
+async function loadAll() {
+  try {
+    await loadPipeline();
+    await Promise.all([loadPersonal(), loadResearch(), loadChallenges(), loadApplied(), loadFeedback(), loadHealth()]);
+  } catch (e) {
+    console.error('Load error:', e);
+    toast('Failed to load data: ' + e.message, true);
+  }
+}
+
+loadAll();
+setInterval(loadAll, 60000);
+</script>
+</body>
+</html>

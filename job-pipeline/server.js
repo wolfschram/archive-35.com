@@ -15,6 +15,12 @@ const { URL } = require('url');
 const PORT = process.env.PORT || 3000;
 const DB_PATH = path.join(__dirname, 'pipeline.db');
 
+// ─── Helpers ────────────────────────────────────────────────────────
+/** Escape special SQL LIKE characters (%, _) in user input */
+function escapeLike(str) {
+  return str.replace(/[%_]/g, ch => '\\' + ch);
+}
+
 // ─── Database Setup ──────────────────────────────────────────────────
 if (!fs.existsSync(DB_PATH)) {
   console.error('\n  ✗ pipeline.db not found. Run: npm run init-db && npm run migrate\n');
@@ -32,6 +38,23 @@ try {
   db = new DatabaseSync(DB_PATH);
   db.exec('PRAGMA journal_mode = WAL');
   db.exec('PRAGMA foreign_keys = ON');
+}
+
+// Add transaction helper if not present (node:sqlite compat)
+if (!db.transaction) {
+  db.transaction = function(fn) {
+    return function(...args) {
+      db.exec('BEGIN');
+      try {
+        const result = fn(...args);
+        db.exec('COMMIT');
+        return result;
+      } catch (err) {
+        db.exec('ROLLBACK');
+        throw err;
+      }
+    };
+  };
 }
 
 // ─── Routing ─────────────────────────────────────────────────────────
@@ -86,7 +109,9 @@ function serveFile(res, filePath) {
     'Content-Type': types[ext] || 'text/plain',
     'Access-Control-Allow-Origin': '*',
   });
-  fs.createReadStream(filePath).pipe(res);
+  const stream = fs.createReadStream(filePath);
+  stream.on('error', () => { if (!res.writableEnded) res.end(); });
+  stream.pipe(res);
 }
 
 function parseBody(req) {
@@ -97,8 +122,9 @@ function parseBody(req) {
       if (body.length > 102400) { reject(new Error('Body too large')); req.destroy(); }
     });
     req.on('end', () => {
-      try { resolve(body ? JSON.parse(body) : {}); }
-      catch { resolve({}); }
+      if (!body) return resolve({});
+      try { resolve(JSON.parse(body)); }
+      catch (e) { reject(new Error(`Invalid JSON: ${e.message}`)); }
     });
     req.on('error', reject);
   });
@@ -146,14 +172,17 @@ addRoute('GET', '/api/jobs', (req, res, query) => {
   const safeSort = validSorts.includes(query.sort) ? query.sort : 'date_updated';
   sql += ` ORDER BY ${safeSort} DESC`;
 
-  if (query.limit) sql += ` LIMIT ${parseInt(query.limit, 10) || 50}`;
+  if (query.limit) {
+    const limit = parseInt(query.limit, 10);
+    if (limit > 0) { sql += ' LIMIT ?'; params.push(limit); }
+  }
 
   json(res, db.prepare(sql).all(...params));
 });
 
 // ─── GET /api/jobs/:id ──────────────────────────────────────────────
 addRoute('GET', '/api/jobs/:id', (req, res) => {
-  const job = db.prepare('SELECT * FROM job_current_state WHERE id = ?').get(req.params.id);
+  const job = db.prepare('SELECT * FROM job_current_state WHERE id = ?').get(parseInt(req.params.id, 10));
   if (!job) return json(res, { error: 'Job not found' }, 404);
   json(res, job);
 });
@@ -162,6 +191,12 @@ addRoute('GET', '/api/jobs/:id', (req, res) => {
 addRoute('POST', '/api/jobs', async (req, res) => {
   const { company, title, description, status, score, source, url, notes, template_version, location } = req.body;
   if (!company || !title) return json(res, { error: 'company and title are required' }, 400);
+
+  const validStatuses = ['NEW','SCRAPED','SCORED','COVER_LETTER_QUEUED','COVER_LETTER_READY',
+    'PENDING_APPROVAL','APPROVED','SUBMITTING','SUBMITTED','CLOSED',
+    'SCORING_FAILED','GENERATION_FAILED','SUBMISSION_FAILED','ERROR_BLOCKED','ARCHIVED','SKIPPED'];
+  if (status && !validStatuses.includes(status)) return json(res, { error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` }, 400);
+  if (score !== undefined && score !== null && (typeof score !== 'number' || score < 0 || score > 100)) return json(res, { error: 'score must be a number between 0 and 100' }, 400);
 
   const fingerprint = [company, title, location || '']
     .map(s => (s || '').toLowerCase().trim().replace(/\s+/g, ' ')).join('|');
@@ -182,7 +217,8 @@ addRoute('POST', '/api/jobs', async (req, res) => {
 
 // ─── PUT /api/jobs/:id ──────────────────────────────────────────────
 addRoute('PUT', '/api/jobs/:id', async (req, res) => {
-  const existing = db.prepare('SELECT * FROM jobs WHERE id = ?').get(req.params.id);
+  const id = parseInt(req.params.id, 10);
+  const existing = db.prepare('SELECT * FROM jobs WHERE id = ?').get(id);
   if (!existing) return json(res, { error: 'Job not found' }, 404);
 
   const fields = ['company', 'title', 'description', 'status', 'score', 'score_reasoning',
@@ -194,9 +230,9 @@ addRoute('PUT', '/api/jobs/:id', async (req, res) => {
   if (!updates.length) return json(res, { error: 'No fields to update' }, 400);
 
   updates.push("date_updated = datetime('now')");
-  values.push(req.params.id);
+  values.push(id);
   db.prepare(`UPDATE jobs SET ${updates.join(', ')} WHERE id = ?`).run(...values);
-  json(res, db.prepare('SELECT * FROM job_current_state WHERE id = ?').get(req.params.id));
+  json(res, db.prepare('SELECT * FROM job_current_state WHERE id = ?').get(id));
 });
 
 // ─── GET /api/agents ────────────────────────────────────────────────
@@ -205,13 +241,15 @@ addRoute('GET', '/api/agents', (req, res) => {
 });
 
 // ─── GET /api/errors ────────────────────────────────────────────────
-addRoute('GET', '/api/errors', (req, res) => {
+addRoute('GET', '/api/errors', (req, res, query) => {
+  const limit = Math.min(parseInt(query.limit, 10) || 50, 200);
+  const offset = parseInt(query.offset, 10) || 0;
   json(res, db.prepare(`
     SELECT e.*, j.company, j.title, a.name as agent_name
     FROM errors e LEFT JOIN jobs j ON e.job_id = j.id
     LEFT JOIN agents a ON e.agent_id = a.id
-    ORDER BY e.timestamp DESC LIMIT 50
-  `).all());
+    ORDER BY e.timestamp DESC LIMIT ? OFFSET ?
+  `).all(limit, offset));
 });
 
 // ─── GET /api/template-metrics ──────────────────────────────────────
@@ -221,20 +259,23 @@ addRoute('GET', '/api/template-metrics', (req, res) => {
 
 // ─── GET /api/prompt/:id ────────────────────────────────────────────
 addRoute('GET', '/api/prompt/:id', (req, res) => {
-  const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(req.params.id);
+  const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(parseInt(req.params.id, 10));
   if (!job) return json(res, { error: 'Job not found' }, 404);
   const tpl = path.join(__dirname, 'prompts', 'cover-letter-template.md');
-  if (!fs.existsSync(tpl)) return json(res, { error: 'Template not found' }, 404);
-  let template = fs.readFileSync(tpl, 'utf8');
-  template = template.replace('{{COMPANY}}', job.company).replace('{{TITLE}}', job.title)
-    .replace('{{DESCRIPTION}}', job.description || 'No description available');
+  let template;
+  try { template = fs.readFileSync(tpl, 'utf8'); }
+  catch { return json(res, { error: 'Template not found' }, 404); }
+  template = template.replaceAll('{{COMPANY}}', job.company).replaceAll('{{TITLE}}', job.title)
+    .replaceAll('{{DESCRIPTION}}', job.description || 'No description available');
   json(res, { prompt: template, job });
 });
 
 addRoute('GET', '/api/cover-letter-template', (req, res) => {
   const tpl = path.join(__dirname, 'prompts', 'cover-letter-template.md');
-  if (!fs.existsSync(tpl)) return json(res, { error: 'Template not found' }, 404);
-  json(res, { template: fs.readFileSync(tpl, 'utf8') });
+  let template;
+  try { template = fs.readFileSync(tpl, 'utf8'); }
+  catch { return json(res, { error: 'Template not found' }, 404); }
+  json(res, { template });
 });
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -272,7 +313,7 @@ addRoute('PUT', '/api/personal-info', async (req, res) => {
 
 // ─── Company Research ───────────────────────────────────────────────
 addRoute('GET', '/api/research/:jobId', (req, res) => {
-  const r = db.prepare('SELECT * FROM company_research WHERE job_id = ?').get(req.params.jobId);
+  const r = db.prepare('SELECT * FROM company_research WHERE job_id = ?').get(parseInt(req.params.jobId, 10));
   if (!r) return json(res, { error: 'No research found' }, 404);
   json(res, r);
 });
@@ -302,7 +343,7 @@ addRoute('GET', '/api/research-prompt', (req, res) => {
 });
 
 addRoute('POST', '/api/research/:jobId/copy-prompt', async (req, res) => {
-  const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(req.params.jobId);
+  const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(parseInt(req.params.jobId, 10));
   if (!job) return json(res, { error: 'Job not found' }, 404);
   const tpl = path.join(__dirname, 'prompts', 'research-template.md');
   let template = fs.existsSync(tpl) ? fs.readFileSync(tpl, 'utf8') :
@@ -327,15 +368,15 @@ addRoute('GET', '/api/challenges/reusable', (req, res) => {
 addRoute('GET', '/api/challenges', (req, res, query) => {
   let sql = 'SELECT c.*, j.company FROM challenges c LEFT JOIN jobs j ON c.job_id = j.id WHERE 1=1';
   const params = [];
-  if (query.job_id) { sql += ' AND c.job_id = ?'; params.push(query.job_id); }
+  if (query.job_id) { sql += ' AND c.job_id = ?'; params.push(parseInt(query.job_id, 10)); }
   if (query.category) { sql += ' AND c.category = ?'; params.push(query.category); }
-  if (query.search) { sql += ' AND (c.question LIKE ? OR c.answer LIKE ?)'; params.push(`%${query.search}%`, `%${query.search}%`); }
+  if (query.search) { sql += " AND (c.question LIKE ? ESCAPE '\\' OR c.answer LIKE ? ESCAPE '\\')"; const s = `%${escapeLike(query.search)}%`; params.push(s, s); }
   sql += ' ORDER BY c.date_updated DESC';
   json(res, db.prepare(sql).all(...params));
 });
 
 addRoute('GET', '/api/challenges/:id', (req, res) => {
-  const c = db.prepare('SELECT * FROM challenges WHERE id = ?').get(req.params.id);
+  const c = db.prepare('SELECT * FROM challenges WHERE id = ?').get(parseInt(req.params.id, 10));
   if (!c) return json(res, { error: 'Challenge not found' }, 404);
   json(res, c);
 });
@@ -352,21 +393,23 @@ addRoute('POST', '/api/challenges', async (req, res) => {
 });
 
 addRoute('PUT', '/api/challenges/:id', async (req, res) => {
-  if (!db.prepare('SELECT id FROM challenges WHERE id = ?').get(req.params.id)) return json(res, { error: 'Not found' }, 404);
+  const id = parseInt(req.params.id, 10);
+  if (!db.prepare('SELECT id FROM challenges WHERE id = ?').get(id)) return json(res, { error: 'Not found' }, 404);
   const fields = ['job_id', 'question', 'answer', 'category', 'reusable', 'source_company'];
   const updates = [], values = [];
   for (const f of fields) { if (req.body[f] !== undefined) { updates.push(`${f} = ?`); values.push(req.body[f]); } }
   if (!updates.length) return json(res, { error: 'No fields to update' }, 400);
   updates.push("date_updated = datetime('now')");
-  values.push(req.params.id);
+  values.push(id);
   db.prepare(`UPDATE challenges SET ${updates.join(', ')} WHERE id = ?`).run(...values);
-  json(res, db.prepare('SELECT * FROM challenges WHERE id = ?').get(req.params.id));
+  json(res, db.prepare('SELECT * FROM challenges WHERE id = ?').get(id));
 });
 
 addRoute('DELETE', '/api/challenges/:id', (req, res) => {
-  if (!db.prepare('SELECT id FROM challenges WHERE id = ?').get(req.params.id)) return json(res, { error: 'Not found' }, 404);
-  db.prepare('DELETE FROM challenges WHERE id = ?').run(req.params.id);
-  json(res, { deleted: true, id: parseInt(req.params.id, 10) });
+  const id = parseInt(req.params.id, 10);
+  if (!db.prepare('SELECT id FROM challenges WHERE id = ?').get(id)) return json(res, { error: 'Not found' }, 404);
+  db.prepare('DELETE FROM challenges WHERE id = ?').run(id);
+  json(res, { deleted: true, id });
 });
 
 // ─── Application Submissions ────────────────────────────────────────
@@ -382,34 +425,42 @@ addRoute('GET', '/api/submissions', (req, res, query) => {
 addRoute('POST', '/api/submissions', async (req, res) => {
   const { job_id, method, platform, cover_letter_id, contact_name, contact_email } = req.body;
   if (!job_id || !method) return json(res, { error: 'job_id and method required' }, 400);
-  const valid = ['email', 'ats_portal', 'referral', 'recruiter', 'direct'];
-  if (!valid.includes(method)) return json(res, { error: 'Invalid method' }, 400);
+  const validMethods = ['email', 'ats_portal', 'referral', 'recruiter', 'direct'];
+  if (!validMethods.includes(method)) return json(res, { error: 'Invalid method' }, 400);
 
-  const result = db.prepare(
-    "INSERT INTO application_submissions (job_id, method, platform, cover_letter_id, response_type, contact_name, contact_email) VALUES (?, ?, ?, ?, 'none', ?, ?)"
-  ).run(job_id, method, platform || null, cover_letter_id || null, contact_name || null, contact_email || null);
-  db.prepare("UPDATE jobs SET status = 'SUBMITTED', date_updated = datetime('now') WHERE id = ?").run(job_id);
+  const jobId = parseInt(job_id, 10);
+  if (!db.prepare('SELECT id FROM jobs WHERE id = ?').get(jobId)) return json(res, { error: 'Job not found' }, 404);
+
+  const submitAtomic = db.transaction(() => {
+    const result = db.prepare(
+      "INSERT INTO application_submissions (job_id, method, platform, cover_letter_id, response_type, contact_name, contact_email) VALUES (?, ?, ?, ?, 'none', ?, ?)"
+    ).run(jobId, method, platform || null, cover_letter_id || null, contact_name || null, contact_email || null);
+    db.prepare("UPDATE jobs SET status = 'SUBMITTED', date_updated = datetime('now') WHERE id = ?").run(jobId);
+    return result;
+  });
+  const result = submitAtomic();
   json(res, db.prepare('SELECT * FROM application_submissions WHERE id = ?').get(result.lastInsertRowid), 201);
 });
 
 addRoute('PUT', '/api/submissions/:id', async (req, res) => {
-  if (!db.prepare('SELECT id FROM application_submissions WHERE id = ?').get(req.params.id)) return json(res, { error: 'Not found' }, 404);
+  const id = parseInt(req.params.id, 10);
+  if (!db.prepare('SELECT id FROM application_submissions WHERE id = ?').get(id)) return json(res, { error: 'Not found' }, 404);
   const fields = ['response_type', 'response_date', 'response_notes', 'follow_up_date', 'contact_name', 'contact_email'];
   const updates = [], values = [];
   for (const f of fields) { if (req.body[f] !== undefined) { updates.push(`${f} = ?`); values.push(req.body[f]); } }
   if (!updates.length) return json(res, { error: 'No fields to update' }, 400);
-  values.push(req.params.id);
+  values.push(id);
   db.prepare(`UPDATE application_submissions SET ${updates.join(', ')} WHERE id = ?`).run(...values);
-  json(res, db.prepare('SELECT * FROM application_submissions WHERE id = ?').get(req.params.id));
+  json(res, db.prepare('SELECT * FROM application_submissions WHERE id = ?').get(id));
 });
 
 // ─── Cover Letter Versions ──────────────────────────────────────────
 addRoute('GET', '/api/letters/:jobId', (req, res) => {
-  json(res, db.prepare('SELECT * FROM cover_letter_versions WHERE job_id = ? ORDER BY version').all(req.params.jobId));
+  json(res, db.prepare('SELECT * FROM cover_letter_versions WHERE job_id = ? ORDER BY version').all(parseInt(req.params.jobId, 10)));
 });
 
 addRoute('GET', '/api/letters/:jobId/:version', (req, res) => {
-  const l = db.prepare('SELECT * FROM cover_letter_versions WHERE job_id = ? AND version = ?').get(req.params.jobId, req.params.version);
+  const l = db.prepare('SELECT * FROM cover_letter_versions WHERE job_id = ? AND version = ?').get(parseInt(req.params.jobId, 10), parseInt(req.params.version, 10));
   if (!l) return json(res, { error: 'Not found' }, 404);
   json(res, l);
 });
@@ -432,10 +483,11 @@ addRoute('GET', '/api/conductor/queue', (req, res) => {
 });
 
 addRoute('POST', '/api/conductor/trigger/:taskType', async (req, res) => {
-  const valid = ['score', 'generate_letter', 'submit_email', 'submit_ats', 'check_response', 'scrape'];
-  if (!valid.includes(req.params.taskType)) return json(res, { error: 'Invalid task type' }, 400);
+  const validTaskTypes = ['score', 'generate_letter', 'submit_email', 'submit_ats', 'check_response', 'scrape'];
+  if (!validTaskTypes.includes(req.params.taskType)) return json(res, { error: 'Invalid task type' }, 400);
   const id = crypto.randomUUID();
-  const jobId = req.body.job_id || null;
+  const jobId = req.body.job_id ? parseInt(req.body.job_id, 10) : null;
+  if (jobId && !db.prepare('SELECT id FROM jobs WHERE id = ?').get(jobId)) return json(res, { error: 'Job not found' }, 404);
   const ikey = jobId ? `${jobId}_${req.params.taskType}` : null;
   if (ikey) {
     const ex = db.prepare("SELECT id FROM conductor_queue WHERE idempotency_key = ? AND status IN ('queued','processing')").get(ikey);
@@ -460,9 +512,10 @@ const conductor = require('./conductor/scheduler');
 addRoute('POST', '/api/conductor/transition/:jobId', async (req, res) => {
   const { status } = req.body;
   if (!status) return json(res, { error: 'status is required' }, 400);
-  const result = conductor.transitionJob(parseInt(req.params.jobId, 10), status);
+  const jobId = parseInt(req.params.jobId, 10);
+  const result = conductor.transitionJob(jobId, status);
   if (!result.success) return json(res, { error: result.error }, 400);
-  json(res, db.prepare('SELECT * FROM job_current_state WHERE id = ?').get(req.params.jobId));
+  json(res, db.prepare('SELECT * FROM job_current_state WHERE id = ?').get(jobId));
 });
 
 addRoute('GET', '/api/conductor/health', (req, res) => {
@@ -501,14 +554,19 @@ addRoute('POST', '/api/generate-letter/:jobId', async (req, res) => {
 
 // Override for hallucination claims (Wolf approves flagged content)
 addRoute('PUT', '/api/letters/:jobId/:version/override', async (req, res) => {
+  const jobId = parseInt(req.params.jobId, 10);
+  const version = parseInt(req.params.version, 10);
   const letter = db.prepare('SELECT * FROM cover_letter_versions WHERE job_id = ? AND version = ?')
-    .get(req.params.jobId, req.params.version);
+    .get(jobId, version);
   if (!letter) return json(res, { error: 'Letter version not found' }, 404);
 
-  db.prepare(`UPDATE cover_letter_versions SET hallucination_check = 'pass', needs_review = 0 WHERE job_id = ? AND version = ?`)
-    .run(req.params.jobId, req.params.version);
-  db.prepare("UPDATE jobs SET status = 'COVER_LETTER_READY', date_updated = datetime('now') WHERE id = ?")
-    .run(req.params.jobId);
+  const overrideAtomic = db.transaction(() => {
+    db.prepare(`UPDATE cover_letter_versions SET hallucination_check = 'pass', needs_review = 0 WHERE job_id = ? AND version = ?`)
+      .run(jobId, version);
+    db.prepare("UPDATE jobs SET status = 'COVER_LETTER_READY', date_updated = datetime('now') WHERE id = ?")
+      .run(jobId);
+  });
+  overrideAtomic();
 
   json(res, { success: true, message: 'Override applied — letter approved' });
 });
@@ -549,30 +607,34 @@ addRoute('POST', '/api/bridge/ingest', async (req, res) => {
   }
   const { content_type, job_id, content } = req.body;
   if (!content_type || !content) return json(res, { error: 'content_type and content required' }, 400);
-  const valid = ['cover_letter', 'research', 'qa_answers', 'resume_notes', 'other'];
-  if (!valid.includes(content_type)) return json(res, { error: 'Invalid content_type' }, 400);
+  if (typeof content !== 'string') return json(res, { error: 'content must be a string' }, 400);
+  if (content.length > 100000) return json(res, { error: 'Content too large. Max 50KB.' }, 413);
+  const validContentTypes = ['cover_letter', 'research', 'qa_answers', 'resume_notes', 'other'];
+  if (!validContentTypes.includes(content_type)) return json(res, { error: 'Invalid content_type' }, 400);
+  const parsedJobId = job_id ? parseInt(job_id, 10) : null;
+  if (parsedJobId && !db.prepare('SELECT id FROM jobs WHERE id = ?').get(parsedJobId)) return json(res, { error: 'Job not found' }, 404);
   const size = Buffer.byteLength(content, 'utf8');
   if (size > 51200) return json(res, { error: 'Content too large. Max 50KB.' }, 413);
 
   const hash = crypto.createHash('sha256').update(content).digest('hex');
   db.prepare('INSERT INTO bridge_events (content_type, job_id, payload_hash, payload_size) VALUES (?, ?, ?, ?)')
-    .run(content_type, job_id || null, hash, size);
+    .run(content_type, parsedJobId, hash, size);
 
   // Phase 12E: Route content to correct table based on content_type
-  if (content_type === 'research' && job_id) {
+  if (content_type === 'research' && parsedJobId) {
     db.prepare(`INSERT INTO company_research (job_id, research_notes) VALUES (?, ?)
       ON CONFLICT(job_id) DO UPDATE SET research_notes = excluded.research_notes, research_date = datetime('now')`)
-      .run(job_id, content);
-  } else if (content_type === 'cover_letter' && job_id) {
-    const lastVer = db.prepare('SELECT MAX(version) as v FROM cover_letter_versions WHERE job_id = ?').get(job_id);
+      .run(parsedJobId, content);
+  } else if (content_type === 'cover_letter' && parsedJobId) {
+    const lastVer = db.prepare('SELECT MAX(version) as v FROM cover_letter_versions WHERE job_id = ?').get(parsedJobId);
     const ver = (lastVer?.v || 0) + 1;
     db.prepare("INSERT INTO cover_letter_versions (job_id, version, content, model_used) VALUES (?, ?, ?, 'manual_paste')")
-      .run(job_id, ver, content);
-    db.prepare("UPDATE jobs SET status = 'COVER_LETTER_READY', date_updated = datetime('now') WHERE id = ? AND status IN ('SCORED','COVER_LETTER_QUEUED')").run(job_id);
-  } else if (content_type === 'qa_answers' && job_id) {
+      .run(parsedJobId, ver, content);
+    db.prepare("UPDATE jobs SET status = 'COVER_LETTER_READY', date_updated = datetime('now') WHERE id = ? AND status IN ('SCORED','COVER_LETTER_QUEUED')").run(parsedJobId);
+  } else if (content_type === 'qa_answers' && parsedJobId) {
     // Store in challenges table as interview prep
     db.prepare("INSERT INTO challenges (job_id, question, answer, category) VALUES (?, 'Imported Q&A', ?, 'imported')")
-      .run(job_id, content);
+      .run(parsedJobId, content);
   } else if (content_type === 'resume_notes') {
     // Append to personal_info resume_summary
     const existing = db.prepare("SELECT value FROM personal_info WHERE key = 'resume_summary'").get();
@@ -581,7 +643,7 @@ addRoute('POST', '/api/bridge/ingest', async (req, res) => {
       .run(updated);
   }
 
-  json(res, { success: true, content_type, job_id, size, hash }, 201);
+  json(res, { success: true, content_type, job_id: parsedJobId, size, hash }, 201);
 });
 
 // GET /api/bridge/events — List recent import events
@@ -692,8 +754,8 @@ addRoute('POST', '/api/ats/process-queue', async (req, res) => {
 });
 
 // GET /api/ats/submissions — List past submissions
-addRoute('GET', '/api/ats/submissions', (req, res) => {
-  const limit = parseInt(req.query?.limit || '50', 10);
+addRoute('GET', '/api/ats/submissions', (req, res, query) => {
+  const limit = Math.min(parseInt(query.limit || '50', 10) || 50, 200);
   const submissions = db.prepare(`
     SELECT s.*, j.company, j.title
     FROM application_submissions s
@@ -716,6 +778,7 @@ addRoute('POST', '/api/search/run', async (req, res) => {
   const apiKey = getApiKey();
   const allResults = [];
   let duplicatesFiltered = 0;
+  const sourceErrors = [];
 
   for (const source of sources) {
     try {
@@ -750,9 +813,11 @@ addRoute('POST', '/api/search/run', async (req, res) => {
         r.score = Math.min(score, 100);
 
         // Dedup check: same company + similar role within 90 days
+        const firstWord = escapeLike(r.title?.split(' ')[0]?.toLowerCase() || '');
+        const fullTitle = escapeLike((r.title || '').toLowerCase());
         const existing = db.prepare(
-          "SELECT id FROM jobs WHERE LOWER(company) = LOWER(?) AND (LOWER(title) LIKE ? OR LOWER(title) LIKE ?) AND date_added >= date('now', '-90 days')"
-        ).get(r.company, `%${r.title?.split(' ')[0]?.toLowerCase() || ''}%`, `%${(r.title || '').toLowerCase()}%`);
+          "SELECT id FROM jobs WHERE LOWER(company) = LOWER(?) AND (LOWER(title) LIKE ? ESCAPE '\\' OR LOWER(title) LIKE ? ESCAPE '\\') AND date_added >= date('now', '-90 days')"
+        ).get(r.company, `%${firstWord}%`, `%${fullTitle}%`);
         r.is_duplicate = !!existing;
         if (existing) duplicatesFiltered++;
       }
@@ -761,13 +826,14 @@ addRoute('POST', '/api/search/run', async (req, res) => {
       allResults.push(...sourceResults.filter(r => r.score >= min_score || r.is_duplicate));
     } catch (e) {
       console.error(`Search error for ${source}:`, e.message);
+      sourceErrors.push({ source, error: e.message });
     }
   }
 
   // Sort by score desc
   allResults.sort((a, b) => (b.score || 0) - (a.score || 0));
 
-  json(res, { results: allResults, duplicates_filtered: duplicatesFiltered, sources_queried: sources.length });
+  json(res, { results: allResults, duplicates_filtered: duplicatesFiltered, sources_queried: sources.length, source_errors: sourceErrors });
 });
 
 // POST /api/search/add-to-pipeline — Add selected search results to pipeline
@@ -819,7 +885,9 @@ addRoute('POST', '/api/search/monitored', async (req, res) => {
 
 // DELETE /api/search/monitored/:id
 addRoute('DELETE', '/api/search/monitored/:id', (req, res) => {
-  db.prepare('DELETE FROM monitored_companies WHERE id = ?').run(req.params.id);
+  const id = parseInt(req.params.id, 10);
+  if (!db.prepare('SELECT id FROM monitored_companies WHERE id = ?').get(id)) return json(res, { error: 'Not found' }, 404);
+  db.prepare('DELETE FROM monitored_companies WHERE id = ?').run(id);
   json(res, { success: true });
 });
 
@@ -1027,7 +1095,7 @@ addRoute('POST', '/api/research/:jobId/run', async (req, res) => {
   const apiKey = getApiKey();
   if (!apiKey) return json(res, { error: 'Anthropic API key not configured. Go to Settings tab.' }, 400);
 
-  const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(req.params.jobId);
+  const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(parseInt(req.params.jobId, 10));
   if (!job) return json(res, { error: 'Job not found' }, 404);
 
   const query = req.body.query || `Research ${job.company} for the ${job.title} role.`;
@@ -1191,7 +1259,7 @@ Write the cover letter now.`;
 addRoute('GET', '/api/cover-letter/:jobId/versions', (req, res) => {
   const versions = db.prepare(
     'SELECT id, version, content, model_used, created_at FROM cover_letter_versions WHERE job_id = ? ORDER BY version DESC'
-  ).all(req.params.jobId);
+  ).all(parseInt(req.params.jobId, 10));
   json(res, { versions });
 });
 
@@ -1221,7 +1289,11 @@ const server = http.createServer(async (req, res) => {
       req.params = match.params;
       // Parse body for POST/PUT
       if (req.method === 'POST' || req.method === 'PUT') {
-        req.body = await parseBody(req);
+        try {
+          req.body = await parseBody(req);
+        } catch (parseErr) {
+          return json(res, { error: parseErr.message }, 400);
+        }
       }
       await match.handler(req, res, query);
     } catch (err) {
@@ -1239,9 +1311,9 @@ const server = http.createServer(async (req, res) => {
     return serveFile(res, path.join(__dirname, 'PIPELINE_DASHBOARD.html'));
   }
 
-  // Serve static files from public/
-  const staticPath = path.join(publicDir, pathname);
-  if (fs.existsSync(staticPath) && fs.statSync(staticPath).isFile()) {
+  // Serve static files from public/ (prevent path traversal)
+  const staticPath = path.resolve(publicDir, pathname.slice(1));
+  if (staticPath.startsWith(publicDir) && fs.existsSync(staticPath) && fs.statSync(staticPath).isFile()) {
     return serveFile(res, staticPath);
   }
 

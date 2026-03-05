@@ -426,6 +426,7 @@
   <button class="tab-btn" data-tab="feedback">Feedback</button>
   <button class="tab-btn" data-tab="health">Health</button>
   <button class="tab-btn" data-tab="ats">ATS Bot <span class="badge" id="ats-queue-count">0</span></button>
+  <button class="tab-btn" data-tab="settings">Settings</button>
 </nav>
 
 <!-- ═══ Tab 1: Pipeline ═══════════════════════════════════════════════ -->
@@ -474,21 +475,36 @@
     <label style="font-size:0.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.4rem;display:block;">Select Job</label>
     <select id="research-job-select" style="max-width:400px;"></select>
   </div>
+
+  <!-- Custom Research Query -->
+  <div style="margin-bottom:1.5rem;padding:1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);">
+    <h3 style="font-size:0.9rem;margin-bottom:0.5rem;">Custom Research Query</h3>
+    <p style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem;">Type what you want researched. Results are saved to the selected job's research notes.</p>
+    <textarea id="research-custom-query" rows="3" placeholder="e.g. What is the company's tech stack? Who are the key decision makers? What are recent layoffs or growth signals?"></textarea>
+    <div class="btn-row" style="margin-top:0.5rem;">
+      <button class="btn-primary" id="run-custom-research">Run Research</button>
+      <span id="research-query-status" style="color:var(--text-dim);font-size:0.8rem;"></span>
+    </div>
+  </div>
+
   <div class="research-layout">
     <div>
-      <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">Research Prompt</h3>
+      <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">Auto-Generated Research Prompt</h3>
+      <p style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem;">Template prompt for this job — paste into ChatGPT/Claude for external research.</p>
       <div class="prompt-box" id="research-prompt">Select a job above to generate research prompt...</div>
       <div class="btn-row">
-        <button class="btn-primary" id="copy-research-prompt">Copy to Clipboard</button>
+        <button class="btn-secondary" id="copy-research-prompt">Copy Prompt to Clipboard</button>
       </div>
     </div>
     <div>
       <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">Research Notes</h3>
+      <p style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem;">Saved per job. Fill manually or via "Run Research" above.</p>
       <div id="research-fields">
         <div class="form-group"><label>Company Summary</label><textarea id="r-summary" rows="3"></textarea></div>
         <div class="form-group"><label>Culture Notes</label><textarea id="r-culture" rows="3"></textarea></div>
         <div class="form-group"><label>Key People</label><textarea id="r-people" rows="2"></textarea></div>
         <div class="form-group"><label>Recent News</label><textarea id="r-news" rows="2"></textarea></div>
+        <div class="form-group"><label>General Research Notes</label><textarea id="r-notes" rows="3" placeholder="Free-form notes, links, anything useful..."></textarea></div>
       </div>
       <div class="btn-row">
         <button class="btn-primary" id="save-research">Save Research</button>
@@ -645,6 +661,69 @@
       </tr></thead>
       <tbody id="ats-submissions-body"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- ═══ Tab 9: Settings ═══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-settings">
+  <h2 style="font-size:1.1rem;margin-bottom:1rem;">Settings</h2>
+  <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.5rem;">
+    API keys and service credentials. Stored server-side in <code>.env</code>. Changes take effect immediately.
+  </p>
+
+  <!-- API Keys -->
+  <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">API Keys</h3>
+  <div class="form-grid" id="settings-api-keys">
+    <div class="form-group">
+      <label>Anthropic API Key</label>
+      <small style="display:block;color:var(--text-dim);font-size:0.75rem;margin-bottom:0.3rem;">For cover letter generation and research via Claude API.</small>
+      <input type="password" id="set-anthropic-key" placeholder="sk-ant-api03-...">
+      <span id="set-anthropic-status" style="font-size:0.75rem;"></span>
+    </div>
+  </div>
+
+  <!-- Google OAuth -->
+  <h3 style="font-size:0.9rem;margin:1.5rem 0 0.75rem;">Google OAuth (Gmail Monitoring)</h3>
+  <p style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.75rem;">
+    For monitoring application responses in your inbox (interview invites, rejections, etc).
+  </p>
+  <div class="form-grid" id="settings-google">
+    <div class="form-group">
+      <label>Google Client ID</label>
+      <input type="text" id="set-google-client-id" placeholder="xxxx.apps.googleusercontent.com">
+    </div>
+    <div class="form-group">
+      <label>Google Client Secret</label>
+      <input type="password" id="set-google-client-secret" placeholder="GOCSPX-...">
+    </div>
+    <div class="form-group">
+      <label>Google Auth Status</label>
+      <div id="google-auth-status" style="font-size:0.85rem;color:var(--text-dim);">Not configured</div>
+      <button class="btn-secondary btn-sm" id="google-auth-btn" style="margin-top:0.5rem;" disabled>Authorize Gmail Access</button>
+    </div>
+  </div>
+
+  <!-- Other Settings -->
+  <h3 style="font-size:0.9rem;margin:1.5rem 0 0.75rem;">Budget & Limits</h3>
+  <div class="form-grid" id="settings-limits">
+    <div class="form-group">
+      <label>Daily API Budget ($)</label>
+      <input type="number" id="set-daily-budget" value="2.00" step="0.50" min="0">
+    </div>
+    <div class="form-group">
+      <label>Monthly API Budget ($)</label>
+      <input type="number" id="set-monthly-budget" value="55.00" step="5" min="0">
+    </div>
+    <div class="form-group">
+      <label>Max Cover Letters / Day</label>
+      <input type="number" id="set-max-letters" value="5" min="1" max="20">
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-top:1.5rem;">
+    <button class="btn-primary" id="save-settings">Save All Settings</button>
+    <button class="btn-secondary" id="test-anthropic-key">Test Anthropic Key</button>
+    <span id="settings-status" style="color:var(--green);font-size:0.85rem;"></span>
   </div>
 </div>
 
@@ -957,8 +1036,8 @@ const personalFields = [
   { key: 'location', label: 'Location', type: 'text' },
   { key: 'target_titles', label: 'Target Titles', type: 'text' },
   { key: 'salary_range', label: 'Salary Range', type: 'text' },
-  { key: 'positioning_statement', label: 'Positioning Statement', type: 'textarea' },
-  { key: 'resume_summary', label: 'Resume Summary', type: 'textarea' },
+  { key: 'positioning_statement', label: 'Positioning Statement', type: 'textarea', hint: 'Your elevator pitch — how you position yourself for VP/SVP roles.' },
+  { key: 'resume_summary', label: 'Resume Summary', type: 'textarea', hint: 'Key accomplishments, skills, and experience highlights. Used by AI to personalize cover letters.' },
 ];
 
 async function loadPersonal() {
@@ -967,6 +1046,7 @@ async function loadPersonal() {
   form.innerHTML = personalFields.map(f => `
     <div class="form-group">
       <label>${f.label}</label>
+      ${f.hint ? `<small style="display:block;color:var(--text-dim);font-size:0.75rem;margin-bottom:0.3rem;">${f.hint}</small>` : ''}
       ${f.type === 'textarea'
         ? `<textarea id="pi-${f.key}" rows="3">${esc(state.personalInfo[f.key] || '')}</textarea>`
         : `<input type="${f.type}" id="pi-${f.key}" value="${esc(state.personalInfo[f.key] || '')}">`
@@ -991,7 +1071,7 @@ document.getElementById('save-personal').addEventListener('click', async () => {
 // ═══════════════════════════════════════════════════════════════════════
 async function loadResearch() {
   const select = document.getElementById('research-job-select');
-  const scored = state.jobs.filter(j => ['SCORED','COVER_LETTER_QUEUED','COVER_LETTER_READY','PENDING_APPROVAL','APPROVED'].includes(j.status));
+  const scored = state.jobs.filter(j => ['SCORED','COVER_LETTER_QUEUED','COVER_LETTER_READY','PENDING_APPROVAL','APPROVED','SUBMITTED','SUBMITTING'].includes(j.status));
   select.innerHTML = '<option value="">— Select a job —</option>' +
     scored.map(j => `<option value="${j.id}">${esc(j.company)} — ${esc(j.title)}</option>`).join('');
 }
@@ -1000,7 +1080,7 @@ document.getElementById('research-job-select').addEventListener('change', async 
   const jobId = this.value;
   if (!jobId) {
     document.getElementById('research-prompt').textContent = 'Select a job above to generate research prompt...';
-    ['r-summary','r-culture','r-people','r-news'].forEach(id => document.getElementById(id).value = '');
+    ['r-summary','r-culture','r-people','r-news','r-notes'].forEach(id => document.getElementById(id).value = '');
     return;
   }
   const [prompt, research] = await Promise.all([
@@ -1012,13 +1092,40 @@ document.getElementById('research-job-select').addEventListener('change', async 
   document.getElementById('r-culture').value = research.culture_notes || '';
   document.getElementById('r-people').value = research.key_people || '';
   document.getElementById('r-news').value = research.recent_news || '';
+  document.getElementById('r-notes').value = research.research_notes || '';
 });
 
 document.getElementById('copy-research-prompt').addEventListener('click', async () => {
   const text = document.getElementById('research-prompt').textContent;
   if (text && !text.startsWith('Select a')) {
     await navigator.clipboard.writeText(text);
-    toast('Research prompt copied!');
+    toast('Research prompt copied to clipboard!');
+  }
+});
+
+// Custom research query — calls Claude API via server to research the company
+document.getElementById('run-custom-research').addEventListener('click', async () => {
+  const jobId = document.getElementById('research-job-select').value;
+  if (!jobId) return toast('Select a job first', true);
+  const query = document.getElementById('research-custom-query').value.trim();
+  if (!query) return toast('Type a research query first', true);
+  const statusEl = document.getElementById('research-query-status');
+  statusEl.textContent = 'Researching...';
+  try {
+    const res = await api('/api/research/' + jobId + '/run', { method: 'POST', body: { query } });
+    if (res.error) { toast(res.error, true); statusEl.textContent = ''; return; }
+    // Populate results into fields
+    if (res.company_summary) document.getElementById('r-summary').value = res.company_summary;
+    if (res.culture_notes) document.getElementById('r-culture').value = res.culture_notes;
+    if (res.key_people) document.getElementById('r-people').value = res.key_people;
+    if (res.recent_news) document.getElementById('r-news').value = res.recent_news;
+    if (res.research_notes) document.getElementById('r-notes').value = res.research_notes;
+    statusEl.textContent = 'Done — review results below, then Save.';
+    setTimeout(() => statusEl.textContent = '', 5000);
+    toast('Research complete — review and save');
+  } catch (e) {
+    toast('Research failed: ' + e.message, true);
+    statusEl.textContent = '';
   }
 });
 
@@ -1030,6 +1137,7 @@ document.getElementById('save-research').addEventListener('click', async () => {
     culture_notes: document.getElementById('r-culture').value,
     key_people: document.getElementById('r-people').value,
     recent_news: document.getElementById('r-news').value,
+    research_notes: document.getElementById('r-notes').value,
   }});
   document.getElementById('research-status').textContent = 'Saved!';
   setTimeout(() => document.getElementById('research-status').textContent = '', 2000);
@@ -1472,12 +1580,89 @@ async function atsSubmitOne(jobId) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// TAB 9: SETTINGS
+// ═══════════════════════════════════════════════════════════════════════
+async function loadSettings() {
+  try {
+    const settings = await api('/api/settings');
+    if (settings.ANTHROPIC_API_KEY) {
+      document.getElementById('set-anthropic-key').value = settings.ANTHROPIC_API_KEY;
+      document.getElementById('set-anthropic-status').textContent = 'Configured';
+      document.getElementById('set-anthropic-status').style.color = 'var(--accent-green)';
+    }
+    if (settings.GOOGLE_CLIENT_ID) document.getElementById('set-google-client-id').value = settings.GOOGLE_CLIENT_ID;
+    if (settings.GOOGLE_CLIENT_SECRET) document.getElementById('set-google-client-secret').value = settings.GOOGLE_CLIENT_SECRET;
+    if (settings.DAILY_BUDGET) document.getElementById('set-daily-budget').value = settings.DAILY_BUDGET;
+    if (settings.MONTHLY_BUDGET) document.getElementById('set-monthly-budget').value = settings.MONTHLY_BUDGET;
+    if (settings.MAX_COVER_LETTERS_PER_DAY) document.getElementById('set-max-letters').value = settings.MAX_COVER_LETTERS_PER_DAY;
+
+    // Google auth status
+    const googleStatus = document.getElementById('google-auth-status');
+    const googleBtn = document.getElementById('google-auth-btn');
+    if (settings.GOOGLE_CLIENT_ID && settings.GOOGLE_CLIENT_SECRET) {
+      if (settings.GOOGLE_REFRESH_TOKEN) {
+        googleStatus.textContent = 'Authorized';
+        googleStatus.style.color = 'var(--accent-green)';
+        googleBtn.textContent = 'Re-authorize';
+      } else {
+        googleStatus.textContent = 'Credentials saved — needs authorization';
+        googleStatus.style.color = 'var(--accent-yellow)';
+      }
+      googleBtn.disabled = false;
+    }
+  } catch {}
+}
+
+document.getElementById('save-settings').addEventListener('click', async () => {
+  const data = {
+    ANTHROPIC_API_KEY: document.getElementById('set-anthropic-key').value.trim(),
+    GOOGLE_CLIENT_ID: document.getElementById('set-google-client-id').value.trim(),
+    GOOGLE_CLIENT_SECRET: document.getElementById('set-google-client-secret').value.trim(),
+    DAILY_BUDGET: document.getElementById('set-daily-budget').value,
+    MONTHLY_BUDGET: document.getElementById('set-monthly-budget').value,
+    MAX_COVER_LETTERS_PER_DAY: document.getElementById('set-max-letters').value,
+  };
+  const res = await api('/api/settings', { method: 'PUT', body: data });
+  if (res.error) return toast(res.error, true);
+  document.getElementById('settings-status').textContent = 'Saved!';
+  setTimeout(() => document.getElementById('settings-status').textContent = '', 2000);
+  toast('Settings saved');
+  loadSettings();
+});
+
+document.getElementById('test-anthropic-key').addEventListener('click', async () => {
+  const statusEl = document.getElementById('set-anthropic-status');
+  statusEl.textContent = 'Testing...';
+  statusEl.style.color = 'var(--text-dim)';
+  const res = await api('/api/settings/test-anthropic', { method: 'POST' });
+  if (res.success) {
+    statusEl.textContent = 'Valid — ' + (res.model || 'Claude');
+    statusEl.style.color = 'var(--accent-green)';
+    toast('Anthropic API key is valid!');
+  } else {
+    statusEl.textContent = 'Invalid: ' + (res.error || 'unknown error');
+    statusEl.style.color = 'var(--accent-red, #f44)';
+    toast('API key test failed', true);
+  }
+});
+
+document.getElementById('google-auth-btn').addEventListener('click', async () => {
+  const res = await api('/api/settings/google-auth-url', { method: 'POST' });
+  if (res.url) {
+    window.open(res.url, '_blank');
+    toast('Complete Google authorization in the new tab');
+  } else {
+    toast(res.error || 'Could not generate auth URL', true);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════
 // INIT & AUTO-REFRESH
 // ═══════════════════════════════════════════════════════════════════════
 async function loadAll() {
   try {
     await loadPipeline();
-    await Promise.all([loadPersonal(), loadResearch(), loadChallenges(), loadApplied(), loadFeedback(), loadHealth(), loadATS()]);
+    await Promise.all([loadPersonal(), loadResearch(), loadChallenges(), loadApplied(), loadFeedback(), loadHealth(), loadATS(), loadSettings()]);
   } catch (e) {
     console.error('Load error:', e);
     toast('Failed to load data: ' + e.message, true);

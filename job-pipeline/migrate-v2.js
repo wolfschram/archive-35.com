@@ -270,11 +270,11 @@ const migrate = db.transaction(() => {
       );
     `);
 
-    // Migrate v1 outcomes from seed data
-    const oldJobs = db.prepare("SELECT id, notes FROM jobs WHERE status = 'SUBMITTED'").all();
+    // Migrate v1 outcomes from seed data — use job's date_added as submitted_at
+    const oldJobs = db.prepare("SELECT id, notes, date_added FROM jobs WHERE status = 'SUBMITTED'").all();
     if (oldJobs.length > 0) {
       const insertSub = db.prepare(
-        "INSERT INTO application_submissions (job_id, method, response_type, response_notes) VALUES (?, 'direct', ?, ?)"
+        "INSERT INTO application_submissions (job_id, method, response_type, response_notes, submitted_at) VALUES (?, 'direct', ?, ?, ?)"
       );
       for (const job of oldJobs) {
         const notes = (job.notes || '').toLowerCase();
@@ -283,7 +283,7 @@ const migrate = db.transaction(() => {
         else if (notes.includes('rejected')) responseType = 'rejection';
         else if (notes.includes('offer')) responseType = 'offer';
 
-        insertSub.run(job.id, responseType, responseType !== 'none' ? `Migrated from v1` : null);
+        insertSub.run(job.id, responseType, responseType !== 'none' ? `Migrated from v1` : null, job.date_added || new Date().toISOString());
       }
       console.log(`  ✓ application_submissions table created + ${oldJobs.length} records migrated`);
     } else {

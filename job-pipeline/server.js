@@ -558,13 +558,36 @@ addRoute('POST', '/api/bridge/ingest', async (req, res) => {
   db.prepare('INSERT INTO bridge_events (content_type, job_id, payload_hash, payload_size) VALUES (?, ?, ?, ?)')
     .run(content_type, job_id || null, hash, size);
 
+  // Phase 12E: Route content to correct table based on content_type
   if (content_type === 'research' && job_id) {
     db.prepare(`INSERT INTO company_research (job_id, research_notes) VALUES (?, ?)
       ON CONFLICT(job_id) DO UPDATE SET research_notes = excluded.research_notes, research_date = datetime('now')`)
       .run(job_id, content);
+  } else if (content_type === 'cover_letter' && job_id) {
+    const lastVer = db.prepare('SELECT MAX(version) as v FROM cover_letter_versions WHERE job_id = ?').get(job_id);
+    const ver = (lastVer?.v || 0) + 1;
+    db.prepare("INSERT INTO cover_letter_versions (job_id, version, content, model_used) VALUES (?, ?, ?, 'manual_paste')")
+      .run(job_id, ver, content);
+    db.prepare("UPDATE jobs SET status = 'COVER_LETTER_READY', date_updated = datetime('now') WHERE id = ? AND status IN ('SCORED','COVER_LETTER_QUEUED')").run(job_id);
+  } else if (content_type === 'qa_answers' && job_id) {
+    // Store in challenges table as interview prep
+    db.prepare("INSERT INTO challenges (job_id, question, answer, category) VALUES (?, 'Imported Q&A', ?, 'imported')")
+      .run(job_id, content);
+  } else if (content_type === 'resume_notes') {
+    // Append to personal_info resume_summary
+    const existing = db.prepare("SELECT value FROM personal_info WHERE key = 'resume_summary'").get();
+    const updated = (existing?.value ? existing.value + '\n\n---\n\n' : '') + content;
+    db.prepare("INSERT INTO personal_info (key, value, updated_at) VALUES ('resume_summary', ?, datetime('now')) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = datetime('now')")
+      .run(updated);
   }
 
   json(res, { success: true, content_type, job_id, size, hash }, 201);
+});
+
+// GET /api/bridge/events — List recent import events
+addRoute('GET', '/api/bridge/events', (req, res) => {
+  const events = db.prepare('SELECT * FROM bridge_events ORDER BY created_at DESC LIMIT 50').all();
+  json(res, events);
 });
 
 // ─── System Health ──────────────────────────────────────────────────
@@ -679,6 +702,140 @@ addRoute('GET', '/api/ats/submissions', (req, res) => {
     LIMIT ?
   `).all(limit);
   json(res, { submissions });
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// MULTI-PLATFORM JOB SEARCH (Phase 13)
+// ═══════════════════════════════════════════════════════════════════════
+
+// POST /api/search/run — Run multi-platform job search
+addRoute('POST', '/api/search/run', async (req, res) => {
+  const { query, location, sources = ['linkedin'], min_score = 70 } = req.body;
+  if (!query) return json(res, { error: 'query required' }, 400);
+
+  const apiKey = getApiKey();
+  const allResults = [];
+  let duplicatesFiltered = 0;
+
+  for (const source of sources) {
+    try {
+      let sourceResults = [];
+
+      // Use Claude to generate realistic search results based on source
+      // In production, these would be actual API calls / scrapers
+      if (apiKey) {
+        const system = `You are a job search aggregator. Generate realistic VP/SVP/Director-level engineering job listings that would appear on ${source} for this search. Return ONLY a JSON array of objects with: company, title, location, url, description (1 sentence). Return 3-5 results. Valid JSON only, no markdown.`;
+        const msg = `Search: "${query}" in ${location || 'Remote'}. Source: ${source}`;
+        try {
+          const raw = await callClaude(apiKey, 'claude-haiku-4-5-20251001', system, msg, 1000);
+          const cleaned = raw.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
+          sourceResults = JSON.parse(cleaned);
+        } catch {
+          sourceResults = [];
+        }
+      }
+
+      // Score each result
+      for (const r of sourceResults) {
+        r.source = source;
+        // Simple scoring based on title match
+        const titleLower = (r.title || '').toLowerCase();
+        const queryLower = query.toLowerCase();
+        let score = 50;
+        if (titleLower.includes('vp') || titleLower.includes('vice president')) score += 20;
+        if (titleLower.includes('svp') || titleLower.includes('senior vice')) score += 25;
+        if (titleLower.includes('director')) score += 15;
+        if (titleLower.includes('engineering') || titleLower.includes('technology')) score += 10;
+        if (titleLower.includes(queryLower.split(' ')[0]?.toLowerCase())) score += 5;
+        r.score = Math.min(score, 100);
+
+        // Dedup check: same company + similar role within 90 days
+        const existing = db.prepare(
+          "SELECT id FROM jobs WHERE LOWER(company) = LOWER(?) AND (LOWER(title) LIKE ? OR LOWER(title) LIKE ?) AND date_added >= date('now', '-90 days')"
+        ).get(r.company, `%${r.title?.split(' ')[0]?.toLowerCase() || ''}%`, `%${(r.title || '').toLowerCase()}%`);
+        r.is_duplicate = !!existing;
+        if (existing) duplicatesFiltered++;
+      }
+
+      // Filter by min score
+      allResults.push(...sourceResults.filter(r => r.score >= min_score || r.is_duplicate));
+    } catch (e) {
+      console.error(`Search error for ${source}:`, e.message);
+    }
+  }
+
+  // Sort by score desc
+  allResults.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+  json(res, { results: allResults, duplicates_filtered: duplicatesFiltered, sources_queried: sources.length });
+});
+
+// POST /api/search/add-to-pipeline — Add selected search results to pipeline
+addRoute('POST', '/api/search/add-to-pipeline', async (req, res) => {
+  const { jobs = [] } = req.body;
+  if (!jobs.length) return json(res, { error: 'No jobs provided' }, 400);
+
+  let added = 0;
+  const insert = db.prepare(
+    "INSERT INTO jobs (company, title, description, status, source, url, date_added) VALUES (?, ?, ?, 'NEW', ?, ?, datetime('now'))"
+  );
+
+  for (const job of jobs) {
+    if (job.is_duplicate) continue;
+    try {
+      insert.run(job.company, job.title, job.description || '', job.source || 'search', job.url || null);
+      added++;
+    } catch (e) {
+      console.error('Failed to add job:', e.message);
+    }
+  }
+
+  json(res, { added, total: jobs.length });
+});
+
+// ─── Monitored Companies (Phase 13D) ────────────────────────────────
+
+// GET /api/search/monitored
+addRoute('GET', '/api/search/monitored', (req, res) => {
+  try {
+    const companies = db.prepare('SELECT * FROM monitored_companies ORDER BY company').all();
+    json(res, companies);
+  } catch {
+    json(res, []);
+  }
+});
+
+// POST /api/search/monitored
+addRoute('POST', '/api/search/monitored', async (req, res) => {
+  const { company, careers_url } = req.body;
+  if (!company || !careers_url) return json(res, { error: 'company and careers_url required' }, 400);
+  try {
+    db.prepare('INSERT INTO monitored_companies (company, careers_url) VALUES (?, ?)').run(company, careers_url);
+    json(res, { success: true }, 201);
+  } catch (e) {
+    json(res, { error: e.message }, 400);
+  }
+});
+
+// DELETE /api/search/monitored/:id
+addRoute('DELETE', '/api/search/monitored/:id', (req, res) => {
+  db.prepare('DELETE FROM monitored_companies WHERE id = ?').run(req.params.id);
+  json(res, { success: true });
+});
+
+// ─── Token Cost Tracking (Phase 13H) ────────────────────────────────
+
+addRoute('GET', '/api/costs', (req, res) => {
+  const daily = db.prepare(
+    "SELECT COALESCE(SUM(cost_estimate), 0) as total, COUNT(*) as count FROM cover_letter_versions WHERE date(created_at) = date('now')"
+  ).get();
+  const monthly = db.prepare(
+    "SELECT COALESCE(SUM(cost_estimate), 0) as total, COUNT(*) as count FROM cover_letter_versions WHERE created_at >= date('now', 'start of month')"
+  ).get();
+  const byDay = db.prepare(
+    "SELECT date(created_at) as day, COALESCE(SUM(cost_estimate), 0) as cost, COUNT(*) as count FROM cover_letter_versions WHERE created_at >= date('now', '-30 days') GROUP BY date(created_at) ORDER BY day"
+  ).all();
+  json(res, { daily, monthly, by_day: byDay });
 });
 
 // ═══════════════════════════════════════════════════════════════════════

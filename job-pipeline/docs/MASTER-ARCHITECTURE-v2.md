@@ -7,7 +7,8 @@
 # Hand this document to ANY reviewer (human or AI) and they
 # should be able to identify gaps, contradictions, or risks.
 # ─────────────────────────────────────────────────────────
-# Version: 2.0 · Last updated: 2026-03-05
+# Version: 2.1 · Last updated: 2026-03-05
+# Changelog: v2.1 — Incorporated 17 fixes from external review (Gemini + ChatGPT)
 # ─────────────────────────────────────────────────────────
 
 ---
@@ -50,13 +51,13 @@ Five rules that govern every decision:
 
 1. **One machine. No sync.** Everything runs on Wolf's M3 Max MacBook Pro. No cloud dependencies, no multi-machine sync, no iCloud conflicts.
 
-2. **Database is truth. Folders are storage.** `pipeline.db` (SQLite) owns all state. Folders hold files for reference only. No agent decides based on folder contents alone.
+2. **Database is truth. Folders are storage.** `pipeline.db` (SQLite) owns all state. Folders hold artifacts (files, letters, research) for reference only. **No folder presence shall be a state machine input.** No `approved.flag`, no "check if file exists" gates. State transitions happen exclusively via DB updates. If a folder is out of sync with the DB, the DB wins.
 
-3. **Never stop the pipeline.** One failed job never blocks others. Retry → Self-Heal → Quarantine → Continue. Always.
+3. **Never stop the pipeline.** One failed job never blocks others. Retry → Self-Heal → Quarantine → Continue. Always. **Task idempotency matters:** scraping, scoring, and letter generation are idempotent (safe to retry). ATS submissions and email sends are non-idempotent (require transactional checkpoints and do-not-repeat guards).
 
 4. **Wolf approves outbound. Machine handles everything else.** The only hard human gates: approving cover letters and confirming application submissions.
 
-5. **Cost-conscious automation.** Claude API for scoring + cover letter generation + hallucination filtering. Budget: ~$50/month API ceiling. Track costs per operation.
+5. **Cost-conscious automation.** Claude Haiku for scoring (~$0.001/job), Claude Sonnet for cover letter generation + hallucination filtering. Budget: daily cap $2/day, monthly ceiling $55. Max 5 cover letter generations/day (overflow queues for next day). Track costs per operation.
 
 ---
 
@@ -68,7 +69,7 @@ Five rules that govern every decision:
 |---|-----------|-----------|---------|--------|
 | 1 | **Express API Server** | Node.js + Express 4.21 | `server.js` | COMPLETE — 11 REST endpoints, port 3000 |
 | 2 | **SQLite Database** | better-sqlite3 + WAL mode | `pipeline.db` via `init-db.js` | COMPLETE — 4 tables, 1 view, 4 indexes |
-| 3 | **Job Scorer** | Node.js CLI, keyword-based | `job-scorer.js` | COMPLETE — 7-dimension scoring, 0-100 scale |
+| 3 | **Job Scorer** | Node.js CLI → upgrading to Claude Haiku | `job-scorer.js` | COMPLETE (v1 keyword) — upgrading to Haiku for contextual accuracy |
 | 4 | **MCP Server** | Node.js, JSON-RPC 2.0 | `mcp-server.js` | COMPLETE — 9 tools for Claude Desktop |
 | 5 | **Feedback Analyzer** | Node.js CLI | `feedback-analyzer.js` | COMPLETE — Template version A/B tracking |
 | 6 | **Dashboard v1** | Single-file HTML/CSS/JS | `PIPELINE_DASHBOARD.html` | COMPLETE — 5-tab SPA, dark theme, auto-refresh |
@@ -80,9 +81,9 @@ Five rules that govern every decision:
 | # | Component | Technology | Purpose |
 |---|-----------|-----------|---------|
 | 9 | **Command Center v2** | HTML/CSS/JS modular files | New 6-tab dashboard replacing v1 (§6.1) |
-| 10 | **Conductor** | Node.js, better-queue, node-cron | Pipeline orchestrator — schedules, queues, state machine (§3.3) |
-| 11 | **Chrome Bridge Extension** | Manifest V3, Chrome APIs | Bridges Claude browser extension ↔ Express API for file drop-off (§3.4) |
-| 12 | **Application Bot** | Playwright (headed mode) | Form filling, file upload, ATS navigation — Wolf watches on 2nd monitor (§3.5) |
+| 10 | **Conductor** | Node.js, native polling loop, node-cron | Pipeline orchestrator — schedules, queues, state machine (§3.3) |
+| 11 | **Content Ingestion** | Dashboard paste UI + Express endpoint | Paste content from Claude browser into pipeline via dashboard (§3.4) |
+| 12 | **Application Bot** | Playwright (headed, CDP connect) | Form filling, file upload, ATS navigation — Wolf watches on 2nd monitor (§3.5) |
 | 13 | **Cover Letter Generator** | Anthropic SDK (Claude API) | Direct API calls + hallucination filter, replaces Cowork (§3.6) |
 | 14 | **Gmail MCP Server** | Node.js, Google OAuth | Inbox monitoring, response parsing, verification code extraction (§3.7) |
 | 15 | **Hallucination Filter** | Node.js + context file comparison | Verifies cover letter claims against Wolf's actual experience files (§3.8) |
@@ -90,67 +91,132 @@ Five rules that govern every decision:
 
 ### 3.3 Conductor (Orchestrator)
 
-**Purpose:** Central brain that coordinates all pipeline operations on a schedule.
+**Purpose:** Central brain that coordinates all pipeline operations on a schedule. **Single DB writer** — all other components (CLI, dashboard API, Playwright logger) POST to the Conductor's Express API rather than writing to the database directly. This eliminates SQLite lock contention.
 
-**Technology:** Node.js process using `better-queue` (SQLite-backed job queue) + `node-cron` for scheduling. No Redis.
+**Technology:** Node.js process using a **native polling loop** (`setInterval` every 5 seconds) + `node-cron` for scheduling. No Redis. No better-queue (abandoned package, lock risks).
+
+**Polling loop** (`conductor/scheduler.js`):
+```js
+// Every 5 seconds: pick next queued task
+setInterval(() => {
+  const task = db.prepare(`
+    BEGIN EXCLUSIVE;
+    SELECT * FROM conductor_queue
+    WHERE status = 'queued'
+    ORDER BY priority DESC, created_at ASC
+    LIMIT 1
+  `).get();
+  if (task) {
+    db.prepare(`UPDATE conductor_queue SET status = 'processing', started_at = datetime('now') WHERE id = ?`).run(task.id);
+    processTask(task);
+  }
+}, 5000);
+```
 
 **Responsibilities:**
 - Schedule job scraping runs (configurable cron)
 - Queue jobs for scoring as they arrive
 - Queue cover letter generation for scored HIGH/MEDIUM jobs
+- **Daily circuit breaker:** Max 5 cover letter generations per day. Overflow holds in COVER_LETTER_QUEUED until next day.
 - Trigger daily digest email at 7am
 - Monitor Gmail every 15 minutes for responses
 - Track queue health and alert on stalls
 - Manage state machine transitions for each job
+- **Enforce idempotency:** Check `idempotency_key` before enqueuing to prevent duplicates
 
 **State machine (per job):**
 ```
 NEW → SCRAPED → SCORED → COVER_LETTER_QUEUED → COVER_LETTER_READY →
-PENDING_APPROVAL → APPROVED → SUBMITTING → SUBMITTED →
-RESPONSE_RECEIVED → [INTERVIEW | REJECTED | GHOSTED | OFFER]
+PENDING_APPROVAL → APPROVED → SUBMITTING → SUBMITTED → CLOSED
 ```
+Note: Outcome tracking (INTERVIEW, REJECTED, GHOSTED, OFFER) lives in `application_submissions.response_type`, not `jobs.status`. The `jobs.status` column is lifecycle-only.
 
 **Error states:** `SCORING_FAILED`, `GENERATION_FAILED`, `SUBMISSION_FAILED`, `ERROR_BLOCKED`
 
+**Task idempotency classification:**
+
+| Task Type | Idempotent? | Retry Policy | Unique Key |
+|-----------|------------|--------------|------------|
+| `scrape` | Yes | Auto-retry 3x with backoff | source + date |
+| `score` | Yes | Auto-retry 3x | job_id |
+| `generate_letter` | Yes | Auto-retry 2x, then flag | job_id + version |
+| `submit_email` | **No** | Checkpoint + do-not-repeat | job_id + method |
+| `submit_ats` | **No** | Checkpoint + resume token | job_id + platform |
+| `check_response` | Yes | Auto-retry 3x | — |
+
 **Process management:** pm2 for the Conductor process + macOS launchd for auto-start on login.
 
-### 3.4 Chrome Bridge Extension
+### 3.4 Content Ingestion (Dashboard Paste UI)
 
-**Purpose:** Minimal Manifest V3 extension that allows the Claude browser extension to drop files (cover letters, Q&A sheets, research notes) to the Express API.
+**Purpose:** Allow Wolf to paste content from the Claude browser extension (cover letters, Q&A sheets, research notes) into the pipeline via the Command Center dashboard.
 
-**Scope (intentionally narrow):**
-- Intercept specific Claude browser extension output
-- POST file contents to `localhost:3000/api/bridge/upload`
-- No scraping, no form filling, no page manipulation
-- Passive — triggered only by user action in Claude browser
+**Why not a Chrome extension?** Building a Manifest V3 extension to intercept Claude's browser output is fragile — when Anthropic updates the Claude Web UI DOM, the extension breaks. A paste UI is unbreakable and takes seconds to use.
 
-**Why needed:** Claude's browser extension can research companies and draft content, but has no way to push that content into the pipeline database. This bridge closes that gap.
+**How it works:**
+1. Wolf copies content from Claude browser (CMD+C)
+2. Opens Command Center dashboard → "Import Content" panel
+3. Selects content type (cover_letter, research, qa_answers) and target job
+4. Pastes content into textarea → clicks "Import"
+5. Dashboard POSTs to `localhost:3000/api/bridge/ingest`
+
+**Security:**
+- Bearer token authentication (token from `BRIDGE_AUTH_TOKEN` env var)
+- Strict JSON schema validation (content_type, job_id, content required; max payload 50KB)
+- All ingestion events logged to append-only `bridge_events` table (audit trail)
+- Only accepts requests from localhost
+
+**Why this is better:** Zero Chrome permissions, no extension maintenance, no DOM coupling, works with any AI tool (not just Claude browser), 10 lines of frontend code.
 
 ### 3.5 Application Bot (Playwright)
 
 **Purpose:** Automate ATS form filling in a visible browser. Wolf watches on secondary monitor.
 
-**Technology:** Playwright in headed mode (visible browser window) with a separate Chrome profile.
+**Technology:** Playwright connecting to a running Chrome/Brave instance via Chrome DevTools Protocol (`playwright.chromium.connectOverCDP()`).
+
+**Why CDP instead of a separate profile?** Modern ATS systems (Workday, Greenhouse, Lever) use aggressive fingerprinting (Cloudflare Turnstile, Datadome). A clean Playwright profile has no browsing history, no cookies, and broadcasts a default automation fingerprint — it gets flagged instantly. By connecting to an actively-used browser via CDP, Playwright inherits a trusted, "warmed up" fingerprint with established cookies and browsing history. ATS systems treat it as a real user.
+
+**Setup:** Wolf maintains a secondary browser (Chrome or Brave) that he occasionally uses for normal browsing. Playwright connects to it via `--remote-debugging-port=9222`.
+
+**Trigger model: PULL, not PUSH.** ATS submissions are never triggered by cron. Instead:
+- Dashboard Tab 5 shows "Approved for ATS" queue
+- Wolf clicks **"Start ATS Submissions"** button when ready
+- Bot processes the queue while Wolf watches on 2nd monitor
+- This prevents Chrome stealing focus during Zoom calls or other work
+
+**Platform Adapter Layer** (`conductor/platform_adapters/`):
+
+ATS platforms are structurally different. A single generic bot will break constantly. V1 ships with:
+
+| Adapter | File | Covers |
+|---------|------|--------|
+| Greenhouse | `greenhouse.js` | Login state, resume upload, cover letter field, question parsing, submit detection |
+| Lever | `lever.js` | Similar but different DOM structure and multi-step flow |
+| Generic | `generic.js` | Best-effort for simple HTML forms (name, email, file upload) |
+
+Each adapter defines: `detectPlatform()`, `fillForm()`, `uploadResume()`, `pasteCoverLetter()`, `parseQuestions()`, `detectSubmitButton()`, `checkpoint()`.
+
+**Workday** is intentionally excluded from V1 — its complexity warrants a dedicated Phase 14+ effort.
 
 **Capabilities:**
 - Navigate to ATS portal URLs
+- Detect platform and load correct adapter
 - Fill standard form fields (name, email, phone, LinkedIn, location)
 - Upload resume PDF from `job-pipeline/templates/`
 - Paste cover letter text into cover letter fields
 - Fill Q&A responses from pre-generated answers
 - Handle multi-page application flows
+- **Checkpoint after each page** (save progress to `conductor_queue.checkpoint` so partially-filled forms can resume)
 - Pause before final submit for Wolf's confirmation
 
-**Configuration:**
-- Separate Chrome profile (doesn't touch Wolf's main browser)
-- Runs on secondary display (dual-monitor setup confirmed)
-- Playwright in headed mode — Wolf can see exactly what it's doing
-- Human gate: Bot fills forms but does NOT click Submit unless Wolf confirms
+**Non-idempotent safety:**
+- Before filling any form, check `application_submissions` for existing submission to same company+role within 90 days
+- After successful submit, immediately write to `application_submissions` (prevents double-apply on retry)
+- If bot crashes mid-form, checkpoint data allows resume from last completed page
 
 **What it does NOT do:**
 - CAPTCHA solving (pauses and alerts Wolf)
 - Account creation on new ATS platforms (Wolf does manually first time)
-- Bypass bot detection (runs in headed mode at human speed)
+- Auto-trigger without Wolf clicking "Start" (pull-based only)
 
 ### 3.6 Cover Letter Generator
 
@@ -158,21 +224,44 @@ RESPONSE_RECEIVED → [INTERVIEW | REJECTED | GHOSTED | OFFER]
 
 **Technology:** Anthropic SDK (`@anthropic-ai/sdk`), Claude Sonnet model.
 
-**Flow:**
-1. Receive scored job data + company research notes
-2. Load Wolf's context files (capability_profile.md, cover_letter_examples/)
-3. Call Claude API with P→P→R prompt template + job-specific data
-4. Run hallucination filter (§3.8) on output
-5. Self-score output (must be ≥7/10)
-6. If <7, regenerate once with feedback
-7. If second attempt <7, flag as DRAFT for Wolf's review
-8. Store in database + write to `/ready/[job_id]/`
+**Two-Call Pattern (Extract → Assemble):**
+
+Instead of generating freely and filtering afterward (which creates hallucination retry loops), the generator uses two distinct API calls:
+
+**Call 1 — Extraction** (Claude Sonnet):
+```
+Prompt: "Read this job description. Extract the exact quotes, metrics, and stories
+from Wolf's capability_profile.md and cover_letter_examples/ that best address
+these requirements. Output a JSON list of approved facts with source references."
+
+Input: job description + Wolf's context files
+Output: JSON array of { fact, source_file, source_line, relevance_to_job }
+```
+
+**Call 2 — Assembly** (Claude Sonnet):
+```
+Prompt: "Write the cover letter using ONLY the JSON facts provided below.
+Use Wolf's P→P→R framework. Do not invent transitions that require new metrics.
+Do not add accomplishments not in the facts list."
+
+Input: JSON facts from Call 1 + P→P→R template + company name/role
+Output: Cover letter text
+```
+
+**Post-Assembly:**
+1. Run hallucination filter (§3.8) as safety net — should rarely trigger with this pattern
+2. Self-score output (must be ≥7/10)
+3. If <7, regenerate once with feedback
+4. If second attempt <7, flag as DRAFT for Wolf's review
+5. Store in database with version tracking
+
+**Why two calls instead of one?** LLMs struggle with negative constraints. Telling it "don't hallucinate" doesn't work reliably. Forcing it to assemble from pre-approved facts eliminates the source of hallucinations. The filter becomes a safety net (catching edge cases) rather than the primary defense.
 
 **Why API instead of Cowork:**
 - Fully automatable (no manual copy-paste)
 - Enables hallucination filter pipeline
 - Enables batch generation
-- Cost: ~$0.15–$0.50 per letter (Claude Sonnet)
+- Cost: ~$0.15–$0.50 per letter (Claude Sonnet, 2 calls)
 
 ### 3.7 Gmail MCP Server
 
@@ -184,12 +273,19 @@ RESPONSE_RECEIVED → [INTERVIEW | REJECTED | GHOSTED | OFFER]
 
 **Capabilities:**
 - Monitor inbox every 15 minutes for application responses
-- Parse response type: REJECTION, INTERVIEW, REQUEST_INFO, OFFER
+- Parse response type: REJECTION, INTERVIEW, REQUEST_INFO, OFFER, **UNKNOWN**
+- **Confidence scoring:** Each classification includes a confidence score (0-1). Low confidence (<0.7) → flagged for Wolf's manual classification on dashboard
 - Extract verification codes from account creation emails
 - Send pre-approved cover letters + resume after Wolf approves
 - Label and categorize job-related emails
+- Store raw email text + parsed result + confidence in DB (allows correction + learning)
 
 **OAuth:** Wolf has prior experience with Google Cloud Console / OAuth setup.
+
+**OAuth 7-day risk:** Google Cloud projects in "Testing" mode expire tokens every 7 days. Mitigation options:
+1. Push Google Cloud project to "Production" status (requires OAuth consent screen review)
+2. Use App Password + IMAP instead of OAuth (simpler, no expiry)
+3. Dashboard shows **Gmail Auth Status** indicator on Tab 3. If expired, "Re-authenticate" link triggers local OAuth flow.
 
 **Cannot do without Wolf's approval:**
 - Send any email not staged in approved queue
@@ -198,17 +294,31 @@ RESPONSE_RECEIVED → [INTERVIEW | REJECTED | GHOSTED | OFFER]
 
 ### 3.8 Hallucination Filter
 
-**Purpose:** Verify that AI-generated cover letters only claim things Wolf has actually done.
+**Purpose:** Safety net that verifies AI-generated cover letters only claim things Wolf has actually done. With the two-call Extract→Assemble pattern (§3.6), this filter should rarely trigger — but it catches edge cases.
+
+**Claim Schema:**
+
+Every factual assertion in the cover letter is classified into one of two types:
+
+| Claim Type | Examples | Evidence Required? | On Failure |
+|------------|---------|-------------------|------------|
+| **Hard claim** | Numbers, dates, company names, team sizes, revenue figures, technologies, scope metrics | **YES** — must link to specific line in capability_profile.md or cover_letter_examples/ | Flag + block |
+| **Soft claim** | "I lead teams", "I value ownership", "I believe in servant leadership" | **No** — allowed without evidence | Pass |
 
 **How it works:**
-1. Parse cover letter for factual claims (dates, numbers, company names, technologies, outcomes)
-2. Compare each claim against Wolf's context files:
+1. Extract claims from cover letter into structured list: `{ type: "hard"|"soft", claim_text, entity, metric?, source_evidence? }`
+2. For hard claims: fuzzy-match against Wolf's context files:
    - `templates/capability_profile.md` — verified career history
    - `templates/cover_letter_examples/` — approved stories
    - qa_bank table — verified Q&A answers
-3. Flag any claim not found in context files
-4. Return pass/fail + list of unverified claims
-5. On fail: regenerate with explicit instruction to only use verified facts
+3. If hard claim has no evidence match → flag it
+4. Return pass/fail + list of unverified claims with context
+5. On fail: log flagged claims. Wolf can override with one click on dashboard (overrides tracked in `cover_letter_versions.flagged_claims`)
+
+**What it does NOT do:**
+- Regenerate automatically in a loop (the two-call pattern prevents this — see §3.6)
+- Block soft claims like general leadership philosophy statements
+- Require exact string matches (uses fuzzy matching for reasonable paraphrasing)
 
 **Why this matters:** At the VP level, a single fabricated claim in a cover letter can end a candidacy permanently. This filter prevents the AI from "hallucinating" accomplishments Wolf never had.
 
@@ -223,7 +333,7 @@ RESPONSE_RECEIVED → [INTERVIEW | REJECTED | GHOSTED | OFFER]
 - Executive recruiter boards (custom)
 - Company career pages (targeted list)
 
-**Ingestion format:** All sources normalize to the standard job JSON schema (§5.3) and drop into `/incoming/`.
+**Ingestion format:** All sources normalize to the standard job JSON schema (§5.3) and insert into the database via the Conductor API (not filesystem drop).
 
 **24-hour alert:** If no new jobs from any source for 24 hours → email Wolf.
 
@@ -242,31 +352,37 @@ RESPONSE_RECEIVED → [INTERVIEW | REJECTED | GHOSTED | OFFER]
                            ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │  INGESTION LAYER                                                    │
-│  Multi-platform scrapers → Normalize to JSON → /incoming/           │
+│  Multi-platform scrapers → Normalize to JSON → DB via Conductor API │
+│  Dedup: job_fingerprint check (company+title+location, 90 days)     │
 │  24h empty alert → Email Wolf if no new jobs                        │
 └──────────────────────────┬──────────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│  JOB SCORER                                                         │
-│  7-dimension keyword analysis (local, no API)                       │
+│  JOB SCORER (Claude Haiku — ~$0.001/job)                            │
+│  7-dimension contextual analysis with explainability output          │
 │  Score 0–100 → HIGH (≥75) / MEDIUM (50–74) / SKIP (<50)           │
-│  SKIP → /archived/    HIGH/MEDIUM → /scored/ + DB status: SCORED   │
+│  Output includes per-dimension breakdown ("why this scored 82")     │
+│  SKIP → status: ARCHIVED    HIGH/MEDIUM → status: SCORED           │
 └──────────────────────────┬──────────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│  COVER LETTER GENERATOR (Claude API + Anthropic SDK)                │
-│  Load context files → Generate P→P→R letter → Hallucination filter │
-│  Self-score ≥7/10 → /ready/[job_id]/                               │
+│  COVER LETTER GENERATOR (Claude Sonnet — Two-Call Pattern)          │
+│  Call 1: Extract approved facts from context files → JSON           │
+│  Call 2: Assemble P→P→R letter from facts only                     │
+│  Hallucination filter (safety net) → Self-score ≥7/10              │
 │  <7 after 2 tries → DRAFT for Wolf review                          │
+│  Daily limit: max 5 generations/day (overflow queues for tomorrow)  │
 └──────────────────────────┬──────────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │  🧑 WOLF APPROVAL (Human Gate #1)                                   │
-│  Daily digest email at 7am → Wolf replies YES / NO / EDIT           │
-│  Approved jobs → status: APPROVED                                   │
+│  Daily digest email at 7am with one-click localhost links           │
+│  http://localhost:3035/approve/job_123 → APPROVED                   │
+│  http://localhost:3035/reject/job_123 → SKIPPED                     │
+│  http://localhost:3035/edit/job_123 → Opens dashboard to that job   │
 └──────────┬───────────────────────────────┬──────────────────────────┘
            │                               │
      Email jobs                       ATS portal jobs
@@ -274,10 +390,10 @@ RESPONSE_RECEIVED → [INTERVIEW | REJECTED | GHOSTED | OFFER]
            ▼                               ▼
 ┌──────────────────────┐    ┌──────────────────────────────────────┐
 │  GMAIL MCP           │    │  🧑 APPLICATION BOT (Human Gate #2)  │
-│  Sends cover letter  │    │  Playwright fills forms               │
-│  + resume            │    │  Wolf watches on 2nd monitor          │
-│  Fully autonomous    │    │  Wolf confirms submit                 │
-│  after approval      │    │  ATS with CAPTCHA → Wolf handles      │
+│  Sends cover letter  │    │  Wolf clicks "Start ATS Submissions"  │
+│  + resume            │    │  Playwright (CDP) + platform adapters │
+│  Fully autonomous    │    │  Wolf watches on 2nd monitor          │
+│  after approval      │    │  Checkpoints per page, confirms submit│
 └──────────┬───────────┘    └──────────┬───────────────────────────┘
            │                           │
            └───────────┬───────────────┘
@@ -310,15 +426,16 @@ RESPONSE_RECEIVED → [INTERVIEW | REJECTED | GHOSTED | OFFER]
 The Conductor runs continuously (managed by pm2) and drives the pipeline:
 
 ```
-Conductor (node-cron + better-queue + state machine)
+Conductor (node-cron + native polling loop + state machine)
 ├── Every 4 hours: Trigger multi-platform job scraping
-├── On new job in /incoming/: Queue for scoring
-├── On job scored HIGH/MEDIUM: Queue for cover letter generation
-├── 7:00 AM daily: Compile and send daily digest
-├── Every 15 min: Trigger Gmail response check
+├── Every 5 sec: Poll conductor_queue for next task (BEGIN EXCLUSIVE)
+├── On new job ingested: Queue for scoring (Haiku)
+├── On job scored HIGH/MEDIUM: Queue for cover letter generation (max 5/day)
+├── 7:00 AM daily: Compile and send daily digest (one-click approval links)
+├── Every 15 min: Trigger Gmail response check (with confidence scoring)
 ├── Every Sunday 8am: Trigger weekly feedback report
-├── Continuous: Monitor queue health, retry failed items
-└── On error: Retry → Self-Heal → Quarantine → Continue
+├── Continuous: Monitor queue health, enforce idempotency keys, retry idempotent tasks
+└── On error: Retry → Self-Heal → Quarantine → Continue (non-idempotent tasks: checkpoint + no-repeat)
 ```
 
 ---
@@ -338,15 +455,19 @@ CREATE TABLE jobs (
                    CHECK(status IN (
                      'NEW','SCRAPED','SCORED',
                      'COVER_LETTER_QUEUED','COVER_LETTER_READY',
-                     'PENDING_APPROVAL','APPROVED','SUBMITTING','SUBMITTED',
-                     'RESPONSE_RECEIVED','INTERVIEW','REJECTED','GHOSTED','OFFER',
+                     'PENDING_APPROVAL','APPROVED','SUBMITTING','SUBMITTED','CLOSED',
                      'SCORING_FAILED','GENERATION_FAILED','SUBMISSION_FAILED','ERROR_BLOCKED',
                      'ARCHIVED','SKIPPED'
                    )),
+  -- NOTE: Outcome tracking (INTERVIEW, REJECTED, GHOSTED, OFFER) lives in
+  -- application_submissions.response_type, NOT here. jobs.status is lifecycle-only.
   score            INTEGER,
+  score_reasoning  TEXT,          -- per-dimension breakdown ("why this scored 82")
   source           TEXT,
   url              TEXT,
   cover_letter     TEXT,
+  job_fingerprint  TEXT,          -- normalized(company) + normalized(title) + location for dedup
+  approved_at      TEXT,          -- when Wolf approved (replaces filesystem approved.flag)
   date_added       TEXT NOT NULL DEFAULT (datetime('now')),
   date_updated     TEXT NOT NULL DEFAULT (datetime('now')),
   notes            TEXT,
@@ -394,17 +515,21 @@ CREATE TABLE qa_bank (
 
 **View: `template_metrics`** — Aggregated success rates by template version
 ```sql
+-- NOTE: Outcomes come from application_submissions, not jobs.status
+-- jobs.status only tracks lifecycle (SUBMITTED, CLOSED, etc.)
 CREATE VIEW template_metrics AS
-SELECT template_version,
-  COUNT(*) FILTER (WHERE status IN ('APPLIED','INTERVIEW','REJECTED','OFFER')) AS total_applied,
-  COUNT(*) FILTER (WHERE status = 'INTERVIEW') AS interviews,
-  COUNT(*) FILTER (WHERE status = 'OFFER') AS offers,
-  COUNT(*) FILTER (WHERE status = 'REJECTED') AS rejections,
+SELECT j.template_version,
+  COUNT(DISTINCT j.id) FILTER (WHERE j.status IN ('SUBMITTED','CLOSED')) AS total_submitted,
+  COUNT(DISTINCT j.id) FILTER (WHERE s.response_type = 'interview') AS interviews,
+  COUNT(DISTINCT j.id) FILTER (WHERE s.response_type = 'offer') AS offers,
+  COUNT(DISTINCT j.id) FILTER (WHERE s.response_type = 'rejection') AS rejections,
   ROUND(
-    CAST(COUNT(*) FILTER (WHERE status IN ('INTERVIEW','OFFER')) AS REAL) /
-    NULLIF(COUNT(*) FILTER (WHERE status IN ('APPLIED','INTERVIEW','REJECTED','OFFER')), 0) * 100, 1
+    CAST(COUNT(DISTINCT j.id) FILTER (WHERE s.response_type IN ('interview','offer')) AS REAL) /
+    NULLIF(COUNT(DISTINCT j.id) FILTER (WHERE j.status IN ('SUBMITTED','CLOSED')), 0) * 100, 1
   ) AS conversion_rate
-FROM jobs GROUP BY template_version;
+FROM jobs j
+LEFT JOIN application_submissions s ON s.job_id = j.id
+GROUP BY j.template_version;
 ```
 
 **Indexes:**
@@ -456,22 +581,27 @@ CREATE TABLE challenges (
 );
 ```
 
-**Table: `conductor_queue`** — better-queue persistence
+**Table: `conductor_queue`** — Native task queue (polled every 5s by Conductor)
 ```sql
 CREATE TABLE conductor_queue (
-  id          TEXT PRIMARY KEY,
-  job_id      INTEGER REFERENCES jobs(id),
-  task_type   TEXT NOT NULL CHECK(task_type IN ('score','generate_letter',
-              'submit_email','submit_ats','check_response','scrape')),
-  priority    INTEGER DEFAULT 0,
-  status      TEXT DEFAULT 'queued' CHECK(status IN ('queued','processing',
-              'completed','failed','blocked')),
-  payload     TEXT,          -- JSON blob with task-specific data
-  retry_count INTEGER DEFAULT 0,
-  created_at  TEXT DEFAULT (datetime('now')),
-  started_at  TEXT,
-  completed_at TEXT,
-  error       TEXT
+  id              TEXT PRIMARY KEY,
+  job_id          INTEGER REFERENCES jobs(id),
+  task_type       TEXT NOT NULL CHECK(task_type IN ('score','generate_letter',
+                  'submit_email','submit_ats','check_response','scrape')),
+  priority        INTEGER DEFAULT 0,
+  status          TEXT DEFAULT 'queued' CHECK(status IN ('queued','processing',
+                  'completed','failed','blocked')),
+  payload         TEXT,            -- JSON blob with task-specific data
+  idempotent      INTEGER DEFAULT 1,  -- 0 for submit_email, submit_ats
+  idempotency_key TEXT,            -- prevents duplicate enqueuing (e.g., job_id + task_type)
+  checkpoint      TEXT,            -- JSON: resume token for non-idempotent tasks (ATS page progress)
+  retry_count     INTEGER DEFAULT 0,
+  max_retries     INTEGER DEFAULT 3,
+  created_at      TEXT DEFAULT (datetime('now')),
+  started_at      TEXT,
+  completed_at    TEXT,
+  error           TEXT,
+  UNIQUE(idempotency_key)          -- enforces at-most-once for non-idempotent tasks
 );
 ```
 
@@ -514,13 +644,70 @@ CREATE TABLE application_submissions (
 );
 ```
 
+**Table: `bridge_events`** — Append-only audit log for content ingestion
+```sql
+CREATE TABLE bridge_events (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  content_type  TEXT NOT NULL CHECK(content_type IN ('cover_letter','research',
+                'qa_answers','resume_notes','other')),
+  job_id        INTEGER REFERENCES jobs(id),
+  payload_hash  TEXT NOT NULL,      -- SHA-256 of raw content (dedup + integrity)
+  payload_size  INTEGER NOT NULL,   -- bytes (max 50KB enforced at API layer)
+  source        TEXT DEFAULT 'dashboard_paste',
+  created_at    TEXT DEFAULT (datetime('now'))
+);
+-- This table is APPEND-ONLY. Never delete rows. Used for audit trail.
+```
+
+**Table: `prompt_registry`** — Track all prompt template versions
+```sql
+CREATE TABLE prompt_registry (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  name          TEXT NOT NULL,       -- e.g., 'cover_letter_extract', 'cover_letter_assemble', 'job_scoring'
+  template      TEXT NOT NULL,       -- full prompt text
+  variables     TEXT,                -- JSON list of expected variables
+  version       INTEGER NOT NULL DEFAULT 1,
+  model_version TEXT,                -- e.g., 'claude-sonnet-4-5-20250929'
+  created_at    TEXT DEFAULT (datetime('now')),
+  UNIQUE(name, version)
+);
+-- When prompts change, insert a new version (never update in place).
+-- This enables "what prompt was used for this letter?" debugging.
+```
+
+**View: `job_current_state`** — Derived view joining jobs + latest submission outcome
+```sql
+CREATE VIEW job_current_state AS
+SELECT
+  j.*,
+  s.response_type AS current_outcome,
+  s.response_date AS outcome_date,
+  s.method AS submission_method,
+  s.platform AS submission_platform,
+  s.submitted_at,
+  CASE
+    WHEN s.response_type IS NOT NULL THEN s.response_type
+    WHEN j.status = 'SUBMITTED' AND julianday('now') - julianday(s.submitted_at) > 30 THEN 'likely_ghosted'
+    ELSE j.status
+  END AS effective_status
+FROM jobs j
+LEFT JOIN application_submissions s ON s.job_id = j.id
+  AND s.id = (SELECT MAX(id) FROM application_submissions WHERE job_id = j.id);
+-- Use this view for dashboard display and reporting.
+-- jobs.status = lifecycle state, effective_status = what Wolf actually sees.
+```
+
 **New indexes:**
 - `idx_challenges_job_id` on challenges(job_id)
 - `idx_challenges_category` on challenges(category)
 - `idx_conductor_queue_status` on conductor_queue(status)
+- `idx_conductor_queue_idempotency` on conductor_queue(idempotency_key)
 - `idx_cover_letter_versions_job_id` on cover_letter_versions(job_id)
 - `idx_submissions_job_id` on application_submissions(job_id)
 - `idx_submissions_cover_letter_id` on application_submissions(cover_letter_id)
+- `idx_jobs_fingerprint` on jobs(job_fingerprint)
+- `idx_bridge_events_job_id` on bridge_events(job_id)
+- `idx_prompt_registry_name` on prompt_registry(name, version)
 
 ### 5.3 Job JSON Schema (Ingestion Format)
 
@@ -541,19 +728,27 @@ All job sources must normalize to this format before dropping into `/incoming/`:
 }
 ```
 
-### 5.4 Status Enum (Expanded for v2)
+### 5.4 Status Enum (v2.1 — Lifecycle Only)
 
-The jobs.status column needs to expand for the full lifecycle:
+The `jobs.status` column tracks **lifecycle only**. Outcomes (interview, rejection, offer, ghosted) live in `application_submissions.response_type`.
 
+**Lifecycle states:**
 ```
 NEW → SCRAPED → SCORED → COVER_LETTER_QUEUED → COVER_LETTER_READY →
-PENDING_APPROVAL → APPROVED → SUBMITTING → SUBMITTED →
-RESPONSE_RECEIVED → [INTERVIEW | REJECTED | GHOSTED | OFFER]
+PENDING_APPROVAL → APPROVED → SUBMITTING → SUBMITTED → CLOSED
 ```
 
-Error states: `SCORING_FAILED`, `GENERATION_FAILED`, `SUBMISSION_FAILED`, `ERROR_BLOCKED`
+**Error states:** `SCORING_FAILED`, `GENERATION_FAILED`, `SUBMISSION_FAILED`, `ERROR_BLOCKED`
 
-Skip states: `ARCHIVED` (score too low), `SKIPPED` (Wolf rejected)
+**Skip states:** `ARCHIVED` (score too low), `SKIPPED` (Wolf rejected)
+
+**Outcome tracking** (in `application_submissions.response_type`):
+`none`, `rejection`, `interview`, `request_info`, `offer`, `ghosted`, `unknown`
+
+**Derived display** (in `job_current_state` view):
+The `effective_status` field combines lifecycle + outcome for dashboard display. E.g., a job with `status=SUBMITTED` and `response_type=interview` shows as "Interview" on the dashboard.
+
+**Why this split?** Previous design had outcomes in both `jobs.status` AND `application_submissions.response_type`, causing drift. Now there's one source of truth for each concern.
 
 ---
 
@@ -624,15 +819,23 @@ Skip states: `ARCHIVED` (score too low), `SKIPPED` (Wolf rejected)
 **Conductor**
 | Method | Path | Purpose |
 |--------|------|---------|
-| GET | `/api/conductor/status` | Queue health, pending/active/failed counts |
+| GET | `/api/conductor/status` | Queue health, pending/active/failed counts, daily generation count |
 | GET | `/api/conductor/queue` | Current queue items |
 | POST | `/api/conductor/trigger/:taskType` | Manually trigger a task type |
 | POST | `/api/conductor/retry/:id` | Retry a failed queue item |
 
-**Chrome Bridge**
+**Content Ingestion (replaces Chrome Bridge)**
 | Method | Path | Purpose |
 |--------|------|---------|
-| POST | `/api/bridge/upload` | Receive content from Chrome Bridge extension |
+| POST | `/api/bridge/ingest` | Receive pasted content from dashboard UI. Requires `Authorization: Bearer <BRIDGE_AUTH_TOKEN>`. Validates JSON schema. Logs to `bridge_events` table. |
+
+**ATS Submission (pull-based)**
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/api/ats/queue` | List approved jobs ready for ATS submission |
+| POST | `/api/ats/start` | Wolf clicks "Start ATS Submissions" → triggers Playwright queue processing |
+| POST | `/api/ats/checkpoint/:id` | Save checkpoint data for in-progress ATS form |
+| GET | `/api/ats/status` | Current ATS bot status (idle/running/paused) |
 
 ### 6.3 MCP Tools (Existing — 9 Tools for Claude Desktop)
 
@@ -752,13 +955,13 @@ For real-time dashboard updates. Deferred to after core functionality works — 
 |-------|------|---------|
 | **Lead Agent** (Claude Code) | Orchestrator, builder, pipeline manager | Terminal / Claude Code CLI |
 | **Conductor** | Schedule, queue, and state machine | pm2 managed Node.js process |
-| **Job Scorer** | Score jobs 0-100, 7 dimensions | CLI (triggered by Conductor) |
+| **Job Scorer** | Score jobs 0-100 via Claude Haiku, 7 dimensions + explainability | CLI (triggered by Conductor) |
 | **Cover Letter Generator** | Generate P→P→R letters via Claude API | API call (triggered by Conductor) |
 | **Hallucination Filter** | Verify letter claims against context | Module (called by Generator) |
 | **Application Bot** | Fill ATS forms via Playwright | Playwright process (triggered manually or by Conductor) |
 | **Gmail MCP** | Send emails, monitor inbox | MCP server (launchd managed) |
 | **Feedback Analyzer** | Analyze outcomes, A/B test templates | CLI (triggered by Conductor) |
-| **Chrome Bridge** | Receive content from Claude browser | Chrome extension (passive) |
+| **Content Ingestion** | Receive pasted content from dashboard | Dashboard paste UI (user-driven) |
 | **Multi-Platform Search** | Scrape jobs from multiple platforms | CLI/scripts (triggered by Conductor) |
 
 ### Permission Matrix
@@ -767,13 +970,13 @@ For real-time dashboard updates. Deferred to after core functionality works — 
 |-------|------|-------|
 | Lead Agent | Everything | Everything in ~/job-pipeline/ |
 | Conductor | pipeline.db, conductor_queue | pipeline.db (status transitions), conductor_queue |
-| Job Scorer | /incoming/, jobs table | /scored/, /archived/, jobs table (score + status) |
+| Job Scorer | jobs table | jobs table (score + score_reasoning + status) via Conductor API |
 | Cover Letter Generator | /scored/, jobs, personal_info, company_research | /ready/, cover_letter_versions, jobs (status) |
 | Hallucination Filter | /templates/, qa_bank, cover_letter_versions | cover_letter_versions (hallucination_check, flagged_claims) |
 | Application Bot | /ready/, jobs, personal_info | application_submissions, jobs (status) |
 | Gmail MCP | /ready/*/send_ready/ | /responses/, application_submissions (response fields) |
 | Feedback Analyzer | /responses/, jobs, application_submissions | /learnings/, insights.json |
-| Chrome Bridge | None (passive receiver) | /incoming/ (POST to API only) |
+| Content Ingestion | None (user-driven paste) | bridge_events (audit), jobs/research via Conductor API |
 
 ### Communication Rules
 Agents do NOT call each other directly. Two channels only:
@@ -835,21 +1038,25 @@ All confirmed by Wolf on 2026-03-05:
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| ATS submission | Playwright in headed mode | Wolf watches on 2nd monitor, confirms submit |
-| Chrome profile | Separate profile for Playwright | Doesn't interfere with Wolf's logged-in sessions |
-| Cover letters | Claude API direct + hallucination filter | Fully automatable, enables verification pipeline |
+| ATS submission | Playwright in headed mode, **pull-based** | Wolf clicks "Start ATS Submissions" on dashboard, watches on 2nd monitor |
+| Browser connection | **CDP connect to warm browser** (`connectOverCDP()`) | Inherits trusted fingerprint, avoids bot detection by ATS systems |
+| Cover letters | **Two-call Extract→Assemble** + hallucination safety net | Eliminates hallucination retry loops, pre-approved facts only |
 | Dashboard | Rebuild as Command Center v2 (6 tabs) | Fresh start with new tab structure |
-| Orchestrator | Conductor (better-queue + node-cron) | Central brain for scheduling and state management |
-| Chrome Bridge | Yes, build it | Closes the gap between Claude browser and pipeline |
-| Job queue backend | better-queue + SQLite (no Redis) | Minimal deps, single-file persistence |
+| Orchestrator | **Conductor (native polling loop + node-cron)** | No better-queue (abandoned). setInterval + BEGIN EXCLUSIVE every 5s |
+| Content ingestion | **Dashboard paste UI** (no Chrome extension) | Unbreakable, no extension maintenance, works with any AI tool |
+| Job queue backend | **Native SQLite queue** (no Redis, no better-queue) | Zero deps, total control, trivially debuggable |
+| DB writer pattern | **Conductor is single DB writer** | Other components POST to Conductor API. Eliminates SQLite lock contention |
 | Process management | pm2 + macOS launchd | pm2 for Conductor, launchd for auto-start |
 | Database | SQLite with WAL mode (no change) | Already proven in Phase 1-6 |
-| Gmail OAuth | Wolf sets up (prior experience) | Required for Gmail MCP server |
-| Anthropic API key | Wolf has one | Required for cover letter generation |
+| Gmail OAuth | Wolf sets up (prior experience) | Required for Gmail MCP server. Dashboard shows auth status indicator |
+| Anthropic API key | Wolf has one | Required for cover letter generation + scoring |
 | Display setup | Dual monitors | Playwright visible on 2nd display |
 | Resume location | `job-pipeline/templates/` | Wolf will place PDF here |
 | Model for cover letters | Claude Sonnet (via Anthropic SDK) | Balance of quality and cost |
-| Model for scoring | Local keyword-based (no API) | Already built, zero cost |
+| Model for scoring | **Claude Haiku** (~$0.001/job) | Contextual accuracy prevents expensive downstream waste |
+| Platform adapters | **Greenhouse + Lever + Generic** (V1) | Each adapter defines field mapping, upload, submit detection |
+| Daily circuit breaker | **Max 5 cover letters/day** | Overflow holds in queue. Prevents overnight budget burst |
+| Budget caps | **$2/day + $55/month** | Per-operation token limits tracked in conductor_queue |
 
 ---
 
@@ -860,17 +1067,20 @@ All confirmed by Wolf on 2026-03-05:
 | Item | Cost |
 |------|------|
 | Claude Pro subscription (Wolf's existing) | $20/month |
-| Claude API — cover letters (~20/week × $0.30 avg) | ~$24/month |
-| Claude API — hallucination filter (~20/week × $0.05) | ~$4/month |
+| Claude API — job scoring via Haiku (~50/week × $0.001) | ~$0.20/month |
+| Claude API — cover letters via Sonnet (~20/week × $0.30 avg, 2 calls each) | ~$24/month |
+| Claude API — hallucination filter safety net (~20/week × $0.05) | ~$4/month |
 | Claude API — feedback analysis | ~$3/month |
 | **Total** | **~$51/month** |
 
 ### Cost Controls
-- API budget ceiling: $50/month (configurable)
-- If exceeded: Conductor pauses generation, emails Wolf
-- Job scoring: zero API cost (local keyword matching)
+- **Daily budget cap: $2/day** (hard stop — Conductor pauses all API tasks if exceeded)
+- **Monthly ceiling: $55/month** (configurable — Conductor pauses generation, emails Wolf)
+- **Daily circuit breaker: max 5 cover letter generations/day** (overflow holds in COVER_LETTER_QUEUED, processes next day)
+- **Per-operation max tokens:** scoring=2K, extraction=4K, assembly=4K, hallucination filter=2K
+- **Regen loop limit:** max 2 retries per letter, then flag as DRAFT (never infinite loop)
 - Token tracking: per-operation cost stored in `cover_letter_versions.cost_estimate` and `conductor_queue` logs
-- Dashboard shows running cost total
+- Dashboard shows running cost total (daily + monthly)
 
 ### Cost Comparison vs Manual
 - Wolf's time at VP rate (~$150/hr equivalent): 4-6 hrs/day × 22 days = $13K-$20K/month in opportunity cost
@@ -899,48 +1109,63 @@ All confirmed by Wolf on 2026-03-05:
 
 ### Phase 8 — Cover Letter Generator + Hallucination Filter
 
-**Goal:** Replace Cowork with API-driven generation pipeline.
+**Goal:** Replace Cowork with API-driven two-call Extract→Assemble generation pipeline.
 
 ```
-8A: Anthropic SDK integration + cover letter generation endpoint
-8B: Hallucination filter module (parse claims, compare to context files)
-8C: Self-scoring loop (generate → filter → score → retry if needed)
-8D: cover_letter_versions table tracking
-8E: Dashboard integration (show letter versions, scores, flagged claims)
+8A: Anthropic SDK integration + two-call generation endpoint
+     - Call 1: Extract approved facts from context files → JSON
+     - Call 2: Assemble P→P→R letter from facts only
+8B: Hallucination filter module with Claim Schema
+     - Hard claims (numbers, dates, companies) require evidence linkage
+     - Soft claims (general statements) allowed
+     - Flagged claims logged; Wolf can override on dashboard
+8C: Self-scoring loop (assemble → filter → score → retry max 2x)
+8D: cover_letter_versions table tracking + prompt_registry versioning
+8E: Dashboard integration (show letter versions, scores, flagged claims, override button)
+8F: Daily circuit breaker (max 5 generations/day) + per-operation token limits
 ```
 
-**Test gate:** Generate letter for seed job, hallucination filter catches a planted false claim, self-score works, versions tracked in DB.
+**Test gate:** Generate letter for seed job using two-call pattern. Extraction returns JSON with source references. Hallucination filter catches a planted false claim (hard claim with no evidence). Self-score works. Versions tracked in DB. Circuit breaker blocks 6th generation in same day.
 
 ### Phase 9 — Conductor (Orchestrator)
 
-**Goal:** Central brain driving the entire pipeline automatically.
+**Goal:** Central brain driving the entire pipeline. Single DB writer — all other components POST to Conductor API.
 
 ```
-9A: better-queue setup with SQLite persistence
+9A: Native polling loop (setInterval 5s + BEGIN EXCLUSIVE transaction)
 9B: node-cron scheduler (scraping, digest, response check, weekly report)
-9C: State machine for job lifecycle transitions
-9D: Queue health monitoring + stall detection
-9E: pm2 configuration for process management
-9F: Dashboard Conductor status panel
+9C: State machine for job lifecycle transitions (lifecycle-only status enum)
+9D: Idempotency enforcement (idempotency_key unique constraint, checkpoint for non-idempotent tasks)
+9E: Daily circuit breaker logic (max 5 cover letters/day, $2/day budget cap)
+9F: Queue health monitoring + stall detection
+9G: pm2 configuration for process management
+9H: Dashboard Conductor status panel (queue depth, daily cost, generation count)
+9I: Job fingerprint dedup check on ingestion (normalized company+title+location, 90-day window)
 ```
 
-**Test gate:** Conductor starts, processes a test job through score → generate → ready. Queue survives restart (pm2 restart). Stall alert fires.
+**Test gate:** Conductor starts, processes a test job through score → generate → ready. Polling loop picks up queued tasks. Queue survives restart (pm2 restart). Stall alert fires. Duplicate job (same fingerprint within 90 days) is blocked. 6th cover letter generation in same day is held in queue.
 
-### Phase 10 — Application Bot (Playwright)
+### Phase 10 — Application Bot (Playwright + Platform Adapters)
 
-**Goal:** Automated form filling with human supervision.
+**Goal:** Automated form filling with human supervision. Pull-based (Wolf clicks "Start").
 
 ```
-10A: Playwright setup with separate Chrome profile
-10B: Standard form field filling (name, email, resume upload)
-10C: Cover letter paste + Q&A field filling
-10D: Multi-page flow handling
-10E: Pause-before-submit gate (Wolf confirms)
-10F: CAPTCHA detection (pause and alert)
-10G: Integration with Conductor queue
+10A: Playwright CDP setup (connectOverCDP to warm browser on port 9222)
+10B: Platform adapter layer (conductor/platform_adapters/)
+     - greenhouse.js: login state, field mapping, upload, submit detection
+     - lever.js: multi-step flow, field mapping
+     - generic.js: best-effort for simple HTML forms
+10C: Standard form field filling (name, email, resume upload)
+10D: Cover letter paste + Q&A field filling
+10E: Multi-page flow handling with checkpoint after each page
+10F: Pause-before-submit gate (Wolf confirms)
+10G: CAPTCHA detection (pause and alert)
+10H: "Start ATS Submissions" button on dashboard (pull-based trigger)
+10I: Non-idempotent safety: dedup check before filling, immediate DB write after submit
+10J: Integration with Conductor queue (checkpoint data in conductor_queue.checkpoint)
 ```
 
-**Test gate:** Bot fills a test form on a staging ATS, Wolf can see it on 2nd monitor, bot pauses at submit, resume uploads successfully.
+**Test gate:** Bot connects to running Chrome via CDP. Greenhouse adapter fills a test form correctly. Bot checkpoints after page 1 of multi-page form. Wolf can see it on 2nd monitor. Bot pauses at submit. Resume uploads. Duplicate submission to same company+role is blocked.
 
 ### Phase 11 — Gmail MCP Server
 
@@ -948,27 +1173,40 @@ All confirmed by Wolf on 2026-03-05:
 
 ```
 11A: Google OAuth setup (Gmail API credentials)
+     - Push to Production status OR use App Password + IMAP (avoids 7-day token expiry)
 11B: Inbox polling (15-min cycle)
-11C: Response parsing (rejection/interview/offer detection)
-11D: Autonomous email send (after Wolf approval)
+11C: Response parsing with confidence scoring
+     - Classifications: rejection, interview, request_info, offer, ghosted, unknown
+     - Confidence score 0-1 per classification
+     - Low confidence (<0.7) → flagged for Wolf's manual review on dashboard
+     - Store raw email text + parsed result + confidence in DB
+11D: Autonomous email send (after Wolf approval via one-click localhost link)
 11E: Verification code extraction (for ATS account creation)
 11F: Integration with Conductor schedule
+11G: Dashboard Gmail Auth Status indicator (connected/expired + re-auth link)
 ```
 
-**Test gate:** OAuth works, inbox check retrieves test email, response parser correctly classifies rejection/interview, send works for approved job.
+**Test gate:** OAuth works (or App Password connects). Inbox check retrieves test email. Response parser correctly classifies rejection (high confidence) and ambiguous email (low confidence → "unknown"). Dashboard shows Gmail auth status. Send works for approved job.
 
-### Phase 12 — Chrome Bridge Extension
+### Phase 12 — Content Ingestion (Dashboard Paste UI)
 
-**Goal:** Claude browser extension can push content to pipeline.
+**Goal:** Wolf can paste content from any AI tool into the pipeline via the dashboard.
 
 ```
-12A: Manifest V3 extension skeleton
-12B: Content script to intercept Claude browser output
-12C: POST to Express API /api/bridge/upload
-12D: Dashboard notification when content received
+12A: "Import Content" panel on Command Center dashboard
+     - Content type selector (cover_letter, research, qa_answers, resume_notes)
+     - Target job selector (dropdown of active jobs)
+     - Textarea for pasting content
+     - "Import" button
+12B: Express endpoint /api/bridge/ingest with bearer token auth
+     - BRIDGE_AUTH_TOKEN env var
+     - JSON schema validation (content_type, job_id, content required; max 50KB)
+12C: bridge_events audit table (append-only logging)
+12D: Dashboard notification when content ingested ("Content imported for Job #123")
+12E: Conductor processes ingested content (routes to correct table based on content_type)
 ```
 
-**Test gate:** Extension loads in Chrome, captures test content, POSTs to API, content appears in pipeline.
+**Test gate:** Paste cover letter text into dashboard UI. POST succeeds with valid token, fails without. Schema validation rejects missing fields. bridge_events table logs the event. Content appears on correct job record. Oversized payload (>50KB) rejected.
 
 ### Phase 13 — Multi-Platform Search + Hardening
 
@@ -1015,12 +1253,14 @@ All confirmed by Wolf on 2026-03-05:
 - International perspective: Germany → UK → US (three cultural contexts)
 - High-stakes credibility: Live broadcast, U2/Rolling Stones touring (failure visible to millions)
 
-### Job Scoring
+### Job Scoring (Claude Haiku)
 - Score 0–100 (never null)
-- Reasoning: minimum 2 sentences
+- **Explainability output:** Every score includes per-dimension breakdown explaining "why this scored 82"
+  - Example: `{ leadership: 22/25, seniority: 18/20, industry: 10/15, culture: 12/15, transformation: 8/10, scope: 8/10, location: 4/5, total: 82, reasoning: "Strong people leadership focus, VP-level scope, media/broadcast industry match..." }`
 - Fit label: HIGH (≥75) / MEDIUM (50–74) / SKIP (<50)
 - Red flag detection: "hold accountable", "move fast break things", "hands-on coding required", "10x engineer"
 - 7 dimensions: Leadership (25%), Seniority (20%), Industry (15%), Culture (15%), Transformation (10%), Scope (10%), Location (5%)
+- Stored in `jobs.score` (integer) and `jobs.score_reasoning` (JSON breakdown)
 
 ---
 
@@ -1034,14 +1274,14 @@ All confirmed by Wolf on 2026-03-05:
 ├── scored/                  ← HIGH/MEDIUM scored jobs
 ├── archived/                ← SKIP scored jobs (<50)
 ├── tasks/                   ← Task files for agent coordination
-├── ready/                   ← Complete application packages
+├── ready/                   ← Complete application packages (artifacts only)
 │   └── [job_id]/
 │       ├── cover_letter.md
 │       ├── resume_bullets.md
 │       ├── qa_answers.md
-│       ├── metadata.json
-│       └── send_ready/
-│           └── approved.flag  ← Created only after Wolf approves
+│       └── metadata.json
+│       # NOTE: Approval state lives in DB (jobs.approved_at), NOT filesystem.
+│       # No approved.flag — folders are storage, DB is truth.
 ├── applied/                 ← Submitted applications (archived)
 ├── responses/               ← Parsed email responses
 ├── errors/                  ← Quarantined failed jobs
@@ -1065,14 +1305,14 @@ All confirmed by Wolf on 2026-03-05:
 │   ├── cc-challenges.js
 │   ├── cc-applied.js
 │   └── cc-feedback.js
-├── chrome-bridge/           ← Chrome Bridge extension source
-│   ├── manifest.json
-│   ├── background.js
-│   └── content.js
-├── conductor/               ← Conductor orchestrator
-│   ├── index.js
-│   ├── state-machine.js
-│   └── scheduler.js
+├── conductor/               ← Conductor orchestrator (single DB writer)
+│   ├── index.js             ← Entry point, Express API for internal writes
+│   ├── state-machine.js     ← Lifecycle transitions
+│   ├── scheduler.js         ← Native polling loop (setInterval 5s + BEGIN EXCLUSIVE)
+│   └── platform_adapters/   ← ATS platform-specific form filling
+│       ├── greenhouse.js
+│       ├── lever.js
+│       └── generic.js
 ├── server.js                ← Express API server
 ├── init-db.js               ← Database initialization
 ├── migrate-v2.js            ← Additive migration for new tables
@@ -1108,20 +1348,25 @@ All confirmed by Wolf on 2026-03-05:
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| ATS platforms detect Playwright | Application blocked or flagged | Headed mode, human speed, separate profile, Wolf watches |
+| ATS platforms detect Playwright | Application blocked or flagged | **CDP connect to warm browser** (trusted fingerprint), headed mode, human speed, Wolf watches |
 | LinkedIn changes DOM (breaks scrapers) | Ingestion stalls | 24h alert, multiple sources, manual fallback |
-| Gmail OAuth token expires | Email monitoring stops | Auto-refresh token, error alert to Wolf |
-| Hallucination filter false positives | Good letters rejected | Configurable strictness, Wolf can override |
+| Gmail OAuth 7-day token expiry | Email monitoring stops weekly | Push Google Cloud project to Production status, OR use App Password + IMAP. Dashboard shows auth status indicator + re-auth link |
+| Hallucination filter false positives | Good letters rejected | Two-call Extract→Assemble pattern minimizes triggers. Claim Schema: soft claims always pass. Wolf can override hard claim flags with one click |
+| Budget burst (overnight batch) | $25+ API bill overnight | **Daily circuit breaker:** max 5 cover letters/day, $2/day budget cap, overflow queues for next day |
+| SQLite lock contention | DB write failures, dashboard freezes | **Single DB writer pattern:** Conductor owns all writes, other components POST to Conductor API |
 | SQLite WAL growth | Disk usage | Periodic VACUUM, monitor file size |
 | Anthropic API rate limits | Generation delayed | Queue with backoff, batch during off-peak |
-| Cover letter quality drift | Wolf's voice becomes generic | Regular review of generated letters, template iteration |
+| Cover letter quality drift | Wolf's voice becomes generic | Prompt versioning via `prompt_registry` table. Regular review, template iteration |
+| ATS double-apply | Looks unprofessional | Non-idempotent tasks have do-not-repeat guards + `job_fingerprint` dedup (90-day window) |
+| Gmail classification errors | Wrong outcome tracking | **Confidence scoring:** low confidence → "unknown" → manual review. Raw email stored for correction |
 | pm2 crash without restart | Conductor stops | launchd watches pm2, auto-restart on failure |
 
 ### Architecture Risks (For External Reviewer)
 1. **Single machine dependency** — If M3 Max is unavailable, entire pipeline stops. Mitigation: all state in SQLite (portable), no cloud lock-in.
-2. **SQLite concurrency** — Multiple writers (Conductor, API server, CLI tools) hitting one DB. Mitigation: WAL mode handles this well for read-heavy/write-light workloads. Connection pooling if needed.
-3. **Playwright fragility** — ATS platforms change DOM frequently. Mitigation: headed mode means Wolf sees failures immediately. Element selectors need maintenance.
+2. **SQLite concurrency** — Solved by single-writer pattern. Conductor is the only process that writes to the database. All other components (CLI, dashboard API, Playwright) POST to the Conductor's Express API.
+3. **Playwright fragility** — ATS platforms change DOM frequently. Mitigation: **platform adapter layer** isolates platform-specific selectors. Greenhouse + Lever adapters for V1. Headed mode means Wolf sees failures immediately.
 4. **Scope creep** — 13 phases is ambitious for a solo operator. Mitigation: each phase is independently functional. Wolf can stop at any phase and have a working system.
+5. **Prompt regression** — Iterating prompts without tracking causes "it worked yesterday" bugs. Mitigation: `prompt_registry` table with version tracking. Every LLM call records which prompt version + model version was used.
 
 ---
 

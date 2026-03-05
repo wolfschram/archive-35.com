@@ -3156,6 +3156,16 @@ def export_etsy_folder(req: EtsyExportRequest):
 # ── CaFE (CallForEntry.org) Endpoints ──────────────────────────────
 
 
+def _portfolio_to_slug(folder_name: str) -> str:
+    """Convert 01_Portfolio folder name to web image slug.
+
+    Matches the normalization in Studio main.js (finalize-ingest):
+      Alps_ → alps, Black_and_White → black-and-white
+    """
+    import re
+    return re.sub(r'-+$', '', folder_name.strip().lower().replace('_', '-').replace(' ', '-'))
+
+
 class CaFEExportRequest(BaseModel):
     """Request body for CaFE portfolio export."""
     photo_ids: list[str] = []
@@ -3232,12 +3242,13 @@ def get_cafe_photos(
                 with open(photos_json) as f:
                     photos = json.load(f)
                 if isinstance(photos, list):
+                    slug = _portfolio_to_slug(collection)
                     for p in photos:
-                        p["collection"] = collection
-                        # Add thumbnail URL for UI
+                        p["collection"] = collection  # Raw folder name (for export lookups)
+                        p["collection_slug"] = slug    # Web-safe slug (for image URLs)
                         fname = p.get("filename", "")
                         base = fname.rsplit(".", 1)[0] if "." in fname else fname
-                        p["thumbnail_url"] = f"https://archive-35.com/images/{collection}/{base}-thumb.jpg"
+                        p["thumbnail_url"] = f"https://archive-35.com/images/{slug}/{base}-thumb.jpg"
                     all_photos = photos
         else:
             # Read all galleries
@@ -3249,11 +3260,13 @@ def get_cafe_photos(
                             with open(photos_json) as f:
                                 photos = json.load(f)
                             if isinstance(photos, list):
+                                slug = _portfolio_to_slug(d.name)
                                 for p in photos:
                                     p["collection"] = d.name
+                                    p["collection_slug"] = slug
                                     fname = p.get("filename", "")
                                     base = fname.rsplit(".", 1)[0] if "." in fname else fname
-                                    p["thumbnail_url"] = f"https://archive-35.com/images/{d.name}/{base}-thumb.jpg"
+                                    p["thumbnail_url"] = f"https://archive-35.com/images/{slug}/{base}-thumb.jpg"
                                 all_photos.extend(photos)
                         except Exception:
                             continue
@@ -3305,6 +3318,64 @@ def get_cafe_submissions():
                 })
 
     return {"items": items}
+
+
+class CaFEGenerateMetadataRequest(BaseModel):
+    """Request body for generating missing CaFE metadata fields."""
+    photo_ids: list[str] = []
+    fields: list[str] = ["alt_text"]  # Which fields to generate
+
+
+@app.post("/cafe/generate-metadata")
+def generate_cafe_metadata(req: CaFEGenerateMetadataRequest):
+    """Generate missing metadata (alt_text, description) for selected photos.
+
+    Uses existing title + description to auto-generate alt_text.
+    Returns a dict of {photo_id: {field: value}} for the frontend to apply.
+    """
+    from src.brand.cafe_export import generate_alt_text
+
+    project_root = Path(__file__).resolve().parent.parent.parent
+    portfolio_root = project_root / "01_Portfolio"
+
+    # Build photo lookup
+    photo_lookup = {}
+    if portfolio_root.exists():
+        for d in portfolio_root.iterdir():
+            if d.is_dir() and not d.name.startswith('_'):
+                photos_json = d / "_photos.json"
+                if photos_json.exists():
+                    try:
+                        with open(photos_json) as f:
+                            photos = json.load(f)
+                        if isinstance(photos, list):
+                            for p in photos:
+                                p["_collection_dir"] = d.name
+                                photo_lookup[p["id"]] = p
+                    except Exception:
+                        continue
+
+    results = {}
+    for pid in req.photo_ids:
+        photo = photo_lookup.get(pid)
+        if not photo:
+            continue
+
+        generated = {}
+        title = photo.get("title", "")
+        description = photo.get("description", "")
+
+        if "alt_text" in req.fields and title:
+            generated["alt_text"] = generate_alt_text(title, description, max_len=125)
+
+        if "description" in req.fields and not description and title:
+            # Simple fallback if no description exists
+            generated["description"] = title
+
+        if generated:
+            results[pid] = generated
+
+    return {"generated": results, "count": len(results)}
 
 
 @app.post("/cafe/export")

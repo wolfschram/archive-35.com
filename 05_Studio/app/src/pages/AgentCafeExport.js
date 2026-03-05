@@ -170,6 +170,36 @@ function AgentCafeExport() {
     }));
   };
 
+  const [generatingAlt, setGeneratingAlt] = useState(false);
+
+  const handleGenerateAltText = async () => {
+    if (selectedPhotos.size === 0) return;
+    setGeneratingAlt(true);
+    try {
+      const result = await post('/cafe/generate-metadata', {
+        photo_ids: Array.from(selectedPhotos),
+        fields: ['alt_text'],
+      });
+      if (result?.generated) {
+        setPhotoMetadata((prev) => {
+          const next = { ...prev };
+          for (const [pid, fields] of Object.entries(result.generated)) {
+            next[pid] = { ...next[pid], ...fields };
+          }
+          return next;
+        });
+        setActionMsg({
+          type: 'success',
+          text: `Generated alt text for ${result.count} photo(s)`,
+        });
+      }
+    } catch (err) {
+      setActionMsg({ type: 'error', text: `Alt text generation failed: ${err.message || err}` });
+    } finally {
+      setGeneratingAlt(false);
+    }
+  };
+
   const handleGenerateExport = async () => {
     if (selectedPhotos.size === 0) {
       setActionMsg({ type: 'error', text: 'Select at least one photo for submission' });
@@ -317,7 +347,7 @@ function AgentCafeExport() {
             {Array.from(selectedPhotos).map((photoId) => {
               const photo = allPhotos.find((p) => p.id === photoId);
               if (!photo) return null;
-              const thumbUrl = `https://archive-35.com/images/${photo.collection}/${photo.filename.replace(
+              const thumbUrl = photo.thumbnail_url || `https://archive-35.com/images/${photo.collection_slug || photo.collection}/${photo.filename.replace(
                 /\.[^/.]+$/,
                 ''
               )}-thumb.jpg`;
@@ -519,26 +549,46 @@ function AgentCafeExport() {
             })}
           </div>
 
-          {/* Generate export button */}
-          <button
-            onClick={handleGenerateExport}
-            disabled={exporting || selectedPhotos.size === 0}
-            style={{
-              width: '100%',
-              padding: '12px 20px',
-              fontSize: '13px',
-              fontWeight: 600,
-              background:
-                selectedPhotos.size > 0 ? 'rgba(124, 92, 191, 0.15)' : 'rgba(128, 128, 128, 0.1)',
-              border: `1px solid ${selectedPhotos.size > 0 ? '#7c5cbf' : 'var(--text-muted)'}`,
-              borderRadius: 'var(--radius-sm)',
-              color: selectedPhotos.size > 0 ? '#7c5cbf' : 'var(--text-muted)',
-              cursor: selectedPhotos.size > 0 ? 'pointer' : 'not-allowed',
-              opacity: exporting ? 0.6 : 1,
-            }}
-          >
-            {exporting ? 'Generating...' : `Generate Export (${selectedPhotos.size} image${selectedPhotos.size !== 1 ? 's' : ''})`}
-          </button>
+          {/* Action buttons */}
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              onClick={handleGenerateAltText}
+              disabled={generatingAlt || selectedPhotos.size === 0}
+              style={{
+                flex: 1,
+                padding: '12px 20px',
+                fontSize: '13px',
+                fontWeight: 600,
+                background: 'rgba(74, 222, 128, 0.1)',
+                border: '1px solid var(--success)',
+                borderRadius: 'var(--radius-sm)',
+                color: 'var(--success)',
+                cursor: selectedPhotos.size > 0 ? 'pointer' : 'not-allowed',
+                opacity: generatingAlt ? 0.6 : 1,
+              }}
+            >
+              {generatingAlt ? 'Generating...' : '✨ Generate Alt Text'}
+            </button>
+            <button
+              onClick={handleGenerateExport}
+              disabled={exporting || selectedPhotos.size === 0}
+              style={{
+                flex: 2,
+                padding: '12px 20px',
+                fontSize: '13px',
+                fontWeight: 600,
+                background:
+                  selectedPhotos.size > 0 ? 'rgba(124, 92, 191, 0.15)' : 'rgba(128, 128, 128, 0.1)',
+                border: `1px solid ${selectedPhotos.size > 0 ? '#7c5cbf' : 'var(--text-muted)'}`,
+                borderRadius: 'var(--radius-sm)',
+                color: selectedPhotos.size > 0 ? '#7c5cbf' : 'var(--text-muted)',
+                cursor: selectedPhotos.size > 0 ? 'pointer' : 'not-allowed',
+                opacity: exporting ? 0.6 : 1,
+              }}
+            >
+              {exporting ? 'Exporting...' : `📦 Export to CaFE Ready (${selectedPhotos.size} image${selectedPhotos.size !== 1 ? 's' : ''})`}
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -584,11 +634,52 @@ function AgentCafeExport() {
   // ── Render: Galleries tab ────────────────────────────────
 
   const GalleriesTab = () => {
+    // Gallery dropdown for quick navigation
+    const GalleryDropdown = () => (
+      <div style={{ marginBottom: '20px' }}>
+        <select
+          value={currentGallery?.name || ''}
+          onChange={(e) => {
+            const galleryName = e.target.value;
+            if (galleryName) {
+              const gallery = galleries.find((g) => g.name === galleryName);
+              if (gallery) enterGalleryDetail(gallery);
+            } else {
+              backToGalleryList();
+            }
+          }}
+          style={{
+            width: '100%',
+            padding: '10px 14px',
+            fontSize: '14px',
+            fontWeight: 600,
+            background: 'var(--bg-tertiary)',
+            border: '1px solid var(--glass-border)',
+            borderRadius: 'var(--radius-sm)',
+            color: 'var(--text-primary)',
+            cursor: 'pointer',
+            appearance: 'none',
+            backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%23888\' d=\'M6 8L1 3h10z\'/%3E%3C/svg%3E")',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'right 12px center',
+          }}
+        >
+          <option value="">— Select a Gallery —</option>
+          {galleries.map((g) => (
+            <option key={g.name} value={g.name}>
+              {g.display_name || g.name} ({g.photo_count} photos{g.has_metadata ? '' : ' ⚠'})
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+
     if (currentGallery) {
       // Detail view
       const photos = galleryPhotos[currentGallery.name] || [];
       return (
         <div>
+          <GalleryDropdown />
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
             <button
               onClick={backToGalleryList}
@@ -630,7 +721,7 @@ function AgentCafeExport() {
               {photos.map((photo) => {
                 const isSelected = selectedPhotos.has(photo.id);
                 const status = getValidationStatus(photo);
-                const thumbUrl = `https://archive-35.com/images/${photo.collection}/${photo.filename.replace(
+                const thumbUrl = photo.thumbnail_url || `https://archive-35.com/images/${photo.collection_slug || photo.collection}/${photo.filename.replace(
                   /\.[^/.]+$/,
                   ''
                 )}-thumb.jpg`;
@@ -745,6 +836,7 @@ function AgentCafeExport() {
     // List view
     return (
       <div>
+        <GalleryDropdown />
         {galleries.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-muted)' }}>
             No galleries available. Import photos first.

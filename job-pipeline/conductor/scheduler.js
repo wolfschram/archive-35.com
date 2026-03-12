@@ -37,8 +37,8 @@ try {
 // ─── Configuration ───────────────────────────────────────────────────
 const CONFIG = {
   pollInterval: 5000,           // 5 seconds
-  maxDailyGenerations: 5,
-  maxDailyBudget: 2.00,        // $2/day
+  maxDailyGenerations: 999,    // No practical limit
+  maxDailyBudget: 999.00,      // No practical limit
   maxMonthlyBudget: 55.00,     // $55/month
   stallThresholdMinutes: 15,
   maxRetries: 3,
@@ -113,12 +113,18 @@ function checkCircuitBreaker() {
 function enqueueTask(taskType, jobId, payload = {}, priority = 0) {
   const idempotencyKey = jobId ? `${jobId}_${taskType}` : null;
 
-  // Check for existing queued/processing task with same key
+  // Check for existing task with same key (any status except completed)
   if (idempotencyKey) {
     const existing = db.prepare(
-      "SELECT id, status FROM conductor_queue WHERE idempotency_key = ? AND status IN ('queued', 'processing')"
+      "SELECT id, status FROM conductor_queue WHERE idempotency_key = ? AND status IN ('queued', 'processing', 'failed')"
     ).get(idempotencyKey);
     if (existing) {
+      // If failed, reset it to queued for retry
+      if (existing.status === 'failed') {
+        db.prepare("UPDATE conductor_queue SET status = 'queued', error = NULL, retry_count = 0, started_at = NULL WHERE id = ?").run(existing.id);
+        log('retry-reset', `Reset failed ${taskType} for job ${jobId} → queued (id: ${existing.id.slice(0, 8)})`);
+        return { id: existing.id, reset: true };
+      }
       log('idempotent', `Skipped duplicate: ${taskType} for job ${jobId} (existing: ${existing.id})`);
       return { skipped: true, existing_id: existing.id };
     }
@@ -154,6 +160,9 @@ async function processTask(task) {
         break;
       case 'check_response':
         await processCheckResponse(task);
+        break;
+      case 'research_company':
+        await processResearchCompany(task);
         break;
       case 'submit_email':
       case 'submit_ats':
@@ -208,23 +217,42 @@ async function processTask(task) {
 // ─── Task Handlers ───────────────────────────────────────────────────
 
 async function processScore(task) {
-  // Score task: Call the scoring endpoint or module
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error('ANTHROPIC_API_KEY not configured');
-
+  // Score task: Use inline keyword scoring (no external API needed)
   const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(task.job_id);
   if (!job) throw new Error(`Job ${task.job_id} not found`);
 
-  // Use job-scorer if available, otherwise stub
-  const scorerPath = path.join(__dirname, '..', 'job-scorer.js');
-  if (fs.existsSync(scorerPath)) {
-    execSync(`node "${scorerPath}" --id ${task.job_id}`, {
-      env: { ...process.env, ANTHROPIC_API_KEY: apiKey },
-      timeout: 30000,
-    });
-  } else {
-    throw new Error('job-scorer.js not found');
+  // Inline keyword scoring (same logic as job-scorer.js but doesn't require better-sqlite3)
+  const text = `${job.title || ''} ${job.description || ''}`.toLowerCase();
+  const keywords = {
+    leadership: { weight: 25, terms: ['servant leader','people development','coaching','mentoring','empowerment','build culture','team builder','org design','organizational','develop leaders','growth mindset','psychological safety','inclusive','ownership culture'] },
+    seniority: { weight: 20, terms: ['vp','vice president','svp','senior vice','director','head of','cto','coo','c-suite','chief','executive'] },
+    industry: { weight: 15, terms: ['broadcast','media','streaming','video','audio','smpte','2110','content','entertainment','ott','live production','post-production'] },
+    culture: { weight: 15, terms: ['ownership','autonomy','trust','transparency','psychological safety','innovation','remote','flexible','distributed','empowerment'] },
+    transformation: { weight: 10, terms: ['post-merger','scale','hypergrowth','modernize','turnaround','digital transformation','restructure','integration','change management'] },
+    scope: { weight: 10, terms: ['100+','150+','200+','engineers','global','multi-site','cross-functional','large team','enterprise'] },
+    location: { weight: 5, terms: ['los angeles','la','california','remote','hybrid','west coast','pacific'] },
+  };
+
+  let totalScore = 0;
+  const breakdown = {};
+  for (const [dim, { weight, terms }] of Object.entries(keywords)) {
+    const matches = terms.filter(t => text.includes(t));
+    const dimScore = Math.min(matches.length / 3, 1.0) * weight;
+    totalScore += dimScore;
+    breakdown[dim] = { score: Math.round(dimScore), max: weight, matches: matches.length };
   }
+
+  // Red flags
+  const redFlags = ['hold accountable','move fast break things','must code daily','10x engineer','rockstar','ninja','micromanage'].filter(f => text.includes(f));
+  totalScore -= redFlags.length * 5;
+
+  const score = Math.max(0, Math.min(Math.round((totalScore / 100) * 100), 100));
+  const label = score >= 75 ? 'HIGH' : score >= 50 ? 'MEDIUM' : 'SKIP';
+
+  db.prepare('UPDATE jobs SET score = ?, score_reasoning = ?, status = ? WHERE id = ?').run(
+    score, JSON.stringify({ breakdown, red_flags: redFlags, label }), 'SCORED', task.job_id
+  );
+  log('score', `Job ${task.job_id} (${job.company}): score=${score} [${label}] — ${redFlags.length} red flags`);
 }
 
 async function processGenerateLetter(task) {
@@ -253,26 +281,143 @@ async function processGenerateLetter(task) {
 }
 
 async function processScrape(task) {
-  // Stub — scraping will be implemented in Phase 13
-  log('stub', `Scrape task: not yet implemented (Phase 13)`);
-  throw new Error('Scraper not yet implemented');
+  // Phase 13: Real job search via LinkedIn public API
+  const payload = JSON.parse(task.payload || '{}');
+  const query = payload.query || 'VP Engineering';
+  const location = payload.location || 'Los Angeles, CA';
+  log('scrape', `Searching: "${query}" in "${location}"`);
+
+  // Call the server's search endpoint internally
+  const http = require('http');
+  const postData = JSON.stringify({ query, location, sources: ['linkedin'] });
+  const result = await new Promise((resolve, reject) => {
+    const req = http.request({ hostname: 'localhost', port: 3000, path: '/api/search/run', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(postData) }
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => { try { resolve(JSON.parse(data)); } catch { reject(new Error('Invalid response')); } });
+    });
+    req.on('error', reject);
+    req.setTimeout(30000, () => { req.destroy(); reject(new Error('Timeout')); });
+    req.write(postData);
+    req.end();
+  });
+
+  log('scrape', `Found ${result.results?.length || 0} jobs, ${result.duplicates_filtered || 0} dupes filtered`);
 }
 
 async function processCheckResponse(task) {
-  // Stub — Gmail monitoring will be implemented in Phase 11
-  log('stub', `Response check: not yet implemented (Phase 11)`);
-  throw new Error('Gmail monitor not yet implemented');
+  // Phase 11: Check Gmail for job responses via server's email scan endpoint
+  const http = require('http');
+  const postData = JSON.stringify({ days_back: 1 }); // check last 24 hours
+  const result = await new Promise((resolve, reject) => {
+    const req = http.request({ hostname: 'localhost', port: 3000, path: '/api/email/scan', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(postData) }
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => { try { resolve(JSON.parse(data)); } catch { resolve({ error: 'parse_failed' }); } });
+    });
+    req.on('error', (err) => {
+      log('gmail', `Gmail check failed: ${err.message} (Gmail may not be configured)`);
+      resolve({ error: err.message }); // Don't throw — Gmail being unconfigured shouldn't crash conductor
+    });
+    req.setTimeout(30000, () => { req.destroy(); resolve({ error: 'timeout' }); });
+    req.write(postData);
+    req.end();
+  });
+
+  if (result.error) {
+    log('gmail', `Gmail check skipped: ${result.error}`);
+  } else {
+    log('gmail', `Gmail scan: ${result.total_found || 0} found, ${result.new_emails || 0} new, ${result.matched || 0} matched`);
+  }
 }
 
 async function processSubmit(task) {
-  // Stub — Application Bot will be implemented in Phase 10
-  log('stub', `Submit (${task.task_type}): not yet implemented (Phase 10)`);
+  // Phase 10: Submit via Application Bot (Playwright CDP)
+  const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(task.job_id);
+  if (!job) throw new Error(`Job ${task.job_id} not found`);
 
-  // Non-idempotent: save checkpoint
-  if (task.checkpoint) {
-    log('checkpoint', `Resuming from checkpoint: ${task.checkpoint}`);
+  // Prefer direct application URL > careers page > listing URL
+  const submitUrl = job.url_direct || job.careers_url || job.url;
+  if (!submitUrl) throw new Error(`Job ${task.job_id} has no URL for ATS submission`);
+  // Override job.url with best URL for the bot
+  job.url = submitUrl;
+  log('submit', `Using URL: ${submitUrl} (source: ${job.url_direct ? 'direct_ats' : job.careers_url ? 'careers_page' : 'listing'})`);
+
+  // Check if Playwright is available
+  let bot;
+  try {
+    bot = require('./application-bot');
+  } catch (e) {
+    throw new Error(`Application Bot not available: ${e.message}. Install playwright-core: npm install playwright-core`);
   }
-  throw new Error('Application Bot not yet implemented');
+
+  // Check CDP connection
+  const status = bot.getStatus ? bot.getStatus() : { connected: false };
+  if (!status.connected) {
+    log('submit', `ATS Bot not connected to Chrome CDP. Start Chrome with --remote-debugging-port=9222`);
+    throw new Error('Chrome CDP not connected. Start Chrome with --remote-debugging-port=9222 and connect via dashboard ATS tab.');
+  }
+
+  // Get cover letter
+  const letter = db.prepare(
+    'SELECT content FROM cover_letter_versions WHERE job_id = ? ORDER BY version DESC LIMIT 1'
+  ).get(task.job_id);
+
+  // Get personal info
+  const personalRows = db.prepare('SELECT key, value FROM personal_info').all();
+  const personalInfo = {};
+  personalRows.forEach(r => { personalInfo[r.key] = r.value; });
+
+  log('submit', `Submitting job ${task.job_id}: ${job.company} — ${job.title}`);
+
+  // Non-idempotent: save checkpoint for resume
+  const checkpoint = task.checkpoint ? JSON.parse(task.checkpoint) : null;
+
+  const result = await bot.submitJob({
+    job,
+    personalInfo,
+    coverLetter: letter?.content || '',
+    checkpoint,
+  });
+
+  if (result.paused_for_review) {
+    log('submit', `Job ${task.job_id}: Paused for Wolf's review (form filled, not submitted)`);
+    return; // Don't mark as completed — Wolf needs to confirm
+  }
+
+  if (result.success) {
+    // Record submission
+    db.prepare(
+      "INSERT INTO application_submissions (job_id, method, platform, submitted_at) VALUES (?, 'ats_portal', ?, datetime('now'))"
+    ).run(task.job_id, result.platform || 'generic');
+    transitionJob(task.job_id, 'SUBMITTED');
+    log('submit', `Job ${task.job_id}: Submitted via ${result.platform || 'generic'}`);
+  }
+}
+
+async function processResearchCompany(task) {
+  // Auto-enrich: fetch company website, find careers page URL
+  const http = require('http');
+  const result = await new Promise((resolve, reject) => {
+    const req = http.request({ hostname: 'localhost', port: 3000, path: `/api/research/auto/${task.job_id}`, method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': 2 }
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => { try { resolve(JSON.parse(data)); } catch { reject(new Error('Invalid response')); } });
+    });
+    req.on('error', reject);
+    req.setTimeout(20000, () => { req.destroy(); reject(new Error('Timeout')); });
+    req.write('{}');
+    req.end();
+  });
+
+  if (result.error) throw new Error(result.error);
+  log('research', `Job ${task.job_id} (${result.company}): careers=${result.careers_url || 'not found'}`);
 }
 
 // ─── Auto-Queue Logic ────────────────────────────────────────────────
@@ -285,6 +430,16 @@ function autoQueueJobs() {
   ).all();
   for (const job of unscored) {
     enqueueTask('score', job.id, {}, 5);
+  }
+
+  // Queue company research for SCORED jobs that don't have research yet
+  const unresearched = db.prepare(`
+    SELECT j.id FROM jobs j
+    LEFT JOIN company_research cr ON cr.job_id = j.id
+    WHERE j.status = 'SCORED' AND j.score >= 50 AND cr.job_id IS NULL
+  `).all();
+  for (const job of unresearched) {
+    enqueueTask('research_company', job.id, {}, 3);
   }
 
   // Queue letter generation for SCORED jobs with high scores
@@ -402,10 +557,9 @@ function setupScheduler() {
     }
   }, 60000);
 
-  // Every 15 minutes: check for Gmail responses (stub)
+  // Every 15 minutes: check for Gmail responses
   setInterval(() => {
-    // enqueueTask('check_response', null, {}, 1);
-    // Disabled until Phase 11
+    enqueueTask('check_response', null, {}, 1);
   }, 15 * minuteMs);
 
   // Schedule daily tasks based on time

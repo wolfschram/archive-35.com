@@ -11,9 +11,244 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const { URL } = require('url');
+const https = require('https');
+const { scrapeJobs, setLoggerLevel } = require('ts-jobspy');
+setLoggerLevel('fatal'); // suppress 403 noise from ZipRecruiter/Glassdoor/Bayt/Naukri/BDJobs
+
+// LinkedIn MCP client — provides full job descriptions from LinkedIn
+let linkedinMCP = null;
+let linkedinAvailable = false;
+try {
+  linkedinMCP = require('./linkedin-mcp-client');
+  // Check availability in background (don't block server start)
+  linkedinMCP.checkAvailability().then(ok => {
+    linkedinAvailable = ok;
+    console.log(ok ? '  ✓ LinkedIn MCP connected — full descriptions available' : '  ⚠ LinkedIn MCP not available — run setup-linkedin-mcp.sh');
+  }).catch(() => {
+    console.log('  ⚠ LinkedIn MCP not available — run setup-linkedin-mcp.sh');
+  });
+} catch (e) {
+  console.log('  ⚠ LinkedIn MCP client not loaded:', e.message);
+}
 
 const PORT = process.env.PORT || 3000;
 const DB_PATH = path.join(__dirname, 'pipeline.db');
+const TEMPLATES_DIR = path.join(__dirname, 'templates');
+
+// ─── Load Profile Data for Dynamic Scoring ───────────────────────────
+// Reads resume.md + capability_profile.md + search_profile.md at startup
+let PROFILE_SCORER = null;
+let COMPANY_SKIP_LIST = [];
+
+function loadProfileScorer() {
+  try {
+    const resumePath = path.join(TEMPLATES_DIR, 'resume.md');
+    const capPath = path.join(TEMPLATES_DIR, 'capability_profile.md');
+    const searchPath = path.join(TEMPLATES_DIR, 'search_profile.md');
+    const resumeText = fs.existsSync(resumePath) ? fs.readFileSync(resumePath, 'utf8').toLowerCase() : '';
+    const capText = fs.existsSync(capPath) ? fs.readFileSync(capPath, 'utf8').toLowerCase() : '';
+    const searchText = fs.existsSync(searchPath) ? fs.readFileSync(searchPath, 'utf8').toLowerCase() : '';
+
+    // Extract target roles from capability profile
+    const targetRoles = [];
+    const roleSection = capText.match(/## target roles\n([\s\S]*?)(?=\n##|\n$)/);
+    if (roleSection) {
+      roleSection[1].split('\n').forEach(line => {
+        const m = line.match(/^-\s*(.+)/);
+        if (m) targetRoles.push(m[1].trim().toLowerCase());
+      });
+    }
+
+    // Extract target titles from search profile
+    const targetTitles = [];
+    const titleSection = searchText.match(/## target titles\n([\s\S]*?)(?=\n##)/);
+    if (titleSection) {
+      titleSection[1].split('\n').forEach(line => {
+        const m = line.match(/^-\s*(.+)/);
+        if (m) targetTitles.push(m[1].trim().toLowerCase().replace(/\(.*?\)/g, '').trim());
+      });
+    }
+
+    // Extract company skip list from search profile
+    COMPANY_SKIP_LIST = [];
+    const skipSection = searchText.match(/## companies to skip\n([\s\S]*?)(?=\n##)/);
+    if (skipSection) {
+      skipSection[1].split('\n').forEach(line => {
+        const m = line.match(/^-\s*(\w[\w\s]*?)(?:\s*\(|$)/);
+        if (m) COMPANY_SKIP_LIST.push(m[1].trim().toLowerCase());
+      });
+    }
+
+    // Build dynamic scoring dimensions — informed by search profile
+    PROFILE_SCORER = {
+      leadership: {
+        weight: 25,
+        terms: [
+          'servant leader', 'people development', 'coaching', 'mentoring', 'empowerment',
+          'build culture', 'team builder', 'org design', 'organizational', 'develop leaders',
+          'growth mindset', 'psychological safety', 'inclusive', 'ownership culture',
+          'ownership', 'people-first', 'leadership for leaders', 'develop others',
+          'self-organizing', 'team development', 'leadership development',
+          'people leader', 'engineering leader', 'cross-functional', 'org transformation',
+          'culture building', 'ai adoption', 'leading teams',
+        ],
+      },
+      seniority: {
+        weight: 25, // increased from 20 — seniority match is critical
+        terms: [
+          'vp', 'vice president', 'svp', 'senior vice', 'senior director',
+          'head of', 'cto', 'coo', 'c-suite', 'chief', 'executive',
+          'vp of engineering', 'vp of technology', 'vp of operations',
+          'head of engineering', 'vp business transformation',
+          ...targetTitles.filter(r => r.length > 3),
+          ...targetRoles.filter(r => r.length > 3),
+        ],
+      },
+      industry: {
+        weight: 15,
+        terms: [
+          // Media/entertainment (still relevant but not exclusive)
+          'broadcast', 'media', 'streaming', 'entertainment', 'live production',
+          // Broader industries from search profile
+          'saas', 'platform', 'healthcare', 'health tech', 'fintech',
+          'financial services', 'financial technology', 'aerospace', 'defense',
+          'logistics', 'supply chain', 'government', 'public sector',
+          'retail', 'e-commerce', 'ecommerce', 'manufacturing', 'industry 4.0',
+          'edtech', 'education', 'energy', 'cleantech', 'clean energy',
+          'enterprise', 'technology', 'infrastructure',
+        ],
+      },
+      culture: {
+        weight: 15,
+        terms: [
+          'ownership', 'autonomy', 'trust', 'transparency', 'psychological safety',
+          'innovation', 'remote', 'flexible', 'distributed', 'empowerment',
+          'diverse', 'inclusive', 'neurodivergent', 'authentic', 'no ego',
+          'remote-first', 'hybrid', 'people-first', 'progressive',
+        ],
+      },
+      transformation: {
+        weight: 10,
+        terms: [
+          'post-merger', 'scale', 'hypergrowth', 'modernize', 'turnaround',
+          'digital transformation', 'restructure', 'integration', 'change management',
+          'transformation', 'merger', 'acquisition', 'consolidation',
+          'rapid growth', 'technology transition', 'ai transformation',
+          'ai adoption', 'organizational change',
+        ],
+      },
+      scope: {
+        weight: 5, // reduced — most VP roles have adequate scope
+        terms: [
+          '50+', '100+', '150+', '200+', '250+', '500+', 'engineers', 'global',
+          'multi-site', 'cross-functional', 'large team', 'enterprise',
+          'multi-geography', 'international',
+        ],
+      },
+      location: {
+        weight: 5,
+        terms: [
+          'los angeles', 'la', 'california', 'remote', 'hybrid', 'west coast',
+          'pacific', 'santa clarita', 'burbank', 'hollywood', 'culver city',
+        ],
+      },
+    };
+
+    // Red flags — harder penalties for things that are clearly not a fit
+    PROFILE_SCORER.redFlags = [
+      // Wrong level
+      'junior', 'entry level', 'intern', 'associate', '0-2 years', '1-3 years',
+      '2-4 years', '3-5 years',
+      // Wrong type — IC/hands-on coding roles
+      'must code daily', 'hands-on coding required', 'individual contributor',
+      'software engineer', 'senior engineer', 'staff engineer',
+      // Wrong culture
+      'rockstar', 'ninja', '10x engineer', 'move fast break things',
+      'micromanage', 'hold accountable',
+      // Relocation required
+      'relocation required', 'must relocate', 'on-site only',
+    ];
+
+    // Title-based instant disqualifiers (if title contains these, score = 0)
+    PROFILE_SCORER.titleDisqualifiers = [
+      'intern', 'coordinator', 'associate', 'specialist', 'analyst',
+      'junior', 'entry', 'technician', 'assistant', 'clerk',
+      'recruiter', 'sales rep', 'account executive', 'customer service',
+    ];
+
+    console.log(`  ✓ Profile scorer loaded (${targetTitles.length} target titles, ${COMPANY_SKIP_LIST.length} skip companies, 7 dimensions)`);
+    return PROFILE_SCORER;
+  } catch (e) {
+    console.error('  ⚠ Could not load profile scorer:', e.message);
+    return null;
+  }
+}
+loadProfileScorer();
+
+// ─── Real Job Search Scrapers ────────────────────────────────────────
+
+/** Fetch HTML from a URL, returns string */
+function fetchHTML(url, userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36') {
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, { headers: { 'User-Agent': userAgent } }, (res) => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        return fetchHTML(res.headers.location, userAgent).then(resolve, reject);
+      }
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve(data));
+    });
+    req.on('error', reject);
+    req.setTimeout(15000, () => { req.destroy(); reject(new Error('Timeout')); });
+  });
+}
+
+/** Search jobs via ts-jobspy (LinkedIn + Indeed + more, maintained npm package) */
+async function searchJobsSpy(query, location, sources = ['indeed', 'linkedin'], count = 15) {
+  // Split comma-separated queries for better results (LinkedIn handles commas poorly)
+  const queries = query.includes(',')
+    ? query.split(',').map(q => q.trim()).filter(q => q.length > 2)
+    : [query];
+
+  const allJobs = [];
+  // Request at least 10 results per query — don't starve individual titles
+  const perQuery = Math.max(10, Math.ceil(count / Math.min(queries.length, 4)));
+
+  for (const q of queries) {
+    try {
+      console.log(`[ts-jobspy] Searching "${q}" (${perQuery} wanted from ${sources.join(',')})`);
+      const jobs = await scrapeJobs({
+        siteType: sources.filter(s => ['indeed', 'linkedin'].includes(s)),
+        searchTerm: q,
+        location: location || 'United States',
+        resultsWanted: perQuery,
+        countryIndeed: 'USA',
+      });
+      console.log(`[ts-jobspy] "${q}": ${jobs.length} results`);
+      allJobs.push(...jobs);
+    } catch (e) {
+      console.error(`[ts-jobspy] "${q}" FAILED:`, e.message);
+    }
+  }
+
+  // Normalize to our schema
+  return allJobs.map(j => ({
+    title: j.title || 'Unknown',
+    company: j.company || 'Unknown',
+    description: (j.description || '').substring(0, 5000),
+    url: j.jobUrl || '',
+    url_direct: j.jobUrlDirect || '',    // actual company ATS application URL
+    company_url: j.companyUrl || '',      // company website
+    location: j.location || '',
+    source: j.site || 'unknown',
+    posted: j.datePosted || '',
+    salary_min: j.minAmount || null,
+    salary_max: j.maxAmount || null,
+    is_remote: j.isRemote || false,
+    company_industry: j.companyIndustry || '',
+    company_description: (j.companyDescription || '').substring(0, 1000),
+  }));
+}
 
 // ─── Helpers ────────────────────────────────────────────────────────
 /** Escape special SQL LIKE characters (%, _) in user input */
@@ -56,6 +291,73 @@ if (!db.transaction) {
     };
   };
 }
+
+// ─── Initialize Deleted Fingerprints Table ─────────────────────────
+// Create table if it doesn't exist (idempotent)
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS deleted_fingerprints (
+      fingerprint TEXT PRIMARY KEY,
+      company TEXT,
+      title TEXT,
+      deleted_at TEXT DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_deleted_fingerprints_deleted_at ON deleted_fingerprints(deleted_at);
+  `);
+} catch (err) {
+  console.warn('⚠ Could not create deleted_fingerprints table:', err.message);
+}
+
+// ─── Migrate: Add company_url, url_direct, careers_url to jobs ──────
+try { db.exec("ALTER TABLE jobs ADD COLUMN company_url TEXT"); } catch(e) {}
+try { db.exec("ALTER TABLE jobs ADD COLUMN url_direct TEXT"); } catch(e) {}
+try { db.exec("ALTER TABLE jobs ADD COLUMN careers_url TEXT"); } catch(e) {}
+
+// ─── Migrate: conductor_queue CHECK constraint to include research_company ──
+try {
+  // Test if research_company is allowed
+  const testId = 'migration_test_' + Date.now();
+  db.prepare("INSERT INTO conductor_queue (id, job_id, task_type, status) VALUES (?, 1, 'research_company', 'completed')").run(testId);
+  db.prepare("DELETE FROM conductor_queue WHERE id = ?").run(testId);
+} catch (e) {
+  if (e.message && e.message.includes('CHECK')) {
+    console.log('  ⟳ Migrating conductor_queue CHECK constraint...');
+    try {
+      db.exec('PRAGMA foreign_keys = OFF');
+      db.exec(`CREATE TABLE conductor_queue_new (
+        id TEXT PRIMARY KEY, job_id INTEGER REFERENCES jobs(id),
+        task_type TEXT NOT NULL CHECK(task_type IN ('score','generate_letter','submit_email','submit_ats','check_response','scrape','research_company')),
+        priority INTEGER DEFAULT 0,
+        status TEXT DEFAULT 'queued' CHECK(status IN ('queued','processing','completed','failed','blocked')),
+        payload TEXT, idempotent INTEGER DEFAULT 1, idempotency_key TEXT, checkpoint TEXT,
+        retry_count INTEGER DEFAULT 0, max_retries INTEGER DEFAULT 3,
+        created_at TEXT DEFAULT (datetime('now')), started_at TEXT, completed_at TEXT, error TEXT,
+        UNIQUE(idempotency_key)
+      )`);
+      db.exec('INSERT INTO conductor_queue_new SELECT * FROM conductor_queue');
+      db.exec('DROP TABLE conductor_queue');
+      db.exec('ALTER TABLE conductor_queue_new RENAME TO conductor_queue');
+      db.exec('PRAGMA foreign_keys = ON');
+      console.log('  ✓ conductor_queue migrated');
+    } catch (me) { console.warn('⚠ conductor_queue migration failed:', me.message); }
+  }
+}
+
+// ─── Migrate: AI search tasks table ─────────────────────────────────
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS ai_search_tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      query TEXT NOT NULL,
+      location TEXT,
+      status TEXT DEFAULT 'pending' CHECK(status IN ('pending','in_progress','completed','failed')),
+      results_count INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now')),
+      completed_at TEXT,
+      error TEXT
+    )
+  `);
+} catch(e) { console.warn('⚠ ai_search_tasks:', e.message); }
 
 // ─── Routing ─────────────────────────────────────────────────────────
 const routes = [];
@@ -201,6 +503,10 @@ addRoute('POST', '/api/jobs', async (req, res) => {
   const fingerprint = [company, title, location || '']
     .map(s => (s || '').toLowerCase().trim().replace(/\s+/g, ' ')).join('|');
 
+  // Check if this job was previously deleted
+  const deleted = db.prepare('SELECT deleted_at FROM deleted_fingerprints WHERE fingerprint = ?').get(fingerprint);
+  if (deleted) return json(res, { error: 'This job was previously deleted and cannot be re-added (dedup protection)', deleted_at: deleted.deleted_at }, 409);
+
   const dupe = db.prepare(
     "SELECT id FROM jobs WHERE job_fingerprint = ? AND julianday('now') - julianday(date_added) < 90"
   ).get(fingerprint);
@@ -232,7 +538,63 @@ addRoute('PUT', '/api/jobs/:id', async (req, res) => {
   updates.push("date_updated = datetime('now')");
   values.push(id);
   db.prepare(`UPDATE jobs SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+
+  // Auto-build application package when status changes to APPROVED
+  if (req.body.status === 'APPROVED') {
+    try {
+      const pkgResult = await packageBuilder.buildPackage(db, id);
+      if (pkgResult.success) {
+        console.log(`  [package] Auto-built for job #${id}: ${pkgResult.packagePath}`);
+      }
+    } catch (e) {
+      console.log(`  [package] Failed to build for job #${id}: ${e.message}`);
+    }
+  }
+
   json(res, db.prepare('SELECT * FROM job_current_state WHERE id = ?').get(id));
+});
+
+// ─── DELETE /api/jobs/:id ───────────────────────────────────────────
+addRoute('DELETE', '/api/jobs/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const job = db.prepare('SELECT company, title, job_fingerprint FROM jobs WHERE id = ?').get(id);
+  if (!job) return json(res, { error: 'Job not found' }, 404);
+
+  // Use existing fingerprint if available, otherwise compute it from company+title (no location)
+  const fingerprint = job.job_fingerprint || [job.company, job.title, '']
+    .map(s => (s || '').toLowerCase().trim().replace(/\s+/g, ' ')).join('|');
+
+  try {
+    // Use transaction for atomicity
+    const deleteJob = db.transaction(() => {
+      // Store fingerprint in deleted_fingerprints table
+      db.prepare(`
+        INSERT INTO deleted_fingerprints (fingerprint, company, title, deleted_at)
+        VALUES (?, ?, ?, datetime('now'))
+      `).run(fingerprint, job.company, job.title);
+
+      // Delete ALL related records first (FK constraints may not have CASCADE)
+      const relatedTables = [
+        { table: 'cover_letter_versions', col: 'job_id' },
+        { table: 'company_research', col: 'job_id' },
+        { table: 'application_submissions', col: 'job_id' },
+        { table: 'conductor_queue', col: 'job_id' },
+        { table: 'email_messages', col: 'matched_job_id' },
+        { table: 'errors', col: 'job_id' },
+        { table: 'bridge_events', col: 'job_id' },
+      ];
+      for (const { table, col } of relatedTables) {
+        try { db.prepare(`DELETE FROM ${table} WHERE ${col} = ?`).run(id); } catch {}
+      }
+      // Now delete the job itself
+      db.prepare('DELETE FROM jobs WHERE id = ?').run(id);
+    });
+
+    deleteJob();
+    json(res, { success: true, fingerprint, deleted_at: new Date().toISOString() }, 200);
+  } catch (err) {
+    json(res, { error: `Deletion failed: ${err.message}` }, 500);
+  }
 });
 
 // ─── GET /api/agents ────────────────────────────────────────────────
@@ -473,7 +835,6 @@ addRoute('GET', '/api/conductor/status', (req, res) => {
   const dg = db.prepare("SELECT COUNT(*) as c FROM conductor_queue WHERE task_type = 'generate_letter' AND status = 'completed' AND date(completed_at) = date('now')").get();
   json(res, {
     queued: q.c, processing: p.c, failed: f.c, daily_generations: dg.c,
-    daily_generation_limit: 5,
     status: p.c > 0 ? 'running' : q.c > 0 ? 'pending' : 'idle'
   });
 });
@@ -546,7 +907,7 @@ addRoute('POST', '/api/generate-letter/:jobId', async (req, res) => {
 
   try {
     const result = await generateCoverLetter(db, apiKey, jobId, { dryRun });
-    json(res, result, result.success ? (result.dryRun ? 200 : 201) : 429);
+    json(res, result, result.success ? (result.dryRun ? 200 : 201) : 500);
   } catch (e) {
     json(res, { error: e.message }, 500);
   }
@@ -578,12 +939,12 @@ addRoute('GET', '/api/generation-status', (req, res) => {
   const monthlyCost = db.prepare("SELECT COALESCE(SUM(cost_estimate), 0) as total FROM cover_letter_versions WHERE created_at >= date('now', 'start of month')").get();
   json(res, {
     daily_generations: dailyCount.c,
-    daily_limit: 5,
+    daily_limit: 'unlimited',
     daily_cost: Math.round(dailyCost.total * 100) / 100,
-    daily_budget: 2.00,
+    daily_budget: 'unlimited',
     monthly_cost: Math.round(monthlyCost.total * 100) / 100,
     monthly_budget: 55.00,
-    can_generate: dailyCount.c < 5 && dailyCost.total < 2.0,
+    can_generate: true,
   });
 });
 
@@ -643,6 +1004,14 @@ addRoute('POST', '/api/bridge/ingest', async (req, res) => {
       .run(updated);
   }
 
+  // Auto-trigger conductor scoring if new research was added to an unscored job
+  if (parsedJobId && content_type === 'research') {
+    const job = db.prepare("SELECT status, score FROM jobs WHERE id = ?").get(parsedJobId);
+    if (job && job.score === null) {
+      try { conductor.enqueueTask('score', parsedJobId, { source: 'bridge_ingest' }, 5); } catch {}
+    }
+  }
+
   json(res, { success: true, content_type, job_id: parsedJobId, size, hash }, 201);
 });
 
@@ -677,7 +1046,16 @@ addRoute('GET', '/api/health', (req, res) => {
     components.gmail = { status: 'not_configured', token_expires: null, days_remaining: null };
   }
   components.playwright = { status: 'not_configured', cdp_connected: false, last_action: null };
-  components.pm2 = { status: 'not_configured', conductor_pid: null, restarts: null };
+  components.linkedin_mcp = { status: linkedinAvailable ? 'ok' : 'not_configured', available: linkedinAvailable, hint: linkedinAvailable ? 'Full LinkedIn descriptions enabled' : 'Run setup-linkedin-mcp.sh for full LinkedIn descriptions' };
+  components.profile_scorer = { status: PROFILE_SCORER ? 'ok' : 'not_loaded', dimensions: PROFILE_SCORER ? Object.keys(PROFILE_SCORER).filter(k => k !== 'redFlags').length : 0, source: 'templates/resume.md + capability_profile.md' };
+  // Conductor runs inline (started with server), check queue health
+  try {
+    const qh = conductor.getQueueHealth();
+    components.pm2 = { status: 'ok', conductor_pid: process.pid, restarts: 0, mode: 'inline',
+      queued: qh.queued, processing: qh.processing, daily_generations: qh.dailyGenerations };
+  } catch {
+    components.pm2 = { status: 'not_configured', conductor_pid: null, restarts: null };
+  }
 
   try {
     const { execSync } = require('child_process');
@@ -695,8 +1073,138 @@ addRoute('GET', '/api/health', (req, res) => {
 
   json(res, {
     timestamp: new Date().toISOString(), overall, components,
-    budget: { daily_spent: 0, daily_limit: 2.00, monthly_spent: 0, monthly_limit: 55.00, cover_letters_today: dg.c, cover_letters_limit: 5 }
+    budget: { daily_spent: 0, daily_limit: 'unlimited', monthly_spent: 0, monthly_limit: 'unlimited', cover_letters_today: dg.c, cover_letters_limit: 'unlimited' }
   });
+});
+
+// POST /api/server/restart — Restart the server from the Command Center
+addRoute('POST', '/api/server/restart', (req, res) => {
+  json(res, { success: true, message: 'Server restarting...' });
+
+  setTimeout(() => {
+    const { spawn } = require('child_process');
+    // Spawn a new server process directly (detached so it survives us dying)
+    const logFile = require('fs').openSync(path.join(__dirname, 'server.log'), 'w');
+    const child = spawn('node', ['server.js'], {
+      detached: true,
+      stdio: ['ignore', logFile, logFile],
+      cwd: __dirname,
+      env: { ...process.env }
+    });
+    child.unref();
+    // Now exit this process — the new one will take over the port
+    process.exit(0);
+  }, 1000);
+});
+
+// POST /api/server/launch-cdp — Check CDP status or launch Chrome when none is running
+addRoute('POST', '/api/server/launch-cdp', (req, res) => {
+  const { execSync, spawn } = require('child_process');
+
+  // Check if CDP is already running
+  try {
+    execSync('curl -s http://localhost:9222/json/version', { timeout: 3000 });
+    return json(res, { success: true, already_running: true, message: 'Chrome CDP already running on port 9222' });
+  } catch {}
+
+  // Detect browser
+  let browserPath = null;
+  let browserName = '';
+  let processName = '';
+  const candidates = [
+    { path: '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser', name: 'Brave', proc: 'Brave Browser' },
+    { path: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', name: 'Chrome', proc: 'Google Chrome' },
+  ];
+  for (const c of candidates) {
+    try { if (fs.statSync(c.path)) { browserPath = c.path; browserName = c.name; processName = c.proc; break; } } catch {}
+  }
+
+  if (!browserPath) {
+    return json(res, { success: false, error: 'No Chrome or Brave browser found' });
+  }
+
+  // Check if browser is running WITHOUT CDP
+  let browserIsRunning = false;
+  try {
+    const pgrep = execSync(`pgrep -f "${processName}"`, { timeout: 3000 }).toString().trim();
+    browserIsRunning = pgrep.length > 0;
+  } catch {}
+
+  if (browserIsRunning) {
+    // Chrome is running but without CDP — can't fix from here
+    return json(res, {
+      success: false,
+      needs_restart: true,
+      error: `${browserName} is running but without CDP. Run "bash start.sh" in terminal to restart everything with CDP enabled.`
+    });
+  }
+
+  // No browser running at all — launch fresh with CDP
+  try {
+    const child = spawn(browserPath, [
+      '--remote-debugging-port=9222',
+      '--no-first-run',
+      '--no-default-browser-check'
+    ], { detached: true, stdio: 'ignore' });
+    child.unref();
+
+    // Wait for CDP to become available
+    let cdpReady = false;
+    for (let i = 0; i < 16; i++) {
+      try {
+        execSync('curl -s http://localhost:9222/json/version', { timeout: 2000 });
+        cdpReady = true;
+        break;
+      } catch {}
+      execSync('sleep 0.5');
+    }
+
+    if (cdpReady) {
+      console.log(`[CDP] ${browserName} launched with CDP on port 9222`);
+      json(res, { success: true, browser: browserName, message: `${browserName} launched with CDP on port 9222` });
+    } else {
+      json(res, { success: false, error: `${browserName} launched but CDP not responding. Try again in a few seconds.` });
+    }
+  } catch (e) {
+    json(res, { success: false, error: e.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// APPLICATION PACKAGES (/ready/[company]/ folder builder)
+// ═══════════════════════════════════════════════════════════════════════
+
+const packageBuilder = require('./lib/package-builder');
+
+// POST /api/packages/build/:id — Build application package for a job
+addRoute('POST', '/api/packages/build/:id', async (req, res) => {
+  const jobId = parseInt(req.params.id, 10);
+  const result = await packageBuilder.buildPackage(db, jobId);
+  json(res, result, result.success ? 201 : 400);
+});
+
+// GET /api/packages — List all ready packages
+addRoute('GET', '/api/packages', (req, res) => {
+  const packages = packageBuilder.listReadyPackages();
+  json(res, { packages });
+});
+
+// GET /api/packages/:id — Get package for a specific job
+addRoute('GET', '/api/packages/:id', (req, res) => {
+  const jobId = parseInt(req.params.id, 10);
+  const pkg = packageBuilder.getPackagePath(db, jobId);
+  if (pkg) {
+    json(res, pkg);
+  } else {
+    json(res, { error: 'No package found' }, 404);
+  }
+});
+
+// POST /api/packages/archive/:id — Move package to /applied/ after submission
+addRoute('POST', '/api/packages/archive/:id', (req, res) => {
+  const jobId = parseInt(req.params.id, 10);
+  const result = packageBuilder.archivePackage(db, jobId);
+  json(res, result, result.success ? 200 : 400);
 });
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -761,6 +1269,18 @@ addRoute('POST', '/api/ats/process-queue', async (req, res) => {
   json(res, result);
 });
 
+// POST /api/ats/mark-submitted/:id — Mark a job as submitted (after manual review)
+addRoute('POST', '/api/ats/mark-submitted/:id', (req, res) => {
+  const jobId = parseInt(req.params.id, 10);
+  const { method, platform } = req.body || {};
+  try {
+    const result = applicationBot.markSubmitted(db, jobId, method || 'ats_portal', platform || 'unknown');
+    json(res, result);
+  } catch (e) {
+    json(res, { success: false, error: e.message }, 500);
+  }
+});
+
 // GET /api/ats/submissions — List past submissions
 addRoute('GET', '/api/ats/submissions', (req, res, query) => {
   const limit = Math.min(parseInt(query.limit || '50', 10) || 50, 200);
@@ -778,70 +1298,167 @@ addRoute('GET', '/api/ats/submissions', (req, res, query) => {
 // MULTI-PLATFORM JOB SEARCH (Phase 13)
 // ═══════════════════════════════════════════════════════════════════════
 
-// POST /api/search/run — Run multi-platform job search
+// POST /api/search/run — Run multi-platform job search via ts-jobspy + LinkedIn MCP
 addRoute('POST', '/api/search/run', async (req, res) => {
-  const { query, location, sources = ['linkedin'], min_score = 70 } = req.body;
-  if (!query) return json(res, { error: 'query required' }, 400);
+  try {
+    const { query, location, sources = ['indeed'], min_score = 0 } = req.body;
+    if (!query) return json(res, { error: 'query required' }, 400);
 
-  const apiKey = getApiKey();
-  const allResults = [];
-  let duplicatesFiltered = 0;
-  const sourceErrors = [];
+    let duplicatesFiltered = 0;
+    const sourceErrors = [];
 
-  for (const source of sources) {
-    try {
-      let sourceResults = [];
+    // Split comma-separated queries for multi-title search
+    const queries = query.includes(',')
+      ? query.split(',').map(q => q.trim()).filter(q => q.length > 2)
+      : [query];
 
-      // Use Claude to generate realistic search results based on source
-      // In production, these would be actual API calls / scrapers
-      if (apiKey) {
-        const system = `You are a job search aggregator. Generate realistic VP/SVP/Director-level engineering job listings that would appear on ${source} for this search. Return ONLY a JSON array of objects with: company, title, location, url, description (1 sentence). Return 3-5 results. Valid JSON only, no markdown.`;
-        const msg = `Search: "${query}" in ${location || 'Remote'}. Source: ${source}`;
+    let rawResults = [];
+
+    // Source 1: ts-jobspy (Indeed, and LinkedIn if MCP not available)
+    const tsjSources = sources.includes('linkedin') && linkedinAvailable
+      ? sources.filter(s => s !== 'linkedin') // Let MCP handle LinkedIn
+      : sources.filter(s => ['indeed', 'linkedin'].includes(s));
+    if (tsjSources.length > 0) {
+      try {
+        rawResults = await searchJobsSpy(queries.join(', '), location, tsjSources, Math.max(50, queries.length * 10));
+      } catch (e) {
+        console.error('ts-jobspy search error:', e.message);
+        sourceErrors.push({ source: 'ts-jobspy', error: e.message });
+      }
+    }
+
+    // Source 2: LinkedIn MCP (full descriptions!) — if available and LinkedIn is selected
+    if (sources.includes('linkedin') && linkedinAvailable && linkedinMCP) {
+      console.log(`[LinkedIn MCP] Starting search for ${queries.length} queries (max 4)...`);
+      for (const q of queries.slice(0, 4)) { // Limit to 4 queries to avoid rate limits
         try {
-          const raw = await callClaude(apiKey, 'claude-haiku-4-5-20251001', system, msg, 1000);
-          const cleaned = raw.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
-          sourceResults = JSON.parse(cleaned);
-        } catch {
-          sourceResults = [];
+          const t0 = Date.now();
+          const mcpJobs = await linkedinMCP.searchJobsWithDetails(q, location, 5);
+          const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+          if (Array.isArray(mcpJobs) && mcpJobs.length > 0) {
+            for (const j of mcpJobs) {
+              rawResults.push({
+                title: j.title || j.job_title || 'Unknown',
+                company: j.company || j.company_name || 'Unknown',
+                description: (j.description || j.job_description || '').substring(0, 8000),
+                url: j.url || j.job_url || j.link || '',
+                url_direct: j.apply_url || j.url_direct || '',
+                location: j.location || '',
+                source: 'linkedin_mcp',
+                posted: j.posted || j.date_posted || '',
+                salary_min: j.salary_min || null,
+                salary_max: j.salary_max || null,
+                is_remote: j.is_remote || false,
+              });
+            }
+            console.log(`[LinkedIn MCP] "${q}": ${mcpJobs.length} jobs in ${elapsed}s (${mcpJobs.filter(j => j.description).length} with descriptions)`);
+          } else {
+            console.log(`[LinkedIn MCP] "${q}": 0 results in ${elapsed}s (response type: ${typeof mcpJobs}, isArray: ${Array.isArray(mcpJobs)})`);
+          }
+        } catch (e) {
+          console.error(`[LinkedIn MCP] "${q}" FAILED: ${e.message}`);
+          sourceErrors.push({ source: 'linkedin_mcp', error: e.message, query: q });
         }
       }
+    } else if (sources.includes('linkedin') && !linkedinAvailable) {
+      console.log('[LinkedIn MCP] Not available — LinkedIn results will be title-only from ts-jobspy');
+    }
 
-      // Score each result
-      for (const r of sourceResults) {
-        r.source = source;
-        // Simple scoring based on title match
-        const titleLower = (r.title || '').toLowerCase();
-        const queryLower = query.toLowerCase();
-        let score = 50;
-        if (titleLower.includes('vp') || titleLower.includes('vice president')) score += 20;
-        if (titleLower.includes('svp') || titleLower.includes('senior vice')) score += 25;
-        if (titleLower.includes('director')) score += 15;
-        if (titleLower.includes('engineering') || titleLower.includes('technology')) score += 10;
-        if (titleLower.includes(queryLower.split(' ')[0]?.toLowerCase())) score += 5;
-        r.score = Math.min(score, 100);
+    // Score each result — 7-dimension profile match loaded from resume.md + capability_profile.md
+    // Leadership 25% | Seniority 20% | Industry 15% | Culture 15% | Transformation 10% | Scope 10% | Location 5%
+    function scoreResult(r) {
+      const scorer = PROFILE_SCORER || loadProfileScorer();
+      if (!scorer) { r.score = 50; return; } // fallback if no profile loaded
 
-        // Dedup check: same company + similar role within 90 days
-        const firstWord = escapeLike(r.title?.split(' ')[0]?.toLowerCase() || '');
-        const fullTitle = escapeLike((r.title || '').toLowerCase());
-        const existing = db.prepare(
-          "SELECT id FROM jobs WHERE LOWER(company) = LOWER(?) AND (LOWER(title) LIKE ? ESCAPE '\\' OR LOWER(title) LIKE ? ESCAPE '\\') AND date_added >= date('now', '-90 days')"
-        ).get(r.company, `%${firstWord}%`, `%${fullTitle}%`);
-        r.is_duplicate = !!existing;
-        if (existing) duplicatesFiltered++;
+      const title = (r.title || '').toLowerCase();
+      const company = (r.company || '').toLowerCase();
+      const text = `${title} ${r.description || ''} ${company}`;
+
+      // Company skip list — instant 0
+      if (COMPANY_SKIP_LIST.some(skip => company.includes(skip))) {
+        r.score = 0;
+        r.skip_reason = 'company_skipped';
+        return;
       }
 
-      // Filter by min score
-      allResults.push(...sourceResults.filter(r => r.score >= min_score || r.is_duplicate));
-    } catch (e) {
-      console.error(`Search error for ${source}:`, e.message);
-      sourceErrors.push({ source, error: e.message });
+      // Title disqualifiers — instant 0 for clearly wrong-level roles
+      if (scorer.titleDisqualifiers && scorer.titleDisqualifiers.some(d => title.includes(d))) {
+        r.score = 0;
+        r.skip_reason = 'title_disqualified';
+        return;
+      }
+
+      let totalScore = 0;
+      for (const [dimName, dim] of Object.entries(scorer)) {
+        if (dimName === 'redFlags' || dimName === 'titleDisqualifiers') continue;
+        if (!dim.terms || !dim.weight) continue;
+        const matches = dim.terms.filter(t => text.includes(t));
+        totalScore += Math.min(matches.length / 3, 1.0) * dim.weight;
+      }
+
+      // Red flags subtract points
+      const redFlags = (scorer.redFlags || []).filter(f => text.includes(f));
+      totalScore -= redFlags.length * 8;
+
+      // Bonus: title contains a target title keyword (+15 points)
+      const titleKeywords = ['vp', 'vice president', 'svp', 'cto', 'coo', 'head of engineering', 'senior director', 'director of engineering'];
+      if (titleKeywords.some(k => title.includes(k))) totalScore += 15;
+
+      r.score = Math.max(0, Math.min(Math.round((totalScore / 100) * 100), 100));
     }
+
+    // Dedup against existing pipeline + across results
+    const seen = new Map();
+    const results = [];
+
+    for (const r of rawResults) {
+      scoreResult(r);
+
+      // Cross-result dedup
+      const key = `${(r.company||'').toLowerCase()}|${(r.title||'').toLowerCase()}`;
+      if (seen.has(key)) { duplicatesFiltered++; continue; }
+      seen.set(key, true);
+
+      // Pipeline dedup — check current jobs AND deleted jobs (permanent exclusion)
+      try {
+        const companyLower = (r.company || '').toLowerCase();
+        const titleLower = (r.title || '').toLowerCase();
+        const fingerprint = [companyLower, titleLower, ''].join('|').replace(/\s+/g, ' ');
+
+        // Check 1: Already in pipeline (any time, not just 90 days)
+        const existing = db.prepare(
+          "SELECT id FROM jobs WHERE LOWER(company) = LOWER(?) AND LOWER(title) = LOWER(?)"
+        ).get(r.company, r.title);
+
+        // Check 2: Previously deleted (blacklisted)
+        const deleted = db.prepare(
+          "SELECT deleted_at FROM deleted_fingerprints WHERE LOWER(company) = LOWER(?) AND LOWER(title) = LOWER(?)"
+        ).get(r.company, r.title);
+
+        if (existing || deleted) {
+          r.is_duplicate = true;
+          duplicatesFiltered++;
+          continue; // Skip — don't show in results at all
+        }
+        r.is_duplicate = false;
+      } catch { r.is_duplicate = false; }
+
+      if (r.score >= min_score) results.push(r);
+    }
+
+    results.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+    // Source breakdown for UI status
+    const sourceCounts = {};
+    for (const r of results) { sourceCounts[r.source] = (sourceCounts[r.source] || 0) + 1; }
+    const belowThreshold = rawResults.length - results.length - duplicatesFiltered;
+    console.log(`[Search] ${rawResults.length} raw → ${results.length} results (${duplicatesFiltered} dupes, ${belowThreshold} below score ${min_score}). Sources: ${JSON.stringify(sourceCounts)}`);
+
+    json(res, { results, count: results.length, duplicates_filtered: duplicatesFiltered, below_threshold: belowThreshold, raw_count: rawResults.length, sources_queried: sources.length, source_errors: sourceErrors, source_counts: sourceCounts });
+  } catch (e) {
+    console.error('Search handler error:', e);
+    json(res, { error: 'Search failed: ' + e.message, results: [], source_errors: [{ source: 'system', error: e.message }] }, 500);
   }
-
-  // Sort by score desc
-  allResults.sort((a, b) => (b.score || 0) - (a.score || 0));
-
-  json(res, { results: allResults, duplicates_filtered: duplicatesFiltered, sources_queried: sources.length, source_errors: sourceErrors });
 });
 
 // POST /api/search/add-to-pipeline — Add selected search results to pipeline
@@ -851,13 +1468,13 @@ addRoute('POST', '/api/search/add-to-pipeline', async (req, res) => {
 
   let added = 0;
   const insert = db.prepare(
-    "INSERT INTO jobs (company, title, description, status, source, url, date_added) VALUES (?, ?, ?, 'NEW', ?, ?, datetime('now'))"
+    "INSERT INTO jobs (company, title, description, status, source, url, url_direct, company_url, date_added) VALUES (?, ?, ?, 'NEW', ?, ?, ?, ?, datetime('now'))"
   );
 
   for (const job of jobs) {
     if (job.is_duplicate) continue;
     try {
-      insert.run(job.company, job.title, job.description || '', job.source || 'search', job.url || null);
+      insert.run(job.company, job.title, job.description || '', job.source || 'search', job.url || null, job.url_direct || null, job.company_url || null);
       added++;
     } catch (e) {
       console.error('Failed to add job:', e.message);
@@ -897,6 +1514,601 @@ addRoute('DELETE', '/api/search/monitored/:id', (req, res) => {
   if (!db.prepare('SELECT id FROM monitored_companies WHERE id = ?').get(id)) return json(res, { error: 'Not found' }, 404);
   db.prepare('DELETE FROM monitored_companies WHERE id = ?').run(id);
   json(res, { success: true });
+});
+
+// ─── Company Direct Search ──────────────────────────────────────────
+// Search a specific company for jobs matching Wolf's profile
+// Priority: 1) Company's own careers API  2) ts-jobspy (Indeed/LinkedIn) as supplement
+addRoute('POST', '/api/search/company', async (req, res) => {
+  try {
+    const { company, location, count = 50 } = req.body;
+    if (!company) return json(res, { error: 'company required' }, 400);
+
+    const companyKey = company.toLowerCase().trim();
+    const loc = location || 'Los Angeles';
+    const allJobs = [];  // normalized format: { title, company, description, url, url_direct, company_url, location, source, posted, ... }
+    const errors = [];
+    let careersApiUsed = false;
+
+    // ── PRIMARY: Hit the company's own careers API if available ──
+    const apiConfig = COMPANY_APIS[companyKey];
+    if (apiConfig) {
+      const queries = [
+        'VP Engineering', 'Director Engineering', 'SVP Engineering',
+        'CTO', 'VP Technology', 'Head of Engineering',
+        'engineering', 'technology leader',
+      ];
+      try {
+        const result = await searchCompanyCareersAPI(companyKey, queries, loc, count);
+        careersApiUsed = true;
+        for (const job of result.jobs) {
+          allJobs.push({
+            title: job.title,
+            company: job.company || company,
+            description: (job.description || '').substring(0, 5000),
+            url: job.url || '',
+            url_direct: job.url_direct || '',
+            company_url: job.company_url || result.careers_url || '',
+            location: job.location || '',
+            source: companyKey, // "netflix", "amazon" — NOT "indeed"
+            posted: job.posted || '',
+            department: job.department || '',
+            is_remote: job.remote || false,
+            salary_min: job.salary_min || null,
+            salary_max: job.salary_max || null,
+          });
+        }
+        console.log(`[Company Search] ${company}: ${allJobs.length} jobs from careers API`);
+      } catch (e) {
+        errors.push({ query: 'careers_api', error: e.message });
+        console.error(`[Company Search] ${company} careers API failed: ${e.message}`);
+      }
+    }
+
+    // ── FALLBACK: Try HTML careers page scraper if no API ──
+    if (!careersApiUsed) {
+      const careersUrl = KNOWN_CAREERS[companyKey];
+      if (careersUrl) {
+        try {
+          const careerJobs = await scrapeCareerPage(careersUrl, company);
+          for (const cj of careerJobs) {
+            allJobs.push({
+              title: cj.title,
+              company: cj.company || company,
+              description: cj.description || '',
+              url: cj.url || '',
+              url_direct: cj.url_direct || '',
+              company_url: careersUrl,
+              location: cj.location || '',
+              source: `${companyKey}_careers`,
+              posted: cj.posted || '',
+              salary_min: cj.salary_min,
+              salary_max: cj.salary_max,
+            });
+          }
+          if (careerJobs.length > 0) careersApiUsed = true;
+        } catch (e) {
+          errors.push({ query: 'careers_page', error: e.message });
+        }
+      }
+    }
+
+    // ── SUPPLEMENT: Search Indeed for this company (only if careers API gave < 20 results) ──
+    const supplementQueries = careersApiUsed && allJobs.length >= 20
+      ? [] // Enough results from careers API, skip Indeed noise
+      : [
+          `${company} VP Engineering`,
+          `${company} Director Engineering`,
+          `${company} SVP Technology`,
+        ];
+    for (const searchTerm of supplementQueries) {
+      try {
+        const jobs = await scrapeJobs({
+          siteType: ['indeed'],
+          searchTerm,
+          location: loc,
+          resultsWanted: 5,
+          countryIndeed: 'USA',
+        });
+        for (const j of jobs) {
+          allJobs.push({
+            title: j.title || 'Unknown',
+            company: j.company || company,
+            description: (j.description || '').substring(0, 5000),
+            url: j.jobUrl || '',
+            url_direct: j.jobUrlDirect || '',
+            company_url: j.companyUrl || '',
+            location: j.location || '',
+            source: j.site || 'indeed',
+            posted: j.datePosted || '',
+            salary_min: j.minAmount || null,
+            salary_max: j.maxAmount || null,
+            is_remote: j.isRemote || false,
+          });
+        }
+      } catch (e) {
+        if (!e.message.includes('403') && !e.message.includes('429')) {
+          errors.push({ query: searchTerm, error: e.message });
+        }
+      }
+    }
+
+    // ── Dedup by title ──
+    const seen = new Set();
+    const unique = [];
+    for (const j of allJobs) {
+      const key = `${(j.company || '').toLowerCase()}|${(j.title || '').toLowerCase().replace(/\s+/g, ' ')}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      unique.push(j);
+    }
+
+    // ── Score each job (uses same logic as search scorer) ──
+    const scoreJob = (job) => {
+      const scorer = PROFILE_SCORER || loadProfileScorer();
+      if (!scorer) return 50;
+      const title = (job.title || '').toLowerCase();
+      const company = (job.company || '').toLowerCase();
+      const text = `${title} ${job.description || ''} ${job.department || ''} ${company}`;
+
+      // Company skip list
+      if (COMPANY_SKIP_LIST.some(skip => company.includes(skip))) return 0;
+      // Title disqualifiers
+      if (scorer.titleDisqualifiers && scorer.titleDisqualifiers.some(d => title.includes(d))) return 0;
+
+      let totalScore = 0;
+      for (const [dimName, dim] of Object.entries(scorer)) {
+        if (dimName === 'redFlags' || dimName === 'titleDisqualifiers') continue;
+        if (!dim.terms || !dim.weight) continue;
+        const matches = dim.terms.filter(t => text.includes(t));
+        totalScore += Math.min(matches.length / 3, 1.0) * dim.weight;
+      }
+      const redFlags = (scorer.redFlags || []).filter(f => text.includes(f));
+      totalScore -= redFlags.length * 8;
+      // Title bonus
+      const titleKeywords = ['vp', 'vice president', 'svp', 'cto', 'coo', 'head of engineering', 'senior director', 'director of engineering'];
+      if (titleKeywords.some(k => title.includes(k))) totalScore += 15;
+      return Math.max(0, Math.min(Math.round((totalScore / 100) * 100), 100));
+    };
+
+    // ── Check pipeline for duplicates ──
+    const existingJobs = db.prepare("SELECT company, title FROM jobs").all();
+    const existingSet = new Set(existingJobs.map(j => `${j.company.toLowerCase()}|${j.title.toLowerCase()}`));
+
+    const results = unique.map(job => ({
+      ...job,
+      score: scoreJob(job),
+      is_duplicate: existingSet.has(`${job.company.toLowerCase()}|${job.title.toLowerCase()}`),
+    })).sort((a, b) => b.score - a.score);
+
+    // Count by source
+    const sourceCounts = {};
+    for (const r of results) { sourceCounts[r.source] = (sourceCounts[r.source] || 0) + 1; }
+
+    json(res, {
+      company,
+      results,
+      count: results.length,
+      sources: sourceCounts,
+      careers_api_used: careersApiUsed,
+      duplicates_in_pipeline: results.filter(r => r.is_duplicate).length,
+      errors: errors.length ? errors : undefined,
+    });
+  } catch (e) {
+    json(res, { error: 'Company search failed: ' + e.message, results: [] }, 500);
+  }
+});
+
+// ─── Careers Page Scraper ────────────────────────────────────────────
+// Scrape a company's careers page for job listings
+async function scrapeCareerPage(url, company) {
+  const jobs = [];
+  try {
+    const html = await fetchHTML(url);
+
+    // Common patterns for job listings on careers pages:
+    // 1. Links with job-related paths: /jobs/, /careers/, /positions/, /openings/
+    // 2. Structured data (JSON-LD)
+    // 3. Job title patterns in links
+
+    // Try JSON-LD first (best structured data)
+    const jsonLdMatches = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi) || [];
+    for (const block of jsonLdMatches) {
+      try {
+        const content = block.replace(/<\/?script[^>]*>/gi, '');
+        const data = JSON.parse(content);
+        const postings = Array.isArray(data) ? data : data['@graph'] || [data];
+        for (const item of postings) {
+          if (item['@type'] === 'JobPosting' || item.title) {
+            jobs.push({
+              title: item.title || item.name || '',
+              company: item.hiringOrganization?.name || company,
+              description: (item.description || '').replace(/<[^>]+>/g, '').substring(0, 5000),
+              url: item.url || url,
+              url_direct: item.url || '',
+              location: typeof item.jobLocation === 'string' ? item.jobLocation :
+                item.jobLocation?.address?.addressLocality || '',
+              source: 'careers_page',
+              posted: item.datePosted || '',
+              salary_min: item.baseSalary?.value?.minValue || null,
+              salary_max: item.baseSalary?.value?.maxValue || null,
+            });
+          }
+        }
+      } catch { /* invalid JSON-LD, skip */ }
+    }
+
+    // If JSON-LD didn't give us much, try link extraction
+    if (jobs.length < 3) {
+      const linkPattern = /href=["']([^"']*(?:\/jobs?\/|\/careers?\/|\/positions?\/|\/openings?\/|\/apply\/)[^"']*?)["'][^>]*>([^<]*)/gi;
+      const links = [...html.matchAll(linkPattern)];
+      const seenTitles = new Set(jobs.map(j => j.title.toLowerCase()));
+
+      for (const [, href, text] of links) {
+        const title = text.trim().replace(/\s+/g, ' ');
+        if (!title || title.length < 5 || title.length > 200) continue;
+        if (seenTitles.has(title.toLowerCase())) continue;
+        // Skip nav/footer links
+        if (/^(home|about|contact|blog|login|sign|faq|all jobs|view all|back|next|prev)/i.test(title)) continue;
+
+        seenTitles.add(title.toLowerCase());
+        let fullUrl = href;
+        if (href.startsWith('/')) {
+          const base = new URL(url);
+          fullUrl = `${base.protocol}//${base.host}${href}`;
+        } else if (!href.startsWith('http')) {
+          fullUrl = url.replace(/\/$/, '') + '/' + href;
+        }
+
+        jobs.push({
+          title,
+          company,
+          description: '', // Would need a second fetch to get description
+          url: fullUrl,
+          url_direct: fullUrl,
+          location: '',
+          source: 'careers_page',
+          posted: '',
+          salary_min: null,
+          salary_max: null,
+        });
+      }
+    }
+  } catch (e) {
+    console.error(`Careers scrape failed for ${url}: ${e.message}`);
+  }
+  return jobs;
+}
+
+// POST /api/search/careers — Scrape a company's careers page
+addRoute('POST', '/api/search/careers', async (req, res) => {
+  try {
+    const { url, company } = req.body;
+    if (!url) return json(res, { error: 'url required' }, 400);
+    const jobs = await scrapeCareerPage(url, company || 'Unknown');
+    json(res, { jobs, count: jobs.length, source_url: url });
+  } catch (e) {
+    json(res, { error: 'Careers scrape failed: ' + e.message, jobs: [] }, 500);
+  }
+});
+
+// ─── Company Careers APIs ───────────────────────────────────────────
+// Direct JSON API endpoints for major companies (returns real job data without scraping)
+const COMPANY_APIS = {
+  'netflix': {
+    api: (query, location, offset = 0, limit = 25) =>
+      `https://explore.jobs.netflix.net/api/apply/v2/jobs?domain=netflix.com&query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}&start=${offset}&num=${limit}`,
+    parse: (data) => ({
+      jobs: (data.positions || []).map(p => ({
+        title: p.name || p.posting_name || '',
+        company: 'Netflix',
+        description: p.job_description || '',
+        url: p.canonicalPositionUrl || `https://explore.jobs.netflix.net/careers/job/${p.id}`,
+        url_direct: `https://explore.jobs.netflix.net/careers/job/${p.id}`,
+        location: p.location || '',
+        department: p.department || '',
+        posted: p.t_create ? new Date(Number(p.t_create) * 1000).toISOString().split('T')[0] : '',
+        remote: p.work_location_option === 'remote',
+        job_id: p.ats_job_id || p.id,
+      })),
+      total: data.count || 0,
+    }),
+    careers_url: 'https://jobs.netflix.com/search',
+  },
+  'amazon': {
+    api: (query, location, offset = 0, limit = 25) =>
+      `https://www.amazon.jobs/en/search.json?base_query=${encodeURIComponent(query)}&loc_query=${encodeURIComponent(location)}&offset=${offset}&result_limit=${limit}`,
+    parse: (data) => ({
+      jobs: (data.jobs || []).map(j => ({
+        title: j.title || '',
+        company: j.company_name || 'Amazon',
+        description: (j.description || j.description_short || '').substring(0, 5000),
+        url: j.job_path ? `https://www.amazon.jobs${j.job_path}` : '',
+        url_direct: j.url_next_step || '',
+        location: j.location || `${j.city || ''}, ${j.state || ''}`.replace(/, $/, ''),
+        department: j.job_category || '',
+        posted: j.posted_date || '',
+        remote: false,
+        job_id: j.id_icims || j.id,
+      })),
+      total: data.hits || 0,
+    }),
+    careers_url: 'https://www.amazon.jobs/en/search',
+  },
+  'disney': {
+    // Disney uses a bespoke AJAX endpoint
+    api: (query, location, offset = 0, limit = 25) =>
+      `https://jobs.disneycareers.com/search-jobs/results?ActiveFacetID=0&CurrentPage=${Math.floor(offset / limit) + 1}&RecordsPerPage=${limit}&Distance=50&RadiusUnitType=0&Keywords=${encodeURIComponent(query)}&Location=${encodeURIComponent(location)}`,
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    parse: (data) => {
+      // Disney returns HTML snippets inside JSON — extract job data from HTML
+      const jobs = [];
+      const html = (data.results || '').toString();
+      const jobPattern = /<a[^>]*href=["']([^"']+)["'][^>]*>[\s\S]*?<h2[^>]*>([\s\S]*?)<\/h2>[\s\S]*?<span[^>]*class=["'][^"']*job-location["'][^>]*>([\s\S]*?)<\/span>/gi;
+      let match;
+      while ((match = jobPattern.exec(html)) !== null) {
+        jobs.push({
+          title: match[2].replace(/<[^>]+>/g, '').trim(),
+          company: 'Disney',
+          description: '',
+          url: match[1].startsWith('http') ? match[1] : `https://jobs.disneycareers.com${match[1]}`,
+          url_direct: '',
+          location: match[3].replace(/<[^>]+>/g, '').trim(),
+          department: '',
+          posted: '',
+          remote: false,
+          job_id: '',
+        });
+      }
+      return { jobs, total: data.hasJobs ? jobs.length : 0 };
+    },
+    careers_url: 'https://jobs.disneycareers.com/search-jobs',
+  },
+};
+
+// Fallback careers page URLs for companies without JSON APIs
+const KNOWN_CAREERS = {
+  'apple': 'https://jobs.apple.com/en-us/search?search=engineering+management&location=los-angeles',
+  'google': 'https://www.google.com/about/careers/applications/jobs/results/',
+  'microsoft': 'https://careers.microsoft.com/v2/global/en/search?q=engineering+leader&l=en_us',
+  'warner bros discovery': 'https://careers.wbd.com/global/en/search-results',
+  'paramount': 'https://careers.paramount.com/search-jobs',
+  'sony': 'https://www.sonyjobs.com/find-a-job',
+  'nbcuniversal': 'https://www.nbcunicareers.com/search-results',
+  'diversified': 'https://onediversified.com/careers/',
+  'meta': 'https://www.metacareers.com/jobs',
+  'salesforce': 'https://careers.salesforce.com/en/jobs/',
+};
+
+/** Search a company's direct careers API — returns normalized job array */
+async function searchCompanyCareersAPI(companyKey, queries, location, maxResults = 50) {
+  const config = COMPANY_APIS[companyKey];
+  if (!config) return { jobs: [], source: null, careers_url: null };
+
+  const allJobs = [];
+  const seen = new Set();
+
+  for (const query of queries) {
+    try {
+      const url = config.api(query, location, 0, Math.min(25, maxResults));
+      const raw = await fetchJSON(url, config.headers);
+      const parsed = config.parse(raw);
+
+      for (const job of parsed.jobs) {
+        const key = `${job.title.toLowerCase()}|${job.location.toLowerCase()}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        allJobs.push({
+          ...job,
+          source: companyKey,
+          company_url: config.careers_url,
+        });
+      }
+
+      if (allJobs.length >= maxResults) break;
+    } catch (e) {
+      console.error(`Careers API error for ${companyKey} query "${query}": ${e.message}`);
+    }
+  }
+
+  return {
+    jobs: allJobs.slice(0, maxResults),
+    source: companyKey,
+    careers_url: config.careers_url,
+    total_api: allJobs.length,
+  };
+}
+
+/** Fetch JSON from a URL (follows redirects, returns parsed object) */
+function fetchJSON(url, extraHeaders = {}) {
+  return new Promise((resolve, reject) => {
+    const mod = url.startsWith('https') ? https : require('http');
+    const req = mod.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+        'Accept': 'application/json',
+        ...extraHeaders,
+      },
+    }, (res) => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        return fetchJSON(res.headers.location, extraHeaders).then(resolve, reject);
+      }
+      if (res.statusCode !== 200) {
+        let body = '';
+        res.on('data', c => body += c);
+        res.on('end', () => reject(new Error(`HTTP ${res.statusCode}: ${body.substring(0, 200)}`)));
+        return;
+      }
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch { reject(new Error('Invalid JSON response')); }
+      });
+    });
+    req.on('error', reject);
+    req.setTimeout(20000, () => { req.destroy(); reject(new Error('Timeout')); });
+  });
+}
+
+// ─── Universal Search Ingest (Step 4) ────────────────────────────────
+// Accepts job data from ANY source: Claude in Chrome, manual paste, webhook, etc.
+addRoute('POST', '/api/search/ingest', async (req, res) => {
+  try {
+    const jobs = Array.isArray(req.body) ? req.body : (req.body.jobs || [req.body]);
+    if (!jobs.length || !jobs[0].title) return json(res, { error: 'Provide job(s) with at least title and company' }, 400);
+
+    let added = 0, skipped = 0;
+    const insert = db.prepare(
+      "INSERT INTO jobs (company, title, description, status, source, url, url_direct, company_url, careers_url, date_added) VALUES (?, ?, ?, 'NEW', ?, ?, ?, ?, ?, datetime('now'))"
+    );
+
+    for (const job of jobs) {
+      // Dedup check
+      const exists = db.prepare(
+        "SELECT id FROM jobs WHERE company = ? AND title = ? LIMIT 1"
+      ).get(job.company || 'Unknown', job.title);
+      if (exists) { skipped++; continue; }
+
+      try {
+        insert.run(
+          job.company || 'Unknown', job.title, (job.description || '').substring(0, 5000),
+          job.source || 'ingested', job.url || null, job.url_direct || null,
+          job.company_url || null, job.careers_url || null
+        );
+        added++;
+      } catch (e) {
+        console.error('Ingest insert error:', e.message);
+      }
+    }
+
+    json(res, { added, skipped, total: jobs.length });
+  } catch (e) {
+    json(res, { error: 'Ingest failed: ' + e.message }, 500);
+  }
+});
+
+// ─── AI Search Tasks (Step 3) ────────────────────────────────────────
+// Create a deep search task for Claude in Chrome to pick up
+addRoute('POST', '/api/search/ai-task', (req, res) => {
+  const { query, location } = req.body;
+  if (!query) return json(res, { error: 'query required' }, 400);
+  try {
+    const result = db.prepare(
+      "INSERT INTO ai_search_tasks (query, location) VALUES (?, ?)"
+    ).run(query, location || 'United States');
+    json(res, { id: Number(result.lastInsertRowid), status: 'pending' }, 201);
+  } catch (e) {
+    json(res, { error: e.message }, 500);
+  }
+});
+
+// Get pending AI search tasks (for Claude in Chrome to poll)
+addRoute('GET', '/api/search/ai-tasks', (req, res) => {
+  const tasks = db.prepare(
+    "SELECT * FROM ai_search_tasks WHERE status = 'pending' ORDER BY created_at"
+  ).all();
+  json(res, tasks);
+});
+
+// Update AI search task status
+addRoute('PUT', '/api/search/ai-task/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { status, results_count, error } = req.body;
+  db.prepare(
+    "UPDATE ai_search_tasks SET status = ?, results_count = COALESCE(?, results_count), error = ?, completed_at = CASE WHEN ? IN ('completed','failed') THEN datetime('now') ELSE completed_at END WHERE id = ?"
+  ).run(status, results_count || null, error || null, status, id);
+  json(res, { success: true });
+});
+
+// ─── Company Research Auto-Enrichment (Step 2) ──────────────────────
+// Auto-fetch company website and find careers page URL
+addRoute('POST', '/api/research/auto/:jobId', async (req, res) => {
+  const jobId = parseInt(req.params.jobId, 10);
+  const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(jobId);
+  if (!job) return json(res, { error: 'Job not found' }, 404);
+
+  const company = job.company;
+  const companyUrl = job.company_url || '';
+  let careersUrl = job.careers_url || '';
+  let companyDescription = '';
+  let researchNotes = [];
+
+  try {
+    // Step 1: If we have a company URL, fetch it and look for careers page
+    let baseUrl = companyUrl;
+    if (!baseUrl && company && company !== 'Unknown') {
+      // Try to guess company website
+      const cleaned = company.toLowerCase().replace(/[^a-z0-9]/g, '').replace(/inc$|llc$|corp$|ltd$/, '');
+      baseUrl = `https://www.${cleaned}.com`;
+      researchNotes.push(`Guessed company URL: ${baseUrl}`);
+    }
+
+    if (baseUrl) {
+      try {
+        const html = await fetchHTML(baseUrl);
+        // Extract description from meta tags
+        const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)/i);
+        if (descMatch) companyDescription = descMatch[1].substring(0, 500);
+
+        // Look for careers/jobs links
+        const careersPatterns = [
+          /href=["']([^"']*(?:careers|jobs|join-us|work-with-us|openings|hiring)[^"']*)/gi,
+        ];
+        for (const pattern of careersPatterns) {
+          const matches = [...html.matchAll(pattern)];
+          for (const m of matches) {
+            let url = m[1];
+            if (url.startsWith('/')) url = baseUrl.replace(/\/$/, '') + url;
+            if (url.includes('career') || url.includes('jobs') || url.includes('join')) {
+              careersUrl = url;
+              break;
+            }
+          }
+          if (careersUrl) break;
+        }
+        researchNotes.push(careersUrl ? `Found careers page: ${careersUrl}` : 'No careers page link found on homepage');
+      } catch (e) {
+        researchNotes.push(`Failed to fetch ${baseUrl}: ${e.message}`);
+      }
+    }
+
+    // Step 2: If we have url_direct (from ts-jobspy), that's the actual ATS application URL
+    if (job.url_direct) {
+      researchNotes.push(`Direct application URL: ${job.url_direct}`);
+      // Extract ATS platform from url_direct
+      if (job.url_direct.includes('greenhouse.io')) researchNotes.push('ATS: Greenhouse');
+      else if (job.url_direct.includes('lever.co')) researchNotes.push('ATS: Lever');
+      else if (job.url_direct.includes('myworkdayjobs.com')) researchNotes.push('ATS: Workday');
+      else if (job.url_direct.includes('icims.com')) researchNotes.push('ATS: iCIMS');
+      else if (job.url_direct.includes('taleo')) researchNotes.push('ATS: Taleo');
+    }
+
+    // Store careers_url on the job
+    if (careersUrl) {
+      db.prepare('UPDATE jobs SET careers_url = ? WHERE id = ?').run(careersUrl, jobId);
+    }
+
+    // Upsert company research
+    db.prepare(`
+      INSERT INTO company_research (job_id, research_notes, company_summary)
+      VALUES (?, ?, ?)
+      ON CONFLICT(job_id) DO UPDATE SET
+        research_notes = excluded.research_notes,
+        company_summary = COALESCE(excluded.company_summary, company_summary),
+        research_date = datetime('now')
+    `).run(jobId, researchNotes.join('\n'), companyDescription || null);
+
+    json(res, {
+      job_id: jobId,
+      company,
+      careers_url: careersUrl || null,
+      company_description: companyDescription || null,
+      notes: researchNotes,
+    });
+  } catch (e) {
+    json(res, { error: 'Research failed: ' + e.message }, 500);
+  }
 });
 
 // ─── Token Cost Tracking (Phase 13H) ────────────────────────────────
@@ -1144,15 +2356,7 @@ addRoute('POST', '/api/cover-letter/generate/:jobId', async (req, res) => {
   const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(jobId);
   if (!job) return json(res, { error: 'Job not found' }, 404);
 
-  // Budget check
-  const env = loadEnv();
-  const maxPerDay = parseInt(env.MAX_COVER_LETTERS_PER_DAY || '5', 10);
-  const todayCount = db.prepare(
-    "SELECT COUNT(*) as c FROM conductor_queue WHERE task_type = 'generate_letter' AND status = 'completed' AND date(completed_at) = date('now')"
-  ).get();
-  if (todayCount.c >= maxPerDay) {
-    return json(res, { error: `Daily limit reached (${maxPerDay} cover letters/day). Adjust in Settings.` }, 429);
-  }
+  // Budget check removed — no daily limit
 
   // Load personal info
   const piRows = db.prepare('SELECT key, value FROM personal_info').all();
@@ -1160,7 +2364,7 @@ addRoute('POST', '/api/cover-letter/generate/:jobId', async (req, res) => {
   for (const r of piRows) pi[r.key] = r.value;
 
   // Load company research
-  const research = db.prepare('SELECT * FROM company_research WHERE job_id = ?').get(jobId);
+  let research = db.prepare('SELECT * FROM company_research WHERE job_id = ?').get(jobId);
 
   // Load cover letter templates
   const templateDir = path.join(__dirname, 'templates');
@@ -1178,10 +2382,68 @@ addRoute('POST', '/api/cover-letter/generate/:jobId', async (req, res) => {
   if (fs.existsSync(capFile)) capabilityProfile = fs.readFileSync(capFile, 'utf8');
 
   try {
-    // Two-Call Pattern: Extract → Assemble
+    // ─── Step 0: Auto-research if no company research exists ───────────
+    if (!research || !research.company_summary) {
+      try {
+        const researchSystem = `You are an executive job search research assistant. Research this company to help a VP of Engineering write a compelling, specific cover letter. Return ONLY valid JSON with these fields:
+- company_summary: 2-3 sentences about what the company does, their market position, and scale
+- current_challenges: What transformation, growth, or technical challenges the company is likely facing RIGHT NOW (be specific — AI adoption, scaling engineering, platform migration, etc.)
+- why_wolf_fits: One sentence on why a people-first engineering leader (not a domain specialist) would be valuable here
+- culture_notes: Work culture signals (from job description, Glassdoor reputation, or company messaging)
+- key_people: Key engineering/tech leadership names if findable
+- recent_news: Any recent funding, acquisitions, layoffs, product launches, or strategic shifts
 
-    // Call 1: Extraction
-    const extractSystem = `You are a cover letter research assistant. Extract specific facts, metrics, accomplishments, and stories from the candidate's profile that are relevant to this job. Output ONLY a JSON array of objects with: fact, source, relevance_to_job. Return valid JSON only, no markdown.`;
+Return ONLY valid JSON, no markdown fencing.`;
+
+        const researchMsg = `Company: ${job.company}\nRole: ${job.title}\nDescription: ${(job.description || '').slice(0, 1500)}\nURL: ${job.url || 'unknown'}`;
+        const researchRaw = await callClaude(apiKey, 'claude-sonnet-4-5-20250929', researchSystem, researchMsg, 1500);
+        let researchParsed;
+        try {
+          const cleaned = researchRaw.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
+          researchParsed = JSON.parse(cleaned);
+        } catch {
+          researchParsed = { research_notes: researchRaw };
+        }
+        // Save to DB
+        db.prepare(`
+          INSERT INTO company_research (job_id, research_notes, company_summary, culture_notes, key_people, recent_news)
+          VALUES (?, ?, ?, ?, ?, ?)
+          ON CONFLICT(job_id) DO UPDATE SET
+            research_notes = COALESCE(excluded.research_notes, research_notes),
+            company_summary = COALESCE(excluded.company_summary, company_summary),
+            culture_notes = COALESCE(excluded.culture_notes, culture_notes),
+            key_people = COALESCE(excluded.key_people, key_people),
+            recent_news = COALESCE(excluded.recent_news, recent_news)
+        `).run(
+          jobId,
+          [researchParsed.current_challenges, researchParsed.why_wolf_fits, researchParsed.research_notes].filter(Boolean).join('\n'),
+          researchParsed.company_summary || null,
+          researchParsed.culture_notes || null,
+          researchParsed.key_people || null,
+          researchParsed.recent_news || null
+        );
+        // Reload research from DB
+        research = db.prepare('SELECT * FROM company_research WHERE job_id = ?').get(jobId);
+        if (!research) research = researchParsed; // fallback to parsed if DB insert failed
+      } catch (e) {
+        console.log(`[cover-letter] Auto-research failed for job ${jobId}: ${e.message} — continuing without research`);
+      }
+    }
+
+    // ─── Three-Call Pattern: Extract → Research Context → Assemble ─────
+
+    // Call 1: Extraction — pull relevant proof points from profile
+    const extractSystem = `You are a cover letter research assistant for Wolf Schram, a VP of Engineering making a career transition.
+
+CRITICAL CONTEXT: Wolf's subject matter IS leadership — technology is the context, not the product. He may not be a domain expert in the company's specific technology, and that's the point. His value is leading people, building ownership cultures, and driving transformation in ANY technology environment.
+
+Your job: Extract the BEST proof points from his profile that would be most compelling for THIS specific role. Prioritize:
+1. Concrete results with numbers (team size, scale, outcomes)
+2. Stories that demonstrate leadership transferability across industries
+3. Transformation examples (culture change, org mergers, scaling teams)
+4. Any direct or adjacent technical relevance
+
+Output ONLY a JSON array of objects with: fact, source, relevance_to_job, strength (1-10). Return valid JSON only, no markdown.`;
 
     const extractMsg = `JOB: ${job.company} — ${job.title}
 DESCRIPTION: ${(job.description || '').slice(0, 2000)}
@@ -1190,8 +2452,8 @@ CANDIDATE PROFILE:
 Name: ${pi.full_name || 'Wolfgang Schram'}
 Positioning: ${pi.positioning_statement || ''}
 Resume Summary: ${pi.resume_summary || ''}
-${capabilityProfile ? `\nCAPABILITY PROFILE:\n${capabilityProfile.slice(0, 3000)}` : ''}
-${coverLetterExamples ? `\nCOVER LETTER EXAMPLES:\n${coverLetterExamples.slice(0, 3000)}` : ''}`;
+${capabilityProfile ? `\nCAPABILITY PROFILE:\n${capabilityProfile.slice(0, 4000)}` : ''}
+${coverLetterExamples ? `\nCOVER LETTER EXAMPLES (for tone reference only):\n${coverLetterExamples.slice(0, 2000)}` : ''}`;
 
     const extractedRaw = await callClaude(apiKey, 'claude-sonnet-4-5-20250929', extractSystem, extractMsg, 1500);
     let extracted;
@@ -1199,37 +2461,85 @@ ${coverLetterExamples ? `\nCOVER LETTER EXAMPLES:\n${coverLetterExamples.slice(0
       const cleaned = extractedRaw.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
       extracted = JSON.parse(cleaned);
     } catch {
-      extracted = [{ fact: extractedRaw, source: 'raw', relevance_to_job: 'general' }];
+      extracted = [{ fact: extractedRaw, source: 'raw', relevance_to_job: 'general', strength: 5 }];
     }
 
-    // Call 2: Assembly
-    const assembleSystem = `You are a cover letter writer for ${pi.full_name || 'Wolfgang Schram'}, a senior engineering leader.
+    // Call 2: Strategic Assembly with the 4-part frame
+    const assembleSystem = `You are writing a cover letter for Wolf Schram — a senior engineering leader applying for roles outside his original broadcast/media domain.
 
-Write a P→P→R (Problem → Proof → Result) cover letter:
-- Opening: Hook with a specific insight about the company's challenge
-- Body: 2-3 paragraphs connecting specific experience to job requirements
-- Close: Forward-looking statement about impact
+═══ THE STRATEGIC FRAME ═══
 
-Rules:
-- Use ONLY facts from the provided extracted evidence — never fabricate
-- Professional but warm tone
-- Under 400 words
-- No generic filler phrases ("I am excited to apply", "I believe I would be a great fit")
-- Address the letter to "Hiring Manager" unless a specific name is known
+Wolf's subject matter IS leadership. The technology is the context.
+
+This is NOT a candidate randomly applying and hoping it works. This is a deliberate, strategic application from someone whose entire career has been about building engineering cultures that deliver — regardless of the technology stack or industry.
+
+═══ LETTERHEAD FORMAT (REQUIRED — EXACTLY AS SHOWN) ═══
+
+${pi.full_name || 'Wolfgang Schram'}
+${pi.city || 'Los Angeles'}, ${pi.state || 'California'} | ${pi.phone || '310-997-8359'} | ${pi.email || 'wolfbroadcast@gmail.com'} | ${pi.linkedin_url || 'https://www.linkedin.com/in/wolfgang-schram-a4837420/'}
+
+${job.company}
+[TODAY'S DATE]
+
+Dear [Hiring Manager/Contact],
+
+═══ LETTER STRUCTURE (4 PARTS — THIS ORDER) ═══
+
+PART 1 — WHY THIS COMPANY (1-2 sentences)
+Name something SPECIFIC about the company — a transformation they're going through, a growth moment, a strategic challenge. NOT generic praise. Show you read the room. Use the company research provided.
+
+PART 2 — THE PROBLEM THEY HAVE (2-3 sentences)
+Name the actual challenge this role exists to solve. Is it scaling engineering? Building culture after hyper-growth? Driving AI adoption? Merging teams post-acquisition? Be specific. This is where you show you understand what they need.
+
+PART 3 — YOUR PROOF (1-2 paragraphs, this is the meat)
+Connect Wolf's experience to their problem with CONCRETE examples:
+- Numbers: 250 engineers, 55+ countries, $multi-million programs
+- Specific stories: org mergers, GCC launches, ownership culture transformation
+- The critical reframe: "I'm not a [their industry] specialist — I'm a leadership specialist who has delivered outcomes in environments far more complex and unforgiving than most."
+- Pick the 2-3 most relevant proof points from the extracted evidence
+
+PART 4 — THE OFFER (2-3 sentences)
+What specifically you bring to their table. Not generic "leadership" — name it: ownership culture, developing engineering leaders, driving transformation without disruption, building self-organizing teams. End forward-looking.
+
+═══ SIGN-OFF ═══
+
+Best regards,
+Wolf Schram
+
+═══ CRITICAL RULES ═══
+- Use ONLY facts from the provided extracted evidence — NEVER fabricate
+- Professional but warm and direct tone — Wolf has ADHD and hates corporate fluff
+- Letter body: 350-450 words (enough depth to be credible, short enough to be read)
+- FORBIDDEN phrases: "I am excited to apply", "I believe I would be a great fit", "I am confident that", "unique opportunity", "passion for"
+- The letter must PRE-EMPT the objection "he doesn't know our industry" — address it head-on, don't dodge it
+- One sentence must explicitly state that leadership IS the subject matter expertise — say it directly, don't just imply it
+- If the role is in an industry Wolf hasn't worked in, acknowledge it as a STRENGTH not a gap
+- NEVER hedge with "Not software, but..." or "just in a different context" — OWN the transfer confidently
+- Address to "Hiring Manager" unless a specific name is provided
+
+═══ ANTI-DUPLICATION (variety across multiple letters) ═══
+- When describing the Diversified experience, lead with the ASPECT most relevant to THIS role — don't always start with "250 engineers globally and merged two disciplines"
+- Vary which proof stories you lead with: org merger, GCC India launch, Accountability Clarity Threshold, touring engineering, Senate systems — pick what fits THIS company best
+- The Accountability Clarity Threshold framework is a signature tool — include it, but vary HOW you introduce it (sometimes as the problem it solves, sometimes as the result it delivered)
+- Each letter should feel individually crafted, not templated
 ${research?.key_people ? `\nKey contacts at company: ${research.key_people}` : ''}`;
 
     const assembleMsg = `COMPANY: ${job.company}
 ROLE: ${job.title}
 DESCRIPTION: ${(job.description || '').slice(0, 1500)}
-${research?.company_summary ? `\nCOMPANY RESEARCH: ${research.company_summary}` : ''}
+${research?.company_summary ? `\nCOMPANY RESEARCH:\n${research.company_summary}` : ''}
 ${research?.culture_notes ? `\nCULTURE: ${research.culture_notes}` : ''}
+${research?.recent_news ? `\nRECENT NEWS: ${research.recent_news}` : ''}
+${research?.research_notes ? `\nADDITIONAL CONTEXT: ${research.research_notes}` : ''}
 
-EXTRACTED EVIDENCE:
+EXTRACTED EVIDENCE (use the strongest proof points):
 ${JSON.stringify(extracted, null, 2)}
+
+INSTRUCTION: Replace [TODAY'S DATE] with today's date formatted as "March 6, 2026". Use "Hiring Manager" unless you know a specific name from the research.
 
 Write the cover letter now.`;
 
-    const letter = await callClaude(apiKey, 'claude-sonnet-4-5-20250929', assembleSystem, assembleMsg, 2000);
+    const letter = await callClaude(apiKey, 'claude-sonnet-4-5-20250929', assembleSystem, assembleMsg, 2500);
 
     // Get next version number
     const lastVersion = db.prepare(
@@ -1243,7 +2553,7 @@ Write the cover letter now.`;
     ).run(jobId, version, letter);
 
     // Update job status
-    db.prepare("UPDATE jobs SET status = 'COVER_LETTER_READY', date_updated = datetime('now') WHERE id = ? AND status IN ('SCORED', 'COVER_LETTER_QUEUED')").run(jobId);
+    db.prepare("UPDATE jobs SET status = 'COVER_LETTER_READY', date_updated = datetime('now') WHERE id = ? AND status IN ('SCORED', 'COVER_LETTER_QUEUED', 'GENERATION_FAILED', 'NEW')").run(jobId);
 
     // Log to conductor queue
     db.prepare(
@@ -1271,6 +2581,353 @@ addRoute('GET', '/api/cover-letter/:jobId/versions', (req, res) => {
   json(res, { versions });
 });
 
+// POST /api/cover-letter/edit/:jobId — Edit existing cover letter version
+addRoute('POST', '/api/cover-letter/edit/:jobId', async (req, res) => {
+  const apiKey = getApiKey();
+  if (!apiKey) return json(res, { error: 'Anthropic API key not configured. Go to Settings tab.' }, 400);
+
+  const jobId = parseInt(req.params.jobId, 10);
+  const { version, instructions } = req.body;
+
+  if (!version || !instructions) {
+    return json(res, { error: 'Missing version or instructions' }, 400);
+  }
+
+  // Load the job
+  const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(jobId);
+  if (!job) return json(res, { error: 'Job not found' }, 404);
+
+  // Load the existing cover letter version
+  const existingLetter = db.prepare(
+    'SELECT * FROM cover_letter_versions WHERE job_id = ? AND version = ?'
+  ).get(jobId, version);
+  if (!existingLetter) return json(res, { error: 'Cover letter version not found' }, 404);
+
+  // Load personal info
+  const piRows = db.prepare('SELECT key, value FROM personal_info').all();
+  const pi = {};
+  for (const r of piRows) pi[r.key] = r.value;
+
+  // Load company research
+  const research = db.prepare('SELECT * FROM company_research WHERE job_id = ?').get(jobId);
+
+  try {
+    // Call Claude with edit instructions
+    const editSystem = `You are a cover letter editor for Wolf Schram, a senior engineering leader whose subject matter IS leadership — technology is the context.
+
+STRATEGIC FRAME (maintain throughout edits):
+- The letter follows a 4-part structure: WHY THIS COMPANY → THE PROBLEM THEY HAVE → YOUR PROOF → THE OFFER
+- The letter must pre-empt "he doesn't know our industry" — address it as a strength
+- Concrete results and numbers matter more than adjectives
+- Wolf hates corporate fluff — keep it direct, warm, authentic
+
+Rules:
+- Keep the letterhead EXACTLY as-is (name, location, phone, email, full LinkedIn URL, company, date, greeting)
+- Keep the sign-off EXACTLY as-is (Best regards, Wolf Schram)
+- Never shorten the LinkedIn URL or replace it with just "LinkedIn"
+- Stay within 350-450 words for the body
+- Apply the user's requested changes while maintaining the strategic frame
+- If the user asks to strengthen something, use concrete proof from the context provided
+- FORBIDDEN phrases: "I am excited to apply", "I believe I would be a great fit", "I am confident that", "unique opportunity", "passion for"
+- If the user's edit would weaken the strategic positioning, apply the spirit of their request but keep the frame strong`;
+
+    const editMsg = `EXISTING COVER LETTER:
+${existingLetter.content}
+
+COMPANY: ${job.company}
+ROLE: ${job.title}
+
+EDIT INSTRUCTIONS:
+${instructions}
+
+Apply the instructions above and provide the revised cover letter with the same letterhead and sign-off.`;
+
+    const editedLetter = await callClaude(apiKey, 'claude-sonnet-4-5-20250929', editSystem, editMsg, 2000);
+
+    // Get next version number
+    const lastVersion = db.prepare(
+      'SELECT MAX(version) as v FROM cover_letter_versions WHERE job_id = ?'
+    ).get(jobId);
+    const newVersion = (lastVersion?.v || 0) + 1;
+
+    // Save as new version
+    const result = db.prepare(
+      "INSERT INTO cover_letter_versions (job_id, version, content, model_used) VALUES (?, ?, ?, 'claude-sonnet-4-5-20250929')"
+    ).run(jobId, newVersion, editedLetter);
+
+    json(res, {
+      success: true,
+      version: newVersion,
+      letter_id: result.lastInsertRowid,
+      content: editedLetter,
+      previous_version: version,
+    });
+
+  } catch (e) {
+    json(res, { error: e.message }, 500);
+  }
+});
+
+// GET /api/cover-letter/export-docx/:jobId/:version — Export cover letter as formatted .docx
+addRoute('GET', '/api/cover-letter/export-docx/:jobId/:version', async (req, res) => {
+  const jobId = parseInt(req.params.jobId, 10);
+  const version = parseInt(req.params.version, 10);
+
+  const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(jobId);
+  if (!job) return json(res, { error: 'Job not found' }, 404);
+
+  const letterRow = db.prepare('SELECT * FROM cover_letter_versions WHERE job_id = ? AND version = ?').get(jobId, version);
+  if (!letterRow) return json(res, { error: 'Cover letter version not found' }, 404);
+
+  try {
+    const { Document, Packer, Paragraph, TextRun, AlignmentType, ExternalHyperlink } = require('docx');
+
+    // Parse letterhead from content (if present) or use personal info
+    const piRows = db.prepare('SELECT key, value FROM personal_info').all();
+    const pi = {};
+    for (const r of piRows) pi[r.key] = r.value;
+
+    const content = letterRow.content;
+
+    // Build the docx with the letter content as-is (it already has letterhead from generation)
+    const paragraphs = content.split('\n').map(line => {
+      const trimmed = line.trim();
+      // Detect letterhead lines (bold name, contact line)
+      if (trimmed === (pi.full_name || 'Wolfgang Schram')) {
+        return new Paragraph({
+          spacing: { after: 40 },
+          children: [new TextRun({ text: trimmed, bold: true, size: 24, font: 'Arial' })]
+        });
+      }
+      // Contact info line (contains | separators) — make email & LinkedIn clickable
+      if (trimmed.includes('|') && (trimmed.includes('@') || trimmed.includes('linkedin'))) {
+        const parts = trimmed.split('|').map(s => s.trim());
+        const children = [];
+        for (let i = 0; i < parts.length; i++) {
+          if (i > 0) children.push(new TextRun({ text: ' | ', size: 19, font: 'Arial', color: '555555' }));
+          const part = parts[i];
+          // Email — make clickable
+          const emailMatch = part.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+          if (emailMatch) {
+            children.push(new ExternalHyperlink({
+              children: [new TextRun({ text: emailMatch[1], style: 'Hyperlink', size: 19, font: 'Arial' })],
+              link: 'mailto:' + emailMatch[1],
+            }));
+          // LinkedIn URL — make clickable
+          } else if (part.match(/linkedin\.com/i)) {
+            const url = part.startsWith('http') ? part : 'https://' + part;
+            children.push(new ExternalHyperlink({
+              children: [new TextRun({ text: part, style: 'Hyperlink', size: 19, font: 'Arial' })],
+              link: url,
+            }));
+          } else {
+            children.push(new TextRun({ text: part, size: 19, font: 'Arial', color: '555555' }));
+          }
+        }
+        return new Paragraph({ spacing: { after: 200 }, children });
+      }
+      // Sign-off line
+      if (trimmed === 'Best regards,' || trimmed === 'Sincerely,') {
+        return new Paragraph({
+          spacing: { before: 200, after: 40 },
+          children: [new TextRun({ text: trimmed, size: 22, font: 'Arial' })]
+        });
+      }
+      if (trimmed === 'Wolf Schram' || trimmed === 'Wolfgang Schram') {
+        return new Paragraph({
+          spacing: { after: 40 },
+          children: [new TextRun({ text: trimmed, bold: true, size: 22, font: 'Arial' })]
+        });
+      }
+      // Empty line
+      if (!trimmed) {
+        return new Paragraph({ spacing: { after: 80 }, children: [] });
+      }
+      // Regular paragraph
+      return new Paragraph({
+        spacing: { after: 120 },
+        children: [new TextRun({ text: trimmed, size: 22, font: 'Arial' })]
+      });
+    });
+
+    const doc = new Document({
+      styles: { default: { document: { run: { font: 'Arial', size: 22 } } } },
+      sections: [{
+        properties: {
+          page: {
+            size: { width: 12240, height: 15840 },
+            margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 }
+          }
+        },
+        children: paragraphs
+      }]
+    });
+
+    const buffer = await Packer.toBuffer(doc);
+    const filename = `Cover_Letter_${job.company.replace(/[^a-zA-Z0-9]/g, '_')}_v${version}.docx`;
+    res.writeHead(200, {
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Content-Length': buffer.length
+    });
+    res.end(buffer);
+  } catch (e) {
+    json(res, { error: e.message }, 500);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// EXTERNAL JOB IMPORT (AI-parsed)
+// ═══════════════════════════════════════════════════════════════════════
+
+// POST /api/import/parse-jobs — Parse freeform text into structured job listings using AI
+addRoute('POST', '/api/import/parse-jobs', async (req, res) => {
+  const apiKey = getApiKey();
+  if (!apiKey) return json(res, { error: 'Anthropic API key not configured. Go to Settings tab.' }, 400);
+
+  const { text } = req.body;
+  if (!text || text.length < 30) return json(res, { error: 'Text too short — paste more content' }, 400);
+
+  try {
+    const systemPrompt = `You are a job listing parser. Extract structured job listings from unstructured text. The text may come from Claude, ChatGPT, LinkedIn, recruiter emails, job boards, or any other source.
+
+For EACH job found, extract:
+- company: Company name (required)
+- title: Job title (required)
+- location: City/state or "Remote" if mentioned
+- url: Application URL or job posting URL if present
+- description: Brief description of the role (2-3 sentences max, from whatever context is available)
+- why_fit: Why this role might fit (if mentioned in the source text)
+- salary: Salary range if mentioned
+- source: Where this came from (e.g. "Claude search", "LinkedIn", "recruiter", "manual")
+
+Output ONLY a valid JSON array. No markdown, no explanation. If no jobs are found, return [].
+
+Example output:
+[{"company":"Rivian","title":"VP of Engineering","location":"Irvine, CA (hybrid)","url":"","description":"Leading software platform engineering org of 200+ engineers through EV technology transformation.","why_fit":"Large team leadership, transformation focus","salary":"","source":"external_import"}]`;
+
+    const rawResponse = await callClaude(apiKey, 'claude-sonnet-4-5-20250929', systemPrompt, text.slice(0, 15000), 4000);
+
+    // Parse the JSON
+    let jobs;
+    try {
+      const cleaned = rawResponse.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
+      jobs = JSON.parse(cleaned);
+    } catch (parseErr) {
+      return json(res, { error: 'AI returned invalid JSON. Try pasting cleaner text.', raw_preview: rawResponse.substring(0, 200) }, 400);
+    }
+
+    if (!Array.isArray(jobs) || jobs.length === 0) {
+      return json(res, { error: 'No jobs found in the text. Try a different format.' }, 400);
+    }
+
+    // Score each job using the profile scorer
+    const scorer = PROFILE_SCORER || loadProfileScorer();
+    for (const job of jobs) {
+      job.source = job.source || 'external_import';
+      if (scorer) {
+        const title = (job.title || '').toLowerCase();
+        const company = (job.company || '').toLowerCase();
+        const jobText = `${title} ${job.description || ''} ${company}`;
+
+        // Company skip list
+        if (COMPANY_SKIP_LIST.some(skip => company.includes(skip))) {
+          job.score = 0;
+          job.skip_reason = 'company_skipped';
+          continue;
+        }
+        // Title disqualifiers
+        if (scorer.titleDisqualifiers && scorer.titleDisqualifiers.some(d => title.includes(d))) {
+          job.score = 0;
+          job.skip_reason = 'title_disqualified';
+          continue;
+        }
+
+        let totalScore = 0;
+        for (const [dimName, dim] of Object.entries(scorer)) {
+          if (dimName === 'redFlags' || dimName === 'titleDisqualifiers') continue;
+          if (!dim.terms || !dim.weight) continue;
+          const matches = dim.terms.filter(t => jobText.includes(t));
+          totalScore += Math.min(matches.length / 3, 1.0) * dim.weight;
+        }
+        const redFlags = (scorer.redFlags || []).filter(f => jobText.includes(f));
+        totalScore -= redFlags.length * 8;
+        const titleKeywords = ['vp', 'vice president', 'svp', 'cto', 'coo', 'head of engineering', 'senior director', 'director of engineering'];
+        if (titleKeywords.some(k => title.includes(k))) totalScore += 15;
+        job.score = Math.max(0, Math.min(Math.round((totalScore / 100) * 100), 100));
+      } else {
+        job.score = 50;
+      }
+    }
+
+    // Check for duplicates against existing pipeline AND deleted/blacklisted jobs
+    const existingJobs = db.prepare("SELECT company, title FROM jobs").all();
+    const existingSet = new Set(existingJobs.map(j => `${j.company.toLowerCase()}|${j.title.toLowerCase()}`));
+    let deletedSet = new Set();
+    try {
+      const deletedJobs = db.prepare("SELECT company, title FROM deleted_fingerprints").all();
+      deletedSet = new Set(deletedJobs.map(j => `${j.company.toLowerCase()}|${j.title.toLowerCase()}`));
+    } catch {}
+    for (const job of jobs) {
+      const key = `${(job.company || '').toLowerCase()}|${(job.title || '').toLowerCase()}`;
+      job.is_duplicate = existingSet.has(key) || deletedSet.has(key);
+    }
+
+    json(res, { jobs, count: jobs.length });
+
+  } catch (e) {
+    console.error('[Import Parse] Error:', e.message);
+    json(res, { error: e.message }, 500);
+  }
+});
+
+// POST /api/import/add-jobs — Add parsed jobs to the pipeline
+addRoute('POST', '/api/import/add-jobs', async (req, res) => {
+  const { jobs } = req.body;
+  if (!Array.isArray(jobs) || jobs.length === 0) return json(res, { error: 'No jobs provided' }, 400);
+
+  let added = 0;
+  let skipped = 0;
+  const errors = [];
+
+  for (const job of jobs) {
+    if (!job.company || !job.title) { skipped++; continue; }
+
+    // Dedup check
+    const existing = db.prepare(
+      "SELECT id FROM jobs WHERE LOWER(company) = LOWER(?) AND LOWER(title) = LOWER(?)"
+    ).get(job.company, job.title);
+    if (existing) { skipped++; continue; }
+
+    try {
+      const fingerprint = `${job.company}|${job.title}`.toLowerCase().replace(/[^a-z0-9|]/g, '');
+      const noteParts = [];
+      if (job.location) noteParts.push(`Location: ${job.location}`);
+      if (job.why_fit) noteParts.push(job.why_fit);
+      if (job.salary) noteParts.push(`Salary: ${job.salary}`);
+      db.prepare(`
+        INSERT INTO jobs (company, title, description, status, score, score_reasoning, source, url, notes, job_fingerprint)
+        VALUES (?, ?, ?, 'SCORED', ?, ?, ?, ?, ?, ?)
+      `).run(
+        job.company,
+        job.title,
+        job.description || null,
+        job.score || null,
+        job.why_fit || null,
+        job.source || 'external_import',
+        job.url || null,
+        noteParts.length ? noteParts.join('\n') : null,
+        fingerprint
+      );
+      added++;
+    } catch (e) {
+      errors.push(`${job.company} — ${job.title}: ${e.message}`);
+    }
+  }
+
+  json(res, { added, skipped, errors: errors.length ? errors : undefined, message: `Added ${added}, skipped ${skipped} duplicates` });
+});
+
 // ═══════════════════════════════════════════════════════════════════════
 // GMAIL EMAIL INTEGRATION
 // ═══════════════════════════════════════════════════════════════════════
@@ -1291,6 +2948,7 @@ try {
       matched_job_id INTEGER REFERENCES jobs(id),
       match_confidence TEXT CHECK(match_confidence IN ('high','medium','low','none')),
       response_type TEXT CHECK(response_type IN ('application_received','interview','rejection','offer','follow_up','unknown')),
+      verification_code TEXT,
       is_read INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now'))
     );
@@ -1299,6 +2957,10 @@ try {
     CREATE INDEX IF NOT EXISTS idx_email_messages_received ON email_messages(received_at);
   `);
 } catch (e) { console.warn('  ⚠ email_messages table:', e.message); }
+
+// Migration: add dismissed + important columns
+try { db.exec("ALTER TABLE email_messages ADD COLUMN dismissed INTEGER DEFAULT 0"); } catch(e) { /* already exists */ }
+try { db.exec("ALTER TABLE email_messages ADD COLUMN important INTEGER DEFAULT 0"); } catch(e) { /* already exists */ }
 
 // Ensure application_questions table exists
 try {
@@ -1388,6 +3050,26 @@ function classifyEmail(subject, snippet, body) {
   if (/thank.*appl|received.*application|application.*received|confirm.*receipt|successfully.*submitted/i.test(text)) return 'application_received';
   if (/follow.?up|checking in|status.*update|additional.*information|next.*steps/i.test(text)) return 'follow_up';
   return 'unknown';
+}
+
+// Helper: extract verification codes from email text
+function extractVerificationCode(subject, snippet, body) {
+  const text = `${subject} ${snippet} ${body || ''}`;
+  // Common patterns: 6-digit codes, 4-digit codes, hyphenated codes
+  const patterns = [
+    /(?:verification|confirm|code|pin|otp)[:\s]*(\d{4,8})/i,
+    /(\d{6})(?:\s|$|\.)/,
+    /(\d{4}[-]\d{4})/,
+    /(?:code|pin).*?(\d{4,6})/i,
+  ];
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) return match[1];
+  }
+  // Check for confirmation links
+  const linkMatch = text.match(/(https?:\/\/[^\s]+(?:confirm|verify|activate)[^\s]*)/i);
+  if (linkMatch) return `LINK:${linkMatch[1]}`;
+  return null;
 }
 
 // Helper: match email to a job application
@@ -1510,10 +3192,11 @@ addRoute('POST', '/api/email/scan', async (req, res) => {
         receivedAt = new Date(parseInt(msg.internalDate, 10)).toISOString().replace('T', ' ').split('.')[0];
       }
 
+      const verificationCode = extractVerificationCode(subject, snippet, '');
       db.prepare(`
-        INSERT INTO email_messages (gmail_id, thread_id, subject, sender, sender_email, snippet, received_at, matched_job_id, match_confidence, response_type)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(msgId, msg.threadId, subject, senderName, senderEmail, snippet, receivedAt, match.job_id, match.confidence, responseType);
+        INSERT INTO email_messages (gmail_id, thread_id, subject, sender, sender_email, snippet, received_at, matched_job_id, match_confidence, response_type, verification_code)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(msgId, msg.threadId, subject, senderName, senderEmail, snippet, receivedAt, match.job_id, match.confidence, responseType, verificationCode);
 
       newCount++;
       if (match.job_id) {
@@ -1547,11 +3230,16 @@ addRoute('POST', '/api/email/scan', async (req, res) => {
 addRoute('GET', '/api/email/messages', (req, res, query) => {
   let sql = `SELECT e.*, j.company, j.title FROM email_messages e LEFT JOIN jobs j ON e.matched_job_id = j.id WHERE 1=1`;
   const params = [];
+  // By default hide dismissed; show_dismissed=true to see them
+  if (query.show_dismissed === 'true') { /* show all */ }
+  else if (query.dismissed_only === 'true') { sql += ' AND e.dismissed = 1'; }
+  else { sql += ' AND (e.dismissed = 0 OR e.dismissed IS NULL)'; }
+  if (query.important === 'true') { sql += ' AND e.important = 1'; }
   if (query.matched === 'true') { sql += ' AND e.matched_job_id IS NOT NULL'; }
   if (query.matched === 'false') { sql += ' AND e.matched_job_id IS NULL'; }
   if (query.response_type) { sql += ' AND e.response_type = ?'; params.push(query.response_type); }
   sql += ' ORDER BY e.received_at DESC';
-  const limit = Math.min(parseInt(query.limit || '100', 10), 500);
+  const limit = Math.min(parseInt(query.limit || '200', 10), 500);
   sql += ' LIMIT ?'; params.push(limit);
   json(res, db.prepare(sql).all(...params));
 });
@@ -1561,7 +3249,7 @@ addRoute('PUT', '/api/email/messages/:id', async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const email = db.prepare('SELECT * FROM email_messages WHERE id = ?').get(id);
   if (!email) return json(res, { error: 'Email not found' }, 404);
-  const fields = ['matched_job_id', 'match_confidence', 'response_type', 'is_read'];
+  const fields = ['matched_job_id', 'match_confidence', 'response_type', 'is_read', 'dismissed', 'important'];
   const updates = [], values = [];
   for (const f of fields) {
     if (req.body[f] !== undefined) { updates.push(`${f} = ?`); values.push(req.body[f]); }
@@ -1575,14 +3263,18 @@ addRoute('PUT', '/api/email/messages/:id', async (req, res) => {
 // GET /api/email/summary — Summary stats for email tab
 addRoute('GET', '/api/email/summary', (req, res) => {
   const total = db.prepare('SELECT COUNT(*) as c FROM email_messages').get();
+  const visible = db.prepare('SELECT COUNT(*) as c FROM email_messages WHERE dismissed = 0 OR dismissed IS NULL').get();
+  const dismissed = db.prepare('SELECT COUNT(*) as c FROM email_messages WHERE dismissed = 1').get();
+  const important = db.prepare('SELECT COUNT(*) as c FROM email_messages WHERE important = 1').get();
   const matched = db.prepare('SELECT COUNT(*) as c FROM email_messages WHERE matched_job_id IS NOT NULL').get();
   const byType = db.prepare('SELECT response_type, COUNT(*) as count FROM email_messages GROUP BY response_type ORDER BY count DESC').all();
   const recent = db.prepare(`
     SELECT e.*, j.company, j.title FROM email_messages e
     LEFT JOIN jobs j ON e.matched_job_id = j.id
-    ORDER BY e.received_at DESC LIMIT 10
+    WHERE (e.dismissed = 0 OR e.dismissed IS NULL)
+    ORDER BY e.received_at DESC LIMIT 200
   `).all();
-  json(res, { total: total.c, matched: matched.c, by_type: byType, recent });
+  json(res, { total: total.c, visible: visible.c, dismissed: dismissed.c, important: important.c, matched: matched.c, by_type: byType, recent });
 });
 
 // ─── Application Questions ──────────────────────────────────────────
@@ -1670,6 +3362,10 @@ const server = http.createServer(async (req, res) => {
   json(res, { error: 'Not found' }, 404);
 });
 
+server.on('error', (err) => {
+  console.error('⚠ Server error:', err.message);
+});
+
 server.listen(PORT, () => {
   console.log('');
   console.log('  ✓ Job Pipeline Server v2 running');
@@ -1677,7 +3373,28 @@ server.listen(PORT, () => {
   console.log(`  ✓ Old Dashboard:  http://localhost:${PORT}/v1`);
   console.log(`  ✓ API:            http://localhost:${PORT}/api/stats`);
   console.log(`  ✓ Health:         http://localhost:${PORT}/api/health`);
+
+  // Start conductor inline (polling loop + auto-queue + stall detection)
+  try {
+    conductor.start();
+    console.log('  ✓ Conductor started (5s polling, auto-queue, circuit breaker)');
+  } catch (e) {
+    console.error('  ⚠ Conductor failed to start:', e.message);
+  }
   console.log('');
 });
 
+// ─── Crash Protection ────────────────────────────────────────────────
 process.on('SIGINT', () => { db.close(); process.exit(0); });
+process.on('SIGTERM', () => { db.close(); process.exit(0); });
+
+process.on('uncaughtException', (err) => {
+  console.error('⚠ Uncaught exception (server kept alive):', err.message);
+  console.error(err.stack);
+  // Don't crash — log and continue
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('⚠ Unhandled promise rejection (server kept alive):', reason);
+  // Don't crash — log and continue
+});

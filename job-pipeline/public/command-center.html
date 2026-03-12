@@ -25,10 +25,12 @@
       --radius: 8px;
       --radius-lg: 12px;
     }
-    body {
+    html, body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg-primary);
+      background: #0d0f14 !important;
+      background-color: #0d0f14 !important;
       color: var(--text-primary);
+      color-scheme: dark;
       line-height: 1.5;
       min-height: 100vh;
     }
@@ -220,6 +222,8 @@
     .btn-success { background: var(--green); color: #fff; }
     .btn-success:hover { background: #16a34a; }
     .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+    .btn-delete-job { background: var(--red); color: #fff; padding: 0.3rem 0.5rem; font-size: 1rem; line-height: 1; font-weight: 700; }
+    .btn-delete-job:hover { background: #dc2626; }
     .btn-row { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
 
     /* ─── Cards Layout (Challenges) ────────────────────────────────── */
@@ -323,23 +327,31 @@
     .heatmap-cell.has-error { border-color: var(--red); }
 
     .pipeline-flow {
-      display: flex; gap: 0.5rem; align-items: center;
+      display: flex; gap: 0; align-items: center;
       overflow-x: auto; padding: 1rem 0; margin-bottom: 1.5rem;
+      position: relative;
     }
     .pipeline-node {
       background: var(--bg-card); border: 2px solid var(--border);
-      border-radius: var(--radius-lg); padding: 1rem;
-      min-width: 140px; text-align: center; cursor: pointer;
-      transition: all 0.15s; flex-shrink: 0;
+      border-radius: var(--radius-lg); padding: 0.75rem 0.5rem;
+      min-width: 110px; text-align: center; cursor: pointer;
+      transition: all 0.2s; flex-shrink: 0; position: relative; z-index: 1;
     }
-    .pipeline-node:hover { border-color: var(--accent-blue); transform: translateY(-2px); }
-    .pipeline-node .node-name { font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem; }
-    .pipeline-node .node-status { margin: 0.5rem auto; width: 16px; height: 16px; border-radius: 50%; }
-    .pipeline-node .node-queue { font-size: 0.7rem; color: var(--text-secondary); }
-    .pipeline-node .node-last { font-size: 0.6rem; color: var(--text-muted); }
-    .pipeline-edge { color: var(--text-muted); font-size: 1.2rem; flex-shrink: 0; }
-    @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
-    .pipeline-edge.active { animation: pulse 2s infinite; color: var(--accent-blue); }
+    .pipeline-node:hover { border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .pipeline-node.has-jobs { border-color: var(--accent-blue); }
+    .pipeline-node .node-name { font-size: 0.7rem; font-weight: 600; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    .pipeline-node .node-count { font-size: 1.4rem; font-weight: 700; color: var(--accent-blue); line-height: 1.2; }
+    .pipeline-node .node-count.zero { color: var(--text-muted); font-size: 1rem; }
+    .pipeline-node .node-label { font-size: 0.6rem; color: var(--text-secondary); margin-top: 0.15rem; }
+    .pipeline-edge-svg { flex-shrink: 0; width: 32px; height: 40px; }
+    .pipeline-edge-svg line { stroke: var(--border); stroke-width: 2; }
+    .pipeline-edge-svg polygon { fill: var(--border); }
+    .pipeline-edge-svg.active line { stroke: var(--accent-blue); stroke-width: 2.5; }
+    .pipeline-edge-svg.active polygon { fill: var(--accent-blue); }
+    @keyframes flowPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+    .pipeline-edge-svg.active { animation: flowPulse 2s infinite; }
+    .heatmap-cell { cursor: pointer; }
+    .heatmap-cell:hover { outline: 2px solid var(--accent-blue); outline-offset: -1px; }
 
     /* ─── Inline Form ──────────────────────────────────────────────── */
     .inline-form {
@@ -412,6 +424,12 @@
   <h1><span>Job Pipeline</span> Command Center</h1>
   <div class="header-right">
     <span id="health-indicator"><span class="health-dot ok"></span> System OK</span>
+    <span id="cdp-indicator" style="cursor:pointer" title="Click to launch Chrome with CDP" onclick="launchCDP()">
+      <span class="health-dot" id="cdp-dot" style="background:var(--text-secondary)"></span> CDP
+    </span>
+    <button onclick="restartServer()" title="Restart Server" style="background:none;border:1px solid var(--border);color:var(--text-secondary);padding:2px 8px;border-radius:4px;cursor:pointer;font-size:0.75rem;display:flex;align-items:center;gap:4px;">
+      &#x27F2; Restart
+    </button>
     <span id="last-refresh">Auto-refresh: 60s</span>
   </div>
 </div>
@@ -419,17 +437,17 @@
 <!-- Tab Navigation -->
 <nav class="tab-nav">
   <button class="tab-btn active" data-tab="pipeline">Pipeline</button>
-  <button class="tab-btn" data-tab="personal">Personal Info</button>
+  <button class="tab-btn" data-tab="search">Job Search</button>
+  <button class="tab-btn" data-tab="email">Email <span class="badge" id="email-count">0</span></button>
   <button class="tab-btn" data-tab="research">Research</button>
   <button class="tab-btn" data-tab="challenges">Challenges</button>
   <button class="tab-btn" data-tab="applied">Applied <span class="badge" id="applied-count">0</span></button>
   <button class="tab-btn" data-tab="feedback">Feedback</button>
   <button class="tab-btn" data-tab="health">Health</button>
   <button class="tab-btn" data-tab="ats">ATS Bot <span class="badge" id="ats-queue-count">0</span></button>
-  <button class="tab-btn" data-tab="email">Email <span class="badge" id="email-count">0</span></button>
+  <button class="tab-btn" data-tab="personal">Personal Info</button>
   <button class="tab-btn" data-tab="questions">App Questions</button>
   <button class="tab-btn" data-tab="import">Import</button>
-  <button class="tab-btn" data-tab="search">Job Search</button>
   <button class="tab-btn" data-tab="settings">Settings</button>
 </nav>
 
@@ -474,7 +492,49 @@
 
 <!-- ═══ Tab 3: Research ═══════════════════════════════════════════════ -->
 <div class="tab-content" id="tab-research">
-  <h2 style="font-size:1.1rem;margin-bottom:1rem;">Company Research</h2>
+  <h2 style="font-size:1.1rem;margin-bottom:1rem;">Research &amp; Discovery</h2>
+
+  <!-- ── Discover & Import External Jobs ── -->
+  <div style="margin-bottom:2rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--accent);border-radius:var(--radius-lg);">
+    <h3 style="font-size:1rem;margin-bottom:0.4rem;color:var(--accent);">Discover &amp; Import Jobs</h3>
+    <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem;">
+      Paste job listings from Claude, ChatGPT, LinkedIn, recruiter emails, or any source.<br>
+      AI extracts company, title, location — scores them against your profile — and adds to pipeline.
+    </p>
+    <textarea id="research-import-text" rows="8" placeholder="Paste your job listings here. Any format works:
+
+• Bullet points from Claude or ChatGPT
+• LinkedIn search results you copied
+• Recruiter email with multiple roles
+• A list you typed yourself
+
+Example:
+⭐ Rivian — VP of Engineering, Software Platform
+Leading 200+ engineers, EV tech transformation, Irvine CA (hybrid)
+
+Stripe — Head of Engineering, Infrastructure
+Remote US, platform reliability at scale"></textarea>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
+      <span id="research-import-chars" style="font-size:0.75rem;color:var(--text-dim);">0 characters</span>
+      <div style="display:flex;gap:0.5rem;align-items:center;">
+        <span id="research-import-status" style="font-size:0.82rem;"></span>
+        <button class="btn-primary" id="research-import-parse">Parse &amp; Preview</button>
+      </div>
+    </div>
+    <!-- Preview table -->
+    <div id="research-import-preview" style="display:none;margin-top:1rem;">
+      <h4 style="font-size:0.85rem;margin-bottom:0.5rem;">Found jobs — uncheck any you don't want:</h4>
+      <div id="research-import-preview-body" style="max-height:300px;overflow-y:auto;"></div>
+      <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
+        <button class="btn-success" id="research-import-confirm">Add Selected to Pipeline</button>
+        <button class="btn-secondary" onclick="document.getElementById('research-import-preview').style.display='none'">Cancel</button>
+        <span id="research-import-confirm-status" style="font-size:0.82rem;align-self:center;"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Per-Job Research (existing) ── -->
+  <h3 style="font-size:1rem;margin-bottom:0.75rem;">Per-Job Company Research</h3>
   <div style="margin-bottom:1rem;">
     <label style="font-size:0.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.4rem;display:block;">Select Job</label>
     <select id="research-job-select" style="max-width:400px;"></select>
@@ -691,6 +751,7 @@
   <!-- Response Type Filter -->
   <div class="filter-bar">
     <button class="filter-btn active" data-email-filter="">All</button>
+    <button class="filter-btn" data-email-filter="important" style="color:var(--yellow);">★ Important</button>
     <button class="filter-btn" data-email-filter="interview">Interview</button>
     <button class="filter-btn" data-email-filter="application_received">Received</button>
     <button class="filter-btn" data-email-filter="rejection">Rejection</button>
@@ -699,6 +760,7 @@
     <button class="filter-btn" data-email-filter="unknown">Unknown</button>
     <button class="filter-btn" data-email-filter="matched">Matched Only</button>
     <button class="filter-btn" data-email-filter="unmatched">Unmatched</button>
+    <button class="filter-btn" data-email-filter="dismissed" style="color:var(--text-muted);">Dismissed</button>
   </div>
 
   <!-- Email Table -->
@@ -782,6 +844,7 @@
       <select id="aq-education_level">
         <option value="">Select...</option>
         <option value="High School">High School</option>
+        <option value="Some College">Some College</option>
         <option value="Associate's">Associate's</option>
         <option value="Bachelor's">Bachelor's</option>
         <option value="Master's">Master's</option>
@@ -851,41 +914,84 @@
 <!-- ═══ Tab 9: Import Content (Phase 12A) ════════════════════════════ -->
 <div class="tab-content" id="tab-import">
   <h2 style="font-size:1.1rem;margin-bottom:1rem;">Import Content</h2>
-  <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.5rem;">
-    Paste content from any AI tool, email, or document into the pipeline. Routed to the correct table automatically.
-  </p>
 
-  <div class="form-grid">
+  <!-- ── Section 1: Import External Job Listings (AI-parsed) ── -->
+  <div style="background:var(--bg-card);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:2rem;">
+    <h3 style="font-size:1rem;margin-bottom:0.5rem;color:var(--accent);">Import External Job Listings</h3>
+    <p style="color:var(--text-secondary);font-size:0.82rem;margin-bottom:1rem;">
+      Paste results from Claude, LinkedIn, a recruiter email, or any source. AI will extract company names, titles, and details — then score and add them to your pipeline.
+    </p>
     <div class="form-group">
-      <label>Content Type</label>
-      <select id="import-type">
-        <option value="cover_letter">Cover Letter</option>
-        <option value="research">Company Research</option>
-        <option value="qa_answers">Q&A / Interview Prep</option>
-        <option value="resume_notes">Resume Notes</option>
-        <option value="other">Other</option>
-      </select>
+      <textarea id="import-jobs-text" rows="10" placeholder="Paste your job listings here. Any format works — bullet points, numbered lists, paragraphs, table data, ChatGPT/Claude output, recruiter emails, etc.
+
+Example:
+⭐ Rivian — VP of Engineering, Software Platform
+Why it fits: Leading 200+ engineers, EV tech transformation, remote-friendly
+Location: Irvine, CA (hybrid)
+
+Stripe — Head of Engineering, Infrastructure
+Building platform reliability at scale, people leadership focused
+Location: Remote US
+
+Just paste whatever you have — the AI will figure out the structure."></textarea>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
+        <span id="import-jobs-char-count" style="font-size:0.75rem;color:var(--text-dim);">0 characters</span>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          <span id="import-jobs-status" style="font-size:0.82rem;"></span>
+          <button class="btn-primary" id="import-jobs-submit">Parse &amp; Add to Pipeline</button>
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label>Target Job (optional for resume_notes/other)</label>
-      <select id="import-job-select">
-        <option value="">— No specific job —</option>
-      </select>
+    <!-- Parsed results preview -->
+    <div id="import-jobs-preview" style="display:none;margin-top:1rem;">
+      <h4 style="font-size:0.85rem;margin-bottom:0.5rem;">Parsed Jobs — review before adding:</h4>
+      <div id="import-jobs-preview-body"></div>
+      <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
+        <button class="btn-success" id="import-jobs-confirm">Add All to Pipeline</button>
+        <button class="btn-secondary" onclick="document.getElementById('import-jobs-preview').style.display='none'">Cancel</button>
+        <span id="import-jobs-confirm-status" style="font-size:0.82rem;align-self:center;"></span>
+      </div>
     </div>
   </div>
 
-  <div class="form-group" style="margin-top:1rem;">
-    <label>Content</label>
-    <small style="display:block;color:var(--text-dim);font-size:0.75rem;margin-bottom:0.3rem;">Paste your text below. Max 50 KB.</small>
-    <textarea id="import-content" rows="12" placeholder="Paste cover letter, research notes, Q&A answers, or any content here..."></textarea>
-    <div style="text-align:right;font-size:0.75rem;color:var(--text-dim);margin-top:0.25rem;">
-      <span id="import-char-count">0</span> characters
-    </div>
-  </div>
+  <!-- ── Section 2: Import Other Content (existing) ── -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;">
+    <h3 style="font-size:1rem;margin-bottom:0.5rem;">Import Other Content</h3>
+    <p style="color:var(--text-secondary);font-size:0.82rem;margin-bottom:1rem;">
+      Paste cover letters, research, Q&amp;A answers, or notes. Routed to the correct table automatically.
+    </p>
 
-  <div class="btn-row" style="margin-top:1rem;">
-    <button class="btn-primary" id="import-submit">Import Content</button>
-    <span id="import-status" style="font-size:0.85rem;"></span>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Content Type</label>
+        <select id="import-type">
+          <option value="cover_letter">Cover Letter</option>
+          <option value="research">Company Research</option>
+          <option value="qa_answers">Q&A / Interview Prep</option>
+          <option value="resume_notes">Resume Notes</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Target Job (optional for resume_notes/other)</label>
+        <select id="import-job-select">
+          <option value="">— No specific job —</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top:1rem;">
+      <label>Content</label>
+      <textarea id="import-content" rows="8" placeholder="Paste cover letter, research notes, Q&A answers, or any content here..."></textarea>
+      <div style="text-align:right;font-size:0.75rem;color:var(--text-dim);margin-top:0.25rem;">
+        <span id="import-char-count">0</span> characters
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:1rem;">
+      <button class="btn-primary" id="import-submit">Import Content</button>
+      <span id="import-status" style="font-size:0.85rem;"></span>
+    </div>
   </div>
 
   <!-- Import History -->
@@ -905,11 +1011,63 @@
     Search multiple job platforms. Results are scored and added to the pipeline automatically.
   </p>
 
+  <!-- Company Direct Search -->
+  <div style="padding:1rem;background:var(--bg-card);border:1px solid var(--border-accent, #2563eb);border-radius:var(--radius-lg);margin-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;">
+      <span style="font-size:1.1rem;">🏢</span>
+      <strong style="font-size:0.95rem;">Company Direct Search</strong>
+      <span style="font-size:0.75rem;color:var(--text-dim);">— Target a specific company's open roles that match your profile</span>
+    </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem;" id="company-presets">
+      <button class="btn-secondary btn-sm company-preset" data-company="Amazon">Amazon</button>
+      <button class="btn-secondary btn-sm company-preset" data-company="Apple">Apple</button>
+      <button class="btn-secondary btn-sm company-preset" data-company="Netflix">Netflix</button>
+      <button class="btn-secondary btn-sm company-preset" data-company="Google">Google</button>
+      <button class="btn-secondary btn-sm company-preset" data-company="Microsoft">Microsoft</button>
+      <button class="btn-secondary btn-sm company-preset" data-company="Disney">Disney</button>
+      <button class="btn-secondary btn-sm company-preset" data-company="Warner Bros Discovery">Warner Bros</button>
+      <button class="btn-secondary btn-sm company-preset" data-company="Paramount">Paramount</button>
+      <button class="btn-secondary btn-sm company-preset" data-company="Sony">Sony</button>
+      <button class="btn-secondary btn-sm company-preset" data-company="NBCUniversal">NBCUniversal</button>
+    </div>
+    <div style="display:flex;gap:0.5rem;align-items:flex-end;">
+      <div style="flex:1;">
+        <label style="font-size:0.8rem;color:var(--text-dim);margin-bottom:0.25rem;display:block;">Company Name</label>
+        <input type="text" id="company-search-name" placeholder="e.g. Amazon, Netflix, Diversified..." style="width:100%;padding:0.5rem;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);">
+      </div>
+      <div style="width:200px;">
+        <label style="font-size:0.8rem;color:var(--text-dim);margin-bottom:0.25rem;display:block;">Location (optional)</label>
+        <input type="text" id="company-search-location" placeholder="Los Angeles, CA" value="Los Angeles, CA" style="width:100%;padding:0.5rem;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);">
+      </div>
+      <button class="btn-primary" id="company-search-run">Search Company</button>
+    </div>
+    <span id="company-search-status" style="font-size:0.8rem;color:var(--text-dim);margin-top:0.5rem;display:block;"></span>
+  </div>
+
   <!-- Search Form -->
   <div style="padding:1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:1.5rem;">
     <div class="form-grid">
       <div class="form-group">
-        <label>Search Query</label>
+        <label>Role Titles <span style="font-size:0.7rem;color:var(--text-dim);">(toggle multiple, then click Search)</span></label>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;" id="search-presets">
+          <button class="btn-secondary btn-sm search-preset" data-query="VP Engineering">VP Engineering</button>
+          <button class="btn-secondary btn-sm search-preset" data-query="SVP Engineering">SVP Engineering</button>
+          <button class="btn-secondary btn-sm search-preset" data-query="Senior Director of Engineering">Sr. Director Eng</button>
+          <button class="btn-secondary btn-sm search-preset" data-query="CTO">CTO</button>
+          <button class="btn-secondary btn-sm search-preset" data-query="VP Engineering media broadcast">VP Eng (Media/AV)</button>
+          <button class="btn-secondary btn-sm search-preset" data-query="VP Business Transformation">VP Transformation</button>
+          <button class="btn-secondary btn-sm search-preset" data-query="Director Engineering streaming">Dir Eng (Streaming)</button>
+          <button class="btn-secondary btn-sm search-preset" data-query="COO technology">COO Tech</button>
+        </div>
+        <div style="margin-top:0.5rem;display:flex;gap:0.5rem;">
+          <button class="btn-secondary btn-sm" id="search-select-all-presets" style="font-size:0.7rem;">Select All</button>
+          <button class="btn-secondary btn-sm" id="search-clear-presets" style="font-size:0.7rem;">Clear All</button>
+        </div>
+      </div>
+    </div>
+    <div class="form-grid" style="margin-top:0.75rem;">
+      <div class="form-group">
+        <label>Search Query <span style="font-size:0.7rem;color:var(--text-dim);">(or type your own)</span></label>
         <input type="text" id="search-query" placeholder="VP Engineering, Director of Engineering, SVP..." value="VP Engineering">
       </div>
       <div class="form-group">
@@ -922,16 +1080,11 @@
         <label>Sources</label>
         <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
           <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.85rem;cursor:pointer;">
+            <input type="checkbox" class="search-source" value="indeed" checked> Indeed (full descriptions)
+          </label>
+          <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.85rem;cursor:pointer;">
             <input type="checkbox" class="search-source" value="linkedin" checked> LinkedIn
-          </label>
-          <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.85rem;cursor:pointer;">
-            <input type="checkbox" class="search-source" value="indeed"> Indeed
-          </label>
-          <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.85rem;cursor:pointer;">
-            <input type="checkbox" class="search-source" value="glassdoor"> Glassdoor
-          </label>
-          <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.85rem;cursor:pointer;">
-            <input type="checkbox" class="search-source" value="builtin"> Built In
+            <span id="linkedin-mcp-badge" style="font-size:0.65rem;padding:1px 4px;border-radius:3px;background:var(--text-dim);color:#fff;">checking...</span>
           </label>
           <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.85rem;cursor:pointer;">
             <input type="checkbox" class="search-source" value="careers"> Company Pages
@@ -940,11 +1093,12 @@
       </div>
       <div class="form-group">
         <label>Min Score Threshold</label>
-        <input type="number" id="search-min-score" value="70" min="0" max="100">
+        <input type="number" id="search-min-score" value="40" min="0" max="100">
       </div>
     </div>
     <div class="btn-row" style="margin-top:0.75rem;">
       <button class="btn-primary" id="search-run">Search Jobs</button>
+      <button class="btn-secondary" id="search-deep" title="Queue a deep search task for Claude in Chrome (logged-in LinkedIn + company research)">Deep Search (AI)</button>
       <button class="btn-secondary" id="search-add-company">Add Company to Monitor</button>
       <span id="search-status" style="font-size:0.85rem;color:var(--text-dim);"></span>
     </div>
@@ -956,15 +1110,23 @@
   </div>
 
   <!-- Search Results -->
-  <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">Search Results <span class="badge" id="search-result-count">0</span></h3>
+  <h3 style="font-size:0.9rem;margin-bottom:0.75rem;">Search Results <span class="badge" id="search-result-count">0</span> <span style="font-size:0.75rem;color:var(--text-dim);margin-left:0.5rem;">Click any row to preview description</span></h3>
   <div class="table-wrap">
     <table>
       <thead><tr>
         <th><input type="checkbox" id="search-select-all"></th>
-        <th>Score</th><th>Company</th><th>Role</th><th>Source</th><th>Location</th><th>Dedup</th><th>Actions</th>
+        <th title="Scored against YOUR résumé + capability profile (templates folder). 7 dimensions: Leadership style 25% | Seniority match 20% | Industry fit 15% | Culture alignment 15% | Transformation experience 10% | Scope/scale 10% | Location 5%. Red flags (micromanage, must-code, etc.) subtract points.">Score <span style="font-size:0.65rem;color:var(--text-dim);cursor:help;">(?)</span></th><th>Company</th><th>Role</th><th>Source</th><th>Location</th><th>Dedup</th><th>Actions</th>
       </tr></thead>
       <tbody id="search-results-body"></tbody>
     </table>
+  </div>
+  <!-- Job Description Preview Panel -->
+  <div id="search-preview-panel" style="display:none;margin-top:1rem;padding:1rem;background:var(--bg-card);border:1px solid var(--accent-blue);border-radius:var(--radius-lg);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+      <h4 style="font-size:0.9rem;margin:0;" id="search-preview-title">Job Description</h4>
+      <button class="btn-secondary btn-sm" id="search-preview-close" style="font-size:0.8rem;">Close</button>
+    </div>
+    <div id="search-preview-body" style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;max-height:300px;overflow-y:auto;"></div>
   </div>
   <div class="btn-row" style="margin-top:0.5rem;">
     <button class="btn-primary" id="search-add-selected" disabled>Add Selected to Pipeline</button>
@@ -1046,12 +1208,35 @@
 
 <!-- Letter Modal -->
 <div id="letter-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;overflow-y:auto;padding:2rem;">
-  <div style="max-width:800px;margin:0 auto;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;">
+  <div style="max-width:860px;margin:0 auto;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-      <h3 id="letter-modal-title" style="font-size:1rem;">Cover Letter Versions</h3>
-      <button class="btn-secondary btn-sm" onclick="document.getElementById('letter-modal').style.display='none'">Close</button>
+      <h3 id="letter-modal-title" style="font-size:1rem;">Cover Letter</h3>
+      <div style="display:flex;gap:0.5rem;align-items:center;">
+        <select id="letter-version-select" style="background:var(--bg-secondary);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);padding:0.25rem 0.5rem;font-size:0.8rem;"></select>
+        <button class="btn-secondary btn-sm" onclick="document.getElementById('letter-modal').style.display='none'">Close</button>
+      </div>
     </div>
-    <div id="letter-modal-body"></div>
+    <!-- Letter content (shows selected version) -->
+    <div id="letter-modal-body" style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;white-space:pre-wrap;font-size:0.85rem;line-height:1.7;color:var(--text-secondary);max-height:55vh;overflow-y:auto;font-family:'Georgia',serif;"></div>
+    <!-- Action bar -->
+    <div id="letter-action-bar" style="display:flex;gap:0.5rem;align-items:stretch;flex-wrap:wrap;">
+      <button id="letter-btn-edit" class="btn-primary btn-sm" style="flex:1;min-width:120px;" onclick="toggleEditPanel()">Edit with AI</button>
+      <button id="letter-btn-approve" class="btn-success btn-sm" style="flex:1;min-width:120px;" onclick="approveLetter()">Approve &amp; Apply</button>
+      <button id="letter-btn-export" class="btn-secondary btn-sm" style="flex:1;min-width:120px;" onclick="exportLetterDocx()">Export .docx</button>
+      <button id="letter-btn-copy" class="btn-secondary btn-sm" style="min-width:80px;" onclick="copyCurrentLetter()">Copy Text</button>
+    </div>
+    <!-- Edit panel (hidden by default) -->
+    <div id="letter-edit-panel" style="display:none;margin-top:1rem;background:var(--bg-secondary);border:1px solid var(--accent);border-radius:var(--radius);padding:1rem;">
+      <label style="font-size:0.8rem;color:var(--text-secondary);display:block;margin-bottom:0.5rem;">What changes do you want? (e.g. "Make the opening more personal" or "Remove the second paragraph and add more about SMPTE 2110")</label>
+      <textarea id="letter-edit-instructions" rows="3" style="width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);padding:0.5rem;font-size:0.85rem;resize:vertical;" placeholder="Tell the AI what to change..."></textarea>
+      <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+        <button id="letter-edit-submit" class="btn-primary btn-sm" onclick="submitLetterEdit()">Revise Letter</button>
+        <button class="btn-secondary btn-sm" onclick="toggleEditPanel()">Cancel</button>
+        <span id="letter-edit-status" style="font-size:0.75rem;color:var(--text-muted);align-self:center;"></span>
+      </div>
+    </div>
+    <!-- Meta info -->
+    <div id="letter-meta" style="margin-top:0.75rem;font-size:0.7rem;color:var(--text-muted);"></div>
   </div>
 </div>
 
@@ -1074,6 +1259,12 @@ async function api(path, opts = {}) {
     headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
     body: opts.body ? JSON.stringify(opts.body) : undefined,
   });
+  if (!res.ok) {
+    const text = await res.text().catch(() => 'Unknown error');
+    let errMsg;
+    try { errMsg = JSON.parse(text).error || text; } catch { errMsg = text; }
+    throw new Error(`API ${res.status}: ${errMsg}`);
+  }
   return res.json();
 }
 
@@ -1082,6 +1273,54 @@ function toast(msg, isError) {
   t.textContent = msg;
   t.className = 'toast visible' + (isError ? ' error' : '');
   setTimeout(() => t.className = 'toast', 2500);
+}
+
+// ─── Server Control ─────────────────────────────────────────────────
+
+async function restartServer() {
+  if (!confirm('Restart the server? The page will reload in a few seconds.')) return;
+  toast('Restarting server...');
+  try {
+    await api('/api/server/restart', { method: 'POST' });
+  } catch {}
+  // Server will die — wait and reload
+  setTimeout(() => {
+    const check = setInterval(async () => {
+      try {
+        const r = await fetch('/api/health');
+        if (r.ok) { clearInterval(check); location.reload(); }
+      } catch {}
+    }, 1000);
+  }, 3000);
+}
+
+async function launchCDP() {
+  toast('Launching Chrome with CDP...');
+  try {
+    const r = await api('/api/server/launch-cdp', { method: 'POST' });
+    if (r.success) {
+      toast(r.message);
+      document.getElementById('cdp-dot').style.background = 'var(--accent-green)';
+    } else {
+      toast(r.error || 'Failed to launch Chrome', true);
+    }
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+}
+
+async function checkCDP() {
+  try {
+    const s = await api('/api/ats/status');
+    const dot = document.getElementById('cdp-dot');
+    if (s.connected) {
+      dot.style.background = 'var(--accent-green)';
+      dot.parentElement.title = 'Chrome CDP connected';
+    } else {
+      dot.style.background = 'var(--text-secondary)';
+      dot.parentElement.title = 'Click to launch Chrome with CDP';
+    }
+  } catch {}
 }
 
 function relTime(dateStr) {
@@ -1166,7 +1405,7 @@ async function loadPipeline() {
     <span><span class="label">Queued: </span><span class="val">${conductor.queued}</span></span>
     <span><span class="label">Processing: </span><span class="val">${conductor.processing}</span></span>
     <span><span class="label">Failed: </span><span class="val" style="color:${conductor.failed > 0 ? 'var(--red)' : 'inherit'}">${conductor.failed}</span></span>
-    <span><span class="label">Letters Today: </span><span class="val">${conductor.daily_generations}/${conductor.daily_generation_limit}</span></span>
+    <span><span class="label">Letters Today: </span><span class="val">${conductor.daily_generations}</span></span>
   `;
 
   renderJobs();
@@ -1175,7 +1414,8 @@ async function loadPipeline() {
 function renderJobs() {
   const search = (document.getElementById('job-search').value || '').toLowerCase();
   let filtered = state.jobs;
-  if (currentFilter) filtered = filtered.filter(j => j.status === currentFilter);
+  if (currentFilter) { filtered = filtered.filter(j => j.status === currentFilter); currentDateFilter = ''; }
+  if (currentDateFilter) filtered = filtered.filter(j => (j.date_added || '').split(' ')[0].split('T')[0] === currentDateFilter);
   if (search) filtered = filtered.filter(j =>
     (j.company || '').toLowerCase().includes(search) ||
     (j.title || '').toLowerCase().includes(search) ||
@@ -1193,8 +1433,11 @@ function renderJobs() {
       <td>
         ${j.status === 'SCORED' ? `<button class="btn-primary btn-sm generate-letter" data-id="${j.id}">Generate Letter</button>` : ''}
         ${j.status === 'SCORED' ? `<button class="btn-secondary btn-sm copy-prompt" data-id="${j.id}">Copy Prompt</button>` : ''}
-        ${['COVER_LETTER_READY','PENDING_APPROVAL','APPROVED','SUBMITTED'].includes(j.status) ? `<button class="btn-secondary btn-sm view-letters" data-id="${j.id}">Letters</button>` : ''}
-        ${j.url ? `<a href="${esc(j.url)}" target="_blank" class="btn-secondary btn-sm" style="text-decoration:none;display:inline-block;">Link</a>` : ''}
+        ${['COVER_LETTER_READY','PENDING_APPROVAL','APPROVED','SUBMITTING','SUBMITTED'].includes(j.status) ? `<button class="btn-secondary btn-sm view-letters" data-id="${j.id}">Letters</button>` : ''}
+        ${j.status === 'APPROVED' ? `<button class="btn-primary btn-sm" onclick="markSubmitted(${j.id})" style="background:var(--accent-green);">Mark Submitted</button>` : ''}
+        ${j.status === 'APPROVED' && j.url ? `<a href="${esc(j.url)}" target="_blank" class="btn-secondary btn-sm" style="text-decoration:none;display:inline-block;">Open & Apply</a>` : ''}
+        ${j.status !== 'APPROVED' && j.url ? `<a href="${esc(j.url)}" target="_blank" class="btn-secondary btn-sm" style="text-decoration:none;display:inline-block;">Link</a>` : ''}
+        <button class="btn-delete-job btn-sm" data-id="${j.id}" title="Delete job (prevents re-adding)">×</button>
       </td>
     </tr>
     <tr class="expand-row" id="expand-${j.id}">
@@ -1242,7 +1485,7 @@ function renderJobs() {
   document.querySelectorAll('.generate-letter').forEach(btn => {
     btn.addEventListener('click', async () => {
       const jobId = btn.dataset.id;
-      if (!confirm('Generate a cover letter for this job? This uses the Anthropic API.')) return;
+      // No confirmation needed — just generate
       btn.textContent = 'Generating...';
       btn.disabled = true;
       btn.style.opacity = '0.6';
@@ -1273,57 +1516,353 @@ function renderJobs() {
       showLetterModal(jobId, letters);
     });
   });
+
+  // Delete job buttons
+  document.querySelectorAll('.btn-delete-job').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const jobId = btn.dataset.id;
+      const job = state.jobs.find(j => j.id == jobId);
+      const jobLabel = job ? `${job.company} - ${job.title}` : `Job #${jobId}`;
+
+      if (!confirm(`Delete ${jobLabel}?\n\nThis will also prevent it from reappearing in searches.`)) return;
+
+      btn.textContent = '…';
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      try {
+        const result = await api(`/api/jobs/${jobId}`, { method: 'DELETE' });
+        if (result.success) {
+          toast(`Deleted: ${jobLabel}`);
+          loadPipeline();
+        } else {
+          toast(result.error || 'Deletion failed', true);
+          btn.textContent = '×';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        }
+      } catch (e) {
+        toast('Deletion failed: ' + e.message, true);
+        btn.textContent = '×';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    });
+  });
 }
+
+// ─── Cover Letter Modal (redesigned) ──────────────────────────────────
+let currentLetterJobId = null;
+let currentLetterVersions = [];
+let currentLetterIdx = 0; // index into currentLetterVersions
 
 function showLetterModal(jobId, letters) {
   const job = state.jobs.find(j => j.id == jobId);
-  document.getElementById('letter-modal-title').textContent = `Cover Letters — ${job ? job.company + ' / ' + job.title : 'Job #' + jobId}`;
+  currentLetterJobId = jobId;
+  currentLetterVersions = letters.sort((a,b) => b.version - a.version); // newest first
+  currentLetterIdx = 0;
 
-  document.getElementById('letter-modal-body').innerHTML = letters.map(l => `
-    <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
-        <div>
-          <strong>Version ${l.version}</strong>
-          <span style="color:var(--text-secondary);font-size:0.8rem;margin-left:0.5rem;">${relTime(l.created_at)}</span>
-        </div>
-        <div style="display:flex;gap:0.5rem;align-items:center;">
-          <span style="font-weight:700;color:${l.self_score >= 7 ? 'var(--green)' : l.self_score >= 5 ? 'var(--yellow)' : 'var(--red)'}">
-            Score: ${l.self_score || '—'}/10
-          </span>
-          <span class="status-badge ${l.hallucination_check === 'pass' ? 'SCORED' : l.hallucination_check === 'fail' ? 'SCORING_FAILED' : 'NEW'}">
-            ${l.hallucination_check || 'pending'}
-          </span>
-          ${l.needs_review ? '<span class="status-badge PENDING_APPROVAL">Needs Review</span>' : ''}
-          ${l.hallucination_check === 'fail' || l.needs_review ? `<button class="btn-success btn-sm" onclick="overrideLetter(${l.job_id},${l.version})">Approve</button>` : ''}
-          <button class="btn-secondary btn-sm" onclick="copyLetter(this, ${l.job_id}, ${l.version})">Copy</button>
-        </div>
-      </div>
-      ${l.flagged_claims && l.flagged_claims !== '[]' ? `<div style="background:rgba(239,68,68,0.1);border:1px solid var(--red);border-radius:var(--radius);padding:0.5rem 0.75rem;margin-bottom:0.75rem;font-size:0.8rem;color:var(--red);"><strong>Flagged Claims:</strong> ${esc(l.flagged_claims)}</div>` : ''}
-      <div style="white-space:pre-wrap;font-size:0.85rem;line-height:1.6;color:var(--text-secondary);">${esc(l.content)}</div>
-      <div style="margin-top:0.5rem;font-size:0.7rem;color:var(--text-muted);">
-        Model: ${esc(l.model_used || '—')} | Tokens: ${(l.prompt_tokens || 0) + (l.completion_tokens || 0)} | Cost: $${(l.cost_estimate || 0).toFixed(4)}
-      </div>
-    </div>
-  `).join('');
+  document.getElementById('letter-modal-title').textContent = `Cover Letter — ${job ? job.company + ' / ' + job.title : 'Job #' + jobId}`;
 
+  // Populate version selector
+  const sel = document.getElementById('letter-version-select');
+  sel.innerHTML = currentLetterVersions.map((l, i) =>
+    `<option value="${i}">Version ${l.version}${i === 0 ? ' (latest)' : ''} — ${relTime(l.created_at)}</option>`
+  ).join('');
+  sel.onchange = () => { currentLetterIdx = parseInt(sel.value); renderCurrentLetter(); };
+
+  // Hide edit panel
+  document.getElementById('letter-edit-panel').style.display = 'none';
+  document.getElementById('letter-edit-instructions').value = '';
+
+  // Update approve button based on job status
+  const approveBtn = document.getElementById('letter-btn-approve');
+  if (job && (job.status === 'APPROVED' || job.status === 'SUBMITTED')) {
+    approveBtn.textContent = 'Already Approved';
+    approveBtn.disabled = true;
+    approveBtn.style.opacity = '0.5';
+  } else {
+    approveBtn.textContent = 'Approve & Apply';
+    approveBtn.disabled = false;
+    approveBtn.style.opacity = '1';
+  }
+
+  renderCurrentLetter();
   document.getElementById('letter-modal').style.display = 'block';
 }
 
-async function overrideLetter(jobId, version) {
-  await api('/api/letters/' + jobId + '/' + version + '/override', { method: 'PUT', body: {} });
-  toast('Letter approved!');
-  document.getElementById('letter-modal').style.display = 'none';
-  loadPipeline();
+function renderCurrentLetter() {
+  const l = currentLetterVersions[currentLetterIdx];
+  if (!l) return;
+  document.getElementById('letter-modal-body').innerHTML = esc(l.content);
+  document.getElementById('letter-meta').innerHTML = `Version ${l.version} · Model: ${esc(l.model_used || '—')} · ${relTime(l.created_at)}`;
 }
 
-async function copyLetter(btn, jobId, version) {
-  const letter = await api('/api/letters/' + jobId + '/' + version);
-  if (letter.content) {
-    await navigator.clipboard.writeText(letter.content);
-    btn.textContent = 'Copied!';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+function toggleEditPanel() {
+  const panel = document.getElementById('letter-edit-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  if (panel.style.display === 'block') {
+    document.getElementById('letter-edit-instructions').focus();
   }
+}
+
+async function submitLetterEdit() {
+  const instructions = document.getElementById('letter-edit-instructions').value.trim();
+  if (!instructions) { toast('Please enter edit instructions', true); return; }
+
+  const l = currentLetterVersions[currentLetterIdx];
+  const btn = document.getElementById('letter-edit-submit');
+  const statusEl = document.getElementById('letter-edit-status');
+  btn.disabled = true;
+  btn.textContent = 'Revising...';
+  statusEl.textContent = 'AI is rewriting the letter — this takes ~20s...';
+
+  try {
+    const result = await api('/api/cover-letter/edit/' + currentLetterJobId, {
+      method: 'POST',
+      body: { version: l.version, instructions }
+    });
+    if (result.success) {
+      toast('Letter revised! Now showing Version ' + result.version);
+      // Reload versions
+      const versionsData = await api('/api/cover-letter/' + currentLetterJobId + '/versions');
+      currentLetterVersions = (versionsData.versions || []).sort((a,b) => b.version - a.version);
+      currentLetterIdx = 0;
+      // Update selector
+      const sel = document.getElementById('letter-version-select');
+      sel.innerHTML = currentLetterVersions.map((v, i) =>
+        `<option value="${i}">Version ${v.version}${i === 0 ? ' (latest)' : ''} — ${relTime(v.created_at)}</option>`
+      ).join('');
+      renderCurrentLetter();
+      document.getElementById('letter-edit-panel').style.display = 'none';
+      document.getElementById('letter-edit-instructions').value = '';
+    } else {
+      toast(result.error || 'Edit failed', true);
+    }
+  } catch (e) {
+    toast('Edit failed: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Revise Letter';
+    statusEl.textContent = '';
+  }
+}
+
+async function approveLetter() {
+  const job = state.jobs.find(j => j.id == currentLetterJobId);
+  if (!job) return;
+
+  const btn = document.getElementById('letter-btn-approve');
+  btn.disabled = true;
+  btn.textContent = 'Approving...';
+
+  try {
+    // Step 1: Set status to APPROVED
+    await api('/api/jobs/' + currentLetterJobId, {
+      method: 'PUT',
+      body: { status: 'APPROVED' }
+    });
+
+    // Step 2: Download the cover letter as .docx (backup copy for Wolf)
+    const l = currentLetterVersions[currentLetterIdx];
+    if (l) {
+      try {
+        const resp = await fetch('/api/cover-letter/export-docx/' + currentLetterJobId + '/' + l.version);
+        if (resp.ok) {
+          const blob = await resp.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Cover_Letter_${(job.company || '').replace(/[^a-zA-Z0-9]/g, '_')}.docx`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+      } catch {}
+    }
+
+    // Step 3: Close modal, refresh pipeline
+    document.getElementById('letter-modal').style.display = 'none';
+    loadPipeline();
+    loadATS();
+
+    // Step 4: Try ATS bot automation
+    if (job.url) {
+      btn.textContent = 'Launching ATS Bot...';
+      toast(`${job.company} — Approved! Launching ATS bot to fill the application...`);
+
+      // Check CDP connection first
+      const atsStatus = await api('/api/ats/status');
+      if (!atsStatus.connected) {
+        toast('Connecting to Chrome via CDP...', false);
+        const conn = await api('/api/ats/connect', { method: 'POST' });
+        if (!conn.success) {
+          toast('Chrome not connected with CDP. Quit Chrome (⌘Q) and run: bash start.sh', true);
+          loadPipeline(); loadATS();
+          return;
+        }
+        toast('Connected to Chrome!');
+      }
+
+      // Trigger ATS bot for this job
+      toast(`ATS Bot: Navigating to ${job.company}...`);
+      const result = await api('/api/ats/submit/' + currentLetterJobId, { method: 'POST' });
+
+      if (result.paused_for_review) {
+        toast(`${job.company} — Form filled (${result.platform})! Review in browser tab and submit. Then click "Mark Submitted" here.`);
+        showATSResult(result);
+      } else if (result.captcha_detected) {
+        toast(`${job.company} — CAPTCHA detected (${result.captcha_detected}). Solve it in browser, then retry from ATS tab.`, true);
+      } else if (!result.success) {
+        toast(`${job.company} — ATS bot issue: ${result.error}. Opening job page for manual apply.`, true);
+        window.open(job.url, '_blank');
+      } else {
+        toast(`${job.company} — Application submitted!`);
+      }
+    } else {
+      toast(`${job.company} — Approved! No URL — add a job URL to apply.`, true);
+    }
+
+    loadPipeline();
+    loadATS();
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Approve & Apply';
+  }
+}
+
+// Show ATS bot result as a FLASHING RED BANNER — impossible to miss
+function showATSResult(result) {
+  // Remove any existing ATS result notification
+  const existing = document.getElementById('ats-result-notification');
+  if (existing) existing.remove();
+
+  // Inject flashing CSS animation if not already present
+  if (!document.getElementById('ats-flash-style')) {
+    const style = document.createElement('style');
+    style.id = 'ats-flash-style';
+    style.textContent = `
+      @keyframes ats-flash {
+        0%, 100% { background: #dc3545; }
+        50% { background: #ff6b6b; }
+      }
+      @keyframes ats-pulse-border {
+        0%, 100% { box-shadow: 0 4px 20px rgba(220, 53, 69, 0.5); }
+        50% { box-shadow: 0 4px 30px rgba(220, 53, 69, 0.9); }
+      }
+      #ats-result-notification { animation: ats-pulse-border 1s ease-in-out infinite; }
+      #ats-result-notification .ats-banner-header { animation: ats-flash 1s ease-in-out infinite; }
+    `;
+    document.head.appendChild(style);
+  }
+
+  const div = document.createElement('div');
+  div.id = 'ats-result-notification';
+  div.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:10001;border-bottom:3px solid #dc3545;';
+  div.innerHTML = `
+    <div class="ats-banner-header" style="padding:12px 20px;color:white;font-weight:700;font-size:1.1rem;text-align:center;letter-spacing:0.5px;">
+      ACTION NEEDED: Review &amp; Submit ${esc(result.company || '')}
+    </div>
+    <div style="background:var(--card-bg);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div style="font-size:0.9rem;color:var(--text-secondary);">
+        <strong style="color:var(--text-primary);">${esc(result.company || '')}</strong> &mdash;
+        Platform: ${esc(result.platform || 'unknown')} &bull;
+        Fields filled: ${(result.checkpoint?.fields_filled || []).join(', ') || 'none detected'} &bull;
+        Submit button: ${result.hasSubmitButton ? 'Found' : 'Not found'}
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <button class="btn-primary btn-sm" onclick="markSubmittedFromATS(${result.job_id}, '${esc(result.platform || 'unknown')}')" style="background:#28a745;border:none;padding:8px 20px;font-weight:600;">
+          Mark Submitted
+        </button>
+        <button class="btn-secondary btn-sm" onclick="this.closest('#ats-result-notification').remove()" style="padding:8px 16px;">
+          Dismiss
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.prepend(div);
+
+  // Play an audio ping to get Wolf's attention
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 880; gain.gain.value = 0.3;
+    osc.start(); osc.stop(ctx.currentTime + 0.2);
+    setTimeout(() => { osc.frequency.value = 1100; const o2 = ctx.createOscillator(); const g2 = ctx.createGain(); o2.connect(g2); g2.connect(ctx.destination); o2.frequency.value = 1100; g2.gain.value = 0.3; o2.start(); o2.stop(ctx.currentTime + 0.2); }, 300);
+  } catch {}
+
+  // Do NOT auto-dismiss — Wolf must explicitly dismiss or mark submitted
+}
+
+async function markSubmittedFromATS(jobId, platform) {
+  try {
+    await api('/api/ats/mark-submitted/' + jobId, {
+      method: 'POST',
+      body: { method: 'ats_portal', platform }
+    });
+    toast('Marked as submitted!');
+    const notif = document.getElementById('ats-result-notification');
+    if (notif) notif.remove();
+    loadPipeline();
+    loadATS();
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+}
+
+// Mark a job as submitted (called from pipeline or ATS tab)
+async function markSubmitted(jobId) {
+  try {
+    await api('/api/jobs/' + jobId, { method: 'PUT', body: { status: 'SUBMITTED' } });
+    toast('Marked as submitted!');
+    loadPipeline();
+    loadATS();
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+}
+
+async function exportLetterDocx() {
+  const l = currentLetterVersions[currentLetterIdx];
+  if (!l) return;
+  const job = state.jobs.find(j => j.id == currentLetterJobId);
+  const btn = document.getElementById('letter-btn-export');
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+
+  try {
+    const resp = await fetch('/api/cover-letter/export-docx/' + currentLetterJobId + '/' + l.version);
+    if (resp.ok) {
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Cover_Letter_${(job?.company || 'Job').replace(/[^a-zA-Z0-9]/g, '_')}_v${l.version}.docx`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('Cover letter downloaded!');
+    } else {
+      const err = await resp.json();
+      toast(err.error || 'Export failed', true);
+    }
+  } catch (e) {
+    toast('Export failed: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Export .docx';
+  }
+}
+
+async function copyCurrentLetter() {
+  const l = currentLetterVersions[currentLetterIdx];
+  if (!l) return;
+  const btn = document.getElementById('letter-btn-copy');
+  await navigator.clipboard.writeText(l.content);
+  btn.textContent = 'Copied!';
+  setTimeout(() => { btn.textContent = 'Copy Text'; }, 1500);
 }
 
 // Close modal on backdrop click
@@ -1702,32 +2241,42 @@ async function loadHealth() {
   const alerts = [];
   const c = health.components || {};
   if (c.gmail?.days_remaining && c.gmail.days_remaining < 1) alerts.push('Gmail OAuth expiring in <24h!');
-  if (health.budget?.daily_spent >= health.budget?.daily_limit * 0.8) alerts.push('Daily budget >80% used!');
+  if (c.gmail?.status === 'not_configured') alerts.push('Gmail OAuth not configured');
+  // Daily budget alert removed — unlimited generation
   if (c.disk?.percent_used > 90) alerts.push('Disk usage >90%!');
+  if (c.pm2?.status === 'error' || c.pm2?.status === 'not_configured') alerts.push('Conductor offline');
+  if (state.jobs.length === 0) alerts.push('No jobs in pipeline — run a search!');
   const banner = document.getElementById('alert-banner');
   if (alerts.length) { banner.textContent = alerts.join(' | '); banner.classList.add('visible'); }
   else { banner.classList.remove('visible'); }
 
-  // Pipeline flow graph
+  // Pipeline flow DAG with SVG edges
   const stages = [
-    { name: 'Scraper', key: 'SCRAPED' },
-    { name: 'Scorer', key: 'SCORED' },
+    { name: 'New', key: 'NEW' },
+    { name: 'Scraped', key: 'SCRAPED' },
+    { name: 'Scored', key: 'SCORED' },
     { name: 'Letter Gen', key: 'COVER_LETTER_QUEUED' },
+    { name: 'Letter Ready', key: 'COVER_LETTER_READY' },
     { name: 'Approval', key: 'PENDING_APPROVAL' },
+    { name: 'Approved', key: 'APPROVED' },
     { name: 'ATS Submit', key: 'SUBMITTING' },
-    { name: 'Gmail Monitor', key: 'SUBMITTED' },
+    { name: 'Submitted', key: 'SUBMITTED' },
   ];
   const counts = {};
   state.jobs.forEach(j => { counts[j.status] = (counts[j.status] || 0) + 1; });
 
+  const svgArrow = (active) => `<svg class="pipeline-edge-svg${active ? ' active' : ''}" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="20" x2="24" y2="20"/><polygon points="22,14 32,20 22,26"/></svg>`;
+
   document.getElementById('pipeline-graph').innerHTML = stages.map((s, i) => {
     const count = counts[s.key] || 0;
-    const status = count > 0 ? 'ok' : 'not_configured';
-    return (i > 0 ? `<div class="pipeline-edge${count > 0 ? ' active' : ''}">→</div>` : '') +
-      `<div class="pipeline-node" data-status="${s.key}">
+    const prevCount = i > 0 ? (counts[stages[i-1].key] || 0) : 0;
+    const edgeActive = prevCount > 0 || count > 0;
+    const arrow = i > 0 ? svgArrow(edgeActive) : '';
+    return arrow +
+      `<div class="pipeline-node${count > 0 ? ' has-jobs' : ''}" data-status="${s.key}" onclick="dagNodeClick('${s.key}')" title="Click to filter Pipeline tab">
         <div class="node-name">${s.name}</div>
-        <div class="node-status health-circle ${status}"></div>
-        <div class="node-queue">${count} jobs</div>
+        <div class="node-count${count === 0 ? ' zero' : ''}">${count || '—'}</div>
+        <div class="node-label">${count === 1 ? 'job' : 'jobs'}</div>
       </div>`;
   }).join('');
 
@@ -1758,9 +2307,9 @@ async function loadHealth() {
   document.getElementById('health-details').innerHTML = `
     <h3 style="font-size:0.9rem;margin-bottom:0.75rem;margin-top:1rem;">Budget</h3>
     <div class="stats-grid">
-      <div class="stat-card"><div class="label">Daily Spend</div><div class="value">$${(b.daily_spent || 0).toFixed(2)}</div><div class="sub">Limit: $${(b.daily_limit || 0).toFixed(2)}</div></div>
-      <div class="stat-card"><div class="label">Monthly Spend</div><div class="value">$${(b.monthly_spent || 0).toFixed(2)}</div><div class="sub">Limit: $${(b.monthly_limit || 0).toFixed(2)}</div></div>
-      <div class="stat-card"><div class="label">Letters Today</div><div class="value">${b.cover_letters_today || 0}/${b.cover_letters_limit || 5}</div></div>
+      <div class="stat-card"><div class="label">Daily Spend</div><div class="value">$${(b.daily_spent || 0).toFixed(2)}</div><div class="sub">No limit</div></div>
+      <div class="stat-card"><div class="label">Monthly Spend</div><div class="value">$${(b.monthly_spent || 0).toFixed(2)}</div><div class="sub">No limit</div></div>
+      <div class="stat-card"><div class="label">Letters Today</div><div class="value">${b.cover_letters_today || 0}</div></div>
     </div>
   `;
 
@@ -1794,8 +2343,42 @@ function renderHeatmap() {
     const key = d.date.toISOString().split('T')[0];
     const count = jobsByDay[key] || 0;
     const level = count === 0 ? '' : count <= 1 ? 'l1' : count <= 3 ? 'l2' : count <= 5 ? 'l3' : 'l4';
-    return `<div class="heatmap-cell ${level}" title="${key}: ${count} jobs"><span class="day-label">${d.label}</span></div>`;
+    return `<div class="heatmap-cell ${level}" title="${key}: ${count} jobs" onclick="heatmapDayClick('${key}')" style="cursor:pointer;"><span class="day-label">${d.label}</span></div>`;
   }).join('');
+}
+
+// DAG node click → switch to Pipeline tab filtered by status
+function dagNodeClick(status) {
+  currentFilter = status;
+  // Switch to pipeline tab
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  const pipelineBtn = document.querySelector('.tab-btn[data-tab="pipeline"]');
+  if (pipelineBtn) pipelineBtn.classList.add('active');
+  document.getElementById('tab-pipeline').classList.add('active');
+  // Update filter UI and render
+  document.querySelectorAll('.status-step').forEach(s => s.classList.toggle('active', s.dataset.status === currentFilter));
+  document.querySelectorAll('#tab-pipeline .filter-btn[data-status]').forEach(b => b.classList.toggle('active', b.dataset.status === currentFilter));
+  renderJobs();
+}
+
+// Heatmap day click → switch to Pipeline tab filtered by date
+let currentDateFilter = '';
+function heatmapDayClick(dateKey) {
+  currentDateFilter = dateKey;
+  currentFilter = ''; // clear status filter
+  // Switch to pipeline tab
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  const pipelineBtn = document.querySelector('.tab-btn[data-tab="pipeline"]');
+  if (pipelineBtn) pipelineBtn.classList.add('active');
+  document.getElementById('tab-pipeline').classList.add('active');
+  // Update filter UI
+  document.querySelectorAll('.status-step').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('#tab-pipeline .filter-btn[data-status]').forEach(b => b.classList.remove('active'));
+  renderJobs();
+  // Show a temporary alert with the date filter
+  showAlert(`Showing jobs from ${dateKey}. Click any status to clear date filter.`, 'info', 4000);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1852,13 +2435,38 @@ async function loadATS() {
 }
 
 async function atsConnect() {
+  const btn = document.getElementById('ats-connect-btn');
+  if (btn) btn.textContent = 'Connecting...';
+
   toast('Connecting to Chrome via CDP...');
   const res = await api('/api/ats/connect', { method: 'POST' });
+
   if (res.success) {
     toast('Connected to Chrome! ' + res.pages + ' tabs found.');
-  } else {
-    toast(res.error || 'Connection failed', true);
+    if (btn) btn.textContent = 'Connect to Chrome';
+    loadATS();
+    return;
   }
+
+  // Connection failed — check why
+  const launch = await api('/api/server/launch-cdp', { method: 'POST' });
+  if (launch.needs_restart) {
+    // Chrome running without CDP — user must restart via terminal
+    toast('Chrome is running without CDP. Quit Chrome (⌘Q), then run in terminal: bash start.sh', true);
+  } else if (launch.success) {
+    // Chrome wasn't running — we launched it, try connecting
+    toast(launch.message);
+    await new Promise(r => setTimeout(r, 2000));
+    const retry = await api('/api/ats/connect', { method: 'POST' });
+    if (retry.success) {
+      toast('Connected to Chrome! ' + retry.pages + ' tabs found.');
+    } else {
+      toast('Chrome launched but connection failed. Click Connect again.', true);
+    }
+  } else {
+    toast(launch.error || 'Connection failed. Run in terminal: bash start.sh', true);
+  }
+  if (btn) btn.textContent = 'Connect to Chrome';
   loadATS();
 }
 
@@ -1882,17 +2490,19 @@ async function atsStartQueue(dryRun = false) {
 }
 
 async function atsSubmitOne(jobId) {
-  toast('Filling form for job #' + jobId + '...');
+  toast('ATS Bot: Navigating and filling form for job #' + jobId + '...');
   const res = await api('/api/ats/submit/' + jobId, { method: 'POST' });
   if (res.paused_for_review) {
-    toast(res.message || 'Form filled — review and submit manually.');
+    toast(res.message || 'Form filled — review in browser and submit manually.');
+    showATSResult(res);
   } else if (res.captcha_detected) {
-    toast('CAPTCHA detected: ' + res.captcha_detected + '. Solve manually.', true);
+    toast('CAPTCHA detected: ' + res.captcha_detected + '. Solve in browser, then retry.', true);
   } else if (!res.success) {
-    toast(res.error || 'Submission failed', true);
+    toast((res.error || 'Submission failed') + (res.hint ? ' — ' + res.hint : ''), true);
   } else {
     toast('Done!');
   }
+  loadPipeline();
   loadATS();
 }
 
@@ -1966,6 +2576,184 @@ document.getElementById('import-submit').addEventListener('click', async () => {
   }
 });
 
+// ─── External Job Listings Import ──────────────────────────────────────
+document.getElementById('import-jobs-text').addEventListener('input', () => {
+  document.getElementById('import-jobs-char-count').textContent = document.getElementById('import-jobs-text').value.length + ' characters';
+});
+
+let parsedExternalJobs = [];
+
+document.getElementById('import-jobs-submit').addEventListener('click', async () => {
+  const text = document.getElementById('import-jobs-text').value.trim();
+  if (!text) return toast('Paste some job listings first', true);
+  if (text.length < 30) return toast('Text is too short — paste more detail', true);
+
+  const btn = document.getElementById('import-jobs-submit');
+  const statusEl = document.getElementById('import-jobs-status');
+  btn.disabled = true;
+  btn.textContent = 'Parsing with AI...';
+  statusEl.textContent = 'Extracting job details — ~15s...';
+  statusEl.style.color = 'var(--text-dim)';
+
+  try {
+    const res = await api('/api/import/parse-jobs', { method: 'POST', body: { text } });
+    if (res.jobs && res.jobs.length > 0) {
+      parsedExternalJobs = res.jobs;
+      // Show preview
+      const preview = document.getElementById('import-jobs-preview');
+      const body = document.getElementById('import-jobs-preview-body');
+      body.innerHTML = `<table style="width:100%;font-size:0.82rem;">
+        <thead><tr><th></th><th>Company</th><th>Title</th><th>Location</th><th>Score</th><th>URL</th></tr></thead>
+        <tbody>${res.jobs.map((j, i) => `
+          <tr>
+            <td><input type="checkbox" class="import-job-cb" data-idx="${i}" checked></td>
+            <td style="font-weight:600;">${esc(j.company)}</td>
+            <td>${esc(j.title)}</td>
+            <td style="font-size:0.75rem;">${esc(j.location || '—')}</td>
+            <td><span style="color:${j.score >= 60 ? 'var(--green)' : j.score >= 40 ? 'var(--yellow)' : 'var(--red)'};font-weight:700;">${j.score || '—'}</span></td>
+            <td style="font-size:0.75rem;">${j.url ? `<a href="${esc(j.url)}" target="_blank" style="color:var(--accent);">Link</a>` : '<span style="color:var(--text-dim);">none</span>'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+      preview.style.display = 'block';
+      statusEl.textContent = `Found ${res.jobs.length} jobs. Review and confirm.`;
+      statusEl.style.color = 'var(--accent-green)';
+      toast(`Parsed ${res.jobs.length} jobs from your text`);
+    } else {
+      toast(res.error || 'No jobs found in the text', true);
+      statusEl.textContent = res.error || 'No jobs parsed';
+      statusEl.style.color = 'var(--accent-red, #f44)';
+    }
+  } catch (e) {
+    toast('Parse error: ' + e.message, true);
+    statusEl.textContent = '';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Parse & Add to Pipeline';
+  }
+});
+
+document.getElementById('import-jobs-confirm').addEventListener('click', async () => {
+  // Get checked jobs
+  const checkboxes = document.querySelectorAll('.import-job-cb:checked');
+  const selectedJobs = Array.from(checkboxes).map(cb => parsedExternalJobs[parseInt(cb.dataset.idx)]);
+  if (!selectedJobs.length) return toast('Select at least one job', true);
+
+  const btn = document.getElementById('import-jobs-confirm');
+  const statusEl = document.getElementById('import-jobs-confirm-status');
+  btn.disabled = true;
+  btn.textContent = 'Adding...';
+  statusEl.textContent = '';
+
+  try {
+    const res = await api('/api/import/add-jobs', { method: 'POST', body: { jobs: selectedJobs } });
+    if (res.added > 0) {
+      toast(`Added ${res.added} jobs to pipeline!`);
+      document.getElementById('import-jobs-preview').style.display = 'none';
+      document.getElementById('import-jobs-text').value = '';
+      document.getElementById('import-jobs-char-count').textContent = '0 characters';
+      document.getElementById('import-jobs-status').textContent = '';
+      parsedExternalJobs = [];
+      loadPipeline();
+    } else {
+      toast(res.message || 'No new jobs added (all duplicates?)', true);
+    }
+  } catch (e) {
+    toast('Add error: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Add All to Pipeline';
+  }
+});
+
+// ─── Research Tab: Discover & Import Jobs ──────────────────────────────
+document.getElementById('research-import-text').addEventListener('input', () => {
+  document.getElementById('research-import-chars').textContent = document.getElementById('research-import-text').value.length + ' characters';
+});
+
+let parsedResearchJobs = [];
+
+document.getElementById('research-import-parse').addEventListener('click', async () => {
+  const text = document.getElementById('research-import-text').value.trim();
+  if (!text) return toast('Paste some job listings first', true);
+  if (text.length < 30) return toast('Text is too short — paste more detail', true);
+
+  const btn = document.getElementById('research-import-parse');
+  const statusEl = document.getElementById('research-import-status');
+  btn.disabled = true;
+  btn.textContent = 'Parsing with AI...';
+  statusEl.textContent = 'Extracting job details — ~15s...';
+  statusEl.style.color = 'var(--text-dim)';
+
+  try {
+    const res = await api('/api/import/parse-jobs', { method: 'POST', body: { text } });
+    if (res.jobs && res.jobs.length > 0) {
+      parsedResearchJobs = res.jobs;
+      const preview = document.getElementById('research-import-preview');
+      const body = document.getElementById('research-import-preview-body');
+      body.innerHTML = `<table style="width:100%;font-size:0.82rem;">
+        <thead><tr><th></th><th>Company</th><th>Title</th><th>Location</th><th>Score</th><th>URL</th></tr></thead>
+        <tbody>${res.jobs.map((j, i) => `
+          <tr>
+            <td><input type="checkbox" class="research-job-cb" data-idx="${i}" checked></td>
+            <td style="font-weight:600;">${esc(j.company)}</td>
+            <td>${esc(j.title)}</td>
+            <td style="font-size:0.75rem;">${esc(j.location || '—')}</td>
+            <td><span style="color:${j.score >= 60 ? 'var(--green)' : j.score >= 40 ? 'var(--yellow)' : 'var(--red)'};font-weight:700;">${j.score || '—'}</span></td>
+            <td style="font-size:0.75rem;">${j.url ? `<a href="${esc(j.url)}" target="_blank" style="color:var(--accent);">Link</a>` : '<span style="color:var(--text-dim);">none</span>'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+      preview.style.display = 'block';
+      statusEl.textContent = `Found ${res.jobs.length} jobs. Review and confirm.`;
+      statusEl.style.color = 'var(--accent-green)';
+      toast(`Parsed ${res.jobs.length} jobs from your text`);
+    } else {
+      toast(res.error || 'No jobs found in the text', true);
+      statusEl.textContent = res.error || 'No jobs parsed';
+      statusEl.style.color = 'var(--accent-red, #f44)';
+    }
+  } catch (e) {
+    toast('Parse error: ' + e.message, true);
+    statusEl.textContent = '';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Parse & Preview';
+  }
+});
+
+document.getElementById('research-import-confirm').addEventListener('click', async () => {
+  const checkboxes = document.querySelectorAll('.research-job-cb:checked');
+  const selectedJobs = Array.from(checkboxes).map(cb => parsedResearchJobs[parseInt(cb.dataset.idx)]);
+  if (!selectedJobs.length) return toast('Select at least one job', true);
+
+  const btn = document.getElementById('research-import-confirm');
+  const statusEl = document.getElementById('research-import-confirm-status');
+  btn.disabled = true;
+  btn.textContent = 'Adding...';
+  statusEl.textContent = '';
+
+  try {
+    const res = await api('/api/import/add-jobs', { method: 'POST', body: { jobs: selectedJobs } });
+    if (res.added > 0) {
+      toast(`Added ${res.added} jobs to pipeline!`);
+      document.getElementById('research-import-preview').style.display = 'none';
+      document.getElementById('research-import-text').value = '';
+      document.getElementById('research-import-chars').textContent = '0 characters';
+      document.getElementById('research-import-status').textContent = '';
+      parsedResearchJobs = [];
+      loadPipeline();
+    } else {
+      toast(res.message || 'No new jobs added (all duplicates?)', true);
+    }
+  } catch (e) {
+    toast('Add error: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Add Selected to Pipeline';
+  }
+});
+
 function showAlert(message, type = 'info', duration = 5000) {
   const banner = document.getElementById('alert-banner');
   const color = type === 'error' ? 'var(--accent-red, #f44)' : type === 'warning' ? 'var(--accent-yellow)' : 'var(--accent-green)';
@@ -1981,8 +2769,25 @@ function showAlert(message, type = 'info', duration = 5000) {
 // ═══════════════════════════════════════════════════════════════════════
 
 let searchResults = [];
+let searchGeneration = 0; // prevents race conditions between concurrent searches
 
 async function loadSearch() {
+  // Check LinkedIn MCP status
+  try {
+    const health = await api('/api/health');
+    const badge = document.getElementById('linkedin-mcp-badge');
+    if (health.components?.linkedin_mcp?.available) {
+      badge.textContent = 'MCP ✓';
+      badge.style.background = 'var(--accent-green)';
+      badge.title = 'LinkedIn MCP connected — full job descriptions available';
+    } else {
+      badge.textContent = 'titles only';
+      badge.style.background = 'var(--accent-yellow)';
+      badge.style.color = '#000';
+      badge.title = 'Run setup-linkedin-mcp.sh for full LinkedIn descriptions';
+    }
+  } catch {}
+
   // Load monitored companies
   try {
     const companies = await api('/api/search/monitored');
@@ -2018,13 +2823,19 @@ document.getElementById('search-run').addEventListener('click', async () => {
   const minScore = parseInt(document.getElementById('search-min-score').value || '70', 10);
   const statusEl = document.getElementById('search-status');
   statusEl.textContent = 'Searching...';
+  const gen = ++searchGeneration;
 
   try {
     const res = await api('/api/search/run', { method: 'POST', body: { query, location, sources, min_score: minScore } });
+    if (gen !== searchGeneration) return; // a newer search started, discard these results
     searchResults = res.results || [];
     document.getElementById('search-result-count').textContent = searchResults.length;
-    statusEl.textContent = `Found ${searchResults.length} jobs (${res.duplicates_filtered || 0} duplicates filtered)`;
-    setTimeout(() => statusEl.textContent = '', 5000);
+    const parts = [`Found ${searchResults.length} of ${res.raw_count || '?'} jobs`];
+    if (res.source_counts) parts.push(Object.entries(res.source_counts).map(([s,c]) => `${s}: ${c}`).join(', '));
+    if (res.duplicates_filtered) parts.push(`${res.duplicates_filtered} dupes`);
+    if (res.below_threshold) parts.push(`${res.below_threshold} below score threshold`);
+    statusEl.textContent = parts.join(' · ');
+    setTimeout(() => statusEl.textContent = '', 10000);
     renderSearchResults();
   } catch (e) {
     toast('Search failed: ' + e.message, true);
@@ -2034,16 +2845,20 @@ document.getElementById('search-run').addEventListener('click', async () => {
 
 function renderSearchResults() {
   const tbody = document.getElementById('search-results-body');
+  const hasDesc = (r) => r.description && r.description.length > 50;
   tbody.innerHTML = searchResults.map((r, i) => `
-    <tr>
+    <tr class="search-result-row" data-idx="${i}" style="cursor:pointer;${hasDesc(r) ? '' : 'opacity:0.7;'}">
       <td><input type="checkbox" class="search-result-cb" data-idx="${i}" ${r.is_duplicate ? 'disabled' : ''}></td>
-      <td><span style="font-weight:600;color:${r.score >= 80 ? 'var(--accent-green)' : r.score >= 60 ? 'var(--accent-yellow)' : 'var(--text-dim)'};">${r.score || '—'}</span></td>
+      <td><span style="font-weight:600;color:${r.score >= 80 ? 'var(--accent-green)' : r.score >= 60 ? 'var(--accent-yellow)' : 'var(--text-dim)'};" title="Profile match: seniority + industry + culture + leadership fit">${r.score || '—'}</span></td>
       <td><strong>${esc(r.company)}</strong></td>
-      <td>${esc(r.title)}</td>
-      <td><span class="category-badge">${esc(r.source)}</span></td>
+      <td>${esc(r.title)}${hasDesc(r) ? '' : ' <span style="font-size:0.7rem;color:var(--text-dim);">(no description)</span>'}</td>
+      <td><span class="category-badge" style="${['indeed','linkedin'].includes(r.source) ? '' : 'background:var(--accent-green);color:#fff;'}">${esc(r.source)}</span></td>
       <td style="font-size:0.8rem;">${esc(r.location || '')}</td>
       <td>${r.is_duplicate ? '<span style="color:var(--accent-yellow);font-size:0.8rem;">Duplicate</span>' : '<span style="color:var(--accent-green);font-size:0.8rem;">New</span>'}</td>
-      <td>${r.url ? `<a href="${esc(r.url)}" target="_blank" style="color:var(--accent-blue);font-size:0.8rem;">View</a>` : ''}</td>
+      <td>
+        ${r.url ? `<a href="${esc(r.url)}" target="_blank" style="color:var(--accent-blue);font-size:0.8rem;">View</a>` : ''}
+        ${r.url_direct ? ` <a href="${esc(r.url_direct)}" target="_blank" style="color:var(--accent-green);font-size:0.8rem;" title="Direct ATS application link">Apply</a>` : ''}
+      </td>
     </tr>
   `).join('') || '<tr><td colspan="8" class="empty-state">No results. Run a search above.</td></tr>';
 
@@ -2053,7 +2868,149 @@ function renderSearchResults() {
     document.getElementById('search-add-selected').disabled = checked === 0;
   };
   document.querySelectorAll('.search-result-cb').forEach(cb => cb.addEventListener('change', updateBtn));
+
+  // Click row to preview description
+  document.querySelectorAll('.search-result-row').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'A') return;
+      const idx = parseInt(row.dataset.idx, 10);
+      const job = searchResults[idx];
+      if (!job) return;
+      const panel = document.getElementById('search-preview-panel');
+      document.getElementById('search-preview-title').textContent = `${job.company} — ${job.title}`;
+
+      // Build rich preview
+      const previewEl = document.getElementById('search-preview-body');
+      let html = '<div style="font-size:0.85rem;line-height:1.6;">';
+
+      // Meta info bar
+      html += '<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:0.75rem;padding:0.5rem;background:rgba(255,255,255,0.05);border-radius:4px;">';
+      html += `<span><strong>Source:</strong> ${esc(job.source)}</span>`;
+      html += `<span><strong>Score:</strong> ${job.score}/100</span>`;
+      if (job.location) html += `<span><strong>Location:</strong> ${esc(job.location)}</span>`;
+      if (job.salary_min || job.salary_max) html += `<span><strong>Salary:</strong> $${(job.salary_min||'?').toLocaleString()} - $${(job.salary_max||'?').toLocaleString()}</span>`;
+      if (job.department) html += `<span><strong>Dept:</strong> ${esc(job.department)}</span>`;
+      if (job.posted) html += `<span><strong>Posted:</strong> ${esc(job.posted)}</span>`;
+      html += '</div>';
+
+      // Links
+      html += '<div style="margin-bottom:0.75rem;">';
+      if (job.url_direct) html += `<a href="${esc(job.url_direct)}" target="_blank" style="color:var(--accent-green);margin-right:1rem;">Direct Apply Link</a>`;
+      if (job.url) html += `<a href="${esc(job.url)}" target="_blank" style="color:var(--accent-blue);">View Original Listing</a>`;
+      html += '</div>';
+
+      // Description
+      if (job.description && job.description.length > 50) {
+        html += '<div style="white-space:pre-wrap;border-top:1px solid var(--border);padding-top:0.75rem;">' + esc(job.description) + '</div>';
+      } else {
+        html += '<div style="padding:1rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:4px;text-align:center;">';
+        html += '<strong>No description available from this source.</strong><br>';
+        html += 'LinkedIn rarely provides full job descriptions via search.<br>';
+        html += 'Use <strong>Indeed</strong> as your primary source, or click <strong>View</strong> to open the listing directly.';
+        html += '</div>';
+      }
+      html += '</div>';
+
+      previewEl.innerHTML = html;
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      document.querySelectorAll('.search-result-row').forEach(r => r.style.background = '');
+      row.style.background = 'rgba(59,130,246,0.1)';
+    });
+  });
 }
+
+// Close preview panel
+document.getElementById('search-preview-close').addEventListener('click', () => {
+  document.getElementById('search-preview-panel').style.display = 'none';
+  document.querySelectorAll('.search-result-row').forEach(r => r.style.background = '');
+});
+
+// Search preset buttons — toggleable multi-select, builds comma-separated query
+document.querySelectorAll('.search-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Toggle this preset on/off
+    const isActive = btn.dataset.active === 'true';
+    btn.dataset.active = isActive ? 'false' : 'true';
+    btn.style.background = isActive ? '' : 'var(--accent-blue)';
+    btn.style.color = isActive ? '' : '#fff';
+    // Build combined query from all active presets
+    const activeQueries = [];
+    document.querySelectorAll('.search-preset').forEach(b => {
+      if (b.dataset.active === 'true') activeQueries.push(b.dataset.query);
+    });
+    document.getElementById('search-query').value = activeQueries.join(', ');
+  });
+});
+document.getElementById('search-select-all-presets').addEventListener('click', () => {
+  const queries = [];
+  document.querySelectorAll('.search-preset').forEach(b => {
+    b.dataset.active = 'true'; b.style.background = 'var(--accent-blue)'; b.style.color = '#fff';
+    queries.push(b.dataset.query);
+  });
+  document.getElementById('search-query').value = queries.join(', ');
+});
+document.getElementById('search-clear-presets').addEventListener('click', () => {
+  document.querySelectorAll('.search-preset').forEach(b => {
+    b.dataset.active = 'false'; b.style.background = ''; b.style.color = '';
+  });
+  document.getElementById('search-query').value = '';
+});
+
+// Deep Search (AI) — queue task for Claude in Chrome
+document.getElementById('search-deep').addEventListener('click', async () => {
+  const query = document.getElementById('search-query').value.trim();
+  const location = document.getElementById('search-location').value.trim();
+  if (!query) return toast('Enter a search query', true);
+  try {
+    const result = await api('/api/search/ai-task', { method: 'POST', body: { query, location } });
+    toast(`Deep Search task #${result.id} queued — Claude in Chrome will pick it up`);
+    document.getElementById('search-status').textContent = 'AI search task queued. Run Claude in Chrome to execute.';
+  } catch (e) {
+    toast('Failed to queue AI search: ' + e.message, true);
+  }
+});
+
+// ─── Company Direct Search ──────────────────────────────────────────
+document.getElementById('company-search-run').addEventListener('click', async () => {
+  const company = document.getElementById('company-search-name').value.trim();
+  const location = document.getElementById('company-search-location').value.trim();
+  if (!company) return toast('Enter a company name', true);
+
+  const status = document.getElementById('company-search-status');
+  const btn = document.getElementById('company-search-run');
+  btn.disabled = true;
+  btn.textContent = 'Searching...';
+  status.textContent = `Searching ${company} careers site + Indeed for roles matching your profile...`;
+
+  const gen = ++searchGeneration;
+  try {
+    const data = await api('/api/search/company', { method: 'POST', body: { company, location } });
+    if (gen !== searchGeneration) return; // a newer search started, discard these results
+    searchResults = data.results || [];
+    document.getElementById('search-result-count').textContent = searchResults.length;
+    renderSearchResults();
+    const srcInfo = data.sources ? Object.entries(data.sources).map(([s,c]) => `${s}: ${c}`).join(', ') : '';
+    status.textContent = `Found ${data.count} roles at ${company}${srcInfo ? ' (' + srcInfo + ')' : ''} — ${data.duplicates_in_pipeline} already in pipeline`;
+    toast(`${company}: ${data.count} roles found${data.careers_api_used ? ' (from company careers site!)' : ''}`);
+  } catch (e) {
+    status.textContent = 'Search failed: ' + e.message;
+    toast('Company search failed: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Search Company';
+  }
+});
+
+// Company preset buttons — populate field only, user clicks Search Company when ready
+document.querySelectorAll('.company-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('company-search-name').value = btn.dataset.company;
+    document.querySelectorAll('.company-preset').forEach(b => { b.style.background = ''; b.style.color = ''; });
+    btn.style.background = 'var(--accent-blue)';
+    btn.style.color = '#fff';
+  });
+});
 
 document.getElementById('search-select-all').addEventListener('change', function() {
   document.querySelectorAll('.search-result-cb:not(:disabled)').forEach(cb => { cb.checked = this.checked; });
@@ -2177,9 +3134,10 @@ let currentEmailFilter = '';
 
 async function loadEmail() {
   try {
-    const [status, summary] = await Promise.all([
+    const [status, summary, allMessages] = await Promise.all([
       api('/api/email/status'),
       api('/api/email/summary'),
+      api('/api/email/messages?show_dismissed=true&limit=500'),
     ]);
 
     // Stats
@@ -2187,10 +3145,11 @@ async function loadEmail() {
     document.getElementById('email-gmail-status').style.color = status.connected ? 'var(--green)' : status.has_refresh_token ? 'var(--yellow)' : 'var(--text-muted)';
     document.getElementById('email-total').textContent = summary.total;
     document.getElementById('email-matched').textContent = summary.matched;
-    document.getElementById('email-count').textContent = summary.total || 0;
+    const emailCountEl = document.getElementById('email-count');
+    if (emailCountEl) emailCountEl.textContent = summary.total || 0;
     document.getElementById('email-last-scan').textContent = status.last_scan ? relTime(status.last_scan) : 'Never';
 
-    emailMessages = summary.recent || [];
+    emailMessages = allMessages || [];
     renderEmails();
   } catch (e) {
     console.error('Email load error:', e);
@@ -2211,8 +3170,8 @@ async function scanEmails(daysBack) {
       toast(`Scan complete: ${res.new_emails} new, ${res.matched} matched`);
       statusEl.textContent = `Found ${res.total_found} emails, ${res.new_emails} new, ${res.matched} matched to jobs, ${res.skipped} already scanned`;
       statusEl.style.color = 'var(--green)';
-      // Reload full list
-      emailMessages = await api('/api/email/messages');
+      // Reload full list (all emails including dismissed for local filtering)
+      emailMessages = await api('/api/email/messages?show_dismissed=true&limit=500');
       renderEmails();
       loadEmail();
     }
@@ -2229,7 +3188,12 @@ function renderEmails() {
   let filtered = emailMessages;
   if (currentEmailFilter === 'matched') filtered = filtered.filter(e => e.matched_job_id);
   else if (currentEmailFilter === 'unmatched') filtered = filtered.filter(e => !e.matched_job_id);
+  else if (currentEmailFilter === 'important') filtered = filtered.filter(e => e.important);
+  else if (currentEmailFilter === 'dismissed') filtered = filtered.filter(e => e.dismissed);
   else if (currentEmailFilter) filtered = filtered.filter(e => e.response_type === currentEmailFilter);
+
+  // For "All" filter, hide dismissed emails (they have their own tab)
+  if (!currentEmailFilter) filtered = filtered.filter(e => !e.dismissed);
 
   const typeColors = {
     interview: 'var(--green)', rejection: 'var(--red)', offer: 'var(--accent-blue)',
@@ -2239,30 +3203,71 @@ function renderEmails() {
   document.getElementById('email-tbody').innerHTML = filtered.map(e => {
     const typeColor = typeColors[e.response_type] || 'var(--text-muted)';
     const confColor = e.match_confidence === 'high' ? 'var(--green)' : e.match_confidence === 'medium' ? 'var(--yellow)' : 'var(--text-muted)';
+    const isDismissed = e.dismissed;
+    const isImportant = e.important;
+    const rowStyle = isDismissed ? 'opacity:0.5;' : isImportant ? 'border-left:3px solid var(--yellow);' : '';
     return `
-      <tr>
+      <tr style="${rowStyle}">
         <td><span class="timeline-dot ${e.matched_job_id ? 'fresh' : 'stale'}"></span></td>
         <td style="font-size:0.8rem;white-space:nowrap;">${relTime(e.received_at)}</td>
         <td style="font-size:0.8rem;">${esc(e.sender || e.sender_email)}</td>
         <td>
-          <div style="font-weight:500;">${esc(e.subject)}</div>
+          <div style="font-weight:500;">${isImportant ? '<span style="color:var(--yellow);">★</span> ' : ''}${esc(e.subject)}</div>
           <div style="font-size:0.75rem;color:var(--text-muted);max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(e.snippet || '')}</div>
         </td>
         <td><span style="color:${typeColor};font-weight:600;font-size:0.8rem;">${(e.response_type || 'unknown').replace(/_/g, ' ')}</span></td>
         <td>${e.matched_job_id ? `<strong>${esc(e.company || '')}</strong><br><span style="font-size:0.75rem;color:var(--text-secondary);">${esc(e.title || '')}</span>` : '<span style="color:var(--text-muted);">—</span>'}</td>
         <td><span style="color:${confColor};font-size:0.8rem;">${e.match_confidence || '—'}</span></td>
-        <td>
-          <button class="btn-secondary btn-sm email-match-btn" data-id="${e.id}">Match</button>
-          <button class="btn-secondary btn-sm email-reclassify-btn" data-id="${e.id}">Reclassify</button>
+        <td style="white-space:nowrap;">
+          ${isDismissed
+            ? `<button class="btn-secondary btn-sm email-restore-btn" data-id="${e.id}" title="Restore">↩</button>`
+            : `<button class="btn-secondary btn-sm email-important-btn" data-id="${e.id}" title="${isImportant ? 'Unmark important' : 'Mark important'}" style="${isImportant ? 'color:var(--yellow);' : ''}">${isImportant ? '★' : '☆'}</button>
+               <button class="btn-secondary btn-sm email-dismiss-btn" data-id="${e.id}" title="Dismiss">✕</button>`
+          }
+          <button class="btn-secondary btn-sm email-match-btn" data-id="${e.id}" title="Match to job">⟷</button>
         </td>
       </tr>
     `;
-  }).join('') || '<tr><td colspan="8" class="empty-state">No emails scanned yet. Click "Scan Inbox" to start.</td></tr>';
+  }).join('') || '<tr><td colspan="8" class="empty-state">No emails to show. Click "Scan Inbox" to start.</td></tr>';
+
+  // Dismiss buttons
+  document.querySelectorAll('.email-dismiss-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await api('/api/email/messages/' + btn.dataset.id, { method: 'PUT', body: { dismissed: 1 }});
+      const em = emailMessages.find(e => e.id == btn.dataset.id);
+      if (em) em.dismissed = 1;
+      renderEmails();
+      toast('Email dismissed');
+    });
+  });
+
+  // Restore buttons (in dismissed view)
+  document.querySelectorAll('.email-restore-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await api('/api/email/messages/' + btn.dataset.id, { method: 'PUT', body: { dismissed: 0 }});
+      const em = emailMessages.find(e => e.id == btn.dataset.id);
+      if (em) em.dismissed = 0;
+      renderEmails();
+      toast('Email restored');
+    });
+  });
+
+  // Important toggle buttons
+  document.querySelectorAll('.email-important-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const em = emailMessages.find(e => e.id == btn.dataset.id);
+      const newVal = em && em.important ? 0 : 1;
+      await api('/api/email/messages/' + btn.dataset.id, { method: 'PUT', body: { important: newVal }});
+      if (em) em.important = newVal;
+      renderEmails();
+      toast(newVal ? 'Marked as important' : 'Unmarked');
+    });
+  });
 
   // Match buttons — let user pick a job
   document.querySelectorAll('.email-match-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-      const jobs = state.jobs.filter(j => ['SUBMITTED','APPROVED','SUBMITTING','PENDING_APPROVAL','CLOSED'].includes(j.status));
+      const jobs = state.jobs.filter(j => ['SUBMITTED','APPROVED','SUBMITTING','PENDING_APPROVAL','CLOSED','SCORED'].includes(j.status));
       const options = jobs.map(j => `${j.id}: ${j.company} — ${j.title}`).join('\n');
       const pick = prompt('Enter job ID to match:\n\n' + options);
       if (!pick) return;
@@ -2270,28 +3275,20 @@ function renderEmails() {
       if (!jobId) return toast('Invalid job ID', true);
       await api('/api/email/messages/' + btn.dataset.id, { method: 'PUT', body: { matched_job_id: jobId, match_confidence: 'high' }});
       toast('Email matched to job #' + jobId);
-      emailMessages = await api('/api/email/messages');
-      renderEmails();
-    });
-  });
-
-  // Reclassify buttons
-  document.querySelectorAll('.email-reclassify-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const type = prompt('Response type (application_received, interview, rejection, offer, follow_up, unknown):');
-      if (!type) return;
-      await api('/api/email/messages/' + btn.dataset.id, { method: 'PUT', body: { response_type: type }});
-      toast('Email reclassified as ' + type);
-      emailMessages = await api('/api/email/messages');
+      emailMessages = await api('/api/email/messages?show_dismissed=true');
       renderEmails();
     });
   });
 }
 
 document.querySelectorAll('[data-email-filter]').forEach(btn => {
-  btn.addEventListener('click', () => {
+  btn.addEventListener('click', async () => {
     currentEmailFilter = btn.dataset.emailFilter;
     document.querySelectorAll('[data-email-filter]').forEach(b => b.classList.toggle('active', b.dataset.emailFilter === currentEmailFilter));
+    // When switching to dismissed view, fetch dismissed emails
+    if (currentEmailFilter === 'dismissed') {
+      emailMessages = await api('/api/email/messages?show_dismissed=true');
+    }
     renderEmails();
   });
 });
@@ -2306,13 +3303,22 @@ const appQuestionFields = [
   'gender', 'veteran_status', 'disability_status', 'race_ethnicity',
 ];
 
+// Map form field names to API field names
+const appQuestionFieldMapping = {
+  'salary_range': 'desired_salary',
+  'start_date': 'earliest_start',
+  'hear_about_us': 'how_heard',
+};
+
 async function loadQuestions() {
   try {
     const data = await api('/api/application-questions');
-    for (const key of appQuestionFields) {
-      const el = document.getElementById('aq-' + key);
-      if (el && data[key]) {
-        el.value = data[key].value || '';
+    for (const htmlFieldName of appQuestionFields) {
+      // Get the API field name (or use the HTML field name if no mapping exists)
+      const apiFieldName = appQuestionFieldMapping[htmlFieldName] || htmlFieldName;
+      const el = document.getElementById('aq-' + htmlFieldName);
+      if (el && data[apiFieldName]) {
+        el.value = data[apiFieldName].value || '';
       }
     }
   } catch {}
@@ -2326,9 +3332,13 @@ document.getElementById('save-questions').addEventListener('click', async () => 
     years_experience: 'experience', years_management: 'experience', education_level: 'experience', hear_about_us: 'experience',
     gender: 'diversity', veteran_status: 'diversity', disability_status: 'diversity', race_ethnicity: 'diversity',
   };
-  for (const key of appQuestionFields) {
-    const el = document.getElementById('aq-' + key);
-    if (el) data[key] = { value: el.value, category: categories[key] || 'general' };
+  for (const htmlFieldName of appQuestionFields) {
+    const el = document.getElementById('aq-' + htmlFieldName);
+    if (el) {
+      // Get the API field name (or use the HTML field name if no mapping exists)
+      const apiFieldName = appQuestionFieldMapping[htmlFieldName] || htmlFieldName;
+      data[apiFieldName] = { value: el.value, category: categories[htmlFieldName] || 'general' };
+    }
   }
   await api('/api/application-questions', { method: 'PUT', body: data });
   document.getElementById('questions-status').textContent = 'Saved!';
@@ -2350,7 +3360,9 @@ async function loadAll() {
 }
 
 loadAll();
+checkCDP();
 setInterval(loadAll, 60000);
+setInterval(checkCDP, 30000);
 </script>
 </body>
 </html>

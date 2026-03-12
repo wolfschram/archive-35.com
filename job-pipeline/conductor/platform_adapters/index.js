@@ -6,9 +6,10 @@
 
 const greenhouse = require('./greenhouse');
 const lever = require('./lever');
+const workday = require('./workday');
 const generic = require('./generic');
 
-const adapters = { greenhouse, lever, generic };
+const adapters = { greenhouse, lever, workday, generic };
 
 /**
  * Register all adapters with the application bot.

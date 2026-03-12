@@ -1,179 +1,139 @@
 /**
- * Generic ATS Platform Adapter
- *
- * Best-effort form filling for simple HTML forms that don't match
- * a specific platform adapter. Works for basic name/email/file forms.
+ * Generic ATS Adapter
+ * Fallback for unknown platforms — smart field detection by label/placeholder/name
  */
-
-async function detectPlatform(/* page, url */) {
-  // Generic always matches as fallback — never call this for detection.
-  // The bot uses this when no other adapter matches.
-  return true;
-}
-
-async function fillForm(page, fields /*, job */) {
-  // Try common field patterns
-  const strategies = [
-    // Strategy 1: name attributes
-    { first: 'input[name*="first" i]', last: 'input[name*="last" i]', email: 'input[name*="email" i]', phone: 'input[name*="phone" i]' },
-    // Strategy 2: id attributes
-    { first: 'input[id*="first" i]', last: 'input[id*="last" i]', email: 'input[id*="email" i]', phone: 'input[id*="phone" i]' },
-    // Strategy 3: placeholder text
-    { first: 'input[placeholder*="first" i]', last: 'input[placeholder*="last" i]', email: 'input[placeholder*="email" i]', phone: 'input[placeholder*="phone" i]' },
-    // Strategy 4: label associations
-    { first: null, last: null, email: 'input[type="email"]', phone: 'input[type="tel"]' },
-  ];
-
-  // Try full name field first
-  const nameSels = ['input[name*="full_name" i]', 'input[name="name"]', 'input[id="name"]', 'input[placeholder*="full name" i]'];
-  for (const sel of nameSels) {
-    try {
-      const el = await page.$(sel);
-      if (el) { await el.fill(fields.name); break; }
-    } catch {}
-  }
-
-  // Then try first/last + email + phone from each strategy
-  for (const strat of strategies) {
-    await tryFill(page, strat.first, fields.first_name);
-    await tryFill(page, strat.last, fields.last_name);
-    await tryFill(page, strat.email, fields.email);
-    await tryFill(page, strat.phone, fields.phone);
-  }
-
-  // LinkedIn
-  await tryFill(page, 'input[name*="linkedin" i], input[placeholder*="linkedin" i]', fields.linkedin);
-
-  // Location
-  await tryFill(page, 'input[name*="location" i], input[name*="city" i], input[placeholder*="location" i]', fields.location);
-}
-
-async function tryFill(page, selector, value) {
-  if (!selector || !value) return false;
-  try {
-    const el = await page.$(selector);
-    if (el) {
-      await el.fill(value);
-      return true;
-    }
-  } catch {}
-  return false;
-}
-
-async function uploadResume(page, filePath) {
-  // Look for any file input, preferring ones labeled "resume"
-  const selectors = [
-    'input[type="file"][name*="resume" i]',
-    'input[type="file"][id*="resume" i]',
-    'input[type="file"][accept*="pdf" i]',
-    'input[type="file"]',
-  ];
-
-  for (const sel of selectors) {
-    try {
-      const input = await page.$(sel);
-      if (input) {
-        await input.setInputFiles(filePath);
-        return true;
-      }
-    } catch {}
-  }
-  return false;
-}
-
-async function pasteCoverLetter(page, text) {
-  const selectors = [
-    'textarea[name*="cover" i]',
-    'textarea[name*="letter" i]',
-    'textarea[placeholder*="cover" i]',
-    'textarea[id*="cover" i]',
-    'div[contenteditable="true"]',
-    'textarea', // last resort: first textarea
-  ];
-
-  for (const sel of selectors) {
-    try {
-      const el = await page.$(sel);
-      if (el) {
-        if (sel === 'div[contenteditable="true"]') {
-          await el.click();
-          await page.keyboard.insertText(text);
-        } else {
-          await el.fill(text);
-        }
-        return true;
-      }
-    } catch {}
-  }
-  return false;
-}
-
-async function parseQuestions(page) {
-  const questions = [];
-  try {
-    // Look for label+input pairs
-    const labels = await page.$$('label');
-    for (const label of labels) {
-      const text = await label.textContent();
-      const forId = await label.getAttribute('for');
-      if (!forId) continue;
-      const input = await page.$(`#${forId}`);
-      if (!input) continue;
-      const type = await input.getAttribute('type') || await input.evaluate(n => n.tagName.toLowerCase());
-      questions.push({ text: text.trim(), type });
-    }
-  } catch {}
-  return questions;
-}
-
-async function detectSubmitButton(page) {
-  const selectors = [
-    'button[type="submit"]',
-    'input[type="submit"]',
-    'button:has-text("Submit")',
-    'button:has-text("Apply")',
-    'button:has-text("Send")',
-    'a:has-text("Submit")',
-  ];
-
-  for (const sel of selectors) {
-    try {
-      const el = await page.$(sel);
-      if (el && await el.isVisible()) return el;
-    } catch {}
-  }
-  return null;
-}
-
-async function checkpoint(page) {
-  const url = page.url();
-  const title = await page.title();
-  const filledFields = [];
-  try {
-    const inputs = await page.$$('input:not([type="hidden"]), textarea, select');
-    for (const input of inputs) {
-      const name = await input.getAttribute('name') || await input.getAttribute('id') || '';
-      const value = await input.inputValue().catch(() => '');
-      if (value) filledFields.push(name);
-    }
-  } catch {}
-
-  return {
-    platform: 'generic',
-    url,
-    title,
-    filledFields,
-    timestamp: new Date().toISOString(),
-  };
-}
 
 module.exports = {
   name: 'generic',
-  detectPlatform,
-  fillForm,
-  uploadResume,
-  pasteCoverLetter,
-  parseQuestions,
-  detectSubmitButton,
-  checkpoint,
+
+  detectPlatform() {
+    return true; // Always matches as fallback
+  },
+
+  async fillForm(page, fields, job) {
+    // Strategy: find all visible inputs, match by label/placeholder/name
+    const inputs = await page.$$('input:visible, select:visible');
+
+    for (const input of inputs) {
+      try {
+        const info = await input.evaluate(el => {
+          const type = el.type || 'text';
+          if (['hidden', 'submit', 'button', 'file', 'checkbox', 'radio'].includes(type)) return null;
+
+          const name = (el.name || '').toLowerCase();
+          const id = (el.id || '').toLowerCase();
+          const ph = (el.placeholder || '').toLowerCase();
+          const label = el.labels?.[0]?.textContent?.toLowerCase() || '';
+          const ariaLabel = (el.getAttribute('aria-label') || '').toLowerCase();
+          const allText = name + ' ' + id + ' ' + ph + ' ' + label + ' ' + ariaLabel;
+          const hasValue = !!el.value;
+          return { type, allText, hasValue };
+        });
+
+        if (!info || info.hasValue) continue;
+        const t = info.allText;
+
+        if (t.includes('first') && t.includes('name')) {
+          await input.fill(fields.first_name || '');
+          console.log('  [generic] Filled first name');
+        } else if (t.includes('last') && t.includes('name')) {
+          await input.fill(fields.last_name || '');
+          console.log('  [generic] Filled last name');
+        } else if ((t.includes('full') && t.includes('name')) || (t.includes('name') && !t.includes('first') && !t.includes('last') && !t.includes('company'))) {
+          await input.fill(fields.name || '');
+          console.log('  [generic] Filled full name');
+        } else if (t.includes('email')) {
+          await input.fill(fields.email || '');
+          console.log('  [generic] Filled email');
+        } else if (t.includes('phone') || t.includes('tel') || t.includes('mobile')) {
+          await input.fill(fields.phone || '');
+          console.log('  [generic] Filled phone');
+        } else if (t.includes('linkedin')) {
+          await input.fill(fields.linkedin || '');
+          console.log('  [generic] Filled LinkedIn');
+        } else if (t.includes('location') || t.includes('city') || t.includes('address')) {
+          await input.fill(fields.location || '');
+          console.log('  [generic] Filled location');
+        } else if (t.includes('website') || t.includes('portfolio') || t.includes('url')) {
+          await input.fill(fields.linkedin || '');
+          console.log('  [generic] Filled website/portfolio');
+        }
+      } catch {}
+    }
+  },
+
+  async uploadResume(page, resumePath) {
+    const fileInputs = await page.$$('input[type="file"]');
+
+    // Try to find specifically labeled resume upload
+    for (const input of fileInputs) {
+      try {
+        const label = await input.evaluate(el => {
+          const container = el.closest('div') || el.closest('label') || el.parentElement;
+          return (container?.textContent || '').toLowerCase().slice(0, 200);
+        });
+        if (label.includes('resume') || label.includes('cv')) {
+          await input.setInputFiles(resumePath);
+          console.log('  [generic] Resume uploaded (labeled)');
+          return true;
+        }
+      } catch {}
+    }
+
+    // Fallback: first file input
+    if (fileInputs.length > 0) {
+      try {
+        await fileInputs[0].setInputFiles(resumePath);
+        console.log('  [generic] Resume uploaded (first file input)');
+        return true;
+      } catch {}
+    }
+    return false;
+  },
+
+  async uploadCoverLetter(page, coverLetterPath) {
+    const fileInputs = await page.$$('input[type="file"]');
+
+    for (const input of fileInputs) {
+      try {
+        const label = await input.evaluate(el => {
+          const container = el.closest('div') || el.closest('label') || el.parentElement;
+          return (container?.textContent || '').toLowerCase().slice(0, 200);
+        });
+        if (label.includes('cover') || label.includes('letter')) {
+          await input.setInputFiles(coverLetterPath);
+          console.log('  [generic] Cover letter uploaded (labeled)');
+          return true;
+        }
+      } catch {}
+    }
+
+    // Second file input is often cover letter
+    if (fileInputs.length > 1) {
+      try {
+        await fileInputs[1].setInputFiles(coverLetterPath);
+        console.log('  [generic] Cover letter uploaded (second file input)');
+        return true;
+      } catch {}
+    }
+    return false;
+  },
+
+  async pasteCoverLetter(page, text) {
+    const textareas = await page.$$('textarea:visible');
+    for (const ta of textareas) {
+      try {
+        const label = await ta.evaluate(el => {
+          const container = el.closest('div') || el.parentElement;
+          return (container?.textContent || '').toLowerCase().slice(0, 200);
+        });
+        if (label.includes('cover') || label.includes('letter') || label.includes('additional') || label.includes('message')) {
+          await ta.fill(text);
+          console.log('  [generic] Cover letter pasted');
+          return true;
+        }
+      } catch {}
+    }
+    return false;
+  },
 };

@@ -81,10 +81,16 @@ function callClaude(apiKey, systemPrompt, userPrompt, maxTokens = 4096) {
 function loadContextFiles() {
   const files = {};
 
-  // Capability profile
+  // Capability profile (enriched from Wolf_Schram_Capability_Profile.docx)
   const capPath = path.join(TEMPLATES_DIR, 'capability_profile.md');
   if (fs.existsSync(capPath)) {
     files['capability_profile.md'] = fs.readFileSync(capPath, 'utf8');
+  }
+
+  // Resume (extracted from Wolfgang Schram Resume PDF Feb 2026.pdf)
+  const resumePath = path.join(TEMPLATES_DIR, 'resume.md');
+  if (fs.existsSync(resumePath)) {
+    files['resume.md'] = fs.readFileSync(resumePath, 'utf8');
   }
 
   // Cover letter examples
@@ -310,21 +316,8 @@ async function generateCoverLetter(db, apiKey, jobId, options = {}) {
   const job = db.prepare('SELECT * FROM jobs WHERE id = ?').get(jobId);
   if (!job) throw new Error(`Job ${jobId} not found`);
 
-  // Circuit breaker: max 5 generations per day
-  const dailyCount = db.prepare(
-    "SELECT COUNT(*) as c FROM cover_letter_versions WHERE date(created_at) = date('now')"
-  ).get();
-  if (dailyCount.c >= 5 && !dryRun) {
-    return { success: false, error: 'Daily generation limit reached (5/day). Try again tomorrow.', circuit_breaker: true };
-  }
-
-  // Budget check: $2/day cap
-  const dailyCost = db.prepare(
-    "SELECT COALESCE(SUM(cost_estimate), 0) as total FROM cover_letter_versions WHERE date(created_at) = date('now')"
-  ).get();
-  if (dailyCost.total >= 2.0 && !dryRun) {
-    return { success: false, error: 'Daily budget cap reached ($2/day). Try again tomorrow.', circuit_breaker: true };
-  }
+  // Daily limit removed — generate as many as needed
+  // (Cost tracking still happens via cost_estimate column for monitoring)
 
   // Load context
   const contextFiles = loadContextFiles();

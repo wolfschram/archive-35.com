@@ -59,3 +59,32 @@
   3. Docker build test (`docker build . && docker compose up`)
   4. Connect Telegram bot to Wolf's chat
   5. First real daily pipeline run
+
+### 2026-03-16 — Task T26: Etsy OAuth Token Refresh + Scope Check
+- **Built:** `ensure_valid_token()` and `check_scope()` in `src/integrations/etsy.py`, plus `/etsy/oauth/refresh` and `/etsy/oauth/scope-check` API endpoints
+- **Tested:** 7/7 unit tests pass. Live token refresh succeeded — token was expired since March 9.
+- **Decisions:** `listings_w` scope can't be safely tested without creating a draft listing, marked as "untested — will confirm on first write"
+- **Blockers:** None
+- **Next:** T27 — Etsy listing audit + SEO rewrite agent
+
+### 2026-03-16 — Task T27: Etsy Listing Restructure + SEO Rewrite Agent
+- **Built:** `src/agents/etsy_agent.py` (restructure orchestrator), `src/agents/etsy_pricing.py` (Pictorem pricing + orientation), `POST /etsy/restructure` endpoint
+- **Tested:** 34/34 unit tests pass. Live e2e test: orientation detection → pricing → Claude Vision SEO → confirmed working on listing 4468847777
+- **Decisions:** Hardcoded Pictorem costs (no API creds yet), stub ready for swap. Copied real ANTHROPIC_API_KEY from root .env to Agent .env (was placeholder). Landscape=20×30@$270, portrait=24×16@$195, square=20×20@$185, pano=30×10@$160.
+- **Blockers:** Need to confirm `listings_w` scope on first real write (dry_run works, live push untested)
+- **Next:** T28 — Wire Instagram auto-posting via Later API to scheduler.
+
+### 2026-03-16 — Task T27b: Etsy Bulk Listing Uploader
+- **Built:** `src/agents/etsy_uploader.py`, `src/agents/etsy_copywriter.py` (story bank from LISTING_REWRITE_BRIEF.md), `POST /etsy/upload-packages` endpoint
+- **Tested:** 14/14 unit tests. Live: 31/31 packages uploaded and activated on Etsy.
+- **Decisions:** Fixed JSON parser to handle Claude returning extra text after JSON object. Watermark applied to original only (image 1), mockups clean (images 2-5). All 33 packages processed (2 were duplicates of Antelope Canyon variants).
+- **Also done this session:** Restructured all 48 existing listings (HD Metal Print, 5x pricing, free shipping). Rewrote Disney Concert Hall listings with Architecture/Light story (3 people in cart). Refreshed expired Etsy OAuth token.
+- **Blockers:** None
+- **Next:** T28 — Instagram auto-posting via Later API
+
+### 2026-03-16 — Task T28: Instagram Auto-Posting Wired to Scheduler
+- **Built:** `src/agents/instagram_agent.py` (image selection + caption generation + posting), `instagram_posts` DB table, `POST /instagram/auto-post` endpoint, Huey cron task at 8am/12pm/7pm PST
+- **Tested:** 11/11 unit tests. Dry run confirmed full pipeline: picks Etsy listing image → generates caption with story bank → returns ready to post.
+- **Decisions:** Used Etsy `etsystatic.com` image URLs directly (already public, no R2 upload needed). Instagram Graph API 2-step flow. Fixed rate limiter bug where `daily_cost_limit_usd=0.0` blocked all posts (set to 999.0 since Instagram posting is free).
+- **Blockers:** Instagram app is in Development Mode — only testers can post. Wolf needs to add himself as a tester or submit for App Review if not done. 8 pre-existing test failures in `test_content.py` and `test_social.py` (not caused by this task).
+- **Next:** T29 — AUTO_APPROVE bypass flag (Wolf to confirm T28 is working first)

@@ -84,6 +84,33 @@ def expire_content_task() -> int:
         conn.close()
 
 
+@huey.periodic_task(crontab(hour="3,16,20", minute="0"))
+def instagram_post_task() -> dict:
+    """Post to Instagram 3x/day: 8am, 12pm, 7pm PST (16:00, 20:00, 03:00 UTC)."""
+    from src.agents.instagram_agent import post_next_image
+    from src.config import get_settings
+    from src.db import get_initialized_connection
+
+    logger.info("Cron: Instagram auto-post")
+    settings = get_settings()
+    conn = get_initialized_connection(settings.db_path)
+
+    try:
+        client = None
+        if settings.has_anthropic_key():
+            import anthropic
+            client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+        if not client:
+            logger.warning("No Anthropic key — skipping Instagram post")
+            return {"error": "no_api_key"}
+        return post_next_image(conn, client)
+    except Exception as e:
+        logger.error("Instagram post task failed: %s", e)
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
+
 @huey.periodic_task(crontab(hour="20", minute="0"))
 def daily_summary_task() -> dict:
     """Send daily summary at 20:00 UTC."""
@@ -114,6 +141,7 @@ def daily_summary_task() -> dict:
 SCHEDULE = {
     "daily_pipeline": "06:00 UTC — Full daily cycle",
     "posting": "10:00, 14:00, 18:00 UTC — Post approved content",
+    "instagram_post": "16:00, 20:00, 03:00 UTC (8am, 12pm, 7pm PST) — Instagram auto-post",
     "expire_content": "Every hour — Expire unapproved content",
     "daily_summary": "20:00 UTC — Daily summary to Telegram",
 }

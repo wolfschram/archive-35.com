@@ -108,6 +108,80 @@ def has_valid_token() -> bool:
     return bool(creds["access_token"])
 
 
+def ensure_valid_token() -> dict[str, Any]:
+    """Proactively check token validity and refresh if expired.
+
+    Returns:
+        {"valid": True} if token is good (or was refreshed successfully).
+        {"valid": False, "error": "..."} if refresh failed.
+        {"valid": False, "error": "...", "reauth_required": True} if no
+        refresh token exists and a full OAuth flow is needed.
+    """
+    if has_valid_token():
+        return {"valid": True}
+
+    creds = get_credentials()
+    if not creds.get("refresh_token"):
+        return {
+            "valid": False,
+            "error": "No refresh token — full OAuth reauthorization required",
+            "reauth_required": True,
+        }
+
+    logger.info("Token expired, refreshing...")
+    result = refresh_access_token()
+    if "error" in result:
+        return {"valid": False, "error": result["error"]}
+
+    return {"valid": True, "refreshed": True}
+
+
+def check_scope() -> dict[str, Any]:
+    """Test which API scopes the current token has.
+
+    Makes lightweight API calls to check listings_r and listings_w.
+    Returns a dict of scope → bool.
+    """
+    token_check = ensure_valid_token()
+    if not token_check.get("valid"):
+        return {"error": token_check.get("error", "Token invalid")}
+
+    creds = get_credentials()
+    shop_id = creds.get("shop_id")
+    if not shop_id:
+        return {"error": "ETSY_SHOP_ID not configured"}
+
+    scopes: dict[str, Any] = {
+        "listings_r": False,
+        "listings_w": False,
+        "transactions_r": False,
+    }
+
+    # Test listings_r: fetch one listing
+    result = _api_request(
+        f"/application/shops/{shop_id}/listings?limit=1&state=active"
+    )
+    if "error" not in result:
+        scopes["listings_r"] = True
+        scopes["listing_count"] = result.get("count", 0)
+
+    # Test listings_w: attempt a no-op update on a draft listing
+    # We create a minimal draft and immediately delete it
+    # Instead, just check if we can read — listings_w can only be confirmed
+    # by attempting a write. We'll flag it as "untested" and let the
+    # Etsy rewrite agent confirm on first real write.
+    scopes["listings_w"] = "untested — will confirm on first write"
+
+    # Test transactions_r: fetch recent receipts
+    result = _api_request(
+        f"/application/shops/{shop_id}/receipts?limit=1"
+    )
+    if "error" not in result:
+        scopes["transactions_r"] = True
+
+    return scopes
+
+
 def _save_tokens(access_token: str, refresh_token: str, expires_in: int):
     """Save OAuth tokens to Agent .env file."""
     agent_env = Path(__file__).parent.parent.parent / ".env"

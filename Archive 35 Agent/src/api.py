@@ -261,20 +261,95 @@ def _get_conn():
 
 @app.get("/health")
 def health():
-    """API health check — also verifies DB connectivity."""
+    """API health check + dashboard data feed.
+
+    Returns system status plus live counts for the agent dashboard at
+    archive-35.com/agent — Etsy listings, Instagram posts today,
+    sales/orders, x402 licenses, recent audit logs, and last IG posts.
+    """
     db_ok = False
+    extra: dict[str, Any] = {}
     try:
         conn = _get_conn()
         conn.execute("SELECT 1").fetchone()
-        conn.close()
         db_ok = True
+
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+        # Etsy listings count (from live Etsy API cache in content table)
+        try:
+            from src.integrations.etsy import get_listings, has_valid_token
+            if has_valid_token():
+                data = get_listings(state="active", limit=200)
+                extra["etsy_listings"] = len(data.get("results", []))
+            else:
+                extra["etsy_listings"] = 0
+        except Exception:
+            extra["etsy_listings"] = 0
+
+        # Instagram posts today
+        try:
+            conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='instagram_posts'"
+            )
+            row = conn.execute(
+                "SELECT COUNT(*) as cnt FROM instagram_posts WHERE posted_at LIKE ? AND success = 1",
+                (f"{today}%",),
+            ).fetchone()
+            extra["instagram_today"] = row["cnt"] if row else 0
+        except Exception:
+            extra["instagram_today"] = 0
+
+        # Etsy sales/orders (from receipts — calls live API)
+        try:
+            from src.integrations.etsy import EtsyClient
+            client = EtsyClient()
+            receipts = client.get_receipts(was_paid=True, limit=100)
+            extra["sales"] = len(receipts.get("results", []))
+        except Exception:
+            extra["sales"] = 0
+
+        # x402 license sales (table may not exist yet)
+        try:
+            row = conn.execute(
+                "SELECT COUNT(*) as cnt FROM license_sales"
+            ).fetchone()
+            extra["x402_licenses"] = row["cnt"] if row else 0
+        except Exception:
+            extra["x402_licenses"] = 0
+
+        # Last 20 audit log entries
+        try:
+            extra["logs"] = audit.query(conn, limit=20)
+        except Exception:
+            extra["logs"] = []
+
+        # Last 5 Instagram posts
+        try:
+            rows = conn.execute(
+                "SELECT id, etsy_listing_id, image_url, caption, media_id, posted_at, success "
+                "FROM instagram_posts ORDER BY id DESC LIMIT 5"
+            ).fetchall()
+            extra["ig_posts"] = [dict(r) for r in rows]
+        except Exception:
+            extra["ig_posts"] = []
+
+        # Kill switch state
+        try:
+            extra["kill_switch"] = kill_switch.get_status(conn)
+        except Exception:
+            extra["kill_switch"] = {}
+
+        conn.close()
     except Exception:
         pass
+
     return {
         "status": "online" if db_ok else "degraded",
         "version": "0.2.0",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "db": "ok" if db_ok else "error",
+        **extra,
     }
 
 

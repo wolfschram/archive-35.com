@@ -66,7 +66,7 @@
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px;
     margin-bottom: 20px;
   }
@@ -87,20 +87,23 @@
     margin: 20px 0 10px;
   }
 
-  #log-container {
+  #log-container, #ig-container {
     background: var(--surface);
     border: 1px solid var(--border);
-    max-height: 400px;
+    max-height: 300px;
     overflow-y: auto;
     font-size: 12px;
     line-height: 1.6;
   }
-  .log-entry {
+  .log-entry, .ig-entry {
     padding: 6px 12px;
     border-bottom: 1px solid #1a1a1a;
   }
   .log-entry .time { color: var(--dim); margin-right: 8px; }
   .log-entry .component { color: var(--accent); margin-right: 8px; }
+  .ig-entry .time { color: var(--dim); margin-right: 8px; }
+  .ig-entry .caption { color: var(--text); }
+  .ig-entry img { width: 40px; height: 40px; object-fit: cover; margin-right: 8px; vertical-align: middle; }
 
   .btn-kill {
     background: var(--red);
@@ -125,6 +128,8 @@
     font-size: 12px;
     display: none;
   }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -148,19 +153,29 @@
 
   <div class="grid">
     <div class="card">
-      <div class="label">Agent Status</div>
+      <div class="label">Status</div>
       <div class="value" id="agent-status">—</div>
-      <div class="sub" id="agent-uptime"></div>
+      <div class="sub" id="agent-version"></div>
     </div>
     <div class="card">
-      <div class="label">Etsy Listings</div>
+      <div class="label">Etsy Live</div>
       <div class="value" id="etsy-count">—</div>
-      <div class="sub" id="etsy-sub"></div>
+      <div class="sub">active listings</div>
     </div>
     <div class="card">
-      <div class="label">Instagram Today</div>
+      <div class="label">IG Today</div>
       <div class="value" id="ig-count">—</div>
-      <div class="sub" id="ig-sub"></div>
+      <div class="sub">posts today</div>
+    </div>
+    <div class="card">
+      <div class="label">Sales</div>
+      <div class="value" id="sales-count">—</div>
+      <div class="sub">Etsy orders</div>
+    </div>
+    <div class="card">
+      <div class="label">x402</div>
+      <div class="value" id="x402-count">—</div>
+      <div class="sub">licenses sold</div>
     </div>
     <div class="card">
       <div class="label">Kill Switch</div>
@@ -169,9 +184,19 @@
     </div>
   </div>
 
-  <div class="section-title">Recent Activity</div>
-  <div id="log-container">
-    <div class="log-entry"><span class="time">—</span> Waiting for data...</div>
+  <div class="two-col">
+    <div>
+      <div class="section-title">Recent Instagram Posts</div>
+      <div id="ig-container">
+        <div class="ig-entry"><span class="time">—</span> Waiting for data...</div>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">Audit Log (last 20)</div>
+      <div id="log-container">
+        <div class="log-entry"><span class="time">—</span> Waiting for data...</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -180,43 +205,20 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
   ? 'http://127.0.0.1:8035'
   : prompt('Agent API URL (e.g. http://192.168.1.x:8035):', 'http://127.0.0.1:8035');
 
-let authenticated = false;
 let lastSeen = null;
 let pollTimer = null;
-
 const $ = id => document.getElementById(id);
 
-// Password check — client-side gate, not security-critical
 $('password').addEventListener('keydown', e => {
   if (e.key === 'Enter') {
-    const pw = $('password').value;
-    // Check against agent's /health endpoint with password header
-    fetch(`${API_BASE}/health`, {
-      headers: { 'X-Dashboard-Password': pw }
-    })
-    .then(r => {
-      // If agent is reachable, accept the password and store it
-      authenticated = true;
-      sessionStorage.setItem('dash_pw', pw);
-      $('login-screen').style.display = 'none';
-      $('dashboard').style.display = 'block';
-      startPolling();
-    })
-    .catch(() => {
-      // Agent might be offline — accept password anyway for when it comes back
-      authenticated = true;
-      sessionStorage.setItem('dash_pw', pw);
-      $('login-screen').style.display = 'none';
-      $('dashboard').style.display = 'block';
-      $('offline-banner').style.display = 'block';
-      startPolling();
-    });
+    sessionStorage.setItem('dash_pw', $('password').value);
+    $('login-screen').style.display = 'none';
+    $('dashboard').style.display = 'block';
+    startPolling();
   }
 });
 
-// Auto-login if password cached
 if (sessionStorage.getItem('dash_pw')) {
-  authenticated = true;
   $('login-screen').style.display = 'none';
   $('dashboard').style.display = 'block';
   startPolling();
@@ -229,46 +231,40 @@ function startPolling() {
 
 async function poll() {
   try {
-    const [health, safety, stats, logs] = await Promise.allSettled([
-      fetchAPI('/health'),
-      fetchAPI('/safety/status'),
-      fetchAPI('/stats'),
-      fetchAPI('/pipeline/logs?limit=20'),
-    ]);
+    const pw = sessionStorage.getItem('dash_pw') || '';
+    const res = await fetch(`${API_BASE}/health`, {
+      headers: { 'X-Dashboard-Password': pw },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) throw new Error(`${res.status}`);
+    const d = await res.json();
 
     lastSeen = new Date();
     $('offline-banner').style.display = 'none';
     $('status-dot').className = 'status-dot live';
     $('last-update').textContent = `updated ${formatTime(lastSeen)}`;
 
-    if (health.status === 'fulfilled') {
-      const h = health.value;
-      $('agent-status').textContent = h.status === 'healthy' ? 'LIVE' : h.status?.toUpperCase() || 'UP';
-      $('agent-uptime').textContent = h.uptime ? `uptime: ${h.uptime}` : '';
-    }
+    $('agent-status').textContent = (d.status || 'unknown').toUpperCase();
+    $('agent-version').textContent = d.version ? `v${d.version}` : '';
+    $('etsy-count').textContent = d.etsy_listings ?? '—';
+    $('ig-count').textContent = d.instagram_today ?? 0;
+    $('sales-count').textContent = d.sales ?? 0;
+    $('x402-count').textContent = d.x402_licenses ?? 0;
 
-    if (safety.status === 'fulfilled') {
-      const s = safety.value;
-      const globalKill = s.kill_switch?.global?.active || s.global_kill || false;
-      $('kill-status').textContent = globalKill ? 'ACTIVE' : 'OFF';
-      $('kill-status').style.color = globalKill ? 'var(--red)' : 'var(--green)';
-      $('kill-sub').textContent = globalKill ? 'All agents stopped' : 'All systems go';
-      $('kill-btn').textContent = globalKill ? 'Resume' : 'Emergency Stop';
-      $('kill-btn').className = globalKill ? 'btn-kill resume' : 'btn-kill';
-    }
+    // Kill switch
+    const ks = d.kill_switch || {};
+    const globalKill = ks.global?.active || false;
+    $('kill-status').textContent = globalKill ? 'ACTIVE' : 'OFF';
+    $('kill-status').style.color = globalKill ? 'var(--red)' : 'var(--green)';
+    $('kill-sub').textContent = globalKill ? 'All agents stopped' : 'All systems go';
+    $('kill-btn').textContent = globalKill ? 'Resume' : 'Emergency Stop';
+    $('kill-btn').className = globalKill ? 'btn-kill resume' : 'btn-kill';
 
-    if (stats.status === 'fulfilled') {
-      const st = stats.value;
-      $('etsy-count').textContent = st.etsy_listings ?? st.total_photos ?? '—';
-      $('etsy-sub').textContent = st.etsy_active ? `${st.etsy_active} active` : '';
-      $('ig-count').textContent = st.instagram_posts_today ?? '0';
-      $('ig-sub').textContent = st.instagram_last_post ? `last: ${st.instagram_last_post}` : '';
-    }
+    // Instagram posts
+    renderIG(d.ig_posts || []);
 
-    if (logs.status === 'fulfilled') {
-      const entries = Array.isArray(logs.value) ? logs.value : (logs.value?.logs || []);
-      renderLogs(entries);
-    }
+    // Audit logs
+    renderLogs(d.logs || []);
 
   } catch (err) {
     $('status-dot').className = 'status-dot dead';
@@ -278,57 +274,45 @@ async function poll() {
   }
 }
 
-async function fetchAPI(path) {
-  const pw = sessionStorage.getItem('dash_pw') || '';
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'X-Dashboard-Password': pw },
-    signal: AbortSignal.timeout(10000),
-  });
-  if (!res.ok) throw new Error(`${res.status}`);
-  return res.json();
-}
-
-function renderLogs(entries) {
-  const container = $('log-container');
-  if (!entries.length) {
-    container.innerHTML = '<div class="log-entry"><span class="time">—</span> No recent activity</div>';
-    return;
-  }
-  container.innerHTML = entries.map(e => {
-    const time = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '—';
-    const component = e.component || 'system';
-    const action = e.action || e.message || JSON.stringify(e);
-    return `<div class="log-entry"><span class="time">${time}</span><span class="component">[${component}]</span>${escapeHtml(String(action))}</div>`;
+function renderIG(posts) {
+  const c = $('ig-container');
+  if (!posts.length) { c.innerHTML = '<div class="ig-entry"><span class="time">—</span> No posts yet</div>'; return; }
+  c.innerHTML = posts.map(p => {
+    const time = p.posted_at ? new Date(p.posted_at).toLocaleString() : '—';
+    const img = p.image_url ? `<img src="${escapeAttr(p.image_url)}" alt="">` : '';
+    const caption = p.caption ? p.caption.substring(0, 60) + (p.caption.length > 60 ? '...' : '') : '—';
+    return `<div class="ig-entry">${img}<span class="time">${escapeHtml(time)}</span><span class="caption">${escapeHtml(caption)}</span></div>`;
   }).join('');
 }
 
-function escapeHtml(s) {
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
+function renderLogs(entries) {
+  const c = $('log-container');
+  if (!entries.length) { c.innerHTML = '<div class="log-entry"><span class="time">—</span> No recent activity</div>'; return; }
+  c.innerHTML = entries.map(e => {
+    const time = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '—';
+    const component = e.component || 'system';
+    const action = e.action || e.message || JSON.stringify(e);
+    return `<div class="log-entry"><span class="time">${time}</span><span class="component">[${escapeHtml(component)}]</span> ${escapeHtml(String(action))}</div>`;
+  }).join('');
 }
 
-function formatTime(d) {
-  return d.toLocaleTimeString();
-}
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escapeAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function formatTime(d) { return d.toLocaleTimeString(); }
 
-// Kill switch toggle
 $('kill-btn').addEventListener('click', async () => {
   const isActive = $('kill-status').textContent === 'ACTIVE';
   const endpoint = isActive ? '/safety/resume/global' : '/safety/kill/global';
-  const action = isActive ? 'resume all agents' : 'STOP ALL AGENTS';
-  if (!confirm(`Are you sure you want to ${action}?`)) return;
+  if (!confirm(`Are you sure you want to ${isActive ? 'resume all agents' : 'STOP ALL AGENTS'}?`)) return;
   try {
-    await fetchAPI(endpoint).catch(() =>
-      fetch(`${API_BASE}${endpoint}`, {
-        method: 'POST',
-        headers: { 'X-Dashboard-Password': sessionStorage.getItem('dash_pw') || '' },
-      })
-    );
-    poll();
-  } catch (err) {
-    alert('Failed: ' + err.message);
-  }
+    const pw = sessionStorage.getItem('dash_pw') || '';
+    await fetch(`${API_BASE}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Dashboard-Password': pw },
+      body: JSON.stringify({ reason: 'dashboard' }),
+    });
+    setTimeout(poll, 500);
+  } catch (err) { alert('Failed: ' + err.message); }
 });
 </script>
 </body>

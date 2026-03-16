@@ -135,6 +135,27 @@ Add endpoint: GET /api/license/gallery — returns JSON list of all licensable i
 with thumbnails, titles, prices, and license endpoints.
 This is the "AI agent marketplace" — any agent can discover and buy images.
 
+## TASK 4b — Email notifications on x402 purchase
+
+File: src/notifications/email.py (already written)
+
+Wire it into the x402 confirm endpoint:
+- When payment confirmed — call send_license_sale_notification()
+- Send to wolf@archive-35.com
+- Email subject: "💰 Archive-35 License Sale — {image_title}"
+- Email body: image title, tier, amount USDC, buyer wallet, tx hash, timestamp
+- Also send for Etsy sales when polling finds new orders
+- Use SMTP via Cloudflare Email or iCloud SMTP (wolf@archive-35.com)
+- Add to .env:
+  NOTIFICATION_EMAIL=wolf@archive-35.com
+  SMTP_HOST=smtp.mail.me.com  (iCloud, if wolf uses iCloud Mail)
+  SMTP_PORT=587
+  SMTP_USER=  (Wolf fills in)
+  SMTP_PASS=  (Wolf fills in — app-specific password)
+
+IF SMTP not configured — log the notification to SESSION_LOG.md and skip.
+Do NOT block the x402 flow waiting for email.
+
 ## TASK 5 — Clean up .env duplicates
 
 The .env file has duplicate COINBASE_WALLET_ADDRESS lines.

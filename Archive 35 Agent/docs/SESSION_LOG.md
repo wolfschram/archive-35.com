@@ -88,3 +88,10 @@
 - **Decisions:** Used Etsy `etsystatic.com` image URLs directly (already public, no R2 upload needed). Instagram Graph API 2-step flow. Fixed rate limiter bug where `daily_cost_limit_usd=0.0` blocked all posts (set to 999.0 since Instagram posting is free).
 - **Blockers:** Instagram app is in Development Mode — only testers can post. Wolf needs to add himself as a tester or submit for App Review if not done. 8 pre-existing test failures in `test_content.py` and `test_social.py` (not caused by this task).
 - **Next:** T29 — AUTO_APPROVE bypass flag (Wolf to confirm T28 is working first)
+
+### 2026-03-16 — Tasks T29 + T29b: AUTO_APPROVE + x402 Licensing
+- **Built:** AUTO_APPROVE flag in config + daily pipeline. x402 licensing endpoint at `functions/api/license/[image_id].js`.
+- **Tested:** Instagram live post confirmed (media_id 18057532733690663, Tanzania Serengeti with Kilimanjaro story). AUTO_APPROVE wired into daily pipeline. x402 endpoint ready for deploy.
+- **Decisions:** x402 uses Cloudflare Pages Functions (auto-deploy on git push, same as website). On-chain payment verification is a stub — real verification needs Coinbase CDP SDK integration or Base RPC calls. Fallback is wolf@archive-35.com for manual licensing.
+- **Blockers:** x402 needs `COINBASE_WALLET_ADDRESS` and `ORIGINAL_SIGNING_SECRET` set in Cloudflare Pages dashboard (not .env — those are for the agent). On-chain verification needs CDP SDK (Phase 2 polish).
+- **Next:** T30 — Agent dashboard

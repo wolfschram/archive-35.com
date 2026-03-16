@@ -62,9 +62,11 @@ What to build:
   If Meta app is in Development Mode — note this in SESSION_LOG.md and continue
   Development Mode means only the account owner (Wolf) can receive posts — that is fine
 
-IMPORTANT: If Instagram Graph API returns any error about app permissions or
-development mode — log it clearly in SESSION_LOG.md but do NOT stop.
-The wiring is what matters. Wolf will handle Meta app review separately.
+IMPORTANT: Instagram is CONFIRMED WORKING in Live mode.
+Wolf posts from Studio software and people are already liking posts.
+The app is not in Development Mode — it is live.
+Do NOT treat this as experimental. Wire it up and post immediately.
+Test with one real post via POST /instagram/post/now before continuing.
 
 ## TASK 2 — T29: AUTO_APPROVE bypass
 

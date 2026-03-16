@@ -254,8 +254,12 @@
   - **Test:** 11/11 passing. Dry run confirmed: picks Tanzania listing, generates Kilimanjaro story caption.
   - **Note:** Instagram token valid until 2026-04-20. Rate limit: 25 posts/24hrs, agent uses 3/day.
 
-- [ ] **T29: AUTO_APPROVE bypass flag**
-  - Add AUTO_APPROVE env var, skip Telegram queue when set
+- [x] **T29: AUTO_APPROVE bypass flag** ✅
+  - Added `auto_approve` to `src/config.py` (pydantic-settings, reads `AUTO_APPROVE` from .env)
+  - Wired into `src/pipeline/daily.py` — Step 5a auto-approves all pending content when flag is set
+  - Set `AUTO_APPROVE=true` in `.env`
+  - Instagram live test confirmed: posted Tanzania Serengeti image with Kilimanjaro story, media_id `18057532733690663`
+  - **Test:** Pipeline tests pass (3/3 that were previously passing)
 
 - [ ] **T30: Agent dashboard (Cloudflare Worker)**
   - Status, logs, sales tracker, emergency stop

@@ -273,8 +273,14 @@
   - **Env vars needed in Cloudflare dashboard:** `COINBASE_WALLET_ADDRESS`, `ORIGINAL_SIGNING_SECRET`
   - **Note:** On-chain tx verification is a stub — contact wolf@archive-35.com fallback for now
 
-- [ ] **T30: Agent dashboard (Cloudflare Worker)**
-  - Status, logs, sales tracker, emergency stop
+- [x] **T30: Agent dashboard (Cloudflare Pages)** ✅
+  - `agent/index.html` — standalone dashboard at archive-35.com/agent
+  - Polls Agent API (port 8035) every 30 seconds
+  - Shows: agent status, Etsy listings, Instagram posts today, recent logs
+  - Emergency stop button (toggles global kill switch)
+  - Password-gated login screen (session-cached)
+  - Dark minimal UI matching brand aesthetic
+  - **Deploy:** auto-deploys on git push (Cloudflare Pages serves from repo root)
 
 ---
 

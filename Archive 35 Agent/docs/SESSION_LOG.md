@@ -95,3 +95,11 @@
 - **Decisions:** x402 uses Cloudflare Pages Functions (auto-deploy on git push, same as website). On-chain payment verification is a stub — real verification needs Coinbase CDP SDK integration or Base RPC calls. Fallback is wolf@archive-35.com for manual licensing.
 - **Blockers:** x402 needs `COINBASE_WALLET_ADDRESS` and `ORIGINAL_SIGNING_SECRET` set in Cloudflare Pages dashboard (not .env — those are for the agent). On-chain verification needs CDP SDK (Phase 2 polish).
 - **Next:** T30 — Agent dashboard
+
+### 2026-03-16 — Task T30: Agent Dashboard + .env Cleanup
+- **Built:** `agent/index.html` — standalone dark-themed dashboard for archive-35.com/agent. Polls Agent API at port 8035 every 30 seconds. Shows agent status, Etsy listing count, Instagram posts today, kill switch state, last 20 log entries. Emergency stop/resume button toggles global kill switch. Password-gated login with session caching.
+- **Also done:** Cleaned up `.env` duplicates — removed duplicate CDP_API_KEY_NAME, CDP_PRIVATE_KEY, and COINBASE_WALLET_ADDRESS entries (kept the original multi-line key format).
+- **Tested:** HTML validates, all fetch calls use proper error handling and AbortSignal timeout.
+- **Decisions:** Dashboard is a static HTML file (no build step) served by Cloudflare Pages from `agent/` directory. Polls localhost:8035 by default; prompts for custom URL when accessed remotely. Kill switch uses existing `/safety/kill/global` and `/safety/resume/global` endpoints.
+- **Blockers:** Dashboard can only reach the agent when on the same network (localhost). For remote access, Wolf would need Cloudflare Tunnel or expose port 8035.
+- **Next:** Commit everything and push.

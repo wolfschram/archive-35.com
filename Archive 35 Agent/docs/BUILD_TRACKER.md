@@ -261,6 +261,18 @@
   - Instagram live test confirmed: posted Tanzania Serengeti image with Kilimanjaro story, media_id `18057532733690663`
   - **Test:** Pipeline tests pass (3/3 that were previously passing)
 
+- [x] **T29b: x402 crypto licensing endpoint** ✅
+  - `functions/api/license/[image_id].js` — Cloudflare Pages Function
+  - Route: `GET /api/license/{image_id}?tier=editorial|commercial|exclusive`
+  - Returns HTTP 402 with USDC payment details (Base network, chain 8453)
+  - Three tiers: $0.50 editorial, $2.50 commercial, $25 exclusive
+  - Wallet: `0x184590B1c57F77Bafd1A692e5148758daa409FAE`
+  - Payment verification stub (needs Coinbase CDP SDK for on-chain verification)
+  - Signed download URL generation via existing HMAC system
+  - **Deploy:** auto-deploys on git push to main (Cloudflare Pages)
+  - **Env vars needed in Cloudflare dashboard:** `COINBASE_WALLET_ADDRESS`, `ORIGINAL_SIGNING_SECRET`
+  - **Note:** On-chain tx verification is a stub — contact wolf@archive-35.com fallback for now
+
 - [ ] **T30: Agent dashboard (Cloudflare Worker)**
   - Status, logs, sales tracker, emergency stop
 

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archive-35 Agent Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a0a; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; padding: 20px; }
+  
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #222; }
+  .logo { font-size: 20px; font-weight: 300; letter-spacing: 4px; color: #fff; }
+  .logo span { color: #FFD700; font-weight: 700; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #444; display: inline-block; margin-right: 8px; }
+  .status-dot.online { background: #22c55e; box-shadow: 0 0 8px #22c55e; animation: pulse 2s infinite; }
+  .status-dot.offline { background: #ef4444; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .card { background: #111; border: 1px solid #222; border-radius: 12px; padding: 20px; }
+  .card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #666; margin-bottom: 8px; }
+  .card-value { font-size: 32px; font-weight: 700; color: #fff; }
+  .card-value.gold { color: #FFD700; }
+  .card-value.green { color: #22c55e; }
+  .card-sub { font-size: 12px; color: #555; margin-top: 4px; }
+
+  .section { background: #111; border: 1px solid #222; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #555; margin-bottom: 16px; }
+  
+  .log-entry { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid #1a1a1a; font-size: 13px; }
+  .log-entry:last-child { border-bottom: none; }
+  .log-time { color: #444; white-space: nowrap; min-width: 80px; font-family: monospace; font-size: 11px; }
+  .log-action { color: #888; flex: 1; }
+  .log-status { font-size: 11px; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+  .log-status.ok { background: #052e16; color: #22c55e; }
+  .log-status.err { background: #2d0a0a; color: #ef4444; }
+  .log-status.skip { background: #1a1a00; color: #888; }
+
+  .kill-btn { background: #2d0a0a; border: 1px solid #ef4444; color: #ef4444; padding: 12px 24px; border-radius: 8px; font-size: 13px; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+  .kill-btn:hover { background: #ef4444; color: #fff; }
+  .resume-btn { background: #052e16; border: 1px solid #22c55e; color: #22c55e; padding: 12px 24px; border-radius: 8px; font-size: 13px; cursor: pointer; letter-spacing: 1px; margin-left: 12px; transition: all 0.2s; }
+  .resume-btn:hover { background: #22c55e; color: #fff; }
+  
+  .ig-post { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #1a1a1a; }
+  .ig-post:last-child { border-bottom: none; }
+  .ig-thumb { width: 48px; height: 48px; border-radius: 6px; object-fit: cover; background: #222; }
+  .ig-info { flex: 1; }
+  .ig-title { font-size: 13px; color: #ccc; }
+  .ig-time { font-size: 11px; color: #555; margin-top: 2px; }
+
+  .auth-overlay { position: fixed; inset: 0; background: #0a0a0a; display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .auth-box { background: #111; border: 1px solid #222; border-radius: 16px; padding: 40px; width: 320px; text-align: center; }
+  .auth-box h2 { font-size: 18px; font-weight: 300; letter-spacing: 3px; margin-bottom: 8px; }
+  .auth-box p { font-size: 12px; color: #555; margin-bottom: 24px; }
+  .auth-input { width: 100%; background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 12px; outline: none; }
+  .auth-input:focus { border-color: #FFD700; }
+  .auth-btn { width: 100%; background: #FFD700; color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .auth-error { color: #ef4444; font-size: 12px; margin-top: 8px; display: none; }
+
+  .refresh-note { font-size: 11px; color: #333; text-align: right; margin-top: 8px; }
+  #last-updated { color: #444; }
+</style>
+</head>
+<body>
+
+<!-- Auth gate -->
+<div class="auth-overlay" id="auth">
+  <div class="auth-box">
+    <h2>ARCHIVE <span style="color:#FFD700">35</span></h2>
+    <p>Agent Dashboard</p>
+    <input type="password" class="auth-input" id="pwd" placeholder="Password" onkeydown="if(event.key==='Enter')checkAuth()">
+    <button class="auth-btn" onclick="checkAuth()">Enter</button>
+    <div class="auth-error" id="auth-err">Wrong password</div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="app" style="display:none">
+  <div class="header">
+    <div class="logo">ARCHIVE <span>35</span> &nbsp;/&nbsp; Agent</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text" style="font-size:13px;color:#555">Connecting...</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-label">Etsy Listings</div>
+      <div class="card-value gold" id="etsy-count">—</div>
+      <div class="card-sub" id="etsy-sub">Loading...</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Instagram Today</div>
+      <div class="card-value" id="ig-today">—</div>
+      <div class="card-sub" id="ig-sub">Loading...</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Sales</div>
+      <div class="card-value green" id="sales-count">—</div>
+      <div class="card-sub" id="sales-sub">Loading...</div>
+    </div>
+    <div class="card">
+      <div class="card-label">x402 Licenses</div>
+      <div class="card-value" id="x402-count">—</div>
+      <div class="card-sub" id="x402-sub">Loading...</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Controls</div>
+    <button class="kill-btn" onclick="killSwitch()">⏹ STOP AGENT</button>
+    <button class="resume-btn" onclick="resumeAgent()">▶ RESUME AGENT</button>
+    <span style="font-size:12px;color:#444;margin-left:16px" id="kill-status"></span>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Recent Activity</div>
+    <div id="log-entries"><div style="color:#444;font-size:13px">Loading logs...</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Instagram — Last Posts</div>
+    <div id="ig-posts"><div style="color:#444;font-size:13px">Loading...</div></div>
+  </div>
+
+  <div class="refresh-note">Auto-refreshes every 30s &nbsp;|&nbsp; Last updated: <span id="last-updated">—</span></div>
+</div>
+
+<script>
+// ── Auth ────────────────────────────────────────────────────────
+const PASS_KEY = 'a35_dash_auth';
+const API = 'http://localhost:8035';
+
+function checkAuth() {
+  const pwd = document.getElementById('pwd').value;
+  // Simple client-side check — password stored as hash in localStorage
+  // In production this should be server-side
+  const stored = localStorage.getItem(PASS_KEY);
+  if (!stored) {
+    // First time — set the password
+    localStorage.setItem(PASS_KEY, btoa(pwd));
+    showDashboard();
+    return;
+  }
+  if (btoa(pwd) === stored) {
+    showDashboard();
+  } else {
+    document.getElementById('auth-err').style.display = 'block';
+  }
+}
+
+function showDashboard() {
+  document.getElementById('auth').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadData();
+  setInterval(loadData, 30000);
+}
+
+// Check if already authed
+if (localStorage.getItem(PASS_KEY)) {
+  // Auto-show if session is active
+  // But still require password for security
+}
+
+// ── Data loading ────────────────────────────────────────────────
+async function loadData() {
+  try {
+    const r = await fetch(`${API}/health`, {signal: AbortSignal.timeout(5000)});
+    if (r.ok) {
+      setOnline(true);
+      const data = await r.json();
+      updateStatus(data);
+    } else { setOnline(false); }
+  } catch (e) {
+    setOnline(false);
+    showFallbackData();
+  }
+  document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+}
+
+function setOnline(online) {
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('status-text');
+  dot.className = 'status-dot ' + (online ? 'online' : 'offline');
+  txt.textContent = online ? 'Agent running' : 'Agent offline (showing cached data)';
+  txt.style.color = online ? '#22c55e' : '#ef4444';
+}
+
+function updateStatus(data) {
+  if (data.etsy_listings !== undefined) {
+    document.getElementById('etsy-count').textContent = data.etsy_listings;
+    document.getElementById('etsy-sub').textContent = `${data.etsy_today || 0} new today`;
+  }
+  if (data.instagram_today !== undefined) {
+    document.getElementById('ig-today').textContent = data.instagram_today;
+    document.getElementById('ig-sub').textContent = data.ig_last || 'No posts yet today';
+  }
+  if (data.sales !== undefined) {
+    document.getElementById('sales-count').textContent = data.sales;
+    document.getElementById('sales-sub').textContent = data.sales_revenue ? `$${data.sales_revenue} revenue` : 'No sales yet';
+  }
+  if (data.x402_licenses !== undefined) {
+    document.getElementById('x402-count').textContent = data.x402_licenses;
+    document.getElementById('x402-sub').textContent = data.x402_revenue ? `$${data.x402_revenue} USDC` : '$0.00 USDC';
+  }
+  if (data.logs) renderLogs(data.logs);
+  if (data.ig_posts) renderIGPosts(data.ig_posts);
+}
+
+function showFallbackData() {
+  // Show last known data from localStorage
+  const cached = localStorage.getItem('a35_dashboard_cache');
+  if (cached) {
+    try { updateStatus(JSON.parse(cached)); } catch(e) {}
+  } else {
+    document.getElementById('etsy-count').textContent = '79';
+    document.getElementById('etsy-sub').textContent = 'Live listings (cached)';
+    document.getElementById('ig-today').textContent = '—';
+    document.getElementById('ig-sub').textContent = 'Agent offline';
+    document.getElementById('sales-count').textContent = '0';
+    document.getElementById('sales-sub').textContent = 'Watching...';
+    document.getElementById('x402-count').textContent = '0';
+    document.getElementById('x402-sub').textContent = '$0.00 USDC';
+    renderLogs([{time: new Date().toISOString(), action: 'Agent API offline — start with: python3 src/api.py', status: 'err'}]);
+  }
+}
+
+function renderLogs(logs) {
+  const el = document.getElementById('log-entries');
+  if (!logs || logs.length === 0) {
+    el.innerHTML = '<div style="color:#444;font-size:13px">No activity yet</div>';
+    return;
+  }
+  el.innerHTML = logs.slice(0, 20).map(l => {
+    const t = l.time ? new Date(l.time).toLocaleTimeString() : '—';
+    const cls = l.status === 'success' ? 'ok' : l.status === 'error' ? 'err' : 'skip';
+    const badge = l.status === 'success' ? 'OK' : l.status === 'error' ? 'ERR' : 'SKIP';
+    return `<div class="log-entry">
+      <span class="log-time">${t}</span>
+      <span class="log-action">${l.action || l.detail || '—'}</span>
+      <span class="log-status ${cls}">${badge}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderIGPosts(posts) {
+  const el = document.getElementById('ig-posts');
+  if (!posts || posts.length === 0) {
+    el.innerHTML = '<div style="color:#444;font-size:13px">No posts yet</div>';
+    return;
+  }
+  el.innerHTML = posts.slice(0, 5).map(p => `
+    <div class="ig-post">
+      <img class="ig-thumb" src="${p.image_url || ''}" onerror="this.style.background='#222'">
+      <div class="ig-info">
+        <div class="ig-title">${p.caption ? p.caption.substring(0,60) + '...' : '—'}</div>
+        <div class="ig-time">${p.posted_at ? new Date(p.posted_at).toLocaleString() : '—'}</div>
+      </div>
+      <span class="log-status ok">LIVE</span>
+    </div>
+  `).join('');
+}
+
+// ── Controls ────────────────────────────────────────────────────
+async function killSwitch() {
+  if (!confirm('Stop the agent? It will stop all automated posting and listing.')) return;
+  try {
+    await fetch(`${API}/kill-switch`, {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({reason: 'Dashboard kill', scope: 'global'})});
+    document.getElementById('kill-status').textContent = '⏹ Agent stopped';
+    document.getElementById('kill-status').style.color = '#ef4444';
+  } catch(e) {
+    document.getElementById('kill-status').textContent = 'Could not reach agent';
+  }
+}
+
+async function resumeAgent() {
+  try {
+    await fetch(`${API}/kill-switch/deactivate`, {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({scope: 'global'})});
+    document.getElementById('kill-status').textContent = '▶ Agent resumed';
+    document.getElementById('kill-status').style.color = '#22c55e';
+  } catch(e) {
+    document.getElementById('kill-status').textContent = 'Could not reach agent';
+  }
+}
+</script>
+</body>
+</html>

@@ -90,6 +90,20 @@ def _rewrite_with_claude(
         if text.startswith("```"):
             lines = text.split("\n")
             text = "\n".join(lines[1:-1])
+        # Handle Claude returning extra text after JSON
+        # Find the first complete JSON object
+        brace_depth = 0
+        json_end = -1
+        for i, ch in enumerate(text):
+            if ch == "{":
+                brace_depth += 1
+            elif ch == "}":
+                brace_depth -= 1
+                if brace_depth == 0:
+                    json_end = i + 1
+                    break
+        if json_end > 0:
+            text = text[:json_end]
         result = json.loads(text)
         # Enforce Etsy limits
         tags = [t[:20] for t in result.get("tags", [])][:13]

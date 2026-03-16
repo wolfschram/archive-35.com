@@ -1823,6 +1823,75 @@ def list_live_etsy_listings(state: str = "active", limit: int = 100):
         return {"results": [], "count": 0, "error": str(e)}
 
 
+@app.post("/etsy/restructure")
+def etsy_restructure(dry_run: bool = False):
+    """Restructure all Etsy listings to single-SKU HD Metal Prints.
+
+    Processes ALL listings (active + inactive):
+    - Detects orientation, sets single size per listing
+    - Rewrites SEO with Claude Vision
+    - Sets 3x markup pricing on Pictorem base costs
+    - Reactivates inactive listings after transformation
+    - Free shipping prominent in every description
+
+    Args:
+        dry_run: If true, generate paste-ready output without updating Etsy.
+    """
+    from src.agents.etsy_agent import restructure_all_listings
+    import anthropic
+
+    conn = _get_conn()
+    try:
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not api_key or api_key == "sk-ant-...":
+            raise HTTPException(status_code=400, detail="ANTHROPIC_API_KEY not configured")
+        client = anthropic.Anthropic(api_key=api_key)
+        result = restructure_all_listings(
+            conn=conn, client=client, dry_run=dry_run,
+        )
+        if "error" in result and not result.get("results"):
+            raise HTTPException(status_code=502, detail=result["error"])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Etsy restructure failed: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
+@app.post("/etsy/upload-packages")
+def etsy_upload_packages(dry_run: bool = False, limit: int = 100):
+    """Upload pre-built listing packages from etsy-export/ to Etsy.
+
+    Rewrites copy with Claude + story bank, watermarks originals,
+    uploads images, creates and activates listings.
+    """
+    from src.agents.etsy_uploader import upload_all_packages
+    import anthropic
+
+    conn = _get_conn()
+    try:
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not api_key or api_key == "sk-ant-...":
+            raise HTTPException(status_code=400, detail="ANTHROPIC_API_KEY not configured")
+        client = anthropic.Anthropic(api_key=api_key)
+        result = upload_all_packages(
+            conn=conn, client=client, dry_run=dry_run, limit=limit,
+        )
+        if "error" in result and not result.get("results"):
+            raise HTTPException(status_code=502, detail=result["error"])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Etsy upload-packages failed: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
 @app.get("/etsy/diagnostic")
 def etsy_diagnostic():
     """Run a full diagnostic of the Etsy API connection and capabilities.
@@ -2055,6 +2124,40 @@ def etsy_oauth_callback(req: EtsyOAuthCallback):
         raise HTTPException(status_code=400, detail=str(e))
     finally:
         conn.close()
+
+
+@app.post("/etsy/oauth/refresh")
+def etsy_oauth_refresh():
+    """Refresh the Etsy OAuth access token using the stored refresh token.
+
+    Call this when the token has expired (ETSY_TOKEN_EXPIRES in .env).
+    Returns new token info or error with guidance.
+    """
+    from src.integrations.etsy import ensure_valid_token
+    result = ensure_valid_token()
+    if not result.get("valid"):
+        status = 401 if result.get("reauth_required") else 502
+        raise HTTPException(status_code=status, detail=result.get("error", "Refresh failed"))
+    conn = _get_conn()
+    try:
+        audit.log(conn, "etsy", "token_refreshed", {"refreshed": result.get("refreshed", False)})
+    finally:
+        conn.close()
+    return result
+
+
+@app.get("/etsy/oauth/scope-check")
+def etsy_scope_check():
+    """Check which Etsy API scopes the current token has.
+
+    Tests listings_r, listings_w, and transactions_r.
+    Use this after token refresh to confirm write access.
+    """
+    from src.integrations.etsy import check_scope
+    result = check_scope()
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
 
 
 class EtsyListingCreate(BaseModel):
@@ -3993,6 +4096,35 @@ def instagram_status():
         "token_expires": creds.get("token_expires", "unknown"),
         "error": verification.get("error"),
     }
+
+
+@app.post("/instagram/auto-post")
+def instagram_auto_post(dry_run: bool = False):
+    """Trigger one Instagram auto-post from Etsy listing images.
+
+    Picks the next image in rotation (30-day no-repeat), generates
+    a caption with Claude + story bank, and posts to Instagram.
+    """
+    from src.agents.instagram_agent import post_next_image
+    import anthropic
+
+    conn = _get_conn()
+    try:
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not api_key or api_key == "sk-ant-...":
+            raise HTTPException(status_code=400, detail="ANTHROPIC_API_KEY not configured")
+        client = anthropic.Anthropic(api_key=api_key)
+        result = post_next_image(conn, client, dry_run=dry_run)
+        if "error" in result:
+            raise HTTPException(status_code=502, detail=result["error"])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Instagram auto-post failed: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
 
 
 @app.post("/instagram/refresh-token")

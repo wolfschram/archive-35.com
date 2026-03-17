@@ -8,9 +8,9 @@
  * After payment confirmation on Base network, returns full-res download URL.
  *
  * Three license tiers:
- *   - editorial:  $0.50  — thumbnail, editorial use only
- *   - commercial: $2.50  — full resolution, commercial use
- *   - exclusive:  $25.00 — full resolution, exclusive license
+ *   - thumbnail:  $0.01  — 400px watermarked preview
+ *   - web:        $0.50  — 1200px clean, web/blog/social use (DEFAULT)
+ *   - commercial: $2.50  — full resolution + license certificate
  *
  * Payment: USDC on Base network via Coinbase x402 protocol.
  * Facilitator: Coinbase (1,000 free transactions/month).
@@ -24,26 +24,29 @@
 // ── License tiers ──────────────────────────────────────────────────────
 
 const LICENSE_TIERS = {
-  editorial: {
+  thumbnail: {
+    price: "0.01",
+    currency: "USDC",
+    description: "Thumbnail preview — 400px max, watermarked",
+    max_dimension: 400,
+    watermarked: true,
+    usage: "Preview only. Watermarked. No commercial or editorial use.",
+  },
+  web: {
     price: "0.50",
     currency: "USDC",
-    description: "Editorial thumbnail license — web/blog use, max 1200px",
+    description: "Web license — 1200px clean, web/blog/social use",
     max_dimension: 1200,
-    usage: "Editorial use only. Credit required: Wolf Schram / Archive-35",
+    watermarked: false,
+    usage: "Web use permitted. Credit required: Wolf Schram / Archive-35",
   },
   commercial: {
     price: "2.50",
     currency: "USDC",
-    description: "Commercial full-resolution license — print, web, advertising",
+    description: "Commercial full-resolution license — print, web, advertising + license certificate",
     max_dimension: null, // full res
-    usage: "Commercial use permitted. No exclusivity. Credit appreciated.",
-  },
-  exclusive: {
-    price: "25.00",
-    currency: "USDC",
-    description: "Exclusive license — full resolution, exclusive rights for 1 year",
-    max_dimension: null,
-    usage: "Exclusive commercial use for 12 months from purchase date.",
+    watermarked: false,
+    usage: "Commercial use permitted. No exclusivity. License certificate included. Credit appreciated.",
   },
 };
 
@@ -163,7 +166,7 @@ export async function onRequest(context) {
   }
 
   const url = new URL(request.url);
-  const tier = url.searchParams.get("tier") || "commercial";
+  const tier = url.searchParams.get("tier") || "web";
   const txHash = url.searchParams.get("tx");
 
   // If no transaction hash — return 402 Payment Required

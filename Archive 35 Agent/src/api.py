@@ -4337,6 +4337,55 @@ def instagram_publish(req: InstagramPublishRequest):
         conn.close()
 
 
+# ── Notifications ──────────────────────────────────────────────
+
+
+class LicenseSaleNotification(BaseModel):
+    image_id: str
+    image_title: str = ""
+    tier: str = "web"
+    amount_usd: float = 0.50
+    tx_hash: str = ""
+    buyer_address: str = ""
+
+
+@app.post("/notify/license-sale")
+def notify_license_sale(sale: LicenseSaleNotification):
+    """Send email notification for an x402 license sale.
+
+    Called by the Cloudflare Pages x402 endpoint (via webhook) or
+    manually when a license sale is confirmed.
+    """
+    from src.notifications.email import notify_x402_sale
+
+    sent = notify_x402_sale(
+        image_id=sale.image_id,
+        image_title=sale.image_title or sale.image_id,
+        tier=sale.tier,
+        amount_usd=sale.amount_usd,
+        tx_hash=sale.tx_hash,
+        buyer_address=sale.buyer_address,
+    )
+
+    conn = _get_conn()
+    try:
+        audit.log(
+            conn, "x402", "license_sale",
+            {
+                "image_id": sale.image_id,
+                "tier": sale.tier,
+                "amount": sale.amount_usd,
+                "tx_hash": sale.tx_hash,
+                "email_sent": sent,
+            },
+            cost=0,
+        )
+    finally:
+        conn.close()
+
+    return {"notified": sent, "image_id": sale.image_id, "tier": sale.tier}
+
+
 # ── CLI Entry Point ─────────────────────────────────────────────
 
 

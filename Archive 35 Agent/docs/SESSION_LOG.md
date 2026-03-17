@@ -103,3 +103,10 @@
 - **Decisions:** Dashboard is a static HTML file (no build step) served by Cloudflare Pages from `agent/` directory. Polls localhost:8035 by default; prompts for custom URL when accessed remotely. Kill switch uses existing `/safety/kill/global` and `/safety/resume/global` endpoints.
 - **Blockers:** Dashboard can only reach the agent when on the same network (localhost). For remote access, Wolf would need Cloudflare Tunnel or expose port 8035.
 - **Next:** Commit everything and push.
+
+### 2026-03-16 — x402 Pricing Update + Gallery Marketplace Endpoint
+- **Built:** Updated x402 pricing to Wolf's confirmed tiers: $0.01 thumbnail (400px watermarked), $0.50 web (1200px clean, default), $2.50 commercial (full-res + license cert). Built `functions/api/license/gallery.js` — the AI agent marketplace endpoint that returns all 1,109 images with thumbnails, titles, locations, dimensions, tags, and per-image pricing/license endpoints.
+- **Tested:** Gallery reads from deployed photos.json, filters by collection and orientation, paginates with limit/offset. Concert photos flagged editorial-only (no commercial tier).
+- **Decisions:** Gallery fetches photos.json from same origin (Cloudflare Pages serves it). Default tier changed from commercial to web ($0.50). Concert collection is the only editorial-only collection for now.
+- **Blockers:** None — deploys on git push to main.
+- **Next:** Commit everything and push. Dashboard + health endpoint + x402 gallery all ready.

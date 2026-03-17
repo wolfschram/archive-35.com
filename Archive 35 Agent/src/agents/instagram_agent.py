@@ -97,6 +97,15 @@ def _fetch_etsy_listing_images(conn: sqlite3.Connection) -> list[dict]:
         if not image_url:
             continue
 
+        # Check aspect ratio — Instagram requires 4:5 (0.8) to 1.91:1
+        img_w = imgs[0].get("full_width", 0)
+        img_h = imgs[0].get("full_height", 0)
+        if img_h > 0:
+            aspect = img_w / img_h
+            if aspect < 0.8 or aspect > 1.91:
+                logger.info("Skipping listing %s — aspect ratio %.2f out of range", lid, aspect)
+                continue
+
         # Try to detect collection from title/tags
         title = listing.get("title", "")
         tags = listing.get("tags", [])
@@ -170,16 +179,23 @@ CAPTION_PROMPT = (
     "RULES:\n"
     "- Never salesy. Thoughtful, human, slightly poetic.\n"
     "- Short sentences. Present tense for the moment.\n"
-    "- Never: 'stunning', 'beautiful', 'perfect for'\n\n"
+    "- Never: 'stunning', 'beautiful', 'perfect for', 'captures'\n"
+    "- The caption must describe what is ACTUALLY IN the photo based on the title.\n"
+    "- Do NOT describe things not implied by the title (e.g. don't say waterfalls if title says wildlife).\n\n"
     "COLLECTION: {collection}\n"
     "STORY: {story}\n"
     "LISTING TITLE: {title}\n\n"
     "STRUCTURE:\n"
-    "- Line 1: One strong sentence about the moment/place\n"
-    "- Lines 2-3: Brief story (2-3 sentences max)\n"
+    "- Line 1: One strong opening sentence about the moment/place\n"
+    "- Lines 2-3: Brief personal story (2-3 sentences max)\n"
     "- Blank line\n"
-    "- Available as a fine art ChromaLuxe metal print — link in bio\n"
-    "- 5-7 relevant hashtags\n\n"
+    "- Fine art print available — link in bio\n"
+    "- Blank line\n"
+    "- 8-12 hashtags mixing niche + broad:\n"
+    "  Include 3-4 niche (#fineartphotography #photographyprints #artcollector)\n"
+    "  Include 2-3 location (#iceland #serengeti #newyork etc)\n"
+    "  Include 2-3 decor (#wallart #homedecor #interiordesign)\n"
+    "  Include 1-2 broad (#photography #art)\n\n"
     "Max 300 words. Plain text only (no JSON)."
 )
 

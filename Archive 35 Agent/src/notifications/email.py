@@ -63,7 +63,7 @@ def send_notification(
     """
     env = _load_env()
 
-    recipient = to or env.get("NOTIFY_EMAIL", "wolf@archive-35.com")
+    recipient = to or env.get("NOTIFICATION_EMAIL") or env.get("NOTIFY_EMAIL", "wolf@archive-35.com")
     smtp_host = env.get("SMTP_HOST", "smtp.gmail.com")
     smtp_port = int(env.get("SMTP_PORT", "587"))
     smtp_user = env.get("SMTP_USER", "")
@@ -103,24 +103,18 @@ def notify_x402_sale(
     """Send email when an AI agent purchases a license."""
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-    subject = f"💰 Archive-35 License Sale — ${amount_usd:.2f} USDC"
+    subject = f"\U0001f4b0 Archive-35 License Sale \u2014 {image_title}"
 
-    body = f"""An AI agent just licensed one of your images.
-
-Image:    {image_title}
-ID:       {image_id}
-Tier:     {tier}
-Amount:   ${amount_usd:.2f} USDC
-Network:  Base
-Time:     {now}
-
+    body = f"""Image: {image_title}
+License tier: {tier.title()}
+Amount: ${amount_usd:.2f} USDC
+Buyer wallet: {buyer_address}
 Transaction: {tx_hash}
-Buyer:       {buyer_address}
+Time: {now}
 
-View on Basescan:
-https://basescan.org/tx/{tx_hash}
+View transaction: https://basescan.org/tx/{tx_hash}
 
-—
+\u2014
 Archive-35 Agent
 https://archive-35.com
 """

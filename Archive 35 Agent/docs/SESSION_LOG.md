@@ -110,3 +110,19 @@
 - **Decisions:** Gallery fetches photos.json from same origin (Cloudflare Pages serves it). Default tier changed from commercial to web ($0.50). Concert collection is the only editorial-only collection for now.
 - **Blockers:** None — deploys on git push to main.
 - **Next:** Commit everything and push. Dashboard + health endpoint + x402 gallery all ready.
+
+### 2026-03-16 — Iceland Listing Description Rewrite (7 listings)
+- **Updated:** All 7 new Iceland listings via Etsy API PUT — replaced generic AI copy with brand voice from LISTING_REWRITE_BRIEF.md
+- **Listings updated:**
+  - `4473064952` — Waterfall through moss-covered cliff, south coast
+  - `4473051833` — Aerial glacial river delta, braided channels on black sand
+  - `4473054995` — Lava field under centuries of Icelandic moss
+  - `4473056763` — Panoramic highland interior, volcanic plateau
+  - `4473063947` — Black and white, stripped to pure form
+  - `4473063974` — Long exposure river over volcanic rock (WOLF3058)
+  - `4473066162` — Black sand volcanic coastline, North Atlantic waves
+- **Each description includes:** Lead line (present tense, no adjectives), FREE SHIPPING block, specific moment, Iceland story bank passage, ChromaLuxe print block, Wolf Schram brand sign-off
+- **Pricing:** Untouched — Fine Art Paper $37+ through Metal $750+ variant structure confirmed correct by Wolf
+- **Decisions:** Wrote unique moment copy for each listing based on title clues (aerial, panoramic, B&W, etc.) since Etsy listing images API returned 400. No generic phrases — every listing has a distinct voice.
+- **Blockers:** None
+- **Next:** Verify all 7 on Etsy storefront

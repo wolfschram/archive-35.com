@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archive-35 Agent Dashboard</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --border: #222;
+    --text: #e0e0e0;
+    --dim: #666;
+    --accent: #c9a84c;
+    --red: #d44;
+    --green: #4a4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  #login-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    flex-direction: column;
+    gap: 16px;
+  }
+  #login-screen h1 { font-size: 14px; text-transform: uppercase; letter-spacing: 4px; color: var(--dim); }
+  #login-screen input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 20px;
+    font-family: inherit;
+    font-size: 14px;
+    width: 280px;
+    text-align: center;
+  }
+  #login-screen input:focus { outline: none; border-color: var(--accent); }
+  #login-screen .error { color: var(--red); font-size: 12px; }
+
+  #dashboard { display: none; padding: 20px; max-width: 960px; margin: 0 auto; }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  header h1 { font-size: 13px; text-transform: uppercase; letter-spacing: 3px; color: var(--dim); }
+  .status-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  .status-dot.live { background: var(--green); }
+  .status-dot.dead { background: var(--red); }
+  .status-dot.unknown { background: var(--dim); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px;
+  }
+  .card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--dim); margin-bottom: 8px; }
+  .card .value { font-size: 28px; font-weight: 700; color: var(--accent); }
+  .card .sub { font-size: 11px; color: var(--dim); margin-top: 4px; }
+
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--dim);
+    margin: 20px 0 10px;
+  }
+
+  #log-container, #ig-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .log-entry, .ig-entry {
+    padding: 6px 12px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .log-entry .time { color: var(--dim); margin-right: 8px; }
+  .log-entry .component { color: var(--accent); margin-right: 8px; }
+  .ig-entry .time { color: var(--dim); margin-right: 8px; }
+  .ig-entry .caption { color: var(--text); }
+  .ig-entry img { width: 40px; height: 40px; object-fit: cover; margin-right: 8px; vertical-align: middle; }
+
+  .btn-kill {
+    background: var(--red);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    font-family: inherit;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+  }
+  .btn-kill:hover { opacity: 0.85; }
+  .btn-kill.resume { background: var(--green); }
+
+  .last-update { font-size: 10px; color: var(--dim); }
+  .offline-banner {
+    background: var(--red);
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-size: 12px;
+    display: none;
+  }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <h1>Archive-35 Agent</h1>
+  <input type="password" id="password" placeholder="password" autofocus>
+  <div class="error" id="login-error"></div>
+</div>
+
+<div id="offline-banner" class="offline-banner">Agent offline — last seen <span id="last-seen">never</span></div>
+
+<div id="dashboard">
+  <header>
+    <h1><span class="status-dot unknown" id="status-dot"></span> Archive-35 Agent</h1>
+    <div>
+      <span class="last-update" id="last-update">connecting...</span>
+      <button class="btn-kill" id="kill-btn" style="margin-left:12px">Emergency Stop</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <div class="label">Status</div>
+      <div class="value" id="agent-status">—</div>
+      <div class="sub" id="agent-version"></div>
+    </div>
+    <div class="card">
+      <div class="label">Etsy Live</div>
+      <div class="value" id="etsy-count">—</div>
+      <div class="sub">active listings</div>
+    </div>
+    <div class="card">
+      <div class="label">IG Today</div>
+      <div class="value" id="ig-count">—</div>
+      <div class="sub">posts today</div>
+    </div>
+    <div class="card">
+      <div class="label">Sales</div>
+      <div class="value" id="sales-count">—</div>
+      <div class="sub">Etsy orders</div>
+    </div>
+    <div class="card">
+      <div class="label">x402</div>
+      <div class="value" id="x402-count">—</div>
+      <div class="sub">licenses sold</div>
+    </div>
+    <div class="card">
+      <div class="label">Kill Switch</div>
+      <div class="value" id="kill-status">—</div>
+      <div class="sub" id="kill-sub"></div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="section-title">Recent Instagram Posts</div>
+      <div id="ig-container">
+        <div class="ig-entry"><span class="time">—</span> Waiting for data...</div>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">Audit Log (last 20)</div>
+      <div id="log-container">
+        <div class="log-entry"><span class="time">—</span> Waiting for data...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://127.0.0.1:8035'
+  : prompt('Agent API URL (e.g. http://192.168.1.x:8035):', 'http://127.0.0.1:8035');
+
+let lastSeen = null;
+let pollTimer = null;
+const $ = id => document.getElementById(id);
+
+$('password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    sessionStorage.setItem('dash_pw', $('password').value);
+    $('login-screen').style.display = 'none';
+    $('dashboard').style.display = 'block';
+    startPolling();
+  }
+});
+
+if (sessionStorage.getItem('dash_pw')) {
+  $('login-screen').style.display = 'none';
+  $('dashboard').style.display = 'block';
+  startPolling();
+}
+
+function startPolling() {
+  poll();
+  pollTimer = setInterval(poll, 30000);
+}
+
+async function poll() {
+  try {
+    const pw = sessionStorage.getItem('dash_pw') || '';
+    const res = await fetch(`${API_BASE}/health`, {
+      headers: { 'X-Dashboard-Password': pw },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) throw new Error(`${res.status}`);
+    const d = await res.json();
+
+    lastSeen = new Date();
+    $('offline-banner').style.display = 'none';
+    $('status-dot').className = 'status-dot live';
+    $('last-update').textContent = `updated ${formatTime(lastSeen)}`;
+
+    $('agent-status').textContent = (d.status || 'unknown').toUpperCase();
+    $('agent-version').textContent = d.version ? `v${d.version}` : '';
+    $('etsy-count').textContent = d.etsy_listings ?? '—';
+    $('ig-count').textContent = d.instagram_today ?? 0;
+    $('sales-count').textContent = d.sales ?? 0;
+    $('x402-count').textContent = d.x402_licenses ?? 0;
+
+    // Kill switch
+    const ks = d.kill_switch || {};
+    const globalKill = ks.global?.active || false;
+    $('kill-status').textContent = globalKill ? 'ACTIVE' : 'OFF';
+    $('kill-status').style.color = globalKill ? 'var(--red)' : 'var(--green)';
+    $('kill-sub').textContent = globalKill ? 'All agents stopped' : 'All systems go';
+    $('kill-btn').textContent = globalKill ? 'Resume' : 'Emergency Stop';
+    $('kill-btn').className = globalKill ? 'btn-kill resume' : 'btn-kill';
+
+    // Instagram posts
+    renderIG(d.ig_posts || []);
+
+    // Audit logs
+    renderLogs(d.logs || []);
+
+  } catch (err) {
+    $('status-dot').className = 'status-dot dead';
+    $('agent-status').textContent = 'OFFLINE';
+    $('offline-banner').style.display = 'block';
+    if (lastSeen) $('last-seen').textContent = formatTime(lastSeen);
+  }
+}
+
+function renderIG(posts) {
+  const c = $('ig-container');
+  if (!posts.length) { c.innerHTML = '<div class="ig-entry"><span class="time">—</span> No posts yet</div>'; return; }
+  c.innerHTML = posts.map(p => {
+    const time = p.posted_at ? new Date(p.posted_at).toLocaleString() : '—';
+    const img = p.image_url ? `<img src="${escapeAttr(p.image_url)}" alt="">` : '';
+    const caption = p.caption ? p.caption.substring(0, 60) + (p.caption.length > 60 ? '...' : '') : '—';
+    return `<div class="ig-entry">${img}<span class="time">${escapeHtml(time)}</span><span class="caption">${escapeHtml(caption)}</span></div>`;
+  }).join('');
+}
+
+function renderLogs(entries) {
+  const c = $('log-container');
+  if (!entries.length) { c.innerHTML = '<div class="log-entry"><span class="time">—</span> No recent activity</div>'; return; }
+  c.innerHTML = entries.map(e => {
+    const time = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '—';
+    const component = e.component || 'system';
+    const action = e.action || e.message || JSON.stringify(e);
+    return `<div class="log-entry"><span class="time">${time}</span><span class="component">[${escapeHtml(component)}]</span> ${escapeHtml(String(action))}</div>`;
+  }).join('');
+}
+
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escapeAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function formatTime(d) { return d.toLocaleTimeString(); }
+
+$('kill-btn').addEventListener('click', async () => {
+  const isActive = $('kill-status').textContent === 'ACTIVE';
+  const endpoint = isActive ? '/safety/resume/global' : '/safety/kill/global';
+  if (!confirm(`Are you sure you want to ${isActive ? 'resume all agents' : 'STOP ALL AGENTS'}?`)) return;
+  try {
+    const pw = sessionStorage.getItem('dash_pw') || '';
+    await fetch(`${API_BASE}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Dashboard-Password': pw },
+      body: JSON.stringify({ reason: 'dashboard' }),
+    });
+    setTimeout(poll, 500);
+  } catch (err) { alert('Failed: ' + err.message); }
+});
+</script>
+</body>
+</html>

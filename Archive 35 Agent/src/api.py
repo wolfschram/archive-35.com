@@ -340,6 +340,26 @@ def health():
         except Exception:
             extra["kill_switch"] = {}
 
+        # Agent request intelligence (x402 gallery traffic)
+        try:
+            _ensure_agent_requests_table(conn)
+            req_count = conn.execute("SELECT COUNT(*) as cnt FROM agent_requests").fetchone()
+            extra["agent_requests"] = req_count["cnt"] if req_count else 0
+            # Top 3 subjects for quick glance
+            rows = conn.execute("SELECT query_params FROM agent_requests ORDER BY id DESC LIMIT 200").fetchall()
+            subjects: dict[str, int] = {}
+            for row in rows:
+                try:
+                    p = json.loads(row["query_params"]) if row["query_params"] else {}
+                    if p.get("subject"):
+                        subjects[p["subject"]] = subjects.get(p["subject"], 0) + 1
+                except Exception:
+                    pass
+            extra["top_agent_subjects"] = sorted(subjects.items(), key=lambda x: x[1], reverse=True)[:3]
+        except Exception:
+            extra["agent_requests"] = 0
+            extra["top_agent_subjects"] = []
+
         conn.close()
     except Exception:
         pass
@@ -4384,6 +4404,122 @@ def notify_license_sale(sale: LicenseSaleNotification):
         conn.close()
 
     return {"notified": sent, "image_id": sale.image_id, "tier": sale.tier}
+
+
+# ── x402 Agent Request Intelligence ────────────────────────────
+
+
+AGENT_REQUESTS_SCHEMA = """
+CREATE TABLE IF NOT EXISTS agent_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TEXT NOT NULL,
+    ip TEXT,
+    user_agent TEXT,
+    query_params TEXT,
+    referrer TEXT,
+    country TEXT
+);
+"""
+
+
+def _ensure_agent_requests_table(conn):
+    conn.execute(AGENT_REQUESTS_SCHEMA)
+    conn.commit()
+
+
+class AgentRequestLog(BaseModel):
+    timestamp: str = ""
+    ip: str = ""
+    user_agent: str = ""
+    query_params: dict = {}
+    referrer: str = ""
+    country: str = ""
+
+
+@app.post("/api/license/log-request")
+def log_agent_request(entry: AgentRequestLog):
+    """Log an incoming AI agent request to the gallery.
+
+    Called by the Cloudflare Pages gallery endpoint on every request.
+    This is intelligence on what AI agents actually want.
+    """
+    conn = _get_conn()
+    try:
+        _ensure_agent_requests_table(conn)
+        conn.execute(
+            """INSERT INTO agent_requests (timestamp, ip, user_agent, query_params, referrer, country)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (
+                entry.timestamp or datetime.now(timezone.utc).isoformat(),
+                entry.ip,
+                entry.user_agent[:500],
+                json.dumps(entry.query_params),
+                entry.referrer,
+                entry.country,
+            ),
+        )
+        conn.commit()
+        return {"logged": True}
+    finally:
+        conn.close()
+
+
+@app.get("/api/license/insights")
+def agent_request_insights(days: int = Query(default=30, le=365)):
+    """Return top requested subjects, use cases, moods, and locations.
+
+    This is the intelligence dashboard — shows what AI agents are
+    actually searching for in the Archive-35 catalogue.
+    """
+    conn = _get_conn()
+    try:
+        _ensure_agent_requests_table(conn)
+        since = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+        rows = conn.execute(
+            "SELECT query_params, timestamp, user_agent, ip, country FROM agent_requests ORDER BY id DESC LIMIT 1000"
+        ).fetchall()
+
+        total_requests = len(rows)
+        subjects: dict[str, int] = {}
+        use_cases: dict[str, int] = {}
+        moods: dict[str, int] = {}
+        locations: dict[str, int] = {}
+        agents: dict[str, int] = {}
+
+        for row in rows:
+            try:
+                params = json.loads(row["query_params"]) if row["query_params"] else {}
+            except (json.JSONDecodeError, TypeError):
+                params = {}
+
+            if params.get("subject"):
+                subjects[params["subject"]] = subjects.get(params["subject"], 0) + 1
+            if params.get("use_case"):
+                use_cases[params["use_case"]] = use_cases.get(params["use_case"], 0) + 1
+            if params.get("mood"):
+                moods[params["mood"]] = moods.get(params["mood"], 0) + 1
+            if params.get("location"):
+                locations[params["location"]] = locations.get(params["location"], 0) + 1
+
+            ua = (row["user_agent"] or "")[:80]
+            if ua:
+                agents[ua] = agents.get(ua, 0) + 1
+
+        def top10(d):
+            return sorted(d.items(), key=lambda x: x[1], reverse=True)[:10]
+
+        return {
+            "total_requests": total_requests,
+            "top_subjects": top10(subjects),
+            "top_use_cases": top10(use_cases),
+            "top_moods": top10(moods),
+            "top_locations": top10(locations),
+            "top_agents": top10(agents),
+            "unique_ips": len(set(r["ip"] for r in rows if r["ip"])),
+        }
+    finally:
+        conn.close()
 
 
 # ── CLI Entry Point ─────────────────────────────────────────────

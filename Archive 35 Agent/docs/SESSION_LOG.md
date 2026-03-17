@@ -126,3 +126,11 @@
 - **Decisions:** Wrote unique moment copy for each listing based on title clues (aerial, panoramic, B&W, etc.) since Etsy listing images API returned 400. No generic phrases — every listing has a distinct voice.
 - **Blockers:** None
 - **Next:** Verify all 7 on Etsy storefront
+
+### 2026-03-16 — x402 Gallery Discovery + Agent Intent Intelligence
+- **Built:** Upgraded `/api/license/gallery` with AI agent discovery interface. No-params returns structured welcome + how_to_search guide with available filters. Added semantic filters: `subject` (landscape/wildlife/urban/abstract/travel/architecture/ocean/desert/aerial), `mood` (dramatic/minimalist/warm/cold/documentary/serene), `use_case`, `location` (freetext), `resolution` (thumbnail/web/print/ultra_high_res). Subject+mood filters map to photo tags via keyword matching.
+- **Intelligence:** All gallery requests logged to `agent_requests` SQLite table (timestamp, IP, user_agent, query_params, referrer, country). New `GET /api/license/insights` endpoint returns top 10 most requested subjects, use cases, moods, locations, and user agents.
+- **Dashboard:** Added "Agent Traffic" card showing total gallery requests + top 3 requested subjects. Insights data flows through `/health` endpoint.
+- **Logging:** CF Pages Function logs to KV (if `AGENT_REQUESTS` binding exists) or falls back to agent API webhook at `/api/license/log-request`.
+- **Blockers:** For edge→agent logging to work, agent needs public URL (Cloudflare Tunnel). KV binding is the preferred path — needs `AGENT_REQUESTS` KV namespace created in Cloudflare dashboard.
+- **Next:** Deploy to main when ready. Test gallery discovery with `curl https://archive-35.com/api/license/gallery`.

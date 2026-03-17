@@ -178,6 +178,11 @@
       <div class="sub">licenses sold</div>
     </div>
     <div class="card">
+      <div class="label">Agent Traffic</div>
+      <div class="value" id="agent-req-count">—</div>
+      <div class="sub" id="agent-req-sub">gallery requests</div>
+    </div>
+    <div class="card">
       <div class="label">Kill Switch</div>
       <div class="value" id="kill-status">—</div>
       <div class="sub" id="kill-sub"></div>
@@ -250,6 +255,9 @@ async function poll() {
     $('ig-count').textContent = d.instagram_today ?? 0;
     $('sales-count').textContent = d.sales ?? 0;
     $('x402-count').textContent = d.x402_licenses ?? 0;
+    $('agent-req-count').textContent = d.agent_requests ?? 0;
+    const topSubjects = (d.top_agent_subjects || []).map(s => s[0]).join(', ');
+    $('agent-req-sub').textContent = topSubjects ? `top: ${topSubjects}` : 'gallery requests';
 
     // Kill switch
     const ks = d.kill_switch || {};

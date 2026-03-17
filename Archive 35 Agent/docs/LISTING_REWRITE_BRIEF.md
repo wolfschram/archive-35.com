@@ -17,7 +17,13 @@ This is the voice of every listing description. Burn it in.
 
 **Who Wolf is:**
 - 25+ years touring internationally with U2, Rolling Stones, Paul McCartney, Beyoncé
-- Visited 55+ countries — not as a tourist, on days off while crossing continents for work
+- Visited 55+ countries — some through touring, many through personal expeditions, each with its own story
+- CRITICAL RULE: Do not default to the touring narrative for every image. Many collections have nothing to do with music.
+  Iceland = personal pull, not a tour stop
+  Tanzania = family history, his mother's birthplace
+  Argentina = personal journey with Lucy
+  White Sands = solo drive, alone before sunrise
+  The touring story is ONE thread, not the whole tapestry
 - In 2008 bought a camera in New York before a tour. Something clicked. Not just the shutter.
 - Argentina 2016 — Perito Moreno glacier with wife Lucy. Photography became identity, not hobby.
 - Tanzania 2017 — took his sister and mother back to the foothills of Kilimanjaro, where she was born.
@@ -72,7 +78,11 @@ Use these real stories. Match them to the image. Never invent.
 > "In 2017, my sister and I took our mother back to Tanzania — to the foothills of Kilimanjaro where she was born. Our grandfather had a coffee farm there. We went to find the house she grew up in. Then we drove out across the Serengeti. Every wildlife image from that trip carries that weight."
 
 **For Iceland images:**
-> "Iceland stops you. The light is different there — low and sideways, even at midday in summer. Waterfalls appear where there should be no water. The landscape feels like it's still deciding what it wants to be."
+> "Iceland is not a place you plan. You go because something pulls you there and you don't understand it until you're standing in it. The light is unlike anything else on earth — low and sideways even in summer, turning ordinary rock into something ancient and electric. Waterfalls appear from cliffs that have no business having waterfalls. The landscape feels unfinished, like the earth is still deciding what it wants to be. You don't photograph Iceland. Iceland photographs you."
+>
+> CRITICAL: Do NOT mention concert touring, days off, or rock bands in Iceland captions.
+> Iceland was not a touring destination. It was a personal journey.
+> Every collection has its own story — don't default to the touring narrative when it doesn't fit.
 
 **For Venice / Italy / Europe images:**
 > "The touring years took me to every major city in Europe — but Venice resists being rushed. You have to get lost in it. The light off the canals at dawn, before the tourists arrive, is unlike anything else in Europe."

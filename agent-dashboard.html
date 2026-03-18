@@ -9,12 +9,12 @@
     --bg: #0a0a0a;
     --surface: #141414;
     --surface-2: #1a1a1a;
-    --border: #222;
-    --border-light: #333;
-    --text: #e0e0e0;
-    --dim: #666;
+    --border: #2a2a2a;
+    --border-light: #444;
+    --text: #f0f0f0;
+    --dim: #999;
     --accent: #c9a84c;
-    --accent-dim: #8a7234;
+    --accent-dim: #b8993f;
     --red: #f87171;
     --green: #4ade80;
     --yellow: #facc15;
@@ -316,7 +316,11 @@
 </div>
 
 <!-- Offline Banner -->
-<div id="offline-banner" class="offline-banner">Agent offline &mdash; last seen <span id="last-seen">never</span></div>
+<div id="offline-banner" class="offline-banner">
+  Agent offline &mdash; last seen <span id="last-seen">never</span>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  <button onclick="startAgent()" style="background:#fff;color:#000;border:none;padding:4px 16px;border-radius:4px;cursor:pointer;font-weight:bold;font-family:inherit;font-size:12px;">START AGENT</button>
+</div>
 
 <!-- Kill Switch Modal -->
 <div class="modal-overlay" id="kill-modal">
@@ -440,6 +444,20 @@
     </div>
   </div>
 
+  <!-- Section 7: Email Briefing -->
+  <div class="section" id="sec-email">
+    <div class="section-header" onclick="toggleSection('email')">
+      <div class="section-title"><span class="chevron">&#9660;</span> Email Briefing</div>
+      <div class="section-actions">
+        <button class="btn primary" onclick="event.stopPropagation(); runEmailScan()">Scan Now</button>
+        <button class="btn" onclick="event.stopPropagation(); loadEmailBriefing()">Refresh</button>
+      </div>
+    </div>
+    <div class="section-body" id="body-email">
+      <div id="email-content">Loading email briefing...</div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -536,6 +554,7 @@ function startPolling() {
   loadEtsy();
   loadFeed();
   loadLicensing();
+  loadEmailBriefing();
 
   setInterval(pollStatus, 15000);
   setInterval(loadAgentCards, 30000);
@@ -586,6 +605,7 @@ const AGENTS = [
   { id: 'etsy', name: 'Etsy Agent', scope: 'etsy' },
   { id: 'content_pipeline', name: 'Content Pipeline', scope: 'content_pipeline' },
   { id: 'broadcast', name: 'Broadcast Agent', scope: 'broadcast' },
+  { id: 'email', name: 'Email Monitor', scope: 'email' },
 ];
 
 async function loadAgentCards() {
@@ -598,12 +618,13 @@ async function loadAgentCards() {
   } catch (e) { /* proceed with defaults */ }
 
   // Fetch extra data for specific cards
-  let igStatus = {}, pinterestStatus = {}, redditStatus = {}, etsyLive = '--', pipelineStatus = {}, broadcastData = {};
+  let igStatus = {}, pinterestStatus = {}, redditStatus = {}, etsyLive = '--', pipelineStatus = {}, broadcastData = {}, emailBriefing = {};
   try { igStatus = await apiFetch('/instagram/status'); } catch(e) {}
   try { pinterestStatus = await apiFetch('/pinterest/pin-status'); } catch(e) {}
   try { redditStatus = await apiFetch('/reddit/status'); } catch(e) {}
   try { pipelineStatus = await apiFetch('/pipeline/status'); } catch(e) {}
   try { broadcastData = await apiFetch('/broadcast/status'); } catch(e) {}
+  try { emailBriefing = await apiFetch('/email/briefing'); } catch(e) {}
 
   let html = '';
   for (const agent of AGENTS) {
@@ -639,12 +660,24 @@ async function loadAgentCards() {
       `;
     } else if (agent.id === 'reddit') {
       const queue = redditStatus.queue || {};
+      const creds = redditStatus.credentials || {};
+      const sessionValid = creds.configured === true;
+      const redditUser = creds.username || null;
+      const postsToday = creds.posts_today ?? 0;
+      const lastPost = creds.last_post ? timeAgo(new Date(creds.last_post)) : 'never';
       statsHtml = `
+        <div style="margin-bottom:4px">${sessionValid
+          ? `<span style="color:var(--green)">Connected as u/${esc(redditUser)}</span>`
+          : '<span style="color:var(--red)">Reddit not connected</span>'}</div>
         <div>Queued: <strong>${queue.queued ?? 0}</strong> | Posted: <strong>${queue.posted ?? 0}</strong> | Skipped: <strong>${queue.skipped ?? 0}</strong></div>
+        <div style="font-size:11px;color:var(--dim)">Posts today: ${postsToday}/5 | Last post: ${lastPost}</div>
       `;
-      actionsHtml = `
+      actionsHtml = sessionValid ? `
         <button class="btn primary" onclick="redditGenerate()">Generate 30 Posts</button>
         <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+      ` : `
+        <button class="btn primary" onclick="redditLogin()">Login to Reddit</button>
+        <button class="btn" onclick="redditGenerate()">Generate 30 Posts</button>
       `;
     } else if (agent.id === 'etsy') {
       statsHtml = `
@@ -674,6 +707,21 @@ async function loadAgentCards() {
       actionsHtml = `
         <button class="btn primary" onclick="runBroadcast()">Broadcast Now</button>
         <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+      `;
+    } else if (agent.id === 'email') {
+      const accts = emailBriefing.accounts_scanned || [];
+      const lastScan = emailBriefing.generated_at ? timeAgo(new Date(emailBriefing.generated_at)) : 'never';
+      const summary = emailBriefing.summary || {};
+      const secAlerts = summary.security_alerts ?? 0;
+      statsHtml = `
+        <div>Accounts: <strong>${accts.length} connected</strong></div>
+        <div>Last scan: <strong>${lastScan}</strong></div>
+        <div>New emails: <strong>${emailBriefing.total_emails ?? '--'}</strong></div>
+        ${secAlerts > 0 ? `<div style="color:var(--red)">Security alerts: <strong>${secAlerts} phishing detected</strong></div>` : ''}
+      `;
+      actionsHtml = `
+        <button class="btn primary" onclick="runEmailScan()">Scan Now</button>
+        <button class="btn" onclick="document.getElementById('sec-email').scrollIntoView({behavior:'smooth'})">View Briefing</button>
       `;
     }
 
@@ -738,6 +786,38 @@ async function restartAgent(name) {
   } catch(e) { alert('Failed: ' + e.message); }
 }
 
+function startAgent() {
+  // When agent is offline, the API can't be reached.
+  // Show clear instructions for starting the Docker containers.
+  const msg = `To start the Archive-35 Agent:\n\n` +
+    `Open Terminal and run:\n\n` +
+    `cd ~/Documents/ACTIVE/archive-35/Archive\\ 35\\ Agent && ./docker-start.sh\n\n` +
+    `Or if Docker is already running:\n\n` +
+    `cd ~/Documents/ACTIVE/archive-35/Archive\\ 35\\ Agent && docker compose up -d\n\n` +
+    `The dashboard will reconnect automatically once the agent is running.`;
+
+  // Try the API first in case it's actually reachable
+  fetch(API_URL + '/agents/restart-all', { method: 'POST' })
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) {
+        alert('Agent restart triggered. Reconnecting...');
+        setTimeout(pollHealth, 3000);
+      } else {
+        alert(msg);
+      }
+    })
+    .catch(() => {
+      // API unreachable — copy command to clipboard and show instructions
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText('cd ~/Documents/ACTIVE/archive-35/Archive\\ 35\\ Agent && ./docker-start.sh');
+        alert(msg + '\n\n(Start command copied to clipboard)');
+      } else {
+        alert(msg);
+      }
+    });
+}
+
 async function igPostOne() {
   if (!confirm('Post one image to Instagram now?')) return;
   try {
@@ -786,6 +866,15 @@ async function redditSkip(postId) {
   loadRedditQueue();
 }
 
+async function redditLogin() {
+  try {
+    const r = await apiFetch('/reddit/login', { method: 'POST' });
+    alert(r.message || 'Browser window opened. Log in and close when done.');
+    // Re-check status after 30 seconds
+    setTimeout(loadAgentCards, 30000);
+  } catch(e) { alert('Failed: ' + e.message); }
+}
+
 async function runPipeline() {
   try {
     const r = await apiFetch('/pipeline/run', { method: 'POST', signal: AbortSignal.timeout(60000) });
@@ -807,6 +896,88 @@ async function runSeoAudit() {
     alert(r.success ? 'SEO audit complete!' : 'Failed: ' + (r.output || ''));
   } catch(e) { alert('Failed: ' + e.message); }
   loadEtsy();
+}
+
+// ── Email Briefing ──────────────────────────────────────────────
+async function runEmailScan() {
+  try {
+    const r = await apiFetch('/email/briefing/run', { method: 'POST', signal: AbortSignal.timeout(120000) });
+    alert(r.status === 'success' ? 'Email scan complete!' : 'Failed: ' + (r.message || ''));
+  } catch(e) { alert('Failed: ' + e.message); }
+  loadEmailBriefing();
+  loadAgentCards();
+}
+
+async function loadEmailBriefing() {
+  const el = $('email-content');
+  try {
+    const d = await apiFetch('/email/briefing');
+    if (d.error) { el.innerHTML = `<div style="color:var(--dim)">${esc(d.error)}</div>`; return; }
+
+    const ts = d.generated_at ? new Date(d.generated_at).toLocaleString() : 'unknown';
+    let html = `<div style="color:var(--dim);margin-bottom:12px">Last scan: ${ts} | ${d.accounts_scanned?.join(', ') || 'none'} | ${d.total_emails} emails</div>`;
+
+    // Security alerts (red)
+    if (d.security?.length) {
+      html += `<div style="margin-bottom:12px"><div style="color:var(--red);font-weight:700;margin-bottom:6px">SECURITY ALERTS (${d.security.length})</div>`;
+      for (const m of d.security) {
+        html += `<div style="padding:4px 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--red)">&#9888;</span>
+          <span style="color:var(--dim)">[${esc(m.account)}]</span>
+          <strong>${esc(m.subject)}</strong>
+          <span style="color:var(--dim);font-size:11px"> — ${esc(m.from_address)}</span>
+          ${m.phishing_flags?.length ? `<div style="color:var(--red);font-size:11px;margin-top:2px">${m.phishing_flags.map(esc).join(', ')}</div>` : ''}
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    // Action required (orange)
+    if (d.action_required?.length) {
+      html += `<div style="margin-bottom:12px"><div style="color:var(--yellow);font-weight:700;margin-bottom:6px">ACTION REQUIRED (${d.action_required.length})</div>`;
+      for (const m of d.action_required) {
+        html += `<div style="padding:4px 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--yellow)">&#9679;</span>
+          <span style="color:var(--dim)">[${esc(m.account)}]</span>
+          <strong>${esc(m.subject)}</strong>
+          <span style="color:var(--dim);font-size:11px"> — ${esc(m.from_address)}</span>
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    // Business
+    if (d.business?.length) {
+      html += `<div style="margin-bottom:12px"><div style="font-weight:700;margin-bottom:6px">BUSINESS (${d.business.length})</div>`;
+      for (const m of d.business) {
+        html += `<div style="padding:4px 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--dim)">[${esc(m.account)}]</span>
+          ${esc(m.subject)}
+          <span style="color:var(--dim);font-size:11px"> — ${esc(m.from_address)}</span>
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    // FYI
+    if (d.fyi?.length) {
+      html += `<div style="margin-bottom:12px"><div style="color:var(--dim);font-weight:700;margin-bottom:6px">FYI (${d.fyi.length})</div>`;
+      for (const m of d.fyi) {
+        html += `<div style="padding:4px 0;border-bottom:1px solid var(--border);color:var(--dim)">
+          [${esc(m.account)}] ${esc(m.subject)}
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    if (!d.security?.length && !d.action_required?.length && !d.business?.length && !d.fyi?.length) {
+      html += '<div style="color:var(--dim)">No emails in briefing period.</div>';
+    }
+
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = `<div style="color:var(--dim)">Failed to load briefing: ${esc(e.message)}</div>`;
+  }
 }
 
 // ── Intelligence Panel ──────────────────────────────────────────

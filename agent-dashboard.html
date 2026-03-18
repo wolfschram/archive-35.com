@@ -3,429 +3,1227 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Archive-35 Operator Command Center</title>
+<title>Archive-35 Operator Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0a;
-    --surface: #141414;
-    --surface-2: #1a1a1a;
-    --border: #2a2a2a;
-    --border-light: #444;
-    --text: #f0f0f0;
-    --dim: #999;
-    --accent: #c9a84c;
-    --accent-dim: #b8993f;
-    --red: #f87171;
-    --green: #4ade80;
-    --yellow: #facc15;
-    --blue: #60a5fa;
-    --orange: #f59e0b;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 13px;
-    line-height: 1.5;
+    --bg-base: #0F172A;
+    --bg-rail: #0B1120;
+    --bg-card: #1E293B;
+    --bg-card-hover: #263548;
+    --text-primary: #F1F5F9;
+    --text-secondary: #94A3B8;
+    --text-dim: #64748B;
+    --status-critical: #FB7185;
+    --status-warning: #FBBF24;
+    --status-healthy: #34D399;
+    --status-info: #38BDF8;
+    --status-idle: #64748B;
+    --accent-gold: #C9A84C;
+    --border: #334155;
+    --border-light: #475569;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --shadow-card: 0 4px 6px -1px rgba(0,0,0,0.3);
+    --shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.4);
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --font-mono: 'SF Mono', 'Fira Code', monospace;
   }
 
-  /* ── Status Bar ─────────────────────────────────────── */
-  #status-bar {
-    position: sticky; top: 0; z-index: 100;
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 20px; gap: 4px; flex-wrap: wrap;
-    backdrop-filter: blur(10px);
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
   }
-  .sb-left { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-  .sb-item {
-    display: flex; align-items: center; gap: 6px; padding: 4px 10px;
-    font-size: 11px; cursor: pointer; border-radius: 3px;
+
+  /* ── Layout: Left Rail + Main ─────────────────────────── */
+  .app-layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .left-rail {
+    width: 200px;
+    min-width: 200px;
+    background: var(--bg-rail);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+    overflow-y: auto;
+  }
+
+  .rail-logo {
+    padding: 20px 16px 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent-gold);
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .rail-logo .sub {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-dim);
+    display: block;
+    margin-top: 2px;
+  }
+
+  .rail-nav {
+    flex: 1;
+    padding: 8px 0;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-left: 3px solid transparent;
+    text-decoration: none;
+  }
+  .nav-item:hover {
+    background: rgba(255,255,255,0.04);
+    color: var(--text-primary);
+  }
+  .nav-item.active {
+    background: rgba(201,168,76,0.08);
+    color: var(--accent-gold);
+    border-left-color: var(--accent-gold);
+    font-weight: 600;
+  }
+  .nav-item .nav-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .rail-separator {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 16px;
+  }
+
+  /* Scan Mode Toggle */
+  .scan-mode-wrap {
+    padding: 8px 16px;
+  }
+  .scan-mode-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .scan-toggle-group {
+    display: flex;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .scan-toggle-btn {
+    flex: 1;
+    padding: 6px 4px;
+    font-size: 10px;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    text-align: center;
+    background: transparent;
+    color: var(--text-dim);
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .scan-toggle-btn.active {
+    background: var(--accent-gold);
+    color: #000;
+  }
+
+  /* Kill Switch */
+  .rail-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+  }
+  .kill-switch-btn {
+    width: 100%;
+    padding: 10px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border: 2px solid var(--status-critical);
+    background: rgba(251,113,133,0.08);
+    color: var(--status-critical);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
     transition: background 0.15s;
   }
-  .sb-item:hover { background: var(--surface-2); }
-  .sb-label { color: var(--dim); text-transform: uppercase; letter-spacing: 1px; font-size: 10px; }
-  .sb-value { color: var(--accent); font-weight: 700; }
-  .sb-value.ok { color: var(--green); }
-  .sb-value.warn { color: var(--yellow); }
-  .sb-value.err { color: var(--red); }
-  .sb-right { display: flex; align-items: center; gap: 8px; }
-  .kill-switch-btn {
-    background: none; border: 1px solid var(--border); color: var(--green);
-    padding: 4px 12px; font-family: inherit; font-size: 11px; cursor: pointer;
-    text-transform: uppercase; letter-spacing: 1px; border-radius: 3px;
+  .kill-switch-btn:hover {
+    background: rgba(251,113,133,0.15);
   }
-  .kill-switch-btn:hover { border-color: var(--accent); }
-  .kill-switch-btn.active { border-color: var(--red); color: var(--red); background: rgba(248,113,113,0.1); }
+  .kill-switch-btn.active {
+    background: var(--status-critical);
+    color: #fff;
+    animation: pulse-kill 1.5s infinite;
+  }
+  @keyframes pulse-kill {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
 
-  /* ── Tab Navigation ─────────────────────────────────── */
-  #tab-bar {
-    display: flex; gap: 0; border-bottom: 1px solid var(--border);
-    background: var(--surface); padding: 0 20px;
-    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  /* Main Content */
+  .main-content {
+    flex: 1;
+    margin-left: 200px;
+    padding: 24px 32px;
+    max-width: calc(100vw - 200px);
   }
-  .tab-btn {
-    background: none; border: none; border-bottom: 2px solid transparent;
-    color: var(--dim); padding: 10px 16px; font-family: inherit; font-size: 11px;
-    cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px;
-    white-space: nowrap; transition: color 0.15s, border-color 0.15s;
-  }
-  .tab-btn:hover { color: var(--text); }
-  .tab-btn.active { color: var(--bg); background: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
 
   /* ── Tab Panels ─────────────────────────────────────── */
-  .tab-panel { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+  .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
-  /* ── Section Cards ──────────────────────────────────── */
+  /* ── Page Header ────────────────────────────────────── */
+  .page-header {
+    margin-bottom: 24px;
+  }
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .page-header .subtitle {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* ── Cards ──────────────────────────────────────────── */
   .card {
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 16px; margin-bottom: 16px;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+  .card.no-hover:hover {
+    transform: none;
+    box-shadow: var(--shadow-card);
   }
   .card-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   .card-title {
-    font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--dim);
-    display: flex; align-items: center; gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
-  .card-title a {
-    color: var(--accent); text-decoration: none; font-size: 10px;
-    border: 1px solid var(--border); padding: 2px 8px; border-radius: 2px;
+  .card-title .external-link {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent-gold);
+    text-decoration: none;
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: border-color 0.15s, background 0.15s;
   }
-  .card-title a:hover { border-color: var(--accent); background: rgba(201,168,76,0.1); }
-  .card-actions { display: flex; gap: 8px; }
+  .card-title .external-link:hover {
+    border-color: var(--accent-gold);
+    background: rgba(201,168,76,0.08);
+  }
+  .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-  /* ── Agent Cards Grid ───────────────────────────────── */
-  .agent-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 12px;
-  }
-  .agent-card {
-    background: var(--surface-2); border: 1px solid var(--border); padding: 16px;
-  }
-  .agent-card-header {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
-  }
-  .agent-name {
-    font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent);
-    display: flex; align-items: center; gap: 8px;
-  }
-  .agent-dot {
-    width: 8px; height: 8px; border-radius: 50%; display: inline-block;
-  }
-  .agent-dot.on { background: var(--green); }
-  .agent-dot.off { background: var(--red); }
-  .agent-dot.warn { background: var(--yellow); }
+  /* Status border on left */
+  .card.status-healthy { border-left: 4px solid var(--status-healthy); }
+  .card.status-warning { border-left: 4px solid var(--status-warning); }
+  .card.status-critical { border-left: 4px solid var(--status-critical); }
+  .card.status-info { border-left: 4px solid var(--status-info); }
 
-  /* Toggle switch */
-  .toggle { position: relative; width: 36px; height: 20px; cursor: pointer; }
-  .toggle input { display: none; }
-  .toggle-track {
-    position: absolute; inset: 0; background: var(--border); border-radius: 10px;
-    transition: background 0.2s;
+  /* ── Status Chips ───────────────────────────────────── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
   }
-  .toggle input:checked + .toggle-track { background: var(--green); }
-  .toggle-thumb {
-    position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
-    background: var(--text); border-radius: 50%; transition: left 0.2s;
+  .chip.healthy {
+    background: rgba(52,211,153,0.12);
+    color: var(--status-healthy);
   }
-  .toggle input:checked ~ .toggle-thumb { left: 18px; }
+  .chip.warning {
+    background: rgba(251,191,36,0.12);
+    color: var(--status-warning);
+  }
+  .chip.critical {
+    background: rgba(251,113,133,0.12);
+    color: var(--status-critical);
+  }
+  .chip.stale {
+    background: rgba(148,163,184,0.12);
+    color: var(--text-secondary);
+  }
+  .chip.idle {
+    background: rgba(100,116,139,0.1);
+    color: var(--status-idle);
+  }
+  .chip.info {
+    background: rgba(56,189,248,0.12);
+    color: var(--status-info);
+  }
 
-  .agent-stats { font-size: 12px; color: var(--dim); margin-bottom: 10px; line-height: 1.8; }
-  .agent-stats strong { color: var(--text); }
-  .agent-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  /* ── KPI Cards ──────────────────────────────────────── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--border);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+  .kpi-card.green { border-left-color: var(--status-healthy); }
+  .kpi-card.gold { border-left-color: var(--accent-gold); }
+  .kpi-card.blue { border-left-color: var(--status-info); }
+  .kpi-card.coral { border-left-color: var(--status-critical); }
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .kpi-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .kpi-dot.green { background: var(--status-healthy); box-shadow: 0 0 6px rgba(52,211,153,0.5); }
+  .kpi-dot.red { background: var(--status-critical); box-shadow: 0 0 6px rgba(251,113,133,0.5); }
 
   /* ── Buttons ────────────────────────────────────────── */
   .btn {
-    border: 1px solid var(--border); background: var(--surface); color: var(--text);
-    padding: 5px 12px; font-family: inherit; font-size: 11px; cursor: pointer;
-    text-transform: uppercase; letter-spacing: 1px; border-radius: 2px;
-    transition: border-color 0.15s, background 0.15s, color 0.15s;
-    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    white-space: nowrap;
+    min-height: 36px;
   }
-  .btn:hover { border-color: var(--accent); }
-  .btn:disabled { opacity: 0.55; cursor: default; }
-  .btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
-  .btn.primary:hover { background: var(--accent-dim); }
-  .btn.danger { border-color: var(--red); color: var(--red); }
-  .btn.danger:hover { background: rgba(248,113,113,0.1); }
-  .btn.success { border-color: var(--green); color: var(--green); }
-  .btn.success:hover { background: rgba(74,222,128,0.1); }
+  .btn:hover { border-color: var(--accent-gold); background: var(--bg-card-hover); }
+  .btn:disabled { opacity: 0.5; cursor: default; pointer-events: none; }
+  .btn.primary {
+    background: var(--accent-gold);
+    color: #000;
+    border-color: var(--accent-gold);
+  }
+  .btn.primary:hover { background: #b8993f; }
+  .btn.success {
+    background: rgba(52,211,153,0.12);
+    color: var(--status-healthy);
+    border-color: var(--status-healthy);
+  }
+  .btn.success:hover { background: rgba(52,211,153,0.2); }
+  .btn.danger {
+    background: rgba(251,113,133,0.1);
+    color: var(--status-critical);
+    border-color: var(--status-critical);
+  }
+  .btn.danger:hover { background: rgba(251,113,133,0.2); }
 
-  /* Button state feedback (replaces alert) */
-  .btn.state-working { background: var(--orange); color: var(--bg); border-color: var(--orange); pointer-events: none; }
-  .btn.state-success { background: var(--green); color: var(--bg); border-color: var(--green); }
-  .btn.state-failed { background: var(--red); color: white; border-color: var(--red); cursor: pointer; }
+  /* ── Attention Section ──────────────────────────────── */
+  .attention-section { margin-bottom: 24px; }
+  .attention-section h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+  }
+  .attention-item {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .attention-item.coral { border-left: 4px solid var(--status-critical); }
+  .attention-item.amber { border-left: 4px solid var(--status-warning); }
+  .attention-info {
+    flex: 1;
+    min-width: 200px;
+  }
+  .attention-info .label {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-primary);
+  }
+  .attention-info .detail {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .attention-all-clear {
+    color: var(--status-healthy);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 20px;
+    text-align: center;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+  }
+
+  /* ── Split Row ──────────────────────────────────────── */
+  .split-row {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
 
   /* ── Sales Thermometer ──────────────────────────────── */
   .thermometer {
-    background: var(--surface-2); border: 1px solid var(--border);
-    border-radius: 4px; height: 40px; position: relative; overflow: hidden;
+    background: rgba(15,23,42,0.6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    height: 44px;
+    position: relative;
+    overflow: hidden;
     margin: 12px 0;
   }
   .thermometer-fill {
-    height: 100%; background: linear-gradient(90deg, var(--accent-dim), var(--accent));
-    transition: width 0.8s ease; border-radius: 4px 0 0 4px; min-width: 2px;
+    height: 100%;
+    background: linear-gradient(90deg, #b8993f, var(--accent-gold), #d4b94e);
+    transition: width 0.8s ease;
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    min-width: 2px;
   }
   .thermometer-label {
-    position: absolute; inset: 0; display: flex; align-items: center;
-    justify-content: center; font-size: 16px; font-weight: 700;
-    color: var(--text); text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
   }
-
-  /* ── Connectivity Dots ──────────────────────────────── */
-  .conn-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 8px;
+  .channel-breakdown {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    font-size: 12px;
   }
-  .conn-item {
-    display: flex; align-items: center; gap: 8px; padding: 8px 12px;
-    background: var(--surface-2); border: 1px solid var(--border); font-size: 12px;
+  .channel-breakdown .channel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-dim);
   }
-  .conn-dot {
-    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  .channel-breakdown .channel .amt {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-family: var(--font-mono);
   }
-  .conn-dot.green { background: var(--green); }
-  .conn-dot.red { background: var(--red); }
-  .conn-dot.yellow { background: var(--yellow); }
-
-  /* ── Intelligence Tables ────────────────────────────── */
-  .intel-table { width: 100%; font-size: 12px; border-collapse: collapse; }
-  .intel-table th {
-    text-align: left; padding: 6px 8px; font-size: 10px; text-transform: uppercase;
-    letter-spacing: 1px; color: var(--dim); border-bottom: 1px solid var(--border);
-  }
-  .intel-table td { padding: 6px 8px; border-bottom: 1px solid #1a1a1a; }
-  .intel-table td.count { color: var(--accent); font-weight: 700; text-align: right; }
-
-  .intel-box {
-    background: var(--surface-2); border: 1px solid var(--border); padding: 12px; margin-bottom: 12px;
-  }
-  .intel-box-title {
-    font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
-    color: var(--dim); margin-bottom: 8px;
-  }
-  .revenue-row { display: flex; gap: 24px; font-size: 13px; flex-wrap: wrap; }
-  .revenue-row .amount { color: var(--green); font-weight: 700; }
-
-  /* ── Broadcast Status ───────────────────────────────── */
-  .broadcast-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;
-  }
-  .broadcast-card {
-    background: var(--surface-2); border: 1px solid var(--border); padding: 12px;
-  }
-  .broadcast-card h4 {
-    font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
-    color: var(--accent); margin-bottom: 8px;
-  }
-  .broadcast-card .line { font-size: 12px; color: var(--dim); margin-bottom: 4px; }
-  .broadcast-card .line .val { color: var(--text); }
-  .check-ok { color: var(--green); }
-  .check-fail { color: var(--red); }
-
-  /* ── Etsy Performance ───────────────────────────────── */
-  .seo-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .seo-score { font-size: 28px; font-weight: 700; color: var(--accent); min-width: 60px; }
-  .seo-details { font-size: 12px; color: var(--dim); line-height: 1.8; }
-  .seo-details .metric { display: flex; justify-content: space-between; }
-  .seo-details .metric .val { color: var(--text); }
 
   /* ── Activity Feed ──────────────────────────────────── */
-  .filter-bar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-  .filter-btn {
-    border: 1px solid var(--border); background: none; color: var(--dim);
-    padding: 3px 10px; font-family: inherit; font-size: 10px; cursor: pointer;
-    text-transform: uppercase; letter-spacing: 1px; border-radius: 2px;
-  }
-  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(201,168,76,0.1); }
-  .filter-btn:hover { border-color: var(--accent); }
-
   .feed-container {
-    max-height: 400px; overflow-y: auto; background: var(--surface-2);
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: var(--radius-sm);
+    background: rgba(15,23,42,0.4);
     border: 1px solid var(--border);
   }
   .feed-entry {
-    padding: 6px 12px; border-bottom: 1px solid #1a1a1a; font-size: 12px;
-    display: flex; gap: 8px; align-items: flex-start;
+    padding: 8px 14px;
+    border-bottom: 1px solid rgba(51,65,85,0.4);
+    font-size: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    transition: background 0.1s;
   }
+  .feed-entry:last-child { border-bottom: none; }
   .feed-entry:hover { background: rgba(255,255,255,0.02); }
-  .feed-time { color: var(--dim); min-width: 70px; flex-shrink: 0; }
-  .feed-badge {
-    font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
-    padding: 1px 6px; border-radius: 2px; min-width: 70px; text-align: center; flex-shrink: 0;
+  .feed-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
   }
-  .feed-badge.instagram { background: rgba(201,168,76,0.2); color: var(--accent); }
-  .feed-badge.etsy { background: rgba(96,165,250,0.2); color: var(--blue); }
-  .feed-badge.pinterest { background: rgba(248,113,113,0.2); color: var(--red); }
-  .feed-badge.reddit { background: rgba(250,204,21,0.2); color: var(--yellow); }
-  .feed-badge.broadcast { background: rgba(74,222,128,0.2); color: var(--green); }
-  .feed-badge.x402 { background: rgba(201,168,76,0.3); color: var(--accent); }
-  .feed-badge.pipeline { background: rgba(102,102,102,0.3); color: var(--dim); }
-  .feed-badge.safety { background: rgba(248,113,113,0.3); color: var(--red); }
-  .feed-badge.system { background: rgba(102,102,102,0.2); color: var(--dim); }
-  .feed-action { flex: 1; }
-  .feed-cost { color: var(--dim); min-width: 50px; text-align: right; flex-shrink: 0; }
-  .feed-pagination { display: flex; gap: 8px; align-items: center; justify-content: center; margin-top: 8px; }
-  .feed-pagination .info { font-size: 11px; color: var(--dim); }
-  .cost-total { font-size: 12px; color: var(--dim); text-align: right; margin-bottom: 8px; }
-  .cost-total .amount { color: var(--accent); }
+  .feed-dot.instagram { background: var(--accent-gold); }
+  .feed-dot.etsy { background: var(--status-info); }
+  .feed-dot.pinterest { background: var(--status-critical); }
+  .feed-dot.reddit { background: var(--status-warning); }
+  .feed-dot.broadcast { background: var(--status-healthy); }
+  .feed-dot.x402 { background: var(--accent-gold); }
+  .feed-dot.pipeline { background: var(--text-dim); }
+  .feed-dot.safety { background: var(--status-critical); }
+  .feed-dot.system { background: var(--text-dim); }
+  .feed-time {
+    color: var(--text-dim);
+    min-width: 65px;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .feed-action { flex: 1; color: var(--text-secondary); }
+  .feed-action strong { color: var(--text-primary); }
+  .feed-cost {
+    color: var(--text-dim);
+    min-width: 55px;
+    text-align: right;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .feed-pagination {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px;
+  }
+  .feed-pagination .info { font-size: 12px; color: var(--text-dim); }
+  .filter-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 4px 12px;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--accent-gold); color: var(--text-secondary); }
+  .filter-btn.active {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+    background: rgba(201,168,76,0.1);
+  }
+  .cost-total {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: right;
+    margin-bottom: 10px;
+  }
+  .cost-total .amount { color: var(--accent-gold); font-weight: 600; font-family: var(--font-mono); }
 
-  /* ── Licensing Dashboard ────────────────────────────── */
-  .licensing-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
+  /* ── Platform Tiles ─────────────────────────────────── */
+  .tiles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
   }
-  .stat-card {
-    background: var(--surface-2); border: 1px solid var(--border); padding: 12px; text-align: center;
+  .platform-tile {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--border);
+    transition: transform 0.15s, box-shadow 0.15s;
   }
-  .stat-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--dim); }
-  .stat-card .value { font-size: 24px; font-weight: 700; color: var(--accent); margin: 4px 0; }
-  .stat-card .sub { font-size: 11px; color: var(--dim); }
+  .platform-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+  .platform-tile.healthy { border-left-color: var(--status-healthy); }
+  .platform-tile.warning { border-left-color: var(--status-warning); }
+  .platform-tile.critical { border-left-color: var(--status-critical); }
+  .platform-tile.idle { border-left-color: var(--status-idle); }
+  .tile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .tile-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .tile-name .icon { font-size: 18px; }
+  .tile-summary {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .tile-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
 
-  /* ── Reddit Queue ───────────────────────────────────── */
-  .queue-preview { margin-top: 10px; }
-  .queue-item {
-    background: var(--surface); border: 1px solid var(--border); padding: 8px; margin-bottom: 6px;
+  /* ── Social Tab ─────────────────────────────────────── */
+  .social-section { margin-bottom: 28px; }
+  .social-section h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
   }
-  .queue-item .sub-name { color: var(--accent); font-size: 11px; font-weight: 700; }
-  .queue-item .q-title { font-size: 12px; margin: 2px 0; cursor: pointer; }
-  .queue-item .q-title:hover { color: var(--accent); }
-  .queue-item .q-actions { display: flex; gap: 6px; margin-top: 6px; }
-
-  /* ── Social Post Preview ────────────────────────────── */
+  .social-meta {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    line-height: 1.8;
+  }
+  .social-meta strong { color: var(--text-primary); }
   .ig-posts-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
   }
   .ig-post-card {
-    background: var(--surface-2); border: 1px solid var(--border); overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
   }
+  .ig-post-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
   .ig-post-card img {
-    width: 100%; height: 200px; object-fit: cover; display: block;
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
   }
   .ig-post-card .caption {
-    padding: 8px; font-size: 11px; color: var(--dim); max-height: 60px;
-    overflow: hidden; line-height: 1.4;
+    padding: 10px 12px;
+    font-size: 11px;
+    color: var(--text-dim);
+    max-height: 55px;
+    overflow: hidden;
+    line-height: 1.4;
   }
 
+  /* Reddit Queue */
+  .queue-item {
+    background: rgba(15,23,42,0.4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .queue-item .sub-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-gold);
+    margin-bottom: 4px;
+  }
+  .queue-item .q-title {
+    font-size: 13px;
+    color: var(--text-primary);
+    cursor: pointer;
+    margin-bottom: 4px;
+    line-height: 1.4;
+  }
+  .queue-item .q-title:hover { color: var(--accent-gold); }
+  .queue-item .q-body {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .queue-item .q-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* Pinterest Pins */
   .pin-preview-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
   }
   .pin-card {
-    background: var(--surface-2); border: 1px solid var(--border); overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: transform 0.15s;
   }
+  .pin-card:hover { transform: translateY(-2px); }
   .pin-card img {
-    width: 100%; height: 180px; object-fit: cover; display: block;
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    display: block;
   }
   .pin-card .pin-label {
-    padding: 6px 8px; font-size: 10px; color: var(--dim);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    padding: 8px 10px;
+    font-size: 10px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  /* ── Email Briefing ─────────────────────────────────── */
-  .email-category { margin-bottom: 16px; }
+  /* ── Email Tab ──────────────────────────────────────── */
+  .email-scan-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .email-scan-info {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .email-category { margin-bottom: 20px; }
   .email-category-header {
-    font-weight: 700; margin-bottom: 6px; font-size: 12px;
-    display: flex; align-items: center; gap: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
   .email-item {
-    padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .email-item:hover { background: var(--bg-card-hover); }
+  .email-item.security { border-left: 4px solid var(--status-critical); background: rgba(251,113,133,0.04); }
+  .email-item.action { border-left: 4px solid var(--status-warning); }
+  .email-item.business { border-left: 4px solid var(--status-info); }
+  .email-item .email-subject {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+  .email-item .email-from {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .email-item .email-account-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: rgba(100,116,139,0.15);
+    color: var(--text-secondary);
+    margin-right: 6px;
+  }
+  .email-item .email-date {
+    font-size: 11px;
+    color: var(--text-dim);
+    float: right;
+  }
+  .email-reader {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-top: 16px;
+    display: none;
+  }
+  .email-reader.show { display: block; }
+  .email-reader .reader-subject {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .email-reader .reader-body {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .email-reader .reader-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
   }
 
-  /* ── Links Grid ─────────────────────────────────────── */
+  /* ── Analytics Tab ──────────────────────────────────── */
+  .intel-table {
+    width: 100%;
+    font-size: 12px;
+    border-collapse: collapse;
+  }
+  .intel-table th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+  }
+  .intel-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(51,65,85,0.4);
+    color: var(--text-secondary);
+  }
+  .intel-table td.count {
+    color: var(--accent-gold);
+    font-weight: 700;
+    text-align: right;
+    font-family: var(--font-mono);
+  }
+  .intel-box {
+    background: rgba(15,23,42,0.4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .intel-box-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .revenue-row {
+    display: flex;
+    gap: 24px;
+    font-size: 13px;
+    flex-wrap: wrap;
+    color: var(--text-secondary);
+  }
+  .revenue-row .amount {
+    color: var(--status-healthy);
+    font-weight: 700;
+    font-family: var(--font-mono);
+  }
+
+  /* Etsy SEO */
+  .seo-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .seo-score {
+    font-size: 32px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--accent-gold);
+    min-width: 60px;
+  }
+  .seo-details { font-size: 12px; color: var(--text-dim); line-height: 2; }
+  .seo-details .metric { display: flex; justify-content: space-between; }
+  .seo-details .metric .val { color: var(--text-primary); font-family: var(--font-mono); }
+
+  /* Licensing Stats */
+  .licensing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+  }
+  .stat-card {
+    background: rgba(15,23,42,0.4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-card .label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+  }
+  .stat-card .value {
+    font-size: 26px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--accent-gold);
+    margin: 6px 0;
+  }
+  .stat-card .sub {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* External links grid */
+  .analytics-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  /* ── Broadcast Tab ──────────────────────────────────── */
+  .broadcast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .broadcast-card {
+    background: rgba(15,23,42,0.4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+  }
+  .broadcast-card h4 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-gold);
+    margin-bottom: 10px;
+  }
+  .broadcast-card .line {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .broadcast-card .line .val { color: var(--text-primary); }
+  .check-ok { color: var(--status-healthy); }
+  .check-fail { color: var(--status-critical); }
+
+  /* ── Links Tab ──────────────────────────────────────── */
+  .links-category {
+    margin-bottom: 24px;
+  }
+  .links-category h3 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
   .links-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
   }
   .link-card {
-    background: var(--surface-2); border: 1px solid var(--border); padding: 16px;
-    text-decoration: none; display: block; transition: border-color 0.15s;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    text-decoration: none;
+    display: block;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
   }
-  .link-card:hover { border-color: var(--accent); }
+  .link-card:hover {
+    border-color: var(--accent-gold);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
   .link-card .link-name {
-    font-size: 13px; color: var(--accent); font-weight: 700;
-    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-gold);
+    margin-bottom: 2px;
   }
-  .link-card .link-url {
-    font-size: 10px; color: var(--dim); word-break: break-all;
+  .link-card .link-desc {
+    font-size: 11px;
+    color: var(--text-dim);
   }
 
   /* ── Learning Tab ───────────────────────────────────── */
   .learning-frame {
-    width: 100%; height: calc(100vh - 140px); border: 1px solid var(--border);
-    background: var(--surface);
+    width: 100%;
+    height: calc(100vh - 80px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
   }
 
   /* ── Offline Banner ─────────────────────────────────── */
   .offline-banner {
-    background: var(--red); color: white; text-align: center;
-    padding: 8px; font-size: 12px; display: none; position: fixed;
-    top: 0; left: 0; right: 0; z-index: 200;
+    background: linear-gradient(90deg, #991b1b, #b91c1c);
+    color: white;
+    text-align: center;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 300;
+  }
+  .offline-banner .start-btn {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 4px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 700;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    margin-left: 12px;
   }
 
   /* ── Kill Switch Modal ──────────────────────────────── */
   .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-    z-index: 300; align-items: center; justify-content: center;
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 400;
+    align-items: center;
+    justify-content: center;
   }
   .modal-overlay.show { display: flex; }
   .modal {
-    background: var(--surface); border: 1px solid var(--border); padding: 24px;
-    max-width: 400px; width: 90%; text-align: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
   }
-  .modal h3 { color: var(--red); text-transform: uppercase; letter-spacing: 2px; font-size: 14px; margin-bottom: 12px; }
-  .modal p { color: var(--dim); font-size: 12px; margin-bottom: 16px; }
+  .modal h3 {
+    color: var(--status-critical);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .modal p {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
   .modal .btn-row { display: flex; gap: 12px; justify-content: center; }
 
-  /* ── Inline Feedback ────────────────────────────────── */
-  .inline-msg {
-    font-size: 11px; padding: 4px 8px; margin-top: 6px; border-radius: 2px; display: none;
+  /* ── Toast Notifications ────────────────────────────── */
+  .toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 360px;
   }
-  .inline-msg.show { display: block; }
-  .inline-msg.error { color: var(--red); background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); }
-  .inline-msg.success { color: var(--green); background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); }
+  .toast {
+    padding: 12px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    animation: toast-in 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toast.success { background: #065f46; border: 1px solid var(--status-healthy); }
+  .toast.error { background: #7f1d1d; border: 1px solid var(--status-critical); }
+  .toast.info { background: #1e3a5f; border: 1px solid var(--status-info); }
+  .toast.fade-out { animation: toast-out 0.3s ease forwards; }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes toast-out {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(10px); }
+  }
 
   /* ── Responsive ─────────────────────────────────────── */
   @media (max-width: 768px) {
-    .agent-grid { grid-template-columns: 1fr; }
-    .broadcast-grid { grid-template-columns: 1fr; }
-    .licensing-grid { grid-template-columns: 1fr 1fr; }
-    .ig-posts-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-    .pin-preview-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
-    .links-grid { grid-template-columns: 1fr 1fr; }
-    .conn-grid { grid-template-columns: 1fr 1fr; }
-    #status-bar { padding: 6px 10px; }
-    .sb-item { padding: 3px 6px; font-size: 10px; }
-    #tab-bar { padding: 0 10px; }
-    .tab-btn { padding: 8px 10px; font-size: 10px; }
-    .tab-panel { padding: 12px; }
-    .thermometer-label { font-size: 13px; }
-  }
-  @media (max-width: 480px) {
-    .licensing-grid { grid-template-columns: 1fr; }
-    .links-grid { grid-template-columns: 1fr; }
-    .conn-grid { grid-template-columns: 1fr; }
-    .sb-item .sb-label { display: none; }
-    .ig-posts-grid { grid-template-columns: 1fr; }
-    .revenue-row { flex-direction: column; gap: 4px; }
+    .left-rail {
+      display: none;
+    }
+    .mobile-tab-bar {
+      display: flex !important;
+    }
+    .main-content {
+      margin-left: 0;
+      padding: 16px;
+      padding-bottom: 80px;
+      max-width: 100vw;
+    }
+    .kpi-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .split-row {
+      grid-template-columns: 1fr;
+    }
+    .tiles-grid {
+      grid-template-columns: 1fr;
+    }
+    .ig-posts-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+    .pin-preview-grid {
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    .links-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .licensing-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .broadcast-grid {
+      grid-template-columns: 1fr;
+    }
+    .analytics-links {
+      grid-template-columns: 1fr 1fr;
+    }
+    .btn { min-height: 44px; }
+    .email-reader { margin-top: 12px; }
   }
 
+  @media (max-width: 480px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .kpi-value { font-size: 22px; }
+    .links-grid { grid-template-columns: 1fr; }
+    .licensing-grid { grid-template-columns: 1fr; }
+    .analytics-links { grid-template-columns: 1fr; }
+    .ig-posts-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Mobile Tab Bar (bottom) */
+  .mobile-tab-bar {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--bg-rail);
+    border-top: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 0;
+  }
+  .mobile-tab-bar .mob-tab {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 14px;
+    font-size: 9px;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .mobile-tab-bar .mob-tab.active { color: var(--accent-gold); }
+  .mobile-tab-bar .mob-tab .mob-icon { font-size: 18px; }
+
   /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-base); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--dim); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
 </style>
 </head>
 <body>
 
 <!-- Offline Banner -->
 <div id="offline-banner" class="offline-banner">
-  Agent offline &mdash; last seen <span id="last-seen">never</span>
-  &nbsp;&nbsp;|&nbsp;&nbsp;
-  <button onclick="startAgent()" style="background:#fff;color:#000;border:none;padding:4px 16px;border-radius:4px;cursor:pointer;font-weight:bold;font-family:inherit;font-size:12px;">START AGENT</button>
+  Agent offline — last seen <span id="last-seen">never</span>
+  <button class="start-btn" onclick="startAgent()">START AGENT</button>
 </div>
 
 <!-- Kill Switch Modal -->
@@ -440,331 +1238,348 @@
   </div>
 </div>
 
-<!-- Status Bar -->
-<div id="status-bar">
-  <div class="sb-left">
-    <div class="sb-item" onclick="switchTab('home')">
-      <span class="sb-label">Status</span>
-      <span class="sb-value ok" id="sb-status">--</span>
-      <span class="sb-value" id="sb-version" style="font-weight:400;color:var(--dim)"></span>
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- App Layout -->
+<div class="app-layout">
+
+  <!-- Left Rail -->
+  <nav class="left-rail" id="left-rail">
+    <div class="rail-logo">
+      Archive-35
+      <span class="sub" id="rail-status">Connecting...</span>
     </div>
-    <div class="sb-item" onclick="switchTab('agents')">
-      <span class="sb-label">Agents</span>
-      <span class="sb-value" id="sb-agents">--/--</span>
+
+    <div class="rail-nav">
+      <div class="nav-item active" data-tab="overview" onclick="switchTab('overview')">
+        <span class="nav-icon">&#9632;</span> Overview
+      </div>
+      <div class="nav-item" data-tab="social" onclick="switchTab('social')">
+        <span class="nav-icon">&#9788;</span> Social
+      </div>
+      <div class="nav-item" data-tab="email" onclick="switchTab('email')">
+        <span class="nav-icon">&#9993;</span> Email
+      </div>
+      <div class="nav-item" data-tab="analytics" onclick="switchTab('analytics')">
+        <span class="nav-icon">&#9783;</span> Analytics
+      </div>
+      <div class="nav-item" data-tab="broadcast" onclick="switchTab('broadcast')">
+        <span class="nav-icon">&#9851;</span> Broadcast
+      </div>
+      <div class="nav-item" data-tab="learning" onclick="switchTab('learning')">
+        <span class="nav-icon">&#9733;</span> Learning
+      </div>
+      <div class="nav-item" data-tab="links" onclick="switchTab('links')">
+        <span class="nav-icon">&#8599;</span> Links
+      </div>
+
+      <div class="rail-separator"></div>
+
+      <div class="scan-mode-wrap">
+        <div class="scan-mode-label">Scan Mode</div>
+        <div class="scan-toggle-group">
+          <button class="scan-toggle-btn active" id="scan-attention" onclick="setScanMode('attention')">Needs Attention</button>
+          <button class="scan-toggle-btn" id="scan-all" onclick="setScanMode('all')">All Systems</button>
+        </div>
+      </div>
+
+      <div class="rail-separator"></div>
     </div>
-    <div class="sb-item" onclick="switchTab('analytics')">
-      <span class="sb-label">Etsy</span>
-      <span class="sb-value" id="sb-etsy">--</span>
+
+    <div class="rail-footer">
+      <button class="kill-switch-btn" id="kill-btn" onclick="openKillModal()">Kill Switch: OFF</button>
     </div>
-    <div class="sb-item" onclick="switchTab('social')">
-      <span class="sb-label">IG Today</span>
-      <span class="sb-value" id="sb-ig">--</span>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- TAB: OVERVIEW                                          -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="tab-panel active" id="panel-overview">
+
+      <!-- Row 1: KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card green">
+          <div class="kpi-label">System Status</div>
+          <div class="kpi-value"><span class="kpi-dot green" id="kpi-dot"></span><span id="kpi-status">--</span></div>
+          <div class="kpi-sub" id="kpi-uptime">Uptime: checking...</div>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kpi-label">Agents Live</div>
+          <div class="kpi-value" id="kpi-agents">--/--</div>
+          <div class="kpi-sub">Running agents</div>
+        </div>
+        <div class="kpi-card gold">
+          <div class="kpi-label">Sales Today</div>
+          <div class="kpi-value" id="kpi-sales">$0.00</div>
+          <div class="kpi-sub">Revenue today</div>
+        </div>
+        <div class="kpi-card coral">
+          <div class="kpi-label">API Spend</div>
+          <div class="kpi-value" id="kpi-api-spend">$0.00</div>
+          <div class="kpi-sub">Cost today</div>
+        </div>
+      </div>
+
+      <!-- Row 2: Needs Your Attention Now -->
+      <div class="attention-section">
+        <h2>Needs Your Attention Now</h2>
+        <div id="attention-container">
+          <div class="attention-all-clear">Checking systems...</div>
+        </div>
+      </div>
+
+      <!-- Row 3: Split — Live Feed + Sales Thermometer -->
+      <div class="split-row">
+        <div class="card no-hover">
+          <div class="card-header">
+            <div class="card-title">Live Feed</div>
+            <div class="cost-total">Today's API cost: <span class="amount" id="home-feed-cost">$0.00</span></div>
+          </div>
+          <div class="filter-bar" id="home-feed-filters"></div>
+          <div class="feed-container" id="home-feed-container"></div>
+          <div class="feed-pagination" id="home-feed-pagination"></div>
+        </div>
+        <div class="card no-hover">
+          <div class="card-header">
+            <div class="card-title">Sales Goal</div>
+            <div style="font-size:12px;color:var(--text-dim)" id="home-sales-label">$0 / $5,000</div>
+          </div>
+          <div class="thermometer">
+            <div class="thermometer-fill" id="thermo-fill" style="width:0%"></div>
+            <div class="thermometer-label" id="thermo-label">$0 / $5,000</div>
+          </div>
+          <div class="channel-breakdown" id="sales-channels">
+            <div class="channel">Etsy: <span class="amt">$0</span></div>
+            <div class="channel">Website: <span class="amt">$0</span></div>
+            <div class="channel">Micro-licenses: <span class="amt">$0</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 4: Platform Control Tiles -->
+      <h2 style="font-size:16px;font-weight:700;margin-bottom:14px" id="tiles-heading">Platform Status</h2>
+      <div class="tiles-grid" id="platform-tiles"></div>
+
     </div>
-    <div class="sb-item" onclick="switchTab('home')">
-      <span class="sb-label">Sales</span>
-      <span class="sb-value" id="sb-sales">0</span>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- TAB: SOCIAL                                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="tab-panel" id="panel-social">
+
+      <!-- Instagram Section -->
+      <div class="social-section">
+        <div class="card no-hover">
+          <div class="card-header">
+            <div class="card-title">
+              Instagram
+              <a class="external-link" href="https://www.instagram.com/archive35photo/" target="_blank" rel="noopener">Open Instagram</a>
+            </div>
+            <div class="card-actions">
+              <button class="btn success" id="btn-ig-post1" onclick="btnAction(this, igPostOne)">Post 1 Now</button>
+              <button class="btn primary" id="btn-ig-batch" onclick="btnAction(this, igPostBatch)">Post Batch (3)</button>
+            </div>
+          </div>
+          <div class="social-meta" id="ig-status-line">Loading...</div>
+          <h4 style="font-size:12px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Last 5 Posts</h4>
+          <div class="ig-posts-grid" id="ig-posts-grid">
+            <div style="color:var(--text-dim);font-size:12px">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reddit Section -->
+      <div class="social-section">
+        <div class="card no-hover">
+          <div class="card-header">
+            <div class="card-title">
+              Reddit
+              <a class="external-link" href="https://www.reddit.com/" target="_blank" rel="noopener">Open Reddit</a>
+            </div>
+            <div class="card-actions">
+              <button class="btn primary" id="btn-reddit-gen" onclick="btnAction(this, redditGenerate)">Generate 30 Posts</button>
+            </div>
+          </div>
+          <div class="social-meta" id="reddit-status-line">Loading...</div>
+          <h4 style="font-size:12px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Queued Posts</h4>
+          <div id="reddit-queue-full"></div>
+        </div>
+      </div>
+
+      <!-- Pinterest Section -->
+      <div class="social-section">
+        <div class="card no-hover">
+          <div class="card-header">
+            <div class="card-title">
+              Pinterest
+              <a class="external-link" href="https://www.pinterest.com/archive35photo/" target="_blank" rel="noopener">Open Pinterest</a>
+            </div>
+            <div class="card-actions">
+              <button class="btn primary" id="btn-gen-pins" onclick="btnAction(this, generatePins)">Generate Pins</button>
+            </div>
+          </div>
+          <div class="social-meta" id="pinterest-status-line">Loading...</div>
+          <h4 style="font-size:12px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Pin Previews</h4>
+          <div class="pin-preview-grid" id="pin-preview-grid">
+            <div style="color:var(--text-dim);font-size:12px">Loading...</div>
+          </div>
+        </div>
+      </div>
+
     </div>
-  </div>
-  <div class="sb-right">
-    <button class="kill-switch-btn" id="sb-kill" onclick="openKillModal()">Kill: OFF</button>
-    <span style="font-size:10px;color:var(--dim)" id="sb-updated"></span>
-  </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- TAB: EMAIL                                             -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="tab-panel" id="panel-email">
+      <div class="card no-hover">
+        <div class="card-header">
+          <div class="card-title">
+            Email Briefing
+            <a class="external-link" href="https://mail.google.com/" target="_blank" rel="noopener">Open Gmail</a>
+          </div>
+          <div class="card-actions">
+            <button class="btn primary" id="btn-email-scan" onclick="btnAction(this, runEmailScan)">Scan Now</button>
+            <button class="btn" id="btn-email-refresh" onclick="btnAction(this, loadEmailBriefing)">Refresh</button>
+          </div>
+        </div>
+        <div id="email-content">Loading email briefing...</div>
+        <div class="email-reader" id="email-reader">
+          <div class="reader-subject" id="reader-subject"></div>
+          <div class="reader-body" id="reader-body"></div>
+          <div class="reader-actions" id="reader-actions"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- TAB: ANALYTICS                                         -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="tab-panel" id="panel-analytics">
+
+      <!-- AI Agent Intelligence -->
+      <div class="card no-hover">
+        <div class="card-header">
+          <div class="card-title">AI Agent Discovery Intelligence</div>
+          <div class="card-actions">
+            <button class="btn" id="btn-intel-refresh" onclick="btnAction(this, loadIntelligence)">Refresh</button>
+          </div>
+        </div>
+        <div id="intel-content">Loading intelligence data...</div>
+      </div>
+
+      <!-- Etsy Performance -->
+      <div class="card no-hover">
+        <div class="card-header">
+          <div class="card-title">
+            Etsy Performance
+            <a class="external-link" href="https://www.etsy.com/your/shops/me/dashboard" target="_blank" rel="noopener">Shop Manager</a>
+            <a class="external-link" href="https://www.etsy.com/shop/Archive35Photo" target="_blank" rel="noopener">Shop</a>
+          </div>
+          <div class="card-actions">
+            <button class="btn" id="btn-seo-audit" onclick="btnAction(this, runSeoAudit)">Run SEO Audit</button>
+          </div>
+        </div>
+        <div id="etsy-content">Loading Etsy data...</div>
+      </div>
+
+      <!-- Micro-Licensing -->
+      <div class="card no-hover">
+        <div class="card-header">
+          <div class="card-title">Micro-Licensing</div>
+        </div>
+        <div id="licensing-content">Loading licensing data...</div>
+      </div>
+
+      <!-- External Analytics Links -->
+      <div class="card no-hover">
+        <div class="card-header">
+          <div class="card-title">External Analytics</div>
+        </div>
+        <div class="analytics-links">
+          <a class="link-card" href="https://dash.cloudflare.com/" target="_blank" rel="noopener">
+            <div class="link-name">Cloudflare</div>
+            <div class="link-desc">DNS, CDN, and analytics</div>
+          </a>
+          <a class="link-card" href="https://www.bing.com/webmasters/" target="_blank" rel="noopener">
+            <div class="link-name">Bing Webmaster</div>
+            <div class="link-desc">Search performance</div>
+          </a>
+          <a class="link-card" href="https://search.google.com/search-console/" target="_blank" rel="noopener">
+            <div class="link-name">Google Search Console</div>
+            <div class="link-desc">Search analytics</div>
+          </a>
+          <a class="link-card" href="https://dashboard.stripe.com/" target="_blank" rel="noopener">
+            <div class="link-name">Stripe</div>
+            <div class="link-desc">Payment dashboard</div>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- TAB: BROADCAST                                         -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="tab-panel" id="panel-broadcast">
+      <div class="card no-hover">
+        <div class="card-header">
+          <div class="card-title">Broadcast &amp; Discovery</div>
+          <div class="card-actions">
+            <button class="btn primary" id="btn-broadcast-run" onclick="btnAction(this, runBroadcast)">Run Broadcast</button>
+          </div>
+        </div>
+        <div id="broadcast-content">Loading broadcast status...</div>
+      </div>
+
+      <div class="card no-hover">
+        <div class="card-header">
+          <div class="card-title">IndexNow History</div>
+        </div>
+        <div id="indexnow-content">Loading...</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- TAB: LEARNING                                          -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="tab-panel" id="panel-learning">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <h2 style="font-size:16px;font-weight:700">ATHOS Vocabulary Builder</h2>
+        <a class="btn" href="https://athos-obs.com/vocab/" target="_blank" rel="noopener">Open Full Page</a>
+      </div>
+      <iframe id="athos-frame" class="learning-frame" src="about:blank" title="ATHOS Vocabulary Builder"></iframe>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- TAB: LINKS                                             -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="tab-panel" id="panel-links">
+      <div id="all-links-content"></div>
+    </div>
+
+  </main>
 </div>
 
-<!-- Tab Navigation -->
-<div id="tab-bar">
-  <button class="tab-btn active" data-tab="home" onclick="switchTab('home')">Home</button>
-  <button class="tab-btn" data-tab="agents" onclick="switchTab('agents')">Agents</button>
-  <button class="tab-btn" data-tab="social" onclick="switchTab('social')">Social</button>
-  <button class="tab-btn" data-tab="email" onclick="switchTab('email')">Email</button>
-  <button class="tab-btn" data-tab="analytics" onclick="switchTab('analytics')">Analytics</button>
-  <button class="tab-btn" data-tab="broadcast" onclick="switchTab('broadcast')">Broadcast</button>
-  <button class="tab-btn" data-tab="learning" onclick="switchTab('learning')">Learning</button>
-  <button class="tab-btn" data-tab="links" onclick="switchTab('links')">Links</button>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- TAB: HOME                                                      -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<div class="tab-panel active" id="panel-home">
-
-  <!-- Sales Thermometer -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">Sales Goal</div>
-      <div style="font-size:11px;color:var(--dim)" id="home-sales-label">$0 / $5,000</div>
-    </div>
-    <div class="thermometer">
-      <div class="thermometer-fill" id="thermo-fill" style="width:0%"></div>
-      <div class="thermometer-label" id="thermo-label">$0 / $5,000</div>
-    </div>
-  </div>
-
-  <!-- Connectivity Status -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">System Connectivity</div>
-    </div>
-    <div class="conn-grid" id="connectivity-grid">
-      <!-- filled by JS -->
-    </div>
-  </div>
-
-  <!-- Quick Stats -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">Today's Snapshot</div>
-    </div>
-    <div class="licensing-grid" id="home-stats">
-      <div class="stat-card">
-        <div class="label">IG Posts Today</div>
-        <div class="value" id="home-ig-today">--</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Etsy Listings</div>
-        <div class="value" id="home-etsy-count">--</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Agents Running</div>
-        <div class="value" id="home-agents-count">--</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Total Sales</div>
-        <div class="value" id="home-sales-count">0</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Activity Feed (compact) -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">Recent Activity</div>
-    </div>
-    <div class="cost-total">Today's API cost: <span class="amount" id="home-feed-cost">$0.00</span></div>
-    <div class="filter-bar" id="home-feed-filters"></div>
-    <div class="feed-container" id="home-feed-container"></div>
-    <div class="feed-pagination" id="home-feed-pagination"></div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- TAB: AGENTS                                                    -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<div class="tab-panel" id="panel-agents">
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">Agent Control Panel</div>
-    </div>
-    <div class="agent-grid" id="agent-grid"></div>
-  </div>
-
-  <!-- Agent States -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">Agent States</div>
-      <div class="card-actions">
-        <button class="btn" id="btn-refresh-states" onclick="btnAction(this, loadAgentStates)">Refresh</button>
-      </div>
-    </div>
-    <div id="agent-states-content" style="font-size:12px;color:var(--dim)">Loading...</div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- TAB: SOCIAL                                                    -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<div class="tab-panel" id="panel-social">
-
-  <!-- Instagram -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">
-        Instagram
-        <a href="https://www.instagram.com/archive35photo/" target="_blank" rel="noopener">Open</a>
-      </div>
-      <div class="card-actions">
-        <button class="btn success" id="btn-ig-post1" onclick="btnAction(this, igPostOne)">Post 1 Now</button>
-        <button class="btn primary" id="btn-ig-batch" onclick="btnAction(this, igPostBatch)">Post Batch (3)</button>
-      </div>
-    </div>
-    <div id="ig-status-line" style="font-size:12px;color:var(--dim);margin-bottom:12px">Loading...</div>
-    <div class="card-title" style="margin-bottom:8px">Recent Posts</div>
-    <div class="ig-posts-grid" id="ig-posts-grid">
-      <div style="color:var(--dim);font-size:12px">Loading...</div>
-    </div>
-  </div>
-
-  <!-- Reddit -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">
-        Reddit
-        <a href="https://www.reddit.com/" target="_blank" rel="noopener">Open</a>
-      </div>
-      <div class="card-actions">
-        <button class="btn primary" id="btn-reddit-gen" onclick="btnAction(this, redditGenerate)">Generate 30 Posts</button>
-      </div>
-    </div>
-    <div id="reddit-status-line" style="font-size:12px;color:var(--dim);margin-bottom:12px">Loading...</div>
-    <div class="card-title" style="margin-bottom:8px">Next Queued Posts</div>
-    <div id="reddit-queue-full"></div>
-  </div>
-
-  <!-- Pinterest -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">
-        Pinterest
-        <a href="https://www.pinterest.com/archive35photo/" target="_blank" rel="noopener">Open</a>
-      </div>
-      <div class="card-actions">
-        <button class="btn primary" id="btn-gen-pins" onclick="btnAction(this, generatePins)">Generate Pins</button>
-      </div>
-    </div>
-    <div id="pinterest-status-line" style="font-size:12px;color:var(--dim);margin-bottom:12px">Loading...</div>
-    <div class="card-title" style="margin-bottom:8px">Pin Previews</div>
-    <div class="pin-preview-grid" id="pin-preview-grid">
-      <div style="color:var(--dim);font-size:12px">Loading...</div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- TAB: EMAIL                                                     -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<div class="tab-panel" id="panel-email">
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">
-        Email Briefing
-        <a href="https://mail.google.com/" target="_blank" rel="noopener">Gmail</a>
-      </div>
-      <div class="card-actions">
-        <button class="btn primary" id="btn-email-scan" onclick="btnAction(this, runEmailScan)">Scan Now</button>
-        <button class="btn" id="btn-email-refresh" onclick="btnAction(this, loadEmailBriefing)">Refresh</button>
-      </div>
-    </div>
-    <div id="email-content">Loading email briefing...</div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- TAB: ANALYTICS                                                 -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<div class="tab-panel" id="panel-analytics">
-
-  <!-- AI Agent Intelligence -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">AI Agent Discovery Intelligence</div>
-      <div class="card-actions">
-        <button class="btn" id="btn-intel-refresh" onclick="btnAction(this, loadIntelligence)">Refresh</button>
-      </div>
-    </div>
-    <div id="intel-content">Loading intelligence data...</div>
-  </div>
-
-  <!-- Etsy Performance -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">
-        Etsy Performance
-        <a href="https://www.etsy.com/your/shops/me/dashboard" target="_blank" rel="noopener">Manager</a>
-        <a href="https://www.etsy.com/shop/Archive35Photo" target="_blank" rel="noopener">Shop</a>
-      </div>
-      <div class="card-actions">
-        <button class="btn" id="btn-seo-audit" onclick="btnAction(this, runSeoAudit)">Run SEO Audit</button>
-      </div>
-    </div>
-    <div id="etsy-content">Loading Etsy data...</div>
-  </div>
-
-  <!-- Micro-Licensing -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">Micro-Licensing</div>
-    </div>
-    <div id="licensing-content">Loading licensing data...</div>
-  </div>
-
-  <!-- External Analytics Links -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">External Analytics</div>
-    </div>
-    <div class="links-grid">
-      <a class="link-card" href="https://dash.cloudflare.com/" target="_blank" rel="noopener">
-        <div class="link-name">Cloudflare</div>
-        <div class="link-url">dash.cloudflare.com</div>
-      </a>
-      <a class="link-card" href="https://www.bing.com/webmasters/" target="_blank" rel="noopener">
-        <div class="link-name">Bing Webmaster</div>
-        <div class="link-url">bing.com/webmasters</div>
-      </a>
-      <a class="link-card" href="https://search.google.com/search-console/" target="_blank" rel="noopener">
-        <div class="link-name">Google Search Console</div>
-        <div class="link-url">search.google.com/search-console</div>
-      </a>
-      <a class="link-card" href="https://dashboard.stripe.com/" target="_blank" rel="noopener">
-        <div class="link-name">Stripe</div>
-        <div class="link-url">dashboard.stripe.com</div>
-      </a>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- TAB: BROADCAST                                                 -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<div class="tab-panel" id="panel-broadcast">
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">Broadcast & Discovery Status</div>
-      <div class="card-actions">
-        <button class="btn primary" id="btn-broadcast-run" onclick="btnAction(this, runBroadcast)">Run Full Broadcast</button>
-      </div>
-    </div>
-    <div id="broadcast-content">Loading broadcast status...</div>
-  </div>
-
-  <!-- IndexNow History -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">IndexNow History</div>
-    </div>
-    <div id="indexnow-content">Loading...</div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- TAB: LEARNING                                                  -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<div class="tab-panel" id="panel-learning">
-  <div class="card" style="padding:0;overflow:hidden">
-    <div class="card-header" style="padding:12px 16px">
-      <div class="card-title">
-        Vocabulary Builder
-        <a href="https://athos-obs.com/vocab/" target="_blank" rel="noopener">Open in new tab</a>
-      </div>
-    </div>
-    <iframe src="about:blank" id="learning-iframe" class="learning-frame" title="Vocabulary Builder"></iframe>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- TAB: LINKS                                                     -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<div class="tab-panel" id="panel-links">
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">Platform Links</div>
-    </div>
-    <div class="links-grid" id="all-links-grid"></div>
-  </div>
-</div>
+<!-- Mobile Bottom Tab Bar -->
+<nav class="mobile-tab-bar" id="mobile-tab-bar">
+  <button class="mob-tab active" data-tab="overview" onclick="switchTab('overview')"><span class="mob-icon">&#9632;</span>Overview</button>
+  <button class="mob-tab" data-tab="social" onclick="switchTab('social')"><span class="mob-icon">&#9788;</span>Social</button>
+  <button class="mob-tab" data-tab="email" onclick="switchTab('email')"><span class="mob-icon">&#9993;</span>Email</button>
+  <button class="mob-tab" data-tab="analytics" onclick="switchTab('analytics')"><span class="mob-icon">&#9783;</span>Analytics</button>
+  <button class="mob-tab" data-tab="broadcast" onclick="switchTab('broadcast')"><span class="mob-icon">&#9851;</span>Broadcast</button>
+  <button class="mob-tab" data-tab="learning" onclick="switchTab('learning')"><span class="mob-icon">&#9733;</span>Learning</button>
+  <button class="mob-tab" data-tab="links" onclick="switchTab('links')"><span class="mob-icon">&#8599;</span>Links</button>
+</nav>
 
 <script>
-// ── Config ──────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Config
+// ══════════════════════════════════════════════════════════════════
 const API_BASE = 'http://127.0.0.1:8035';
 const SALES_GOAL = 5000;
 
@@ -772,33 +1587,19 @@ let lastSeen = null;
 let killActive = false;
 let feedPage = 0;
 let feedFilter = null;
+let scanMode = 'attention'; // 'attention' or 'all'
 const FEED_LIMIT = 50;
-const $ = id => document.getElementById(id);
 
-// Cached health data
+// Cached data
 let healthData = {};
 let agentStatusData = {};
+let emailBriefingData = {};
 
-// ── Platform Links ──────────────────────────────────────────────
-const PLATFORM_LINKS = [
-  { name: 'Instagram', url: 'https://www.instagram.com/archive35photo/' },
-  { name: 'Reddit', url: 'https://www.reddit.com/' },
-  { name: 'Pinterest', url: 'https://www.pinterest.com/archive35photo/' },
-  { name: 'Etsy Shop', url: 'https://www.etsy.com/shop/Archive35Photo' },
-  { name: 'Etsy Manager', url: 'https://www.etsy.com/your/shops/me/dashboard' },
-  { name: 'Cloudflare', url: 'https://dash.cloudflare.com/' },
-  { name: 'Gmail', url: 'https://mail.google.com/' },
-  { name: 'Stripe', url: 'https://dashboard.stripe.com/' },
-  { name: 'CaFE', url: 'https://artist.callforentry.org/' },
-  { name: 'Indiewalls', url: 'https://artwork.indiewalls.com/' },
-  { name: 'ATHOS', url: 'https://athos-obs.com/' },
-  { name: 'Archive-35', url: 'https://archive-35.com/' },
-  { name: 'Bing Webmaster', url: 'https://www.bing.com/webmasters/' },
-  { name: 'Google Search Console', url: 'https://search.google.com/search-console/' },
-  { name: 'Pictorem', url: 'https://www.pictorem.com/' },
-];
+// ══════════════════════════════════════════════════════════════════
+// Utility Functions
+// ══════════════════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
 
-// ── Utilities ───────────────────────────────────────────────────
 function esc(s) {
   if (!s) return '';
   const d = document.createElement('div');
@@ -807,93 +1608,122 @@ function esc(s) {
 }
 
 function timeAgo(date) {
+  if (!date || isNaN(date.getTime())) return '--';
   const diff = (Date.now() - date.getTime()) / 1000;
+  if (diff < 0) return 'just now';
   if (diff < 60) return Math.floor(diff) + 's ago';
   if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
   if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
   return Math.floor(diff / 86400) + 'd ago';
 }
 
-function copyToClipboard(text) {
+function copyToClipboard(text, btn) {
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text).then(() => {
+      if (btn) {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.style.color = 'var(--status-healthy)';
+        setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1500);
+      }
+      showToast('Copied to clipboard', 'success');
+    });
   }
 }
 
-// ── Button State Feedback (replaces all alert()) ────────────────
-function setBtnState(btn, state, label) {
-  if (!btn) return;
-  const origText = btn.dataset.origText || btn.textContent;
-  if (!btn.dataset.origText) btn.dataset.origText = origText;
-  const origClass = btn.dataset.origClass || btn.className;
-  if (!btn.dataset.origClass) btn.dataset.origClass = origClass;
-
-  // Clear any existing timers
-  if (btn._stateTimer) clearTimeout(btn._stateTimer);
-
-  btn.classList.remove('state-working', 'state-success', 'state-failed');
-
-  if (state === 'working') {
-    btn.classList.add('state-working');
-    btn.textContent = label || 'Working...';
-    btn.disabled = true;
-  } else if (state === 'success') {
-    btn.classList.add('state-success');
-    btn.textContent = label || 'Done';
-    btn.disabled = false;
-    btn._stateTimer = setTimeout(() => resetBtnState(btn), 3000);
-  } else if (state === 'failed') {
-    btn.classList.add('state-failed');
-    btn.textContent = label || 'Failed';
-    btn.disabled = false;
-    // stays until clicked
-    btn.addEventListener('click', function handler() {
-      resetBtnState(btn);
-      btn.removeEventListener('click', handler);
-    }, { once: true });
-  } else {
-    resetBtnState(btn);
-  }
+// ══════════════════════════════════════════════════════════════════
+// Toast Notifications
+// ══════════════════════════════════════════════════════════════════
+function showToast(message, type = 'info') {
+  const container = $('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  const icon = type === 'success' ? '&#10003;' : type === 'error' ? '&#10007;' : '&#8505;';
+  toast.innerHTML = `<span>${icon}</span> ${esc(message)}`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('fade-out');
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
 }
 
-function resetBtnState(btn) {
-  if (!btn) return;
-  if (btn._stateTimer) clearTimeout(btn._stateTimer);
-  btn.classList.remove('state-working', 'state-success', 'state-failed');
-  if (btn.dataset.origText) btn.textContent = btn.dataset.origText;
-  if (btn.dataset.origClass) btn.className = btn.dataset.origClass;
-  btn.disabled = false;
-}
-
-async function btnAction(btn, fn) {
-  setBtnState(btn, 'working');
+// ══════════════════════════════════════════════════════════════════
+// Button State System (no alert() anywhere)
+// ══════════════════════════════════════════════════════════════════
+async function btnAction(btn, asyncFn) {
+  if (btn.disabled) return;
+  const origText = btn.textContent;
+  const origBg = btn.style.background;
+  const origColor = btn.style.color;
+  btn.disabled = true;
+  btn.textContent = 'Working...';
+  btn.style.background = '#F59E0B';
+  btn.style.color = '#000';
   try {
-    const result = await fn(btn);
-    setBtnState(btn, 'success', result || 'Done');
-  } catch (err) {
-    setBtnState(btn, 'failed', err.message ? err.message.substring(0, 30) : 'Failed');
+    const result = await asyncFn();
+    btn.textContent = '\u2713 Done';
+    btn.style.background = '#34D399';
+    btn.style.color = '#000';
+    if (result && typeof result === 'string') showToast(result, 'success');
+    else if (result?.message) showToast(result.message, 'success');
+    setTimeout(() => {
+      btn.textContent = origText;
+      btn.style.background = origBg;
+      btn.style.color = origColor;
+      btn.disabled = false;
+    }, 3000);
+  } catch(e) {
+    btn.textContent = '\u2717 Failed';
+    btn.style.background = '#FB7185';
+    btn.style.color = '#fff';
+    showToast(e.message || 'Action failed', 'error');
+    setTimeout(() => {
+      btn.textContent = origText;
+      btn.style.background = origBg;
+      btn.style.color = origColor;
+      btn.disabled = false;
+    }, 5000);
   }
 }
 
-// ── Tab Navigation ──────────────────────────────────────────────
-const TABS = ['home', 'agents', 'social', 'email', 'analytics', 'broadcast', 'learning', 'links'];
+// ══════════════════════════════════════════════════════════════════
+// API Helper
+// ══════════════════════════════════════════════════════════════════
+async function apiFetch(path, opts = {}) {
+  const headers = { ...(opts.headers || {}) };
+  if (opts.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+  const timeout = opts.signal ? undefined : 15000;
+  const res = await fetch(API_BASE + path, {
+    ...opts,
+    headers,
+    signal: opts.signal || AbortSignal.timeout(timeout),
+  });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Tab Navigation (hash routing + sessionStorage)
+// ══════════════════════════════════════════════════════════════════
+const TABS = ['overview', 'social', 'email', 'analytics', 'broadcast', 'learning', 'links'];
 
 function switchTab(tab) {
-  if (!TABS.includes(tab)) tab = 'home';
+  if (!TABS.includes(tab)) tab = 'overview';
 
-  // Hide all panels, deactivate all tabs
+  // Hide all panels, deactivate all nav items
   TABS.forEach(t => {
     const panel = $('panel-' + t);
-    const btn = document.querySelector(`.tab-btn[data-tab="${t}"]`);
     if (panel) panel.classList.remove('active');
-    if (btn) btn.classList.remove('active');
+    // Rail nav
+    document.querySelectorAll(`.nav-item[data-tab="${t}"]`).forEach(n => n.classList.remove('active'));
+    // Mobile tab bar
+    document.querySelectorAll(`.mob-tab[data-tab="${t}"]`).forEach(n => n.classList.remove('active'));
   });
 
   // Show selected
   const panel = $('panel-' + tab);
-  const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
   if (panel) panel.classList.add('active');
-  if (btn) btn.classList.add('active');
+  document.querySelectorAll(`[data-tab="${tab}"]`).forEach(n => n.classList.add('active'));
 
   // Save state
   sessionStorage.setItem('active_tab', tab);
@@ -901,20 +1731,18 @@ function switchTab(tab) {
 
   // Lazy-load learning iframe
   if (tab === 'learning') {
-    const iframe = $('learning-iframe');
+    const iframe = $('athos-frame');
     if (iframe && iframe.src === 'about:blank') {
       iframe.src = 'https://athos-obs.com/vocab/';
     }
   }
 
-  // Load data for the tab if needed
   onTabActivated(tab);
 }
 
 function onTabActivated(tab) {
   switch (tab) {
-    case 'home': pollStatus(); loadFeed(); break;
-    case 'agents': loadAgentCards(); loadAgentStates(); break;
+    case 'overview': pollStatus(); loadFeed(); break;
     case 'social': loadSocialTab(); break;
     case 'email': loadEmailBriefing(); break;
     case 'analytics': loadIntelligence(); loadEtsy(); loadLicensing(); break;
@@ -923,27 +1751,27 @@ function onTabActivated(tab) {
   }
 }
 
-// Restore tab from hash or session
 function initTab() {
-  let tab = location.hash.replace('#', '') || sessionStorage.getItem('active_tab') || 'home';
+  let tab = location.hash.replace('#', '') || sessionStorage.getItem('active_tab') || 'overview';
+  if (!TABS.includes(tab)) tab = 'overview';
   switchTab(tab);
 }
 
-// ── API Helper ──────────────────────────────────────────────────
-async function apiFetch(path, opts = {}) {
-  const headers = { ...(opts.headers || {}) };
-  if (opts.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
-  const res = await fetch(API_BASE + path, {
-    ...opts, headers, signal: opts.signal || AbortSignal.timeout(15000),
-  });
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-  return res.json();
+// ══════════════════════════════════════════════════════════════════
+// Scan Mode Toggle
+// ══════════════════════════════════════════════════════════════════
+function setScanMode(mode) {
+  scanMode = mode;
+  $('scan-attention').classList.toggle('active', mode === 'attention');
+  $('scan-all').classList.toggle('active', mode === 'all');
+  renderPlatformTiles();
 }
 
-// ── Kill Switch Modal ───────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Kill Switch Modal
+// ══════════════════════════════════════════════════════════════════
 function openKillModal() {
   if (event) event.stopPropagation();
-  const m = $('kill-modal');
   if (killActive) {
     $('kill-modal-title').textContent = 'Resume All Agents';
     $('kill-modal-text').textContent = 'This will resume all agents. Continue?';
@@ -951,60 +1779,59 @@ function openKillModal() {
     $('kill-modal-title').textContent = 'Emergency Stop';
     $('kill-modal-text').textContent = 'This will STOP ALL AGENTS immediately. Are you sure?';
   }
-  m.classList.add('show');
+  $('kill-modal').classList.add('show');
 }
+
 function closeKillModal() { $('kill-modal').classList.remove('show'); }
+
 $('kill-confirm').addEventListener('click', async () => {
   closeKillModal();
   const endpoint = killActive ? '/safety/resume/global' : '/safety/kill/global';
   try {
     await apiFetch(endpoint, { method: 'POST', body: JSON.stringify({ reason: 'dashboard' }) });
+    showToast(killActive ? 'Agents resumed' : 'All agents stopped', killActive ? 'success' : 'error');
     setTimeout(pollStatus, 500);
   } catch (err) {
-    // show in status bar briefly
-    $('sb-status').textContent = 'ERROR';
-    $('sb-status').className = 'sb-value err';
+    showToast('Kill switch failed: ' + err.message, 'error');
   }
 });
 
-// ── Start Agent (when offline) ──────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Start Agent (when offline)
+// ══════════════════════════════════════════════════════════════════
 function startAgent() {
-  const msg = `To start the Archive-35 Agent:\n\n` +
-    `Open Terminal and run:\n\n` +
-    `cd ~/Documents/ACTIVE/archive-35/Archive\\ 35\\ Agent && ./docker-start.sh\n\n` +
-    `Or if Docker is already running:\n\n` +
-    `cd ~/Documents/ACTIVE/archive-35/Archive\\ 35\\ Agent && docker compose up -d\n\n` +
-    `The dashboard will reconnect automatically once the agent is running.`;
-
   fetch(API_BASE + '/agents/restart-all', { method: 'POST' })
     .then(r => r.json())
     .then(d => {
       if (d.success) {
+        showToast('Agent restart initiated', 'success');
         setTimeout(pollStatus, 3000);
       }
     })
     .catch(() => {
+      const cmd = 'cd ~/Documents/ACTIVE/archive-35/Archive\\ 35\\ Agent && ./docker-start.sh';
       if (navigator.clipboard) {
-        navigator.clipboard.writeText('cd ~/Documents/ACTIVE/archive-35/Archive\\ 35\\ Agent && ./docker-start.sh');
+        navigator.clipboard.writeText(cmd);
+        showToast('Start command copied to clipboard. Run it in Terminal.', 'info');
       }
-      // Use a temporary banner instead of alert
-      const banner = $('offline-banner');
-      banner.innerHTML = `<span style="font-size:11px">${esc(msg).replace(/\n/g, '<br>')}</span>`;
     });
 }
 
-// ── Polling ─────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Polling
+// ══════════════════════════════════════════════════════════════════
 function startPolling() {
   pollStatus();
   setInterval(pollStatus, 15000);
   setInterval(() => {
-    const tab = sessionStorage.getItem('active_tab') || 'home';
-    if (tab === 'home') loadFeed();
-    if (tab === 'agents') loadAgentCards();
+    const tab = sessionStorage.getItem('active_tab') || 'overview';
+    if (tab === 'overview') loadFeed();
   }, 30000);
 }
 
-// ── Status Bar Polling ──────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Status Polling
+// ══════════════════════════════════════════════════════════════════
 async function pollStatus() {
   try {
     const d = await apiFetch('/health');
@@ -1013,28 +1840,29 @@ async function pollStatus() {
     $('offline-banner').style.display = 'none';
 
     const status = (d.status || 'unknown').toUpperCase();
-    $('sb-status').textContent = status;
-    $('sb-status').className = 'sb-value ' + (status === 'ONLINE' ? 'ok' : 'warn');
-    $('sb-version').textContent = d.version ? 'v' + d.version : '';
-    $('sb-etsy').textContent = (d.etsy_listings ?? '--') + ' live';
-    $('sb-ig').textContent = d.instagram_today ?? 0;
-    $('sb-sales').textContent = d.sales ?? 0;
-    $('sb-updated').textContent = 'updated ' + lastSeen.toLocaleTimeString();
+    const isOnline = status === 'ONLINE';
+
+    // Rail status
+    $('rail-status').textContent = isOnline ? 'Online' + (d.version ? ' v' + d.version : '') : status;
+    $('rail-status').style.color = isOnline ? 'var(--status-healthy)' : 'var(--status-warning)';
+
+    // KPI: System Status
+    $('kpi-status').textContent = isOnline ? 'Online' : status;
+    $('kpi-dot').className = 'kpi-dot ' + (isOnline ? 'green' : 'red');
+    $('kpi-uptime').textContent = 'Updated ' + lastSeen.toLocaleTimeString();
+
+    // KPI: Sales
+    const sales = d.sales ?? 0;
+    $('kpi-sales').textContent = '$' + (typeof sales === 'number' ? sales.toFixed(2) : sales);
 
     // Kill switch
     const ks = d.kill_switch || {};
     killActive = ks.global?.active || false;
-    const btn = $('sb-kill');
-    btn.textContent = killActive ? 'KILL: ON' : 'Kill: OFF';
-    btn.className = killActive ? 'kill-switch-btn active' : 'kill-switch-btn';
-
-    // Update HOME tab quick stats
-    $('home-ig-today').textContent = d.instagram_today ?? 0;
-    $('home-etsy-count').textContent = d.etsy_listings ?? '--';
-    $('home-sales-count').textContent = d.sales ?? 0;
+    const killBtn = $('kill-btn');
+    killBtn.textContent = killActive ? 'KILL: ACTIVE' : 'Kill Switch: OFF';
+    killBtn.className = killActive ? 'kill-switch-btn active' : 'kill-switch-btn';
 
     // Sales thermometer
-    const sales = d.sales ?? 0;
     const pct = Math.min(100, (sales / SALES_GOAL) * 100);
     $('thermo-fill').style.width = pct + '%';
     $('thermo-label').textContent = '$' + sales + ' / $' + SALES_GOAL.toLocaleString();
@@ -1044,266 +1872,255 @@ async function pollStatus() {
     try {
       const aStatus = await apiFetch('/agents/status');
       agentStatusData = aStatus;
-      $('sb-agents').textContent = `${aStatus.running}/${aStatus.total}`;
-      $('home-agents-count').textContent = `${aStatus.running}/${aStatus.total}`;
+      $('kpi-agents').textContent = `${aStatus.running}/${aStatus.total}`;
     } catch(e) {}
 
-    // Connectivity dots
-    updateConnectivity(d);
+    // API spend from audit log
+    try {
+      const auditData = await apiFetch('/audit/log?limit=1');
+      const costToday = auditData.cost_today || 0;
+      $('kpi-api-spend').textContent = '$' + costToday.toFixed(2);
+    } catch(e) {}
+
+    // Update attention items and platform tiles
+    updateAttentionItems(d);
+    renderPlatformTiles();
 
   } catch (err) {
-    $('sb-status').textContent = 'OFFLINE';
-    $('sb-status').className = 'sb-value err';
+    $('kpi-status').textContent = 'Offline';
+    $('kpi-dot').className = 'kpi-dot red';
+    $('rail-status').textContent = 'Offline';
+    $('rail-status').style.color = 'var(--status-critical)';
     $('offline-banner').style.display = 'block';
     if (lastSeen) $('last-seen').textContent = lastSeen.toLocaleTimeString();
-    updateConnectivityOffline();
   }
 }
 
-// ── Connectivity Dots ───────────────────────────────────────────
-function updateConnectivity(health) {
-  const services = [
-    { name: 'Agent API', connected: true },
-    { name: 'Instagram', connected: !!health.instagram_configured },
-    { name: 'Etsy', connected: (health.etsy_listings ?? 0) > 0 },
-    { name: 'Pinterest', connected: !!health.pinterest_configured },
-    { name: 'Reddit', connected: !!health.reddit_configured },
-    { name: 'Email', connected: !!health.email_configured },
-    { name: 'Broadcast', connected: !!health.broadcast_configured },
-  ];
+// ══════════════════════════════════════════════════════════════════
+// Attention Items
+// ══════════════════════════════════════════════════════════════════
+async function updateAttentionItems(health) {
+  const container = $('attention-container');
+  let items = [];
 
-  $('connectivity-grid').innerHTML = services.map(s => `
-    <div class="conn-item">
-      <span class="conn-dot ${s.connected ? 'green' : 'red'}"></span>
-      <span>${esc(s.name)}</span>
-    </div>
-  `).join('');
+  // Check Reddit status
+  try {
+    const rd = await apiFetch('/reddit/status');
+    const creds = rd.credentials || {};
+    if (!creds.configured) {
+      items.push({ level: 'coral', label: 'Reddit', detail: 'No active session. Login required.', action: { text: 'Login', fn: 'btnAction(this, redditLogin)' } });
+    }
+    const queue = rd.queue || {};
+    if ((queue.queued ?? 0) === 0 && creds.configured) {
+      items.push({ level: 'amber', label: 'Reddit', detail: 'Queue is empty. Generate posts.', action: { text: 'Generate', fn: 'btnAction(this, redditGenerate)' } });
+    }
+  } catch(e) {
+    items.push({ level: 'coral', label: 'Reddit', detail: 'Status check failed' });
+  }
+
+  // Check Email security alerts
+  try {
+    const eb = await apiFetch('/email/briefing');
+    emailBriefingData = eb;
+    const secAlerts = eb.security?.length || 0;
+    if (secAlerts > 0) {
+      items.push({ level: 'coral', label: 'Email Security', detail: `${secAlerts} phishing/security alert(s) detected`, action: { text: 'View', fn: "switchTab('email')" } });
+    }
+  } catch(e) {}
+
+  // Check Etsy token
+  if (health.etsy_token_expired) {
+    items.push({ level: 'coral', label: 'Etsy', detail: 'Token expired. Needs reauthorization.', action: { text: 'Reauth', fn: "window.open('https://www.etsy.com/your/shops/me/dashboard','_blank')" } });
+  }
+
+  // Check Instagram
+  if (!health.instagram_configured) {
+    items.push({ level: 'amber', label: 'Instagram', detail: 'Not configured. Set up Meta API credentials.' });
+  }
+
+  // Indiewalls follow-up
+  items.push({ level: 'amber', label: 'Indiewalls', detail: 'No reply in 14 days', action: { text: 'Send Follow-Up', fn: "window.open('mailto:info@indiewalls.com?subject=Follow-up%20-%20Archive-35%20Artist%20Profile&body=Hi%2C%20I%20wanted%20to%20follow%20up%20on%20my%20artist%20profile%20submission.%20Please%20let%20me%20know%20if%20you%20need%20any%20additional%20information.%0A%0ABest%2C%0AWolf%20Schram%0Ahttps%3A%2F%2Farchive-35.com','_self')" } });
+
+  if (items.length === 0) {
+    container.innerHTML = '<div class="attention-all-clear">\u2713 All systems running \u2014 nothing needs attention</div>';
+  } else {
+    container.innerHTML = items.map(item => `
+      <div class="attention-item ${item.level}">
+        <div class="attention-info">
+          <div class="label">${esc(item.label)}</div>
+          <div class="detail">${esc(item.detail)}</div>
+        </div>
+        ${item.action ? `<button class="btn ${item.level === 'coral' ? 'danger' : ''}" onclick="${item.action.fn}">${esc(item.action.text)}</button>` : ''}
+      </div>
+    `).join('');
+  }
 }
 
-function updateConnectivityOffline() {
-  const names = ['Agent API', 'Instagram', 'Etsy', 'Pinterest', 'Reddit', 'Email', 'Broadcast'];
-  $('connectivity-grid').innerHTML = names.map(n => `
-    <div class="conn-item">
-      <span class="conn-dot red"></span>
-      <span>${esc(n)}</span>
-    </div>
-  `).join('');
-}
-
-// ── Agent Cards ─────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Platform Control Tiles
+// ══════════════════════════════════════════════════════════════════
 const AGENTS = [
-  { id: 'instagram', name: 'Instagram Agent', scope: 'instagram' },
-  { id: 'pinterest', name: 'Pinterest Agent', scope: 'pinterest' },
-  { id: 'reddit', name: 'Reddit Agent', scope: 'reddit' },
-  { id: 'etsy', name: 'Etsy Agent', scope: 'etsy' },
-  { id: 'content_pipeline', name: 'Content Generator', scope: 'content_pipeline' },
-  { id: 'broadcast', name: 'Broadcast Agent', scope: 'broadcast' },
-  { id: 'email', name: 'Email Monitor', scope: 'email' },
+  { id: 'instagram', name: 'Instagram', icon: '\uD83D\uDCF7', scope: 'instagram', link: 'https://www.instagram.com/archive35photo/' },
+  { id: 'reddit', name: 'Reddit', icon: '\uD83D\uDCAC', scope: 'reddit', link: 'https://www.reddit.com/' },
+  { id: 'pinterest', name: 'Pinterest', icon: '\uD83D\uDCCC', scope: 'pinterest', link: 'https://www.pinterest.com/archive35photo/' },
+  { id: 'etsy', name: 'Etsy', icon: '\uD83D\uDED2', scope: 'etsy', link: 'https://www.etsy.com/shop/Archive35Photo' },
+  { id: 'content_pipeline', name: 'Content Generator', icon: '\u2699', scope: 'content_pipeline', link: null },
+  { id: 'broadcast', name: 'Broadcast', icon: '\uD83D\uDCE1', scope: 'broadcast', link: null },
+  { id: 'email', name: 'Email Monitor', icon: '\uD83D\uDCE7', scope: 'email', link: 'https://mail.google.com/' },
 ];
 
-async function loadAgentCards() {
-  const grid = $('agent-grid');
-  let agentStatus = {};
-  try {
-    const data = await apiFetch('/agents/status');
-    agentStatus = data.services || {};
-    agentStatusData = data;
-    $('sb-agents').textContent = `${data.running}/${data.total}`;
-    $('home-agents-count').textContent = `${data.running}/${data.total}`;
-  } catch (e) {}
+let tileData = {};
 
-  let igStatus = {}, pinterestStatus = {}, redditStatus = {}, pipelineStatus = {}, broadcastData = {}, emailBriefing = {};
-  try { igStatus = await apiFetch('/instagram/status'); } catch(e) {}
-  try { pinterestStatus = await apiFetch('/pinterest/pin-status'); } catch(e) {}
-  try { redditStatus = await apiFetch('/reddit/status'); } catch(e) {}
-  try { pipelineStatus = await apiFetch('/pipeline/status'); } catch(e) {}
-  try { broadcastData = await apiFetch('/broadcast/status'); } catch(e) {}
-  try { emailBriefing = await apiFetch('/email/briefing'); } catch(e) {}
+async function loadTileData() {
+  try { tileData.igStatus = await apiFetch('/instagram/status'); } catch(e) { tileData.igStatus = {}; }
+  try { tileData.pinterestStatus = await apiFetch('/pinterest/pin-status'); } catch(e) { tileData.pinterestStatus = {}; }
+  try { tileData.redditStatus = await apiFetch('/reddit/status'); } catch(e) { tileData.redditStatus = {}; }
+  try { tileData.pipelineStatus = await apiFetch('/pipeline/status'); } catch(e) { tileData.pipelineStatus = {}; }
+  try { tileData.broadcastData = await apiFetch('/broadcast/status'); } catch(e) { tileData.broadcastData = {}; }
+  if (!emailBriefingData.generated_at) {
+    try { emailBriefingData = await apiFetch('/email/briefing'); } catch(e) {}
+  }
+  renderPlatformTiles();
+}
 
-  let html = '';
+function renderPlatformTiles() {
+  const container = $('platform-tiles');
+  if (!container) return;
+  const heading = $('tiles-heading');
+
+  const agentServices = agentStatusData.services || {};
+
+  let tilesHtml = '';
+  let visibleCount = 0;
+
   for (const agent of AGENTS) {
-    const svc = agentStatus[agent.id] || {};
+    const svc = agentServices[agent.id] || {};
     const running = svc.running !== false;
-    const dotClass = running ? 'on' : 'off';
-    let statsHtml = '';
-    let actionsHtml = '';
+    let statusClass = running ? 'healthy' : 'critical';
+    let chipHtml = running
+      ? '<span class="chip healthy">\u2713 Healthy</span>'
+      : '<span class="chip critical">\u2717 Down</span>';
+    let summary = '';
+    let actions = '';
+    let hasIssue = false;
 
     if (agent.id === 'instagram') {
-      const configured = igStatus.configured || false;
-      const username = igStatus.username || '--';
-      statsHtml = `
-        <div>Status: <strong>${configured ? 'Connected' : 'Not configured'}</strong></div>
-        <div>Account: <strong>${esc(username)}</strong></div>
-      `;
-      actionsHtml = `
+      const ig = tileData.igStatus || {};
+      const configured = ig.configured || false;
+      if (!configured) {
+        statusClass = 'warning';
+        chipHtml = '<span class="chip warning">\u26A0 Warning</span>';
+        summary = 'Not configured. Set up Meta API credentials.';
+        hasIssue = true;
+      } else {
+        summary = `${esc(ig.username || '--')} | Posted today: ${healthData.instagram_today ?? 0}`;
+      }
+      actions = `
         <button class="btn success" onclick="btnAction(this, igPostOne)">Post 1 Now</button>
         <button class="btn primary" onclick="btnAction(this, igPostBatch)">Post Batch (3)</button>
-        <button class="btn" onclick="btnAction(this, () => restartAgent('agent-scheduler'))">Restart</button>
-      `;
-    } else if (agent.id === 'pinterest') {
-      const pinCount = pinterestStatus.pin_count ?? 0;
-      const lastBatch = pinterestStatus.last_batch ? new Date(pinterestStatus.last_batch).toLocaleDateString() : 'never';
-      statsHtml = `
-        <div>Pins generated: <strong>${pinCount}</strong></div>
-        <div>Last batch: <strong>${lastBatch}</strong></div>
-      `;
-      actionsHtml = `
-        <button class="btn primary" onclick="btnAction(this, generatePins)">Generate Pins</button>
-        <button class="btn" onclick="btnAction(this, () => restartAgent('agent-scheduler'))">Restart</button>
       `;
     } else if (agent.id === 'reddit') {
-      const queue = redditStatus.queue || {};
-      const creds = redditStatus.credentials || {};
-      const sessionValid = creds.configured === true;
-      const redditUser = creds.username || null;
-      const postsToday = creds.posts_today ?? 0;
-      const lastPost = creds.last_post ? timeAgo(new Date(creds.last_post)) : 'never';
-      statsHtml = `
-        <div style="margin-bottom:4px">${sessionValid
-          ? `<span style="color:var(--green)">Connected as u/${esc(redditUser)}</span>`
-          : '<span style="color:var(--red)">Reddit not connected</span>'}</div>
-        <div>Queued: <strong>${queue.queued ?? 0}</strong> | Posted: <strong>${queue.posted ?? 0}</strong> | Skipped: <strong>${queue.skipped ?? 0}</strong></div>
-        <div style="font-size:11px;color:var(--dim)">Posts today: ${postsToday}/5 | Last post: ${lastPost}</div>
-      `;
-      actionsHtml = sessionValid ? `
-        <button class="btn primary" onclick="btnAction(this, redditGenerate)">Generate 30 Posts</button>
-        <button class="btn" onclick="btnAction(this, () => restartAgent('agent-scheduler'))">Restart</button>
-      ` : `
-        <button class="btn primary" onclick="btnAction(this, redditLogin)">Login to Reddit</button>
-        <button class="btn" onclick="btnAction(this, redditGenerate)">Generate 30 Posts</button>
-      `;
+      const rd = tileData.redditStatus || {};
+      const creds = rd.credentials || {};
+      const queue = rd.queue || {};
+      if (!creds.configured) {
+        statusClass = 'critical';
+        chipHtml = '<span class="chip critical">\u2717 No Session</span>';
+        summary = 'Reddit not connected. Login required.';
+        hasIssue = true;
+        actions = `<button class="btn danger" onclick="btnAction(this, redditLogin)">Login</button>`;
+      } else {
+        summary = `u/${esc(creds.username || '--')} | Queued: ${queue.queued ?? 0} | Posted: ${queue.posted ?? 0}`;
+        if ((queue.queued ?? 0) === 0) { statusClass = 'warning'; chipHtml = '<span class="chip warning">\u26A0 Queue Empty</span>'; hasIssue = true; }
+        actions = `<button class="btn primary" onclick="btnAction(this, redditGenerate)">Generate 30</button>`;
+      }
+    } else if (agent.id === 'pinterest') {
+      const pt = tileData.pinterestStatus || {};
+      const pinCount = pt.pin_count ?? 0;
+      summary = `${pinCount} pins generated`;
+      actions = `<button class="btn primary" onclick="btnAction(this, generatePins)">Generate Pins</button>`;
     } else if (agent.id === 'etsy') {
-      statsHtml = `
-        <div>Live listings: <strong id="etsy-live-count">${healthData.etsy_listings ?? '--'}</strong></div>
-        <div>SEO Score: <strong id="etsy-seo-inline">--</strong></div>
-      `;
-      actionsHtml = `
-        <button class="btn primary" onclick="btnAction(this, runSeoAudit)">Run SEO Audit</button>
-        <button class="btn" onclick="btnAction(this, () => restartAgent('agent-scheduler'))">Restart</button>
-      `;
+      const listings = healthData.etsy_listings ?? '--';
+      if (healthData.etsy_token_expired) {
+        statusClass = 'critical';
+        chipHtml = '<span class="chip critical">\u2717 Token Expired</span>';
+        summary = 'Needs reauthorization';
+        hasIssue = true;
+      } else {
+        summary = `${listings} live listings`;
+      }
+      actions = `<button class="btn" onclick="btnAction(this, runSeoAudit)">Run SEO Audit</button>`;
     } else if (agent.id === 'content_pipeline') {
-      const pending = pipelineStatus.pending ?? '--';
-      const approved = pipelineStatus.approved ?? '--';
-      statsHtml = `
-        <div>Pending: <strong>${pending}</strong> | Approved: <strong>${approved}</strong></div>
-      `;
-      actionsHtml = `
-        <button class="btn primary" onclick="btnAction(this, runPipeline)">Run Pipeline</button>
-        <button class="btn" onclick="btnAction(this, () => restartAgent('agent-scheduler'))">Restart</button>
-      `;
+      const pl = tileData.pipelineStatus || {};
+      summary = `Pending: ${pl.pending ?? '--'} | Approved: ${pl.approved ?? '--'}`;
+      actions = `<button class="btn primary" onclick="btnAction(this, runPipeline)">Run Pipeline</button>`;
     } else if (agent.id === 'broadcast') {
-      const lastBC = broadcastData.last_broadcast ? timeAgo(new Date(broadcastData.last_broadcast)) : 'never';
-      statsHtml = `
-        <div>Last broadcast: <strong>${lastBC}</strong></div>
-        <div>Total runs: <strong>${broadcastData.total_broadcasts ?? 0}</strong></div>
-      `;
-      actionsHtml = `
-        <button class="btn primary" onclick="btnAction(this, runBroadcast)">Broadcast Now</button>
-        <button class="btn" onclick="btnAction(this, () => restartAgent('agent-scheduler'))">Restart</button>
-      `;
+      const bc = tileData.broadcastData || {};
+      const lastBC = bc.last_broadcast ? timeAgo(new Date(bc.last_broadcast)) : 'never';
+      summary = `Last broadcast: ${lastBC} | Total: ${bc.total_broadcasts ?? 0}`;
+      actions = `<button class="btn primary" onclick="btnAction(this, runBroadcast)">Broadcast Now</button>`;
     } else if (agent.id === 'email') {
-      const accts = emailBriefing.accounts_scanned || [];
-      const lastScan = emailBriefing.generated_at ? timeAgo(new Date(emailBriefing.generated_at)) : 'never';
-      const summary = emailBriefing.summary || {};
-      const secAlerts = summary.security_alerts ?? 0;
-      statsHtml = `
-        <div>Accounts: <strong>${accts.length} connected</strong></div>
-        <div>Last scan: <strong>${lastScan}</strong></div>
-        <div>New emails: <strong>${emailBriefing.total_emails ?? '--'}</strong></div>
-        ${secAlerts > 0 ? `<div style="color:var(--red)">Security alerts: <strong>${secAlerts} phishing detected</strong></div>` : ''}
-      `;
-      actionsHtml = `
+      const eb = emailBriefingData || {};
+      const secAlerts = eb.security?.length ?? 0;
+      const totalEmails = eb.total_emails ?? '--';
+      if (secAlerts > 0) {
+        statusClass = 'critical';
+        chipHtml = '<span class="chip critical">\u2717 Security Alerts</span>';
+        summary = `${secAlerts} phishing alert(s) | ${totalEmails} emails`;
+        hasIssue = true;
+      } else {
+        summary = `${totalEmails} emails | ${(eb.accounts_scanned || []).length} accounts`;
+      }
+      actions = `
         <button class="btn primary" onclick="btnAction(this, runEmailScan)">Scan Now</button>
         <button class="btn" onclick="switchTab('email')">View Briefing</button>
       `;
     }
 
-    html += `
-      <div class="agent-card">
-        <div class="agent-card-header">
-          <div class="agent-name">
-            <span class="agent-dot ${dotClass}"></span>
+    // In "Needs Attention" mode, only show broken/warning tiles
+    if (scanMode === 'attention' && !hasIssue && running) continue;
+
+    visibleCount++;
+
+    const linkHtml = agent.link ? `<a class="btn" href="${esc(agent.link)}" target="_blank" rel="noopener" style="text-decoration:none">Open</a>` : '';
+
+    tilesHtml += `
+      <div class="platform-tile ${statusClass}">
+        <div class="tile-header">
+          <div class="tile-name">
+            <span class="icon">${agent.icon}</span>
             ${esc(agent.name)}
           </div>
-          <label class="toggle">
-            <input type="checkbox" ${running ? 'checked' : ''} onchange="toggleAgent('${agent.scope}', this.checked)">
-            <div class="toggle-track"></div>
-            <div class="toggle-thumb"></div>
-          </label>
+          ${chipHtml}
         </div>
-        <div class="agent-stats">${statsHtml}</div>
-        <div class="agent-actions">${actionsHtml}</div>
-        ${agent.id === 'reddit' ? '<div class="queue-preview" id="reddit-queue-preview"></div>' : ''}
+        <div class="tile-summary">${summary}</div>
+        <div class="tile-actions">
+          ${actions}
+          ${linkHtml}
+        </div>
       </div>
     `;
   }
-  grid.innerHTML = html;
-  loadRedditQueuePreview();
-}
 
-// ── Agent States ────────────────────────────────────────────────
-async function loadAgentStates() {
-  const el = $('agent-states-content');
-  try {
-    const d = await apiFetch('/agents/states');
-    const states = d.agents || d.states || d;
-    if (typeof states === 'object' && !Array.isArray(states)) {
-      let html = '<table class="intel-table"><tr><th>Agent</th><th>State</th><th>Last Run</th></tr>';
-      for (const [name, info] of Object.entries(states)) {
-        const state = typeof info === 'string' ? info : (info.state || info.status || '--');
-        const lastRun = info.last_run ? timeAgo(new Date(info.last_run)) : '--';
-        const color = state === 'running' ? 'var(--green)' : (state === 'stopped' ? 'var(--red)' : 'var(--dim)');
-        html += `<tr><td>${esc(name)}</td><td style="color:${color}">${esc(state)}</td><td style="color:var(--dim)">${lastRun}</td></tr>`;
-      }
-      html += '</table>';
-      el.innerHTML = html;
-    } else if (Array.isArray(states)) {
-      let html = '<table class="intel-table"><tr><th>Agent</th><th>State</th></tr>';
-      for (const s of states) {
-        const name = s.name || s.agent || '--';
-        const state = s.state || s.status || '--';
-        const color = state === 'running' ? 'var(--green)' : (state === 'stopped' ? 'var(--red)' : 'var(--dim)');
-        html += `<tr><td>${esc(name)}</td><td style="color:${color}">${esc(state)}</td></tr>`;
-      }
-      html += '</table>';
-      el.innerHTML = html;
-    } else {
-      el.innerHTML = '<div style="color:var(--dim)">No state data available</div>';
-    }
-    return 'Loaded';
-  } catch(e) {
-    el.innerHTML = '<div style="color:var(--dim)">Agent states unavailable: ' + esc(e.message) + '</div>';
-    throw e;
+  if (scanMode === 'attention' && visibleCount === 0) {
+    tilesHtml = '<div style="color:var(--status-healthy);font-size:13px;padding:16px;text-align:center;background:var(--bg-card);border-radius:var(--radius-md);border:1px solid var(--border)">\u2713 All platforms healthy</div>';
   }
+
+  if (heading) {
+    heading.textContent = scanMode === 'attention' ? 'Platforms Needing Action' : 'All Platforms';
+  }
+
+  container.innerHTML = tilesHtml;
 }
 
-// ── Reddit Queue (agent card preview) ───────────────────────────
-async function loadRedditQueuePreview() {
-  const container = $('reddit-queue-preview');
-  if (!container) return;
-  try {
-    const data = await apiFetch('/reddit/queue?limit=3&status=queued');
-    const posts = data.posts || [];
-    if (!posts.length) { container.innerHTML = '<div style="font-size:11px;color:var(--dim);margin-top:6px">No queued posts</div>'; return; }
-    container.innerHTML = posts.map(p => `
-      <div class="queue-item">
-        <div class="sub-name">${esc(p.subreddit || '')}</div>
-        <div class="q-title" onclick="copyToClipboard('${esc(p.title || '').replace(/'/g, "\\'")}')" title="Click to copy title">${esc(p.title || '')}</div>
-        <div class="q-actions">
-          <button class="btn success" onclick="btnAction(this, () => redditPost('${esc(p.id)}'))">Post</button>
-          <button class="btn" onclick="btnAction(this, () => redditSkip('${esc(p.id)}'))">Skip</button>
-        </div>
-      </div>
-    `).join('');
-  } catch(e) { container.innerHTML = '<div style="font-size:11px;color:var(--dim)">Queue unavailable</div>'; }
-}
-
-// ── Agent Actions ───────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Agent Actions
+// ══════════════════════════════════════════════════════════════════
 async function toggleAgent(scope, enabled) {
   const endpoint = enabled ? `/safety/resume/${scope}` : `/safety/kill/${scope}`;
   try { await apiFetch(endpoint, { method: 'POST', body: JSON.stringify({ reason: 'dashboard toggle' }) }); }
-  catch(e) { /* toggle will refresh */ }
-  setTimeout(loadAgentCards, 500);
+  catch(e) {}
+  setTimeout(() => { pollStatus(); loadTileData(); }, 500);
 }
 
 async function restartAgent(name) {
@@ -1315,7 +2132,7 @@ async function restartAgent(name) {
 async function igPostOne() {
   const r = await apiFetch('/instagram/auto-post', { method: 'POST', signal: AbortSignal.timeout(120000) });
   if (r.error) throw new Error(r.error);
-  loadAgentCards();
+  pollStatus();
   return 'Posted';
 }
 
@@ -1327,34 +2144,31 @@ async function igPostBatch() {
 async function generatePins() {
   const r = await apiFetch('/pinterest/generate-pins', { method: 'POST', signal: AbortSignal.timeout(60000) });
   if (!r.success) throw new Error(r.error || 'Failed');
-  loadAgentCards();
+  loadTileData();
   return 'Generated';
 }
 
 async function redditGenerate() {
   const r = await apiFetch('/reddit/generate', { method: 'POST', signal: AbortSignal.timeout(60000) });
-  loadAgentCards();
+  loadTileData();
   return r.message || 'Generated';
 }
 
-async function redditPost(postId) {
-  const r = await apiFetch('/reddit/post', { method: 'POST', body: JSON.stringify({ post_id: postId }) });
-  if (r.status !== 'posted') throw new Error(r.message || r.status);
-  loadRedditQueuePreview();
+async function redditMarkPosted(postId) {
+  const r = await apiFetch('/reddit/mark-posted', { method: 'POST', body: JSON.stringify({ post_id: postId }) });
   loadRedditQueueFull();
-  return 'Posted';
+  return 'Marked posted';
 }
 
 async function redditSkip(postId) {
   await apiFetch('/reddit/skip', { method: 'POST', body: JSON.stringify({ post_id: postId }) });
-  loadRedditQueuePreview();
   loadRedditQueueFull();
   return 'Skipped';
 }
 
 async function redditLogin() {
   const r = await apiFetch('/reddit/login', { method: 'POST' });
-  setTimeout(loadAgentCards, 30000);
+  setTimeout(() => { pollStatus(); loadTileData(); }, 30000);
   return r.message || 'Browser opened';
 }
 
@@ -1384,14 +2198,16 @@ async function runEmailScan() {
   return 'Scan complete';
 }
 
-// ── SOCIAL TAB ──────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// SOCIAL TAB
+// ══════════════════════════════════════════════════════════════════
 async function loadSocialTab() {
-  loadInstagramPosts();
-  loadRedditQueueFull();
-  loadPinterestPins();
   loadInstagramStatus();
+  loadInstagramPosts();
   loadRedditStatus();
+  loadRedditQueueFull();
   loadPinterestStatus();
+  loadPinterestPins();
 }
 
 async function loadInstagramStatus() {
@@ -1399,27 +2215,27 @@ async function loadInstagramStatus() {
     const d = await apiFetch('/instagram/status');
     const configured = d.configured || false;
     const username = d.username || '--';
-    $('ig-status-line').innerHTML = `Status: <strong style="color:var(--text)">${configured ? 'Connected' : 'Not configured'}</strong> | Account: <strong style="color:var(--text)">${esc(username)}</strong> | Posted today: <strong style="color:var(--text)">${healthData.instagram_today ?? 0}</strong>`;
+    const tokenStatus = d.token_valid ? '<span class="chip healthy">\u2713 Token Valid</span>' : '<span class="chip warning">\u26A0 Token Issue</span>';
+    $('ig-status-line').innerHTML = `
+      Account: <strong>${esc(username)}</strong> |
+      Status: <strong>${configured ? 'Connected' : 'Not configured'}</strong> |
+      Posts today: <strong>${healthData.instagram_today ?? 0}</strong>
+      ${tokenStatus}
+    `;
   } catch(e) {
-    $('ig-status-line').innerHTML = '<span style="color:var(--red)">Instagram status unavailable</span>';
+    $('ig-status-line').innerHTML = '<span style="color:var(--status-critical)">Instagram status unavailable</span>';
   }
 }
 
 async function loadInstagramPosts() {
   const grid = $('ig-posts-grid');
   try {
-    // ig_posts comes from /health
-    const d = healthData.ig_posts || [];
-    if (!d.length) {
-      // Try fetching health again
-      try {
-        const h = await apiFetch('/health');
-        healthData = h;
-      } catch(e) {}
+    if (!healthData.ig_posts) {
+      try { healthData = await apiFetch('/health'); } catch(e) {}
     }
     const posts = healthData.ig_posts || [];
     if (!posts.length) {
-      grid.innerHTML = '<div style="color:var(--dim);font-size:12px">No recent posts available</div>';
+      grid.innerHTML = '<div style="color:var(--text-dim);font-size:12px">No recent posts available</div>';
       return;
     }
     grid.innerHTML = posts.slice(0, 5).map(p => {
@@ -1427,13 +2243,13 @@ async function loadInstagramPosts() {
       const caption = p.caption || '';
       return `
         <div class="ig-post-card">
-          ${imgUrl ? `<img src="${esc(imgUrl)}" alt="IG post" loading="lazy" onerror="this.style.display='none'">` : '<div style="height:200px;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--dim)">No image</div>'}
+          ${imgUrl ? `<img src="${esc(imgUrl)}" alt="IG post" loading="lazy" onerror="this.style.display='none'">` : '<div style="height:180px;background:var(--bg-base);display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:12px">No image</div>'}
           <div class="caption">${esc(caption.substring(0, 120))}</div>
         </div>
       `;
     }).join('');
   } catch(e) {
-    grid.innerHTML = '<div style="color:var(--dim);font-size:12px">Failed to load posts</div>';
+    grid.innerHTML = '<div style="color:var(--text-dim);font-size:12px">Failed to load posts</div>';
   }
 }
 
@@ -1444,11 +2260,13 @@ async function loadRedditStatus() {
     const creds = d.credentials || {};
     const sessionValid = creds.configured === true;
     const redditUser = creds.username || null;
+    const postsToday = creds.posts_today ?? 0;
+    const lastPost = creds.last_post ? timeAgo(new Date(creds.last_post)) : 'never';
     $('reddit-status-line').innerHTML = sessionValid
-      ? `<span style="color:var(--green)">Connected as u/${esc(redditUser)}</span> | Queued: <strong style="color:var(--text)">${queue.queued ?? 0}</strong> | Posted: <strong style="color:var(--text)">${queue.posted ?? 0}</strong>`
-      : '<span style="color:var(--red)">Reddit not connected</span>';
+      ? `<span style="color:var(--status-healthy)">Connected as u/${esc(redditUser)}</span> | Queued: <strong>${queue.queued ?? 0}</strong> | Posted: <strong>${queue.posted ?? 0}</strong> | Skipped: <strong>${queue.skipped ?? 0}</strong><br>Posts today: ${postsToday}/5 | Last post: ${lastPost}`
+      : '<span style="color:var(--status-critical)">Reddit not connected</span>';
   } catch(e) {
-    $('reddit-status-line').innerHTML = '<span style="color:var(--red)">Reddit status unavailable</span>';
+    $('reddit-status-line').innerHTML = '<span style="color:var(--status-critical)">Reddit status unavailable</span>';
   }
 }
 
@@ -1458,25 +2276,28 @@ async function loadRedditQueueFull() {
   try {
     const data = await apiFetch('/reddit/queue?limit=5&status=queued');
     const posts = data.posts || [];
-    if (!posts.length) { container.innerHTML = '<div style="font-size:12px;color:var(--dim)">No queued posts. Generate some to get started.</div>'; return; }
+    if (!posts.length) {
+      container.innerHTML = '<div style="font-size:12px;color:var(--text-dim)">No queued posts. Generate some to get started.</div>';
+      return;
+    }
     container.innerHTML = posts.map(p => {
-      const submitUrl = `https://www.reddit.com/r/${encodeURIComponent(p.subreddit || '')}/submit`;
+      const submitUrl = `https://old.reddit.com/r/${encodeURIComponent(p.subreddit || '')}/submit`;
+      const titleEsc = esc(p.title || '').replace(/'/g, "\\'");
       return `
         <div class="queue-item">
           <div class="sub-name">r/${esc(p.subreddit || '')}</div>
-          <div class="q-title" onclick="copyToClipboard(this.textContent); setBtnState(this.closest('.queue-item').querySelector('.copy-indicator'), 'success', 'Copied')" title="Click to copy title" style="cursor:pointer">${esc(p.title || '')}</div>
-          <div style="font-size:11px;color:var(--dim);margin:4px 0">${esc((p.body || '').substring(0, 100))}</div>
+          <div class="q-title" onclick="copyToClipboard('${titleEsc}', this)" title="Click to copy title">${esc(p.title || '')}</div>
+          <div class="q-body">${esc((p.body || '').substring(0, 120))}</div>
           <div class="q-actions">
-            <button class="btn success" onclick="btnAction(this, () => redditPost('${esc(p.id)}'))">Post</button>
+            <button class="btn success" onclick="btnAction(this, () => redditMarkPosted('${esc(p.id)}'))">Mark Posted</button>
             <button class="btn" onclick="btnAction(this, () => redditSkip('${esc(p.id)}'))">Skip</button>
             <a class="btn" href="${submitUrl}" target="_blank" rel="noopener" style="text-decoration:none">Submit on Reddit</a>
-            <button class="btn copy-indicator" style="font-size:10px;pointer-events:none;opacity:0.5">Copy title</button>
           </div>
         </div>
       `;
     }).join('');
   } catch(e) {
-    container.innerHTML = '<div style="font-size:12px;color:var(--dim)">Queue unavailable</div>';
+    container.innerHTML = '<div style="font-size:12px;color:var(--text-dim)">Queue unavailable</div>';
   }
 }
 
@@ -1485,9 +2306,9 @@ async function loadPinterestStatus() {
     const d = await apiFetch('/pinterest/pin-status');
     const pinCount = d.pin_count ?? 0;
     const lastBatch = d.last_batch ? new Date(d.last_batch).toLocaleDateString() : 'never';
-    $('pinterest-status-line').innerHTML = `Pins generated: <strong style="color:var(--text)">${pinCount}</strong> | Last batch: <strong style="color:var(--text)">${lastBatch}</strong>`;
+    $('pinterest-status-line').innerHTML = `Pins generated: <strong>${pinCount}</strong> | Last batch: <strong>${lastBatch}</strong>`;
   } catch(e) {
-    $('pinterest-status-line').innerHTML = '<span style="color:var(--red)">Pinterest status unavailable</span>';
+    $('pinterest-status-line').innerHTML = '<span style="color:var(--status-critical)">Pinterest status unavailable</span>';
   }
 }
 
@@ -1497,7 +2318,7 @@ async function loadPinterestPins() {
     const d = await apiFetch('/pinterest/pins-list');
     const pins = d.pins || d.files || d || [];
     if (!Array.isArray(pins) || !pins.length) {
-      grid.innerHTML = '<div style="color:var(--dim);font-size:12px">No pins available. Generate some first.</div>';
+      grid.innerHTML = '<div style="color:var(--text-dim);font-size:12px">No pins available. Generate some first.</div>';
       return;
     }
     grid.innerHTML = pins.slice(0, 8).map(p => {
@@ -1511,91 +2332,130 @@ async function loadPinterestPins() {
       `;
     }).join('');
   } catch(e) {
-    grid.innerHTML = '<div style="color:var(--dim);font-size:12px">Pins unavailable</div>';
+    grid.innerHTML = '<div style="color:var(--text-dim);font-size:12px">Pins unavailable</div>';
   }
 }
 
-// ── EMAIL TAB ───────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// EMAIL TAB
+// ══════════════════════════════════════════════════════════════════
+let selectedEmail = null;
+
 async function loadEmailBriefing() {
   const el = $('email-content');
   try {
     const d = await apiFetch('/email/briefing');
-    if (d.error) { el.innerHTML = `<div style="color:var(--dim)">${esc(d.error)}</div>`; return 'Error'; }
+    emailBriefingData = d;
+    if (d.error) { el.innerHTML = `<div style="color:var(--text-dim)">${esc(d.error)}</div>`; return 'Error'; }
 
     const ts = d.generated_at ? new Date(d.generated_at).toLocaleString() : 'unknown';
-    let html = `<div style="color:var(--dim);margin-bottom:16px;font-size:12px">Last scan: ${ts} | ${d.accounts_scanned?.join(', ') || 'none'} | ${d.total_emails ?? 0} emails</div>`;
+    let html = `<div class="email-scan-bar">
+      <div class="email-scan-info">Last scan: ${ts} | ${d.accounts_scanned?.join(', ') || 'none'} | ${d.total_emails ?? 0} emails</div>
+    </div>`;
 
     // Security alerts (red)
     if (d.security?.length) {
       html += `<div class="email-category">
-        <div class="email-category-header" style="color:var(--red)">SECURITY ALERTS (${d.security.length})</div>`;
+        <div class="email-category-header" style="color:var(--status-critical)">\u26A0 Security Alerts (${d.security.length})</div>`;
       for (const m of d.security) {
-        html += `<div class="email-item">
-          <span style="color:var(--red)">&#9888;</span>
-          <span style="color:var(--dim)">[${esc(m.account)}]</span>
-          <strong>${esc(m.subject)}</strong>
-          <span style="color:var(--dim);font-size:11px"> &mdash; ${esc(m.from_address)}</span>
-          ${m.phishing_flags?.length ? `<div style="color:var(--red);font-size:11px;margin-top:2px">${m.phishing_flags.map(esc).join(', ')}</div>` : ''}
-        </div>`;
+        html += renderEmailItem(m, 'security');
       }
       html += '</div>';
     }
 
-    // Action required (yellow/orange)
+    // Action required
     if (d.action_required?.length) {
       html += `<div class="email-category">
-        <div class="email-category-header" style="color:var(--yellow)">ACTION REQUIRED (${d.action_required.length})</div>`;
+        <div class="email-category-header" style="color:var(--status-warning)">\u25CF Action Required (${d.action_required.length})</div>`;
       for (const m of d.action_required) {
-        html += `<div class="email-item">
-          <span style="color:var(--yellow)">&#9679;</span>
-          <span style="color:var(--dim)">[${esc(m.account)}]</span>
-          <strong>${esc(m.subject)}</strong>
-          <span style="color:var(--dim);font-size:11px"> &mdash; ${esc(m.from_address)}</span>
-        </div>`;
+        html += renderEmailItem(m, 'action');
       }
       html += '</div>';
     }
 
-    // Business (blue)
+    // Business
     if (d.business?.length) {
       html += `<div class="email-category">
-        <div class="email-category-header" style="color:var(--blue)">BUSINESS (${d.business.length})</div>`;
+        <div class="email-category-header" style="color:var(--status-info)">\u25CF Business (${d.business.length})</div>`;
       for (const m of d.business) {
-        html += `<div class="email-item">
-          <span style="color:var(--blue)">&#9679;</span>
-          <span style="color:var(--dim)">[${esc(m.account)}]</span>
-          ${esc(m.subject)}
-          <span style="color:var(--dim);font-size:11px"> &mdash; ${esc(m.from_address)}</span>
-        </div>`;
+        html += renderEmailItem(m, 'business');
       }
       html += '</div>';
     }
 
-    // FYI (dim)
+    // FYI
     if (d.fyi?.length) {
       html += `<div class="email-category">
-        <div class="email-category-header" style="color:var(--dim)">FYI (${d.fyi.length})</div>`;
+        <div class="email-category-header" style="color:var(--text-dim)">FYI (${d.fyi.length})</div>`;
       for (const m of d.fyi) {
-        html += `<div class="email-item" style="color:var(--dim)">
-          [${esc(m.account)}] ${esc(m.subject)}
-        </div>`;
+        html += renderEmailItem(m, 'fyi');
       }
       html += '</div>';
     }
 
     if (!d.security?.length && !d.action_required?.length && !d.business?.length && !d.fyi?.length) {
-      html += '<div style="color:var(--dim)">No emails in briefing period.</div>';
+      html += '<div style="color:var(--text-dim);padding:20px;text-align:center">No emails in briefing period.</div>';
     }
 
     el.innerHTML = html;
+    $('email-reader').classList.remove('show');
     return 'Loaded';
   } catch(e) {
-    el.innerHTML = `<div style="color:var(--dim)">Failed to load briefing: ${esc(e.message)}</div>`;
+    el.innerHTML = `<div style="color:var(--text-dim)">Failed to load briefing: ${esc(e.message)}</div>`;
     throw e;
   }
 }
 
-// ── ANALYTICS TAB ───────────────────────────────────────────────
+function renderEmailItem(m, type) {
+  const dateStr = m.date ? new Date(m.date).toLocaleDateString() : '';
+  const uid = m.uid || '';
+  const account = m.account || '';
+  const phishingHtml = m.phishing_flags?.length
+    ? `<div style="color:var(--status-critical);font-size:11px;margin-top:4px">${m.phishing_flags.map(esc).join(', ')}</div>`
+    : '';
+  return `
+    <div class="email-item ${type}" onclick="showEmailReader(${JSON.stringify(esc(m.subject || '')).replace(/"/g, '&quot;')}, ${JSON.stringify(esc(m.body_preview || m.body || 'No preview available')).replace(/"/g, '&quot;')}, '${esc(account)}', '${esc(uid)}')">
+      <span class="email-date">${esc(dateStr)}</span>
+      <span class="email-account-badge">${esc(account)}</span>
+      <div class="email-subject">${esc(m.subject)}</div>
+      <div class="email-from">${esc(m.from_address || m.from || '')}</div>
+      ${phishingHtml}
+    </div>
+  `;
+}
+
+function showEmailReader(subject, body, account, uid) {
+  const reader = $('email-reader');
+  $('reader-subject').textContent = subject;
+  $('reader-body').textContent = body;
+  selectedEmail = { account, uid };
+
+  $('reader-actions').innerHTML = `
+    <button class="btn" onclick="btnAction(this, () => archiveEmail('${esc(account)}', '${esc(uid)}'))">Archive</button>
+    <button class="btn danger" onclick="btnAction(this, () => deleteEmail('${esc(account)}', '${esc(uid)}'))">Delete</button>
+    <button class="btn" onclick="window.open('https://mail.google.com/','_blank')">Open in Gmail</button>
+  `;
+  reader.classList.add('show');
+  reader.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function archiveEmail(account, uid) {
+  await apiFetch('/email/archive', { method: 'POST', body: JSON.stringify({ account, uid }) });
+  $('email-reader').classList.remove('show');
+  loadEmailBriefing();
+  return 'Archived';
+}
+
+async function deleteEmail(account, uid) {
+  await apiFetch('/email/delete', { method: 'POST', body: JSON.stringify({ account, uid }) });
+  $('email-reader').classList.remove('show');
+  loadEmailBriefing();
+  return 'Deleted';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ANALYTICS TAB
+// ══════════════════════════════════════════════════════════════════
 
 // Intelligence Panel
 async function loadIntelligence() {
@@ -1612,20 +2472,20 @@ async function loadIntelligence() {
             <tr><th>Query / Subject</th><th style="text-align:right">Count</th><th style="text-align:right">Licenses</th></tr>
             ${d.trending_searches.map(s => `
               <tr><td>${esc(s.query)}</td><td class="count">${s.count}</td>
-              <td class="count">${s.licenses_sold > 0 ? s.licenses_sold + ' sold' : '&mdash;'}</td></tr>
+              <td class="count">${s.licenses_sold > 0 ? s.licenses_sold + ' sold' : '\u2014'}</td></tr>
             `).join('')}
           </table>
         </div>`;
     } else {
-      trendingHtml = '<div class="intel-box"><div class="intel-box-title">Trending Searches</div><div style="color:var(--dim);font-size:12px">No agent requests yet</div></div>';
+      trendingHtml = '<div class="intel-box"><div class="intel-box-title">Trending Searches</div><div style="color:var(--text-dim);font-size:12px">No agent requests yet</div></div>';
     }
 
     const at = d.agent_types || {};
     const agentTypesHtml = `
       <div class="intel-box">
         <div class="intel-box-title">Agent Types Visiting</div>
-        <div style="font-size:12px;color:var(--dim)">
-          ${Object.entries(at).filter(([,v]) => v > 0).map(([k,v]) => `<span style="color:var(--text)">${esc(k)}</span>: ${v}`).join(' | ') || 'No visits recorded'}
+        <div style="font-size:12px;color:var(--text-dim)">
+          ${Object.entries(at).filter(([,v]) => v > 0).map(([k,v]) => `<span style="color:var(--text-primary)">${esc(k)}</span>: ${v}`).join(' | ') || 'No visits recorded'}
         </div>
       </div>`;
 
@@ -1635,11 +2495,11 @@ async function loadIntelligence() {
         <div class="intel-box">
           <div class="intel-box-title">Unmet Demand (searches with no/poor match)</div>
           ${d.unmet_demand.map(u => `
-            <div style="font-size:12px;color:var(--yellow);margin-bottom:4px">
-              &#9888; "${esc(u.query)}" &mdash; ${u.search_count} searches, 0 matches
+            <div style="font-size:12px;color:var(--status-warning);margin-bottom:4px">
+              \u26A0 "${esc(u.query)}" \u2014 ${u.search_count} searches, 0 matches
             </div>
           `).join('')}
-          <div style="font-size:11px;color:var(--dim);margin-top:8px;font-style:italic">
+          <div style="font-size:11px;color:var(--text-dim);margin-top:8px;font-style:italic">
             Wolf: These are the photos to pull from your archive next
           </div>
         </div>`;
@@ -1654,18 +2514,18 @@ async function loadIntelligence() {
           <div>Commercial: <span class="amount">$${(rev.commercial_total || 0).toFixed(2)}</span></div>
           <div>Total: <span class="amount">$${((rev.micro_total || 0) + (rev.commercial_total || 0)).toFixed(2)}</span></div>
         </div>
-        ${rev.top_image && rev.top_image !== 'none' ? `<div style="font-size:11px;color:var(--dim);margin-top:4px">Top: ${esc(rev.top_image)}</div>` : ''}
+        ${rev.top_image && rev.top_image !== 'none' ? `<div style="font-size:11px;color:var(--text-dim);margin-top:4px">Top: ${esc(rev.top_image)}</div>` : ''}
       </div>`;
 
     const summaryHtml = `
-      <div style="font-size:11px;color:var(--dim);margin-bottom:12px">
-        Total requests: ${d.total_requests || 0} | Unique agents: ${d.unique_agents || 0}
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:14px">
+        Total requests: <strong style="color:var(--text-primary)">${d.total_requests || 0}</strong> | Unique agents: <strong style="color:var(--text-primary)">${d.unique_agents || 0}</strong>
       </div>`;
 
     el.innerHTML = summaryHtml + trendingHtml + agentTypesHtml + unmetHtml + revenueHtml;
     return 'Loaded';
   } catch(e) {
-    el.innerHTML = '<div style="color:var(--dim)">Intelligence unavailable: ' + esc(e.message) + '</div>';
+    el.innerHTML = '<div style="color:var(--text-dim)">Intelligence unavailable: ' + esc(e.message) + '</div>';
     throw e;
   }
 }
@@ -1682,25 +2542,18 @@ async function loadEtsy() {
     const listings = health.etsy_listings ?? '--';
     const sales = health.sales ?? 0;
 
-    $('sb-etsy').textContent = listings + ' live';
-
     const summary = seo.summary || {};
     const score = summary.overall_score ?? '--';
     const totalListings = seo.total_listings ?? '--';
 
-    const inlineScore = $('etsy-seo-inline');
-    if (inlineScore) inlineScore.textContent = score + '/100';
-    const liveCount = $('etsy-live-count');
-    if (liveCount) liveCount.textContent = listings;
-
-    const scoreColor = score === '--' ? 'var(--dim)' : (score >= 80 ? 'var(--green)' : (score >= 60 ? 'var(--yellow)' : 'var(--red)'));
+    const scoreColor = score === '--' ? 'var(--text-dim)' : (score >= 80 ? 'var(--status-healthy)' : (score >= 60 ? 'var(--status-warning)' : 'var(--status-critical)'));
 
     let seoHtml = '';
     if (summary.overall_score !== undefined) {
       seoHtml = `
         <div class="seo-bar">
           <div class="seo-score" style="color:${scoreColor}">${score}</div>
-          <div style="font-size:11px;color:var(--dim)">/100 SEO Health</div>
+          <div style="font-size:12px;color:var(--text-dim)">/100 SEO Health</div>
         </div>
         <div class="seo-details">
           <div class="metric"><span>Titles using full 140 chars</span><span class="val">${summary.titles_full_length ?? '--'}/${totalListings}</span></div>
@@ -1709,19 +2562,19 @@ async function loadEtsy() {
           <div class="metric"><span>Room-type keywords</span><span class="val">${summary.room_keywords_present ?? '--'}/${totalListings}</span></div>
         </div>`;
     } else {
-      seoHtml = '<div style="color:var(--dim);font-size:12px">No SEO report available. Run audit to generate.</div>';
+      seoHtml = '<div style="color:var(--text-dim);font-size:12px">No SEO report available. Run audit to generate.</div>';
     }
 
     el.innerHTML = `
-      <div style="font-size:12px;color:var(--dim);margin-bottom:12px">
-        Live: <strong style="color:var(--text)">${listings}</strong> |
-        Orders: <strong style="color:var(--text)">${sales}</strong>
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:14px">
+        Live: <strong style="color:var(--text-primary)">${listings}</strong> |
+        Orders: <strong style="color:var(--text-primary)">${sales}</strong>
       </div>
       ${seoHtml}
     `;
     return 'Loaded';
   } catch(e) {
-    el.innerHTML = '<div style="color:var(--dim)">Etsy data unavailable</div>';
+    el.innerHTML = '<div style="color:var(--text-dim)">Etsy data unavailable</div>';
     throw e;
   }
 }
@@ -1733,8 +2586,8 @@ async function loadLicensing() {
     const d = await apiFetch('/licensing/dashboard');
     const tb = d.tier_breakdown || {};
     const topHtml = d.top_images && d.top_images.length
-      ? d.top_images.map(i => `<div style="font-size:12px;color:var(--dim)">${esc(i.image_id || '')} &mdash; ${i.cnt || 0} licenses ($${(i.rev || 0).toFixed(2)})</div>`).join('')
-      : '<div style="font-size:12px;color:var(--dim)">No sales yet</div>';
+      ? d.top_images.map(i => `<div style="font-size:12px;color:var(--text-dim)">${esc(i.image_id || '')} \u2014 ${i.cnt || 0} licenses ($${(i.rev || 0).toFixed(2)})</div>`).join('')
+      : '<div style="font-size:12px;color:var(--text-dim)">No sales yet</div>';
 
     el.innerHTML = `
       <div class="licensing-grid">
@@ -1756,27 +2609,29 @@ async function loadLicensing() {
           <div class="sub">of ${d.catalog_size || 0}</div>
         </div>
       </div>
-      <div style="margin-top:12px">
+      <div style="margin-top:14px">
         <div class="intel-box-title">Pricing Tiers</div>
-        <div style="font-size:12px;color:var(--dim);line-height:2;margin-top:8px">
+        <div style="font-size:12px;color:var(--text-dim);line-height:2;margin-top:8px">
           Thumbnail ($0.01): ${tb.thumbnail || 0} sold<br>
           Web ($0.50): ${tb.web || 0} sold<br>
           Commercial ($2.50): ${tb.commercial || 0} sold
         </div>
       </div>
-      <div style="margin-top:12px">
+      <div style="margin-top:14px">
         <div class="intel-box-title">Top Licensed Images</div>
         ${topHtml}
       </div>
     `;
     return 'Loaded';
   } catch(e) {
-    el.innerHTML = '<div style="color:var(--dim)">Licensing data unavailable</div>';
+    el.innerHTML = '<div style="color:var(--text-dim)">Licensing data unavailable</div>';
     throw e;
   }
 }
 
-// ── BROADCAST TAB ───────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// BROADCAST TAB
+// ══════════════════════════════════════════════════════════════════
 async function loadBroadcast() {
   const el = $('broadcast-content');
   try {
@@ -1785,13 +2640,15 @@ async function loadBroadcast() {
 
     const entries = d.entries || [];
     let entriesHtml = entries.map(e => {
-      const statusClass = e.status === 'success' ? 'check-ok' : (e.status === 'failed' ? 'check-fail' : '');
-      const icon = e.status === 'success' ? '&#10003;' : (e.status === 'failed' ? '&#10007;' : '&#8212;');
+      const icon = e.status === 'success' ? '\u2713' : (e.status === 'failed' ? '\u2717' : '\u2014');
+      const cls = e.status === 'success' ? 'check-ok' : (e.status === 'failed' ? 'check-fail' : '');
       return `
-        <div style="font-size:12px;margin-bottom:4px">
-          <span class="${statusClass}">${icon}</span>
-          <span style="color:var(--text)">${esc(e.action || '')}</span>
-          <span style="color:var(--dim)"> &mdash; ${esc(e.details || '')}</span>
+        <div style="font-size:12px;margin-bottom:6px;display:flex;gap:8px;align-items:flex-start">
+          <span class="${cls}" style="flex-shrink:0;font-size:14px">${icon}</span>
+          <div>
+            <strong style="color:var(--text-primary)">${esc(e.action || '')}</strong>
+            <span style="color:var(--text-dim)"> \u2014 ${esc(e.details || '')}</span>
+          </div>
         </div>`;
     }).join('');
 
@@ -1809,7 +2666,7 @@ async function loadBroadcast() {
       </div>`;
     return 'Loaded';
   } catch(e) {
-    el.innerHTML = '<div style="color:var(--dim)">Broadcast status unavailable</div>';
+    el.innerHTML = '<div style="color:var(--text-dim)">Broadcast status unavailable</div>';
     throw e;
   }
 }
@@ -1820,7 +2677,7 @@ async function loadIndexNow() {
     const d = await apiFetch('/broadcast/status');
     const history = d.indexnow_history || d.history || [];
     if (!history.length) {
-      el.innerHTML = '<div style="color:var(--dim);font-size:12px">No IndexNow submissions yet.</div>';
+      el.innerHTML = '<div style="color:var(--text-dim);font-size:12px">No IndexNow submissions yet.</div>';
       return;
     }
     let html = '<table class="intel-table"><tr><th>Time</th><th>URLs Submitted</th><th>Status</th></tr>';
@@ -1828,17 +2685,19 @@ async function loadIndexNow() {
       const time = entry.timestamp ? new Date(entry.timestamp).toLocaleString() : '--';
       const count = entry.url_count || entry.urls?.length || '--';
       const status = entry.status || '--';
-      const statusColor = status === 'success' ? 'var(--green)' : (status === 'failed' ? 'var(--red)' : 'var(--dim)');
-      html += `<tr><td style="color:var(--dim)">${time}</td><td>${count}</td><td style="color:${statusColor}">${esc(status)}</td></tr>`;
+      const statusColor = status === 'success' ? 'var(--status-healthy)' : (status === 'failed' ? 'var(--status-critical)' : 'var(--text-dim)');
+      html += `<tr><td style="color:var(--text-dim)">${time}</td><td>${count}</td><td style="color:${statusColor}">${esc(status)}</td></tr>`;
     }
     html += '</table>';
     el.innerHTML = html;
   } catch(e) {
-    el.innerHTML = '<div style="color:var(--dim);font-size:12px">IndexNow history unavailable</div>';
+    el.innerHTML = '<div style="color:var(--text-dim);font-size:12px">IndexNow history unavailable</div>';
   }
 }
 
-// ── HOME TAB: Activity Feed ─────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// HOME TAB: Activity Feed
+// ══════════════════════════════════════════════════════════════════
 const FEED_COMPONENTS = ['all', 'instagram', 'etsy', 'pinterest', 'reddit', 'broadcast', 'x402', 'pipeline', 'safety', 'system'];
 
 function renderFilterBar() {
@@ -1867,20 +2726,23 @@ async function loadFeed() {
 
     $('home-feed-cost').textContent = '$' + (d.cost_today || 0).toFixed(4);
 
+    // Also update KPI API spend
+    $('kpi-api-spend').textContent = '$' + (d.cost_today || 0).toFixed(2);
+
     const entries = d.entries || [];
     if (!entries.length) {
-      container.innerHTML = '<div style="padding:12px;color:var(--dim)">No activity</div>';
+      container.innerHTML = '<div style="padding:16px;color:var(--text-dim);text-align:center">No activity</div>';
     } else {
       container.innerHTML = entries.map(e => {
         const time = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '--';
         const comp = (e.component || 'system').toLowerCase();
-        const badgeClass = FEED_COMPONENTS.includes(comp) ? comp : 'system';
+        const dotClass = FEED_COMPONENTS.includes(comp) ? comp : 'system';
         const cost = e.cost_usd > 0 ? '$' + e.cost_usd.toFixed(4) : '';
         return `
           <div class="feed-entry">
+            <span class="feed-dot ${dotClass}"></span>
             <span class="feed-time">${time}</span>
-            <span class="feed-badge ${badgeClass}">${esc(e.component || 'system')}</span>
-            <span class="feed-action">${esc(e.action || '')} ${e.details ? '<span style="color:var(--dim)">' + esc(String(e.details).substring(0, 100)) + '</span>' : ''}</span>
+            <span class="feed-action"><strong>${esc(e.component || 'system')}</strong> ${esc(e.action || '')} ${e.details ? '<span style="color:var(--text-dim)">' + esc(String(e.details).substring(0, 100)) + '</span>' : ''}</span>
             <span class="feed-cost">${cost}</span>
           </div>`;
       }).join('');
@@ -1894,28 +2756,88 @@ async function loadFeed() {
       <button class="btn" ${feedPage >= totalPages - 1 ? 'disabled' : ''} onclick="feedPage++; loadFeed()">Next</button>
     `;
   } catch(e) {
-    container.innerHTML = '<div style="padding:12px;color:var(--dim)">Feed unavailable</div>';
+    container.innerHTML = '<div style="padding:16px;color:var(--text-dim);text-align:center">Feed unavailable</div>';
   }
 }
 
-// ── LINKS TAB ───────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// LINKS TAB
+// ══════════════════════════════════════════════════════════════════
+const LINK_CATEGORIES = [
+  {
+    name: 'My Websites',
+    links: [
+      { name: 'Archive-35.com', desc: 'Main website', url: 'https://archive-35.com/' },
+      { name: 'ATHOS', desc: 'Vocabulary builder', url: 'https://athos-obs.com/' },
+      { name: 'Micro-Licensing', desc: 'License page', url: 'https://archive-35.com/license' },
+    ]
+  },
+  {
+    name: 'Sales Channels',
+    links: [
+      { name: 'Etsy Shop', desc: 'Archive35Photo store', url: 'https://www.etsy.com/shop/Archive35Photo' },
+      { name: 'Etsy Manager', desc: 'Shop dashboard', url: 'https://www.etsy.com/your/shops/me/dashboard' },
+      { name: 'Indiewalls', desc: 'Art for hospitality', url: 'https://artwork.indiewalls.com/' },
+      { name: 'CaFE', desc: 'Call for entries', url: 'https://artist.callforentry.org/' },
+      { name: 'Pictorem', desc: 'Print fulfillment', url: 'https://www.pictorem.com/' },
+    ]
+  },
+  {
+    name: 'Social Media',
+    links: [
+      { name: 'Instagram', desc: '@archive35photo', url: 'https://www.instagram.com/archive35photo/' },
+      { name: 'Pinterest', desc: 'Archive35 pins', url: 'https://www.pinterest.com/archive35photo/' },
+      { name: 'Reddit', desc: 'Photography subreddits', url: 'https://www.reddit.com/' },
+    ]
+  },
+  {
+    name: 'Infrastructure',
+    links: [
+      { name: 'Cloudflare', desc: 'DNS, CDN, analytics', url: 'https://dash.cloudflare.com/' },
+      { name: 'Stripe', desc: 'Payment processing', url: 'https://dashboard.stripe.com/' },
+      { name: 'GitHub', desc: 'Code repository', url: 'https://github.com/wolfschram/archive-35.com' },
+    ]
+  },
+  {
+    name: 'Search Engines',
+    links: [
+      { name: 'Bing Webmaster', desc: 'Search performance', url: 'https://www.bing.com/webmasters/' },
+      { name: 'Google Search Console', desc: 'Search analytics', url: 'https://search.google.com/search-console/' },
+    ]
+  },
+  {
+    name: 'Email',
+    links: [
+      { name: 'Gmail (Archive-35)', desc: 'wolf@archive-35.com', url: 'https://mail.google.com/' },
+      { name: 'Gmail (Personal)', desc: 'Personal account', url: 'https://mail.google.com/' },
+      { name: 'iCloud', desc: 'Apple email', url: 'https://www.icloud.com/mail' },
+    ]
+  },
+];
+
 function renderLinksGrid() {
-  const grid = $('all-links-grid');
-  if (!grid) return;
-  grid.innerHTML = PLATFORM_LINKS.map(l => `
-    <a class="link-card" href="${esc(l.url)}" target="_blank" rel="noopener">
-      <div class="link-name">${esc(l.name)}</div>
-      <div class="link-url">${esc(l.url.replace('https://', '').replace('http://', ''))}</div>
-    </a>
+  const container = $('all-links-content');
+  if (!container) return;
+  container.innerHTML = LINK_CATEGORIES.map(cat => `
+    <div class="links-category">
+      <h3>${esc(cat.name)}</h3>
+      <div class="links-grid">
+        ${cat.links.map(l => `
+          <a class="link-card" href="${esc(l.url)}" target="_blank" rel="noopener">
+            <div class="link-name">${esc(l.name)}</div>
+            <div class="link-desc">${esc(l.desc)}</div>
+          </a>
+        `).join('')}
+      </div>
+    </div>
   `).join('');
 }
 
-// ── Keyboard shortcuts ──────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Keyboard shortcuts
+// ══════════════════════════════════════════════════════════════════
 document.addEventListener('keydown', e => {
-  // Escape closes modal
   if (e.key === 'Escape') closeKillModal();
-
-  // Number keys 1-8 switch tabs (when not in input)
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   const num = parseInt(e.key);
   if (num >= 1 && num <= TABS.length) {
@@ -1930,10 +2852,12 @@ window.addEventListener('hashchange', () => {
   if (TABS.includes(tab)) switchTab(tab);
 });
 
-// ── Boot ────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Boot
+// ══════════════════════════════════════════════════════════════════
 initTab();
 startPolling();
-renderLinksGrid();
+loadTileData();
 </script>
 </body>
 </html>

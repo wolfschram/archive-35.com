@@ -16,8 +16,6 @@
 # Status: docker-compose ps
 # Logs:   docker-compose logs -f <service>
 
-version: "3.8"
-
 # ──────────────────────────────────────────────────────────────────────
 # Services
 # ──────────────────────────────────────────────────────────────────────
@@ -56,6 +54,10 @@ services:
       - ./data:/app/data
       # Logs volume (optional, helps with debugging)
       - ./logs:/app/logs
+      # Mount .env so token refresh can write back to it
+      - ./.env:/app/.env
+      # Mount source code for live development
+      - ./src:/app/src
     environment:
       # Log level: DEBUG, INFO (default), WARNING, ERROR
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
@@ -112,6 +114,7 @@ services:
       # Shared with API: same database and data directories
       - ./data:/app/data
       - ./logs:/app/logs
+      - ./.env:/app/.env
     environment:
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     command:
@@ -195,8 +198,8 @@ services:
 # Data survives container restarts and removals
 
 volumes:
-  # All data stored in ./data on the host machine
-  # This is mounted to /app/data inside containers
+  agent-data:
+    driver: local
 
 # ──────────────────────────────────────────────────────────────────────
 # Networks

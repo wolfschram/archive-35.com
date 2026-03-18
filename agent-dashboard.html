@@ -2646,7 +2646,7 @@ async function loadTraffic() {
   const el = $('cf-traffic');
   if (!el) return;
   try {
-    const d = cfData && cfData.configured !== undefined ? cfData : await apiFetch('/analytics/cloudflare');
+    const d = await apiFetch('/analytics/cloudflare');
     cfData = d;
     if (!d.configured) {
       el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">&#128202;</div><div class="empty-state-text">Add CLOUDFLARE_API_TOKEN to .env to see real visitor data</div></div>`;

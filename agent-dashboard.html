@@ -19,6 +19,7 @@
     --green: #4ade80;
     --yellow: #facc15;
     --blue: #60a5fa;
+    --orange: #f59e0b;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -30,19 +31,6 @@
     line-height: 1.5;
   }
 
-  /* ── Login ──────────────────────────────────────────── */
-  #login-screen {
-    display: flex; align-items: center; justify-content: center;
-    min-height: 100vh; flex-direction: column; gap: 16px;
-  }
-  #login-screen h1 { font-size: 14px; text-transform: uppercase; letter-spacing: 4px; color: var(--dim); }
-  #login-screen input {
-    background: var(--surface); border: 1px solid var(--border); color: var(--text);
-    padding: 12px 20px; font-family: inherit; font-size: 14px; width: 280px; text-align: center;
-  }
-  #login-screen input:focus { outline: none; border-color: var(--accent); }
-  #login-screen .error { color: var(--red); font-size: 12px; }
-
   /* ── Status Bar ─────────────────────────────────────── */
   #status-bar {
     position: sticky; top: 0; z-index: 100;
@@ -51,6 +39,7 @@
     padding: 8px 20px; gap: 4px; flex-wrap: wrap;
     backdrop-filter: blur(10px);
   }
+  .sb-left { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
   .sb-item {
     display: flex; align-items: center; gap: 6px; padding: 4px 10px;
     font-size: 11px; cursor: pointer; border-radius: 3px;
@@ -62,6 +51,7 @@
   .sb-value.ok { color: var(--green); }
   .sb-value.warn { color: var(--yellow); }
   .sb-value.err { color: var(--red); }
+  .sb-right { display: flex; align-items: center; gap: 8px; }
   .kill-switch-btn {
     background: none; border: 1px solid var(--border); color: var(--green);
     padding: 4px 12px; font-family: inherit; font-size: 11px; cursor: pointer;
@@ -70,28 +60,44 @@
   .kill-switch-btn:hover { border-color: var(--accent); }
   .kill-switch-btn.active { border-color: var(--red); color: var(--red); background: rgba(248,113,113,0.1); }
 
-  /* ── Dashboard Container ────────────────────────────── */
-  #dashboard { display: none; padding: 0 20px 40px; max-width: 1200px; margin: 0 auto; }
+  /* ── Tab Navigation ─────────────────────────────────── */
+  #tab-bar {
+    display: flex; gap: 0; border-bottom: 1px solid var(--border);
+    background: var(--surface); padding: 0 20px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .tab-btn {
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: var(--dim); padding: 10px 16px; font-family: inherit; font-size: 11px;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px;
+    white-space: nowrap; transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--bg); background: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
 
-  /* ── Section Headers (collapsible) ──────────────────── */
-  .section {
-    margin-top: 24px; border: 1px solid var(--border); background: var(--surface);
+  /* ── Tab Panels ─────────────────────────────────────── */
+  .tab-panel { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+  .tab-panel.active { display: block; }
+
+  /* ── Section Cards ──────────────────────────────────── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 16px; margin-bottom: 16px;
   }
-  .section-header {
+  .card-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 16px; cursor: pointer; user-select: none;
-    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
   }
-  .section-header:hover { background: var(--surface-2); }
-  .section-title {
+  .card-title {
     font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--dim);
     display: flex; align-items: center; gap: 8px;
   }
-  .section-title .chevron { transition: transform 0.2s; font-size: 10px; }
-  .section.collapsed .section-title .chevron { transform: rotate(-90deg); }
-  .section.collapsed .section-body { display: none; }
-  .section-body { padding: 16px; }
-  .section-actions { display: flex; gap: 8px; }
+  .card-title a {
+    color: var(--accent); text-decoration: none; font-size: 10px;
+    border: 1px solid var(--border); padding: 2px 8px; border-radius: 2px;
+  }
+  .card-title a:hover { border-color: var(--accent); background: rgba(201,168,76,0.1); }
+  .card-actions { display: flex; gap: 8px; }
 
   /* ── Agent Cards Grid ───────────────────────────────── */
   .agent-grid {
@@ -131,7 +137,6 @@
 
   .agent-stats { font-size: 12px; color: var(--dim); margin-bottom: 10px; line-height: 1.8; }
   .agent-stats strong { color: var(--text); }
-
   .agent-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
   /* ── Buttons ────────────────────────────────────────── */
@@ -139,7 +144,8 @@
     border: 1px solid var(--border); background: var(--surface); color: var(--text);
     padding: 5px 12px; font-family: inherit; font-size: 11px; cursor: pointer;
     text-transform: uppercase; letter-spacing: 1px; border-radius: 2px;
-    transition: border-color 0.15s, background 0.15s;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    position: relative;
   }
   .btn:hover { border-color: var(--accent); }
   .btn:disabled { opacity: 0.55; cursor: default; }
@@ -150,10 +156,44 @@
   .btn.success { border-color: var(--green); color: var(--green); }
   .btn.success:hover { background: rgba(74,222,128,0.1); }
 
-  /* ── Intelligence Tables ────────────────────────────── */
-  .intel-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  /* Button state feedback (replaces alert) */
+  .btn.state-working { background: var(--orange); color: var(--bg); border-color: var(--orange); pointer-events: none; }
+  .btn.state-success { background: var(--green); color: var(--bg); border-color: var(--green); }
+  .btn.state-failed { background: var(--red); color: white; border-color: var(--red); cursor: pointer; }
+
+  /* ── Sales Thermometer ──────────────────────────────── */
+  .thermometer {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 4px; height: 40px; position: relative; overflow: hidden;
+    margin: 12px 0;
   }
+  .thermometer-fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+    transition: width 0.8s ease; border-radius: 4px 0 0 4px; min-width: 2px;
+  }
+  .thermometer-label {
+    position: absolute; inset: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 16px; font-weight: 700;
+    color: var(--text); text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  }
+
+  /* ── Connectivity Dots ──────────────────────────────── */
+  .conn-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+  }
+  .conn-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+    background: var(--surface-2); border: 1px solid var(--border); font-size: 12px;
+  }
+  .conn-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .conn-dot.green { background: var(--green); }
+  .conn-dot.red { background: var(--red); }
+  .conn-dot.yellow { background: var(--yellow); }
+
+  /* ── Intelligence Tables ────────────────────────────── */
   .intel-table { width: 100%; font-size: 12px; border-collapse: collapse; }
   .intel-table th {
     text-align: left; padding: 6px 8px; font-size: 10px; text-transform: uppercase;
@@ -161,7 +201,6 @@
   }
   .intel-table td { padding: 6px 8px; border-bottom: 1px solid #1a1a1a; }
   .intel-table td.count { color: var(--accent); font-weight: 700; text-align: right; }
-  .intel-table td.warn-cell { color: var(--yellow); }
 
   .intel-box {
     background: var(--surface-2); border: 1px solid var(--border); padding: 12px; margin-bottom: 12px;
@@ -170,7 +209,7 @@
     font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
     color: var(--dim); margin-bottom: 8px;
   }
-  .revenue-row { display: flex; gap: 24px; font-size: 13px; }
+  .revenue-row { display: flex; gap: 24px; font-size: 13px; flex-wrap: wrap; }
   .revenue-row .amount { color: var(--green); font-weight: 700; }
 
   /* ── Broadcast Status ───────────────────────────────── */
@@ -191,16 +230,10 @@
 
   /* ── Etsy Performance ───────────────────────────────── */
   .seo-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .seo-score {
-    font-size: 28px; font-weight: 700; color: var(--accent); min-width: 60px;
-  }
+  .seo-score { font-size: 28px; font-weight: 700; color: var(--accent); min-width: 60px; }
   .seo-details { font-size: 12px; color: var(--dim); line-height: 1.8; }
   .seo-details .metric { display: flex; justify-content: space-between; }
   .seo-details .metric .val { color: var(--text); }
-  .zero-view-alert {
-    background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.3);
-    padding: 8px 12px; font-size: 12px; color: var(--yellow); margin-top: 8px;
-  }
 
   /* ── Activity Feed ──────────────────────────────────── */
   .filter-bar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -224,8 +257,7 @@
   .feed-time { color: var(--dim); min-width: 70px; flex-shrink: 0; }
   .feed-badge {
     font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
-    padding: 1px 6px; border-radius: 2px; min-width: 70px; text-align: center;
-    flex-shrink: 0;
+    padding: 1px 6px; border-radius: 2px; min-width: 70px; text-align: center; flex-shrink: 0;
   }
   .feed-badge.instagram { background: rgba(201,168,76,0.2); color: var(--accent); }
   .feed-badge.etsy { background: rgba(96,165,250,0.2); color: var(--blue); }
@@ -253,16 +285,78 @@
   .stat-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--dim); }
   .stat-card .value { font-size: 24px; font-weight: 700; color: var(--accent); margin: 4px 0; }
   .stat-card .sub { font-size: 11px; color: var(--dim); }
-  .tier-list { font-size: 12px; color: var(--dim); line-height: 2; margin-top: 8px; }
 
-  /* ── Reddit Queue (within agent card) ───────────────── */
+  /* ── Reddit Queue ───────────────────────────────────── */
   .queue-preview { margin-top: 10px; }
   .queue-item {
     background: var(--surface); border: 1px solid var(--border); padding: 8px; margin-bottom: 6px;
   }
   .queue-item .sub-name { color: var(--accent); font-size: 11px; font-weight: 700; }
-  .queue-item .q-title { font-size: 12px; margin: 2px 0; }
+  .queue-item .q-title { font-size: 12px; margin: 2px 0; cursor: pointer; }
+  .queue-item .q-title:hover { color: var(--accent); }
   .queue-item .q-actions { display: flex; gap: 6px; margin-top: 6px; }
+
+  /* ── Social Post Preview ────────────────────────────── */
+  .ig-posts-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
+  }
+  .ig-post-card {
+    background: var(--surface-2); border: 1px solid var(--border); overflow: hidden;
+  }
+  .ig-post-card img {
+    width: 100%; height: 200px; object-fit: cover; display: block;
+  }
+  .ig-post-card .caption {
+    padding: 8px; font-size: 11px; color: var(--dim); max-height: 60px;
+    overflow: hidden; line-height: 1.4;
+  }
+
+  .pin-preview-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px;
+  }
+  .pin-card {
+    background: var(--surface-2); border: 1px solid var(--border); overflow: hidden;
+  }
+  .pin-card img {
+    width: 100%; height: 180px; object-fit: cover; display: block;
+  }
+  .pin-card .pin-label {
+    padding: 6px 8px; font-size: 10px; color: var(--dim);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* ── Email Briefing ─────────────────────────────────── */
+  .email-category { margin-bottom: 16px; }
+  .email-category-header {
+    font-weight: 700; margin-bottom: 6px; font-size: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .email-item {
+    padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 12px;
+  }
+
+  /* ── Links Grid ─────────────────────────────────────── */
+  .links-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px;
+  }
+  .link-card {
+    background: var(--surface-2); border: 1px solid var(--border); padding: 16px;
+    text-decoration: none; display: block; transition: border-color 0.15s;
+  }
+  .link-card:hover { border-color: var(--accent); }
+  .link-card .link-name {
+    font-size: 13px; color: var(--accent); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+  }
+  .link-card .link-url {
+    font-size: 10px; color: var(--dim); word-break: break-all;
+  }
+
+  /* ── Learning Tab ───────────────────────────────────── */
+  .learning-frame {
+    width: 100%; height: calc(100vh - 140px); border: 1px solid var(--border);
+    background: var(--surface);
+  }
 
   /* ── Offline Banner ─────────────────────────────────── */
   .offline-banner {
@@ -285,18 +379,37 @@
   .modal p { color: var(--dim); font-size: 12px; margin-bottom: 16px; }
   .modal .btn-row { display: flex; gap: 12px; justify-content: center; }
 
+  /* ── Inline Feedback ────────────────────────────────── */
+  .inline-msg {
+    font-size: 11px; padding: 4px 8px; margin-top: 6px; border-radius: 2px; display: none;
+  }
+  .inline-msg.show { display: block; }
+  .inline-msg.error { color: var(--red); background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); }
+  .inline-msg.success { color: var(--green); background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); }
+
   /* ── Responsive ─────────────────────────────────────── */
   @media (max-width: 768px) {
     .agent-grid { grid-template-columns: 1fr; }
-    .intel-grid { grid-template-columns: 1fr; }
     .broadcast-grid { grid-template-columns: 1fr; }
     .licensing-grid { grid-template-columns: 1fr 1fr; }
+    .ig-posts-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    .pin-preview-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    .links-grid { grid-template-columns: 1fr 1fr; }
+    .conn-grid { grid-template-columns: 1fr 1fr; }
     #status-bar { padding: 6px 10px; }
     .sb-item { padding: 3px 6px; font-size: 10px; }
+    #tab-bar { padding: 0 10px; }
+    .tab-btn { padding: 8px 10px; font-size: 10px; }
+    .tab-panel { padding: 12px; }
+    .thermometer-label { font-size: 13px; }
   }
   @media (max-width: 480px) {
     .licensing-grid { grid-template-columns: 1fr; }
+    .links-grid { grid-template-columns: 1fr; }
+    .conn-grid { grid-template-columns: 1fr; }
     .sb-item .sb-label { display: none; }
+    .ig-posts-grid { grid-template-columns: 1fr; }
+    .revenue-row { flex-direction: column; gap: 4px; }
   }
 
   /* Scrollbar */
@@ -307,13 +420,6 @@
 </style>
 </head>
 <body>
-
-<!-- Login Screen (disabled — auto-login) -->
-<div id="login-screen" style="display:none">
-  <h1>Archive-35 Operator</h1>
-  <input type="password" id="password" placeholder="password">
-  <div class="error" id="login-error"></div>
-</div>
 
 <!-- Offline Banner -->
 <div id="offline-banner" class="offline-banner">
@@ -334,135 +440,333 @@
   </div>
 </div>
 
-<!-- Dashboard -->
-<div id="dashboard">
-
-  <!-- Status Bar -->
-  <div id="status-bar">
-    <div class="sb-item" onclick="scrollToSection('agents')">
+<!-- Status Bar -->
+<div id="status-bar">
+  <div class="sb-left">
+    <div class="sb-item" onclick="switchTab('home')">
       <span class="sb-label">Status</span>
-      <span class="sb-value ok" id="sb-status">ONLINE</span>
+      <span class="sb-value ok" id="sb-status">--</span>
       <span class="sb-value" id="sb-version" style="font-weight:400;color:var(--dim)"></span>
     </div>
-    <div class="sb-item" onclick="scrollToSection('agents')">
+    <div class="sb-item" onclick="switchTab('agents')">
       <span class="sb-label">Agents</span>
       <span class="sb-value" id="sb-agents">--/--</span>
     </div>
-    <div class="sb-item" onclick="scrollToSection('etsy')">
+    <div class="sb-item" onclick="switchTab('analytics')">
       <span class="sb-label">Etsy</span>
       <span class="sb-value" id="sb-etsy">--</span>
     </div>
-    <div class="sb-item" onclick="scrollToSection('agents')">
+    <div class="sb-item" onclick="switchTab('social')">
       <span class="sb-label">IG Today</span>
       <span class="sb-value" id="sb-ig">--</span>
     </div>
-    <div class="sb-item" onclick="scrollToSection('etsy')">
+    <div class="sb-item" onclick="switchTab('home')">
       <span class="sb-label">Sales</span>
       <span class="sb-value" id="sb-sales">0</span>
     </div>
-    <div class="sb-item" onclick="scrollToSection('licensing')">
-      <span class="sb-label">x402</span>
-      <span class="sb-value" id="sb-x402">0</span>
-    </div>
-    <div class="sb-item" onclick="scrollToSection('broadcast')">
-      <span class="sb-label">Broadcast</span>
-      <span class="sb-value" id="sb-broadcast">--</span>
-    </div>
+  </div>
+  <div class="sb-right">
     <button class="kill-switch-btn" id="sb-kill" onclick="openKillModal()">Kill: OFF</button>
     <span style="font-size:10px;color:var(--dim)" id="sb-updated"></span>
   </div>
+</div>
 
-  <!-- Section 1: Agent Control Panel -->
-  <div class="section" id="sec-agents">
-    <div class="section-header" onclick="toggleSection('agents')">
-      <div class="section-title"><span class="chevron">&#9660;</span> Agent Control Panel</div>
+<!-- Tab Navigation -->
+<div id="tab-bar">
+  <button class="tab-btn active" data-tab="home" onclick="switchTab('home')">Home</button>
+  <button class="tab-btn" data-tab="agents" onclick="switchTab('agents')">Agents</button>
+  <button class="tab-btn" data-tab="social" onclick="switchTab('social')">Social</button>
+  <button class="tab-btn" data-tab="email" onclick="switchTab('email')">Email</button>
+  <button class="tab-btn" data-tab="analytics" onclick="switchTab('analytics')">Analytics</button>
+  <button class="tab-btn" data-tab="broadcast" onclick="switchTab('broadcast')">Broadcast</button>
+  <button class="tab-btn" data-tab="learning" onclick="switchTab('learning')">Learning</button>
+  <button class="tab-btn" data-tab="links" onclick="switchTab('links')">Links</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: HOME                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="tab-panel active" id="panel-home">
+
+  <!-- Sales Thermometer -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Sales Goal</div>
+      <div style="font-size:11px;color:var(--dim)" id="home-sales-label">$0 / $5,000</div>
     </div>
-    <div class="section-body" id="body-agents">
-      <div class="agent-grid" id="agent-grid"></div>
+    <div class="thermometer">
+      <div class="thermometer-fill" id="thermo-fill" style="width:0%"></div>
+      <div class="thermometer-label" id="thermo-label">$0 / $5,000</div>
     </div>
   </div>
 
-  <!-- Section 2: AI Agent Intelligence -->
-  <div class="section" id="sec-intelligence">
-    <div class="section-header" onclick="toggleSection('intelligence')">
-      <div class="section-title"><span class="chevron">&#9660;</span> AI Agent Discovery Intelligence</div>
-      <div class="section-actions">
-        <button class="btn" onclick="event.stopPropagation(); loadIntelligence()">Refresh</button>
+  <!-- Connectivity Status -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">System Connectivity</div>
+    </div>
+    <div class="conn-grid" id="connectivity-grid">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Today's Snapshot</div>
+    </div>
+    <div class="licensing-grid" id="home-stats">
+      <div class="stat-card">
+        <div class="label">IG Posts Today</div>
+        <div class="value" id="home-ig-today">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Etsy Listings</div>
+        <div class="value" id="home-etsy-count">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Agents Running</div>
+        <div class="value" id="home-agents-count">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Total Sales</div>
+        <div class="value" id="home-sales-count">0</div>
       </div>
     </div>
-    <div class="section-body" id="body-intelligence">
-      <div id="intel-content">Loading intelligence data...</div>
-    </div>
   </div>
 
-  <!-- Section 3: Broadcast & Discovery Status -->
-  <div class="section" id="sec-broadcast">
-    <div class="section-header" onclick="toggleSection('broadcast')">
-      <div class="section-title"><span class="chevron">&#9660;</span> Broadcast & Discovery Status</div>
-      <div class="section-actions">
-        <button class="btn primary" onclick="event.stopPropagation(); runBroadcast()">Run Full Broadcast</button>
+  <!-- Activity Feed (compact) -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Recent Activity</div>
+    </div>
+    <div class="cost-total">Today's API cost: <span class="amount" id="home-feed-cost">$0.00</span></div>
+    <div class="filter-bar" id="home-feed-filters"></div>
+    <div class="feed-container" id="home-feed-container"></div>
+    <div class="feed-pagination" id="home-feed-pagination"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: AGENTS                                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-agents">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Agent Control Panel</div>
+    </div>
+    <div class="agent-grid" id="agent-grid"></div>
+  </div>
+
+  <!-- Agent States -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Agent States</div>
+      <div class="card-actions">
+        <button class="btn" id="btn-refresh-states" onclick="btnAction(this, loadAgentStates)">Refresh</button>
       </div>
     </div>
-    <div class="section-body" id="body-broadcast">
-      <div id="broadcast-content">Loading broadcast status...</div>
-    </div>
+    <div id="agent-states-content" style="font-size:12px;color:var(--dim)">Loading...</div>
   </div>
+</div>
 
-  <!-- Section 4: Etsy Performance -->
-  <div class="section" id="sec-etsy">
-    <div class="section-header" onclick="toggleSection('etsy')">
-      <div class="section-title"><span class="chevron">&#9660;</span> Etsy Performance</div>
-      <div class="section-actions">
-        <button class="btn" onclick="event.stopPropagation(); runSeoAudit()">Run SEO Audit</button>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: SOCIAL                                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-social">
+
+  <!-- Instagram -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        Instagram
+        <a href="https://www.instagram.com/archive35photo/" target="_blank" rel="noopener">Open</a>
+      </div>
+      <div class="card-actions">
+        <button class="btn success" id="btn-ig-post1" onclick="btnAction(this, igPostOne)">Post 1 Now</button>
+        <button class="btn primary" id="btn-ig-batch" onclick="btnAction(this, igPostBatch)">Post Batch (3)</button>
       </div>
     </div>
-    <div class="section-body" id="body-etsy">
-      <div id="etsy-content">Loading Etsy data...</div>
+    <div id="ig-status-line" style="font-size:12px;color:var(--dim);margin-bottom:12px">Loading...</div>
+    <div class="card-title" style="margin-bottom:8px">Recent Posts</div>
+    <div class="ig-posts-grid" id="ig-posts-grid">
+      <div style="color:var(--dim);font-size:12px">Loading...</div>
     </div>
   </div>
 
-  <!-- Section 5: Activity Feed -->
-  <div class="section" id="sec-feed">
-    <div class="section-header" onclick="toggleSection('feed')">
-      <div class="section-title"><span class="chevron">&#9660;</span> Activity Feed</div>
-    </div>
-    <div class="section-body" id="body-feed">
-      <div class="cost-total">Today's API cost: <span class="amount" id="feed-cost">$0.00</span></div>
-      <div class="filter-bar" id="feed-filters"></div>
-      <div class="feed-container" id="feed-container"></div>
-      <div class="feed-pagination" id="feed-pagination"></div>
-    </div>
-  </div>
-
-  <!-- Section 6: Micro-Licensing -->
-  <div class="section" id="sec-licensing">
-    <div class="section-header" onclick="toggleSection('licensing')">
-      <div class="section-title"><span class="chevron">&#9660;</span> Micro-Licensing</div>
-    </div>
-    <div class="section-body" id="body-licensing">
-      <div id="licensing-content">Loading licensing data...</div>
-    </div>
-  </div>
-
-  <!-- Section 7: Email Briefing -->
-  <div class="section" id="sec-email">
-    <div class="section-header" onclick="toggleSection('email')">
-      <div class="section-title"><span class="chevron">&#9660;</span> Email Briefing</div>
-      <div class="section-actions">
-        <button class="btn primary" onclick="event.stopPropagation(); runEmailScan()">Scan Now</button>
-        <button class="btn" onclick="event.stopPropagation(); loadEmailBriefing()">Refresh</button>
+  <!-- Reddit -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        Reddit
+        <a href="https://www.reddit.com/" target="_blank" rel="noopener">Open</a>
+      </div>
+      <div class="card-actions">
+        <button class="btn primary" id="btn-reddit-gen" onclick="btnAction(this, redditGenerate)">Generate 30 Posts</button>
       </div>
     </div>
-    <div class="section-body" id="body-email">
-      <div id="email-content">Loading email briefing...</div>
-    </div>
+    <div id="reddit-status-line" style="font-size:12px;color:var(--dim);margin-bottom:12px">Loading...</div>
+    <div class="card-title" style="margin-bottom:8px">Next Queued Posts</div>
+    <div id="reddit-queue-full"></div>
   </div>
 
+  <!-- Pinterest -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        Pinterest
+        <a href="https://www.pinterest.com/archive35photo/" target="_blank" rel="noopener">Open</a>
+      </div>
+      <div class="card-actions">
+        <button class="btn primary" id="btn-gen-pins" onclick="btnAction(this, generatePins)">Generate Pins</button>
+      </div>
+    </div>
+    <div id="pinterest-status-line" style="font-size:12px;color:var(--dim);margin-bottom:12px">Loading...</div>
+    <div class="card-title" style="margin-bottom:8px">Pin Previews</div>
+    <div class="pin-preview-grid" id="pin-preview-grid">
+      <div style="color:var(--dim);font-size:12px">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: EMAIL                                                     -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-email">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        Email Briefing
+        <a href="https://mail.google.com/" target="_blank" rel="noopener">Gmail</a>
+      </div>
+      <div class="card-actions">
+        <button class="btn primary" id="btn-email-scan" onclick="btnAction(this, runEmailScan)">Scan Now</button>
+        <button class="btn" id="btn-email-refresh" onclick="btnAction(this, loadEmailBriefing)">Refresh</button>
+      </div>
+    </div>
+    <div id="email-content">Loading email briefing...</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: ANALYTICS                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-analytics">
+
+  <!-- AI Agent Intelligence -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">AI Agent Discovery Intelligence</div>
+      <div class="card-actions">
+        <button class="btn" id="btn-intel-refresh" onclick="btnAction(this, loadIntelligence)">Refresh</button>
+      </div>
+    </div>
+    <div id="intel-content">Loading intelligence data...</div>
+  </div>
+
+  <!-- Etsy Performance -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        Etsy Performance
+        <a href="https://www.etsy.com/your/shops/me/dashboard" target="_blank" rel="noopener">Manager</a>
+        <a href="https://www.etsy.com/shop/Archive35Photo" target="_blank" rel="noopener">Shop</a>
+      </div>
+      <div class="card-actions">
+        <button class="btn" id="btn-seo-audit" onclick="btnAction(this, runSeoAudit)">Run SEO Audit</button>
+      </div>
+    </div>
+    <div id="etsy-content">Loading Etsy data...</div>
+  </div>
+
+  <!-- Micro-Licensing -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Micro-Licensing</div>
+    </div>
+    <div id="licensing-content">Loading licensing data...</div>
+  </div>
+
+  <!-- External Analytics Links -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">External Analytics</div>
+    </div>
+    <div class="links-grid">
+      <a class="link-card" href="https://dash.cloudflare.com/" target="_blank" rel="noopener">
+        <div class="link-name">Cloudflare</div>
+        <div class="link-url">dash.cloudflare.com</div>
+      </a>
+      <a class="link-card" href="https://www.bing.com/webmasters/" target="_blank" rel="noopener">
+        <div class="link-name">Bing Webmaster</div>
+        <div class="link-url">bing.com/webmasters</div>
+      </a>
+      <a class="link-card" href="https://search.google.com/search-console/" target="_blank" rel="noopener">
+        <div class="link-name">Google Search Console</div>
+        <div class="link-url">search.google.com/search-console</div>
+      </a>
+      <a class="link-card" href="https://dashboard.stripe.com/" target="_blank" rel="noopener">
+        <div class="link-name">Stripe</div>
+        <div class="link-url">dashboard.stripe.com</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: BROADCAST                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-broadcast">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Broadcast & Discovery Status</div>
+      <div class="card-actions">
+        <button class="btn primary" id="btn-broadcast-run" onclick="btnAction(this, runBroadcast)">Run Full Broadcast</button>
+      </div>
+    </div>
+    <div id="broadcast-content">Loading broadcast status...</div>
+  </div>
+
+  <!-- IndexNow History -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">IndexNow History</div>
+    </div>
+    <div id="indexnow-content">Loading...</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: LEARNING                                                  -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-learning">
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="card-header" style="padding:12px 16px">
+      <div class="card-title">
+        Vocabulary Builder
+        <a href="https://athos-obs.com/vocab/" target="_blank" rel="noopener">Open in new tab</a>
+      </div>
+    </div>
+    <iframe src="about:blank" id="learning-iframe" class="learning-frame" title="Vocabulary Builder"></iframe>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB: LINKS                                                     -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-links">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Platform Links</div>
+    </div>
+    <div class="links-grid" id="all-links-grid"></div>
+  </div>
 </div>
 
 <script>
 // ── Config ──────────────────────────────────────────────────────
 const API_BASE = 'http://127.0.0.1:8035';
+const SALES_GOAL = 5000;
 
 let lastSeen = null;
 let killActive = false;
@@ -471,36 +775,174 @@ let feedFilter = null;
 const FEED_LIMIT = 50;
 const $ = id => document.getElementById(id);
 
-// ── Auth (auto-bypass — no login required) ──────────────────────
-$('login-screen').style.display = 'none';
-$('dashboard').style.display = 'block';
-restoreCollapsedState();
-startPolling();
+// Cached health data
+let healthData = {};
+let agentStatusData = {};
 
-function pw() { return sessionStorage.getItem('dash_pw') || ''; }
+// ── Platform Links ──────────────────────────────────────────────
+const PLATFORM_LINKS = [
+  { name: 'Instagram', url: 'https://www.instagram.com/archive35photo/' },
+  { name: 'Reddit', url: 'https://www.reddit.com/' },
+  { name: 'Pinterest', url: 'https://www.pinterest.com/archive35photo/' },
+  { name: 'Etsy Shop', url: 'https://www.etsy.com/shop/Archive35Photo' },
+  { name: 'Etsy Manager', url: 'https://www.etsy.com/your/shops/me/dashboard' },
+  { name: 'Cloudflare', url: 'https://dash.cloudflare.com/' },
+  { name: 'Gmail', url: 'https://mail.google.com/' },
+  { name: 'Stripe', url: 'https://dashboard.stripe.com/' },
+  { name: 'CaFE', url: 'https://artist.callforentry.org/' },
+  { name: 'Indiewalls', url: 'https://artwork.indiewalls.com/' },
+  { name: 'ATHOS', url: 'https://athos-obs.com/' },
+  { name: 'Archive-35', url: 'https://archive-35.com/' },
+  { name: 'Bing Webmaster', url: 'https://www.bing.com/webmasters/' },
+  { name: 'Google Search Console', url: 'https://search.google.com/search-console/' },
+  { name: 'Pictorem', url: 'https://www.pictorem.com/' },
+];
 
-// ── Collapsible Sections ────────────────────────────────────────
-function toggleSection(name) {
-  const sec = $('sec-' + name);
-  sec.classList.toggle('collapsed');
-  const collapsed = JSON.parse(sessionStorage.getItem('collapsed') || '{}');
-  collapsed[name] = sec.classList.contains('collapsed');
-  sessionStorage.setItem('collapsed', JSON.stringify(collapsed));
+// ── Utilities ───────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = String(s);
+  return d.innerHTML;
 }
-function restoreCollapsedState() {
-  const collapsed = JSON.parse(sessionStorage.getItem('collapsed') || '{}');
-  for (const [name, val] of Object.entries(collapsed)) {
-    if (val) { const s = $('sec-' + name); if (s) s.classList.add('collapsed'); }
+
+function timeAgo(date) {
+  const diff = (Date.now() - date.getTime()) / 1000;
+  if (diff < 60) return Math.floor(diff) + 's ago';
+  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+  return Math.floor(diff / 86400) + 'd ago';
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
   }
 }
-function scrollToSection(name) {
-  const s = $('sec-' + name);
-  if (s) { s.classList.remove('collapsed'); s.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+
+// ── Button State Feedback (replaces all alert()) ────────────────
+function setBtnState(btn, state, label) {
+  if (!btn) return;
+  const origText = btn.dataset.origText || btn.textContent;
+  if (!btn.dataset.origText) btn.dataset.origText = origText;
+  const origClass = btn.dataset.origClass || btn.className;
+  if (!btn.dataset.origClass) btn.dataset.origClass = origClass;
+
+  // Clear any existing timers
+  if (btn._stateTimer) clearTimeout(btn._stateTimer);
+
+  btn.classList.remove('state-working', 'state-success', 'state-failed');
+
+  if (state === 'working') {
+    btn.classList.add('state-working');
+    btn.textContent = label || 'Working...';
+    btn.disabled = true;
+  } else if (state === 'success') {
+    btn.classList.add('state-success');
+    btn.textContent = label || 'Done';
+    btn.disabled = false;
+    btn._stateTimer = setTimeout(() => resetBtnState(btn), 3000);
+  } else if (state === 'failed') {
+    btn.classList.add('state-failed');
+    btn.textContent = label || 'Failed';
+    btn.disabled = false;
+    // stays until clicked
+    btn.addEventListener('click', function handler() {
+      resetBtnState(btn);
+      btn.removeEventListener('click', handler);
+    }, { once: true });
+  } else {
+    resetBtnState(btn);
+  }
+}
+
+function resetBtnState(btn) {
+  if (!btn) return;
+  if (btn._stateTimer) clearTimeout(btn._stateTimer);
+  btn.classList.remove('state-working', 'state-success', 'state-failed');
+  if (btn.dataset.origText) btn.textContent = btn.dataset.origText;
+  if (btn.dataset.origClass) btn.className = btn.dataset.origClass;
+  btn.disabled = false;
+}
+
+async function btnAction(btn, fn) {
+  setBtnState(btn, 'working');
+  try {
+    const result = await fn(btn);
+    setBtnState(btn, 'success', result || 'Done');
+  } catch (err) {
+    setBtnState(btn, 'failed', err.message ? err.message.substring(0, 30) : 'Failed');
+  }
+}
+
+// ── Tab Navigation ──────────────────────────────────────────────
+const TABS = ['home', 'agents', 'social', 'email', 'analytics', 'broadcast', 'learning', 'links'];
+
+function switchTab(tab) {
+  if (!TABS.includes(tab)) tab = 'home';
+
+  // Hide all panels, deactivate all tabs
+  TABS.forEach(t => {
+    const panel = $('panel-' + t);
+    const btn = document.querySelector(`.tab-btn[data-tab="${t}"]`);
+    if (panel) panel.classList.remove('active');
+    if (btn) btn.classList.remove('active');
+  });
+
+  // Show selected
+  const panel = $('panel-' + tab);
+  const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active');
+
+  // Save state
+  sessionStorage.setItem('active_tab', tab);
+  history.replaceState(null, '', '#' + tab);
+
+  // Lazy-load learning iframe
+  if (tab === 'learning') {
+    const iframe = $('learning-iframe');
+    if (iframe && iframe.src === 'about:blank') {
+      iframe.src = 'https://athos-obs.com/vocab/';
+    }
+  }
+
+  // Load data for the tab if needed
+  onTabActivated(tab);
+}
+
+function onTabActivated(tab) {
+  switch (tab) {
+    case 'home': pollStatus(); loadFeed(); break;
+    case 'agents': loadAgentCards(); loadAgentStates(); break;
+    case 'social': loadSocialTab(); break;
+    case 'email': loadEmailBriefing(); break;
+    case 'analytics': loadIntelligence(); loadEtsy(); loadLicensing(); break;
+    case 'broadcast': loadBroadcast(); loadIndexNow(); break;
+    case 'links': renderLinksGrid(); break;
+  }
+}
+
+// Restore tab from hash or session
+function initTab() {
+  let tab = location.hash.replace('#', '') || sessionStorage.getItem('active_tab') || 'home';
+  switchTab(tab);
+}
+
+// ── API Helper ──────────────────────────────────────────────────
+async function apiFetch(path, opts = {}) {
+  const headers = { ...(opts.headers || {}) };
+  if (opts.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+  const res = await fetch(API_BASE + path, {
+    ...opts, headers, signal: opts.signal || AbortSignal.timeout(15000),
+  });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json();
 }
 
 // ── Kill Switch Modal ───────────────────────────────────────────
 function openKillModal() {
-  event.stopPropagation();
+  if (event) event.stopPropagation();
   const m = $('kill-modal');
   if (killActive) {
     $('kill-modal-title').textContent = 'Resume All Agents';
@@ -518,43 +960,55 @@ $('kill-confirm').addEventListener('click', async () => {
   try {
     await apiFetch(endpoint, { method: 'POST', body: JSON.stringify({ reason: 'dashboard' }) });
     setTimeout(pollStatus, 500);
-  } catch (err) { alert('Failed: ' + err.message); }
+  } catch (err) {
+    // show in status bar briefly
+    $('sb-status').textContent = 'ERROR';
+    $('sb-status').className = 'sb-value err';
+  }
 });
 
-// ── API Helper ──────────────────────────────────────────────────
-async function apiFetch(path, opts = {}) {
-  const headers = { 'X-Dashboard-Password': pw(), ...(opts.headers || {}) };
-  if (opts.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
-  const res = await fetch(API_BASE + path, {
-    ...opts, headers, signal: opts.signal || AbortSignal.timeout(15000),
-  });
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-  return res.json();
+// ── Start Agent (when offline) ──────────────────────────────────
+function startAgent() {
+  const msg = `To start the Archive-35 Agent:\n\n` +
+    `Open Terminal and run:\n\n` +
+    `cd ~/Documents/ACTIVE/archive-35/Archive\\ 35\\ Agent && ./docker-start.sh\n\n` +
+    `Or if Docker is already running:\n\n` +
+    `cd ~/Documents/ACTIVE/archive-35/Archive\\ 35\\ Agent && docker compose up -d\n\n` +
+    `The dashboard will reconnect automatically once the agent is running.`;
+
+  fetch(API_BASE + '/agents/restart-all', { method: 'POST' })
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) {
+        setTimeout(pollStatus, 3000);
+      }
+    })
+    .catch(() => {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText('cd ~/Documents/ACTIVE/archive-35/Archive\\ 35\\ Agent && ./docker-start.sh');
+      }
+      // Use a temporary banner instead of alert
+      const banner = $('offline-banner');
+      banner.innerHTML = `<span style="font-size:11px">${esc(msg).replace(/\n/g, '<br>')}</span>`;
+    });
 }
 
 // ── Polling ─────────────────────────────────────────────────────
 function startPolling() {
   pollStatus();
-  loadAgentCards();
-  loadIntelligence();
-  loadBroadcast();
-  loadEtsy();
-  loadFeed();
-  loadLicensing();
-  loadEmailBriefing();
-
   setInterval(pollStatus, 15000);
-  setInterval(loadAgentCards, 30000);
-  setInterval(loadIntelligence, 60000);
-  setInterval(loadBroadcast, 60000);
-  setInterval(loadEtsy, 60000);
-  setInterval(loadFeed, 30000);
+  setInterval(() => {
+    const tab = sessionStorage.getItem('active_tab') || 'home';
+    if (tab === 'home') loadFeed();
+    if (tab === 'agents') loadAgentCards();
+  }, 30000);
 }
 
 // ── Status Bar Polling ──────────────────────────────────────────
 async function pollStatus() {
   try {
     const d = await apiFetch('/health');
+    healthData = d;
     lastSeen = new Date();
     $('offline-banner').style.display = 'none';
 
@@ -562,10 +1016,9 @@ async function pollStatus() {
     $('sb-status').textContent = status;
     $('sb-status').className = 'sb-value ' + (status === 'ONLINE' ? 'ok' : 'warn');
     $('sb-version').textContent = d.version ? 'v' + d.version : '';
-    $('sb-etsy').textContent = d.etsy_listings ?? '--';
+    $('sb-etsy').textContent = (d.etsy_listings ?? '--') + ' live';
     $('sb-ig').textContent = d.instagram_today ?? 0;
     $('sb-sales').textContent = d.sales ?? 0;
-    $('sb-x402').textContent = d.x402_licenses ?? 0;
     $('sb-updated').textContent = 'updated ' + lastSeen.toLocaleTimeString();
 
     // Kill switch
@@ -575,13 +1028,66 @@ async function pollStatus() {
     btn.textContent = killActive ? 'KILL: ON' : 'Kill: OFF';
     btn.className = killActive ? 'kill-switch-btn active' : 'kill-switch-btn';
 
-    // Agent count from /agents/status (piggyback on next agent poll)
+    // Update HOME tab quick stats
+    $('home-ig-today').textContent = d.instagram_today ?? 0;
+    $('home-etsy-count').textContent = d.etsy_listings ?? '--';
+    $('home-sales-count').textContent = d.sales ?? 0;
+
+    // Sales thermometer
+    const sales = d.sales ?? 0;
+    const pct = Math.min(100, (sales / SALES_GOAL) * 100);
+    $('thermo-fill').style.width = pct + '%';
+    $('thermo-label').textContent = '$' + sales + ' / $' + SALES_GOAL.toLocaleString();
+    $('home-sales-label').textContent = '$' + sales + ' / $' + SALES_GOAL.toLocaleString();
+
+    // Agent count
+    try {
+      const aStatus = await apiFetch('/agents/status');
+      agentStatusData = aStatus;
+      $('sb-agents').textContent = `${aStatus.running}/${aStatus.total}`;
+      $('home-agents-count').textContent = `${aStatus.running}/${aStatus.total}`;
+    } catch(e) {}
+
+    // Connectivity dots
+    updateConnectivity(d);
+
   } catch (err) {
     $('sb-status').textContent = 'OFFLINE';
     $('sb-status').className = 'sb-value err';
     $('offline-banner').style.display = 'block';
     if (lastSeen) $('last-seen').textContent = lastSeen.toLocaleTimeString();
+    updateConnectivityOffline();
   }
+}
+
+// ── Connectivity Dots ───────────────────────────────────────────
+function updateConnectivity(health) {
+  const services = [
+    { name: 'Agent API', connected: true },
+    { name: 'Instagram', connected: !!health.instagram_configured },
+    { name: 'Etsy', connected: (health.etsy_listings ?? 0) > 0 },
+    { name: 'Pinterest', connected: !!health.pinterest_configured },
+    { name: 'Reddit', connected: !!health.reddit_configured },
+    { name: 'Email', connected: !!health.email_configured },
+    { name: 'Broadcast', connected: !!health.broadcast_configured },
+  ];
+
+  $('connectivity-grid').innerHTML = services.map(s => `
+    <div class="conn-item">
+      <span class="conn-dot ${s.connected ? 'green' : 'red'}"></span>
+      <span>${esc(s.name)}</span>
+    </div>
+  `).join('');
+}
+
+function updateConnectivityOffline() {
+  const names = ['Agent API', 'Instagram', 'Etsy', 'Pinterest', 'Reddit', 'Email', 'Broadcast'];
+  $('connectivity-grid').innerHTML = names.map(n => `
+    <div class="conn-item">
+      <span class="conn-dot red"></span>
+      <span>${esc(n)}</span>
+    </div>
+  `).join('');
 }
 
 // ── Agent Cards ─────────────────────────────────────────────────
@@ -590,7 +1096,7 @@ const AGENTS = [
   { id: 'pinterest', name: 'Pinterest Agent', scope: 'pinterest' },
   { id: 'reddit', name: 'Reddit Agent', scope: 'reddit' },
   { id: 'etsy', name: 'Etsy Agent', scope: 'etsy' },
-  { id: 'content_pipeline', name: 'Content Pipeline', scope: 'content_pipeline' },
+  { id: 'content_pipeline', name: 'Content Generator', scope: 'content_pipeline' },
   { id: 'broadcast', name: 'Broadcast Agent', scope: 'broadcast' },
   { id: 'email', name: 'Email Monitor', scope: 'email' },
 ];
@@ -601,11 +1107,12 @@ async function loadAgentCards() {
   try {
     const data = await apiFetch('/agents/status');
     agentStatus = data.services || {};
+    agentStatusData = data;
     $('sb-agents').textContent = `${data.running}/${data.total}`;
-  } catch (e) { /* proceed with defaults */ }
+    $('home-agents-count').textContent = `${data.running}/${data.total}`;
+  } catch (e) {}
 
-  // Fetch extra data for specific cards
-  let igStatus = {}, pinterestStatus = {}, redditStatus = {}, etsyLive = '--', pipelineStatus = {}, broadcastData = {}, emailBriefing = {};
+  let igStatus = {}, pinterestStatus = {}, redditStatus = {}, pipelineStatus = {}, broadcastData = {}, emailBriefing = {};
   try { igStatus = await apiFetch('/instagram/status'); } catch(e) {}
   try { pinterestStatus = await apiFetch('/pinterest/pin-status'); } catch(e) {}
   try { redditStatus = await apiFetch('/reddit/status'); } catch(e) {}
@@ -618,7 +1125,6 @@ async function loadAgentCards() {
     const svc = agentStatus[agent.id] || {};
     const running = svc.running !== false;
     const dotClass = running ? 'on' : 'off';
-
     let statsHtml = '';
     let actionsHtml = '';
 
@@ -630,9 +1136,9 @@ async function loadAgentCards() {
         <div>Account: <strong>${esc(username)}</strong></div>
       `;
       actionsHtml = `
-        <button class="btn success" onclick="igPostOne()">Post 1 Now</button>
-        <button class="btn primary" onclick="igPostBatch()">Post Batch (3)</button>
-        <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+        <button class="btn success" onclick="btnAction(this, igPostOne)">Post 1 Now</button>
+        <button class="btn primary" onclick="btnAction(this, igPostBatch)">Post Batch (3)</button>
+        <button class="btn" onclick="btnAction(this, () => restartAgent('agent-scheduler'))">Restart</button>
       `;
     } else if (agent.id === 'pinterest') {
       const pinCount = pinterestStatus.pin_count ?? 0;
@@ -642,8 +1148,8 @@ async function loadAgentCards() {
         <div>Last batch: <strong>${lastBatch}</strong></div>
       `;
       actionsHtml = `
-        <button class="btn primary" onclick="generatePins()">Generate Pins</button>
-        <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+        <button class="btn primary" onclick="btnAction(this, generatePins)">Generate Pins</button>
+        <button class="btn" onclick="btnAction(this, () => restartAgent('agent-scheduler'))">Restart</button>
       `;
     } else if (agent.id === 'reddit') {
       const queue = redditStatus.queue || {};
@@ -660,20 +1166,20 @@ async function loadAgentCards() {
         <div style="font-size:11px;color:var(--dim)">Posts today: ${postsToday}/5 | Last post: ${lastPost}</div>
       `;
       actionsHtml = sessionValid ? `
-        <button class="btn primary" onclick="redditGenerate()">Generate 30 Posts</button>
-        <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+        <button class="btn primary" onclick="btnAction(this, redditGenerate)">Generate 30 Posts</button>
+        <button class="btn" onclick="btnAction(this, () => restartAgent('agent-scheduler'))">Restart</button>
       ` : `
-        <button class="btn primary" onclick="redditLogin()">Login to Reddit</button>
-        <button class="btn" onclick="redditGenerate()">Generate 30 Posts</button>
+        <button class="btn primary" onclick="btnAction(this, redditLogin)">Login to Reddit</button>
+        <button class="btn" onclick="btnAction(this, redditGenerate)">Generate 30 Posts</button>
       `;
     } else if (agent.id === 'etsy') {
       statsHtml = `
-        <div>Live listings: <strong id="etsy-live-count">--</strong></div>
+        <div>Live listings: <strong id="etsy-live-count">${healthData.etsy_listings ?? '--'}</strong></div>
         <div>SEO Score: <strong id="etsy-seo-inline">--</strong></div>
       `;
       actionsHtml = `
-        <button class="btn primary" onclick="runSeoAudit()">Run SEO Audit</button>
-        <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+        <button class="btn primary" onclick="btnAction(this, runSeoAudit)">Run SEO Audit</button>
+        <button class="btn" onclick="btnAction(this, () => restartAgent('agent-scheduler'))">Restart</button>
       `;
     } else if (agent.id === 'content_pipeline') {
       const pending = pipelineStatus.pending ?? '--';
@@ -682,8 +1188,8 @@ async function loadAgentCards() {
         <div>Pending: <strong>${pending}</strong> | Approved: <strong>${approved}</strong></div>
       `;
       actionsHtml = `
-        <button class="btn primary" onclick="runPipeline()">Run Pipeline</button>
-        <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+        <button class="btn primary" onclick="btnAction(this, runPipeline)">Run Pipeline</button>
+        <button class="btn" onclick="btnAction(this, () => restartAgent('agent-scheduler'))">Restart</button>
       `;
     } else if (agent.id === 'broadcast') {
       const lastBC = broadcastData.last_broadcast ? timeAgo(new Date(broadcastData.last_broadcast)) : 'never';
@@ -692,8 +1198,8 @@ async function loadAgentCards() {
         <div>Total runs: <strong>${broadcastData.total_broadcasts ?? 0}</strong></div>
       `;
       actionsHtml = `
-        <button class="btn primary" onclick="runBroadcast()">Broadcast Now</button>
-        <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+        <button class="btn primary" onclick="btnAction(this, runBroadcast)">Broadcast Now</button>
+        <button class="btn" onclick="btnAction(this, () => restartAgent('agent-scheduler'))">Restart</button>
       `;
     } else if (agent.id === 'email') {
       const accts = emailBriefing.accounts_scanned || [];
@@ -707,8 +1213,8 @@ async function loadAgentCards() {
         ${secAlerts > 0 ? `<div style="color:var(--red)">Security alerts: <strong>${secAlerts} phishing detected</strong></div>` : ''}
       `;
       actionsHtml = `
-        <button class="btn primary" onclick="runEmailScan()">Scan Now</button>
-        <button class="btn" onclick="document.getElementById('sec-email').scrollIntoView({behavior:'smooth'})">View Briefing</button>
+        <button class="btn primary" onclick="btnAction(this, runEmailScan)">Scan Now</button>
+        <button class="btn" onclick="switchTab('email')">View Briefing</button>
       `;
     }
 
@@ -732,13 +1238,47 @@ async function loadAgentCards() {
     `;
   }
   grid.innerHTML = html;
-
-  // Load reddit queue preview
-  loadRedditQueue();
+  loadRedditQueuePreview();
 }
 
-// ── Reddit Queue ────────────────────────────────────────────────
-async function loadRedditQueue() {
+// ── Agent States ────────────────────────────────────────────────
+async function loadAgentStates() {
+  const el = $('agent-states-content');
+  try {
+    const d = await apiFetch('/agents/states');
+    const states = d.agents || d.states || d;
+    if (typeof states === 'object' && !Array.isArray(states)) {
+      let html = '<table class="intel-table"><tr><th>Agent</th><th>State</th><th>Last Run</th></tr>';
+      for (const [name, info] of Object.entries(states)) {
+        const state = typeof info === 'string' ? info : (info.state || info.status || '--');
+        const lastRun = info.last_run ? timeAgo(new Date(info.last_run)) : '--';
+        const color = state === 'running' ? 'var(--green)' : (state === 'stopped' ? 'var(--red)' : 'var(--dim)');
+        html += `<tr><td>${esc(name)}</td><td style="color:${color}">${esc(state)}</td><td style="color:var(--dim)">${lastRun}</td></tr>`;
+      }
+      html += '</table>';
+      el.innerHTML = html;
+    } else if (Array.isArray(states)) {
+      let html = '<table class="intel-table"><tr><th>Agent</th><th>State</th></tr>';
+      for (const s of states) {
+        const name = s.name || s.agent || '--';
+        const state = s.state || s.status || '--';
+        const color = state === 'running' ? 'var(--green)' : (state === 'stopped' ? 'var(--red)' : 'var(--dim)');
+        html += `<tr><td>${esc(name)}</td><td style="color:${color}">${esc(state)}</td></tr>`;
+      }
+      html += '</table>';
+      el.innerHTML = html;
+    } else {
+      el.innerHTML = '<div style="color:var(--dim)">No state data available</div>';
+    }
+    return 'Loaded';
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--dim)">Agent states unavailable: ' + esc(e.message) + '</div>';
+    throw e;
+  }
+}
+
+// ── Reddit Queue (agent card preview) ───────────────────────────
+async function loadRedditQueuePreview() {
   const container = $('reddit-queue-preview');
   if (!container) return;
   try {
@@ -748,10 +1288,10 @@ async function loadRedditQueue() {
     container.innerHTML = posts.map(p => `
       <div class="queue-item">
         <div class="sub-name">${esc(p.subreddit || '')}</div>
-        <div class="q-title">${esc(p.title || '')}</div>
+        <div class="q-title" onclick="copyToClipboard('${esc(p.title || '').replace(/'/g, "\\'")}')" title="Click to copy title">${esc(p.title || '')}</div>
         <div class="q-actions">
-          <button class="btn success" onclick="redditPost('${esc(p.id)}')">Post</button>
-          <button class="btn" onclick="redditSkip('${esc(p.id)}')">Skip</button>
+          <button class="btn success" onclick="btnAction(this, () => redditPost('${esc(p.id)}'))">Post</button>
+          <button class="btn" onclick="btnAction(this, () => redditSkip('${esc(p.id)}'))">Skip</button>
         </div>
       </div>
     `).join('');
@@ -762,193 +1302,281 @@ async function loadRedditQueue() {
 async function toggleAgent(scope, enabled) {
   const endpoint = enabled ? `/safety/resume/${scope}` : `/safety/kill/${scope}`;
   try { await apiFetch(endpoint, { method: 'POST', body: JSON.stringify({ reason: 'dashboard toggle' }) }); }
-  catch(e) { alert('Failed: ' + e.message); }
+  catch(e) { /* toggle will refresh */ }
   setTimeout(loadAgentCards, 500);
 }
 
 async function restartAgent(name) {
-  try {
-    const r = await apiFetch(`/agents/restart/${name}`, { method: 'POST' });
-    alert(r.success ? 'Restarted.' : 'Restart failed: ' + (r.output || ''));
-  } catch(e) { alert('Failed: ' + e.message); }
-}
-
-function startAgent() {
-  // When agent is offline, the API can't be reached.
-  // Show clear instructions for starting the Docker containers.
-  const msg = `To start the Archive-35 Agent:\n\n` +
-    `Open Terminal and run:\n\n` +
-    `cd ~/Documents/ACTIVE/archive-35/Archive\\ 35\\ Agent && ./docker-start.sh\n\n` +
-    `Or if Docker is already running:\n\n` +
-    `cd ~/Documents/ACTIVE/archive-35/Archive\\ 35\\ Agent && docker compose up -d\n\n` +
-    `The dashboard will reconnect automatically once the agent is running.`;
-
-  // Try the API first in case it's actually reachable
-  fetch(API_URL + '/agents/restart-all', { method: 'POST' })
-    .then(r => r.json())
-    .then(d => {
-      if (d.success) {
-        alert('Agent restart triggered. Reconnecting...');
-        setTimeout(pollHealth, 3000);
-      } else {
-        alert(msg);
-      }
-    })
-    .catch(() => {
-      // API unreachable — copy command to clipboard and show instructions
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText('cd ~/Documents/ACTIVE/archive-35/Archive\\ 35\\ Agent && ./docker-start.sh');
-        alert(msg + '\n\n(Start command copied to clipboard)');
-      } else {
-        alert(msg);
-      }
-    });
+  const r = await apiFetch(`/agents/restart/${name}`, { method: 'POST' });
+  if (r.success) return 'Restarted';
+  throw new Error(r.output || 'Restart failed');
 }
 
 async function igPostOne() {
-  try {
-    const r = await apiFetch('/instagram/auto-post', { method: 'POST', signal: AbortSignal.timeout(120000) });
-    alert(r.error ? 'Error: ' + r.error : 'Posted: ' + (r.image_url || r.status || 'OK'));
-  } catch(e) { alert('Failed: ' + e.message); }
+  const r = await apiFetch('/instagram/auto-post', { method: 'POST', signal: AbortSignal.timeout(120000) });
+  if (r.error) throw new Error(r.error);
   loadAgentCards();
+  return 'Posted';
 }
 
 async function igPostBatch() {
-  try {
-    const r = await apiFetch('/instagram/post-batch', { method: 'POST', body: JSON.stringify({ count: 3, delay_minutes: 5 }), signal: AbortSignal.timeout(120000) });
-    alert('Batch started: ' + r.count + ' posts queued');
-  } catch(e) { alert('Failed: ' + e.message); }
+  const r = await apiFetch('/instagram/post-batch', { method: 'POST', body: JSON.stringify({ count: 3, delay_minutes: 5 }), signal: AbortSignal.timeout(120000) });
+  return (r.count || 3) + ' queued';
 }
 
 async function generatePins() {
-  try {
-    const r = await apiFetch('/pinterest/generate-pins', { method: 'POST', signal: AbortSignal.timeout(60000) });
-    alert(r.success ? 'Pins generated!' : 'Error: ' + (r.error || r.output || ''));
-  } catch(e) { alert('Failed: ' + e.message); }
+  const r = await apiFetch('/pinterest/generate-pins', { method: 'POST', signal: AbortSignal.timeout(60000) });
+  if (!r.success) throw new Error(r.error || 'Failed');
   loadAgentCards();
+  return 'Generated';
 }
 
 async function redditGenerate() {
-  try {
-    const r = await apiFetch('/reddit/generate', { method: 'POST', signal: AbortSignal.timeout(60000) });
-    alert(r.message || r.status || 'Queue generated');
-  } catch(e) { alert('Failed: ' + e.message); }
+  const r = await apiFetch('/reddit/generate', { method: 'POST', signal: AbortSignal.timeout(60000) });
   loadAgentCards();
+  return r.message || 'Generated';
 }
 
 async function redditPost(postId) {
-  // No confirmation — just post
-  try {
-    const r = await apiFetch('/reddit/post', { method: 'POST', body: JSON.stringify({ post_id: postId }) });
-    alert(r.status === 'posted' ? 'Posted! ' + (r.reddit_url || '') : (r.message || r.status));
-  } catch(e) { alert('Failed: ' + e.message); }
-  loadRedditQueue();
+  const r = await apiFetch('/reddit/post', { method: 'POST', body: JSON.stringify({ post_id: postId }) });
+  if (r.status !== 'posted') throw new Error(r.message || r.status);
+  loadRedditQueuePreview();
+  loadRedditQueueFull();
+  return 'Posted';
 }
 
 async function redditSkip(postId) {
-  try { await apiFetch('/reddit/skip', { method: 'POST', body: JSON.stringify({ post_id: postId }) }); }
-  catch(e) { alert('Failed: ' + e.message); }
-  loadRedditQueue();
+  await apiFetch('/reddit/skip', { method: 'POST', body: JSON.stringify({ post_id: postId }) });
+  loadRedditQueuePreview();
+  loadRedditQueueFull();
+  return 'Skipped';
 }
 
 async function redditLogin() {
-  try {
-    const r = await apiFetch('/reddit/login', { method: 'POST' });
-    alert(r.message || 'Browser window opened. Log in and close when done.');
-    // Re-check status after 30 seconds
-    setTimeout(loadAgentCards, 30000);
-  } catch(e) { alert('Failed: ' + e.message); }
+  const r = await apiFetch('/reddit/login', { method: 'POST' });
+  setTimeout(loadAgentCards, 30000);
+  return r.message || 'Browser opened';
 }
 
 async function runPipeline() {
-  try {
-    const r = await apiFetch('/pipeline/run', { method: 'POST', signal: AbortSignal.timeout(60000) });
-    alert(r.status || 'Pipeline complete');
-  } catch(e) { alert('Failed: ' + e.message); }
+  const r = await apiFetch('/pipeline/run', { method: 'POST', signal: AbortSignal.timeout(60000) });
+  return r.status || 'Complete';
 }
 
 async function runBroadcast() {
-  try {
-    const r = await apiFetch('/broadcast/run', { method: 'POST', signal: AbortSignal.timeout(120000) });
-    alert(r.success ? 'Broadcast complete!' : 'Broadcast failed: ' + (r.errors || ''));
-  } catch(e) { alert('Failed: ' + e.message); }
+  const r = await apiFetch('/broadcast/run', { method: 'POST', signal: AbortSignal.timeout(120000) });
+  if (!r.success) throw new Error(r.errors || 'Failed');
   loadBroadcast();
+  return 'Complete';
 }
 
 async function runSeoAudit() {
-  try {
-    const r = await apiFetch('/etsy/seo-run', { method: 'POST', signal: AbortSignal.timeout(120000) });
-    alert(r.success ? 'SEO audit complete!' : 'Failed: ' + (r.output || ''));
-  } catch(e) { alert('Failed: ' + e.message); }
+  const r = await apiFetch('/etsy/seo-run', { method: 'POST', signal: AbortSignal.timeout(120000) });
+  if (!r.success) throw new Error(r.output || 'Failed');
   loadEtsy();
+  return 'Audit complete';
 }
 
-// ── Email Briefing ──────────────────────────────────────────────
 async function runEmailScan() {
-  try {
-    const r = await apiFetch('/email/briefing/run', { method: 'POST', signal: AbortSignal.timeout(120000) });
-    alert(r.status === 'success' ? 'Email scan complete!' : 'Failed: ' + (r.message || ''));
-  } catch(e) { alert('Failed: ' + e.message); }
+  const r = await apiFetch('/email/briefing/run', { method: 'POST', signal: AbortSignal.timeout(120000) });
+  if (r.status !== 'success' && !r.success) throw new Error(r.message || 'Failed');
   loadEmailBriefing();
-  loadAgentCards();
+  return 'Scan complete';
 }
 
+// ── SOCIAL TAB ──────────────────────────────────────────────────
+async function loadSocialTab() {
+  loadInstagramPosts();
+  loadRedditQueueFull();
+  loadPinterestPins();
+  loadInstagramStatus();
+  loadRedditStatus();
+  loadPinterestStatus();
+}
+
+async function loadInstagramStatus() {
+  try {
+    const d = await apiFetch('/instagram/status');
+    const configured = d.configured || false;
+    const username = d.username || '--';
+    $('ig-status-line').innerHTML = `Status: <strong style="color:var(--text)">${configured ? 'Connected' : 'Not configured'}</strong> | Account: <strong style="color:var(--text)">${esc(username)}</strong> | Posted today: <strong style="color:var(--text)">${healthData.instagram_today ?? 0}</strong>`;
+  } catch(e) {
+    $('ig-status-line').innerHTML = '<span style="color:var(--red)">Instagram status unavailable</span>';
+  }
+}
+
+async function loadInstagramPosts() {
+  const grid = $('ig-posts-grid');
+  try {
+    // ig_posts comes from /health
+    const d = healthData.ig_posts || [];
+    if (!d.length) {
+      // Try fetching health again
+      try {
+        const h = await apiFetch('/health');
+        healthData = h;
+      } catch(e) {}
+    }
+    const posts = healthData.ig_posts || [];
+    if (!posts.length) {
+      grid.innerHTML = '<div style="color:var(--dim);font-size:12px">No recent posts available</div>';
+      return;
+    }
+    grid.innerHTML = posts.slice(0, 5).map(p => {
+      const imgUrl = p.image_url || p.thumbnail_url || '';
+      const caption = p.caption || '';
+      return `
+        <div class="ig-post-card">
+          ${imgUrl ? `<img src="${esc(imgUrl)}" alt="IG post" loading="lazy" onerror="this.style.display='none'">` : '<div style="height:200px;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--dim)">No image</div>'}
+          <div class="caption">${esc(caption.substring(0, 120))}</div>
+        </div>
+      `;
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = '<div style="color:var(--dim);font-size:12px">Failed to load posts</div>';
+  }
+}
+
+async function loadRedditStatus() {
+  try {
+    const d = await apiFetch('/reddit/status');
+    const queue = d.queue || {};
+    const creds = d.credentials || {};
+    const sessionValid = creds.configured === true;
+    const redditUser = creds.username || null;
+    $('reddit-status-line').innerHTML = sessionValid
+      ? `<span style="color:var(--green)">Connected as u/${esc(redditUser)}</span> | Queued: <strong style="color:var(--text)">${queue.queued ?? 0}</strong> | Posted: <strong style="color:var(--text)">${queue.posted ?? 0}</strong>`
+      : '<span style="color:var(--red)">Reddit not connected</span>';
+  } catch(e) {
+    $('reddit-status-line').innerHTML = '<span style="color:var(--red)">Reddit status unavailable</span>';
+  }
+}
+
+async function loadRedditQueueFull() {
+  const container = $('reddit-queue-full');
+  if (!container) return;
+  try {
+    const data = await apiFetch('/reddit/queue?limit=5&status=queued');
+    const posts = data.posts || [];
+    if (!posts.length) { container.innerHTML = '<div style="font-size:12px;color:var(--dim)">No queued posts. Generate some to get started.</div>'; return; }
+    container.innerHTML = posts.map(p => {
+      const submitUrl = `https://www.reddit.com/r/${encodeURIComponent(p.subreddit || '')}/submit`;
+      return `
+        <div class="queue-item">
+          <div class="sub-name">r/${esc(p.subreddit || '')}</div>
+          <div class="q-title" onclick="copyToClipboard(this.textContent); setBtnState(this.closest('.queue-item').querySelector('.copy-indicator'), 'success', 'Copied')" title="Click to copy title" style="cursor:pointer">${esc(p.title || '')}</div>
+          <div style="font-size:11px;color:var(--dim);margin:4px 0">${esc((p.body || '').substring(0, 100))}</div>
+          <div class="q-actions">
+            <button class="btn success" onclick="btnAction(this, () => redditPost('${esc(p.id)}'))">Post</button>
+            <button class="btn" onclick="btnAction(this, () => redditSkip('${esc(p.id)}'))">Skip</button>
+            <a class="btn" href="${submitUrl}" target="_blank" rel="noopener" style="text-decoration:none">Submit on Reddit</a>
+            <button class="btn copy-indicator" style="font-size:10px;pointer-events:none;opacity:0.5">Copy title</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = '<div style="font-size:12px;color:var(--dim)">Queue unavailable</div>';
+  }
+}
+
+async function loadPinterestStatus() {
+  try {
+    const d = await apiFetch('/pinterest/pin-status');
+    const pinCount = d.pin_count ?? 0;
+    const lastBatch = d.last_batch ? new Date(d.last_batch).toLocaleDateString() : 'never';
+    $('pinterest-status-line').innerHTML = `Pins generated: <strong style="color:var(--text)">${pinCount}</strong> | Last batch: <strong style="color:var(--text)">${lastBatch}</strong>`;
+  } catch(e) {
+    $('pinterest-status-line').innerHTML = '<span style="color:var(--red)">Pinterest status unavailable</span>';
+  }
+}
+
+async function loadPinterestPins() {
+  const grid = $('pin-preview-grid');
+  try {
+    const d = await apiFetch('/pinterest/pins-list');
+    const pins = d.pins || d.files || d || [];
+    if (!Array.isArray(pins) || !pins.length) {
+      grid.innerHTML = '<div style="color:var(--dim);font-size:12px">No pins available. Generate some first.</div>';
+      return;
+    }
+    grid.innerHTML = pins.slice(0, 8).map(p => {
+      const filename = typeof p === 'string' ? p : (p.filename || p.name || '');
+      const imgUrl = API_BASE + '/pinterest/pin-image/' + encodeURIComponent(filename);
+      return `
+        <div class="pin-card">
+          <img src="${esc(imgUrl)}" alt="Pin" loading="lazy" onerror="this.style.display='none'">
+          <div class="pin-label" title="${esc(filename)}">${esc(filename)}</div>
+        </div>
+      `;
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = '<div style="color:var(--dim);font-size:12px">Pins unavailable</div>';
+  }
+}
+
+// ── EMAIL TAB ───────────────────────────────────────────────────
 async function loadEmailBriefing() {
   const el = $('email-content');
   try {
     const d = await apiFetch('/email/briefing');
-    if (d.error) { el.innerHTML = `<div style="color:var(--dim)">${esc(d.error)}</div>`; return; }
+    if (d.error) { el.innerHTML = `<div style="color:var(--dim)">${esc(d.error)}</div>`; return 'Error'; }
 
     const ts = d.generated_at ? new Date(d.generated_at).toLocaleString() : 'unknown';
-    let html = `<div style="color:var(--dim);margin-bottom:12px">Last scan: ${ts} | ${d.accounts_scanned?.join(', ') || 'none'} | ${d.total_emails} emails</div>`;
+    let html = `<div style="color:var(--dim);margin-bottom:16px;font-size:12px">Last scan: ${ts} | ${d.accounts_scanned?.join(', ') || 'none'} | ${d.total_emails ?? 0} emails</div>`;
 
     // Security alerts (red)
     if (d.security?.length) {
-      html += `<div style="margin-bottom:12px"><div style="color:var(--red);font-weight:700;margin-bottom:6px">SECURITY ALERTS (${d.security.length})</div>`;
+      html += `<div class="email-category">
+        <div class="email-category-header" style="color:var(--red)">SECURITY ALERTS (${d.security.length})</div>`;
       for (const m of d.security) {
-        html += `<div style="padding:4px 0;border-bottom:1px solid var(--border)">
+        html += `<div class="email-item">
           <span style="color:var(--red)">&#9888;</span>
           <span style="color:var(--dim)">[${esc(m.account)}]</span>
           <strong>${esc(m.subject)}</strong>
-          <span style="color:var(--dim);font-size:11px"> — ${esc(m.from_address)}</span>
+          <span style="color:var(--dim);font-size:11px"> &mdash; ${esc(m.from_address)}</span>
           ${m.phishing_flags?.length ? `<div style="color:var(--red);font-size:11px;margin-top:2px">${m.phishing_flags.map(esc).join(', ')}</div>` : ''}
         </div>`;
       }
       html += '</div>';
     }
 
-    // Action required (orange)
+    // Action required (yellow/orange)
     if (d.action_required?.length) {
-      html += `<div style="margin-bottom:12px"><div style="color:var(--yellow);font-weight:700;margin-bottom:6px">ACTION REQUIRED (${d.action_required.length})</div>`;
+      html += `<div class="email-category">
+        <div class="email-category-header" style="color:var(--yellow)">ACTION REQUIRED (${d.action_required.length})</div>`;
       for (const m of d.action_required) {
-        html += `<div style="padding:4px 0;border-bottom:1px solid var(--border)">
+        html += `<div class="email-item">
           <span style="color:var(--yellow)">&#9679;</span>
           <span style="color:var(--dim)">[${esc(m.account)}]</span>
           <strong>${esc(m.subject)}</strong>
-          <span style="color:var(--dim);font-size:11px"> — ${esc(m.from_address)}</span>
+          <span style="color:var(--dim);font-size:11px"> &mdash; ${esc(m.from_address)}</span>
         </div>`;
       }
       html += '</div>';
     }
 
-    // Business
+    // Business (blue)
     if (d.business?.length) {
-      html += `<div style="margin-bottom:12px"><div style="font-weight:700;margin-bottom:6px">BUSINESS (${d.business.length})</div>`;
+      html += `<div class="email-category">
+        <div class="email-category-header" style="color:var(--blue)">BUSINESS (${d.business.length})</div>`;
       for (const m of d.business) {
-        html += `<div style="padding:4px 0;border-bottom:1px solid var(--border)">
+        html += `<div class="email-item">
+          <span style="color:var(--blue)">&#9679;</span>
           <span style="color:var(--dim)">[${esc(m.account)}]</span>
           ${esc(m.subject)}
-          <span style="color:var(--dim);font-size:11px"> — ${esc(m.from_address)}</span>
+          <span style="color:var(--dim);font-size:11px"> &mdash; ${esc(m.from_address)}</span>
         </div>`;
       }
       html += '</div>';
     }
 
-    // FYI
+    // FYI (dim)
     if (d.fyi?.length) {
-      html += `<div style="margin-bottom:12px"><div style="color:var(--dim);font-weight:700;margin-bottom:6px">FYI (${d.fyi.length})</div>`;
+      html += `<div class="email-category">
+        <div class="email-category-header" style="color:var(--dim)">FYI (${d.fyi.length})</div>`;
       for (const m of d.fyi) {
-        html += `<div style="padding:4px 0;border-bottom:1px solid var(--border);color:var(--dim)">
+        html += `<div class="email-item" style="color:var(--dim)">
           [${esc(m.account)}] ${esc(m.subject)}
         </div>`;
       }
@@ -960,12 +1588,16 @@ async function loadEmailBriefing() {
     }
 
     el.innerHTML = html;
+    return 'Loaded';
   } catch(e) {
     el.innerHTML = `<div style="color:var(--dim)">Failed to load briefing: ${esc(e.message)}</div>`;
+    throw e;
   }
 }
 
-// ── Intelligence Panel ──────────────────────────────────────────
+// ── ANALYTICS TAB ───────────────────────────────────────────────
+
+// Intelligence Panel
 async function loadIntelligence() {
   const el = $('intel-content');
   try {
@@ -1031,49 +1663,14 @@ async function loadIntelligence() {
       </div>`;
 
     el.innerHTML = summaryHtml + trendingHtml + agentTypesHtml + unmetHtml + revenueHtml;
+    return 'Loaded';
   } catch(e) {
     el.innerHTML = '<div style="color:var(--dim)">Intelligence unavailable: ' + esc(e.message) + '</div>';
+    throw e;
   }
 }
 
-// ── Broadcast Status ────────────────────────────────────────────
-async function loadBroadcast() {
-  const el = $('broadcast-content');
-  try {
-    const d = await apiFetch('/broadcast/status');
-    const lastBC = d.last_broadcast ? new Date(d.last_broadcast).toLocaleString() : 'Never';
-    $('sb-broadcast').textContent = d.last_broadcast ? timeAgo(new Date(d.last_broadcast)) : 'Never';
-
-    const entries = d.entries || [];
-    let entriesHtml = entries.map(e => {
-      const statusClass = e.status === 'success' ? 'check-ok' : (e.status === 'failed' ? 'check-fail' : '');
-      const icon = e.status === 'success' ? '&#10003;' : (e.status === 'failed' ? '&#10007;' : '&#8212;');
-      return `
-        <div style="font-size:12px;margin-bottom:4px">
-          <span class="${statusClass}">${icon}</span>
-          <span style="color:var(--text)">${esc(e.action || '')}</span>
-          <span style="color:var(--dim)"> &mdash; ${esc(e.details || '')}</span>
-        </div>`;
-    }).join('');
-
-    el.innerHTML = `
-      <div class="broadcast-grid">
-        <div class="broadcast-card">
-          <h4>Last Broadcast</h4>
-          <div class="line">Time: <span class="val">${lastBC}</span></div>
-          <div class="line">Total runs: <span class="val">${d.total_broadcasts || 0}</span></div>
-        </div>
-        <div class="broadcast-card">
-          <h4>Results</h4>
-          ${entriesHtml || '<div class="line">No broadcast data</div>'}
-        </div>
-      </div>`;
-  } catch(e) {
-    el.innerHTML = '<div style="color:var(--dim)">Broadcast status unavailable</div>';
-  }
-}
-
-// ── Etsy Performance ────────────────────────────────────────────
+// Etsy Performance
 async function loadEtsy() {
   const el = $('etsy-content');
   try {
@@ -1085,14 +1682,12 @@ async function loadEtsy() {
     const listings = health.etsy_listings ?? '--';
     const sales = health.sales ?? 0;
 
-    // Update status bar
     $('sb-etsy').textContent = listings + ' live';
 
     const summary = seo.summary || {};
     const score = summary.overall_score ?? '--';
     const totalListings = seo.total_listings ?? '--';
 
-    // Update inline score in agent card
     const inlineScore = $('etsy-seo-inline');
     if (inlineScore) inlineScore.textContent = score + '/100';
     const liveCount = $('etsy-live-count');
@@ -1124,71 +1719,14 @@ async function loadEtsy() {
       </div>
       ${seoHtml}
     `;
+    return 'Loaded';
   } catch(e) {
     el.innerHTML = '<div style="color:var(--dim)">Etsy data unavailable</div>';
+    throw e;
   }
 }
 
-// ── Activity Feed ───────────────────────────────────────────────
-const FEED_COMPONENTS = ['all', 'instagram', 'etsy', 'pinterest', 'reddit', 'broadcast', 'x402', 'pipeline', 'safety', 'system'];
-
-function renderFilterBar() {
-  const bar = $('feed-filters');
-  bar.innerHTML = FEED_COMPONENTS.map(c => {
-    const active = (feedFilter === null && c === 'all') || feedFilter === c ? 'active' : '';
-    return `<button class="filter-btn ${active}" onclick="setFeedFilter('${c}')">${c}</button>`;
-  }).join('');
-}
-
-function setFeedFilter(component) {
-  feedFilter = component === 'all' ? null : component;
-  feedPage = 0;
-  loadFeed();
-}
-
-async function loadFeed() {
-  renderFilterBar();
-  const container = $('feed-container');
-  try {
-    let url = `/audit/log?limit=${FEED_LIMIT}&offset=${feedPage * FEED_LIMIT}`;
-    if (feedFilter) url += `&component=${feedFilter}`;
-    const d = await apiFetch(url);
-
-    $('feed-cost').textContent = '$' + (d.cost_today || 0).toFixed(4);
-
-    const entries = d.entries || [];
-    if (!entries.length) {
-      container.innerHTML = '<div style="padding:12px;color:var(--dim)">No activity</div>';
-    } else {
-      container.innerHTML = entries.map(e => {
-        const time = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '--';
-        const comp = (e.component || 'system').toLowerCase();
-        const badgeClass = FEED_COMPONENTS.includes(comp) ? comp : 'system';
-        const cost = e.cost_usd > 0 ? '$' + e.cost_usd.toFixed(4) : '';
-        return `
-          <div class="feed-entry">
-            <span class="feed-time">${time}</span>
-            <span class="feed-badge ${badgeClass}">${esc(e.component || 'system')}</span>
-            <span class="feed-action">${esc(e.action || '')} ${e.details ? '<span style="color:var(--dim)">' + esc(String(e.details).substring(0, 100)) + '</span>' : ''}</span>
-            <span class="feed-cost">${cost}</span>
-          </div>`;
-      }).join('');
-    }
-
-    // Pagination
-    const total = d.total || 0;
-    const totalPages = Math.ceil(total / FEED_LIMIT);
-    $('feed-pagination').innerHTML = `
-      <button class="btn" ${feedPage <= 0 ? 'disabled' : ''} onclick="feedPage--; loadFeed()">Prev</button>
-      <span class="info">Page ${feedPage + 1} of ${totalPages} (${total} entries)</span>
-      <button class="btn" ${feedPage >= totalPages - 1 ? 'disabled' : ''} onclick="feedPage++; loadFeed()">Next</button>
-    `;
-  } catch(e) {
-    container.innerHTML = '<div style="padding:12px;color:var(--dim)">Feed unavailable</div>';
-  }
-}
-
-// ── Micro-Licensing ─────────────────────────────────────────────
+// Micro-Licensing
 async function loadLicensing() {
   const el = $('licensing-content');
   try {
@@ -1220,7 +1758,7 @@ async function loadLicensing() {
       </div>
       <div style="margin-top:12px">
         <div class="intel-box-title">Pricing Tiers</div>
-        <div class="tier-list">
+        <div style="font-size:12px;color:var(--dim);line-height:2;margin-top:8px">
           Thumbnail ($0.01): ${tb.thumbnail || 0} sold<br>
           Web ($0.50): ${tb.web || 0} sold<br>
           Commercial ($2.50): ${tb.commercial || 0} sold
@@ -1231,26 +1769,171 @@ async function loadLicensing() {
         ${topHtml}
       </div>
     `;
+    return 'Loaded';
   } catch(e) {
     el.innerHTML = '<div style="color:var(--dim)">Licensing data unavailable</div>';
+    throw e;
   }
 }
 
-// ── Utilities ───────────────────────────────────────────────────
-function esc(s) {
-  if (!s) return '';
-  const d = document.createElement('div');
-  d.textContent = String(s);
-  return d.innerHTML;
+// ── BROADCAST TAB ───────────────────────────────────────────────
+async function loadBroadcast() {
+  const el = $('broadcast-content');
+  try {
+    const d = await apiFetch('/broadcast/status');
+    const lastBC = d.last_broadcast ? new Date(d.last_broadcast).toLocaleString() : 'Never';
+
+    const entries = d.entries || [];
+    let entriesHtml = entries.map(e => {
+      const statusClass = e.status === 'success' ? 'check-ok' : (e.status === 'failed' ? 'check-fail' : '');
+      const icon = e.status === 'success' ? '&#10003;' : (e.status === 'failed' ? '&#10007;' : '&#8212;');
+      return `
+        <div style="font-size:12px;margin-bottom:4px">
+          <span class="${statusClass}">${icon}</span>
+          <span style="color:var(--text)">${esc(e.action || '')}</span>
+          <span style="color:var(--dim)"> &mdash; ${esc(e.details || '')}</span>
+        </div>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div class="broadcast-grid">
+        <div class="broadcast-card">
+          <h4>Last Broadcast</h4>
+          <div class="line">Time: <span class="val">${lastBC}</span></div>
+          <div class="line">Total runs: <span class="val">${d.total_broadcasts || 0}</span></div>
+        </div>
+        <div class="broadcast-card">
+          <h4>Results</h4>
+          ${entriesHtml || '<div class="line">No broadcast data</div>'}
+        </div>
+      </div>`;
+    return 'Loaded';
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--dim)">Broadcast status unavailable</div>';
+    throw e;
+  }
 }
 
-function timeAgo(date) {
-  const diff = (Date.now() - date.getTime()) / 1000;
-  if (diff < 60) return Math.floor(diff) + 's ago';
-  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-  return Math.floor(diff / 86400) + 'd ago';
+async function loadIndexNow() {
+  const el = $('indexnow-content');
+  try {
+    const d = await apiFetch('/broadcast/status');
+    const history = d.indexnow_history || d.history || [];
+    if (!history.length) {
+      el.innerHTML = '<div style="color:var(--dim);font-size:12px">No IndexNow submissions yet.</div>';
+      return;
+    }
+    let html = '<table class="intel-table"><tr><th>Time</th><th>URLs Submitted</th><th>Status</th></tr>';
+    for (const entry of history.slice(0, 20)) {
+      const time = entry.timestamp ? new Date(entry.timestamp).toLocaleString() : '--';
+      const count = entry.url_count || entry.urls?.length || '--';
+      const status = entry.status || '--';
+      const statusColor = status === 'success' ? 'var(--green)' : (status === 'failed' ? 'var(--red)' : 'var(--dim)');
+      html += `<tr><td style="color:var(--dim)">${time}</td><td>${count}</td><td style="color:${statusColor}">${esc(status)}</td></tr>`;
+    }
+    html += '</table>';
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--dim);font-size:12px">IndexNow history unavailable</div>';
+  }
 }
+
+// ── HOME TAB: Activity Feed ─────────────────────────────────────
+const FEED_COMPONENTS = ['all', 'instagram', 'etsy', 'pinterest', 'reddit', 'broadcast', 'x402', 'pipeline', 'safety', 'system'];
+
+function renderFilterBar() {
+  const bar = $('home-feed-filters');
+  if (!bar) return;
+  bar.innerHTML = FEED_COMPONENTS.map(c => {
+    const active = (feedFilter === null && c === 'all') || feedFilter === c ? 'active' : '';
+    return `<button class="filter-btn ${active}" onclick="setFeedFilter('${c}')">${c}</button>`;
+  }).join('');
+}
+
+function setFeedFilter(component) {
+  feedFilter = component === 'all' ? null : component;
+  feedPage = 0;
+  loadFeed();
+}
+
+async function loadFeed() {
+  renderFilterBar();
+  const container = $('home-feed-container');
+  if (!container) return;
+  try {
+    let url = `/audit/log?limit=${FEED_LIMIT}&offset=${feedPage * FEED_LIMIT}`;
+    if (feedFilter) url += `&component=${feedFilter}`;
+    const d = await apiFetch(url);
+
+    $('home-feed-cost').textContent = '$' + (d.cost_today || 0).toFixed(4);
+
+    const entries = d.entries || [];
+    if (!entries.length) {
+      container.innerHTML = '<div style="padding:12px;color:var(--dim)">No activity</div>';
+    } else {
+      container.innerHTML = entries.map(e => {
+        const time = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '--';
+        const comp = (e.component || 'system').toLowerCase();
+        const badgeClass = FEED_COMPONENTS.includes(comp) ? comp : 'system';
+        const cost = e.cost_usd > 0 ? '$' + e.cost_usd.toFixed(4) : '';
+        return `
+          <div class="feed-entry">
+            <span class="feed-time">${time}</span>
+            <span class="feed-badge ${badgeClass}">${esc(e.component || 'system')}</span>
+            <span class="feed-action">${esc(e.action || '')} ${e.details ? '<span style="color:var(--dim)">' + esc(String(e.details).substring(0, 100)) + '</span>' : ''}</span>
+            <span class="feed-cost">${cost}</span>
+          </div>`;
+      }).join('');
+    }
+
+    const total = d.total || 0;
+    const totalPages = Math.ceil(total / FEED_LIMIT);
+    $('home-feed-pagination').innerHTML = `
+      <button class="btn" ${feedPage <= 0 ? 'disabled' : ''} onclick="feedPage--; loadFeed()">Prev</button>
+      <span class="info">Page ${feedPage + 1} of ${totalPages || 1} (${total} entries)</span>
+      <button class="btn" ${feedPage >= totalPages - 1 ? 'disabled' : ''} onclick="feedPage++; loadFeed()">Next</button>
+    `;
+  } catch(e) {
+    container.innerHTML = '<div style="padding:12px;color:var(--dim)">Feed unavailable</div>';
+  }
+}
+
+// ── LINKS TAB ───────────────────────────────────────────────────
+function renderLinksGrid() {
+  const grid = $('all-links-grid');
+  if (!grid) return;
+  grid.innerHTML = PLATFORM_LINKS.map(l => `
+    <a class="link-card" href="${esc(l.url)}" target="_blank" rel="noopener">
+      <div class="link-name">${esc(l.name)}</div>
+      <div class="link-url">${esc(l.url.replace('https://', '').replace('http://', ''))}</div>
+    </a>
+  `).join('');
+}
+
+// ── Keyboard shortcuts ──────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  // Escape closes modal
+  if (e.key === 'Escape') closeKillModal();
+
+  // Number keys 1-8 switch tabs (when not in input)
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  const num = parseInt(e.key);
+  if (num >= 1 && num <= TABS.length) {
+    e.preventDefault();
+    switchTab(TABS[num - 1]);
+  }
+});
+
+// Hash change
+window.addEventListener('hashchange', () => {
+  const tab = location.hash.replace('#', '');
+  if (TABS.includes(tab)) switchTab(tab);
+});
+
+// ── Boot ────────────────────────────────────────────────────────
+initTab();
+startPolling();
+renderLinksGrid();
 </script>
 </body>
 </html>

@@ -392,7 +392,12 @@ def health():
         except Exception:
             extra["etsy_listings"] = 0
 
-        # Instagram posts today
+        # Instagram posts today + configuration check
+        try:
+            from src.integrations.instagram import is_configured as ig_is_configured
+            extra["instagram_configured"] = ig_is_configured()
+        except Exception:
+            extra["instagram_configured"] = False
         try:
             conn.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' AND name='instagram_posts'"

@@ -28,6 +28,9 @@ import urllib.parse
 import urllib.request
 from base64 import urlsafe_b64encode
 from datetime import datetime, timezone
+
+# Fix SSL certs on Python 3.13 / macOS (must run before any HTTPS calls)
+from src import ssl_fix  # noqa: F401
 from pathlib import Path
 from typing import Any, Optional
 
@@ -108,6 +111,80 @@ def has_valid_token() -> bool:
     return bool(creds["access_token"])
 
 
+def ensure_valid_token() -> dict[str, Any]:
+    """Proactively check token validity and refresh if expired.
+
+    Returns:
+        {"valid": True} if token is good (or was refreshed successfully).
+        {"valid": False, "error": "..."} if refresh failed.
+        {"valid": False, "error": "...", "reauth_required": True} if no
+        refresh token exists and a full OAuth flow is needed.
+    """
+    if has_valid_token():
+        return {"valid": True}
+
+    creds = get_credentials()
+    if not creds.get("refresh_token"):
+        return {
+            "valid": False,
+            "error": "No refresh token — full OAuth reauthorization required",
+            "reauth_required": True,
+        }
+
+    logger.info("Token expired, refreshing...")
+    result = refresh_access_token()
+    if "error" in result:
+        return {"valid": False, "error": result["error"]}
+
+    return {"valid": True, "refreshed": True}
+
+
+def check_scope() -> dict[str, Any]:
+    """Test which API scopes the current token has.
+
+    Makes lightweight API calls to check listings_r and listings_w.
+    Returns a dict of scope → bool.
+    """
+    token_check = ensure_valid_token()
+    if not token_check.get("valid"):
+        return {"error": token_check.get("error", "Token invalid")}
+
+    creds = get_credentials()
+    shop_id = creds.get("shop_id")
+    if not shop_id:
+        return {"error": "ETSY_SHOP_ID not configured"}
+
+    scopes: dict[str, Any] = {
+        "listings_r": False,
+        "listings_w": False,
+        "transactions_r": False,
+    }
+
+    # Test listings_r: fetch one listing
+    result = _api_request(
+        f"/application/shops/{shop_id}/listings?limit=1&state=active"
+    )
+    if "error" not in result:
+        scopes["listings_r"] = True
+        scopes["listing_count"] = result.get("count", 0)
+
+    # Test listings_w: attempt a no-op update on a draft listing
+    # We create a minimal draft and immediately delete it
+    # Instead, just check if we can read — listings_w can only be confirmed
+    # by attempting a write. We'll flag it as "untested" and let the
+    # Etsy rewrite agent confirm on first real write.
+    scopes["listings_w"] = "untested — will confirm on first write"
+
+    # Test transactions_r: fetch recent receipts
+    result = _api_request(
+        f"/application/shops/{shop_id}/receipts?limit=1"
+    )
+    if "error" not in result:
+        scopes["transactions_r"] = True
+
+    return scopes
+
+
 def _save_tokens(access_token: str, refresh_token: str, expires_in: int):
     """Save OAuth tokens to Agent .env file."""
     agent_env = Path(__file__).parent.parent.parent / ".env"
@@ -170,7 +247,7 @@ def generate_oauth_url() -> dict[str, str]:
         "response_type": "code",
         "client_id": creds["api_key"],
         "redirect_uri": "https://archive-35.com/etsy-callback",
-        "scope": "listings_r listings_w listings_d transactions_r transactions_w shops_r",
+        "scope": "listings_r listings_w listings_d transactions_r transactions_w shops_r shops_w",
         "state": state,
         "code_challenge": code_challenge,
         "code_challenge_method": "S256",
@@ -1023,7 +1100,7 @@ def update_listing_inventory(
     )
 
 
-def create_full_listing(
+def create_simple_listing(
     title: str,
     description: str,
     tags: list[str],
@@ -1033,58 +1110,47 @@ def create_full_listing(
     image_urls: list[str] | None = None,
     shipping_profile_id: Optional[int] = None,
     taxonomy_id: Optional[int] = None,
-    min_dpi: int = 150,
     activate: bool = False,
 ) -> dict[str, Any]:
-    """Create a complete Etsy listing with all variations, pricing, and images.
+    """Create a single-SKU Etsy listing: one size, one material, no variations.
 
-    This is the one-shot orchestrator that does everything:
-    1. Creates a draft listing
-    2. Uploads images
-    3. Sets the full Material & Size × Frame inventory matrix
-    4. Optionally activates the listing
+    Simplified flow matching the current Etsy shop format:
+    - ChromaLuxe HD Metal Print only
+    - Size determined by photo orientation
+    - Price from etsy_pricing (5x Pictorem cost)
+    - No variation matrix, no frames, no personalization
 
     Args:
         title: Listing title (max 140 chars)
         description: Full listing description
         tags: Up to 13 Etsy tags
-        photo_width: Source photo pixel width (for DPI calculations)
+        photo_width: Source photo pixel width
         photo_height: Source photo pixel height
         image_paths: Local file paths to upload as listing images
         image_urls: URLs to download and upload as listing images
         shipping_profile_id: Etsy shipping profile ID
         taxonomy_id: Etsy category taxonomy ID
-        min_dpi: Minimum print DPI threshold
         activate: If True, set listing to active after setup
 
     Returns:
-        Result dict with listing_id, variant_count, price_range, or error.
+        Result dict with listing_id, pricing info, or error.
     """
-    from src.brand.etsy_variations import (
-        build_variation_matrix,
-        build_etsy_inventory_payload,
-        get_matrix_summary,
-    )
+    from src.agents.etsy_pricing import get_listing_pricing
 
-    # Step 1: Build the variation matrix to get the base price
-    products = build_variation_matrix(photo_width, photo_height, min_dpi=min_dpi)
-    if not products:
-        return {"error": "No valid print sizes for this photo (check DPI/dimensions)"}
-
-    summary = get_matrix_summary(products)
-    base_price = summary["price_range"][0]  # Lowest price for draft creation
+    # Step 1: Get single-SKU pricing from Pictorem API (real cost for actual size)
+    pricing = get_listing_pricing(photo_w=photo_width, photo_h=photo_height)
+    price_usd = pricing["etsy_price_usd"]
 
     logger.info(
-        "Creating listing '%s' with %d variants ($%.0f–$%.0f)",
-        title[:50], summary["total_variants"],
-        summary["price_range"][0], summary["price_range"][1],
+        "Creating listing '%s' — %s %s @ $%.0f",
+        title[:50], pricing["material"], pricing["size_label"], price_usd,
     )
 
     # Step 2: Create draft listing
     result = create_listing(
         title=title,
         description=description,
-        price=base_price,
+        price=price_usd,
         tags=tags,
         quantity=999,
         shipping_profile_id=shipping_profile_id,
@@ -1102,7 +1168,6 @@ def create_full_listing(
     logger.info("Created draft listing %s", listing_id)
 
     # Step 3: Upload user-selected images (mockups + original photo)
-    # Budget: max MOCKUP_SLOTS mockups + 1 original photo
     uploaded_images = []
     all_images = []
     if image_paths:
@@ -1124,122 +1189,9 @@ def create_full_listing(
             logger.info("Uploaded image %d/%d for listing %s",
                         rank, len(all_images), listing_id)
 
-    # Step 3b: Generate and upload framed mockup images
-    # Instead of raw moulding close-ups, generate actual mockups showing
-    # the photo inside each frame type. Much more useful for customers.
-    frame_image_ids = {}
-    next_rank = len(uploaded_images) + 1
+    logger.info("Total images uploaded: %d", len(uploaded_images))
 
-    # Find the original photo file for mockup generation
-    original_photo_path = None
-    if image_paths:
-        original_photo_path = image_paths[0]
-    elif image_urls:
-        # Try to find a local file from the first URL
-        # (mockups are localhost URLs — skip those, look for real photos)
-        for url in (image_urls or []):
-            if url.startswith("https://archive-35.com/images/"):
-                # Derive local path: images/{collection}/{base}-full.jpg → photography/{Collection}/{base}.jpg
-                # This is best-effort; if it fails, we skip frame mockups
-                parts = url.replace("https://archive-35.com/images/", "").split("/")
-                if len(parts) >= 2:
-                    project_root = Path(__file__).parent.parent.parent.parent
-                    # Try photography/ directory (case-insensitive search)
-                    for d in project_root.glob("photography/*/"):
-                        if d.name.lower() == parts[0].lower():
-                            base_name = parts[1].replace("-full.jpg", "")
-                            for ext in [".jpg", ".JPG", ".jpeg", ".png"]:
-                                candidate = d / f"{base_name}{ext}"
-                                if candidate.exists():
-                                    original_photo_path = str(candidate)
-                                    break
-                        if original_photo_path:
-                            break
-                break
-
-    if original_photo_path:
-        try:
-            from src.brand.frame_mockups import generate_framed_mockups, FRAME_PRESETS
-            mockup_paths = generate_framed_mockups(
-                original_photo_path,
-                frame_keys=FRAME_IMAGES_FOR_ETSY,
-            )
-            for frame_key in FRAME_IMAGES_FOR_ETSY:
-                mockup_path = mockup_paths.get(frame_key)
-                if not mockup_path:
-                    continue
-                frame_result = upload_listing_image_from_file(listing_id, mockup_path, rank=next_rank)
-                if "error" in frame_result:
-                    logger.error("Frame mockup upload failed (%s): %s", frame_key, frame_result["error"])
-                else:
-                    image_id = frame_result.get("listing_image_id")
-                    if image_id:
-                        frame_image_ids[frame_key] = image_id
-                        logger.info("Auto-attached %s frame mockup (rank %d, image_id %s)",
-                                    frame_key, next_rank, image_id)
-                    uploaded_images.append(frame_result)
-                    next_rank += 1
-        except Exception as e:
-            logger.error("Frame mockup generation failed: %s", e)
-            # Fall back to static frame images
-            logger.info("Falling back to static frame reference images")
-            project_root = Path(__file__).parent.parent.parent.parent
-            for frame_key in FRAME_IMAGES_FOR_ETSY:
-                img_rel_path = FRAME_IMAGES.get(frame_key)
-                if not img_rel_path:
-                    continue
-                img_abs_path = str(project_root / img_rel_path)
-                frame_result = upload_listing_image_from_file(listing_id, img_abs_path, rank=next_rank)
-                if "error" not in frame_result:
-                    image_id = frame_result.get("listing_image_id")
-                    if image_id:
-                        frame_image_ids[frame_key] = image_id
-                    uploaded_images.append(frame_result)
-                    next_rank += 1
-    else:
-        logger.warning("No original photo available — falling back to static frame images")
-        project_root = Path(__file__).parent.parent.parent.parent
-        for frame_key in FRAME_IMAGES_FOR_ETSY:
-            img_rel_path = FRAME_IMAGES.get(frame_key)
-            if not img_rel_path:
-                continue
-            img_abs_path = str(project_root / img_rel_path)
-            frame_result = upload_listing_image_from_file(listing_id, img_abs_path, rank=next_rank)
-            if "error" not in frame_result:
-                image_id = frame_result.get("listing_image_id")
-                if image_id:
-                    frame_image_ids[frame_key] = image_id
-                uploaded_images.append(frame_result)
-                next_rank += 1
-
-    logger.info("Total images uploaded: %d (user: %d, frames: %d)",
-                len(uploaded_images),
-                len(uploaded_images) - len(frame_image_ids),
-                len(frame_image_ids))
-
-    # Step 4: Set inventory (variations + pricing)
-    inventory_payload = build_etsy_inventory_payload(products)
-    inv_result = update_listing_inventory(listing_id, inventory_payload)
-
-    if "error" in inv_result:
-        return {
-            "error": f"Listing created but inventory update failed: {inv_result['error']}",
-            "listing_id": listing_id,
-            "detail": inv_result.get("detail", ""),
-            "note": "Listing exists as draft — fix inventory manually or retry",
-        }
-
-    logger.info("Set %d variants on listing %s", summary["total_variants"], listing_id)
-
-    # Step 4b: Link frame images to their Frame variation values
-    # This makes Etsy swap the displayed image when a buyer picks a frame style.
-    if frame_image_ids:
-        _link_frame_images_to_variations(listing_id, inv_result, frame_image_ids)
-
-    # Step 5: Set personalization instructions (legacy field — until multi-personalization GA)
-    _set_personalization(listing_id)
-
-    # Step 6: Optionally activate
+    # Step 4: Optionally activate
     if activate:
         activate_result = update_listing(listing_id, {"state": "active"})
         if "error" in activate_result:
@@ -1249,17 +1201,47 @@ def create_full_listing(
     return {
         "listing_id": listing_id,
         "status": "active" if activate else "draft",
-        "total_variants": summary["total_variants"],
-        "enabled_variants": summary["enabled_variants"],
-        "disabled_variants": summary["disabled_variants"],
-        "price_range": summary["price_range"],
-        "materials": summary["materials"],
-        "sizes": summary["sizes"],
-        "frames": summary["frames"],
+        "orientation": pricing["orientation"],
+        "material": pricing["material"],
+        "size": pricing["size_label"],
+        "price_usd": price_usd,
+        "pictorem_cost_usd": pricing["pictorem_cost_usd"],
+        "shipping": pricing["shipping"],
         "images_uploaded": len(uploaded_images),
-        "frame_images_linked": len(frame_image_ids),
-        "personalization": True,
     }
+
+
+def create_full_listing(
+    title: str,
+    description: str,
+    tags: list[str],
+    photo_width: int,
+    photo_height: int,
+    image_paths: list[str] | None = None,
+    image_urls: list[str] | None = None,
+    shipping_profile_id: Optional[int] = None,
+    taxonomy_id: Optional[int] = None,
+    min_dpi: int = 150,
+    activate: bool = False,
+) -> dict[str, Any]:
+    """DEPRECATED — redirects to create_simple_listing.
+
+    The old multi-variation flow (5 materials × sizes × frames) has been
+    replaced with a single-SKU ChromaLuxe HD Metal Print per listing.
+    """
+    logger.info("create_full_listing redirecting to create_simple_listing (simplified flow)")
+    return create_simple_listing(
+        title=title,
+        description=description,
+        tags=tags,
+        photo_width=photo_width,
+        photo_height=photo_height,
+        image_paths=image_paths,
+        image_urls=image_urls,
+        shipping_profile_id=shipping_profile_id,
+        taxonomy_id=taxonomy_id,
+        activate=activate,
+    )
 
 
 # ── Internal Helpers ─────────────────────────────────────────────────────

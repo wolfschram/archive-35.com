@@ -25,6 +25,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+# Fix SSL certs on Python 3.13 / macOS (must run before any HTTPS calls)
+from src import ssl_fix  # noqa: F401
+
 logger = logging.getLogger(__name__)
 
 # Instagram API base

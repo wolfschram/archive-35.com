@@ -73,6 +73,12 @@ class Settings(BaseSettings):
         le=5,
     )
 
+    # ── Auto-approve (bypass Telegram approval queue) ──
+    auto_approve: bool = Field(
+        default=False,
+        description="Skip Telegram approval queue — content auto-approves for posting",
+    )
+
     # ── General ──
     daily_budget_usd: float = Field(
         default=5.00,

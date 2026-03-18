@@ -5,15 +5,40 @@
  * Run: npm run init-db
  */
 
-const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 
 const DB_PATH = path.join(__dirname, 'pipeline.db');
-const db = new Database(DB_PATH);
 
-// Enable WAL mode for better concurrent read performance
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+// Remove existing DB for fresh init
+if (fs.existsSync(DB_PATH)) fs.unlinkSync(DB_PATH);
+
+let db;
+try {
+  const Database = require('better-sqlite3');
+  db = new Database(DB_PATH);
+  db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
+  db.transaction = db.transaction; // already exists
+} catch {
+  const { DatabaseSync } = require('node:sqlite');
+  db = new DatabaseSync(DB_PATH);
+  db.exec('PRAGMA journal_mode = WAL');
+  db.exec('PRAGMA foreign_keys = ON');
+  db.transaction = function(fn) {
+    return function(...args) {
+      db.exec('BEGIN');
+      try {
+        const result = fn(...args);
+        db.exec('COMMIT');
+        return result;
+      } catch (err) {
+        db.exec('ROLLBACK');
+        throw err;
+      }
+    };
+  };
+}
 
 // ─── Schema ──────────────────────────────────────────────────────────
 
@@ -136,14 +161,14 @@ const seedAll = db.transaction(() => {
   insertJob.run(
     'Stripe', 'VP Engineering, Developer Platform',
     'Lead developer experience and platform engineering. Scale engineering org through hypergrowth. Establish engineering excellence practices.',
-    'APPLIED', 85, 'Direct', 'https://stripe.com/jobs/vp-eng',
-    'Applied with v1 cover letter — strong P→P→R opening', 'v1'
+    'SCORED', 85, 'Direct', 'https://stripe.com/jobs/vp-eng',
+    'Example job — replace with real applications', 'v1'
   );
   insertJob.run(
     'Warner Bros Discovery', 'SVP Engineering, Streaming',
     'Lead Max streaming platform engineering. Transform legacy systems to modern cloud infrastructure. Manage 300+ engineers globally.',
-    'INTERVIEW', 90, 'Network', 'https://wbd.com/careers/svp-eng',
-    'Second round scheduled — they love the broadcast-to-tech narrative', 'v1'
+    'SCORED', 90, 'Network', 'https://wbd.com/careers/svp-eng',
+    'Example job — replace with real applications', 'v1'
   );
 
   // Seed agents

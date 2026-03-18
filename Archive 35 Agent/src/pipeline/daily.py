@@ -155,7 +155,26 @@ def run_daily_pipeline(
             results["steps"]["content"] = {"status": "error", "error": str(e)}
             results["errors"].append(f"content: {e}")
 
-        # Step 5: Expire old content + prepare queue
+        # Step 5a: Auto-approve if enabled (bypasses Telegram queue)
+        if settings.auto_approve:
+            try:
+                from datetime import datetime, timezone
+                now = datetime.now(timezone.utc).isoformat()
+                cursor = conn.execute(
+                    "UPDATE content SET status = 'approved', approved_at = ? WHERE status = 'pending'",
+                    (now,),
+                )
+                auto_approved = cursor.rowcount
+                conn.commit()
+                results["steps"]["auto_approve"] = {"status": "ok", "approved": auto_approved}
+                if auto_approved:
+                    logger.info("Auto-approved %d pending content items", auto_approved)
+            except Exception as e:
+                logger.error("Auto-approve failed: %s", e)
+                results["steps"]["auto_approve"] = {"status": "error", "error": str(e)}
+                results["errors"].append(f"auto_approve: {e}")
+
+        # Step 5b: Expire old content + prepare queue
         try:
             from src.telegram.queue import expire_old_content, get_queue_stats
 

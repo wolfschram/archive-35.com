@@ -6,6 +6,9 @@ Spawned by Electron main process on startup, killed on quit.
 
 from __future__ import annotations
 
+# Fix SSL certs on Python 3.13 / macOS (must run before any HTTPS calls)
+from src import ssl_fix  # noqa: F401
+
 import json
 import logging
 import os
@@ -249,6 +252,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── Include sub-routers ────────────────────────────────────────────
+try:
+    from src.routes.reddit_routes import router as reddit_router
+    app.include_router(reddit_router)
+    logger.info("Reddit routes loaded")
+except ImportError as e:
+    logger.warning("Reddit routes not loaded: %s", e)
+
 
 def _get_conn():
     """Get an initialized DB connection."""
@@ -261,20 +272,115 @@ def _get_conn():
 
 @app.get("/health")
 def health():
-    """API health check — also verifies DB connectivity."""
+    """API health check + dashboard data feed.
+
+    Returns system status plus live counts for the agent dashboard at
+    archive-35.com/agent — Etsy listings, Instagram posts today,
+    sales/orders, x402 licenses, recent audit logs, and last IG posts.
+    """
     db_ok = False
+    extra: dict[str, Any] = {}
     try:
         conn = _get_conn()
         conn.execute("SELECT 1").fetchone()
-        conn.close()
         db_ok = True
+
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+        # Etsy listings count (from live Etsy API cache in content table)
+        try:
+            from src.integrations.etsy import get_listings, has_valid_token
+            if has_valid_token():
+                data = get_listings(state="active", limit=200)
+                extra["etsy_listings"] = len(data.get("results", []))
+            else:
+                extra["etsy_listings"] = 0
+        except Exception:
+            extra["etsy_listings"] = 0
+
+        # Instagram posts today
+        try:
+            conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='instagram_posts'"
+            )
+            row = conn.execute(
+                "SELECT COUNT(*) as cnt FROM instagram_posts WHERE posted_at LIKE ? AND success = 1",
+                (f"{today}%",),
+            ).fetchone()
+            extra["instagram_today"] = row["cnt"] if row else 0
+        except Exception:
+            extra["instagram_today"] = 0
+
+        # Etsy sales/orders (from receipts — calls live API)
+        try:
+            from src.integrations.etsy import EtsyClient
+            client = EtsyClient()
+            receipts = client.get_receipts(was_paid=True, limit=100)
+            extra["sales"] = len(receipts.get("results", []))
+        except Exception:
+            extra["sales"] = 0
+
+        # x402 license sales (table may not exist yet)
+        try:
+            row = conn.execute(
+                "SELECT COUNT(*) as cnt FROM license_sales"
+            ).fetchone()
+            extra["x402_licenses"] = row["cnt"] if row else 0
+        except Exception:
+            extra["x402_licenses"] = 0
+
+        # Last 20 audit log entries
+        try:
+            extra["logs"] = audit.query(conn, limit=20)
+        except Exception:
+            extra["logs"] = []
+
+        # Last 5 Instagram posts
+        try:
+            rows = conn.execute(
+                "SELECT id, etsy_listing_id, image_url, caption, media_id, posted_at, success "
+                "FROM instagram_posts ORDER BY id DESC LIMIT 5"
+            ).fetchall()
+            extra["ig_posts"] = [dict(r) for r in rows]
+        except Exception:
+            extra["ig_posts"] = []
+
+        # Kill switch state
+        try:
+            extra["kill_switch"] = kill_switch.get_status(conn)
+        except Exception:
+            extra["kill_switch"] = {}
+
+        # Agent request intelligence (x402 gallery traffic)
+        try:
+            _ensure_agent_requests_table(conn)
+            req_count = conn.execute("SELECT COUNT(*) as cnt FROM agent_requests").fetchone()
+            extra["agent_requests"] = req_count["cnt"] if req_count else 0
+            # Top 3 subjects for quick glance
+            rows = conn.execute("SELECT query_params FROM agent_requests ORDER BY id DESC LIMIT 200").fetchall()
+            subjects: dict[str, int] = {}
+            for row in rows:
+                try:
+                    p = json.loads(row["query_params"]) if row["query_params"] else {}
+                    if p.get("subject"):
+                        subjects[p["subject"]] = subjects.get(p["subject"], 0) + 1
+                except Exception:
+                    pass
+            extra["top_agent_subjects"] = sorted(subjects.items(), key=lambda x: x[1], reverse=True)[:3]
+        except Exception:
+            extra["agent_requests"] = 0
+            extra["top_agent_subjects"] = []
+
+        conn.close()
     except Exception:
         pass
+
     return {
         "status": "online" if db_ok else "degraded",
         "version": "0.2.0",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "db": "ok" if db_ok else "error",
+        **extra,
     }
 
 
@@ -1130,94 +1236,129 @@ class GenerateDraftRequest(BaseModel):
 @app.post("/content/generate-draft")
 def generate_draft(req: GenerateDraftRequest):
     """Generate AI caption/listing draft for a photo or mockup (not saved to DB)."""
+    # All paths use Vision — Claude must SEE the image to describe it accurately.
+    client = _get_anthropic_client()
+    if not client:
+        raise HTTPException(status_code=503, detail="No Anthropic API key configured")
+
+    from src.agents.content import PLATFORM_PROMPTS, MOCKUP_PLATFORM_PROMPTS, _parse_content_response
+
+    prompt = PLATFORM_PROMPTS.get(req.platform, PLATFORM_PROMPTS["instagram"])
+    image_url = None
+    context_text = ""
+
     # Handle mockup drafts (no DB photo required)
     if req.photo_id == "__mockup__" and req.context:
-        client = _get_anthropic_client()
-        if not client:
-            raise HTTPException(status_code=503, detail="No Anthropic API key configured")
-
-        from src.agents.content import PLATFORM_PROMPTS, _parse_content_response
-
         gallery = req.context.get("gallery", "")
         template = req.context.get("template", "")
         filename = req.context.get("filename", "")
+        # Try to get mockup image URL for Vision
+        image_url = req.context.get("image_url", "")
+        if not image_url and filename:
+            image_url = f"http://127.0.0.1:8036/mockups/{filename}"
 
-        mockup_context = (
-            f"This is a wall art mockup showing a fine art photograph displayed in a room setting.\n"
-            f"Gallery/Collection: {gallery}\n"
-            f"Room template: {template}\n"
-            f"Filename: {filename}\n"
-            f"The image shows the photograph as it would look hanging on a wall in a modern interior."
+        context_text = (
+            f"Wall art mockup — photograph in a room setting.\n"
+            f"Collection: {gallery}\n"
         )
-
-        prompt = PLATFORM_PROMPTS.get(req.platform, PLATFORM_PROMPTS["instagram"])
-        full_prompt = f"Photo context:\n{mockup_context}\n\n{prompt}"
-
-        response = client.messages.create(
-            model="claude-sonnet-4-5-20250929",
-            max_tokens=1000,
-            messages=[{"role": "user", "content": full_prompt}],
-        )
-        result = _parse_content_response(response.content[0].text)
-        return result
+        prompt = MOCKUP_PLATFORM_PROMPTS.get(req.platform, prompt)
 
     # Handle filesystem photo IDs (fs:Collection/filename.jpg)
-    if req.photo_id.startswith("fs:"):
-        client = _get_anthropic_client()
-        if not client:
-            raise HTTPException(status_code=503, detail="No Anthropic API key configured")
-
-        from src.agents.content import PLATFORM_PROMPTS, _parse_content_response
-
-        fs_path = req.photo_id[3:]  # Strip "fs:" prefix
+    elif req.photo_id.startswith("fs:"):
+        fs_path = req.photo_id[3:]
         parts = fs_path.split("/", 1)
         collection = parts[0] if len(parts) > 1 else ""
         filename = parts[1] if len(parts) > 1 else parts[0]
 
-        fs_context = (
-            f"This is a fine art photograph from the Archive-35 collection.\n"
-            f"Collection/Gallery: {collection}\n"
-            f"Filename: {filename}\n"
-            f"The photograph is available as museum-quality prints."
-        )
+        # Build image URL from the website
+        if collection and filename:
+            base = filename.rsplit(".", 1)[0] if "." in filename else filename
+            image_url = f"https://archive-35.com/images/{collection.lower()}/{base}-full.jpg"
 
-        prompt = PLATFORM_PROMPTS.get(req.platform, PLATFORM_PROMPTS["instagram"])
-        full_prompt = f"Photo context:\n{fs_context}\n\n{prompt}"
+        # Also try to read the actual file for base64
+        repo_root = Path(__file__).resolve().parent.parent.parent
+        local_path = repo_root / "photography" / fs_path
+        if local_path.exists():
+            try:
+                import base64
+                with open(local_path, "rb") as f:
+                    raw_bytes = f.read()
+                # Resize to prevent 413 errors — Claude Vision works at 2000px
+                from src.agents.etsy_agent import _resize_image_for_api
+                resized = _resize_image_for_api(raw_bytes, max_edge=2000, max_bytes=4_500_000)
+                img_data = base64.standard_b64encode(resized).decode("utf-8")
+                # Prefer local file over URL — more reliable
+                image_url = None  # Will use base64 below
+            except Exception:
+                img_data = None
+        else:
+            img_data = None
 
-        response = client.messages.create(
-            model="claude-sonnet-4-5-20250929",
-            max_tokens=1000,
-            messages=[{"role": "user", "content": full_prompt}],
-        )
-        result = _parse_content_response(response.content[0].text)
-        return result
+        context_text = f"Fine art photograph from Archive-35.\nCollection: {collection}\n"
 
     # Standard DB photo draft
-    conn = _get_conn()
-    try:
-        photo = conn.execute("SELECT * FROM photos WHERE id = ?", (req.photo_id,)).fetchone()
-        if not photo:
-            raise HTTPException(status_code=404, detail="Photo not found")
+    else:
+        conn = _get_conn()
+        try:
+            photo = conn.execute("SELECT * FROM photos WHERE id = ?", (req.photo_id,)).fetchone()
+            if not photo:
+                raise HTTPException(status_code=404, detail="Photo not found")
 
-        client = _get_anthropic_client()
-        if not client:
-            raise HTTPException(status_code=503, detail="No Anthropic API key configured")
+            from src.agents.content import _build_context
+            context_text = _build_context(photo)
+            img_data = None
 
-        from src.agents.content import _build_context, PLATFORM_PROMPTS, _parse_content_response
+            # Try to find image for Vision
+            photo = dict(photo)
+            collection = (photo.get("collection", "") or "").lower()
+            filename = photo.get("filename", "")
+            if collection and filename:
+                base = filename.rsplit(".", 1)[0] if "." in filename else filename
+                image_url = f"https://archive-35.com/images/{collection}/{base}-full.jpg"
 
-        context = _build_context(photo)
-        prompt = PLATFORM_PROMPTS.get(req.platform, PLATFORM_PROMPTS["instagram"])
-        full_prompt = f"Photo context:\n{context}\n\n{prompt}"
+                # Try local file
+                repo_root = Path(__file__).resolve().parent.parent.parent
+                local_path = repo_root / "photography" / photo.get("collection", "") / filename
+                if local_path.exists():
+                    try:
+                        import base64
+                        with open(local_path, "rb") as f:
+                            raw_bytes = f.read()
+                        # Resize to prevent 413 errors — Claude Vision works at 2000px
+                        from src.agents.etsy_agent import _resize_image_for_api
+                        resized = _resize_image_for_api(raw_bytes, max_edge=2000, max_bytes=4_500_000)
+                        img_data = base64.standard_b64encode(resized).decode("utf-8")
+                        image_url = None
+                    except Exception:
+                        pass
+        finally:
+            conn.close()
 
-        response = client.messages.create(
-            model="claude-sonnet-4-5-20250929",
-            max_tokens=1000,
-            messages=[{"role": "user", "content": full_prompt}],
-        )
-        result = _parse_content_response(response.content[0].text)
-        return result
-    finally:
-        conn.close()
+    # Build message with Vision if we have an image
+    full_prompt = f"Photo context:\n{context_text}\n\n{prompt}"
+    content: list[dict] = []
+
+    if 'img_data' in dir() and img_data:
+        # Local file as base64 — most reliable
+        content.append({
+            "type": "image",
+            "source": {"type": "base64", "media_type": "image/jpeg", "data": img_data},
+        })
+    elif image_url:
+        content.append({
+            "type": "image",
+            "source": {"type": "url", "url": image_url},
+        })
+
+    content.append({"type": "text", "text": full_prompt})
+
+    response = client.messages.create(
+        model="claude-sonnet-4-5-20250929",
+        max_tokens=1000,
+        messages=[{"role": "user", "content": content}],
+    )
+    result = _parse_content_response(response.content[0].text)
+    return result
 
 
 class CreateManualContentRequest(BaseModel):
@@ -1823,6 +1964,75 @@ def list_live_etsy_listings(state: str = "active", limit: int = 100):
         return {"results": [], "count": 0, "error": str(e)}
 
 
+@app.post("/etsy/restructure")
+def etsy_restructure(dry_run: bool = False):
+    """Restructure all Etsy listings to single-SKU HD Metal Prints.
+
+    Processes ALL listings (active + inactive):
+    - Detects orientation, sets single size per listing
+    - Rewrites SEO with Claude Vision
+    - Sets 3x markup pricing on Pictorem base costs
+    - Reactivates inactive listings after transformation
+    - Free shipping prominent in every description
+
+    Args:
+        dry_run: If true, generate paste-ready output without updating Etsy.
+    """
+    from src.agents.etsy_agent import restructure_all_listings
+    import anthropic
+
+    conn = _get_conn()
+    try:
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not api_key or api_key == "sk-ant-...":
+            raise HTTPException(status_code=400, detail="ANTHROPIC_API_KEY not configured")
+        client = anthropic.Anthropic(api_key=api_key)
+        result = restructure_all_listings(
+            conn=conn, client=client, dry_run=dry_run,
+        )
+        if "error" in result and not result.get("results"):
+            raise HTTPException(status_code=502, detail=result["error"])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Etsy restructure failed: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
+@app.post("/etsy/upload-packages")
+def etsy_upload_packages(dry_run: bool = False, limit: int = 100):
+    """Upload pre-built listing packages from etsy-export/ to Etsy.
+
+    Rewrites copy with Claude + story bank, watermarks originals,
+    uploads images, creates and activates listings.
+    """
+    from src.agents.etsy_uploader import upload_all_packages
+    import anthropic
+
+    conn = _get_conn()
+    try:
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not api_key or api_key == "sk-ant-...":
+            raise HTTPException(status_code=400, detail="ANTHROPIC_API_KEY not configured")
+        client = anthropic.Anthropic(api_key=api_key)
+        result = upload_all_packages(
+            conn=conn, client=client, dry_run=dry_run, limit=limit,
+        )
+        if "error" in result and not result.get("results"):
+            raise HTTPException(status_code=502, detail=result["error"])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Etsy upload-packages failed: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
 @app.get("/etsy/diagnostic")
 def etsy_diagnostic():
     """Run a full diagnostic of the Etsy API connection and capabilities.
@@ -2057,6 +2267,40 @@ def etsy_oauth_callback(req: EtsyOAuthCallback):
         conn.close()
 
 
+@app.post("/etsy/oauth/refresh")
+def etsy_oauth_refresh():
+    """Refresh the Etsy OAuth access token using the stored refresh token.
+
+    Call this when the token has expired (ETSY_TOKEN_EXPIRES in .env).
+    Returns new token info or error with guidance.
+    """
+    from src.integrations.etsy import ensure_valid_token
+    result = ensure_valid_token()
+    if not result.get("valid"):
+        status = 401 if result.get("reauth_required") else 502
+        raise HTTPException(status_code=status, detail=result.get("error", "Refresh failed"))
+    conn = _get_conn()
+    try:
+        audit.log(conn, "etsy", "token_refreshed", {"refreshed": result.get("refreshed", False)})
+    finally:
+        conn.close()
+    return result
+
+
+@app.get("/etsy/oauth/scope-check")
+def etsy_scope_check():
+    """Check which Etsy API scopes the current token has.
+
+    Tests listings_r, listings_w, and transactions_r.
+    Use this after token refresh to confirm write access.
+    """
+    from src.integrations.etsy import check_scope
+    result = check_scope()
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+
 class EtsyListingCreate(BaseModel):
     content_id: str
     shipping_profile_id: Optional[int] = None
@@ -2157,13 +2401,13 @@ class EtsyComposeCreate(BaseModel):
 
 @app.post("/etsy/listings/create-from-compose")
 def create_etsy_from_compose(req: EtsyComposeCreate):
-    """Create a complete Etsy draft listing directly from Compose Post.
+    """Create a single-SKU Etsy draft listing from Compose Post.
 
-    Skips the content DB — goes straight to Etsy API with full
-    Material & Size × Frame variation matrix and pricing.
+    Simplified flow: one ChromaLuxe HD Metal Print per listing,
+    size determined by photo orientation, no variation matrix.
     """
-    from src.integrations.etsy import create_full_listing
-    from src.brand.etsy_variations import build_variation_matrix, get_matrix_summary
+    from src.integrations.etsy import create_simple_listing
+    from src.agents.etsy_pricing import detect_orientation, get_listing_pricing
 
     conn = _get_conn()
     try:
@@ -2277,23 +2521,25 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
         # Validate title length
         title = (req.title or "Fine Art Photography Print")[:140]
 
-        # Build description with copyright footer
+        # Get pricing info for the description (uses real Pictorem API)
+        pricing = get_listing_pricing(photo_w=photo_w, photo_h=photo_h)
+
+        # Build description — single-SKU format with full specs
         description = req.description or ""
-        description += "\n\n— FRAMING OPTIONS —"
-        description += "\nThe last 3 images show this print in our Black, White, and Natural Wood frames."
-        description += "\nUse the personalization field to select your frame, mat, and border preferences."
+        description += f"\n\n---\n\nPRINT SPECIFICATIONS"
+        description += f"\nMaterial: ChromaLuxe HD Metal — White Gloss aluminum"
+        description += f"\nSize: {pricing['size_label']}"
+        description += f"\nResolution: {pricing.get('photo_pixels', '')} ({pricing.get('megapixels', '')} MP) printed at {pricing.get('dpi', '')} DPI"
+        description += "\nMount: Metal standoff hanging brackets included — arrives ready to hang. No frame needed."
+        description += "\nShipping: Free across North America and Canada."
         description += "\n\n© Wolfgang Schram / Archive-35 Studio"
         description += "\nAll prints are made-to-order and shipped directly from our professional print lab."
 
         # Cap tags at 13 (Etsy limit)
         tags = (req.tags or [])[:13]
 
-        # Preview the matrix
-        products = build_variation_matrix(photo_w, photo_h, min_dpi=req.min_dpi)
-        summary = get_matrix_summary(products)
-
-        # Create the full listing via Etsy API
-        result = create_full_listing(
+        # Create single-SKU listing via Etsy API
+        result = create_simple_listing(
             title=title,
             description=description,
             tags=tags,
@@ -2302,7 +2548,6 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
             image_paths=image_paths if image_paths else None,
             image_urls=image_urls if image_urls else None,
             shipping_profile_id=req.shipping_profile_id,
-            min_dpi=req.min_dpi,
             activate=req.activate,
         )
 
@@ -2318,12 +2563,13 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
         audit.log(conn, "etsy", "compose_listing_created", {
             "listing_id": result.get("listing_id"),
             "title": title,
-            "variants": result.get("total_variants"),
-            "price_range": result.get("price_range"),
+            "price_usd": result.get("price_usd"),
+            "material": result.get("material"),
+            "size": result.get("size"),
             "activated": req.activate,
         })
 
-        return {**result, "summary": summary}
+        return result
 
     except HTTPException:
         raise
@@ -2934,10 +3180,6 @@ def export_etsy_folder(req: EtsyExportRequest):
     """
     import shutil
     import re
-    from src.brand.pricing import (
-        MATERIALS, website_price, etsy_price, get_matching_category,
-        filter_sizes_by_aspect, calculate_dpi, get_quality_badge,
-    )
 
     project_root = Path(__file__).resolve().parent.parent.parent
     etsy_export_root = project_root / "06_Automation" / "etsy-export"
@@ -3014,9 +3256,9 @@ def export_etsy_folder(req: EtsyExportRequest):
                 else:
                     logger.warning(f"Original photo not found: {src_path}")
 
-    # ── Build pricing variations ──
-    # Try to detect aspect ratio from first original photo
-    aspect_ratio = 1.5  # default 3:2
+    # ── Single-SKU pricing (simplified — matches current shop format) ──
+    from src.agents.etsy_pricing import detect_orientation, get_listing_pricing
+
     photo_w, photo_h = 6000, 4000  # reasonable default for Wolf's camera
 
     for img in req.selected_images:
@@ -3029,48 +3271,14 @@ def export_etsy_folder(req: EtsyExportRequest):
                     from PIL import Image as PILImage
                     with PILImage.open(photo_path) as pil_img:
                         photo_w, photo_h = pil_img.size
-                        aspect_ratio = photo_w / photo_h
                 except Exception:
                     pass
                 break
 
-    category = get_matching_category(aspect_ratio)
-    applicable_sizes = filter_sizes_by_aspect(category["sizes"], aspect_ratio)
-
-    variations = []
-    for mat_key, mat in MATERIALS.items():
-        for w, h in applicable_sizes:
-            dpi = calculate_dpi(photo_w, photo_h, w, h)
-            quality = get_quality_badge(dpi)
-            if not quality:
-                continue
-            sq_in = w * h
-            if sq_in > mat["max_sq_in"]:
-                continue
-
-            site_p = website_price(mat_key, w, h)
-            etsy_p = etsy_price(site_p)
-
-            variations.append({
-                "material": mat["name"],
-                "material_key": mat_key,
-                "size": f'{w}"x{h}"',
-                "width": w,
-                "height": h,
-                "website_price": site_p,
-                "etsy_price": etsy_p,
-                "dpi": dpi,
-                "quality": quality,
-                "label": f"{mat['name']} {w}x{h}",
-            })
-
-    # Sort: paper first (cheapest), then by price
-    mat_order = {"paper": 0, "canvas": 1, "wood": 2, "metal": 3, "acrylic": 4}
-    variations.sort(key=lambda v: (mat_order.get(v["material_key"], 9), v["etsy_price"]))
+    pricing = get_listing_pricing(photo_w=photo_w, photo_h=photo_h)
 
     # Ensure 13 tags, each max 20 characters (Etsy limit).
-    # Tags must describe the PHOTOGRAPHY, not the mockup rooms.
-    raw_tags = [t[:20] for t in req.tags if t.strip()]  # Enforce 20-char Etsy limit
+    raw_tags = [t[:20] for t in req.tags if t.strip()]
     tags = list(raw_tags)[:13]
     default_tags = [
         "archive35", "fine art photography", "wall art decor",
@@ -3087,27 +3295,24 @@ def export_etsy_folder(req: EtsyExportRequest):
             tags.append(dt)
             seen.add(dt.lower())
 
-    # Base price = cheapest variation (Fine Art Paper smallest)
-    base_price = variations[0]["etsy_price"] if variations else 51
-
     # ── Build listing.json ──
     listing = {
         "title": req.title[:140],
         "description": req.description,
         "tags": tags[:13],
-        "base_price": base_price,
+        "price": pricing["etsy_price_usd"],
+        "material": pricing["material"],
+        "size": pricing["size_label"],
+        "orientation": pricing["orientation"],
         "category": "Art & Collectibles > Photography > Color",
         "who_made": "i_did",
-        "when_made": "2020_2025",
+        "when_made": "made_to_order",
         "is_supply": False,
         "processing_days": {"min": 5, "max": 7},
-        "shipping_profile": "Fine Art Prints - Free Shipping",
+        "shipping": pricing["shipping"],
         "quantity": 999,
         "gallery_name": req.gallery_name,
-        "aspect_ratio": round(aspect_ratio, 2),
-        "aspect_category": category["name"],
         "photo_dimensions": {"width": photo_w, "height": photo_h},
-        "variations": variations,
         "images": copied_images,
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -3123,32 +3328,31 @@ def export_etsy_folder(req: EtsyExportRequest):
         f"Generated: {listing['generated_at']}",
         "",
         f"Title: {listing['title']}",
-        f"Base Price: ${base_price}",
-        f"Tags ({len(tags)}/13, each ≤20 chars): {', '.join(tags[:13])}",
-        f"Variations: {len(variations)} material/size combos",
+        f"Material: {pricing['material']}",
+        f"Size: {pricing['size_label']}",
+        f"Price: ${pricing['etsy_price_usd']:.0f}",
+        f"Shipping: {pricing['shipping']}",
+        f"Tags ({len(tags)}/13): {', '.join(tags[:13])}",
         f"Images: {len(copied_images)} files ready to upload",
         "",
-        "PRICING BREAKDOWN:",
+        "IMAGE ORDER:",
     ]
-    for v in variations:
-        readme_lines.append(f"  {v['label']:>25}: ${v['etsy_price']}")
-    readme_lines.append("")
-    readme_lines.append("IMAGE ORDER:")
     for img in copied_images:
         readme_lines.append(f"  {img['order']}. [{img['type']}] {img['filename']}")
 
     (export_dir / "README.txt").write_text("\n".join(readme_lines))
 
-    logger.info("Exported Etsy listing to %s — %d images, %d variations",
-                export_dir, len(copied_images), len(variations))
+    logger.info("Exported Etsy listing to %s — %d images, single SKU @ $%.0f",
+                export_dir, len(copied_images), pricing["etsy_price_usd"])
 
     return {
         "success": True,
         "export_path": str(export_dir),
         "folder_name": slug,
         "images_count": len(copied_images),
-        "variations_count": len(variations),
-        "base_price": base_price,
+        "material": pricing["material"],
+        "size": pricing["size_label"],
+        "price": pricing["etsy_price_usd"],
         "listing_json": str(listing_path),
     }
 
@@ -3995,6 +4199,35 @@ def instagram_status():
     }
 
 
+@app.post("/instagram/auto-post")
+def instagram_auto_post(dry_run: bool = False):
+    """Trigger one Instagram auto-post from Etsy listing images.
+
+    Picks the next image in rotation (30-day no-repeat), generates
+    a caption with Claude + story bank, and posts to Instagram.
+    """
+    from src.agents.instagram_agent import post_next_image
+    import anthropic
+
+    conn = _get_conn()
+    try:
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not api_key or api_key == "sk-ant-...":
+            raise HTTPException(status_code=400, detail="ANTHROPIC_API_KEY not configured")
+        client = anthropic.Anthropic(api_key=api_key)
+        result = post_next_image(conn, client, dry_run=dry_run)
+        if "error" in result:
+            raise HTTPException(status_code=502, detail=result["error"])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Instagram auto-post failed: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+
 @app.post("/instagram/refresh-token")
 def instagram_refresh_token():
     """Refresh the Instagram long-lived token (extends 60 days)."""
@@ -4126,6 +4359,171 @@ def instagram_publish(req: InstagramPublishRequest):
             status_code=500,
             detail=f"Instagram publish failed: {str(e)}"
         )
+    finally:
+        conn.close()
+
+
+# ── Notifications ──────────────────────────────────────────────
+
+
+class LicenseSaleNotification(BaseModel):
+    image_id: str
+    image_title: str = ""
+    tier: str = "web"
+    amount_usd: float = 0.50
+    tx_hash: str = ""
+    buyer_address: str = ""
+
+
+@app.post("/notify/license-sale")
+def notify_license_sale(sale: LicenseSaleNotification):
+    """Send email notification for an x402 license sale.
+
+    Called by the Cloudflare Pages x402 endpoint (via webhook) or
+    manually when a license sale is confirmed.
+    """
+    from src.notifications.email import notify_x402_sale
+
+    sent = notify_x402_sale(
+        image_id=sale.image_id,
+        image_title=sale.image_title or sale.image_id,
+        tier=sale.tier,
+        amount_usd=sale.amount_usd,
+        tx_hash=sale.tx_hash,
+        buyer_address=sale.buyer_address,
+    )
+
+    conn = _get_conn()
+    try:
+        audit.log(
+            conn, "x402", "license_sale",
+            {
+                "image_id": sale.image_id,
+                "tier": sale.tier,
+                "amount": sale.amount_usd,
+                "tx_hash": sale.tx_hash,
+                "email_sent": sent,
+            },
+            cost=0,
+        )
+    finally:
+        conn.close()
+
+    return {"notified": sent, "image_id": sale.image_id, "tier": sale.tier}
+
+
+# ── x402 Agent Request Intelligence ────────────────────────────
+
+
+AGENT_REQUESTS_SCHEMA = """
+CREATE TABLE IF NOT EXISTS agent_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TEXT NOT NULL,
+    ip TEXT,
+    user_agent TEXT,
+    query_params TEXT,
+    referrer TEXT,
+    country TEXT
+);
+"""
+
+
+def _ensure_agent_requests_table(conn):
+    conn.execute(AGENT_REQUESTS_SCHEMA)
+    conn.commit()
+
+
+class AgentRequestLog(BaseModel):
+    timestamp: str = ""
+    ip: str = ""
+    user_agent: str = ""
+    query_params: dict = {}
+    referrer: str = ""
+    country: str = ""
+
+
+@app.post("/api/license/log-request")
+def log_agent_request(entry: AgentRequestLog):
+    """Log an incoming AI agent request to the gallery.
+
+    Called by the Cloudflare Pages gallery endpoint on every request.
+    This is intelligence on what AI agents actually want.
+    """
+    conn = _get_conn()
+    try:
+        _ensure_agent_requests_table(conn)
+        conn.execute(
+            """INSERT INTO agent_requests (timestamp, ip, user_agent, query_params, referrer, country)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (
+                entry.timestamp or datetime.now(timezone.utc).isoformat(),
+                entry.ip,
+                entry.user_agent[:500],
+                json.dumps(entry.query_params),
+                entry.referrer,
+                entry.country,
+            ),
+        )
+        conn.commit()
+        return {"logged": True}
+    finally:
+        conn.close()
+
+
+@app.get("/api/license/insights")
+def agent_request_insights(days: int = Query(default=30, le=365)):
+    """Return top requested subjects, use cases, moods, and locations.
+
+    This is the intelligence dashboard — shows what AI agents are
+    actually searching for in the Archive-35 catalogue.
+    """
+    conn = _get_conn()
+    try:
+        _ensure_agent_requests_table(conn)
+        since = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+        rows = conn.execute(
+            "SELECT query_params, timestamp, user_agent, ip, country FROM agent_requests ORDER BY id DESC LIMIT 1000"
+        ).fetchall()
+
+        total_requests = len(rows)
+        subjects: dict[str, int] = {}
+        use_cases: dict[str, int] = {}
+        moods: dict[str, int] = {}
+        locations: dict[str, int] = {}
+        agents: dict[str, int] = {}
+
+        for row in rows:
+            try:
+                params = json.loads(row["query_params"]) if row["query_params"] else {}
+            except (json.JSONDecodeError, TypeError):
+                params = {}
+
+            if params.get("subject"):
+                subjects[params["subject"]] = subjects.get(params["subject"], 0) + 1
+            if params.get("use_case"):
+                use_cases[params["use_case"]] = use_cases.get(params["use_case"], 0) + 1
+            if params.get("mood"):
+                moods[params["mood"]] = moods.get(params["mood"], 0) + 1
+            if params.get("location"):
+                locations[params["location"]] = locations.get(params["location"], 0) + 1
+
+            ua = (row["user_agent"] or "")[:80]
+            if ua:
+                agents[ua] = agents.get(ua, 0) + 1
+
+        def top10(d):
+            return sorted(d.items(), key=lambda x: x[1], reverse=True)[:10]
+
+        return {
+            "total_requests": total_requests,
+            "top_subjects": top10(subjects),
+            "top_use_cases": top10(use_cases),
+            "top_moods": top10(moods),
+            "top_locations": top10(locations),
+            "top_agents": top10(agents),
+            "unique_ips": len(set(r["ip"] for r in rows if r["ip"])),
+        }
     finally:
         conn.close()
 

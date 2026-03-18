@@ -55,10 +55,33 @@ Style: authentic, artistic, conversational. Keep it concise — no fluff.
 {_NO_HALLUCINATE}
 Output JSON: {{"body": "...", "tags": ["tag1", "tag2", ...]}}""",
 
-    "etsy": f"""Write an Etsy listing description for this fine art photograph print.
-Include: SEO-rich title, detailed description (print quality, paper, story),
-13 tags optimized for Etsy search.
+    "etsy": f"""Write an Etsy listing for this fine art photograph.
+Product: ChromaLuxe HD Metal Print — White Gloss aluminum with metal standoff brackets.
+Free shipping across North America and Canada. No frame needed — arrives ready to hang.
+
+TITLE: SEO-optimized, max 140 chars. Front-load search terms.
+Format: "[Subject] [Size] Metal Print | [Mood] Wall Art | Free US Shipping"
+ALWAYS include the print size in the title. The size will be provided in the context.
+Do NOT include brand name (Etsy shows shop name separately).
+
+DESCRIPTION — 5 sections separated by blank lines:
+1. FREE SHIPPING — Ships free across North America and Canada. Arrives ready to hang.
+2. The moment — what's ACTUALLY in the image, the story behind it. Short, personal, Wolf's voice.
+3. The artist — Wolf Schram, 25 years, 55 countries, The Restless Eye.
+4. Why ChromaLuxe HD Metal — white gloss aluminum, unmatched vibrancy, deep blacks,
+   60-year archival rating. Metal standoff brackets float the print off the wall.
+5. Print size + 100% satisfaction guarantee.
+
+Do NOT mention paper, canvas, giclée, or archival paper — this is metal only.
+Do NOT mention framing options — no frame needed.
+
+TAGS: Exactly 13, each max 20 chars. Mix subject, style, room/decor, medium.
+
 {_NO_HALLUCINATE}
+
+ICELAND ACCURACY: Turquoise water + black volcanic rock from above = glacial river, not ocean.
+WILDLIFE: Identify species precisely. Don't guess mother/calf unless clearly visible.
+
 Output JSON: {{"title": "...", "body": "...", "tags": ["tag1", ..., "tag13"]}}""",
 }
 
@@ -82,10 +105,26 @@ Style: inspirational, home-styling focused, aspirational.
 {_NO_HALLUCINATE}
 Output JSON: {{"body": "...", "tags": ["tag1", "tag2", ...]}}""",
 
-    "etsy": f"""Write an Etsy listing for a fine art photograph shown as a wall print in a room mockup.
-Include: SEO-rich title mentioning "wall art" and "fine art print",
-description emphasizing how it looks in a real room, print quality details,
-13 tags optimized for Etsy search (include "wall art", "home decor", "fine art print").
+    "etsy": f"""Write an Etsy listing for a fine art photograph shown in a room mockup.
+Product: ChromaLuxe HD Metal Print — White Gloss aluminum with metal standoff brackets.
+Free shipping across North America and Canada. No frame needed — arrives ready to hang.
+
+TITLE: SEO-optimized, max 140 chars. Front-load search terms.
+Format: "[Subject] [Style] Metal Print | [Room/Mood] Wall Art | Free US Shipping"
+
+DESCRIPTION — 5 sections separated by blank lines:
+1. FREE SHIPPING — Ships free across North America and Canada. Arrives ready to hang.
+2. The moment — what's in the photograph (not the room mockup), the story.
+3. The artist — Wolf Schram, 25 years, 55 countries, The Restless Eye.
+4. Why ChromaLuxe HD Metal — white gloss aluminum, unmatched vibrancy, deep blacks,
+   60-year archival rating. Metal standoff brackets float the print off the wall.
+5. 100% satisfaction guarantee.
+
+Do NOT mention paper, canvas, giclée, or archival paper — this is metal only.
+Do NOT mention framing options — no frame needed.
+
+TAGS: Exactly 13, each max 20 chars. Mix subject, style, room/decor, medium.
+
 {_NO_HALLUCINATE}
 Output JSON: {{"title": "...", "body": "...", "tags": ["tag1", ..., "tag13"]}}""",
 }

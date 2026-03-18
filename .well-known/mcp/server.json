@@ -1,0 +1,18 @@
+{
+  "name": "archive-35-photography",
+  "display_name": "Archive-35 Fine Art Photography",
+  "description": "Search and license authentic fine art photography from a 25-year, 55-country archive. C2PA verified, not AI-generated. Museum-quality prints and digital licenses.",
+  "version": "1.0.0",
+  "author": "Wolf Schram",
+  "homepage": "https://archive-35.com",
+  "repository": "https://github.com/wolfschram/archive-35.com",
+  "tools": [
+    {"name": "search_images", "description": "Search photography by subject, mood, location"},
+    {"name": "get_image_details", "description": "Get full image details and specs"},
+    {"name": "browse_collections", "description": "Browse photography collections"},
+    {"name": "get_licensing_info", "description": "Get licensing options and pricing"},
+    {"name": "get_purchase_url", "description": "Get checkout URL to purchase a license"}
+  ],
+  "categories": ["photography", "art", "licensing", "stock-images"],
+  "keywords": ["fine art", "photography", "landscape", "wildlife", "C2PA", "authentic", "not AI", "prints", "licensing"]
+}

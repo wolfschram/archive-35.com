@@ -42,6 +42,24 @@
     overflow-x: hidden;
   }
 
+  /* ── TASK 8: Global Typography ─────────────────────── */
+  h1, .page-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  /* ── TASK 1: Status Summary Pills ──────────────────── */
+  .status-pills { display: flex; gap: 8px; margin-bottom: 20px; }
+  .pill { padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; }
+  .pill-critical { background: rgba(251,113,133,0.15); color: #FB7185; }
+  .pill-warning { background: rgba(251,191,36,0.15); color: #FBBF24; }
+  .pill-healthy { background: rgba(52,211,153,0.15); color: #34D399; }
+
   /* ── Layout: Left Rail + Main ─────────────────────────── */
   .app-layout {
     display: flex;
@@ -84,6 +102,7 @@
     padding: 8px 0;
   }
 
+  /* ── TASK 9: Left Rail Polish ──────────────────────── */
   .nav-item {
     display: flex;
     align-items: center;
@@ -96,15 +115,16 @@
     transition: background 0.15s, color 0.15s;
     border-left: 3px solid transparent;
     text-decoration: none;
+    position: relative;
   }
   .nav-item:hover {
-    background: rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.05);
     color: var(--text-primary);
   }
   .nav-item.active {
-    background: rgba(201,168,76,0.08);
+    background: rgba(201,168,76,0.1);
     color: var(--accent-gold);
-    border-left-color: var(--accent-gold);
+    border-left: 3px solid var(--accent-gold);
     font-weight: 600;
   }
   .nav-item .nav-icon {
@@ -112,6 +132,20 @@
     width: 20px;
     text-align: center;
     flex-shrink: 0;
+  }
+  .nav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 50%;
+    background: var(--status-critical);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    margin-left: auto;
   }
 
   .rail-separator {
@@ -205,8 +239,9 @@
     margin-bottom: 24px;
   }
   .page-header h1 {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
+    letter-spacing: -0.3px;
     color: var(--text-primary);
   }
   .page-header .subtitle {
@@ -215,7 +250,7 @@
     margin-top: 2px;
   }
 
-  /* ── Cards ──────────────────────────────────────────── */
+  /* ── TASK 10: Card Hover Effects ───────────────────── */
   .card {
     background: var(--bg-card);
     border-radius: var(--radius-md);
@@ -223,11 +258,11 @@
     padding: 20px;
     margin-bottom: 20px;
     border: 1px solid var(--border);
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
-  .card:hover {
+  .card:hover:not(.no-hover) {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-hover);
+    box-shadow: 0 8px 24px -8px rgba(0,0,0,0.4);
   }
   .card.no-hover:hover {
     transform: none;
@@ -306,8 +341,20 @@
     background: rgba(56,189,248,0.12);
     color: var(--status-info);
   }
+  .chip.connected {
+    background: rgba(52,211,153,0.12);
+    color: var(--status-healthy);
+  }
+  .chip.needs-setup {
+    background: rgba(251,191,36,0.12);
+    color: var(--status-warning);
+  }
+  .chip.needs-auth {
+    background: rgba(251,113,133,0.12);
+    color: var(--status-critical);
+  }
 
-  /* ── KPI Cards ──────────────────────────────────────── */
+  /* ── TASK 2: KPI Cards with Icons and Colored Borders ── */
   .kpi-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -321,11 +368,7 @@
     padding: 18px 20px;
     border: 1px solid var(--border);
     border-left: 4px solid var(--border);
-    transition: transform 0.15s, box-shadow 0.15s;
-  }
-  .kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-hover);
+    position: relative;
   }
   .kpi-card.green { border-left-color: var(--status-healthy); }
   .kpi-card.gold { border-left-color: var(--accent-gold); }
@@ -340,7 +383,7 @@
     margin-bottom: 6px;
   }
   .kpi-value {
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 700;
     font-family: var(--font-mono);
     color: var(--text-primary);
@@ -350,6 +393,19 @@
     font-size: 12px;
     color: var(--text-dim);
     margin-top: 4px;
+  }
+  .kpi-icon {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    font-size: 14px;
   }
   .kpi-dot {
     display: inline-block;
@@ -402,42 +458,46 @@
     border-color: var(--status-critical);
   }
   .btn.danger:hover { background: rgba(251,113,133,0.2); }
-
-  /* ── Attention Section ──────────────────────────────── */
-  .attention-section { margin-bottom: 24px; }
-  .attention-section h2 {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: var(--text-primary);
+  .btn-sm {
+    padding: 5px 12px;
+    font-size: 11px;
+    min-height: 28px;
   }
-  .attention-item {
+
+  /* ── TASK 3: Attention Cards — Structured ───────────── */
+  .attention-section { margin-bottom: 24px; }
+  .attention-card {
     background: var(--bg-card);
     border-radius: var(--radius-md);
-    padding: 16px 20px;
-    margin-bottom: 10px;
+    padding: 20px;
+    border-left: 4px solid var(--status-warning);
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--status-warning);
+  }
+  .attention-card.critical { border-left-color: var(--status-critical); }
+  .attention-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .attention-card-title {
+    font-size: 15px;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    border: 1px solid var(--border);
-    flex-wrap: wrap;
+    gap: 8px;
   }
-  .attention-item.coral { border-left: 4px solid var(--status-critical); }
-  .attention-item.amber { border-left: 4px solid var(--status-warning); }
-  .attention-info {
-    flex: 1;
-    min-width: 200px;
-  }
-  .attention-info .label {
-    font-weight: 600;
+  .attention-card-body {
     font-size: 13px;
-    color: var(--text-primary);
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    line-height: 1.5;
   }
-  .attention-info .detail {
-    font-size: 12px;
-    color: var(--text-dim);
-    margin-top: 2px;
+  .attention-card-actions {
+    display: flex;
+    gap: 8px;
   }
   .attention-all-clear {
     color: var(--status-healthy);
@@ -458,34 +518,26 @@
     margin-bottom: 24px;
   }
 
-  /* ── Sales Thermometer ──────────────────────────────── */
-  .thermometer {
-    background: rgba(15,23,42,0.6);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    height: 44px;
-    position: relative;
+  /* ── TASK 7: Sales Progress Bar ─────────────────────── */
+  .sales-bar-track {
+    height: 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
     overflow: hidden;
     margin: 12px 0;
   }
-  .thermometer-fill {
+  .sales-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #b8993f, var(--accent-gold), #d4b94e);
-    transition: width 0.8s ease;
-    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
-    min-width: 2px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--accent-gold), #E5C158);
+    transition: width 1s ease-out;
+    min-width: 4px;
   }
-  .thermometer-label {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    font-weight: 700;
-    font-family: var(--font-mono);
-    color: var(--text-primary);
-    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  .sales-amount { font-size: 24px; font-weight: 700; font-family: var(--font-mono); }
+  .sales-goal { font-size: 14px; color: var(--text-dim); }
+  /* Keep old thermometer for compat */
+  .thermometer {
+    display: none;
   }
   .channel-breakdown {
     display: flex;
@@ -506,7 +558,7 @@
     font-family: var(--font-mono);
   }
 
-  /* ── Activity Feed ──────────────────────────────────── */
+  /* ── TASK 4: Live Feed as Timeline ─────────────────── */
   .feed-container {
     max-height: 400px;
     overflow-y: auto;
@@ -514,6 +566,18 @@
     background: rgba(15,23,42,0.4);
     border: 1px solid var(--border);
   }
+  .feed-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 14px;
+    border-bottom: 1px solid rgba(51,65,85,0.3);
+    font-size: 13px;
+    transition: background 0.1s;
+  }
+  .feed-item:last-child { border-bottom: none; }
+  .feed-item:hover { background: rgba(255,255,255,0.02); }
+  /* Keep old feed-entry for transition */
   .feed-entry {
     padding: 8px 14px;
     border-bottom: 1px solid rgba(51,65,85,0.4);
@@ -530,8 +594,12 @@
     height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
-    margin-top: 5px;
+    margin-top: 6px;
   }
+  .feed-dot.success { background: var(--status-healthy); }
+  .feed-dot.error { background: var(--status-critical); }
+  .feed-dot.warning { background: var(--status-warning); }
+  .feed-dot.info { background: var(--status-info); }
   .feed-dot.instagram { background: var(--accent-gold); }
   .feed-dot.etsy { background: var(--status-info); }
   .feed-dot.pinterest { background: var(--status-critical); }
@@ -543,10 +611,11 @@
   .feed-dot.system { background: var(--text-dim); }
   .feed-time {
     color: var(--text-dim);
-    min-width: 65px;
+    font-size: 11px;
+    white-space: nowrap;
+    min-width: 50px;
     flex-shrink: 0;
     font-family: var(--font-mono);
-    font-size: 11px;
   }
   .feed-action { flex: 1; color: var(--text-secondary); }
   .feed-action strong { color: var(--text-primary); }
@@ -598,11 +667,16 @@
   }
   .cost-total .amount { color: var(--accent-gold); font-weight: 600; font-family: var(--font-mono); }
 
-  /* ── Platform Tiles ─────────────────────────────────── */
+  /* ── TASK 5: Platform Tiles — Compact 2-Column Grid ── */
+  .platform-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
   .tiles-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
   .platform-tile {
     background: var(--bg-card);
@@ -611,11 +685,11 @@
     padding: 18px 20px;
     border: 1px solid var(--border);
     border-left: 4px solid var(--border);
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
   .platform-tile:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-hover);
+    box-shadow: 0 8px 24px -8px rgba(0,0,0,0.4);
   }
   .platform-tile.healthy { border-left-color: var(--status-healthy); }
   .platform-tile.warning { border-left-color: var(--status-warning); }
@@ -634,6 +708,17 @@
     font-size: 14px;
     font-weight: 600;
   }
+  .tile-icon-box {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.05);
+    font-size: 20px;
+    flex-shrink: 0;
+  }
   .tile-name .icon { font-size: 18px; }
   .tile-summary {
     font-size: 12px;
@@ -646,6 +731,34 @@
     gap: 8px;
     flex-wrap: wrap;
     align-items: center;
+  }
+
+  /* ── TASK 6: Connectivity Panel ────────────────────── */
+  .connectivity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .connectivity-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(15,23,42,0.4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .connectivity-icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .connectivity-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    flex: 1;
   }
 
   /* ── Social Tab ─────────────────────────────────────── */
@@ -1163,6 +1276,21 @@
     to { opacity: 0; transform: translateY(10px); }
   }
 
+  /* ── TASK 11: Empty States ─────────────────────────── */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+  }
+  .empty-state-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+    opacity: 0.5;
+  }
+  .empty-state-text {
+    font-size: 14px;
+  }
+
   /* ── Responsive ─────────────────────────────────────── */
   @media (max-width: 768px) {
     .left-rail {
@@ -1207,6 +1335,9 @@
     .btn { min-height: 44px; }
     .email-split { flex-direction: column; }
     .email-reader-panel { position: static; max-height: 50vh; }
+    .connectivity-grid {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 
   @media (max-width: 480px) {
@@ -1216,6 +1347,7 @@
     .licensing-grid { grid-template-columns: 1fr; }
     .analytics-links { grid-template-columns: 1fr; }
     .ig-posts-grid { grid-template-columns: 1fr; }
+    .connectivity-grid { grid-template-columns: 1fr; }
   }
 
   /* Mobile Tab Bar (bottom) */
@@ -1299,6 +1431,7 @@
       </div>
       <div class="nav-item" data-tab="email" onclick="switchTab('email')">
         <span class="nav-icon">&#9993;</span> Email
+        <span class="nav-badge" id="email-nav-badge" style="display:none">0</span>
       </div>
       <div class="nav-item" data-tab="analytics" onclick="switchTab('analytics')">
         <span class="nav-icon">&#9783;</span> Analytics
@@ -1339,43 +1472,54 @@
     <!-- ═══════════════════════════════════════════════════════ -->
     <div class="tab-panel active" id="panel-overview">
 
-      <!-- Row 1: KPI Cards -->
+      <!-- TASK 1: Status Summary Pills -->
+      <div class="status-pills" id="status-pills">
+        <span class="pill pill-healthy">-- Healthy</span>
+        <span class="pill pill-warning">-- Warning</span>
+        <span class="pill pill-critical">-- Critical</span>
+      </div>
+
+      <!-- Row 1: KPI Cards (TASK 2: with icons) -->
       <div class="kpi-grid">
-        <div class="kpi-card green">
+        <div class="kpi-card green no-hover">
+          <div class="kpi-icon">&#9889;</div>
           <div class="kpi-label">System Status</div>
           <div class="kpi-value"><span class="kpi-dot green" id="kpi-dot"></span><span id="kpi-status">--</span></div>
           <div class="kpi-sub" id="kpi-uptime">Uptime: checking...</div>
         </div>
-        <div class="kpi-card blue">
+        <div class="kpi-card blue no-hover">
+          <div class="kpi-icon">&#10227;</div>
           <div class="kpi-label">Agents Live</div>
           <div class="kpi-value" id="kpi-agents">--/--</div>
           <div class="kpi-sub">Running agents</div>
         </div>
-        <div class="kpi-card gold">
+        <div class="kpi-card gold no-hover">
+          <div class="kpi-icon">$</div>
           <div class="kpi-label">Sales Today</div>
           <div class="kpi-value" id="kpi-sales">$0.00</div>
           <div class="kpi-sub">Revenue today</div>
         </div>
-        <div class="kpi-card coral">
+        <div class="kpi-card coral no-hover">
+          <div class="kpi-icon">&#9719;</div>
           <div class="kpi-label">API Spend</div>
           <div class="kpi-value" id="kpi-api-spend">$0.00</div>
           <div class="kpi-sub">Cost today</div>
         </div>
       </div>
 
-      <!-- Row 2: Needs Your Attention Now -->
+      <!-- Row 2: Needs Your Attention Now (TASK 3: structured cards) -->
       <div class="attention-section">
-        <h2>Needs Your Attention Now</h2>
+        <div class="section-label">IMMEDIATE ACTION</div>
         <div id="attention-container">
           <div class="attention-all-clear">Checking systems...</div>
         </div>
       </div>
 
-      <!-- Row 3: Split — Live Feed + Sales Thermometer -->
+      <!-- Row 3: Split — Live Feed + Sales -->
       <div class="split-row">
         <div class="card no-hover">
           <div class="card-header">
-            <div class="card-title">Live Feed</div>
+            <div class="section-label" style="margin-bottom:0">LIVE FEED</div>
             <div class="cost-total">Today's API cost: <span class="amount" id="home-feed-cost">$0.00</span></div>
           </div>
           <div class="filter-bar" id="home-feed-filters"></div>
@@ -1384,12 +1528,12 @@
         </div>
         <div class="card no-hover">
           <div class="card-header">
-            <div class="card-title">Sales Goal</div>
-            <div style="font-size:12px;color:var(--text-dim)" id="home-sales-label">$0 / $5,000</div>
+            <div class="section-label" style="margin-bottom:0">SALES GOAL</div>
           </div>
-          <div class="thermometer">
-            <div class="thermometer-fill" id="thermo-fill" style="width:0%"></div>
-            <div class="thermometer-label" id="thermo-label">$0 / $5,000</div>
+          <div class="sales-amount" id="sales-amount-display">$0</div>
+          <div class="sales-goal" id="home-sales-label">of $5,000 goal</div>
+          <div class="sales-bar-track">
+            <div class="sales-bar-fill" id="sales-bar-fill" style="width:0%"></div>
           </div>
           <div class="channel-breakdown" id="sales-channels">
             <div class="channel">Etsy: <span class="amt">$0</span></div>
@@ -1399,8 +1543,40 @@
         </div>
       </div>
 
-      <!-- Row 4: Platform Control Tiles -->
-      <h2 style="font-size:16px;font-weight:700;margin-bottom:14px" id="tiles-heading">Platform Status</h2>
+      <!-- TASK 6: Connectivity Panel -->
+      <div class="card no-hover" style="margin-bottom:24px">
+        <div class="section-label">EXTERNAL SYSTEMS</div>
+        <div class="connectivity-grid" id="connectivity-grid">
+          <div class="connectivity-item">
+            <span class="connectivity-icon">&#9729;</span>
+            <span class="connectivity-name">Cloudflare</span>
+            <span class="chip connected">Connected</span>
+          </div>
+          <div class="connectivity-item">
+            <span class="connectivity-icon">&#128179;</span>
+            <span class="connectivity-name">Stripe</span>
+            <span class="chip connected">Connected</span>
+          </div>
+          <div class="connectivity-item">
+            <span class="connectivity-icon">&#128269;</span>
+            <span class="connectivity-name">Google</span>
+            <span class="chip needs-setup">Needs setup</span>
+          </div>
+          <div class="connectivity-item">
+            <span class="connectivity-icon">&#128270;</span>
+            <span class="connectivity-name">Bing</span>
+            <span class="chip needs-auth">Needs auth</span>
+          </div>
+          <div class="connectivity-item">
+            <span class="connectivity-icon">&#128444;</span>
+            <span class="connectivity-name">Pictorem</span>
+            <span class="chip connected">Connected</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 4: Platform Control Tiles (TASK 5: 2-column grid) -->
+      <div class="section-label" id="tiles-heading">PLATFORM CONTROLS</div>
       <div class="tiles-grid" id="platform-tiles"></div>
 
     </div>
@@ -1424,7 +1600,7 @@
             </div>
           </div>
           <div class="social-meta" id="ig-status-line">Loading...</div>
-          <h4 style="font-size:12px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Last 5 Posts</h4>
+          <div class="section-label">LAST 5 POSTS</div>
           <div class="ig-posts-grid" id="ig-posts-grid">
             <div style="color:var(--text-dim);font-size:12px">Loading...</div>
           </div>
@@ -1444,7 +1620,7 @@
             </div>
           </div>
           <div class="social-meta" id="reddit-status-line">Loading...</div>
-          <h4 style="font-size:12px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Queued Posts</h4>
+          <div class="section-label">QUEUED POSTS</div>
           <div id="reddit-queue-full"></div>
         </div>
       </div>
@@ -1462,7 +1638,7 @@
             </div>
           </div>
           <div class="social-meta" id="pinterest-status-line">Loading...</div>
-          <h4 style="font-size:12px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Pin Previews</h4>
+          <div class="section-label">PIN PREVIEWS</div>
           <div class="pin-preview-grid" id="pin-preview-grid">
             <div style="color:var(--text-dim);font-size:12px">Loading...</div>
           </div>
@@ -1488,7 +1664,7 @@
         </div>
         <div class="email-split">
           <div class="email-list-panel" id="email-content">Loading email briefing...</div>
-          <div class="email-reader-panel empty" id="email-reader">
+          <div class="email-reader-panel empty no-hover" id="email-reader">
             <div id="reader-empty-msg">Click an email to read it here</div>
             <div class="reader-subject" id="reader-subject" style="display:none"></div>
             <div class="reader-from" id="reader-from" style="display:none"></div>
@@ -1873,6 +2049,60 @@ function startPolling() {
 }
 
 // ══════════════════════════════════════════════════════════════════
+// TASK 1: Status Pills Counting Logic
+// ══════════════════════════════════════════════════════════════════
+function updateStatusPills(health) {
+  let critical = 0, warning = 0, healthy = 0;
+
+  // System connectivity
+  const status = (health.status || 'unknown').toUpperCase();
+  if (status === 'ONLINE') healthy++; else critical++;
+
+  // Check agents
+  const services = (agentStatusData.services) || {};
+  for (const [, svc] of Object.entries(services)) {
+    if (svc.running === false) critical++;
+    else healthy++;
+  }
+
+  // Check for stale data (>2h)
+  if (health.last_feed_entry) {
+    const age = (Date.now() - new Date(health.last_feed_entry).getTime()) / 1000;
+    if (age > 7200) warning++;
+  }
+
+  // Etsy token
+  if (health.etsy_token_expired) critical++;
+
+  // Instagram
+  if (!health.instagram_configured) warning++;
+
+  const pillsEl = $('status-pills');
+  if (pillsEl) {
+    pillsEl.innerHTML = `
+      ${critical > 0 ? `<span class="pill pill-critical">${critical} Critical</span>` : ''}
+      ${warning > 0 ? `<span class="pill pill-warning">${warning} Warning</span>` : ''}
+      <span class="pill pill-healthy">${healthy} Healthy</span>
+    `;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TASK 9: Email Nav Badge
+// ══════════════════════════════════════════════════════════════════
+function updateEmailNavBadge() {
+  const badge = $('email-nav-badge');
+  if (!badge) return;
+  const count = (emailBriefingData.security?.length || 0) + (emailBriefingData.action_required?.length || 0);
+  if (count > 0) {
+    badge.textContent = count;
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
 // Status Polling
 // ══════════════════════════════════════════════════════════════════
 async function pollStatus() {
@@ -1905,11 +2135,11 @@ async function pollStatus() {
     killBtn.textContent = killActive ? 'KILL: ACTIVE' : 'Kill Switch: OFF';
     killBtn.className = killActive ? 'kill-switch-btn active' : 'kill-switch-btn';
 
-    // Sales thermometer
+    // TASK 7: Sales progress bar (new prettier version)
     const pct = Math.min(100, (sales / SALES_GOAL) * 100);
-    $('thermo-fill').style.width = pct + '%';
-    $('thermo-label').textContent = '$' + sales + ' / $' + SALES_GOAL.toLocaleString();
-    $('home-sales-label').textContent = '$' + sales + ' / $' + SALES_GOAL.toLocaleString();
+    $('sales-bar-fill').style.width = pct + '%';
+    $('sales-amount-display').textContent = '$' + sales;
+    $('home-sales-label').textContent = 'of $' + SALES_GOAL.toLocaleString() + ' goal';
 
     // Agent count
     try {
@@ -1925,9 +2155,15 @@ async function pollStatus() {
       $('kpi-api-spend').textContent = '$' + costToday.toFixed(2);
     } catch(e) {}
 
+    // TASK 1: Update status pills
+    updateStatusPills(d);
+
     // Update attention items and platform tiles
     updateAttentionItems(d);
     renderPlatformTiles();
+
+    // TASK 9: Update email badge
+    updateEmailNavBadge();
 
   } catch (err) {
     $('kpi-status').textContent = 'Offline';
@@ -1940,7 +2176,7 @@ async function pollStatus() {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// Attention Items
+// TASK 3: Attention Items — Structured Cards
 // ══════════════════════════════════════════════════════════════════
 async function updateAttentionItems(health) {
   const container = $('attention-container');
@@ -1951,65 +2187,72 @@ async function updateAttentionItems(health) {
     const rd = await apiFetch('/reddit/status');
     const creds = rd.credentials || {};
     if (!creds.configured) {
-      items.push({ level: 'coral', label: 'Reddit', detail: 'No active session. Login required.', action: { text: 'Login', fn: 'btnAction(this, redditLogin)' } });
+      items.push({ level: 'critical', icon: '\uD83D\uDCAC', label: 'Reddit', detail: 'No active session. Login required to start posting.', actions: [{ text: 'Login', cls: 'btn danger btn-sm', fn: 'btnAction(this, redditLogin)' }] });
     }
     const queue = rd.queue || {};
     if ((queue.queued ?? 0) === 0 && creds.configured) {
-      items.push({ level: 'amber', label: 'Reddit', detail: 'Queue is empty. Generate posts.', action: { text: 'Generate', fn: 'btnAction(this, redditGenerate)' } });
+      items.push({ level: 'warning', icon: '\uD83D\uDCAC', label: 'Reddit', detail: 'Post queue is empty. Generate new posts to keep the schedule running.', actions: [{ text: 'Generate Posts', cls: 'btn primary btn-sm', fn: 'btnAction(this, redditGenerate)' }, { text: 'View Queue', cls: 'btn btn-sm', fn: "switchTab('social')" }] });
     }
   } catch(e) {
-    items.push({ level: 'coral', label: 'Reddit', detail: 'Status check failed' });
+    items.push({ level: 'critical', icon: '\uD83D\uDCAC', label: 'Reddit', detail: 'Status check failed. Agent may be down.', actions: [] });
   }
 
   // Check Email security alerts
   try {
     const eb = await apiFetch('/email/briefing');
     emailBriefingData = eb;
+    updateEmailNavBadge();
     const secAlerts = eb.security?.length || 0;
     if (secAlerts > 0) {
-      items.push({ level: 'coral', label: 'Email Security', detail: `${secAlerts} phishing/security alert(s) detected`, action: { text: 'View', fn: "switchTab('email')" } });
+      items.push({ level: 'critical', icon: '\u26A0', label: 'Email Security', detail: `${secAlerts} phishing/security alert(s) detected. Review and take action.`, actions: [{ text: 'View Emails', cls: 'btn danger btn-sm', fn: "switchTab('email')" }] });
     }
   } catch(e) {}
 
   // Check Etsy token
   if (health.etsy_token_expired) {
-    items.push({ level: 'coral', label: 'Etsy', detail: 'Token expired. Needs reauthorization.', action: { text: 'Reauth', fn: "window.open('https://www.etsy.com/your/shops/me/dashboard','_blank')" } });
+    items.push({ level: 'critical', icon: '\uD83D\uDED2', label: 'Etsy', detail: 'API token expired. Listings won\'t sync until reauthorized.', actions: [{ text: 'Reauthorize', cls: 'btn danger btn-sm', fn: "window.open('https://www.etsy.com/your/shops/me/dashboard','_blank')" }] });
   }
 
   // Check Instagram
   if (!health.instagram_configured) {
-    items.push({ level: 'amber', label: 'Instagram', detail: 'Not configured. Set up Meta API credentials.' });
+    items.push({ level: 'warning', icon: '\uD83D\uDCF7', label: 'Instagram', detail: 'Not configured. Set up Meta API credentials to enable auto-posting.', actions: [{ text: 'Setup Guide', cls: 'btn btn-sm', fn: "switchTab('social')" }] });
   }
 
   // Indiewalls follow-up
-  items.push({ level: 'amber', label: 'Indiewalls', detail: 'No reply in 14 days', action: { text: 'Send Follow-Up', fn: "window.open('mailto:info@indiewalls.com?subject=Follow-up%20-%20Archive-35%20Artist%20Profile&body=Hi%2C%20I%20wanted%20to%20follow%20up%20on%20my%20artist%20profile%20submission.%20Please%20let%20me%20know%20if%20you%20need%20any%20additional%20information.%0A%0ABest%2C%0AWolf%20Schram%0Ahttps%3A%2F%2Farchive-35.com','_self')" } });
+  items.push({ level: 'warning', icon: '\uD83D\uDDBC', label: 'Indiewalls', detail: 'No reply in 14 days. Send a follow-up email to keep the conversation going.', actions: [{ text: 'Send Follow-Up', cls: 'btn primary btn-sm', fn: "window.open('mailto:info@indiewalls.com?subject=Follow-up%20-%20Archive-35%20Artist%20Profile&body=Hi%2C%20I%20wanted%20to%20follow%20up%20on%20my%20artist%20profile%20submission.%20Please%20let%20me%20know%20if%20you%20need%20any%20additional%20information.%0A%0ABest%2C%0AWolf%20Schram%0Ahttps%3A%2F%2Farchive-35.com','_self')" }, { text: 'Dismiss', cls: 'btn btn-sm', fn: 'this.closest(\".attention-card\").remove()' }] });
 
   if (items.length === 0) {
-    container.innerHTML = '<div class="attention-all-clear">\u2713 All systems running \u2014 nothing needs attention</div>';
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#10003;</div><div class="empty-state-text">Everything running smoothly</div></div>';
   } else {
     container.innerHTML = items.map(item => `
-      <div class="attention-item ${item.level}">
-        <div class="attention-info">
-          <div class="label">${esc(item.label)}</div>
-          <div class="detail">${esc(item.detail)}</div>
+      <div class="attention-card ${item.level === 'critical' ? 'critical' : ''}">
+        <div class="attention-card-header">
+          <div class="attention-card-title">
+            <span>${item.icon || ''}</span>
+            ${esc(item.label)}
+          </div>
+          <span class="chip ${item.level === 'critical' ? 'critical' : 'warning'}">${item.level === 'critical' ? 'Critical' : 'Warning'}</span>
         </div>
-        ${item.action ? `<button class="btn ${item.level === 'coral' ? 'danger' : ''}" onclick="${item.action.fn}">${esc(item.action.text)}</button>` : ''}
+        <div class="attention-card-body">${esc(item.detail)}</div>
+        <div class="attention-card-actions">
+          ${(item.actions || []).map(a => `<button class="${a.cls}" onclick="${a.fn}">${esc(a.text)}</button>`).join('')}
+        </div>
       </div>
     `).join('');
   }
 }
 
 // ══════════════════════════════════════════════════════════════════
-// Platform Control Tiles
+// TASK 5: Platform Control Tiles — Compact 2-Column Grid
 // ══════════════════════════════════════════════════════════════════
 const AGENTS = [
   { id: 'instagram', name: 'Instagram', icon: '\uD83D\uDCF7', scope: 'instagram', link: 'https://www.instagram.com/archive35photo/' },
   { id: 'reddit', name: 'Reddit', icon: '\uD83D\uDCAC', scope: 'reddit', link: 'https://www.reddit.com/' },
   { id: 'pinterest', name: 'Pinterest', icon: '\uD83D\uDCCC', scope: 'pinterest', link: 'https://www.pinterest.com/archive35photo/' },
-  { id: 'etsy', name: 'Etsy', icon: '\uD83D\uDED2', scope: 'etsy', link: 'https://www.etsy.com/shop/Archive35Photo' },
-  { id: 'content_pipeline', name: 'Content Generator', icon: '\u2699', scope: 'content_pipeline', link: null },
+  { id: 'etsy', name: 'Etsy', icon: '\uD83C\uDFEA', scope: 'etsy', link: 'https://www.etsy.com/shop/Archive35Photo' },
   { id: 'broadcast', name: 'Broadcast', icon: '\uD83D\uDCE1', scope: 'broadcast', link: null },
   { id: 'email', name: 'Email Monitor', icon: '\uD83D\uDCE7', scope: 'email', link: 'https://mail.google.com/' },
+  { id: 'content_pipeline', name: 'Content Gen', icon: '\u270F\uFE0F', scope: 'content_pipeline', link: null },
 ];
 
 let tileData = {};
@@ -2059,8 +2302,8 @@ function renderPlatformTiles() {
         summary = `${esc(ig.username || '--')} | Posted today: ${healthData.instagram_today ?? 0}`;
       }
       actions = `
-        <button class="btn success" onclick="btnAction(this, igPostOne)">Post 1 Now</button>
-        <button class="btn primary" onclick="btnAction(this, igPostBatch)">Post Batch (3)</button>
+        <button class="btn success btn-sm" onclick="btnAction(this, igPostOne)">Post 1 Now</button>
+        <button class="btn primary btn-sm" onclick="btnAction(this, igPostBatch)">Post Batch (3)</button>
       `;
     } else if (agent.id === 'reddit') {
       const rd = tileData.redditStatus || {};
@@ -2071,17 +2314,17 @@ function renderPlatformTiles() {
         chipHtml = '<span class="chip critical">\u2717 No Session</span>';
         summary = 'Reddit not connected. Login required.';
         hasIssue = true;
-        actions = `<button class="btn danger" onclick="btnAction(this, redditLogin)">Login</button>`;
+        actions = `<button class="btn danger btn-sm" onclick="btnAction(this, redditLogin)">Login</button>`;
       } else {
         summary = `u/${esc(creds.username || '--')} | Queued: ${queue.queued ?? 0} | Posted: ${queue.posted ?? 0}`;
         if ((queue.queued ?? 0) === 0) { statusClass = 'warning'; chipHtml = '<span class="chip warning">\u26A0 Queue Empty</span>'; hasIssue = true; }
-        actions = `<button class="btn primary" onclick="btnAction(this, redditGenerate)">Generate 30</button>`;
+        actions = `<button class="btn primary btn-sm" onclick="btnAction(this, redditGenerate)">Generate 30</button>`;
       }
     } else if (agent.id === 'pinterest') {
       const pt = tileData.pinterestStatus || {};
       const pinCount = pt.pin_count ?? 0;
       summary = `${pinCount} pins generated`;
-      actions = `<button class="btn primary" onclick="btnAction(this, generatePins)">Generate Pins</button>`;
+      actions = `<button class="btn primary btn-sm" onclick="btnAction(this, generatePins)">Generate Pins</button>`;
     } else if (agent.id === 'etsy') {
       const listings = healthData.etsy_listings ?? '--';
       if (healthData.etsy_token_expired) {
@@ -2092,16 +2335,16 @@ function renderPlatformTiles() {
       } else {
         summary = `${listings} live listings`;
       }
-      actions = `<button class="btn" onclick="btnAction(this, runSeoAudit)">Run SEO Audit</button>`;
+      actions = `<button class="btn btn-sm" onclick="btnAction(this, runSeoAudit)">Run SEO Audit</button>`;
     } else if (agent.id === 'content_pipeline') {
       const pl = tileData.pipelineStatus || {};
       summary = `Pending: ${pl.pending ?? '--'} | Approved: ${pl.approved ?? '--'}`;
-      actions = `<button class="btn primary" onclick="btnAction(this, runPipeline)">Run Pipeline</button>`;
+      actions = `<button class="btn primary btn-sm" onclick="btnAction(this, runPipeline)">Run Pipeline</button>`;
     } else if (agent.id === 'broadcast') {
       const bc = tileData.broadcastData || {};
       const lastBC = bc.last_broadcast ? timeAgo(new Date(bc.last_broadcast)) : 'never';
       summary = `Last broadcast: ${lastBC} | Total: ${bc.total_broadcasts ?? 0}`;
-      actions = `<button class="btn primary" onclick="btnAction(this, runBroadcast)">Broadcast Now</button>`;
+      actions = `<button class="btn primary btn-sm" onclick="btnAction(this, runBroadcast)">Broadcast Now</button>`;
     } else if (agent.id === 'email') {
       const eb = emailBriefingData || {};
       const secAlerts = eb.security?.length ?? 0;
@@ -2115,8 +2358,8 @@ function renderPlatformTiles() {
         summary = `${totalEmails} emails | ${(eb.accounts_scanned || []).length} accounts`;
       }
       actions = `
-        <button class="btn primary" onclick="btnAction(this, runEmailScan)">Scan Now</button>
-        <button class="btn" onclick="switchTab('email')">View Briefing</button>
+        <button class="btn primary btn-sm" onclick="btnAction(this, runEmailScan)">Scan Now</button>
+        <button class="btn btn-sm" onclick="switchTab('email')">View Briefing</button>
       `;
     }
 
@@ -2125,13 +2368,13 @@ function renderPlatformTiles() {
 
     visibleCount++;
 
-    const linkHtml = agent.link ? `<a class="btn" href="${esc(agent.link)}" target="_blank" rel="noopener" style="text-decoration:none">Open</a>` : '';
+    const linkHtml = agent.link ? `<a class="btn btn-sm" href="${esc(agent.link)}" target="_blank" rel="noopener" style="text-decoration:none">Open</a>` : '';
 
     tilesHtml += `
       <div class="platform-tile ${statusClass}">
         <div class="tile-header">
           <div class="tile-name">
-            <span class="icon">${agent.icon}</span>
+            <span class="tile-icon-box">${agent.icon}</span>
             ${esc(agent.name)}
           </div>
           ${chipHtml}
@@ -2146,11 +2389,11 @@ function renderPlatformTiles() {
   }
 
   if (scanMode === 'attention' && visibleCount === 0) {
-    tilesHtml = '<div style="color:var(--status-healthy);font-size:13px;padding:16px;text-align:center;background:var(--bg-card);border-radius:var(--radius-md);border:1px solid var(--border)">\u2713 All platforms healthy</div>';
+    tilesHtml = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">&#10003;</div><div class="empty-state-text">All platforms healthy</div></div>';
   }
 
   if (heading) {
-    heading.textContent = scanMode === 'attention' ? 'Platforms Needing Action' : 'All Platforms';
+    heading.textContent = scanMode === 'attention' ? 'PLATFORMS NEEDING ACTION' : 'ALL PLATFORMS';
   }
 
   container.innerHTML = tilesHtml;
@@ -2278,7 +2521,7 @@ async function loadInstagramPosts() {
     }
     const posts = healthData.ig_posts || [];
     if (!posts.length) {
-      grid.innerHTML = '<div style="color:var(--text-dim);font-size:12px">No recent posts available</div>';
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">&#128247;</div><div class="empty-state-text">No recent posts available</div></div>';
       return;
     }
     grid.innerHTML = posts.slice(0, 5).map(p => {
@@ -2320,7 +2563,7 @@ async function loadRedditQueueFull() {
     const data = await apiFetch('/reddit/queue?limit=5&status=queued');
     const posts = data.posts || [];
     if (!posts.length) {
-      container.innerHTML = '<div style="font-size:12px;color:var(--text-dim)">No queued posts. Generate some to get started.</div>';
+      container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128172;</div><div class="empty-state-text">No queued posts. Generate some to get started.</div></div>';
       return;
     }
     container.innerHTML = posts.map(p => {
@@ -2332,9 +2575,9 @@ async function loadRedditQueueFull() {
           <div class="q-title" onclick="copyToClipboard('${titleEsc}', this)" title="Click to copy title">${esc(p.title || '')}</div>
           <div class="q-body">${esc((p.body || '').substring(0, 120))}</div>
           <div class="q-actions">
-            <button class="btn success" onclick="btnAction(this, () => redditMarkPosted('${esc(p.id)}'))">Mark Posted</button>
-            <button class="btn" onclick="btnAction(this, () => redditSkip('${esc(p.id)}'))">Skip</button>
-            <a class="btn" href="${submitUrl}" target="_blank" rel="noopener" style="text-decoration:none">Submit on Reddit</a>
+            <button class="btn success btn-sm" onclick="btnAction(this, () => redditMarkPosted('${esc(p.id)}'))">Mark Posted</button>
+            <button class="btn btn-sm" onclick="btnAction(this, () => redditSkip('${esc(p.id)}'))">Skip</button>
+            <a class="btn btn-sm" href="${submitUrl}" target="_blank" rel="noopener" style="text-decoration:none">Submit on Reddit</a>
           </div>
         </div>
       `;
@@ -2361,7 +2604,7 @@ async function loadPinterestPins() {
     const d = await apiFetch('/pinterest/pins-list');
     const pins = d.pins || d.files || d || [];
     if (!Array.isArray(pins) || !pins.length) {
-      grid.innerHTML = '<div style="color:var(--text-dim);font-size:12px">No pins available. Generate some first.</div>';
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">&#128204;</div><div class="empty-state-text">No pins available. Generate some first.</div></div>';
       return;
     }
     grid.innerHTML = pins.slice(0, 8).map(p => {
@@ -2389,6 +2632,7 @@ async function loadEmailBriefing() {
   try {
     const d = await apiFetch('/email/briefing');
     emailBriefingData = d;
+    updateEmailNavBadge();
     if (d.error) { el.innerHTML = `<div style="color:var(--text-dim)">${esc(d.error)}</div>`; return 'Error'; }
 
     const ts = d.generated_at ? new Date(d.generated_at).toLocaleString() : 'unknown';
@@ -2437,7 +2681,7 @@ async function loadEmailBriefing() {
     }
 
     if (!d.security?.length && !d.action_required?.length && !d.business?.length && !d.fyi?.length) {
-      html += '<div style="color:var(--text-dim);padding:20px;text-align:center">No emails in briefing period.</div>';
+      html += '<div class="empty-state"><div class="empty-state-icon">&#128235;</div><div class="empty-state-text">Inbox zero. Nice work</div></div>';
     }
 
     el.innerHTML = html;
@@ -2557,7 +2801,7 @@ async function loadIntelligence() {
           </table>
         </div>`;
     } else {
-      trendingHtml = '<div class="intel-box"><div class="intel-box-title">Trending Searches</div><div style="color:var(--text-dim);font-size:12px">No agent requests yet</div></div>';
+      trendingHtml = '<div class="intel-box"><div class="intel-box-title">Trending Searches</div><div class="empty-state"><div class="empty-state-icon">&#128270;</div><div class="empty-state-text">No AI agent requests yet. Broadcast is seeding the network</div></div></div>';
     }
 
     const at = d.agent_types || {};
@@ -2565,7 +2809,7 @@ async function loadIntelligence() {
       <div class="intel-box">
         <div class="intel-box-title">Agent Types Visiting</div>
         <div style="font-size:12px;color:var(--text-dim)">
-          ${Object.entries(at).filter(([,v]) => v > 0).map(([k,v]) => `<span style="color:var(--text-primary)">${esc(k)}</span>: ${v}`).join(' | ') || 'No visits recorded'}
+          ${Object.entries(at).filter(([,v]) => v > 0).map(([k,v]) => `<span style="color:var(--text-primary)">${esc(k)}</span>: ${v}`).join(' | ') || '<div class="empty-state" style="padding:20px 0"><div class="empty-state-icon">&#129302;</div><div class="empty-state-text">No AI agent requests yet. Broadcast is seeding the network</div></div>'}
         </div>
       </div>`;
 
@@ -2667,7 +2911,7 @@ async function loadLicensing() {
     const tb = d.tier_breakdown || {};
     const topHtml = d.top_images && d.top_images.length
       ? d.top_images.map(i => `<div style="font-size:12px;color:var(--text-dim)">${esc(i.image_id || '')} \u2014 ${i.cnt || 0} licenses ($${(i.rev || 0).toFixed(2)})</div>`).join('')
-      : '<div style="font-size:12px;color:var(--text-dim)">No sales yet</div>';
+      : '<div class="empty-state"><div class="empty-state-icon">&#128248;</div><div class="empty-state-text">No sales yet — the broadcast is running, give it time</div></div>';
 
     el.innerHTML = `
       <div class="licensing-grid">
@@ -2757,7 +3001,7 @@ async function loadIndexNow() {
     const d = await apiFetch('/broadcast/status');
     const history = d.indexnow_history || d.history || [];
     if (!history.length) {
-      el.innerHTML = '<div style="color:var(--text-dim);font-size:12px">No IndexNow submissions yet.</div>';
+      el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128225;</div><div class="empty-state-text">No IndexNow submissions yet</div></div>';
       return;
     }
     let html = '<table class="intel-table"><tr><th>Time</th><th>URLs Submitted</th><th>Status</th></tr>';
@@ -2776,7 +3020,7 @@ async function loadIndexNow() {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// HOME TAB: Activity Feed
+// HOME TAB: Activity Feed (TASK 4: Timeline with colored dots)
 // ══════════════════════════════════════════════════════════════════
 const FEED_COMPONENTS = ['all', 'instagram', 'etsy', 'pinterest', 'reddit', 'broadcast', 'x402', 'pipeline', 'safety', 'system'];
 
@@ -2795,6 +3039,42 @@ function setFeedFilter(component) {
   loadFeed();
 }
 
+// TASK 4: Format feed entry as human-readable one-liner
+function formatFeedAction(e) {
+  const comp = esc(e.component || 'system');
+  const action = esc(e.action || '');
+
+  // Try to parse details if it's a JSON string, and simplify
+  let detailStr = '';
+  if (e.details) {
+    const raw = String(e.details);
+    // If it looks like JSON, don't show it
+    if (raw.startsWith('{') || raw.startsWith('[')) {
+      // Skip raw JSON — just show component + action
+      detailStr = '';
+    } else {
+      // Truncate long details
+      detailStr = raw.length > 80 ? raw.substring(0, 80) + '...' : raw;
+    }
+  }
+
+  return `<strong>${comp}</strong> ${action}${detailStr ? ' <span style="color:var(--text-dim)">' + esc(detailStr) + '</span>' : ''}`;
+}
+
+// Determine feed dot type from action/component
+function getFeedDotType(e) {
+  const comp = (e.component || 'system').toLowerCase();
+  const action = (e.action || '').toLowerCase();
+
+  if (comp === 'safety' || action.includes('kill') || action.includes('error') || action.includes('fail')) return 'error';
+  if (action.includes('warn') || action.includes('stale') || action.includes('retry')) return 'warning';
+  if (action.includes('success') || action.includes('posted') || action.includes('complete') || action.includes('sent')) return 'success';
+
+  // Fall back to component-based coloring
+  if (FEED_COMPONENTS.includes(comp)) return comp;
+  return 'info';
+}
+
 async function loadFeed() {
   renderFilterBar();
   const container = $('home-feed-container');
@@ -2811,18 +3091,17 @@ async function loadFeed() {
 
     const entries = d.entries || [];
     if (!entries.length) {
-      container.innerHTML = '<div style="padding:16px;color:var(--text-dim);text-align:center">No activity</div>';
+      container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128196;</div><div class="empty-state-text">No activity yet</div></div>';
     } else {
       container.innerHTML = entries.map(e => {
-        const time = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '--';
-        const comp = (e.component || 'system').toLowerCase();
-        const dotClass = FEED_COMPONENTS.includes(comp) ? comp : 'system';
+        const time = e.timestamp ? new Date(e.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '--';
+        const dotType = getFeedDotType(e);
         const cost = e.cost_usd > 0 ? '$' + e.cost_usd.toFixed(4) : '';
         return `
-          <div class="feed-entry">
-            <span class="feed-dot ${dotClass}"></span>
+          <div class="feed-item">
+            <span class="feed-dot ${dotType}"></span>
             <span class="feed-time">${time}</span>
-            <span class="feed-action"><strong>${esc(e.component || 'system')}</strong> ${esc(e.action || '')} ${e.details ? '<span style="color:var(--text-dim)">' + esc(String(e.details).substring(0, 100)) + '</span>' : ''}</span>
+            <span class="feed-action">${formatFeedAction(e)}</span>
             <span class="feed-cost">${cost}</span>
           </div>`;
       }).join('');
@@ -2831,12 +3110,12 @@ async function loadFeed() {
     const total = d.total || 0;
     const totalPages = Math.ceil(total / FEED_LIMIT);
     $('home-feed-pagination').innerHTML = `
-      <button class="btn" ${feedPage <= 0 ? 'disabled' : ''} onclick="feedPage--; loadFeed()">Prev</button>
+      <button class="btn btn-sm" ${feedPage <= 0 ? 'disabled' : ''} onclick="feedPage--; loadFeed()">Prev</button>
       <span class="info">Page ${feedPage + 1} of ${totalPages || 1} (${total} entries)</span>
-      <button class="btn" ${feedPage >= totalPages - 1 ? 'disabled' : ''} onclick="feedPage++; loadFeed()">Next</button>
+      <button class="btn btn-sm" ${feedPage >= totalPages - 1 ? 'disabled' : ''} onclick="feedPage++; loadFeed()">Next</button>
     `;
   } catch(e) {
-    container.innerHTML = '<div style="padding:16px;color:var(--text-dim);text-align:center">Feed unavailable</div>';
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128268;</div><div class="empty-state-text">Feed unavailable</div></div>';
   }
 }
 

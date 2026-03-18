@@ -806,18 +806,16 @@ function startAgent() {
 }
 
 async function igPostOne() {
-  if (!confirm('Post one image to Instagram now?')) return;
   try {
-    const r = await apiFetch('/instagram/auto-post', { method: 'POST' });
+    const r = await apiFetch('/instagram/auto-post', { method: 'POST', signal: AbortSignal.timeout(120000) });
     alert(r.error ? 'Error: ' + r.error : 'Posted: ' + (r.image_url || r.status || 'OK'));
   } catch(e) { alert('Failed: ' + e.message); }
   loadAgentCards();
 }
 
 async function igPostBatch() {
-  if (!confirm('Start batch posting 3 images (5 min apart)?')) return;
   try {
-    const r = await apiFetch('/instagram/post-batch', { method: 'POST', body: JSON.stringify({ count: 3, delay_minutes: 5 }) });
+    const r = await apiFetch('/instagram/post-batch', { method: 'POST', body: JSON.stringify({ count: 3, delay_minutes: 5 }), signal: AbortSignal.timeout(120000) });
     alert('Batch started: ' + r.count + ' posts queued');
   } catch(e) { alert('Failed: ' + e.message); }
 }
@@ -839,7 +837,7 @@ async function redditGenerate() {
 }
 
 async function redditPost(postId) {
-  if (!confirm('Post this to Reddit now?')) return;
+  // No confirmation — just post
   try {
     const r = await apiFetch('/reddit/post', { method: 'POST', body: JSON.stringify({ post_id: postId }) });
     alert(r.status === 'posted' ? 'Posted! ' + (r.reddit_url || '') : (r.message || r.status));

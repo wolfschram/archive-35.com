@@ -50,35 +50,59 @@ ETSY_SEO_PROMPT_TEMPLATE = (
     "CONTEXT:\n"
     "- Brand: Archive-35 / The Restless Eye by Wolf Schram\n"
     "- 25+ years photographing across 55 countries\n"
-    "- Product: {size_label} HD Metal Print on White Gloss ChromaLuxe\n"
-    "- Mount: Metal standoff hanging brackets included — no frame needed\n"
+    "- Product: Single-SKU {size_label} HD Metal Print on White Gloss ChromaLuxe\n"
+    "- Print resolution: {dpi} DPI ({quality_badge})\n"
+    "- Source image: {photo_pixels} ({megapixels} megapixels)\n"
+    "- Mount: Metal standoff hanging brackets included — floats ¾\" off the wall\n"
+    "- Archival rating: 60+ years fade resistance\n"
+    "- Certificate of Authenticity included\n"
     "- Free shipping across North America and Canada\n"
     "- Current listing title: {current_title}\n\n"
     "GENERATE:\n"
     "1. TITLE: SEO-optimized, max 140 chars. Front-load search terms.\n"
-    '   Format: "[Subject] [Style] Metal Print | [Room] Wall Art"\n'
+    '   Format: "[Subject] {size_label} Metal Print | Large-Scale Fine Art | Free Shipping"\n'
+    "   ALWAYS include the exact print size ({size_label}) in the title.\n"
     "   Do NOT include brand name (Etsy shows shop name separately).\n\n"
-    "2. DESCRIPTION: 5 sections separated by blank lines.\n"
-    "   Section 1: FREE SHIPPING — Ships free across North America and Canada.\n"
-    "   Arrives ready to hang. No frame needed.\n"
+    "2. DESCRIPTION: 6 sections separated by blank lines.\n"
+    "   Section 1: FREE SHIPPING — This large-scale {size_label} museum-quality\n"
+    "   metal print ships free across North America and Canada.\n"
+    "   Arrives ready to hang with included standoff brackets. No frame needed.\n"
     "   Section 2: The moment — what is happening in the image, the story.\n"
-    "   Section 3: The artist — Wolf Schram, 25 years, 55 countries,\n"
-    "   The Restless Eye. Each print is a moment from decades of travel.\n"
-    "   Section 4: Why ChromaLuxe HD Metal — white gloss aluminum makes\n"
-    "   colors pop with unmatched vibrancy, deep luminous blacks, 60-year\n"
-    "   archival rating. Metal standoff brackets float the print off the wall\n"
-    "   for a gallery-quality look. No frame needed — arrives ready to hang.\n"
-    "   Section 5: Size {size_label}. 100% satisfaction guarantee.\n\n"
+    "   Be precise about what you see. Do NOT invent locations.\n"
+    "   Section 3: PRINT SPECIFICATIONS — bullet list:\n"
+    "   • Size: {size_label}\n"
+    "   • Material: ChromaLuxe HD Aluminum — White Gloss\n"
+    "   • Print Resolution: {dpi} DPI ({quality_badge})\n"
+    "   • Source Image: {photo_pixels} ({megapixels} megapixels)\n"
+    "   • Mount: Metal standoff brackets included — floats off wall\n"
+    "   • Archival Rating: 60+ years fade resistance\n"
+    "   • Certificate of Authenticity included\n"
+    "   Section 4: WHY CHROMALUXE HD METAL — image infused into specially\n"
+    "   coated aluminum at extreme heat. Colors pop with unmatched vibrancy,\n"
+    "   deep luminous blacks, luminous depth paper and canvas cannot match.\n"
+    "   White gloss finish brings the image to life. Standoff brackets float\n"
+    "   the print off the wall for a clean, gallery-quality look.\n"
+    "   Section 5: THE ARTIST — Wolf Schram, 25 years, 55 countries,\n"
+    "   The Restless Eye. Fine art photography meant to be experienced at scale.\n"
+    "   Section 6: 100% satisfaction guarantee. Ships from North America.\n\n"
     "3. TAGS: Exactly 13 tags. EACH TAG MAX 20 CHARACTERS (Etsy limit).\n"
     "   - 3 subject/location (specific, not generic)\n"
     "   - 2 style/mood (dramatic, minimalist, etc.)\n"
     "   - 3 room/decor (living room art, office decor, etc.)\n"
     "   - 2 occasion (housewarming gift, anniversary, etc.)\n"
-    "   - 3 medium (metal print, metal wall art, aluminum art)\n\n"
+    "   - 3 medium (metal print, metal wall art, large wall art)\n\n"
     "4. PRICE_CONTEXT: One sentence about ChromaLuxe metal print value.\n\n"
-    "CRITICAL:\n"
+    "CRITICAL — ACCURACY:\n"
     "- Do NOT invent locations. Describe what's visible.\n"
     "- Do NOT mention cameras or lenses.\n"
+    "- ICELAND AERIALS: Turquoise/milky water with black volcanic rock and\n"
+    "  green moss seen from above = GLACIAL RIVER, not ocean. The turquoise\n"
+    "  comes from glacial flour (pulverized rock). Only say 'ocean' if you\n"
+    "  see open water with a visible horizon or surf hitting a beach.\n"
+    "- WILDLIFE: Identify species precisely. Don't say 'mother and calf'\n"
+    "  unless a calf is clearly visible. A single elephant is a single elephant.\n"
+    "- River ≠ ocean. Lake ≠ ocean. Waterfall ≠ river. Be precise.\n\n"
+    "FORMATTING:\n"
     "- FREE SHIPPING must be the first thing in the description.\n"
     '- JSON ONLY: {{"title":"...","description":"...","tags":[...],"price_context":"..."}}'
 )
@@ -103,6 +127,50 @@ def _download_image_bytes(url: str) -> Optional[bytes]:
         return None
 
 
+def _resize_image_for_api(image_bytes: bytes, max_edge: int = 2000, max_bytes: int = 4_500_000) -> bytes:
+    """Resize image to fit within Claude API limits.
+
+    Prevents 413 errors by limiting image size before base64 encoding.
+    Claude Vision works well at 2000px — no need for full resolution.
+
+    Args:
+        image_bytes: Raw image data
+        max_edge: Maximum dimension on longest edge (pixels)
+        max_bytes: Maximum file size in bytes (before base64)
+
+    Returns:
+        JPEG bytes, resized and compressed to fit limits.
+    """
+    from io import BytesIO
+    from PIL import Image
+
+    img = Image.open(BytesIO(image_bytes))
+    if img.mode in ("RGBA", "P"):
+        img = img.convert("RGB")
+
+    # Resize if larger than max_edge
+    w, h = img.size
+    if max(w, h) > max_edge:
+        scale = max_edge / max(w, h)
+        new_w, new_h = int(w * scale), int(h * scale)
+        img = img.resize((new_w, new_h), Image.LANCZOS)
+        logger.info("Resized image %dx%d → %dx%d for API", w, h, new_w, new_h)
+
+    # Compress to fit max_bytes
+    quality = 85
+    while quality >= 40:
+        buf = BytesIO()
+        img.save(buf, format="JPEG", quality=quality, optimize=True)
+        if buf.tell() <= max_bytes:
+            return buf.getvalue()
+        quality -= 10
+
+    # Last resort: return whatever we have
+    buf = BytesIO()
+    img.save(buf, format="JPEG", quality=40, optimize=True)
+    return buf.getvalue()
+
+
 # ── Vision analysis ─────────────────────────────────────────────────────
 
 def analyze_listing_image(
@@ -111,6 +179,10 @@ def analyze_listing_image(
     size_label: str,
     client: Any,
     model: str = "claude-sonnet-4-5-20250929",
+    dpi: int = 0,
+    quality_badge: str = "",
+    photo_pixels: str = "",
+    megapixels: float = 0.0,
 ) -> Optional[dict[str, Any]]:
     """Send listing image to Claude Vision for SEO-optimized content."""
     import base64
@@ -119,10 +191,16 @@ def analyze_listing_image(
     if not image_bytes:
         return None
 
+    # Resize to prevent 413 errors — Claude Vision works fine at 2000px
+    image_bytes = _resize_image_for_api(image_bytes)
     image_b64 = base64.b64encode(image_bytes).decode("utf-8")
     prompt = ETSY_SEO_PROMPT_TEMPLATE.format(
         current_title=current_title,
         size_label=size_label,
+        dpi=dpi or "N/A",
+        quality_badge=quality_badge or "N/A",
+        photo_pixels=photo_pixels or "N/A",
+        megapixels=f"{megapixels:.1f}" if megapixels else "N/A",
     )
 
     try:
@@ -274,8 +352,7 @@ def restructure_all_listings(
 
         w = images[0].get("full_width", 0)
         h = images[0].get("full_height", 0)
-        orientation = detect_orientation(w, h)
-        pricing = get_listing_pricing(orientation)
+        pricing = get_listing_pricing(photo_w=w, photo_h=h)
         image_url = images[0].get("url_570xN") or images[0].get("url_fullxfull")
 
         # Step 2: Claude Vision SEO rewrite
@@ -292,7 +369,7 @@ def restructure_all_listings(
 
         entry = {
             "listing_id": listing_id, "orig_state": orig_state,
-            "orientation": orientation, "size": pricing["size_label"],
+            "orientation": pricing["orientation"], "size": pricing["size_label"],
             "price_usd": pricing["etsy_price_usd"],
             "old_title": title, "new_title": seo_data.get("title", ""),
         }
@@ -335,7 +412,7 @@ def restructure_all_listings(
         summary["results"].append(entry)
         audit_log(conn, "etsy_agent", "listing_restructured", {
             "listing_id": listing_id, "action": entry.get("action"),
-            "orientation": orientation, "price": pricing["etsy_price_usd"],
+            "orientation": pricing["orientation"], "price": pricing["etsy_price_usd"],
         }, cost_usd=cost)
 
     audit_log(conn, "etsy_agent", "restructure_complete", {

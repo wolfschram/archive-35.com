@@ -140,7 +140,7 @@ def _guess_collection(title: str, tags: list[str]) -> str:
         ("los angeles", "los angeles"), ("gehry", "architecture"),
         ("desert", "desert"), ("dunes", "desert"), ("white sands", "desert"),
         ("cuba", "cuba"), ("aircraft", "planes"), ("hangar", "planes"),
-        ("ocean", "ocean"), ("wave", "ocean"), ("coastal", "ocean"),
+        ("ocean", "ocean"), ("wave", "ocean"),
     ]:
         if keyword in combined:
             return collection
@@ -176,26 +176,38 @@ def pick_next_image(
 CAPTION_PROMPT = (
     "You are the voice of Archive-35 (The Restless Eye) on Instagram.\n"
     "Write an Instagram caption for this fine art photograph.\n\n"
+    "STEP 1 — IDENTIFY THE SUBJECT ACCURATELY.\n"
+    "Before writing, determine what is actually in the photo.\n"
+    "Use these rules to avoid common misidentification:\n\n"
+    "ICELAND AERIALS: Turquoise/milky water with black volcanic rock and green\n"
+    "moss seen from above = GLACIAL RIVER, not ocean. The turquoise color comes\n"
+    "from glacial flour (pulverized rock). These are braided river channels in\n"
+    "the Icelandic highlands. Only call it ocean if you see open water with a\n"
+    "visible horizon or clear wave/surf patterns hitting a beach.\n\n"
+    "TANZANIA/SERENGETI: Identify animals by species — elephant, zebra, giraffe,\n"
+    "wildebeest, lion. Don't guess. If you can't tell, say 'wildlife.'\n\n"
+    "GENERAL: River ≠ ocean. Lake ≠ ocean. Waterfall ≠ river. Be precise.\n"
+    "If unsure, keep the description general rather than guessing wrong.\n\n"
+    "STEP 2 — WRITE THE CAPTION.\n"
     "RULES:\n"
     "- Never salesy. Thoughtful, human, slightly poetic.\n"
     "- Short sentences. Present tense for the moment.\n"
     "- Never: 'stunning', 'beautiful', 'perfect for', 'captures'\n"
-    "- The caption must describe what is ACTUALLY IN the photo based on the title.\n"
-    "- Do NOT describe things not implied by the title (e.g. don't say waterfalls if title says wildlife).\n\n"
+    "- Accuracy is non-negotiable.\n\n"
     "COLLECTION: {collection}\n"
-    "STORY: {story}\n"
-    "LISTING TITLE: {title}\n\n"
+    "STORY: {story}\n\n"
     "STRUCTURE:\n"
     "- Line 1: One strong opening sentence about the moment/place\n"
     "- Lines 2-3: Brief personal story (2-3 sentences max)\n"
     "- Blank line\n"
-    "- Fine art print available — link in bio\n"
+    "- Available as a fine art print — link in bio\n"
     "- Blank line\n"
     "- 8-12 hashtags mixing niche + broad:\n"
     "  Include 3-4 niche (#fineartphotography #photographyprints #artcollector)\n"
     "  Include 2-3 location (#iceland #serengeti #newyork etc)\n"
     "  Include 2-3 decor (#wallart #homedecor #interiordesign)\n"
     "  Include 1-2 broad (#photography #art)\n\n"
+    "Do NOT output any preamble, headers, or labels. Start directly with the caption.\n"
     "Max 300 words. Plain text only (no JSON)."
 )
 
@@ -205,20 +217,34 @@ def generate_caption(
     client: Any,
     model: str = "claude-sonnet-4-5-20250929",
 ) -> Optional[str]:
-    """Generate an Instagram caption using Claude + story bank."""
+    """Generate an Instagram caption using Claude Vision + story bank.
+
+    Sends the actual image to Claude so captions describe what's really
+    in the photo — no more guessing from titles alone.
+    """
     collection = listing.get("collection", "")
     story = get_story_for_collection(collection) if collection else ""
 
     prompt = CAPTION_PROMPT.format(
         collection=collection or "Fine Art Photography",
         story=story or "25 years touring, 55 countries, one restless eye.",
-        title=listing.get("title", ""),
     )
+
+    image_url = listing.get("image_url", "")
+
+    # Build message content — include image if URL available
+    content: list[dict] = []
+    if image_url:
+        content.append({
+            "type": "image",
+            "source": {"type": "url", "url": image_url},
+        })
+    content.append({"type": "text", "text": prompt})
 
     try:
         response = client.messages.create(
             model=model, max_tokens=500,
-            messages=[{"role": "user", "content": prompt}],
+            messages=[{"role": "user", "content": content}],
         )
         return response.content[0].text.strip()
     except Exception as e:

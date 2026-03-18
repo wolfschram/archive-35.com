@@ -4780,6 +4780,42 @@ def instagram_post_batch(req: BatchPostRequest):
     return {"status": "batch_started", "count": req.count, "delay_minutes": req.delay_minutes}
 
 
+@app.get("/instagram/next-posts")
+def instagram_next_posts():
+    """Get the next 3 images that would be posted to Instagram."""
+    conn = _get_conn()
+    try:
+        # Get photos not yet posted to Instagram, ordered by marketability
+        rows = conn.execute("""
+            SELECT p.id, p.filename, p.collection, p.path,
+                   p.vision_mood, p.marketability_score
+            FROM photos p
+            WHERE p.id NOT IN (
+                SELECT DISTINCT json_extract(details, '$.photo_id')
+                FROM audit_log
+                WHERE action = 'post' AND component = 'instagram_agent'
+                AND json_extract(details, '$.photo_id') IS NOT NULL
+            )
+            ORDER BY p.marketability_score DESC
+            LIMIT 3
+        """).fetchall()
+
+        posts = []
+        for r in rows:
+            posts.append({
+                "photo_id": r["id"] if isinstance(r, dict) else r[0],
+                "filename": r["filename"] if isinstance(r, dict) else r[1],
+                "collection": r["collection"] if isinstance(r, dict) else r[2],
+                "mood": r["vision_mood"] if isinstance(r, dict) else r[4],
+                "score": r["marketability_score"] if isinstance(r, dict) else r[5],
+            })
+        return {"next_posts": posts}
+    except Exception as e:
+        return {"next_posts": [], "error": str(e)}
+    finally:
+        conn.close()
+
+
 @app.post("/broadcast/run")
 def broadcast_run():
     """Trigger the AI broadcast pipeline."""
@@ -4959,6 +4995,27 @@ def pinterest_pin_status():
     return {"pin_count": pin_count, "last_batch": last_batch}
 
 
+@app.get("/pinterest/pin-image/{filename}")
+def serve_pin_image(filename: str):
+    """Serve a generated Pinterest pin image."""
+    pin_dir = Path(__file__).resolve().parents[2] / "02_Social" / "pinterest" / "pins"
+    filepath = pin_dir / filename
+    if not filepath.exists() or not filepath.is_file():
+        raise HTTPException(status_code=404, detail="Pin image not found")
+    from fastapi.responses import FileResponse
+    return FileResponse(filepath, media_type="image/png")
+
+
+@app.get("/pinterest/pins-list")
+def list_pin_images():
+    """List all generated Pinterest pin images."""
+    pin_dir = Path(__file__).resolve().parents[2] / "02_Social" / "pinterest" / "pins"
+    if not pin_dir.exists():
+        return {"pins": []}
+    pins = sorted([f.name for f in pin_dir.glob("*.png")], reverse=True)
+    return {"pins": pins[:20], "total": len(pins)}
+
+
 @app.get("/system/docker-status")
 def system_docker_status():
     """Return Docker container statuses."""
@@ -5096,6 +5153,78 @@ def run_email_briefing():
     if result.returncode == 0:
         return {"status": "success", "output": result.stdout.strip()}
     return {"status": "error", "message": result.stderr[:500]}
+
+
+class EmailActionRequest(BaseModel):
+    account: str  # "archive35", "gmail", or "icloud"
+    uid: str
+
+
+@app.post("/email/delete")
+def delete_email(req: EmailActionRequest):
+    """Move an email to trash via IMAP."""
+    from src.agents.email_briefing_agent import load_env
+    env = load_env()
+    accounts = {
+        "archive35": ("imap.gmail.com", env.get("ARCHIVE35_EMAIL", ""), env.get("ARCHIVE35_APP_PASSWORD", "")),
+        "gmail": ("imap.gmail.com", env.get("GMAIL_EMAIL", ""), env.get("GMAIL_APP_PASSWORD", "")),
+        "icloud": ("imap.mail.me.com", env.get("ICLOUD_EMAIL", ""), env.get("ICLOUD_APP_PASSWORD", "")),
+    }
+    if req.account not in accounts:
+        raise HTTPException(status_code=400, detail=f"Unknown account: {req.account}")
+    host, email_addr, password = accounts[req.account]
+    if not email_addr or not password:
+        raise HTTPException(status_code=400, detail=f"Account {req.account} not configured")
+    try:
+        import imaplib
+        conn = imaplib.IMAP4_SSL(host, 993)
+        conn.login(email_addr, password)
+        conn.select("INBOX")
+        trash_folder = "[Gmail]/Trash" if "gmail" in host else "Deleted Messages"
+        conn.uid("COPY", req.uid, trash_folder)
+        conn.uid("STORE", req.uid, "+FLAGS", "(\\Deleted)")
+        conn.expunge()
+        conn.logout()
+        return {"status": "deleted", "uid": req.uid}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/email/archive")
+def archive_email(req: EmailActionRequest):
+    """Archive an email (remove from inbox, keep in All Mail)."""
+    from src.agents.email_briefing_agent import load_env
+    env = load_env()
+    accounts = {
+        "archive35": ("imap.gmail.com", env.get("ARCHIVE35_EMAIL", ""), env.get("ARCHIVE35_APP_PASSWORD", "")),
+        "gmail": ("imap.gmail.com", env.get("GMAIL_EMAIL", ""), env.get("GMAIL_APP_PASSWORD", "")),
+        "icloud": ("imap.mail.me.com", env.get("ICLOUD_EMAIL", ""), env.get("ICLOUD_APP_PASSWORD", "")),
+    }
+    if req.account not in accounts:
+        raise HTTPException(status_code=400, detail=f"Unknown account: {req.account}")
+    host, email_addr, password = accounts[req.account]
+    if not email_addr or not password:
+        raise HTTPException(status_code=400, detail=f"Account {req.account} not configured")
+    try:
+        import imaplib
+        conn = imaplib.IMAP4_SSL(host, 993)
+        conn.login(email_addr, password)
+        conn.select("INBOX")
+        if "gmail" in host:
+            # Gmail: removing \Inbox label effectively archives
+            conn.uid("STORE", req.uid, "-FLAGS", "(\\Seen)")
+            conn.uid("COPY", req.uid, "[Gmail]/All Mail")
+            conn.uid("STORE", req.uid, "+FLAGS", "(\\Deleted)")
+            conn.expunge()
+        else:
+            # iCloud: move to Archive
+            conn.uid("COPY", req.uid, "Archive")
+            conn.uid("STORE", req.uid, "+FLAGS", "(\\Deleted)")
+            conn.expunge()
+        conn.logout()
+        return {"status": "archived", "uid": req.uid}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ── CLI Entry Point ─────────────────────────────────────────────

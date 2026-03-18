@@ -137,6 +137,15 @@ def daily_summary_task() -> dict:
         conn.close()
 
 
+@huey.periodic_task(crontab(hour="7", minute="0"))
+def daily_email_briefing():
+    """Run email briefing every morning at 7 AM UTC."""
+    from src.agents.email_briefing_agent import run_briefing
+
+    logger.info("Cron: Running daily email briefing")
+    return run_briefing(days_back=1)
+
+
 # Task registration info for documentation
 SCHEDULE = {
     "daily_pipeline": "06:00 UTC — Full daily cycle",
@@ -144,4 +153,5 @@ SCHEDULE = {
     "instagram_post": "16:00, 20:00, 03:00 UTC (8am, 12pm, 7pm PST) — Instagram auto-post",
     "expire_content": "Every hour — Expire unapproved content",
     "daily_summary": "20:00 UTC — Daily summary to Telegram",
+    "email_briefing": "07:00 UTC — Scan all inboxes, generate prioritized briefing",
 }

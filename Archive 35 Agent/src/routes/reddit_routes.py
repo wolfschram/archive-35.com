@@ -1,12 +1,13 @@
 """
 Reddit Queue API Routes for Archive-35 Agent
-Endpoints for viewing, posting, and managing the Reddit content queue.
+Endpoints for viewing, managing, and tracking the Reddit content queue.
+Posts are formatted for manual copy-paste (Reddit blocks all automation).
 """
 from __future__ import annotations
 
 import json
 import logging
-import os
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -20,34 +21,26 @@ router = APIRouter(prefix="/reddit", tags=["reddit"])
 
 AGENT_BASE = Path(__file__).resolve().parents[2]
 QUEUE_FILE = AGENT_BASE / "data" / "reddit_queue.json"
+STATE_FILE = AGENT_BASE / "data" / "agent_state" / "reddit.json"
 
 
-def _load_env() -> dict:
-    """Load .env file."""
-    env = {}
-    env_path = AGENT_BASE / ".env"
-    if env_path.exists():
-        for line in env_path.read_text().splitlines():
-            line = line.strip()
-            if line and not line.startswith("#") and "=" in line:
-                k, _, v = line.partition("=")
-                env[k.strip()] = v.strip()
-    env.update(os.environ)
-    return env
-
-
-def _check_reddit_creds() -> dict:
-    """Check if Reddit API credentials are configured."""
-    env = _load_env()
-    client_id = env.get("REDDIT_CLIENT_ID", "")
-    client_secret = env.get("REDDIT_CLIENT_SECRET", "")
-    username = env.get("REDDIT_USERNAME", "")
+def _check_reddit_status() -> dict:
+    """Check Reddit posting status from state file."""
+    if STATE_FILE.exists():
+        try:
+            with open(STATE_FILE) as f:
+                state = json.load(f)
+            return {
+                "configured": True,
+                "method": "manual_copy_paste",
+                "last_post": state.get("last_post_time"),
+                "posts_today": state.get("posts_today", 0),
+            }
+        except (json.JSONDecodeError, IOError):
+            pass
     return {
-        "configured": bool(client_id and client_secret and username),
-        "has_client_id": bool(client_id),
-        "has_client_secret": bool(client_secret),
-        "has_username": bool(username),
-        "username": username if username else None,
+        "configured": True,
+        "method": "manual_copy_paste",
     }
 
 
@@ -72,7 +65,7 @@ def _save_queue(queue_data: dict):
 @router.get("/status")
 def reddit_status():
     """Get Reddit integration status."""
-    creds = _check_reddit_creds()
+    session = _check_reddit_status()
     queue = _load_queue()
     posts = queue.get("posts", [])
 
@@ -81,7 +74,7 @@ def reddit_status():
     skipped = [p for p in posts if p.get("status") == "skipped"]
 
     return {
-        "credentials": creds,
+        "credentials": session,
         "queue": {
             "generated_at": queue.get("generated_at"),
             "total": len(posts),
@@ -114,100 +107,28 @@ def get_queue(limit: int = 10, status: Optional[str] = None):
     }
 
 
-class PostRequest(BaseModel):
+class MarkPostedRequest(BaseModel):
     post_id: str
+    reddit_url: Optional[str] = None
 
 
-@router.post("/post")
-def post_to_reddit(req: PostRequest):
-    """Post a specific queued item to Reddit via PRAW.
-
-    Requires REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USERNAME,
-    and REDDIT_PASSWORD in .env file.
-    """
-    creds = _check_reddit_creds()
-    if not creds["configured"]:
-        missing = []
-        if not creds["has_client_id"]:
-            missing.append("REDDIT_CLIENT_ID")
-        if not creds["has_client_secret"]:
-            missing.append("REDDIT_CLIENT_SECRET")
-        if not creds["has_username"]:
-            missing.append("REDDIT_USERNAME")
-        return {
-            "status": "error",
-            "message": "Reddit not configured. Add credentials to .env",
-            "missing": missing,
-        }
-
+@router.post("/mark-posted")
+def mark_posted(req: MarkPostedRequest):
+    """Mark a queued post as manually posted."""
     queue = _load_queue()
     posts = queue.get("posts", [])
-    target = None
 
     for i, post in enumerate(posts):
         if post.get("id") == req.post_id:
-            target = post
-            target_idx = i
-            break
+            posts[i]["status"] = "posted"
+            posts[i]["posted_at"] = datetime.now(timezone.utc).isoformat()
+            posts[i]["posted_via"] = "manual"
+            if req.reddit_url:
+                posts[i]["reddit_url"] = req.reddit_url
+            _save_queue(queue)
+            return {"status": "posted", "post_id": req.post_id}
 
-    if not target:
-        raise HTTPException(status_code=404, detail=f"Post '{req.post_id}' not found in queue")
-
-    if target.get("status") != "queued":
-        return {
-            "status": "skipped",
-            "message": f"Post already has status '{target.get('status')}'",
-        }
-
-    # Try to post via PRAW
-    try:
-        import praw
-
-        env = _load_env()
-        reddit = praw.Reddit(
-            client_id=env.get("REDDIT_CLIENT_ID"),
-            client_secret=env.get("REDDIT_CLIENT_SECRET"),
-            username=env.get("REDDIT_USERNAME"),
-            password=env.get("REDDIT_PASSWORD", ""),
-            user_agent=env.get("REDDIT_USER_AGENT", "Archive35Bot/1.0"),
-        )
-
-        subreddit_name = target.get("subreddit", "").lstrip("r/")
-        subreddit = reddit.subreddit(subreddit_name)
-
-        # Determine if image or text post
-        image_id = target.get("image_id", "")
-        title = target.get("title", "Untitled")
-
-        submission = subreddit.submit(
-            title=title,
-            selftext=target.get("body", ""),
-        )
-
-        # Update queue
-        posts[target_idx]["status"] = "posted"
-        posts[target_idx]["posted_at"] = datetime.now(timezone.utc).isoformat()
-        posts[target_idx]["reddit_url"] = f"https://reddit.com{submission.permalink}"
-        posts[target_idx]["reddit_id"] = submission.id
-        _save_queue(queue)
-
-        return {
-            "status": "posted",
-            "reddit_url": f"https://reddit.com{submission.permalink}",
-            "reddit_id": submission.id,
-        }
-
-    except ImportError:
-        return {
-            "status": "error",
-            "message": "PRAW not installed. Run: pip install praw",
-        }
-    except Exception as e:
-        logger.error(f"Reddit posting failed: {e}")
-        return {
-            "status": "error",
-            "message": str(e),
-        }
+    raise HTTPException(status_code=404, detail=f"Post '{req.post_id}' not found")
 
 
 class SkipRequest(BaseModel):
@@ -234,7 +155,6 @@ def skip_post(req: SkipRequest):
 def generate_queue():
     """Trigger reddit_agent.py to generate a new post queue."""
     try:
-        import subprocess
         agent_script = AGENT_BASE / "src" / "agents" / "reddit_agent.py"
         if not agent_script.exists():
             return {

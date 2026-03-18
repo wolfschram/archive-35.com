@@ -73,6 +73,9 @@ mockups/
 # Stale build output (complete duplicate of live site)
 _site/
 
+# Email MCP credentials (NEVER commit)
+06_Automation/email_mcp/.env
+
 # Etsy listing exports — local workflow only (machine → Etsy)
 06_Automation/etsy-export/
 

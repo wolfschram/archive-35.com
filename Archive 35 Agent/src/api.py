@@ -13,6 +13,7 @@ import json
 import logging
 import os
 import ssl
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
@@ -3148,6 +3149,24 @@ def delete_etsy_listings_batch(req: dict):
     return {"total": len(listing_ids), "deleted": deleted, "results": results}
 
 
+def _save_etsy_order(receipt, fulfillment_items):
+    """Save order details to data/etsy_orders/ for the email briefing agent."""
+    orders_dir = Path(__file__).resolve().parents[1] / "data" / "etsy_orders"
+    orders_dir.mkdir(parents=True, exist_ok=True)
+    receipt_id = receipt.get("receipt_id", "unknown")
+    order_file = orders_dir / f"order_{receipt_id}.json"
+    order_data = {
+        "receipt_id": receipt_id,
+        "buyer_name": receipt.get("name", ""),
+        "country": receipt.get("country_iso", ""),
+        "items": len(fulfillment_items),
+        "grandtotal": receipt.get("grandtotal", {}),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    with open(order_file, "w") as f:
+        json.dump(order_data, f, indent=2)
+
+
 @app.post("/etsy/receipts/auto-fulfill")
 def auto_fulfill_etsy_orders():
     """Poll Etsy for new paid orders and auto-route to Pictorem fulfillment.
@@ -3226,6 +3245,26 @@ def auto_fulfill_etsy_orders():
                 "preorder_codes": [f.get("pictorem_preorder", "") for f in fulfillment_items],
                 "buyer_name": receipt.get("name", ""),
             })
+
+            # Log order to file for email briefing agent
+            audit.log(conn, "etsy", "etsy_order_received", {
+                "receipt_id": receipt_id,
+                "buyer_name": receipt.get("name", ""),
+                "items": len(fulfillment_items),
+            })
+            _save_etsy_order(receipt, fulfillment_items)
+
+            # Send email notification (fails silently if SMTP not configured)
+            try:
+                from src.notifications.email import notify_etsy_sale
+                total = receipt.get("grandtotal", {})
+                amount = total.get("amount", 0) / max(total.get("divisor", 100), 1)
+                currency = total.get("currency_code", "USD")
+                buyer_country = receipt.get("country_iso", "unknown")
+                first_title = fulfillment_items[0].get("title", "Print") if fulfillment_items else "Print"
+                notify_etsy_sale(first_title, amount, currency, buyer_country, str(receipt_id))
+            except Exception as notify_err:
+                logger.debug("Etsy sale notification skipped: %s", notify_err)
 
             processed.append({
                 "receipt_id": receipt_id,
@@ -5030,6 +5069,33 @@ def licensing_dashboard():
         }
     finally:
         conn.close()
+
+
+# ── Email Briefing ─────────────────────────────────────────────
+
+
+@app.get("/email/briefing")
+def email_briefing():
+    """Get the latest email briefing."""
+    briefing_file = Path(__file__).resolve().parents[1] / "data" / "email_briefings" / "latest.json"
+    if briefing_file.exists():
+        with open(briefing_file) as f:
+            return json.load(f)
+    return {"error": "No briefing generated yet. Run email_briefing_agent.py first."}
+
+
+@app.post("/email/briefing/run")
+def run_email_briefing():
+    """Trigger a new email briefing scan across all 3 accounts."""
+    import subprocess
+    script = Path(__file__).resolve().parents[1] / "src" / "agents" / "email_briefing_agent.py"
+    result = subprocess.run(
+        [sys.executable, str(script), "--days", "1"],
+        capture_output=True, text=True, timeout=120,
+    )
+    if result.returncode == 0:
+        return {"status": "success", "output": result.stdout.strip()}
+    return {"status": "error", "message": result.stderr[:500]}
 
 
 # ── CLI Entry Point ─────────────────────────────────────────────

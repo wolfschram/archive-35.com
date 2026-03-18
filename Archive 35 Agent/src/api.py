@@ -5250,15 +5250,16 @@ def get_cloudflare_analytics():
         }
 
     headers = {"Authorization": f"Bearer {token}"}
-    since = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+    since_7d = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+    since_1d = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
     query = """
     query {
       viewer {
         zones(filter: {zoneTag: "%s"}) {
-          httpRequests1dGroups(limit: 7, orderBy: [date_DESC]) {
+          httpRequests1dGroups(limit: 7, orderBy: [date_DESC], filter: {date_gt: "%s"}) {
             dimensions { date }
-            sum { requests pageViews threats bytes }
+            sum { requests pageViews }
             uniq { uniques }
           }
           httpRequestsAdaptiveGroups(limit: 20, filter: {date_gt: "%s"}, orderBy: [count_DESC]) {
@@ -5268,7 +5269,7 @@ def get_cloudflare_analytics():
         }
       }
     }
-    """ % (zone_id, since)
+    """ % (zone_id, since_7d, since_1d)
 
     try:
         r = httpx.post(
@@ -5281,35 +5282,43 @@ def get_cloudflare_analytics():
             return {"configured": True, "error": f"Cloudflare API returned {r.status_code}"}
 
         data = r.json()
-        zones = data.get("data", {}).get("viewer", {}).get("zones", [{}])
-        if not zones:
-            return {"configured": True, "error": "No zone data returned"}
 
-        zone = zones[0]
-        daily = zone.get("httpRequests1dGroups", [])
-        top_pages = zone.get("httpRequestsAdaptiveGroups", [])
+        # Handle GraphQL errors
+        if data.get("errors"):
+            return {"configured": True, "error": data["errors"][0].get("message", "Unknown GraphQL error"), "raw_errors": data["errors"]}
+
+        viewer = data.get("data") or {}
+        viewer = viewer.get("viewer") or {}
+        zones = viewer.get("zones") or []
+        if not zones:
+            return {"configured": True, "error": "No zone data returned. Check zone ID.", "zone_id_used": zone_id}
+
+        zone = zones[0] or {}
+        daily = zone.get("httpRequests1dGroups") or []
+        top_pages = zone.get("httpRequestsAdaptiveGroups") or []
 
         return {
             "configured": True,
             "daily_stats": [{
-                "date": d["dimensions"]["date"],
-                "visitors": d["uniq"]["uniques"],
-                "page_views": d["sum"]["pageViews"],
-                "requests": d["sum"]["requests"],
+                "date": d.get("dimensions", {}).get("date", ""),
+                "visitors": d.get("uniq", {}).get("uniques", 0),
+                "page_views": d.get("sum", {}).get("pageViews", 0),
+                "requests": d.get("sum", {}).get("requests", 0),
             } for d in daily],
             "top_pages": [{
-                "path": p["dimensions"]["clientRequestPath"],
-                "views": p["count"],
-            } for p in top_pages[:10]],
+                "path": p.get("dimensions", {}).get("clientRequestPath", ""),
+                "views": p.get("count", 0),
+            } for p in (top_pages or [])[:10]],
             "totals": {
-                "visitors_7d": sum(d["uniq"]["uniques"] for d in daily),
-                "page_views_7d": sum(d["sum"]["pageViews"] for d in daily),
-                "visitors_today": daily[0]["uniq"]["uniques"] if daily else 0,
-                "page_views_today": daily[0]["sum"]["pageViews"] if daily else 0,
+                "visitors_7d": sum(d.get("uniq", {}).get("uniques", 0) for d in daily),
+                "page_views_7d": sum(d.get("sum", {}).get("pageViews", 0) for d in daily),
+                "visitors_today": daily[0].get("uniq", {}).get("uniques", 0) if daily else 0,
+                "page_views_today": daily[0].get("sum", {}).get("pageViews", 0) if daily else 0,
             }
         }
     except Exception as e:
-        return {"configured": True, "error": str(e)}
+        import traceback
+        return {"configured": True, "error": str(e), "traceback": traceback.format_exc()}
 
 
 @app.get("/analytics/athos")
@@ -5327,13 +5336,14 @@ def get_athos_analytics():
         }
 
     headers = {"Authorization": f"Bearer {token}"}
-    since = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+    since_7d = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+    since_1d = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
     query = """
     query {
       viewer {
         zones(filter: {zoneTag: "%s"}) {
-          httpRequests1dGroups(limit: 7, orderBy: [date_DESC]) {
+          httpRequests1dGroups(limit: 7, orderBy: [date_DESC], filter: {date_gt: "%s"}) {
             dimensions { date }
             sum { requests pageViews }
             uniq { uniques }
@@ -5345,7 +5355,7 @@ def get_athos_analytics():
         }
       }
     }
-    """ % (zone_id, since)
+    """ % (zone_id, since_7d, since_1d)
 
     try:
         r = httpx.post(
@@ -5497,7 +5507,9 @@ def main():
     import uvicorn
 
     logging.basicConfig(level=logging.INFO)
-    uvicorn.run(app, host="127.0.0.1", port=8035, log_level="info")
+    # Use 0.0.0.0 so Docker container accepts connections from host
+    bind_host = os.environ.get("API_HOST", "0.0.0.0")
+    uvicorn.run(app, host=bind_host, port=8035, log_level="info")
 
 
 if __name__ == "__main__":

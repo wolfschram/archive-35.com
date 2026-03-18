@@ -4746,9 +4746,9 @@ def broadcast_run():
     """Trigger the AI broadcast pipeline."""
     import subprocess
     agent_root = Path(__file__).resolve().parent.parent
-    script = agent_root / "src" / "agents" / "ai_broadcast.py"
+    script = agent_root.parent / "06_Automation" / "scripts" / "ai_broadcast.py"
     if not script.exists():
-        script = agent_root.parent / "06_Automation" / "ai_broadcast.py"
+        script = agent_root / "src" / "agents" / "ai_broadcast.py"
     if not script.exists():
         raise HTTPException(status_code=404, detail="ai_broadcast.py not found")
     try:
@@ -4885,9 +4885,9 @@ def pinterest_generate_pins():
     """Trigger pinterest_pin_generator.py."""
     import subprocess
     agent_root = Path(__file__).resolve().parent.parent
-    script = agent_root / "src" / "agents" / "pinterest_pin_generator.py"
+    script = agent_root.parent / "06_Automation" / "scripts" / "pinterest_pin_generator.py"
     if not script.exists():
-        for alt in [agent_root / "pinterest_pin_generator.py", agent_root.parent / "06_Automation" / "pinterest_pin_generator.py"]:
+        for alt in [agent_root / "src" / "agents" / "pinterest_pin_generator.py", agent_root / "pinterest_pin_generator.py"]:
             if alt.exists():
                 script = alt
                 break

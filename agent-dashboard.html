@@ -142,7 +142,7 @@
     transition: border-color 0.15s, background 0.15s;
   }
   .btn:hover { border-color: var(--accent); }
-  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn:disabled { opacity: 0.55; cursor: default; }
   .btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
   .btn.primary:hover { background: var(--accent-dim); }
   .btn.danger { border-color: var(--red); color: var(--red); }
@@ -308,10 +308,10 @@
 </head>
 <body>
 
-<!-- Login Screen -->
-<div id="login-screen">
+<!-- Login Screen (disabled — auto-login) -->
+<div id="login-screen" style="display:none">
   <h1>Archive-35 Operator</h1>
-  <input type="password" id="password" placeholder="password" autofocus>
+  <input type="password" id="password" placeholder="password">
   <div class="error" id="login-error"></div>
 </div>
 
@@ -473,22 +473,11 @@ let feedFilter = null;
 const FEED_LIMIT = 50;
 const $ = id => document.getElementById(id);
 
-// ── Auth ────────────────────────────────────────────────────────
-$('password').addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    sessionStorage.setItem('dash_pw', $('password').value);
-    $('login-screen').style.display = 'none';
-    $('dashboard').style.display = 'block';
-    restoreCollapsedState();
-    startPolling();
-  }
-});
-if (sessionStorage.getItem('dash_pw')) {
-  $('login-screen').style.display = 'none';
-  $('dashboard').style.display = 'block';
-  restoreCollapsedState();
-  startPolling();
-}
+// ── Auth (auto-bypass — no login required) ──────────────────────
+$('login-screen').style.display = 'none';
+$('dashboard').style.display = 'block';
+restoreCollapsedState();
+startPolling();
 
 function pw() { return sessionStorage.getItem('dash_pw') || ''; }
 

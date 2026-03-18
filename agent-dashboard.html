@@ -3,504 +3,1098 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Archive-35 Agent Dashboard</title>
+<title>Archive-35 Operator Command Center</title>
 <style>
   :root {
     --bg: #0a0a0a;
     --surface: #141414;
+    --surface-2: #1a1a1a;
     --border: #222;
+    --border-light: #333;
     --text: #e0e0e0;
     --dim: #666;
     --accent: #c9a84c;
-    --red: #d44;
-    --green: #4a4;
+    --accent-dim: #8a7234;
+    --red: #f87171;
+    --green: #4ade80;
+    --yellow: #facc15;
+    --blue: #60a5fa;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    font-size: 13px;
+    line-height: 1.5;
   }
+
+  /* ── Login ──────────────────────────────────────────── */
   #login-screen {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    flex-direction: column;
-    gap: 16px;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; flex-direction: column; gap: 16px;
   }
   #login-screen h1 { font-size: 14px; text-transform: uppercase; letter-spacing: 4px; color: var(--dim); }
   #login-screen input {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 12px 20px;
-    font-family: inherit;
-    font-size: 14px;
-    width: 280px;
-    text-align: center;
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    padding: 12px 20px; font-family: inherit; font-size: 14px; width: 280px; text-align: center;
   }
   #login-screen input:focus { outline: none; border-color: var(--accent); }
   #login-screen .error { color: var(--red); font-size: 12px; }
 
-  #dashboard { display: none; padding: 20px; max-width: 960px; margin: 0 auto; }
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 16px;
+  /* ── Status Bar ─────────────────────────────────────── */
+  #status-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 20px; gap: 4px; flex-wrap: wrap;
+    backdrop-filter: blur(10px);
+  }
+  .sb-item {
+    display: flex; align-items: center; gap: 6px; padding: 4px 10px;
+    font-size: 11px; cursor: pointer; border-radius: 3px;
+    transition: background 0.15s;
+  }
+  .sb-item:hover { background: var(--surface-2); }
+  .sb-label { color: var(--dim); text-transform: uppercase; letter-spacing: 1px; font-size: 10px; }
+  .sb-value { color: var(--accent); font-weight: 700; }
+  .sb-value.ok { color: var(--green); }
+  .sb-value.warn { color: var(--yellow); }
+  .sb-value.err { color: var(--red); }
+  .kill-switch-btn {
+    background: none; border: 1px solid var(--border); color: var(--green);
+    padding: 4px 12px; font-family: inherit; font-size: 11px; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 1px; border-radius: 3px;
+  }
+  .kill-switch-btn:hover { border-color: var(--accent); }
+  .kill-switch-btn.active { border-color: var(--red); color: var(--red); background: rgba(248,113,113,0.1); }
+
+  /* ── Dashboard Container ────────────────────────────── */
+  #dashboard { display: none; padding: 0 20px 40px; max-width: 1200px; margin: 0 auto; }
+
+  /* ── Section Headers (collapsible) ──────────────────── */
+  .section {
+    margin-top: 24px; border: 1px solid var(--border); background: var(--surface);
+  }
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; cursor: pointer; user-select: none;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 20px;
   }
-  header h1 { font-size: 13px; text-transform: uppercase; letter-spacing: 3px; color: var(--dim); }
-  .status-dot {
-    display: inline-block;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    margin-right: 6px;
-  }
-  .status-dot.live { background: var(--green); }
-  .status-dot.dead { background: var(--red); }
-  .status-dot.unknown { background: var(--dim); }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 16px;
-  }
-  .card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--dim); margin-bottom: 8px; }
-  .card .value { font-size: 28px; font-weight: 700; color: var(--accent); }
-  .card .sub { font-size: 11px; color: var(--dim); margin-top: 4px; }
-
+  .section-header:hover { background: var(--surface-2); }
   .section-title {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--dim);
-    margin: 20px 0 10px;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--dim);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title .chevron { transition: transform 0.2s; font-size: 10px; }
+  .section.collapsed .section-title .chevron { transform: rotate(-90deg); }
+  .section.collapsed .section-body { display: none; }
+  .section-body { padding: 16px; }
+  .section-actions { display: flex; gap: 8px; }
+
+  /* ── Agent Cards Grid ───────────────────────────────── */
+  .agent-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 12px;
+  }
+  .agent-card {
+    background: var(--surface-2); border: 1px solid var(--border); padding: 16px;
+  }
+  .agent-card-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+  }
+  .agent-name {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .agent-dot {
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+  }
+  .agent-dot.on { background: var(--green); }
+  .agent-dot.off { background: var(--red); }
+  .agent-dot.warn { background: var(--yellow); }
+
+  /* Toggle switch */
+  .toggle { position: relative; width: 36px; height: 20px; cursor: pointer; }
+  .toggle input { display: none; }
+  .toggle-track {
+    position: absolute; inset: 0; background: var(--border); border-radius: 10px;
+    transition: background 0.2s;
+  }
+  .toggle input:checked + .toggle-track { background: var(--green); }
+  .toggle-thumb {
+    position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+    background: var(--text); border-radius: 50%; transition: left 0.2s;
+  }
+  .toggle input:checked ~ .toggle-thumb { left: 18px; }
+
+  .agent-stats { font-size: 12px; color: var(--dim); margin-bottom: 10px; line-height: 1.8; }
+  .agent-stats strong { color: var(--text); }
+
+  .agent-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* ── Buttons ────────────────────────────────────────── */
+  .btn {
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    padding: 5px 12px; font-family: inherit; font-size: 11px; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 1px; border-radius: 2px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .btn.primary:hover { background: var(--accent-dim); }
+  .btn.danger { border-color: var(--red); color: var(--red); }
+  .btn.danger:hover { background: rgba(248,113,113,0.1); }
+  .btn.success { border-color: var(--green); color: var(--green); }
+  .btn.success:hover { background: rgba(74,222,128,0.1); }
+
+  /* ── Intelligence Tables ────────────────────────────── */
+  .intel-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .intel-table { width: 100%; font-size: 12px; border-collapse: collapse; }
+  .intel-table th {
+    text-align: left; padding: 6px 8px; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--dim); border-bottom: 1px solid var(--border);
+  }
+  .intel-table td { padding: 6px 8px; border-bottom: 1px solid #1a1a1a; }
+  .intel-table td.count { color: var(--accent); font-weight: 700; text-align: right; }
+  .intel-table td.warn-cell { color: var(--yellow); }
+
+  .intel-box {
+    background: var(--surface-2); border: 1px solid var(--border); padding: 12px; margin-bottom: 12px;
+  }
+  .intel-box-title {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--dim); margin-bottom: 8px;
+  }
+  .revenue-row { display: flex; gap: 24px; font-size: 13px; }
+  .revenue-row .amount { color: var(--green); font-weight: 700; }
+
+  /* ── Broadcast Status ───────────────────────────────── */
+  .broadcast-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;
+  }
+  .broadcast-card {
+    background: var(--surface-2); border: 1px solid var(--border); padding: 12px;
+  }
+  .broadcast-card h4 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--accent); margin-bottom: 8px;
+  }
+  .broadcast-card .line { font-size: 12px; color: var(--dim); margin-bottom: 4px; }
+  .broadcast-card .line .val { color: var(--text); }
+  .check-ok { color: var(--green); }
+  .check-fail { color: var(--red); }
+
+  /* ── Etsy Performance ───────────────────────────────── */
+  .seo-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .seo-score {
+    font-size: 28px; font-weight: 700; color: var(--accent); min-width: 60px;
+  }
+  .seo-details { font-size: 12px; color: var(--dim); line-height: 1.8; }
+  .seo-details .metric { display: flex; justify-content: space-between; }
+  .seo-details .metric .val { color: var(--text); }
+  .zero-view-alert {
+    background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.3);
+    padding: 8px 12px; font-size: 12px; color: var(--yellow); margin-top: 8px;
   }
 
-  #log-container, #ig-container {
-    background: var(--surface);
+  /* ── Activity Feed ──────────────────────────────────── */
+  .filter-bar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .filter-btn {
+    border: 1px solid var(--border); background: none; color: var(--dim);
+    padding: 3px 10px; font-family: inherit; font-size: 10px; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 1px; border-radius: 2px;
+  }
+  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(201,168,76,0.1); }
+  .filter-btn:hover { border-color: var(--accent); }
+
+  .feed-container {
+    max-height: 400px; overflow-y: auto; background: var(--surface-2);
     border: 1px solid var(--border);
-    max-height: 300px;
-    overflow-y: auto;
-    font-size: 12px;
-    line-height: 1.6;
   }
-  .log-entry, .ig-entry {
-    padding: 6px 12px;
-    border-bottom: 1px solid #1a1a1a;
+  .feed-entry {
+    padding: 6px 12px; border-bottom: 1px solid #1a1a1a; font-size: 12px;
+    display: flex; gap: 8px; align-items: flex-start;
   }
-  .log-entry .time { color: var(--dim); margin-right: 8px; }
-  .log-entry .component { color: var(--accent); margin-right: 8px; }
-  .ig-entry .time { color: var(--dim); margin-right: 8px; }
-  .ig-entry .caption { color: var(--text); }
-  .ig-entry img { width: 40px; height: 40px; object-fit: cover; margin-right: 8px; vertical-align: middle; }
+  .feed-entry:hover { background: rgba(255,255,255,0.02); }
+  .feed-time { color: var(--dim); min-width: 70px; flex-shrink: 0; }
+  .feed-badge {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+    padding: 1px 6px; border-radius: 2px; min-width: 70px; text-align: center;
+    flex-shrink: 0;
+  }
+  .feed-badge.instagram { background: rgba(201,168,76,0.2); color: var(--accent); }
+  .feed-badge.etsy { background: rgba(96,165,250,0.2); color: var(--blue); }
+  .feed-badge.pinterest { background: rgba(248,113,113,0.2); color: var(--red); }
+  .feed-badge.reddit { background: rgba(250,204,21,0.2); color: var(--yellow); }
+  .feed-badge.broadcast { background: rgba(74,222,128,0.2); color: var(--green); }
+  .feed-badge.x402 { background: rgba(201,168,76,0.3); color: var(--accent); }
+  .feed-badge.pipeline { background: rgba(102,102,102,0.3); color: var(--dim); }
+  .feed-badge.safety { background: rgba(248,113,113,0.3); color: var(--red); }
+  .feed-badge.system { background: rgba(102,102,102,0.2); color: var(--dim); }
+  .feed-action { flex: 1; }
+  .feed-cost { color: var(--dim); min-width: 50px; text-align: right; flex-shrink: 0; }
+  .feed-pagination { display: flex; gap: 8px; align-items: center; justify-content: center; margin-top: 8px; }
+  .feed-pagination .info { font-size: 11px; color: var(--dim); }
+  .cost-total { font-size: 12px; color: var(--dim); text-align: right; margin-bottom: 8px; }
+  .cost-total .amount { color: var(--accent); }
 
-  .btn-kill {
-    background: var(--red);
-    color: white;
-    border: none;
-    padding: 10px 24px;
-    font-family: inherit;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    cursor: pointer;
+  /* ── Licensing Dashboard ────────────────────────────── */
+  .licensing-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
   }
-  .btn-kill:hover { opacity: 0.85; }
-  .btn-kill.resume { background: var(--green); }
+  .stat-card {
+    background: var(--surface-2); border: 1px solid var(--border); padding: 12px; text-align: center;
+  }
+  .stat-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--dim); }
+  .stat-card .value { font-size: 24px; font-weight: 700; color: var(--accent); margin: 4px 0; }
+  .stat-card .sub { font-size: 11px; color: var(--dim); }
+  .tier-list { font-size: 12px; color: var(--dim); line-height: 2; margin-top: 8px; }
 
-  .last-update { font-size: 10px; color: var(--dim); }
+  /* ── Reddit Queue (within agent card) ───────────────── */
+  .queue-preview { margin-top: 10px; }
+  .queue-item {
+    background: var(--surface); border: 1px solid var(--border); padding: 8px; margin-bottom: 6px;
+  }
+  .queue-item .sub-name { color: var(--accent); font-size: 11px; font-weight: 700; }
+  .queue-item .q-title { font-size: 12px; margin: 2px 0; }
+  .queue-item .q-actions { display: flex; gap: 6px; margin-top: 6px; }
+
+  /* ── Offline Banner ─────────────────────────────────── */
   .offline-banner {
-    background: var(--red);
-    color: white;
-    text-align: center;
-    padding: 8px;
-    font-size: 12px;
-    display: none;
+    background: var(--red); color: white; text-align: center;
+    padding: 8px; font-size: 12px; display: none; position: fixed;
+    top: 0; left: 0; right: 0; z-index: 200;
   }
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
 
-  /* Reddit Queue Section */
-  .reddit-section { margin-top: 20px; }
-  .reddit-post {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 12px;
-    margin-bottom: 8px;
+  /* ── Kill Switch Modal ──────────────────────────────── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 300; align-items: center; justify-content: center;
   }
-  .reddit-post .sub-name { color: var(--accent); font-size: 12px; font-weight: bold; }
-  .reddit-post .post-title { color: var(--text); font-size: 13px; margin: 4px 0; }
-  .reddit-post .post-meta { color: var(--dim); font-size: 11px; }
-  .reddit-post .post-actions { margin-top: 8px; display: flex; gap: 8px; }
-  .btn-sm {
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    padding: 4px 12px;
-    font-family: inherit;
-    font-size: 11px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border); padding: 24px;
+    max-width: 400px; width: 90%; text-align: center;
   }
-  .btn-sm:hover { border-color: var(--accent); }
-  .btn-sm.post { border-color: var(--green); color: var(--green); }
-  .btn-sm.skip { border-color: var(--dim); color: var(--dim); }
-  .btn-sm.preview { border-color: var(--accent); color: var(--accent); }
-  .btn-sm.generate { background: var(--accent); color: var(--bg); border: none; }
-  .reddit-not-configured {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 16px;
-    color: var(--dim);
-    font-size: 12px;
+  .modal h3 { color: var(--red); text-transform: uppercase; letter-spacing: 2px; font-size: 14px; margin-bottom: 12px; }
+  .modal p { color: var(--dim); font-size: 12px; margin-bottom: 16px; }
+  .modal .btn-row { display: flex; gap: 12px; justify-content: center; }
+
+  /* ── Responsive ─────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .agent-grid { grid-template-columns: 1fr; }
+    .intel-grid { grid-template-columns: 1fr; }
+    .broadcast-grid { grid-template-columns: 1fr; }
+    .licensing-grid { grid-template-columns: 1fr 1fr; }
+    #status-bar { padding: 6px 10px; }
+    .sb-item { padding: 3px 6px; font-size: 10px; }
   }
-  .reddit-status-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
+  @media (max-width: 480px) {
+    .licensing-grid { grid-template-columns: 1fr; }
+    .sb-item .sb-label { display: none; }
   }
-  .reddit-status-bar .stats { color: var(--dim); font-size: 11px; }
-  .post-body-preview {
-    display: none;
-    background: #111;
-    border: 1px solid var(--border);
-    padding: 8px;
-    margin-top: 8px;
-    font-size: 11px;
-    color: var(--dim);
-    white-space: pre-wrap;
-  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--dim); }
 </style>
 </head>
 <body>
 
+<!-- Login Screen -->
 <div id="login-screen">
-  <h1>Archive-35 Agent</h1>
+  <h1>Archive-35 Operator</h1>
   <input type="password" id="password" placeholder="password" autofocus>
   <div class="error" id="login-error"></div>
 </div>
 
-<div id="offline-banner" class="offline-banner">Agent offline — last seen <span id="last-seen">never</span></div>
+<!-- Offline Banner -->
+<div id="offline-banner" class="offline-banner">Agent offline &mdash; last seen <span id="last-seen">never</span></div>
 
-<div id="dashboard">
-  <header>
-    <h1><span class="status-dot unknown" id="status-dot"></span> Archive-35 Agent</h1>
-    <div>
-      <span class="last-update" id="last-update">connecting...</span>
-      <button class="btn-kill" id="kill-btn" style="margin-left:12px">Emergency Stop</button>
-    </div>
-  </header>
-
-  <div class="grid">
-    <div class="card">
-      <div class="label">Status</div>
-      <div class="value" id="agent-status">—</div>
-      <div class="sub" id="agent-version"></div>
-    </div>
-    <div class="card">
-      <div class="label">Etsy Live</div>
-      <div class="value" id="etsy-count">—</div>
-      <div class="sub">active listings</div>
-    </div>
-    <div class="card">
-      <div class="label">IG Today</div>
-      <div class="value" id="ig-count">—</div>
-      <div class="sub">posts today</div>
-    </div>
-    <div class="card">
-      <div class="label">Sales</div>
-      <div class="value" id="sales-count">—</div>
-      <div class="sub">Etsy orders</div>
-    </div>
-    <div class="card">
-      <div class="label">x402</div>
-      <div class="value" id="x402-count">—</div>
-      <div class="sub">licenses sold</div>
-    </div>
-    <div class="card">
-      <div class="label">Kill Switch</div>
-      <div class="value" id="kill-status">—</div>
-      <div class="sub" id="kill-sub"></div>
-    </div>
-  </div>
-
-  <div class="two-col">
-    <div>
-      <div class="section-title">Recent Instagram Posts</div>
-      <div id="ig-container">
-        <div class="ig-entry"><span class="time">—</span> Waiting for data...</div>
-      </div>
-    </div>
-    <div>
-      <div class="section-title">Audit Log (last 20)</div>
-      <div id="log-container">
-        <div class="log-entry"><span class="time">—</span> Waiting for data...</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Reddit Queue Section -->
-  <div class="reddit-section">
-    <div class="reddit-status-bar">
-      <div class="section-title">Reddit Queue</div>
-      <div>
-        <span class="stats" id="reddit-stats">Loading...</span>
-        <button class="btn-sm generate" id="reddit-generate-btn" style="margin-left:8px">Generate Queue</button>
-      </div>
-    </div>
-    <div id="reddit-queue-container">
-      <div class="reddit-not-configured">Checking Reddit status...</div>
+<!-- Kill Switch Modal -->
+<div class="modal-overlay" id="kill-modal">
+  <div class="modal">
+    <h3 id="kill-modal-title">Emergency Stop</h3>
+    <p id="kill-modal-text">This will stop ALL agents immediately. Are you sure?</p>
+    <div class="btn-row">
+      <button class="btn danger" id="kill-confirm">Confirm</button>
+      <button class="btn" onclick="closeKillModal()">Cancel</button>
     </div>
   </div>
 </div>
 
+<!-- Dashboard -->
+<div id="dashboard">
+
+  <!-- Status Bar -->
+  <div id="status-bar">
+    <div class="sb-item" onclick="scrollToSection('agents')">
+      <span class="sb-label">Status</span>
+      <span class="sb-value ok" id="sb-status">ONLINE</span>
+      <span class="sb-value" id="sb-version" style="font-weight:400;color:var(--dim)"></span>
+    </div>
+    <div class="sb-item" onclick="scrollToSection('agents')">
+      <span class="sb-label">Agents</span>
+      <span class="sb-value" id="sb-agents">--/--</span>
+    </div>
+    <div class="sb-item" onclick="scrollToSection('etsy')">
+      <span class="sb-label">Etsy</span>
+      <span class="sb-value" id="sb-etsy">--</span>
+    </div>
+    <div class="sb-item" onclick="scrollToSection('agents')">
+      <span class="sb-label">IG Today</span>
+      <span class="sb-value" id="sb-ig">--</span>
+    </div>
+    <div class="sb-item" onclick="scrollToSection('etsy')">
+      <span class="sb-label">Sales</span>
+      <span class="sb-value" id="sb-sales">0</span>
+    </div>
+    <div class="sb-item" onclick="scrollToSection('licensing')">
+      <span class="sb-label">x402</span>
+      <span class="sb-value" id="sb-x402">0</span>
+    </div>
+    <div class="sb-item" onclick="scrollToSection('broadcast')">
+      <span class="sb-label">Broadcast</span>
+      <span class="sb-value" id="sb-broadcast">--</span>
+    </div>
+    <button class="kill-switch-btn" id="sb-kill" onclick="openKillModal()">Kill: OFF</button>
+    <span style="font-size:10px;color:var(--dim)" id="sb-updated"></span>
+  </div>
+
+  <!-- Section 1: Agent Control Panel -->
+  <div class="section" id="sec-agents">
+    <div class="section-header" onclick="toggleSection('agents')">
+      <div class="section-title"><span class="chevron">&#9660;</span> Agent Control Panel</div>
+    </div>
+    <div class="section-body" id="body-agents">
+      <div class="agent-grid" id="agent-grid"></div>
+    </div>
+  </div>
+
+  <!-- Section 2: AI Agent Intelligence -->
+  <div class="section" id="sec-intelligence">
+    <div class="section-header" onclick="toggleSection('intelligence')">
+      <div class="section-title"><span class="chevron">&#9660;</span> AI Agent Discovery Intelligence</div>
+      <div class="section-actions">
+        <button class="btn" onclick="event.stopPropagation(); loadIntelligence()">Refresh</button>
+      </div>
+    </div>
+    <div class="section-body" id="body-intelligence">
+      <div id="intel-content">Loading intelligence data...</div>
+    </div>
+  </div>
+
+  <!-- Section 3: Broadcast & Discovery Status -->
+  <div class="section" id="sec-broadcast">
+    <div class="section-header" onclick="toggleSection('broadcast')">
+      <div class="section-title"><span class="chevron">&#9660;</span> Broadcast & Discovery Status</div>
+      <div class="section-actions">
+        <button class="btn primary" onclick="event.stopPropagation(); runBroadcast()">Run Full Broadcast</button>
+      </div>
+    </div>
+    <div class="section-body" id="body-broadcast">
+      <div id="broadcast-content">Loading broadcast status...</div>
+    </div>
+  </div>
+
+  <!-- Section 4: Etsy Performance -->
+  <div class="section" id="sec-etsy">
+    <div class="section-header" onclick="toggleSection('etsy')">
+      <div class="section-title"><span class="chevron">&#9660;</span> Etsy Performance</div>
+      <div class="section-actions">
+        <button class="btn" onclick="event.stopPropagation(); runSeoAudit()">Run SEO Audit</button>
+      </div>
+    </div>
+    <div class="section-body" id="body-etsy">
+      <div id="etsy-content">Loading Etsy data...</div>
+    </div>
+  </div>
+
+  <!-- Section 5: Activity Feed -->
+  <div class="section" id="sec-feed">
+    <div class="section-header" onclick="toggleSection('feed')">
+      <div class="section-title"><span class="chevron">&#9660;</span> Activity Feed</div>
+    </div>
+    <div class="section-body" id="body-feed">
+      <div class="cost-total">Today's API cost: <span class="amount" id="feed-cost">$0.00</span></div>
+      <div class="filter-bar" id="feed-filters"></div>
+      <div class="feed-container" id="feed-container"></div>
+      <div class="feed-pagination" id="feed-pagination"></div>
+    </div>
+  </div>
+
+  <!-- Section 6: Micro-Licensing -->
+  <div class="section" id="sec-licensing">
+    <div class="section-header" onclick="toggleSection('licensing')">
+      <div class="section-title"><span class="chevron">&#9660;</span> Micro-Licensing</div>
+    </div>
+    <div class="section-body" id="body-licensing">
+      <div id="licensing-content">Loading licensing data...</div>
+    </div>
+  </div>
+
+</div>
+
 <script>
+// ── Config ──────────────────────────────────────────────────────
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://127.0.0.1:8035'
-  : prompt('Agent API URL (e.g. http://192.168.1.x:8035):', 'http://127.0.0.1:8035');
+  : prompt('Agent API URL:', 'http://127.0.0.1:8035');
 
 let lastSeen = null;
-let pollTimer = null;
+let killActive = false;
+let feedPage = 0;
+let feedFilter = null;
+const FEED_LIMIT = 50;
 const $ = id => document.getElementById(id);
 
+// ── Auth ────────────────────────────────────────────────────────
 $('password').addEventListener('keydown', e => {
   if (e.key === 'Enter') {
     sessionStorage.setItem('dash_pw', $('password').value);
     $('login-screen').style.display = 'none';
     $('dashboard').style.display = 'block';
+    restoreCollapsedState();
     startPolling();
   }
 });
-
 if (sessionStorage.getItem('dash_pw')) {
   $('login-screen').style.display = 'none';
   $('dashboard').style.display = 'block';
+  restoreCollapsedState();
   startPolling();
 }
 
-function startPolling() {
-  poll();
-  pollTimer = setInterval(poll, 30000);
+function pw() { return sessionStorage.getItem('dash_pw') || ''; }
+
+// ── Collapsible Sections ────────────────────────────────────────
+function toggleSection(name) {
+  const sec = $('sec-' + name);
+  sec.classList.toggle('collapsed');
+  const collapsed = JSON.parse(sessionStorage.getItem('collapsed') || '{}');
+  collapsed[name] = sec.classList.contains('collapsed');
+  sessionStorage.setItem('collapsed', JSON.stringify(collapsed));
 }
-
-async function poll() {
-  try {
-    const pw = sessionStorage.getItem('dash_pw') || '';
-    const res = await fetch(`${API_BASE}/health`, {
-      headers: { 'X-Dashboard-Password': pw },
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!res.ok) throw new Error(`${res.status}`);
-    const d = await res.json();
-
-    lastSeen = new Date();
-    $('offline-banner').style.display = 'none';
-    $('status-dot').className = 'status-dot live';
-    $('last-update').textContent = `updated ${formatTime(lastSeen)}`;
-
-    $('agent-status').textContent = (d.status || 'unknown').toUpperCase();
-    $('agent-version').textContent = d.version ? `v${d.version}` : '';
-    $('etsy-count').textContent = d.etsy_listings ?? '—';
-    $('ig-count').textContent = d.instagram_today ?? 0;
-    $('sales-count').textContent = d.sales ?? 0;
-    $('x402-count').textContent = d.x402_licenses ?? 0;
-
-    // Kill switch
-    const ks = d.kill_switch || {};
-    const globalKill = ks.global?.active || false;
-    $('kill-status').textContent = globalKill ? 'ACTIVE' : 'OFF';
-    $('kill-status').style.color = globalKill ? 'var(--red)' : 'var(--green)';
-    $('kill-sub').textContent = globalKill ? 'All agents stopped' : 'All systems go';
-    $('kill-btn').textContent = globalKill ? 'Resume' : 'Emergency Stop';
-    $('kill-btn').className = globalKill ? 'btn-kill resume' : 'btn-kill';
-
-    // Instagram posts
-    renderIG(d.ig_posts || []);
-
-    // Audit logs
-    renderLogs(d.logs || []);
-
-  } catch (err) {
-    $('status-dot').className = 'status-dot dead';
-    $('agent-status').textContent = 'OFFLINE';
-    $('offline-banner').style.display = 'block';
-    if (lastSeen) $('last-seen').textContent = formatTime(lastSeen);
+function restoreCollapsedState() {
+  const collapsed = JSON.parse(sessionStorage.getItem('collapsed') || '{}');
+  for (const [name, val] of Object.entries(collapsed)) {
+    if (val) { const s = $('sec-' + name); if (s) s.classList.add('collapsed'); }
   }
 }
-
-function renderIG(posts) {
-  const c = $('ig-container');
-  if (!posts.length) { c.innerHTML = '<div class="ig-entry"><span class="time">—</span> No posts yet</div>'; return; }
-  c.innerHTML = posts.map(p => {
-    const time = p.posted_at ? new Date(p.posted_at).toLocaleString() : '—';
-    const img = p.image_url ? `<img src="${escapeAttr(p.image_url)}" alt="">` : '';
-    const caption = p.caption ? p.caption.substring(0, 60) + (p.caption.length > 60 ? '...' : '') : '—';
-    return `<div class="ig-entry">${img}<span class="time">${escapeHtml(time)}</span><span class="caption">${escapeHtml(caption)}</span></div>`;
-  }).join('');
+function scrollToSection(name) {
+  const s = $('sec-' + name);
+  if (s) { s.classList.remove('collapsed'); s.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 }
 
-function renderLogs(entries) {
-  const c = $('log-container');
-  if (!entries.length) { c.innerHTML = '<div class="log-entry"><span class="time">—</span> No recent activity</div>'; return; }
-  c.innerHTML = entries.map(e => {
-    const time = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '—';
-    const component = e.component || 'system';
-    const action = e.action || e.message || JSON.stringify(e);
-    return `<div class="log-entry"><span class="time">${time}</span><span class="component">[${escapeHtml(component)}]</span> ${escapeHtml(String(action))}</div>`;
-  }).join('');
+// ── Kill Switch Modal ───────────────────────────────────────────
+function openKillModal() {
+  event.stopPropagation();
+  const m = $('kill-modal');
+  if (killActive) {
+    $('kill-modal-title').textContent = 'Resume All Agents';
+    $('kill-modal-text').textContent = 'This will resume all agents. Continue?';
+  } else {
+    $('kill-modal-title').textContent = 'Emergency Stop';
+    $('kill-modal-text').textContent = 'This will STOP ALL AGENTS immediately. Are you sure?';
+  }
+  m.classList.add('show');
 }
-
-function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-function escapeAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function formatTime(d) { return d.toLocaleTimeString(); }
-
-$('kill-btn').addEventListener('click', async () => {
-  const isActive = $('kill-status').textContent === 'ACTIVE';
-  const endpoint = isActive ? '/safety/resume/global' : '/safety/kill/global';
-  if (!confirm(`Are you sure you want to ${isActive ? 'resume all agents' : 'STOP ALL AGENTS'}?`)) return;
+function closeKillModal() { $('kill-modal').classList.remove('show'); }
+$('kill-confirm').addEventListener('click', async () => {
+  closeKillModal();
+  const endpoint = killActive ? '/safety/resume/global' : '/safety/kill/global';
   try {
-    const pw = sessionStorage.getItem('dash_pw') || '';
-    await fetch(`${API_BASE}${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Dashboard-Password': pw },
-      body: JSON.stringify({ reason: 'dashboard' }),
-    });
-    setTimeout(poll, 500);
+    await apiFetch(endpoint, { method: 'POST', body: JSON.stringify({ reason: 'dashboard' }) });
+    setTimeout(pollStatus, 500);
   } catch (err) { alert('Failed: ' + err.message); }
 });
 
-// ── Reddit Queue ─────────────────────────────────────────────────
-async function loadRedditQueue() {
-  const container = $('reddit-queue-container');
-  const statsEl = $('reddit-stats');
+// ── API Helper ──────────────────────────────────────────────────
+async function apiFetch(path, opts = {}) {
+  const headers = { 'X-Dashboard-Password': pw(), ...(opts.headers || {}) };
+  if (opts.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+  const res = await fetch(API_BASE + path, {
+    ...opts, headers, signal: opts.signal || AbortSignal.timeout(15000),
+  });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+// ── Polling ─────────────────────────────────────────────────────
+function startPolling() {
+  pollStatus();
+  loadAgentCards();
+  loadIntelligence();
+  loadBroadcast();
+  loadEtsy();
+  loadFeed();
+  loadLicensing();
+
+  setInterval(pollStatus, 15000);
+  setInterval(loadAgentCards, 30000);
+  setInterval(loadIntelligence, 60000);
+  setInterval(loadBroadcast, 60000);
+  setInterval(loadEtsy, 60000);
+  setInterval(loadFeed, 30000);
+}
+
+// ── Status Bar Polling ──────────────────────────────────────────
+async function pollStatus() {
   try {
-    // Get status first
-    const statusRes = await fetch(`${API_BASE}/reddit/status`, { signal: AbortSignal.timeout(5000) });
-    if (!statusRes.ok) throw new Error('Status endpoint unavailable');
-    const status = await statusRes.json();
+    const d = await apiFetch('/health');
+    lastSeen = new Date();
+    $('offline-banner').style.display = 'none';
 
-    const creds = status.credentials || {};
-    const queueInfo = status.queue || {};
+    const status = (d.status || 'unknown').toUpperCase();
+    $('sb-status').textContent = status;
+    $('sb-status').className = 'sb-value ' + (status === 'ONLINE' ? 'ok' : 'warn');
+    $('sb-version').textContent = d.version ? 'v' + d.version : '';
+    $('sb-etsy').textContent = d.etsy_listings ?? '--';
+    $('sb-ig').textContent = d.instagram_today ?? 0;
+    $('sb-sales').textContent = d.sales ?? 0;
+    $('sb-x402').textContent = d.x402_licenses ?? 0;
+    $('sb-updated').textContent = 'updated ' + lastSeen.toLocaleTimeString();
 
-    statsEl.textContent = `Queued: ${queueInfo.queued || 0} | Posted: ${queueInfo.posted || 0} | Skipped: ${queueInfo.skipped || 0}`;
+    // Kill switch
+    const ks = d.kill_switch || {};
+    killActive = ks.global?.active || false;
+    const btn = $('sb-kill');
+    btn.textContent = killActive ? 'KILL: ON' : 'Kill: OFF';
+    btn.className = killActive ? 'kill-switch-btn active' : 'kill-switch-btn';
 
-    // Get actual queue
-    const queueRes = await fetch(`${API_BASE}/reddit/queue?limit=5&status=queued`, { signal: AbortSignal.timeout(5000) });
-    if (!queueRes.ok) throw new Error('Queue endpoint unavailable');
-    const queue = await queueRes.json();
-    const posts = queue.posts || [];
-
-    if (posts.length === 0) {
-      container.innerHTML = '<div class="reddit-not-configured">No queued posts. Click "Generate Queue" to create new posts.</div>';
-      return;
-    }
-
-    container.innerHTML = posts.map(p => {
-      const sub = escapeHtml(p.subreddit || '');
-      const title = escapeHtml(p.title || 'Untitled');
-      const location = escapeHtml(p.location || '');
-      const postId = escapeAttr(p.id || '');
-      const bodyPrompt = escapeHtml(p.body_prompt || '');
-      const rules = escapeHtml(p.subreddit_rules || '');
-      const postDisabled = !creds.configured;
-      const postBtnClass = postDisabled ? 'btn-sm' : 'btn-sm post';
-      const postLabel = postDisabled ? 'No Creds' : 'Post';
-
-      return `<div class="reddit-post">
-        <div class="sub-name">${sub}</div>
-        <div class="post-title">${title}</div>
-        <div class="post-meta">${location} ${rules ? '| Rules: ' + rules : ''}</div>
-        <div class="post-actions">
-          <button class="${postBtnClass}" ${postDisabled ? 'disabled title="Add Reddit credentials to .env"' : ''} onclick="redditPost('${postId}')">${postLabel}</button>
-          <button class="btn-sm skip" onclick="redditSkip('${postId}')">Skip</button>
-          <button class="btn-sm preview" onclick="togglePreview('${postId}')">Preview</button>
-        </div>
-        <div class="post-body-preview" id="preview-${postId}">${bodyPrompt}</div>
-      </div>`;
-    }).join('');
-
-    if (!creds.configured) {
-      container.innerHTML = '<div class="reddit-not-configured" style="margin-bottom:8px">Reddit not configured &mdash; add REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USERNAME, REDDIT_PASSWORD to .env</div>' + container.innerHTML;
-    }
-
+    // Agent count from /agents/status (piggyback on next agent poll)
   } catch (err) {
-    container.innerHTML = `<div class="reddit-not-configured">Reddit queue unavailable: ${escapeHtml(err.message)}</div>`;
-    statsEl.textContent = 'Unavailable';
+    $('sb-status').textContent = 'OFFLINE';
+    $('sb-status').className = 'sb-value err';
+    $('offline-banner').style.display = 'block';
+    if (lastSeen) $('last-seen').textContent = lastSeen.toLocaleTimeString();
   }
 }
 
-function togglePreview(postId) {
-  const el = document.getElementById('preview-' + postId);
-  if (el) el.style.display = el.style.display === 'block' ? 'none' : 'block';
+// ── Agent Cards ─────────────────────────────────────────────────
+const AGENTS = [
+  { id: 'instagram', name: 'Instagram Agent', scope: 'instagram' },
+  { id: 'pinterest', name: 'Pinterest Agent', scope: 'pinterest' },
+  { id: 'reddit', name: 'Reddit Agent', scope: 'reddit' },
+  { id: 'etsy', name: 'Etsy Agent', scope: 'etsy' },
+  { id: 'content_pipeline', name: 'Content Pipeline', scope: 'content_pipeline' },
+  { id: 'broadcast', name: 'Broadcast Agent', scope: 'broadcast' },
+];
+
+async function loadAgentCards() {
+  const grid = $('agent-grid');
+  let agentStatus = {};
+  try {
+    const data = await apiFetch('/agents/status');
+    agentStatus = data.services || {};
+    $('sb-agents').textContent = `${data.running}/${data.total}`;
+  } catch (e) { /* proceed with defaults */ }
+
+  // Fetch extra data for specific cards
+  let igStatus = {}, pinterestStatus = {}, redditStatus = {}, etsyLive = '--', pipelineStatus = {}, broadcastData = {};
+  try { igStatus = await apiFetch('/instagram/status'); } catch(e) {}
+  try { pinterestStatus = await apiFetch('/pinterest/pin-status'); } catch(e) {}
+  try { redditStatus = await apiFetch('/reddit/status'); } catch(e) {}
+  try { pipelineStatus = await apiFetch('/pipeline/status'); } catch(e) {}
+  try { broadcastData = await apiFetch('/broadcast/status'); } catch(e) {}
+
+  let html = '';
+  for (const agent of AGENTS) {
+    const svc = agentStatus[agent.id] || {};
+    const running = svc.running !== false;
+    const dotClass = running ? 'on' : 'off';
+
+    let statsHtml = '';
+    let actionsHtml = '';
+
+    if (agent.id === 'instagram') {
+      const configured = igStatus.configured || false;
+      const username = igStatus.username || '--';
+      statsHtml = `
+        <div>Status: <strong>${configured ? 'Connected' : 'Not configured'}</strong></div>
+        <div>Account: <strong>${esc(username)}</strong></div>
+      `;
+      actionsHtml = `
+        <button class="btn success" onclick="igPostOne()">Post 1 Now</button>
+        <button class="btn primary" onclick="igPostBatch()">Post Batch (3)</button>
+        <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+      `;
+    } else if (agent.id === 'pinterest') {
+      const pinCount = pinterestStatus.pin_count ?? 0;
+      const lastBatch = pinterestStatus.last_batch ? new Date(pinterestStatus.last_batch).toLocaleDateString() : 'never';
+      statsHtml = `
+        <div>Pins generated: <strong>${pinCount}</strong></div>
+        <div>Last batch: <strong>${lastBatch}</strong></div>
+      `;
+      actionsHtml = `
+        <button class="btn primary" onclick="generatePins()">Generate Pins</button>
+        <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+      `;
+    } else if (agent.id === 'reddit') {
+      const queue = redditStatus.queue || {};
+      statsHtml = `
+        <div>Queued: <strong>${queue.queued ?? 0}</strong> | Posted: <strong>${queue.posted ?? 0}</strong> | Skipped: <strong>${queue.skipped ?? 0}</strong></div>
+      `;
+      actionsHtml = `
+        <button class="btn primary" onclick="redditGenerate()">Generate 30 Posts</button>
+        <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+      `;
+    } else if (agent.id === 'etsy') {
+      statsHtml = `
+        <div>Live listings: <strong id="etsy-live-count">--</strong></div>
+        <div>SEO Score: <strong id="etsy-seo-inline">--</strong></div>
+      `;
+      actionsHtml = `
+        <button class="btn primary" onclick="runSeoAudit()">Run SEO Audit</button>
+        <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+      `;
+    } else if (agent.id === 'content_pipeline') {
+      const pending = pipelineStatus.pending ?? '--';
+      const approved = pipelineStatus.approved ?? '--';
+      statsHtml = `
+        <div>Pending: <strong>${pending}</strong> | Approved: <strong>${approved}</strong></div>
+      `;
+      actionsHtml = `
+        <button class="btn primary" onclick="runPipeline()">Run Pipeline</button>
+        <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+      `;
+    } else if (agent.id === 'broadcast') {
+      const lastBC = broadcastData.last_broadcast ? timeAgo(new Date(broadcastData.last_broadcast)) : 'never';
+      statsHtml = `
+        <div>Last broadcast: <strong>${lastBC}</strong></div>
+        <div>Total runs: <strong>${broadcastData.total_broadcasts ?? 0}</strong></div>
+      `;
+      actionsHtml = `
+        <button class="btn primary" onclick="runBroadcast()">Broadcast Now</button>
+        <button class="btn" onclick="restartAgent('agent-scheduler')">Restart</button>
+      `;
+    }
+
+    html += `
+      <div class="agent-card">
+        <div class="agent-card-header">
+          <div class="agent-name">
+            <span class="agent-dot ${dotClass}"></span>
+            ${esc(agent.name)}
+          </div>
+          <label class="toggle">
+            <input type="checkbox" ${running ? 'checked' : ''} onchange="toggleAgent('${agent.scope}', this.checked)">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+        <div class="agent-stats">${statsHtml}</div>
+        <div class="agent-actions">${actionsHtml}</div>
+        ${agent.id === 'reddit' ? '<div class="queue-preview" id="reddit-queue-preview"></div>' : ''}
+      </div>
+    `;
+  }
+  grid.innerHTML = html;
+
+  // Load reddit queue preview
+  loadRedditQueue();
+}
+
+// ── Reddit Queue ────────────────────────────────────────────────
+async function loadRedditQueue() {
+  const container = $('reddit-queue-preview');
+  if (!container) return;
+  try {
+    const data = await apiFetch('/reddit/queue?limit=3&status=queued');
+    const posts = data.posts || [];
+    if (!posts.length) { container.innerHTML = '<div style="font-size:11px;color:var(--dim);margin-top:6px">No queued posts</div>'; return; }
+    container.innerHTML = posts.map(p => `
+      <div class="queue-item">
+        <div class="sub-name">${esc(p.subreddit || '')}</div>
+        <div class="q-title">${esc(p.title || '')}</div>
+        <div class="q-actions">
+          <button class="btn success" onclick="redditPost('${esc(p.id)}')">Post</button>
+          <button class="btn" onclick="redditSkip('${esc(p.id)}')">Skip</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { container.innerHTML = '<div style="font-size:11px;color:var(--dim)">Queue unavailable</div>'; }
+}
+
+// ── Agent Actions ───────────────────────────────────────────────
+async function toggleAgent(scope, enabled) {
+  const endpoint = enabled ? `/safety/resume/${scope}` : `/safety/kill/${scope}`;
+  try { await apiFetch(endpoint, { method: 'POST', body: JSON.stringify({ reason: 'dashboard toggle' }) }); }
+  catch(e) { alert('Failed: ' + e.message); }
+  setTimeout(loadAgentCards, 500);
+}
+
+async function restartAgent(name) {
+  try {
+    const r = await apiFetch(`/agents/restart/${name}`, { method: 'POST' });
+    alert(r.success ? 'Restarted.' : 'Restart failed: ' + (r.output || ''));
+  } catch(e) { alert('Failed: ' + e.message); }
+}
+
+async function igPostOne() {
+  if (!confirm('Post one image to Instagram now?')) return;
+  try {
+    const r = await apiFetch('/instagram/auto-post', { method: 'POST' });
+    alert(r.error ? 'Error: ' + r.error : 'Posted: ' + (r.image_url || r.status || 'OK'));
+  } catch(e) { alert('Failed: ' + e.message); }
+  loadAgentCards();
+}
+
+async function igPostBatch() {
+  if (!confirm('Start batch posting 3 images (5 min apart)?')) return;
+  try {
+    const r = await apiFetch('/instagram/post-batch', { method: 'POST', body: JSON.stringify({ count: 3, delay_minutes: 5 }) });
+    alert('Batch started: ' + r.count + ' posts queued');
+  } catch(e) { alert('Failed: ' + e.message); }
+}
+
+async function generatePins() {
+  try {
+    const r = await apiFetch('/pinterest/generate-pins', { method: 'POST', signal: AbortSignal.timeout(60000) });
+    alert(r.success ? 'Pins generated!' : 'Error: ' + (r.error || r.output || ''));
+  } catch(e) { alert('Failed: ' + e.message); }
+  loadAgentCards();
+}
+
+async function redditGenerate() {
+  try {
+    const r = await apiFetch('/reddit/generate', { method: 'POST', signal: AbortSignal.timeout(60000) });
+    alert(r.message || r.status || 'Queue generated');
+  } catch(e) { alert('Failed: ' + e.message); }
+  loadAgentCards();
 }
 
 async function redditPost(postId) {
   if (!confirm('Post this to Reddit now?')) return;
   try {
-    const res = await fetch(`${API_BASE}/reddit/post`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ post_id: postId }),
-    });
-    const data = await res.json();
-    if (data.status === 'posted') {
-      alert('Posted! ' + (data.reddit_url || ''));
-    } else {
-      alert('Result: ' + (data.message || data.status));
-    }
-    loadRedditQueue();
-  } catch (err) { alert('Failed: ' + err.message); }
+    const r = await apiFetch('/reddit/post', { method: 'POST', body: JSON.stringify({ post_id: postId }) });
+    alert(r.status === 'posted' ? 'Posted! ' + (r.reddit_url || '') : (r.message || r.status));
+  } catch(e) { alert('Failed: ' + e.message); }
+  loadRedditQueue();
 }
 
 async function redditSkip(postId) {
-  try {
-    await fetch(`${API_BASE}/reddit/skip`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ post_id: postId }),
-    });
-    loadRedditQueue();
-  } catch (err) { alert('Failed: ' + err.message); }
-}
-
-$('reddit-generate-btn').addEventListener('click', async () => {
-  $('reddit-generate-btn').textContent = 'Generating...';
-  $('reddit-generate-btn').disabled = true;
-  try {
-    const res = await fetch(`${API_BASE}/reddit/generate`, { method: 'POST' });
-    const data = await res.json();
-    alert(data.message || data.status);
-    loadRedditQueue();
-  } catch (err) { alert('Failed: ' + err.message); }
-  $('reddit-generate-btn').textContent = 'Generate Queue';
-  $('reddit-generate-btn').disabled = false;
-});
-
-// Load Reddit queue on dashboard start and every 60s
-function startRedditPolling() {
+  try { await apiFetch('/reddit/skip', { method: 'POST', body: JSON.stringify({ post_id: postId }) }); }
+  catch(e) { alert('Failed: ' + e.message); }
   loadRedditQueue();
-  setInterval(loadRedditQueue, 60000);
 }
 
-// Hook into existing startPolling
-const _origStartPolling = startPolling;
-startPolling = function() {
-  _origStartPolling();
-  startRedditPolling();
-};
+async function runPipeline() {
+  try {
+    const r = await apiFetch('/pipeline/run', { method: 'POST', signal: AbortSignal.timeout(60000) });
+    alert(r.status || 'Pipeline complete');
+  } catch(e) { alert('Failed: ' + e.message); }
+}
+
+async function runBroadcast() {
+  try {
+    const r = await apiFetch('/broadcast/run', { method: 'POST', signal: AbortSignal.timeout(120000) });
+    alert(r.success ? 'Broadcast complete!' : 'Broadcast failed: ' + (r.errors || ''));
+  } catch(e) { alert('Failed: ' + e.message); }
+  loadBroadcast();
+}
+
+async function runSeoAudit() {
+  try {
+    const r = await apiFetch('/etsy/seo-run', { method: 'POST', signal: AbortSignal.timeout(120000) });
+    alert(r.success ? 'SEO audit complete!' : 'Failed: ' + (r.output || ''));
+  } catch(e) { alert('Failed: ' + e.message); }
+  loadEtsy();
+}
+
+// ── Intelligence Panel ──────────────────────────────────────────
+async function loadIntelligence() {
+  const el = $('intel-content');
+  try {
+    const d = await apiFetch('/api/license/agent-intelligence');
+
+    let trendingHtml = '';
+    if (d.trending_searches && d.trending_searches.length) {
+      trendingHtml = `
+        <div class="intel-box">
+          <div class="intel-box-title">Trending Searches (last 7 days)</div>
+          <table class="intel-table">
+            <tr><th>Query / Subject</th><th style="text-align:right">Count</th><th style="text-align:right">Licenses</th></tr>
+            ${d.trending_searches.map(s => `
+              <tr><td>${esc(s.query)}</td><td class="count">${s.count}</td>
+              <td class="count">${s.licenses_sold > 0 ? s.licenses_sold + ' sold' : '&mdash;'}</td></tr>
+            `).join('')}
+          </table>
+        </div>`;
+    } else {
+      trendingHtml = '<div class="intel-box"><div class="intel-box-title">Trending Searches</div><div style="color:var(--dim);font-size:12px">No agent requests yet</div></div>';
+    }
+
+    const at = d.agent_types || {};
+    const agentTypesHtml = `
+      <div class="intel-box">
+        <div class="intel-box-title">Agent Types Visiting</div>
+        <div style="font-size:12px;color:var(--dim)">
+          ${Object.entries(at).filter(([,v]) => v > 0).map(([k,v]) => `<span style="color:var(--text)">${esc(k)}</span>: ${v}`).join(' | ') || 'No visits recorded'}
+        </div>
+      </div>`;
+
+    let unmetHtml = '';
+    if (d.unmet_demand && d.unmet_demand.length) {
+      unmetHtml = `
+        <div class="intel-box">
+          <div class="intel-box-title">Unmet Demand (searches with no/poor match)</div>
+          ${d.unmet_demand.map(u => `
+            <div style="font-size:12px;color:var(--yellow);margin-bottom:4px">
+              &#9888; "${esc(u.query)}" &mdash; ${u.search_count} searches, 0 matches
+            </div>
+          `).join('')}
+          <div style="font-size:11px;color:var(--dim);margin-top:8px;font-style:italic">
+            Wolf: These are the photos to pull from your archive next
+          </div>
+        </div>`;
+    }
+
+    const rev = d.revenue || {};
+    const revenueHtml = `
+      <div class="intel-box">
+        <div class="intel-box-title">Revenue This Period</div>
+        <div class="revenue-row">
+          <div>Micro-licenses: <span class="amount">$${(rev.micro_total || 0).toFixed(2)}</span></div>
+          <div>Commercial: <span class="amount">$${(rev.commercial_total || 0).toFixed(2)}</span></div>
+          <div>Total: <span class="amount">$${((rev.micro_total || 0) + (rev.commercial_total || 0)).toFixed(2)}</span></div>
+        </div>
+        ${rev.top_image && rev.top_image !== 'none' ? `<div style="font-size:11px;color:var(--dim);margin-top:4px">Top: ${esc(rev.top_image)}</div>` : ''}
+      </div>`;
+
+    const summaryHtml = `
+      <div style="font-size:11px;color:var(--dim);margin-bottom:12px">
+        Total requests: ${d.total_requests || 0} | Unique agents: ${d.unique_agents || 0}
+      </div>`;
+
+    el.innerHTML = summaryHtml + trendingHtml + agentTypesHtml + unmetHtml + revenueHtml;
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--dim)">Intelligence unavailable: ' + esc(e.message) + '</div>';
+  }
+}
+
+// ── Broadcast Status ────────────────────────────────────────────
+async function loadBroadcast() {
+  const el = $('broadcast-content');
+  try {
+    const d = await apiFetch('/broadcast/status');
+    const lastBC = d.last_broadcast ? new Date(d.last_broadcast).toLocaleString() : 'Never';
+    $('sb-broadcast').textContent = d.last_broadcast ? timeAgo(new Date(d.last_broadcast)) : 'Never';
+
+    const entries = d.entries || [];
+    let entriesHtml = entries.map(e => {
+      const statusClass = e.status === 'success' ? 'check-ok' : (e.status === 'failed' ? 'check-fail' : '');
+      const icon = e.status === 'success' ? '&#10003;' : (e.status === 'failed' ? '&#10007;' : '&#8212;');
+      return `
+        <div style="font-size:12px;margin-bottom:4px">
+          <span class="${statusClass}">${icon}</span>
+          <span style="color:var(--text)">${esc(e.action || '')}</span>
+          <span style="color:var(--dim)"> &mdash; ${esc(e.details || '')}</span>
+        </div>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div class="broadcast-grid">
+        <div class="broadcast-card">
+          <h4>Last Broadcast</h4>
+          <div class="line">Time: <span class="val">${lastBC}</span></div>
+          <div class="line">Total runs: <span class="val">${d.total_broadcasts || 0}</span></div>
+        </div>
+        <div class="broadcast-card">
+          <h4>Results</h4>
+          ${entriesHtml || '<div class="line">No broadcast data</div>'}
+        </div>
+      </div>`;
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--dim)">Broadcast status unavailable</div>';
+  }
+}
+
+// ── Etsy Performance ────────────────────────────────────────────
+async function loadEtsy() {
+  const el = $('etsy-content');
+  try {
+    const [health, seo] = await Promise.all([
+      apiFetch('/health').catch(() => ({})),
+      apiFetch('/etsy/seo-report').catch(() => ({ summary: null })),
+    ]);
+
+    const listings = health.etsy_listings ?? '--';
+    const sales = health.sales ?? 0;
+
+    // Update status bar
+    $('sb-etsy').textContent = listings + ' live';
+
+    const summary = seo.summary || {};
+    const score = summary.overall_score ?? '--';
+    const totalListings = seo.total_listings ?? '--';
+
+    // Update inline score in agent card
+    const inlineScore = $('etsy-seo-inline');
+    if (inlineScore) inlineScore.textContent = score + '/100';
+    const liveCount = $('etsy-live-count');
+    if (liveCount) liveCount.textContent = listings;
+
+    const scoreColor = score === '--' ? 'var(--dim)' : (score >= 80 ? 'var(--green)' : (score >= 60 ? 'var(--yellow)' : 'var(--red)'));
+
+    let seoHtml = '';
+    if (summary.overall_score !== undefined) {
+      seoHtml = `
+        <div class="seo-bar">
+          <div class="seo-score" style="color:${scoreColor}">${score}</div>
+          <div style="font-size:11px;color:var(--dim)">/100 SEO Health</div>
+        </div>
+        <div class="seo-details">
+          <div class="metric"><span>Titles using full 140 chars</span><span class="val">${summary.titles_full_length ?? '--'}/${totalListings}</span></div>
+          <div class="metric"><span>Using all 13 tags</span><span class="val">${summary.using_all_tags ?? '--'}/${totalListings}</span></div>
+          <div class="metric"><span>Seasonal keywords</span><span class="val">${summary.seasonal_keywords_present ?? '--'}/${totalListings}</span></div>
+          <div class="metric"><span>Room-type keywords</span><span class="val">${summary.room_keywords_present ?? '--'}/${totalListings}</span></div>
+        </div>`;
+    } else {
+      seoHtml = '<div style="color:var(--dim);font-size:12px">No SEO report available. Run audit to generate.</div>';
+    }
+
+    el.innerHTML = `
+      <div style="font-size:12px;color:var(--dim);margin-bottom:12px">
+        Live: <strong style="color:var(--text)">${listings}</strong> |
+        Orders: <strong style="color:var(--text)">${sales}</strong>
+      </div>
+      ${seoHtml}
+    `;
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--dim)">Etsy data unavailable</div>';
+  }
+}
+
+// ── Activity Feed ───────────────────────────────────────────────
+const FEED_COMPONENTS = ['all', 'instagram', 'etsy', 'pinterest', 'reddit', 'broadcast', 'x402', 'pipeline', 'safety', 'system'];
+
+function renderFilterBar() {
+  const bar = $('feed-filters');
+  bar.innerHTML = FEED_COMPONENTS.map(c => {
+    const active = (feedFilter === null && c === 'all') || feedFilter === c ? 'active' : '';
+    return `<button class="filter-btn ${active}" onclick="setFeedFilter('${c}')">${c}</button>`;
+  }).join('');
+}
+
+function setFeedFilter(component) {
+  feedFilter = component === 'all' ? null : component;
+  feedPage = 0;
+  loadFeed();
+}
+
+async function loadFeed() {
+  renderFilterBar();
+  const container = $('feed-container');
+  try {
+    let url = `/audit/log?limit=${FEED_LIMIT}&offset=${feedPage * FEED_LIMIT}`;
+    if (feedFilter) url += `&component=${feedFilter}`;
+    const d = await apiFetch(url);
+
+    $('feed-cost').textContent = '$' + (d.cost_today || 0).toFixed(4);
+
+    const entries = d.entries || [];
+    if (!entries.length) {
+      container.innerHTML = '<div style="padding:12px;color:var(--dim)">No activity</div>';
+    } else {
+      container.innerHTML = entries.map(e => {
+        const time = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '--';
+        const comp = (e.component || 'system').toLowerCase();
+        const badgeClass = FEED_COMPONENTS.includes(comp) ? comp : 'system';
+        const cost = e.cost_usd > 0 ? '$' + e.cost_usd.toFixed(4) : '';
+        return `
+          <div class="feed-entry">
+            <span class="feed-time">${time}</span>
+            <span class="feed-badge ${badgeClass}">${esc(e.component || 'system')}</span>
+            <span class="feed-action">${esc(e.action || '')} ${e.details ? '<span style="color:var(--dim)">' + esc(String(e.details).substring(0, 100)) + '</span>' : ''}</span>
+            <span class="feed-cost">${cost}</span>
+          </div>`;
+      }).join('');
+    }
+
+    // Pagination
+    const total = d.total || 0;
+    const totalPages = Math.ceil(total / FEED_LIMIT);
+    $('feed-pagination').innerHTML = `
+      <button class="btn" ${feedPage <= 0 ? 'disabled' : ''} onclick="feedPage--; loadFeed()">Prev</button>
+      <span class="info">Page ${feedPage + 1} of ${totalPages} (${total} entries)</span>
+      <button class="btn" ${feedPage >= totalPages - 1 ? 'disabled' : ''} onclick="feedPage++; loadFeed()">Next</button>
+    `;
+  } catch(e) {
+    container.innerHTML = '<div style="padding:12px;color:var(--dim)">Feed unavailable</div>';
+  }
+}
+
+// ── Micro-Licensing ─────────────────────────────────────────────
+async function loadLicensing() {
+  const el = $('licensing-content');
+  try {
+    const d = await apiFetch('/licensing/dashboard');
+    const tb = d.tier_breakdown || {};
+    const topHtml = d.top_images && d.top_images.length
+      ? d.top_images.map(i => `<div style="font-size:12px;color:var(--dim)">${esc(i.image_id || '')} &mdash; ${i.cnt || 0} licenses ($${(i.rev || 0).toFixed(2)})</div>`).join('')
+      : '<div style="font-size:12px;color:var(--dim)">No sales yet</div>';
+
+    el.innerHTML = `
+      <div class="licensing-grid">
+        <div class="stat-card">
+          <div class="label">Total Revenue</div>
+          <div class="value">$${(d.total_revenue || 0).toFixed(2)}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Licenses Sold</div>
+          <div class="value">${d.licenses_sold || 0}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Catalog Size</div>
+          <div class="value">${d.catalog_size || 0}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Micro Versions</div>
+          <div class="value">${d.micro_versions || 0}</div>
+          <div class="sub">of ${d.catalog_size || 0}</div>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <div class="intel-box-title">Pricing Tiers</div>
+        <div class="tier-list">
+          Thumbnail ($0.01): ${tb.thumbnail || 0} sold<br>
+          Web ($0.50): ${tb.web || 0} sold<br>
+          Commercial ($2.50): ${tb.commercial || 0} sold
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <div class="intel-box-title">Top Licensed Images</div>
+        ${topHtml}
+      </div>
+    `;
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--dim)">Licensing data unavailable</div>';
+  }
+}
+
+// ── Utilities ───────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+
+function timeAgo(date) {
+  const diff = (Date.now() - date.getTime()) / 1000;
+  if (diff < 60) return Math.floor(diff) + 's ago';
+  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+  return Math.floor(diff / 86400) + 'd ago';
+}
 </script>
 </body>
 </html>

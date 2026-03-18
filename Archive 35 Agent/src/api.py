@@ -14,7 +14,7 @@ import logging
 import os
 import ssl
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
 
@@ -5225,6 +5225,263 @@ def archive_email(req: EmailActionRequest):
         return {"status": "archived", "uid": req.uid}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── Phase 7: Data Intelligence Endpoints ────────────────────────
+
+
+@app.get("/analytics/cloudflare")
+def get_cloudflare_analytics():
+    """Pull real visitor data from Cloudflare Analytics API."""
+    import httpx
+
+    token = os.environ.get("CLOUDFLARE_API_TOKEN")
+    zone_id = os.environ.get("CLOUDFLARE_ZONE_ID")
+
+    if not token or not zone_id:
+        return {
+            "configured": False,
+            "setup_instructions": "Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID to .env. Get token from dash.cloudflare.com → API Tokens → Analytics Read template."
+        }
+
+    headers = {"Authorization": f"Bearer {token}"}
+    since = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+
+    query = """
+    query {
+      viewer {
+        zones(filter: {zoneTag: "%s"}) {
+          httpRequests1dGroups(limit: 7, orderBy: [date_DESC]) {
+            dimensions { date }
+            sum { requests pageViews threats bytes }
+            uniq { uniques }
+          }
+          httpRequestsAdaptiveGroups(limit: 20, filter: {date_gt: "%s"}, orderBy: [count_DESC]) {
+            dimensions { clientRequestPath }
+            count
+          }
+        }
+      }
+    }
+    """ % (zone_id, since)
+
+    try:
+        r = httpx.post(
+            "https://api.cloudflare.com/client/v4/graphql",
+            headers=headers,
+            json={"query": query},
+            timeout=15,
+        )
+        if r.status_code != 200:
+            return {"configured": True, "error": f"Cloudflare API returned {r.status_code}"}
+
+        data = r.json()
+        zones = data.get("data", {}).get("viewer", {}).get("zones", [{}])
+        if not zones:
+            return {"configured": True, "error": "No zone data returned"}
+
+        zone = zones[0]
+        daily = zone.get("httpRequests1dGroups", [])
+        top_pages = zone.get("httpRequestsAdaptiveGroups", [])
+
+        return {
+            "configured": True,
+            "daily_stats": [{
+                "date": d["dimensions"]["date"],
+                "visitors": d["uniq"]["uniques"],
+                "page_views": d["sum"]["pageViews"],
+                "requests": d["sum"]["requests"],
+            } for d in daily],
+            "top_pages": [{
+                "path": p["dimensions"]["clientRequestPath"],
+                "views": p["count"],
+            } for p in top_pages[:10]],
+            "totals": {
+                "visitors_7d": sum(d["uniq"]["uniques"] for d in daily),
+                "page_views_7d": sum(d["sum"]["pageViews"] for d in daily),
+                "visitors_today": daily[0]["uniq"]["uniques"] if daily else 0,
+                "page_views_today": daily[0]["sum"]["pageViews"] if daily else 0,
+            }
+        }
+    except Exception as e:
+        return {"configured": True, "error": str(e)}
+
+
+@app.get("/analytics/athos")
+def get_athos_analytics():
+    """Pull visitor data for athos-obs.com from Cloudflare Analytics API."""
+    import httpx
+
+    token = os.environ.get("CLOUDFLARE_API_TOKEN")
+    zone_id = os.environ.get("CLOUDFLARE_ATHOS_ZONE_ID")
+
+    if not token or not zone_id:
+        return {
+            "configured": False,
+            "setup_instructions": "Add CLOUDFLARE_ATHOS_ZONE_ID to .env. Same Cloudflare token works for both zones."
+        }
+
+    headers = {"Authorization": f"Bearer {token}"}
+    since = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+
+    query = """
+    query {
+      viewer {
+        zones(filter: {zoneTag: "%s"}) {
+          httpRequests1dGroups(limit: 7, orderBy: [date_DESC]) {
+            dimensions { date }
+            sum { requests pageViews }
+            uniq { uniques }
+          }
+          httpRequestsAdaptiveGroups(limit: 10, filter: {date_gt: "%s"}, orderBy: [count_DESC]) {
+            dimensions { clientRequestPath }
+            count
+          }
+        }
+      }
+    }
+    """ % (zone_id, since)
+
+    try:
+        r = httpx.post(
+            "https://api.cloudflare.com/client/v4/graphql",
+            headers=headers,
+            json={"query": query},
+            timeout=15,
+        )
+        if r.status_code != 200:
+            return {"configured": True, "error": f"Cloudflare API returned {r.status_code}"}
+
+        data = r.json()
+        zones = data.get("data", {}).get("viewer", {}).get("zones", [{}])
+        zone = zones[0] if zones else {}
+        daily = zone.get("httpRequests1dGroups", [])
+        top_pages = zone.get("httpRequestsAdaptiveGroups", [])
+
+        return {
+            "configured": True,
+            "daily_stats": [{
+                "date": d["dimensions"]["date"],
+                "visitors": d["uniq"]["uniques"],
+                "page_views": d["sum"]["pageViews"],
+            } for d in daily],
+            "top_pages": [{
+                "path": p["dimensions"]["clientRequestPath"],
+                "views": p["count"],
+            } for p in top_pages[:10]],
+            "totals": {
+                "visitors_7d": sum(d["uniq"]["uniques"] for d in daily),
+                "page_views_7d": sum(d["sum"]["pageViews"] for d in daily),
+                "visitors_today": daily[0]["uniq"]["uniques"] if daily else 0,
+            }
+        }
+    except Exception as e:
+        return {"configured": True, "error": str(e)}
+
+
+@app.get("/instagram/insights")
+def get_instagram_insights():
+    """Pull engagement metrics from Instagram Graph API."""
+    import httpx
+
+    # Try to get credentials from existing integration
+    token = None
+    user_id = None
+    try:
+        from src.integrations.instagram import get_credentials
+        creds = get_credentials()
+        token = creds.get("access_token")
+        user_id = creds.get("user_id") or creds.get("scoped_user_id")
+    except Exception:
+        token = os.environ.get("INSTAGRAM_ACCESS_TOKEN")
+        user_id = os.environ.get("INSTAGRAM_USER_ID")
+
+    if not token or not user_id:
+        return {"configured": False}
+
+    try:
+        # Account insights
+        r = httpx.get(
+            f"https://graph.instagram.com/v21.0/{user_id}/insights",
+            params={
+                "metric": "impressions,reach,profile_views,website_clicks,follower_count",
+                "period": "day",
+                "access_token": token,
+            },
+            timeout=15,
+        )
+        insights_data = r.json().get("data", []) if r.status_code == 200 else []
+
+        # Recent media
+        media_r = httpx.get(
+            f"https://graph.instagram.com/v21.0/{user_id}/media",
+            params={
+                "fields": "id,caption,media_type,timestamp,like_count,comments_count,permalink",
+                "limit": 10,
+                "access_token": token,
+            },
+            timeout=15,
+        )
+        media = media_r.json().get("data", []) if media_r.status_code == 200 else []
+
+        return {
+            "configured": True,
+            "insights": {m["name"]: m.get("values", []) for m in insights_data},
+            "recent_media": [{
+                "id": m.get("id"),
+                "caption": (m.get("caption", "")[:100] + "..." if len(m.get("caption", "")) > 100 else m.get("caption", "")),
+                "likes": m.get("like_count", 0),
+                "comments": m.get("comments_count", 0),
+                "timestamp": m.get("timestamp"),
+                "permalink": m.get("permalink"),
+            } for m in media],
+        }
+    except Exception as e:
+        return {"configured": True, "error": str(e)}
+
+
+@app.get("/etsy/shop-stats")
+def get_etsy_shop_stats():
+    """Get real shop statistics from Etsy API."""
+    from src.integrations.etsy import EtsyClient
+
+    try:
+        client = EtsyClient()
+        if not client.access_token:
+            return {"configured": False, "message": "Etsy token expired or missing. Reauthorize."}
+
+        data = client.get_listings(state="active", limit=100)
+        if "error" in data:
+            return {"configured": False, "error": data["error"]}
+
+        listings = data.get("results", [])
+        total_count = data.get("count", len(listings))
+
+        total_views = sum(l.get("views", 0) for l in listings)
+        total_favorites = sum(l.get("num_favorers", 0) for l in listings)
+        zero_view = [l for l in listings if l.get("views", 0) == 0]
+
+        by_views = sorted(listings, key=lambda l: l.get("views", 0), reverse=True)
+
+        return {
+            "configured": True,
+            "total_listings": total_count,
+            "total_views": total_views,
+            "total_favorites": total_favorites,
+            "zero_view_count": len(zero_view),
+            "top_5": [{
+                "title": l.get("title", "")[:60],
+                "views": l.get("views", 0),
+                "favorites": l.get("num_favorers", 0),
+            } for l in by_views[:5]],
+            "worst_5": [{
+                "title": l.get("title", "")[:60],
+                "views": l.get("views", 0),
+                "favorites": l.get("num_favorers", 0),
+            } for l in by_views[-5:]],
+        }
+    except Exception as e:
+        return {"configured": False, "error": str(e)}
 
 
 # ── CLI Entry Point ─────────────────────────────────────────────

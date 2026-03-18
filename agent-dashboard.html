@@ -760,6 +760,11 @@
     color: var(--text-primary);
     flex: 1;
   }
+  .connectivity-metric {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
 
   /* ── Social Tab ─────────────────────────────────────── */
   .social-section { margin-bottom: 28px; }
@@ -1291,6 +1296,10 @@
     font-size: 14px;
   }
 
+  /* ── Scan Mode Filtering (Change 7) ─────────────────── */
+  .scan-attention .platform-tile.healthy { display: none; }
+  .scan-attention .feed-item:not(.feed-error):not(.feed-warning) { display: none; }
+
   /* ── Responsive ─────────────────────────────────────── */
   @media (max-width: 768px) {
     .left-rail {
@@ -1465,7 +1474,7 @@
   </nav>
 
   <!-- Main Content -->
-  <main class="main-content">
+  <main class="main-content" id="main-content">
 
     <!-- ═══════════════════════════════════════════════════════ -->
     <!-- TAB: OVERVIEW                                          -->
@@ -1543,18 +1552,32 @@
         </div>
       </div>
 
-      <!-- TASK 6: Connectivity Panel -->
+      <!-- Change 1: Revenue Funnel -->
+      <div class="section-label">REVENUE FUNNEL</div>
+      <div class="card no-hover" id="revenue-funnel">Loading funnel data...</div>
+
+      <!-- Change 2: Cloudflare Traffic -->
+      <div class="section-label">WEBSITE TRAFFIC</div>
+      <div class="card no-hover" id="cf-traffic">Loading traffic data...</div>
+
+      <!-- TASK 6: Connectivity Panel (Change 8: with metrics) -->
       <div class="card no-hover" style="margin-bottom:24px">
         <div class="section-label">EXTERNAL SYSTEMS</div>
         <div class="connectivity-grid" id="connectivity-grid">
           <div class="connectivity-item">
             <span class="connectivity-icon">&#9729;</span>
-            <span class="connectivity-name">Cloudflare</span>
+            <div style="flex:1">
+              <span class="connectivity-name">Cloudflare</span>
+              <div class="connectivity-metric" id="conn-cf-metric">--</div>
+            </div>
             <span class="chip connected">Connected</span>
           </div>
           <div class="connectivity-item">
             <span class="connectivity-icon">&#128179;</span>
-            <span class="connectivity-name">Stripe</span>
+            <div style="flex:1">
+              <span class="connectivity-name">Stripe</span>
+              <div class="connectivity-metric" id="conn-stripe-metric">--</div>
+            </div>
             <span class="chip connected">Connected</span>
           </div>
           <div class="connectivity-item">
@@ -1600,6 +1623,8 @@
             </div>
           </div>
           <div class="social-meta" id="ig-status-line">Loading...</div>
+          <!-- Change 3: Instagram Insights Funnel -->
+          <div id="ig-insights"></div>
           <div class="section-label">LAST 5 POSTS</div>
           <div class="ig-posts-grid" id="ig-posts-grid">
             <div style="color:var(--text-dim);font-size:12px">Loading...</div>
@@ -1691,7 +1716,7 @@
         <div id="intel-content">Loading intelligence data...</div>
       </div>
 
-      <!-- Etsy Performance -->
+      <!-- Etsy Performance (Change 4: real stats) -->
       <div class="card no-hover">
         <div class="card-header">
           <div class="card-title">
@@ -1704,6 +1729,18 @@
           </div>
         </div>
         <div id="etsy-content">Loading Etsy data...</div>
+        <div id="etsy-stats"></div>
+      </div>
+
+      <!-- Change 5: ATHOS Section -->
+      <div class="card no-hover">
+        <div class="card-header">
+          <div class="card-title">
+            ATHOS (athos-obs.com)
+            <a class="external-link" href="https://athos-obs.com/" target="_blank" rel="noopener">Visit</a>
+          </div>
+        </div>
+        <div id="athos-stats">Loading ATHOS data...</div>
       </div>
 
       <!-- Micro-Licensing -->
@@ -1806,13 +1843,14 @@ let lastSeen = null;
 let killActive = false;
 let feedPage = 0;
 let feedFilter = null;
-let scanMode = 'attention'; // 'attention' or 'all'
+let scanMode = sessionStorage.getItem('scanMode') || 'attention';
 const FEED_LIMIT = 50;
 
 // Cached data
 let healthData = {};
 let agentStatusData = {};
 let emailBriefingData = {};
+let cfData = {};
 
 // ══════════════════════════════════════════════════════════════════
 // Utility Functions
@@ -1961,10 +1999,10 @@ function switchTab(tab) {
 
 function onTabActivated(tab) {
   switch (tab) {
-    case 'overview': pollStatus(); loadFeed(); break;
-    case 'social': loadSocialTab(); break;
+    case 'overview': pollStatus(); loadFeed(); loadFunnel(); loadTraffic(); break;
+    case 'social': loadSocialTab(); loadInstagramInsights(); break;
     case 'email': loadEmailBriefing(); break;
-    case 'analytics': loadIntelligence(); loadEtsy(); loadLicensing(); break;
+    case 'analytics': loadIntelligence(); loadEtsy(); loadEtsyStats(); loadLicensing(); loadAthos(); break;
     case 'broadcast': loadBroadcast(); loadIndexNow(); break;
     case 'links': renderLinksGrid(); break;
   }
@@ -1977,12 +2015,21 @@ function initTab() {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// Scan Mode Toggle
+// Scan Mode Toggle (Change 7: actual filtering)
 // ══════════════════════════════════════════════════════════════════
 function setScanMode(mode) {
   scanMode = mode;
+  sessionStorage.setItem('scanMode', mode);
   $('scan-attention').classList.toggle('active', mode === 'attention');
   $('scan-all').classList.toggle('active', mode === 'all');
+
+  const mainContent = $('main-content');
+  if (mode === 'attention') {
+    mainContent.classList.add('scan-attention');
+  } else {
+    mainContent.classList.remove('scan-attention');
+  }
+
   renderPlatformTiles();
 }
 
@@ -2041,11 +2088,26 @@ function startAgent() {
 // ══════════════════════════════════════════════════════════════════
 function startPolling() {
   pollStatus();
+  loadFunnel();
+  loadTraffic();
   setInterval(pollStatus, 15000);
   setInterval(() => {
     const tab = sessionStorage.getItem('active_tab') || 'overview';
     if (tab === 'overview') loadFeed();
   }, 30000);
+  // Analytics data refresh every 60s
+  setInterval(() => {
+    const tab = sessionStorage.getItem('active_tab') || 'overview';
+    if (tab === 'overview') {
+      loadFunnel();
+      loadTraffic();
+    }
+  }, 60000);
+  setInterval(() => {
+    const tab = sessionStorage.getItem('active_tab') || 'overview';
+    if (tab === 'social') loadInstagramInsights();
+    if (tab === 'analytics') { loadEtsyStats(); loadAthos(); }
+  }, 60000);
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2165,6 +2227,9 @@ async function pollStatus() {
     // TASK 9: Update email badge
     updateEmailNavBadge();
 
+    // Change 8: Update connectivity metrics
+    updateConnectivityMetrics();
+
   } catch (err) {
     $('kpi-status').textContent = 'Offline';
     $('kpi-dot').className = 'kpi-dot red';
@@ -2172,6 +2237,23 @@ async function pollStatus() {
     $('rail-status').style.color = 'var(--status-critical)';
     $('offline-banner').style.display = 'block';
     if (lastSeen) $('last-seen').textContent = lastSeen.toLocaleTimeString();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Change 8: Connectivity Metrics
+// ══════════════════════════════════════════════════════════════════
+async function updateConnectivityMetrics() {
+  // Cloudflare metric
+  const cfMetric = $('conn-cf-metric');
+  if (cfMetric && cfData && cfData.totals) {
+    cfMetric.textContent = (cfData.totals.visitors_7d ?? '--') + ' visitors this week';
+  }
+  // Stripe metric
+  const stripeMetric = $('conn-stripe-metric');
+  if (stripeMetric) {
+    const sales = healthData.sales ?? 0;
+    stripeMetric.textContent = '$' + (typeof sales === 'number' ? sales.toFixed(2) : sales) + ' revenue';
   }
 }
 
@@ -2485,11 +2567,128 @@ async function runEmailScan() {
 }
 
 // ══════════════════════════════════════════════════════════════════
+// Change 1: Revenue Funnel
+// ══════════════════════════════════════════════════════════════════
+async function loadFunnel() {
+  const el = $('revenue-funnel');
+  if (!el) return;
+  let cf = {}, ig = {}, etsy = {}, broadcast = {}, intel = {};
+  try { cf = await apiFetch('/analytics/cloudflare'); } catch(e) {}
+  try { ig = await apiFetch('/instagram/insights'); } catch(e) {}
+  try { etsy = await apiFetch('/etsy/shop-stats'); } catch(e) {}
+  try { broadcast = await apiFetch('/broadcast/status'); } catch(e) {}
+  try { intel = await apiFetch('/api/license/agent-intelligence'); } catch(e) {}
+
+  cfData = cf; // cache for connectivity metrics
+
+  const visitors = cf.totals?.visitors_7d ?? '--';
+  const pageViews = cf.totals?.page_views_7d ?? '--';
+  const etsyViews = etsy.total_views ?? '--';
+  const etsyFavs = etsy.total_favorites ?? '--';
+  const sales = healthData.sales ?? 0;
+
+  // Calculate IG funnel
+  const igInsights = ig.insights || {};
+  const impressions = igInsights.impressions?.[0]?.value ?? '--';
+  const reach = igInsights.reach?.[0]?.value ?? '--';
+  const profileVisits = igInsights.profile_views?.[0]?.value ?? '--';
+  const websiteClicks = igInsights.website_clicks?.[0]?.value ?? '--';
+
+  // Gap analysis
+  let recommendation = '';
+  if (visitors === '--' || visitors === 0) {
+    recommendation = 'Run a broadcast and post to Reddit today to start driving traffic.';
+  } else if (sales === 0 && etsyFavs > 0) {
+    recommendation = 'People are favoriting on Etsy but not buying. Check pricing and shipping costs.';
+  } else if (sales === 0) {
+    recommendation = 'Traffic exists but not converting. Focus on Etsy SEO and Reddit posts with portfolio links.';
+  }
+
+  el.innerHTML = `
+    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; margin-bottom:16px;">
+      <div class="card no-hover" style="padding:16px; border-left:4px solid var(--status-info);">
+        <div class="section-label" style="margin-bottom:8px;">DISCOVERY</div>
+        <div style="font-size:13px; color:var(--text-secondary);">
+          Broadcast: ${broadcast.total_broadcasts ?? 0} runs<br>
+          AI requests: ${intel.total_requests ?? 0}
+        </div>
+      </div>
+      <div class="card no-hover" style="padding:16px; border-left:4px solid var(--status-healthy);">
+        <div class="section-label" style="margin-bottom:8px;">TRAFFIC</div>
+        <div style="font-size:20px; font-weight:700;">${visitors}</div>
+        <div style="font-size:12px; color:var(--text-dim);">visitors (7d)</div>
+        <div style="font-size:13px; color:var(--text-secondary); margin-top:4px;">${pageViews} page views</div>
+      </div>
+      <div class="card no-hover" style="padding:16px; border-left:4px solid var(--status-warning);">
+        <div class="section-label" style="margin-bottom:8px;">ENGAGEMENT</div>
+        <div style="font-size:13px; color:var(--text-secondary);">
+          IG: ${impressions} imp &rarr; ${websiteClicks} clicks<br>
+          Etsy: ${etsyViews} views, ${etsyFavs} favs
+        </div>
+      </div>
+      <div class="card no-hover" style="padding:16px; border-left:4px solid var(--accent-gold);">
+        <div class="section-label" style="margin-bottom:8px;">SALES</div>
+        <div style="font-size:20px; font-weight:700;">$${(typeof sales === 'number' ? sales.toFixed(2) : '0.00')}</div>
+        <div style="font-size:12px; color:var(--text-dim);">of $5,000 goal</div>
+      </div>
+    </div>
+    ${recommendation ? `<div style="padding:12px 16px; background:rgba(251,191,36,0.1); border-radius:8px; font-size:13px; color:var(--status-warning);">${esc(recommendation)}</div>` : ''}
+  `;
+
+  // Update connectivity metrics now that we have cfData
+  updateConnectivityMetrics();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Change 2: Cloudflare Traffic Card
+// ══════════════════════════════════════════════════════════════════
+async function loadTraffic() {
+  const el = $('cf-traffic');
+  if (!el) return;
+  try {
+    const d = cfData && cfData.configured !== undefined ? cfData : await apiFetch('/analytics/cloudflare');
+    cfData = d;
+    if (!d.configured) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">&#128202;</div><div class="empty-state-text">Add CLOUDFLARE_API_TOKEN to .env to see real visitor data</div></div>`;
+      return;
+    }
+    if (d.error) { el.innerHTML = `<div style="color:var(--status-critical)">${esc(d.error)}</div>`; return; }
+
+    const daily = d.daily_stats || [];
+    const maxV = Math.max(...daily.map(dd => dd.visitors), 1);
+    const bars = '\u2581\u2582\u2583\u2584\u2585\u2586\u2587\u2588';
+    const sparkline = daily.slice().reverse().map(dd => {
+      const idx = Math.min(Math.floor((dd.visitors / maxV) * 7), 7);
+      return bars[idx];
+    }).join('');
+
+    const topPages = (d.top_pages || []).slice(0, 5);
+
+    el.innerHTML = `
+      <div style="padding:16px;">
+        <div style="display:flex; gap:24px; margin-bottom:16px;">
+          <div><span style="font-size:24px; font-weight:700;">${d.totals.visitors_7d}</span> <span style="color:var(--text-dim); font-size:13px;">visitors (7d)</span></div>
+          <div><span style="font-size:24px; font-weight:700;">${d.totals.page_views_7d}</span> <span style="color:var(--text-dim); font-size:13px;">page views</span></div>
+          <div><span style="font-size:24px; font-weight:700;">${d.totals.visitors_today}</span> <span style="color:var(--text-dim); font-size:13px;">today</span></div>
+        </div>
+        <div style="font-size:24px; letter-spacing:4px; color:var(--accent-gold); margin-bottom:16px; font-family:var(--font-mono);">${sparkline}</div>
+        <div class="section-label">TOP PAGES</div>
+        ${topPages.map(p => `<div style="display:flex; justify-content:space-between; padding:4px 0; font-size:13px; border-bottom:1px solid rgba(51,65,85,0.2);"><span style="color:var(--text-secondary);">${esc(p.path)}</span><span style="color:var(--text-dim);">${p.views} views</span></div>`).join('')}
+        ${!topPages.length ? '<div style="color:var(--text-dim); font-size:13px;">No page data yet</div>' : ''}
+      </div>
+    `;
+  } catch(e) {
+    el.innerHTML = `<div style="color:var(--text-dim); padding:16px;">Traffic data unavailable</div>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
 // SOCIAL TAB
 // ══════════════════════════════════════════════════════════════════
 async function loadSocialTab() {
   loadInstagramStatus();
   loadInstagramPosts();
+  loadInstagramInsights();
   loadRedditStatus();
   loadRedditQueueFull();
   loadPinterestStatus();
@@ -2536,6 +2735,55 @@ async function loadInstagramPosts() {
     }).join('');
   } catch(e) {
     grid.innerHTML = '<div style="color:var(--text-dim);font-size:12px">Failed to load posts</div>';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Change 3: Instagram Insights Funnel
+// ══════════════════════════════════════════════════════════════════
+async function loadInstagramInsights() {
+  let container = $('ig-insights');
+  if (!container) return;
+
+  try {
+    const d = await apiFetch('/instagram/insights');
+    if (!d.configured || d.error) {
+      container.innerHTML = '<div style="color:var(--text-dim); font-size:13px; margin-bottom:16px;">Instagram insights unavailable</div>';
+      return;
+    }
+
+    const ins = d.insights || {};
+    const impressions = ins.impressions?.[0]?.value ?? 0;
+    const reach = ins.reach?.[0]?.value ?? 0;
+    const profileVisits = ins.profile_views?.[0]?.value ?? 0;
+    const websiteClicks = ins.website_clicks?.[0]?.value ?? 0;
+    const convRate = impressions > 0 ? ((websiteClicks / impressions) * 100).toFixed(2) : '0.00';
+
+    const media = d.recent_media || [];
+
+    container.innerHTML = `
+      <div class="card no-hover" style="padding:16px; margin-bottom:16px;">
+        <div class="section-label">INSTAGRAM FUNNEL (recent)</div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:12px 0;">
+          <span style="font-size:18px; font-weight:700;">${impressions.toLocaleString()}</span><span style="color:var(--text-dim); font-size:12px;">impressions &rarr;</span>
+          <span style="font-size:18px; font-weight:700;">${reach.toLocaleString()}</span><span style="color:var(--text-dim); font-size:12px;">reach &rarr;</span>
+          <span style="font-size:18px; font-weight:700;">${profileVisits}</span><span style="color:var(--text-dim); font-size:12px;">profile visits &rarr;</span>
+          <span style="font-size:18px; font-weight:700; color:var(--accent-gold);">${websiteClicks}</span><span style="color:var(--text-dim); font-size:12px;">website clicks</span>
+        </div>
+        <div style="font-size:13px; color:var(--text-secondary);">${convRate}% conversion (impression &rarr; website click)</div>
+      </div>
+      ${media.length ? `
+        <div class="section-label">TOP POSTS (by engagement)</div>
+        ${media.sort((a,b) => ((b.likes||0)+(b.comments||0)) - ((a.likes||0)+(a.comments||0))).slice(0,5).map(m => `
+          <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(51,65,85,0.2); font-size:13px;">
+            <span style="color:var(--text-secondary); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(m.caption || 'No caption')}</span>
+            <span style="color:var(--text-dim); white-space:nowrap; margin-left:12px;">${m.likes||0} &#9829; ${m.comments||0} &#128172;</span>
+          </div>
+        `).join('')}
+      ` : ''}
+    `;
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--text-dim); font-size:13px; margin-bottom:16px;">Insights unavailable</div>';
   }
 }
 
@@ -2854,7 +3102,7 @@ async function loadIntelligence() {
   }
 }
 
-// Etsy Performance
+// Etsy Performance (existing)
 async function loadEtsy() {
   const el = $('etsy-content');
   try {
@@ -2900,6 +3148,75 @@ async function loadEtsy() {
   } catch(e) {
     el.innerHTML = '<div style="color:var(--text-dim)">Etsy data unavailable</div>';
     throw e;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Change 4: Etsy Real Stats
+// ══════════════════════════════════════════════════════════════════
+async function loadEtsyStats() {
+  const el = $('etsy-stats');
+  if (!el) return;
+  try {
+    const [stats, seo] = await Promise.all([
+      apiFetch('/etsy/shop-stats').catch(() => ({})),
+      apiFetch('/etsy/seo-report').catch(() => ({ summary: null })),
+    ]);
+
+    if (!stats.configured) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">&#127978;</div><div class="empty-state-text">${esc(stats.message || stats.error || 'Etsy not connected')}</div></div>`;
+      return;
+    }
+
+    const summary = seo.summary || {};
+    const score = summary.overall_score ?? '--';
+
+    el.innerHTML = `
+      <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+        <div class="section-label">SHOP STATS</div>
+        <div style="display:flex; gap:24px; margin-bottom:16px; flex-wrap:wrap;">
+          <div><span style="font-size:24px; font-weight:700;">${stats.total_listings ?? '--'}</span> <span style="color:var(--text-dim); font-size:13px;">listings</span></div>
+          <div><span style="font-size:24px; font-weight:700;">${(stats.total_views ?? 0).toLocaleString()}</span> <span style="color:var(--text-dim); font-size:13px;">views</span></div>
+          <div><span style="font-size:24px; font-weight:700;">${stats.total_favorites ?? '--'}</span> <span style="color:var(--text-dim); font-size:13px;">favorites</span></div>
+          <div><span style="font-size:24px; font-weight:700;">${score}</span> <span style="color:var(--text-dim); font-size:13px;">SEO score</span></div>
+        </div>
+        ${stats.top_5?.length ? `
+          <div class="section-label">TOP PERFORMERS</div>
+          ${stats.top_5.map(l => `<div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid rgba(51,65,85,0.2); font-size:13px;"><span style="color:var(--text-secondary);">${esc(l.title)}</span><span style="color:var(--text-dim);">${l.views} views, ${l.favorites} favs</span></div>`).join('')}
+        ` : ''}
+        ${stats.zero_view_count > 0 ? `
+          <div style="margin-top:16px; padding:12px; background:rgba(251,191,36,0.1); border-radius:8px; font-size:13px; color:var(--status-warning);">
+            ${stats.zero_view_count} listings with zero views &mdash; these need SEO attention
+          </div>
+        ` : ''}
+      </div>
+    `;
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--text-dim);">Etsy data unavailable</div>';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Change 5: ATHOS Analytics
+// ══════════════════════════════════════════════════════════════════
+async function loadAthos() {
+  const el = $('athos-stats');
+  if (!el) return;
+  try {
+    const d = await apiFetch('/analytics/athos');
+    if (!d.configured) {
+      el.innerHTML = `<div style="padding:16px; color:var(--text-dim); font-size:13px;">Add CLOUDFLARE_ATHOS_ZONE_ID to .env to see ATHOS analytics</div>`;
+      return;
+    }
+    el.innerHTML = `<div style="padding:16px;">
+      <div style="display:flex; gap:24px; margin-bottom:8px;">
+        <div><span style="font-size:20px; font-weight:700;">${d.totals?.visitors_7d ?? '--'}</span> <span style="color:var(--text-dim); font-size:13px;">visitors (7d)</span></div>
+        <div><span style="font-size:20px; font-weight:700;">${d.totals?.page_views_7d ?? '--'}</span> <span style="color:var(--text-dim); font-size:13px;">page views</span></div>
+      </div>
+      ${(d.top_pages || []).slice(0,3).map(p => `<div style="font-size:13px; color:var(--text-secondary); padding:2px 0;">${esc(p.path)} &mdash; ${p.views} views</div>`).join('')}
+    </div>`;
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--text-dim); padding:16px;">ATHOS data unavailable</div>';
   }
 }
 
@@ -2954,40 +3271,114 @@ async function loadLicensing() {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// BROADCAST TAB
+// BROADCAST TAB (Change 6: Story Rewrite)
 // ══════════════════════════════════════════════════════════════════
 async function loadBroadcast() {
   const el = $('broadcast-content');
   try {
-    const d = await apiFetch('/broadcast/status');
+    const [d, intel] = await Promise.all([
+      apiFetch('/broadcast/status'),
+      apiFetch('/api/license/agent-intelligence').catch(() => ({})),
+    ]);
     const lastBC = d.last_broadcast ? new Date(d.last_broadcast).toLocaleString() : 'Never';
-
+    const totalBC = d.total_broadcasts || 0;
     const entries = d.entries || [];
-    let entriesHtml = entries.map(e => {
-      const icon = e.status === 'success' ? '\u2713' : (e.status === 'failed' ? '\u2717' : '\u2014');
-      const cls = e.status === 'success' ? 'check-ok' : (e.status === 'failed' ? 'check-fail' : '');
-      return `
-        <div style="font-size:12px;margin-bottom:6px;display:flex;gap:8px;align-items:flex-start">
-          <span class="${cls}" style="flex-shrink:0;font-size:14px">${icon}</span>
-          <div>
-            <strong style="color:var(--text-primary)">${esc(e.action || '')}</strong>
-            <span style="color:var(--text-dim)"> \u2014 ${esc(e.details || '')}</span>
+
+    // Build human-readable results
+    let resultsHtml = '';
+    if (entries.length) {
+      resultsHtml = entries.map(e => {
+        const ok = e.status === 'success';
+        const icon = ok ? '&#10003;' : '&#10007;';
+        const color = ok ? 'var(--status-healthy)' : 'var(--status-critical)';
+
+        // Translate action into plain English
+        let humanAction = esc(e.action || '');
+        let humanDetail = esc(e.details || '');
+        const act = (e.action || '').toLowerCase();
+        const det = e.details || '';
+
+        if (act.includes('indexnow') || act.includes('bing')) {
+          const urlMatch = det.match(/(\d+)\s*url/i);
+          const count = urlMatch ? urlMatch[1] : '?';
+          humanAction = `Pushed ${count} pages to Bing`;
+          humanDetail = 'These can appear in ChatGPT Search and Copilot results';
+        } else if (act.includes('sitemap')) {
+          humanAction = 'Updated sitemap';
+          humanDetail = 'Search engines can now find all your pages';
+        } else if (act.includes('ping') || act.includes('google')) {
+          humanAction = 'Pinged Google';
+          humanDetail = 'Notified Google about your latest content';
+        } else if (act.includes('rss') || act.includes('feed')) {
+          humanAction = 'Updated RSS feeds';
+          humanDetail = 'AI agents and feed readers can discover your latest work';
+        } else if (act.includes('llms') || act.includes('ai-')) {
+          humanAction = 'Updated AI discovery files';
+          humanDetail = 'llms.txt, ai-plugin.json, and other AI-readable metadata';
+        }
+
+        return `
+          <div style="display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px solid rgba(51,65,85,0.2);">
+            <span style="color:${color}; font-size:16px; flex-shrink:0;">${icon}</span>
+            <div>
+              <div style="font-size:13px; font-weight:600; color:var(--text-primary);">${humanAction}</div>
+              <div style="font-size:12px; color:var(--text-dim);">${humanDetail}</div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // AI discovery stats
+    const totalRequests = intel.total_requests || 0;
+    const uniqueAgents = intel.unique_agents || 0;
+
+    let discoveryHtml = '';
+    if (totalRequests > 0) {
+      discoveryHtml = `
+        <div style="margin-top:16px; padding:16px; background:rgba(52,211,153,0.08); border-radius:8px;">
+          <div class="section-label" style="color:var(--status-healthy);">RESULTS SO FAR</div>
+          <div style="font-size:13px; color:var(--text-secondary);">
+            <strong style="color:var(--text-primary);">${totalRequests}</strong> AI agent requests from
+            <strong style="color:var(--text-primary);">${uniqueAgents}</strong> unique agents.
+            Your work is being discovered by AI systems.
           </div>
         </div>`;
-    }).join('');
+    } else {
+      discoveryHtml = `
+        <div style="margin-top:16px; padding:16px; background:rgba(100,116,139,0.08); border-radius:8px;">
+          <div class="section-label">RESULTS SO FAR</div>
+          <div style="font-size:13px; color:var(--text-dim);">
+            No AI agent requests yet. This is normal for the first few days after starting broadcasts.
+            Keep running broadcasts regularly &mdash; it takes time for search engines and AI systems to index your content.
+          </div>
+        </div>`;
+    }
 
     el.innerHTML = `
-      <div class="broadcast-grid">
-        <div class="broadcast-card">
-          <h4>Last Broadcast</h4>
-          <div class="line">Time: <span class="val">${lastBC}</span></div>
-          <div class="line">Total runs: <span class="val">${d.total_broadcasts || 0}</span></div>
+      <div style="margin-bottom:20px;">
+        <div class="section-label">WHAT BROADCASTING DOES</div>
+        <div style="font-size:13px; color:var(--text-secondary); line-height:1.7; margin-bottom:16px;">
+          Broadcasting pushes your portfolio pages to search engines (Bing, Google) and updates
+          AI-readable files so ChatGPT, Copilot, and other AI agents can discover and recommend your work.
+          It also updates your sitemap and RSS feeds.
         </div>
-        <div class="broadcast-card">
-          <h4>Results</h4>
-          ${entriesHtml || '<div class="line">No broadcast data</div>'}
+      </div>
+
+      <div style="display:flex; gap:24px; margin-bottom:20px; flex-wrap:wrap;">
+        <div style="font-size:13px; color:var(--text-dim);">Last run: <strong style="color:var(--text-primary);">${lastBC}</strong></div>
+        <div style="font-size:13px; color:var(--text-dim);">Total broadcasts: <strong style="color:var(--text-primary);">${totalBC}</strong></div>
+      </div>
+
+      ${entries.length ? `
+        <div class="section-label">LAST BROADCAST RESULTS</div>
+        ${resultsHtml}
+      ` : `
+        <div style="padding:20px; text-align:center; color:var(--text-dim); font-size:13px;">
+          No broadcasts run yet. Hit "Run Broadcast" to get started.
         </div>
-      </div>`;
+      `}
+      ${discoveryHtml}
+    `;
     return 'Loaded';
   } catch(e) {
     el.innerHTML = '<div style="color:var(--text-dim)">Broadcast status unavailable</div>';
@@ -3075,6 +3466,15 @@ function getFeedDotType(e) {
   return 'info';
 }
 
+// Determine feed item CSS class for scan mode filtering
+function getFeedItemClass(e) {
+  const action = (e.action || '').toLowerCase();
+  const comp = (e.component || 'system').toLowerCase();
+  if (comp === 'safety' || action.includes('kill') || action.includes('error') || action.includes('fail')) return 'feed-error';
+  if (action.includes('warn') || action.includes('stale') || action.includes('retry')) return 'feed-warning';
+  return '';
+}
+
 async function loadFeed() {
   renderFilterBar();
   const container = $('home-feed-container');
@@ -3097,8 +3497,9 @@ async function loadFeed() {
         const time = e.timestamp ? new Date(e.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '--';
         const dotType = getFeedDotType(e);
         const cost = e.cost_usd > 0 ? '$' + e.cost_usd.toFixed(4) : '';
+        const extraClass = getFeedItemClass(e);
         return `
-          <div class="feed-item">
+          <div class="feed-item ${extraClass}">
             <span class="feed-dot ${dotType}"></span>
             <span class="feed-time">${time}</span>
             <span class="feed-action">${formatFeedAction(e)}</span>
@@ -3214,6 +3615,16 @@ window.addEventListener('hashchange', () => {
 // ══════════════════════════════════════════════════════════════════
 // Boot
 // ══════════════════════════════════════════════════════════════════
+// Apply saved scan mode on boot
+if (scanMode === 'all') {
+  $('scan-attention').classList.remove('active');
+  $('scan-all').classList.add('active');
+} else {
+  $('scan-attention').classList.add('active');
+  $('scan-all').classList.remove('active');
+  $('main-content').classList.add('scan-attention');
+}
+
 initTab();
 startPolling();
 loadTileData();

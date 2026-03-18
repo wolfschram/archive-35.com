@@ -239,7 +239,7 @@ def upload_all_packages(
         entry = {
             "pkg_name": pkg_name,
             "title": seo["title"],
-            "orientation": orientation,
+            "orientation": pricing["orientation"],
             "price_usd": pricing["etsy_price_usd"],
         }
 
@@ -300,7 +300,7 @@ def upload_all_packages(
 
         audit_log(conn, "etsy_uploader", "listing_uploaded", {
             "pkg_name": pkg_name, "listing_id": listing_id,
-            "orientation": orientation, "price": pricing["etsy_price_usd"],
+            "orientation": pricing["orientation"], "price": pricing["etsy_price_usd"],
         }, cost_usd=0.003)
 
     audit_log(conn, "etsy_uploader", "upload_complete", {

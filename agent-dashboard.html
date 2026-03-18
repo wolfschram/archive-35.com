@@ -130,6 +130,59 @@
   }
   .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* Reddit Queue Section */
+  .reddit-section { margin-top: 20px; }
+  .reddit-post {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+  .reddit-post .sub-name { color: var(--accent); font-size: 12px; font-weight: bold; }
+  .reddit-post .post-title { color: var(--text); font-size: 13px; margin: 4px 0; }
+  .reddit-post .post-meta { color: var(--dim); font-size: 11px; }
+  .reddit-post .post-actions { margin-top: 8px; display: flex; gap: 8px; }
+  .btn-sm {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    padding: 4px 12px;
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .btn-sm:hover { border-color: var(--accent); }
+  .btn-sm.post { border-color: var(--green); color: var(--green); }
+  .btn-sm.skip { border-color: var(--dim); color: var(--dim); }
+  .btn-sm.preview { border-color: var(--accent); color: var(--accent); }
+  .btn-sm.generate { background: var(--accent); color: var(--bg); border: none; }
+  .reddit-not-configured {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px;
+    color: var(--dim);
+    font-size: 12px;
+  }
+  .reddit-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .reddit-status-bar .stats { color: var(--dim); font-size: 11px; }
+  .post-body-preview {
+    display: none;
+    background: #111;
+    border: 1px solid var(--border);
+    padding: 8px;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--dim);
+    white-space: pre-wrap;
+  }
 </style>
 </head>
 <body>
@@ -196,6 +249,20 @@
       <div id="log-container">
         <div class="log-entry"><span class="time">—</span> Waiting for data...</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Reddit Queue Section -->
+  <div class="reddit-section">
+    <div class="reddit-status-bar">
+      <div class="section-title">Reddit Queue</div>
+      <div>
+        <span class="stats" id="reddit-stats">Loading...</span>
+        <button class="btn-sm generate" id="reddit-generate-btn" style="margin-left:8px">Generate Queue</button>
+      </div>
+    </div>
+    <div id="reddit-queue-container">
+      <div class="reddit-not-configured">Checking Reddit status...</div>
     </div>
   </div>
 </div>
@@ -314,6 +381,126 @@ $('kill-btn').addEventListener('click', async () => {
     setTimeout(poll, 500);
   } catch (err) { alert('Failed: ' + err.message); }
 });
+
+// ── Reddit Queue ─────────────────────────────────────────────────
+async function loadRedditQueue() {
+  const container = $('reddit-queue-container');
+  const statsEl = $('reddit-stats');
+  try {
+    // Get status first
+    const statusRes = await fetch(`${API_BASE}/reddit/status`, { signal: AbortSignal.timeout(5000) });
+    if (!statusRes.ok) throw new Error('Status endpoint unavailable');
+    const status = await statusRes.json();
+
+    const creds = status.credentials || {};
+    const queueInfo = status.queue || {};
+
+    statsEl.textContent = `Queued: ${queueInfo.queued || 0} | Posted: ${queueInfo.posted || 0} | Skipped: ${queueInfo.skipped || 0}`;
+
+    // Get actual queue
+    const queueRes = await fetch(`${API_BASE}/reddit/queue?limit=5&status=queued`, { signal: AbortSignal.timeout(5000) });
+    if (!queueRes.ok) throw new Error('Queue endpoint unavailable');
+    const queue = await queueRes.json();
+    const posts = queue.posts || [];
+
+    if (posts.length === 0) {
+      container.innerHTML = '<div class="reddit-not-configured">No queued posts. Click "Generate Queue" to create new posts.</div>';
+      return;
+    }
+
+    container.innerHTML = posts.map(p => {
+      const sub = escapeHtml(p.subreddit || '');
+      const title = escapeHtml(p.title || 'Untitled');
+      const location = escapeHtml(p.location || '');
+      const postId = escapeAttr(p.id || '');
+      const bodyPrompt = escapeHtml(p.body_prompt || '');
+      const rules = escapeHtml(p.subreddit_rules || '');
+      const postDisabled = !creds.configured;
+      const postBtnClass = postDisabled ? 'btn-sm' : 'btn-sm post';
+      const postLabel = postDisabled ? 'No Creds' : 'Post';
+
+      return `<div class="reddit-post">
+        <div class="sub-name">${sub}</div>
+        <div class="post-title">${title}</div>
+        <div class="post-meta">${location} ${rules ? '| Rules: ' + rules : ''}</div>
+        <div class="post-actions">
+          <button class="${postBtnClass}" ${postDisabled ? 'disabled title="Add Reddit credentials to .env"' : ''} onclick="redditPost('${postId}')">${postLabel}</button>
+          <button class="btn-sm skip" onclick="redditSkip('${postId}')">Skip</button>
+          <button class="btn-sm preview" onclick="togglePreview('${postId}')">Preview</button>
+        </div>
+        <div class="post-body-preview" id="preview-${postId}">${bodyPrompt}</div>
+      </div>`;
+    }).join('');
+
+    if (!creds.configured) {
+      container.innerHTML = '<div class="reddit-not-configured" style="margin-bottom:8px">Reddit not configured &mdash; add REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USERNAME, REDDIT_PASSWORD to .env</div>' + container.innerHTML;
+    }
+
+  } catch (err) {
+    container.innerHTML = `<div class="reddit-not-configured">Reddit queue unavailable: ${escapeHtml(err.message)}</div>`;
+    statsEl.textContent = 'Unavailable';
+  }
+}
+
+function togglePreview(postId) {
+  const el = document.getElementById('preview-' + postId);
+  if (el) el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+async function redditPost(postId) {
+  if (!confirm('Post this to Reddit now?')) return;
+  try {
+    const res = await fetch(`${API_BASE}/reddit/post`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ post_id: postId }),
+    });
+    const data = await res.json();
+    if (data.status === 'posted') {
+      alert('Posted! ' + (data.reddit_url || ''));
+    } else {
+      alert('Result: ' + (data.message || data.status));
+    }
+    loadRedditQueue();
+  } catch (err) { alert('Failed: ' + err.message); }
+}
+
+async function redditSkip(postId) {
+  try {
+    await fetch(`${API_BASE}/reddit/skip`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ post_id: postId }),
+    });
+    loadRedditQueue();
+  } catch (err) { alert('Failed: ' + err.message); }
+}
+
+$('reddit-generate-btn').addEventListener('click', async () => {
+  $('reddit-generate-btn').textContent = 'Generating...';
+  $('reddit-generate-btn').disabled = true;
+  try {
+    const res = await fetch(`${API_BASE}/reddit/generate`, { method: 'POST' });
+    const data = await res.json();
+    alert(data.message || data.status);
+    loadRedditQueue();
+  } catch (err) { alert('Failed: ' + err.message); }
+  $('reddit-generate-btn').textContent = 'Generate Queue';
+  $('reddit-generate-btn').disabled = false;
+});
+
+// Load Reddit queue on dashboard start and every 60s
+function startRedditPolling() {
+  loadRedditQueue();
+  setInterval(loadRedditQueue, 60000);
+}
+
+// Hook into existing startPolling
+const _origStartPolling = startPolling;
+startPolling = function() {
+  _origStartPolling();
+  startRedditPolling();
+};
 </script>
 </body>
 </html>

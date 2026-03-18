@@ -6,6 +6,9 @@ Spawned by Electron main process on startup, killed on quit.
 
 from __future__ import annotations
 
+# Fix SSL certs on Python 3.13 / macOS (must run before any HTTPS calls)
+from src import ssl_fix  # noqa: F401
+
 import json
 import logging
 import os
@@ -248,6 +251,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Include sub-routers ────────────────────────────────────────────
+try:
+    from src.routes.reddit_routes import router as reddit_router
+    app.include_router(reddit_router)
+    logger.info("Reddit routes loaded")
+except ImportError as e:
+    logger.warning("Reddit routes not loaded: %s", e)
 
 
 def _get_conn():
@@ -1225,94 +1236,129 @@ class GenerateDraftRequest(BaseModel):
 @app.post("/content/generate-draft")
 def generate_draft(req: GenerateDraftRequest):
     """Generate AI caption/listing draft for a photo or mockup (not saved to DB)."""
+    # All paths use Vision — Claude must SEE the image to describe it accurately.
+    client = _get_anthropic_client()
+    if not client:
+        raise HTTPException(status_code=503, detail="No Anthropic API key configured")
+
+    from src.agents.content import PLATFORM_PROMPTS, MOCKUP_PLATFORM_PROMPTS, _parse_content_response
+
+    prompt = PLATFORM_PROMPTS.get(req.platform, PLATFORM_PROMPTS["instagram"])
+    image_url = None
+    context_text = ""
+
     # Handle mockup drafts (no DB photo required)
     if req.photo_id == "__mockup__" and req.context:
-        client = _get_anthropic_client()
-        if not client:
-            raise HTTPException(status_code=503, detail="No Anthropic API key configured")
-
-        from src.agents.content import PLATFORM_PROMPTS, _parse_content_response
-
         gallery = req.context.get("gallery", "")
         template = req.context.get("template", "")
         filename = req.context.get("filename", "")
+        # Try to get mockup image URL for Vision
+        image_url = req.context.get("image_url", "")
+        if not image_url and filename:
+            image_url = f"http://127.0.0.1:8036/mockups/{filename}"
 
-        mockup_context = (
-            f"This is a wall art mockup showing a fine art photograph displayed in a room setting.\n"
-            f"Gallery/Collection: {gallery}\n"
-            f"Room template: {template}\n"
-            f"Filename: {filename}\n"
-            f"The image shows the photograph as it would look hanging on a wall in a modern interior."
+        context_text = (
+            f"Wall art mockup — photograph in a room setting.\n"
+            f"Collection: {gallery}\n"
         )
-
-        prompt = PLATFORM_PROMPTS.get(req.platform, PLATFORM_PROMPTS["instagram"])
-        full_prompt = f"Photo context:\n{mockup_context}\n\n{prompt}"
-
-        response = client.messages.create(
-            model="claude-sonnet-4-5-20250929",
-            max_tokens=1000,
-            messages=[{"role": "user", "content": full_prompt}],
-        )
-        result = _parse_content_response(response.content[0].text)
-        return result
+        prompt = MOCKUP_PLATFORM_PROMPTS.get(req.platform, prompt)
 
     # Handle filesystem photo IDs (fs:Collection/filename.jpg)
-    if req.photo_id.startswith("fs:"):
-        client = _get_anthropic_client()
-        if not client:
-            raise HTTPException(status_code=503, detail="No Anthropic API key configured")
-
-        from src.agents.content import PLATFORM_PROMPTS, _parse_content_response
-
-        fs_path = req.photo_id[3:]  # Strip "fs:" prefix
+    elif req.photo_id.startswith("fs:"):
+        fs_path = req.photo_id[3:]
         parts = fs_path.split("/", 1)
         collection = parts[0] if len(parts) > 1 else ""
         filename = parts[1] if len(parts) > 1 else parts[0]
 
-        fs_context = (
-            f"This is a fine art photograph from the Archive-35 collection.\n"
-            f"Collection/Gallery: {collection}\n"
-            f"Filename: {filename}\n"
-            f"The photograph is available as museum-quality prints."
-        )
+        # Build image URL from the website
+        if collection and filename:
+            base = filename.rsplit(".", 1)[0] if "." in filename else filename
+            image_url = f"https://archive-35.com/images/{collection.lower()}/{base}-full.jpg"
 
-        prompt = PLATFORM_PROMPTS.get(req.platform, PLATFORM_PROMPTS["instagram"])
-        full_prompt = f"Photo context:\n{fs_context}\n\n{prompt}"
+        # Also try to read the actual file for base64
+        repo_root = Path(__file__).resolve().parent.parent.parent
+        local_path = repo_root / "photography" / fs_path
+        if local_path.exists():
+            try:
+                import base64
+                with open(local_path, "rb") as f:
+                    raw_bytes = f.read()
+                # Resize to prevent 413 errors — Claude Vision works at 2000px
+                from src.agents.etsy_agent import _resize_image_for_api
+                resized = _resize_image_for_api(raw_bytes, max_edge=2000, max_bytes=4_500_000)
+                img_data = base64.standard_b64encode(resized).decode("utf-8")
+                # Prefer local file over URL — more reliable
+                image_url = None  # Will use base64 below
+            except Exception:
+                img_data = None
+        else:
+            img_data = None
 
-        response = client.messages.create(
-            model="claude-sonnet-4-5-20250929",
-            max_tokens=1000,
-            messages=[{"role": "user", "content": full_prompt}],
-        )
-        result = _parse_content_response(response.content[0].text)
-        return result
+        context_text = f"Fine art photograph from Archive-35.\nCollection: {collection}\n"
 
     # Standard DB photo draft
-    conn = _get_conn()
-    try:
-        photo = conn.execute("SELECT * FROM photos WHERE id = ?", (req.photo_id,)).fetchone()
-        if not photo:
-            raise HTTPException(status_code=404, detail="Photo not found")
+    else:
+        conn = _get_conn()
+        try:
+            photo = conn.execute("SELECT * FROM photos WHERE id = ?", (req.photo_id,)).fetchone()
+            if not photo:
+                raise HTTPException(status_code=404, detail="Photo not found")
 
-        client = _get_anthropic_client()
-        if not client:
-            raise HTTPException(status_code=503, detail="No Anthropic API key configured")
+            from src.agents.content import _build_context
+            context_text = _build_context(photo)
+            img_data = None
 
-        from src.agents.content import _build_context, PLATFORM_PROMPTS, _parse_content_response
+            # Try to find image for Vision
+            photo = dict(photo)
+            collection = (photo.get("collection", "") or "").lower()
+            filename = photo.get("filename", "")
+            if collection and filename:
+                base = filename.rsplit(".", 1)[0] if "." in filename else filename
+                image_url = f"https://archive-35.com/images/{collection}/{base}-full.jpg"
 
-        context = _build_context(photo)
-        prompt = PLATFORM_PROMPTS.get(req.platform, PLATFORM_PROMPTS["instagram"])
-        full_prompt = f"Photo context:\n{context}\n\n{prompt}"
+                # Try local file
+                repo_root = Path(__file__).resolve().parent.parent.parent
+                local_path = repo_root / "photography" / photo.get("collection", "") / filename
+                if local_path.exists():
+                    try:
+                        import base64
+                        with open(local_path, "rb") as f:
+                            raw_bytes = f.read()
+                        # Resize to prevent 413 errors — Claude Vision works at 2000px
+                        from src.agents.etsy_agent import _resize_image_for_api
+                        resized = _resize_image_for_api(raw_bytes, max_edge=2000, max_bytes=4_500_000)
+                        img_data = base64.standard_b64encode(resized).decode("utf-8")
+                        image_url = None
+                    except Exception:
+                        pass
+        finally:
+            conn.close()
 
-        response = client.messages.create(
-            model="claude-sonnet-4-5-20250929",
-            max_tokens=1000,
-            messages=[{"role": "user", "content": full_prompt}],
-        )
-        result = _parse_content_response(response.content[0].text)
-        return result
-    finally:
-        conn.close()
+    # Build message with Vision if we have an image
+    full_prompt = f"Photo context:\n{context_text}\n\n{prompt}"
+    content: list[dict] = []
+
+    if 'img_data' in dir() and img_data:
+        # Local file as base64 — most reliable
+        content.append({
+            "type": "image",
+            "source": {"type": "base64", "media_type": "image/jpeg", "data": img_data},
+        })
+    elif image_url:
+        content.append({
+            "type": "image",
+            "source": {"type": "url", "url": image_url},
+        })
+
+    content.append({"type": "text", "text": full_prompt})
+
+    response = client.messages.create(
+        model="claude-sonnet-4-5-20250929",
+        max_tokens=1000,
+        messages=[{"role": "user", "content": content}],
+    )
+    result = _parse_content_response(response.content[0].text)
+    return result
 
 
 class CreateManualContentRequest(BaseModel):
@@ -2355,13 +2401,13 @@ class EtsyComposeCreate(BaseModel):
 
 @app.post("/etsy/listings/create-from-compose")
 def create_etsy_from_compose(req: EtsyComposeCreate):
-    """Create a complete Etsy draft listing directly from Compose Post.
+    """Create a single-SKU Etsy draft listing from Compose Post.
 
-    Skips the content DB — goes straight to Etsy API with full
-    Material & Size × Frame variation matrix and pricing.
+    Simplified flow: one ChromaLuxe HD Metal Print per listing,
+    size determined by photo orientation, no variation matrix.
     """
-    from src.integrations.etsy import create_full_listing
-    from src.brand.etsy_variations import build_variation_matrix, get_matrix_summary
+    from src.integrations.etsy import create_simple_listing
+    from src.agents.etsy_pricing import detect_orientation, get_listing_pricing
 
     conn = _get_conn()
     try:
@@ -2475,23 +2521,25 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
         # Validate title length
         title = (req.title or "Fine Art Photography Print")[:140]
 
-        # Build description with copyright footer
+        # Get pricing info for the description (uses real Pictorem API)
+        pricing = get_listing_pricing(photo_w=photo_w, photo_h=photo_h)
+
+        # Build description — single-SKU format with full specs
         description = req.description or ""
-        description += "\n\n— FRAMING OPTIONS —"
-        description += "\nThe last 3 images show this print in our Black, White, and Natural Wood frames."
-        description += "\nUse the personalization field to select your frame, mat, and border preferences."
+        description += f"\n\n---\n\nPRINT SPECIFICATIONS"
+        description += f"\nMaterial: ChromaLuxe HD Metal — White Gloss aluminum"
+        description += f"\nSize: {pricing['size_label']}"
+        description += f"\nResolution: {pricing.get('photo_pixels', '')} ({pricing.get('megapixels', '')} MP) printed at {pricing.get('dpi', '')} DPI"
+        description += "\nMount: Metal standoff hanging brackets included — arrives ready to hang. No frame needed."
+        description += "\nShipping: Free across North America and Canada."
         description += "\n\n© Wolfgang Schram / Archive-35 Studio"
         description += "\nAll prints are made-to-order and shipped directly from our professional print lab."
 
         # Cap tags at 13 (Etsy limit)
         tags = (req.tags or [])[:13]
 
-        # Preview the matrix
-        products = build_variation_matrix(photo_w, photo_h, min_dpi=req.min_dpi)
-        summary = get_matrix_summary(products)
-
-        # Create the full listing via Etsy API
-        result = create_full_listing(
+        # Create single-SKU listing via Etsy API
+        result = create_simple_listing(
             title=title,
             description=description,
             tags=tags,
@@ -2500,7 +2548,6 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
             image_paths=image_paths if image_paths else None,
             image_urls=image_urls if image_urls else None,
             shipping_profile_id=req.shipping_profile_id,
-            min_dpi=req.min_dpi,
             activate=req.activate,
         )
 
@@ -2516,12 +2563,13 @@ def create_etsy_from_compose(req: EtsyComposeCreate):
         audit.log(conn, "etsy", "compose_listing_created", {
             "listing_id": result.get("listing_id"),
             "title": title,
-            "variants": result.get("total_variants"),
-            "price_range": result.get("price_range"),
+            "price_usd": result.get("price_usd"),
+            "material": result.get("material"),
+            "size": result.get("size"),
             "activated": req.activate,
         })
 
-        return {**result, "summary": summary}
+        return result
 
     except HTTPException:
         raise
@@ -3132,10 +3180,6 @@ def export_etsy_folder(req: EtsyExportRequest):
     """
     import shutil
     import re
-    from src.brand.pricing import (
-        MATERIALS, website_price, etsy_price, get_matching_category,
-        filter_sizes_by_aspect, calculate_dpi, get_quality_badge,
-    )
 
     project_root = Path(__file__).resolve().parent.parent.parent
     etsy_export_root = project_root / "06_Automation" / "etsy-export"
@@ -3212,9 +3256,9 @@ def export_etsy_folder(req: EtsyExportRequest):
                 else:
                     logger.warning(f"Original photo not found: {src_path}")
 
-    # ── Build pricing variations ──
-    # Try to detect aspect ratio from first original photo
-    aspect_ratio = 1.5  # default 3:2
+    # ── Single-SKU pricing (simplified — matches current shop format) ──
+    from src.agents.etsy_pricing import detect_orientation, get_listing_pricing
+
     photo_w, photo_h = 6000, 4000  # reasonable default for Wolf's camera
 
     for img in req.selected_images:
@@ -3227,48 +3271,14 @@ def export_etsy_folder(req: EtsyExportRequest):
                     from PIL import Image as PILImage
                     with PILImage.open(photo_path) as pil_img:
                         photo_w, photo_h = pil_img.size
-                        aspect_ratio = photo_w / photo_h
                 except Exception:
                     pass
                 break
 
-    category = get_matching_category(aspect_ratio)
-    applicable_sizes = filter_sizes_by_aspect(category["sizes"], aspect_ratio)
-
-    variations = []
-    for mat_key, mat in MATERIALS.items():
-        for w, h in applicable_sizes:
-            dpi = calculate_dpi(photo_w, photo_h, w, h)
-            quality = get_quality_badge(dpi)
-            if not quality:
-                continue
-            sq_in = w * h
-            if sq_in > mat["max_sq_in"]:
-                continue
-
-            site_p = website_price(mat_key, w, h)
-            etsy_p = etsy_price(site_p)
-
-            variations.append({
-                "material": mat["name"],
-                "material_key": mat_key,
-                "size": f'{w}"x{h}"',
-                "width": w,
-                "height": h,
-                "website_price": site_p,
-                "etsy_price": etsy_p,
-                "dpi": dpi,
-                "quality": quality,
-                "label": f"{mat['name']} {w}x{h}",
-            })
-
-    # Sort: paper first (cheapest), then by price
-    mat_order = {"paper": 0, "canvas": 1, "wood": 2, "metal": 3, "acrylic": 4}
-    variations.sort(key=lambda v: (mat_order.get(v["material_key"], 9), v["etsy_price"]))
+    pricing = get_listing_pricing(photo_w=photo_w, photo_h=photo_h)
 
     # Ensure 13 tags, each max 20 characters (Etsy limit).
-    # Tags must describe the PHOTOGRAPHY, not the mockup rooms.
-    raw_tags = [t[:20] for t in req.tags if t.strip()]  # Enforce 20-char Etsy limit
+    raw_tags = [t[:20] for t in req.tags if t.strip()]
     tags = list(raw_tags)[:13]
     default_tags = [
         "archive35", "fine art photography", "wall art decor",
@@ -3285,27 +3295,24 @@ def export_etsy_folder(req: EtsyExportRequest):
             tags.append(dt)
             seen.add(dt.lower())
 
-    # Base price = cheapest variation (Fine Art Paper smallest)
-    base_price = variations[0]["etsy_price"] if variations else 51
-
     # ── Build listing.json ──
     listing = {
         "title": req.title[:140],
         "description": req.description,
         "tags": tags[:13],
-        "base_price": base_price,
+        "price": pricing["etsy_price_usd"],
+        "material": pricing["material"],
+        "size": pricing["size_label"],
+        "orientation": pricing["orientation"],
         "category": "Art & Collectibles > Photography > Color",
         "who_made": "i_did",
-        "when_made": "2020_2025",
+        "when_made": "made_to_order",
         "is_supply": False,
         "processing_days": {"min": 5, "max": 7},
-        "shipping_profile": "Fine Art Prints - Free Shipping",
+        "shipping": pricing["shipping"],
         "quantity": 999,
         "gallery_name": req.gallery_name,
-        "aspect_ratio": round(aspect_ratio, 2),
-        "aspect_category": category["name"],
         "photo_dimensions": {"width": photo_w, "height": photo_h},
-        "variations": variations,
         "images": copied_images,
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -3321,32 +3328,31 @@ def export_etsy_folder(req: EtsyExportRequest):
         f"Generated: {listing['generated_at']}",
         "",
         f"Title: {listing['title']}",
-        f"Base Price: ${base_price}",
-        f"Tags ({len(tags)}/13, each ≤20 chars): {', '.join(tags[:13])}",
-        f"Variations: {len(variations)} material/size combos",
+        f"Material: {pricing['material']}",
+        f"Size: {pricing['size_label']}",
+        f"Price: ${pricing['etsy_price_usd']:.0f}",
+        f"Shipping: {pricing['shipping']}",
+        f"Tags ({len(tags)}/13): {', '.join(tags[:13])}",
         f"Images: {len(copied_images)} files ready to upload",
         "",
-        "PRICING BREAKDOWN:",
+        "IMAGE ORDER:",
     ]
-    for v in variations:
-        readme_lines.append(f"  {v['label']:>25}: ${v['etsy_price']}")
-    readme_lines.append("")
-    readme_lines.append("IMAGE ORDER:")
     for img in copied_images:
         readme_lines.append(f"  {img['order']}. [{img['type']}] {img['filename']}")
 
     (export_dir / "README.txt").write_text("\n".join(readme_lines))
 
-    logger.info("Exported Etsy listing to %s — %d images, %d variations",
-                export_dir, len(copied_images), len(variations))
+    logger.info("Exported Etsy listing to %s — %d images, single SKU @ $%.0f",
+                export_dir, len(copied_images), pricing["etsy_price_usd"])
 
     return {
         "success": True,
         "export_path": str(export_dir),
         "folder_name": slug,
         "images_count": len(copied_images),
-        "variations_count": len(variations),
-        "base_price": base_price,
+        "material": pricing["material"],
+        "size": pricing["size_label"],
+        "price": pricing["etsy_price_usd"],
         "listing_json": str(listing_path),
     }
 

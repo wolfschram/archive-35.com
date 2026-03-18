@@ -1,0 +1,29 @@
+[
+  {
+    "timestamp": "2026-03-18T14:28:10.712047+00:00",
+    "component": "test",
+    "action": "test_action",
+    "decision": "Testing the decisions log",
+    "details": {
+      "key": "value"
+    }
+  },
+  {
+    "timestamp": "2026-03-18T14:28:42.225529+00:00",
+    "component": "system",
+    "action": "startup",
+    "decision": "API server booted, daily logging configured, agent states loaded"
+  },
+  {
+    "timestamp": "2026-03-18T14:29:07.145589+00:00",
+    "component": "system",
+    "action": "startup",
+    "decision": "API server booted, daily logging configured, agent states loaded"
+  },
+  {
+    "timestamp": "2026-03-18T14:29:37.551608+00:00",
+    "component": "system",
+    "action": "startup",
+    "decision": "API server booted, daily logging configured, agent states loaded"
+  }
+]

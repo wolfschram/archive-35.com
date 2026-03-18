@@ -182,6 +182,8 @@ from src.telegram.queue import get_pending_content, get_queue_stats, expire_old_
 
 from src.api_content_library import router as library_router
 from src.api_variations import router as variations_router
+from src.state_manager import get_all_states, load_state, save_state
+from src.agent_logging import setup_daily_logging, log_decision, log_build, get_daily_logs, get_available_log_dates
 
 logger = logging.getLogger(__name__)
 
@@ -265,6 +267,97 @@ def _get_conn():
     """Get an initialized DB connection."""
     settings = get_settings()
     return get_initialized_connection(settings.db_path)
+
+
+# ── Startup Health Check ───────────────────────────────────────────
+
+
+@app.on_event("startup")
+def startup_health_check():
+    """Run on API boot: setup logging, load agent states, log resume event."""
+    # 1. Setup daily rotating log files
+    setup_daily_logging()
+    logger.info("Archive-35 Agent API starting up")
+
+    # 2. Load all agent states and log resume info
+    try:
+        states = get_all_states()
+        for agent_name, state in states.items():
+            last_activity = state.get("_updated_at", "unknown")
+            logger.info(
+                "Agent resumed — %s — last activity: %s", agent_name, last_activity
+            )
+    except Exception as e:
+        logger.error("Failed to load agent states on startup: %s", e)
+
+    # 3. Write startup event to audit log
+    try:
+        conn = _get_conn()
+        agent_count = len(states) if 'states' in dir() else 0
+        audit.log(
+            conn,
+            component="system",
+            action="startup",
+            details={
+                "message": "System started — all agents resuming",
+                "agents_with_state": agent_count,
+                "boot_time": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+        conn.close()
+    except Exception as e:
+        logger.error("Failed to write startup audit log: %s", e)
+
+    # 4. Log decision for traceability
+    log_decision(
+        component="system",
+        action="startup",
+        decision="API server booted, daily logging configured, agent states loaded",
+    )
+
+    logger.info("Startup health check complete")
+
+
+# ── Agent States ────────────────────────────────────────────────
+
+
+@app.get("/agents/states")
+def get_agent_states():
+    """Return all agent states for dashboard display."""
+    return get_all_states()
+
+
+@app.get("/agents/states/{agent_name}")
+def get_agent_state(agent_name: str):
+    """Return a single agent's state."""
+    state = load_state(agent_name)
+    if not state:
+        raise HTTPException(status_code=404, detail=f"No state found for agent '{agent_name}'")
+    return state
+
+
+# ── Log Endpoints ───────────────────────────────────────────────
+
+
+@app.get("/logs/dates")
+def list_log_dates():
+    """Return available log file dates for historical browsing."""
+    return {"dates": get_available_log_dates()}
+
+
+@app.get("/logs/daily")
+def read_daily_log(date: Optional[str] = None):
+    """Read a daily log file. Defaults to today.
+
+    Args:
+        date: YYYY-MM-DD format date string.
+    """
+    lines = get_daily_logs(date)
+    return {
+        "date": date or datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        "lines": lines,
+        "count": len(lines),
+    }
 
 
 # ── Health ──────────────────────────────────────────────────────
@@ -4523,6 +4616,417 @@ def agent_request_insights(days: int = Query(default=30, le=365)):
             "top_locations": top10(locations),
             "top_agents": top10(agents),
             "unique_ips": len(set(r["ip"] for r in rows if r["ip"])),
+        }
+    finally:
+        conn.close()
+
+
+# ── Agent Control Endpoints (Task 14) ──────────────────────────
+
+
+@app.get("/agents/status")
+def agents_status():
+    """Return status of all agent services (Docker or process-based)."""
+    import subprocess
+    services = {}
+    try:
+        result = subprocess.run(
+            ["docker", "compose", "ps", "--format", "json"],
+            capture_output=True, text=True, timeout=10,
+            cwd=str(Path(__file__).resolve().parent.parent),
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            for line in result.stdout.strip().splitlines():
+                try:
+                    svc = json.loads(line)
+                    name = svc.get("Service", svc.get("Name", "unknown"))
+                    state = svc.get("State", svc.get("Status", "unknown"))
+                    services[name] = {"status": state, "health": svc.get("Health", "")}
+                except json.JSONDecodeError:
+                    pass
+    except Exception as e:
+        logger.warning("Docker status check failed: %s", e)
+
+    conn = _get_conn()
+    try:
+        ks = kill_switch.get_status(conn)
+        agent_names = ["instagram", "pinterest", "reddit", "etsy", "content_pipeline", "broadcast"]
+        for name in agent_names:
+            if name not in services:
+                services[name] = {"status": "process", "health": ""}
+            scope_status = ks.get(name, {})
+            services[name]["kill_switch"] = scope_status.get("active", False) if isinstance(scope_status, dict) else False
+            services[name]["running"] = not services[name]["kill_switch"]
+    finally:
+        conn.close()
+
+    running = sum(1 for s in services.values() if s.get("running", True))
+    return {"services": services, "running": running, "total": len(services)}
+
+
+@app.post("/agents/restart/{agent_name}")
+def restart_agent(agent_name: str):
+    """Restart a specific Docker service."""
+    import subprocess
+    allowed = ["api", "scheduler", "telegram", "agent-scheduler", "agent-api"]
+    if agent_name not in allowed:
+        raise HTTPException(status_code=400, detail=f"Unknown agent: {agent_name}. Allowed: {allowed}")
+    try:
+        result = subprocess.run(
+            ["docker", "compose", "restart", agent_name],
+            capture_output=True, text=True, timeout=30,
+            cwd=str(Path(__file__).resolve().parent.parent),
+        )
+        conn = _get_conn()
+        try:
+            audit.log(conn, "system", "restart_agent", {"agent": agent_name, "result": result.returncode})
+        finally:
+            conn.close()
+        return {"restarted": agent_name, "success": result.returncode == 0, "output": result.stdout[:500]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/agents/restart-all")
+def restart_all_agents():
+    """Restart all Docker services."""
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["docker", "compose", "restart"],
+            capture_output=True, text=True, timeout=60,
+            cwd=str(Path(__file__).resolve().parent.parent),
+        )
+        return {"success": result.returncode == 0, "output": result.stdout[:500]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class BatchPostRequest(BaseModel):
+    count: int = 3
+    delay_minutes: int = 5
+
+
+@app.post("/instagram/post-batch")
+def instagram_post_batch(req: BatchPostRequest):
+    """Queue multiple Instagram posts with delays. Returns immediately."""
+    import threading
+    import time as _time
+
+    def _post_batch(count: int, delay_min: int):
+        for i in range(count):
+            try:
+                from src.agents.instagram_agent import post_next_image
+                import anthropic
+                api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+                if not api_key:
+                    break
+                client = anthropic.Anthropic(api_key=api_key)
+                conn = _get_conn()
+                try:
+                    post_next_image(conn, client, dry_run=False)
+                finally:
+                    conn.close()
+                if i < count - 1:
+                    _time.sleep(delay_min * 60)
+            except Exception as e:
+                logger.error("Batch post %d/%d failed: %s", i + 1, count, e)
+
+    threading.Thread(target=_post_batch, args=(req.count, req.delay_minutes), daemon=True).start()
+    conn = _get_conn()
+    try:
+        audit.log(conn, "instagram", "post_batch_started", {"count": req.count, "delay_minutes": req.delay_minutes})
+    finally:
+        conn.close()
+    return {"status": "batch_started", "count": req.count, "delay_minutes": req.delay_minutes}
+
+
+@app.post("/broadcast/run")
+def broadcast_run():
+    """Trigger the AI broadcast pipeline."""
+    import subprocess
+    agent_root = Path(__file__).resolve().parent.parent
+    script = agent_root / "src" / "agents" / "ai_broadcast.py"
+    if not script.exists():
+        script = agent_root.parent / "06_Automation" / "ai_broadcast.py"
+    if not script.exists():
+        raise HTTPException(status_code=404, detail="ai_broadcast.py not found")
+    try:
+        result = subprocess.run(
+            ["python3", str(script)], capture_output=True, text=True, timeout=120, cwd=str(agent_root),
+        )
+        conn = _get_conn()
+        try:
+            audit.log(conn, "broadcast", "manual_run", {"returncode": result.returncode})
+        finally:
+            conn.close()
+        return {"success": result.returncode == 0, "output": result.stdout[:1000], "errors": result.stderr[:500]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/broadcast/status")
+def broadcast_status():
+    """Return last broadcast results from broadcast_log.json."""
+    log_path = Path(__file__).resolve().parent.parent / "data" / "broadcast_log.json"
+    if not log_path.exists():
+        return {"last_broadcast": None, "entries": [], "total_broadcasts": 0}
+    try:
+        return json.loads(log_path.read_text())
+    except Exception as e:
+        return {"error": str(e), "entries": []}
+
+
+@app.get("/api/license/agent-intelligence")
+def agent_intelligence(days: int = Query(default=7, le=90)):
+    """Aggregated AI agent intelligence for the dashboard."""
+    conn = _get_conn()
+    try:
+        _ensure_agent_requests_table(conn)
+        rows = conn.execute(
+            "SELECT query_params, user_agent, timestamp FROM agent_requests ORDER BY id DESC LIMIT 2000"
+        ).fetchall()
+
+        search_counts: dict[str, int] = {}
+        agent_types: dict[str, int] = {"ChatGPT": 0, "Claude": 0, "Copilot": 0, "Perplexity": 0, "Other": 0}
+
+        for row in rows:
+            try:
+                params = json.loads(row["query_params"]) if row["query_params"] else {}
+            except (json.JSONDecodeError, TypeError):
+                params = {}
+            query = params.get("subject") or params.get("query") or params.get("mood") or ""
+            if query:
+                search_counts[query] = search_counts.get(query, 0) + 1
+            ua = (row["user_agent"] or "").lower()
+            if "chatgpt" in ua or "openai" in ua:
+                agent_types["ChatGPT"] += 1
+            elif "claude" in ua or "anthropic" in ua:
+                agent_types["Claude"] += 1
+            elif "copilot" in ua or "bing" in ua:
+                agent_types["Copilot"] += 1
+            elif "perplexity" in ua:
+                agent_types["Perplexity"] += 1
+            elif ua:
+                agent_types["Other"] += 1
+
+        trending = []
+        for query, count in sorted(search_counts.items(), key=lambda x: x[1], reverse=True)[:15]:
+            licenses_sold = 0
+            try:
+                r = conn.execute("SELECT COUNT(*) as cnt FROM license_sales WHERE image_id LIKE ?", (f"%{query}%",)).fetchone()
+                licenses_sold = r["cnt"] if r else 0
+            except Exception:
+                pass
+            trending.append({"query": query, "count": count, "licenses_sold": licenses_sold})
+
+        revenue = {"period": f"{days}d", "micro_total": 0.0, "commercial_total": 0.0, "top_image": "none"}
+        try:
+            sales_rows = conn.execute("SELECT * FROM license_sales ORDER BY id DESC LIMIT 200").fetchall()
+            for s in sales_rows:
+                sd = dict(s)
+                revenue["commercial_total" if sd.get("tier") == "commercial" else "micro_total"] += sd.get("amount_usd", 0)
+            if sales_rows:
+                revenue["top_image"] = dict(sales_rows[0]).get("image_id", "unknown")
+        except Exception:
+            pass
+
+        unmet = []
+        for query, count in sorted(search_counts.items(), key=lambda x: x[1], reverse=True)[:20]:
+            if count >= 3 and not any(t["query"] == query and t["licenses_sold"] > 0 for t in trending):
+                unmet.append({"query": query, "search_count": count, "best_match_score": 0.0})
+
+        return {
+            "trending_searches": trending, "agent_types": agent_types,
+            "unmet_demand": unmet[:10], "revenue": revenue,
+            "total_requests": len(rows),
+            "unique_agents": len(set(r["user_agent"] for r in rows if r["user_agent"])),
+        }
+    except Exception as e:
+        logger.error("Agent intelligence failed: %s", e)
+        return {"trending_searches": [], "agent_types": {}, "unmet_demand": [],
+                "revenue": {"period": "7d", "micro_total": 0, "commercial_total": 0, "top_image": "none"},
+                "total_requests": 0, "unique_agents": 0, "error": str(e)}
+    finally:
+        conn.close()
+
+
+@app.get("/etsy/seo-report")
+def etsy_seo_report():
+    """Return latest Etsy SEO report."""
+    report_path = Path(__file__).resolve().parent.parent / "data" / "etsy_seo_report.json"
+    if not report_path.exists():
+        return {"error": "No SEO report found.", "summary": None}
+    try:
+        return json.loads(report_path.read_text())
+    except Exception as e:
+        return {"error": str(e), "summary": None}
+
+
+@app.post("/etsy/seo-run")
+def etsy_seo_run():
+    """Trigger the Etsy SEO agent."""
+    import subprocess
+    agent_root = Path(__file__).resolve().parent.parent
+    script = agent_root / "src" / "agents" / "etsy_seo_agent.py"
+    if not script.exists():
+        raise HTTPException(status_code=404, detail="etsy_seo_agent.py not found")
+    try:
+        result = subprocess.run(
+            ["python3", str(script)], capture_output=True, text=True, timeout=120, cwd=str(agent_root),
+        )
+        return {"success": result.returncode == 0, "output": result.stdout[:1000]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/pinterest/generate-pins")
+def pinterest_generate_pins():
+    """Trigger pinterest_pin_generator.py."""
+    import subprocess
+    agent_root = Path(__file__).resolve().parent.parent
+    script = agent_root / "src" / "agents" / "pinterest_pin_generator.py"
+    if not script.exists():
+        for alt in [agent_root / "pinterest_pin_generator.py", agent_root.parent / "06_Automation" / "pinterest_pin_generator.py"]:
+            if alt.exists():
+                script = alt
+                break
+    if not script.exists():
+        return {"error": "pinterest_pin_generator.py not found", "success": False}
+    try:
+        result = subprocess.run(
+            ["python3", str(script)], capture_output=True, text=True, timeout=180, cwd=str(agent_root),
+        )
+        return {"success": result.returncode == 0, "output": result.stdout[:1000]}
+    except Exception as e:
+        return {"error": str(e), "success": False}
+
+
+@app.get("/pinterest/pin-status")
+def pinterest_pin_status():
+    """Return generated pin count and last batch date."""
+    agent_root = Path(__file__).resolve().parent.parent
+    pin_dir = agent_root / "data" / "pinterest_pins"
+    if not pin_dir.exists():
+        pin_dir = agent_root.parent / "mockups" / "pinterest"
+    pin_count = 0
+    last_batch = None
+    if pin_dir and pin_dir.exists():
+        pins = list(pin_dir.glob("*.jpg")) + list(pin_dir.glob("*.png")) + list(pin_dir.glob("*.webp"))
+        pin_count = len(pins)
+        if pins:
+            latest = max(pins, key=lambda p: p.stat().st_mtime)
+            last_batch = datetime.fromtimestamp(latest.stat().st_mtime, tz=timezone.utc).isoformat()
+    return {"pin_count": pin_count, "last_batch": last_batch}
+
+
+@app.get("/system/docker-status")
+def system_docker_status():
+    """Return Docker container statuses."""
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["docker", "compose", "ps", "--format", "json"],
+            capture_output=True, text=True, timeout=10,
+            cwd=str(Path(__file__).resolve().parent.parent),
+        )
+        containers = []
+        if result.returncode == 0:
+            for line in result.stdout.strip().splitlines():
+                try:
+                    containers.append(json.loads(line))
+                except json.JSONDecodeError:
+                    pass
+        return {"containers": containers, "docker_available": True}
+    except FileNotFoundError:
+        return {"containers": [], "docker_available": False, "error": "Docker not found"}
+    except Exception as e:
+        return {"containers": [], "docker_available": False, "error": str(e)}
+
+
+@app.post("/system/restart-all")
+def system_restart_all():
+    """Restart all Docker containers."""
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["docker", "compose", "restart"], capture_output=True, text=True, timeout=60,
+            cwd=str(Path(__file__).resolve().parent.parent),
+        )
+        return {"success": result.returncode == 0, "output": result.stdout[:500]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/audit/log")
+def audit_log_paginated(
+    limit: int = Query(default=50, le=200),
+    offset: int = Query(default=0),
+    component: Optional[str] = None,
+):
+    """Return paginated, filterable audit log entries."""
+    conn = _get_conn()
+    try:
+        conditions = []
+        params: list = []
+        if component:
+            conditions.append("component = ?")
+            params.append(component)
+        where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        total = conn.execute(f"SELECT COUNT(*) as cnt FROM audit_log {where}", params).fetchone()["cnt"]
+        params.extend([limit, offset])
+        rows = conn.execute(
+            f"SELECT * FROM audit_log {where} ORDER BY id DESC LIMIT ? OFFSET ?", params
+        ).fetchall()
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        cost_today = conn.execute(
+            "SELECT COALESCE(SUM(cost_usd), 0) as total FROM audit_log WHERE timestamp LIKE ?",
+            (f"{today}%",),
+        ).fetchone()["total"]
+        return {"entries": [dict(r) for r in rows], "total": total, "cost_today": round(cost_today, 4)}
+    finally:
+        conn.close()
+
+
+@app.get("/licensing/dashboard")
+def licensing_dashboard():
+    """Return micro-licensing stats for the dashboard."""
+    conn = _get_conn()
+    try:
+        try:
+            catalog_count = conn.execute("SELECT COUNT(*) as cnt FROM photos").fetchone()["cnt"]
+        except Exception:
+            catalog_count = 0
+        revenue = 0.0
+        licenses_sold = 0
+        tier_breakdown = {"thumbnail": 0, "web": 0, "commercial": 0}
+        top_images: list[dict] = []
+        try:
+            sales = conn.execute("SELECT * FROM license_sales ORDER BY id DESC").fetchall()
+            licenses_sold = len(sales)
+            for s in sales:
+                sd = dict(s)
+                revenue += sd.get("amount_usd", 0)
+                tier = sd.get("tier", "web")
+                if tier in tier_breakdown:
+                    tier_breakdown[tier] += 1
+            top = conn.execute(
+                "SELECT image_id, COUNT(*) as cnt, SUM(amount_usd) as rev FROM license_sales GROUP BY image_id ORDER BY cnt DESC LIMIT 5"
+            ).fetchall()
+            top_images = [dict(r) for r in top]
+        except Exception:
+            pass
+        micro_versions = 0
+        try:
+            micro_dir = Path(__file__).resolve().parent.parent.parent / "public" / "micro"
+            if micro_dir.exists():
+                micro_versions = len(list(micro_dir.glob("*")))
+        except Exception:
+            pass
+        return {
+            "total_revenue": round(revenue, 2), "licenses_sold": licenses_sold,
+            "catalog_size": catalog_count, "tier_breakdown": tier_breakdown,
+            "top_images": top_images, "micro_versions": micro_versions,
         }
     finally:
         conn.close()

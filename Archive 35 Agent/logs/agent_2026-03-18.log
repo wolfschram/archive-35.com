@@ -1,0 +1,44 @@
+2026-03-18 07:28:42 [INFO] src.api: Archive-35 Agent API starting up
+2026-03-18 07:28:42 [INFO] src.api: Startup health check complete
+2026-03-18 07:28:45 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/listings?state=active&limit=200&offset=0 → 400: {"error":"Value must be <= 100"}
+
+2026-03-18 07:29:07 [INFO] __main__: Archive-35 Agent API starting up
+2026-03-18 07:29:07 [INFO] __main__: Agent resumed — broadcast — last activity: 2026-03-18T14:28:56.277584+00:00
+2026-03-18 07:29:07 [INFO] __main__: Agent resumed — content_pipeline — last activity: 2026-03-18T14:28:56.277676+00:00
+2026-03-18 07:29:07 [INFO] __main__: Agent resumed — instagram — last activity: 2026-03-18T14:28:56.276904+00:00
+2026-03-18 07:29:07 [INFO] __main__: Agent resumed — micro_licensing — last activity: 2026-03-18T14:28:56.277760+00:00
+2026-03-18 07:29:07 [INFO] __main__: Agent resumed — etsy_seo — last activity: 2026-03-18T14:28:56.277495+00:00
+2026-03-18 07:29:07 [INFO] __main__: Agent resumed — reddit — last activity: 2026-03-18T14:28:56.277267+00:00
+2026-03-18 07:29:07 [INFO] __main__: Agent resumed — pinterest — last activity: 2026-03-18T14:28:56.277400+00:00
+2026-03-18 07:29:07 [INFO] __main__: Startup health check complete
+2026-03-18 07:29:37 [INFO] __main__: Archive-35 Agent API starting up
+2026-03-18 07:29:37 [INFO] __main__: Agent resumed — broadcast — last activity: 2026-03-18T14:28:56.277584+00:00
+2026-03-18 07:29:37 [INFO] __main__: Agent resumed — content_pipeline — last activity: 2026-03-18T14:28:56.277676+00:00
+2026-03-18 07:29:37 [INFO] __main__: Agent resumed — instagram — last activity: 2026-03-18T14:28:56.276904+00:00
+2026-03-18 07:29:37 [INFO] __main__: Agent resumed — micro_licensing — last activity: 2026-03-18T14:28:56.277760+00:00
+2026-03-18 07:29:37 [INFO] __main__: Agent resumed — etsy_seo — last activity: 2026-03-18T14:28:56.277495+00:00
+2026-03-18 07:29:37 [INFO] __main__: Agent resumed — reddit — last activity: 2026-03-18T14:28:56.277267+00:00
+2026-03-18 07:29:37 [INFO] __main__: Agent resumed — pinterest — last activity: 2026-03-18T14:28:56.277400+00:00
+2026-03-18 07:29:37 [INFO] __main__: Startup health check complete
+2026-03-18 07:29:46 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/listings?state=active&limit=200&offset=0 → 400: {"error":"Value must be <= 100"}
+
+2026-03-18 07:30:16 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/listings?state=active&limit=200&offset=0 → 400: {"error":"Value must be <= 100"}
+
+2026-03-18 07:30:18 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/listings?state=active&limit=200&offset=0 → 400: {"error":"Value must be <= 100"}
+
+2026-03-18 07:30:46 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/listings?state=active&limit=200&offset=0 → 400: {"error":"Value must be <= 100"}
+
+2026-03-18 07:31:16 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/listings?state=active&limit=200&offset=0 → 400: {"error":"Value must be <= 100"}
+
+2026-03-18 07:31:46 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/listings?state=active&limit=200&offset=0 → 400: {"error":"Value must be <= 100"}
+
+2026-03-18 07:32:16 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/listings?state=active&limit=200&offset=0 → 400: {"error":"Value must be <= 100"}
+
+2026-03-18 07:32:46 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/listings?state=active&limit=200&offset=0 → 400: {"error":"Value must be <= 100"}
+
+2026-03-18 07:33:16 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/listings?state=active&limit=200&offset=0 → 400: {"error":"Value must be <= 100"}
+
+2026-03-18 07:33:46 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/listings?state=active&limit=200&offset=0 → 400: {"error":"Value must be <= 100"}
+
+2026-03-18 07:34:16 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/listings?state=active&limit=200&offset=0 → 400: {"error":"Value must be <= 100"}
+

@@ -385,8 +385,8 @@ def health():
         try:
             from src.integrations.etsy import get_listings, has_valid_token
             if has_valid_token():
-                data = get_listings(state="active", limit=200)
-                extra["etsy_listings"] = len(data.get("results", []))
+                data = get_listings(state="active", limit=100)
+                extra["etsy_listings"] = data.get("count", len(data.get("results", [])))
             else:
                 extra["etsy_listings"] = 0
         except Exception:

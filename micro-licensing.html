@@ -948,8 +948,8 @@ function renderGrid() {
           <span class="card-price">from $${webPrice}</span>
         </div>
         <div class="card-actions">
-          <button class="btn-license btn-web" onclick="event.stopPropagation();buyLicense('${img.id}','web')">Web $${webPrice}</button>
-          <button class="btn-license btn-commercial" onclick="event.stopPropagation();buyLicense('${img.id}','commercial')">Commercial $${commPrice}</button>
+          <button class="btn-license btn-web" onclick="event.stopPropagation();addMicroToCart('${img.id}','web')">+ Cart $${webPrice}</button>
+          <button class="btn-license btn-commercial" onclick="event.stopPropagation();addMicroToCart('${img.id}','commercial')">+ Cart $${commPrice}</button>
         </div>
       </div>
     `;
@@ -969,24 +969,26 @@ function openModal(img) {
   const pricing = img.pricing || {};
 
   tiers.innerHTML = `
-    <div class="modal-tier" onclick="buyLicense('${img.id}','web')">
+    <div class="modal-tier">
       <div class="modal-tier-info">
         <h3>Web / Social</h3>
         <p>2400px clean image. Blog, social media, web use. 1 year license.</p>
       </div>
-      <div style="display:flex;align-items:center;gap:16px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
         <span class="modal-tier-price">$2.50</span>
-        <button class="modal-tier-btn">License</button>
+        <button class="modal-tier-btn" onclick="event.stopPropagation();addMicroToCart('${img.id}','web')">Add to Cart</button>
+        <button class="modal-tier-btn" style="background:transparent;border:1px solid #666;color:#ccc;font-size:11px" onclick="event.stopPropagation();buyLicense('${img.id}','web')">Buy Now</button>
       </div>
     </div>
-    <div class="modal-tier" onclick="buyLicense('${img.id}','commercial')">
+    <div class="modal-tier">
       <div class="modal-tier-info">
         <h3>Commercial</h3>
         <p>Full resolution + license certificate. Commercial use. 2 years.</p>
       </div>
-      <div style="display:flex;align-items:center;gap:16px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
         <span class="modal-tier-price">$5.00</span>
-        <button class="modal-tier-btn">License</button>
+        <button class="modal-tier-btn" onclick="event.stopPropagation();addMicroToCart('${img.id}','commercial')">Add to Cart</button>
+        <button class="modal-tier-btn" style="background:transparent;border:1px solid #666;color:#ccc;font-size:11px" onclick="event.stopPropagation();buyLicense('${img.id}','commercial')">Buy Now</button>
       </div>
     </div>
     <div class="modal-tier" onclick="window.location.href='licensing.html'">
@@ -1087,8 +1089,43 @@ async function buyLicense(imageId, tier) {
 // Close modal on Escape
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
+// ── Cart Integration ──
+function addMicroToCart(imageId, tier) {
+  const img = catalog.find(i => i.id === imageId);
+  if (!img) return;
+
+  const prices = { web: 2.50, commercial: 5.00 };
+  const tierNames = { web: 'Web / Social License', commercial: 'Commercial License' };
+
+  if (!window.cart) { buyLicense(imageId, tier); return; } // Fallback if cart not loaded
+
+  window.cart.addToCart({
+    photoId: imageId,
+    title: img.title + ' — ' + tierNames[tier],
+    material: 'license',
+    size: tier === 'web' ? '2400px' : '4000px',
+    price: prices[tier],
+    thumbnail: img.thumbnail,
+    metadata: {
+      photoId: imageId,
+      material: 'license',
+      licenseTier: tier,
+      licenseClassification: img.classification || 'STANDARD',
+      photoFilename: img.original_filename || img.filename || '',
+      collection: img.collection || '',
+      width: 0,
+      height: 0
+    }
+  });
+
+  if (window.cartUI) window.cartUI.showToast('Added to cart: ' + (img.title || imageId));
+  closeModal();
+}
+
 // Init
 loadCatalog();
 </script>
+<script src="js/cart.js"></script>
+<script src="js/cart-ui.js"></script>
 </body>
 </html>

@@ -5368,30 +5368,41 @@ def get_athos_analytics():
             return {"configured": True, "error": f"Cloudflare API returned {r.status_code}"}
 
         data = r.json()
-        zones = data.get("data", {}).get("viewer", {}).get("zones", [{}])
-        zone = zones[0] if zones else {}
-        daily = zone.get("httpRequests1dGroups", [])
-        top_pages = zone.get("httpRequestsAdaptiveGroups", [])
+
+        # Handle GraphQL errors
+        if data.get("errors"):
+            return {"configured": True, "error": data["errors"][0].get("message", "Unknown GraphQL error"), "raw_errors": data["errors"]}
+
+        viewer = data.get("data") or {}
+        viewer = viewer.get("viewer") or {}
+        zones = viewer.get("zones") or []
+        if not zones:
+            return {"configured": True, "error": "No zone data returned", "zone_id_used": zone_id}
+
+        zone = zones[0] or {}
+        daily = zone.get("httpRequests1dGroups") or []
+        top_pages = zone.get("httpRequestsAdaptiveGroups") or []
 
         return {
             "configured": True,
             "daily_stats": [{
-                "date": d["dimensions"]["date"],
-                "visitors": d["uniq"]["uniques"],
-                "page_views": d["sum"]["pageViews"],
+                "date": d.get("dimensions", {}).get("date", ""),
+                "visitors": d.get("uniq", {}).get("uniques", 0),
+                "page_views": d.get("sum", {}).get("pageViews", 0),
             } for d in daily],
             "top_pages": [{
-                "path": p["dimensions"]["clientRequestPath"],
-                "views": p["count"],
-            } for p in top_pages[:10]],
+                "path": p.get("dimensions", {}).get("clientRequestPath", ""),
+                "views": p.get("count", 0),
+            } for p in (top_pages or [])[:10]],
             "totals": {
-                "visitors_7d": sum(d["uniq"]["uniques"] for d in daily),
-                "page_views_7d": sum(d["sum"]["pageViews"] for d in daily),
-                "visitors_today": daily[0]["uniq"]["uniques"] if daily else 0,
+                "visitors_7d": sum(d.get("uniq", {}).get("uniques", 0) for d in daily),
+                "page_views_7d": sum(d.get("sum", {}).get("pageViews", 0) for d in daily),
+                "visitors_today": daily[0].get("uniq", {}).get("uniques", 0) if daily else 0,
             }
         }
     except Exception as e:
-        return {"configured": True, "error": str(e)}
+        import traceback
+        return {"configured": True, "error": str(e), "traceback": traceback.format_exc()}
 
 
 @app.get("/instagram/insights")

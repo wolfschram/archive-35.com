@@ -1298,7 +1298,7 @@
 
   /* ── Scan Mode Filtering (Change 7) ─────────────────── */
   .scan-attention .platform-tile.healthy { display: none; }
-  .scan-attention .feed-item:not(.feed-error):not(.feed-warning) { display: none; }
+  .scan-attention .feed-item:not(.feed-error):not(.feed-warning) { opacity: 0.3; }
 
   /* ── Responsive ─────────────────────────────────────── */
   @media (max-width: 768px) {
@@ -1850,7 +1850,6 @@ const FEED_LIMIT = 50;
 let healthData = {};
 let agentStatusData = {};
 let emailBriefingData = {};
-let cfData = {};
 
 // ══════════════════════════════════════════════════════════════════
 // Utility Functions
@@ -1997,9 +1996,17 @@ function switchTab(tab) {
   onTabActivated(tab);
 }
 
-function onTabActivated(tab) {
+async function onTabActivated(tab) {
   switch (tab) {
-    case 'overview': pollStatus(); loadFeed(); loadFunnel(); loadTraffic(); break;
+    case 'overview': {
+      pollStatus();
+      loadFeed();
+      const cfData = await apiFetch('/analytics/cloudflare').catch(() => ({}));
+      loadFunnel(cfData);
+      loadTraffic(cfData);
+      updateConnectivityMetrics(cfData);
+      break;
+    }
     case 'social': loadSocialTab(); loadInstagramInsights(); break;
     case 'email': loadEmailBriefing(); break;
     case 'analytics': loadIntelligence(); loadEtsy(); loadEtsyStats(); loadLicensing(); loadAthos(); break;
@@ -2088,19 +2095,26 @@ function startAgent() {
 // ══════════════════════════════════════════════════════════════════
 function startPolling() {
   pollStatus();
-  loadFunnel();
-  loadTraffic();
+  // Initial CF data fetch for overview
+  (async () => {
+    const cfData = await apiFetch('/analytics/cloudflare').catch(() => ({}));
+    loadFunnel(cfData);
+    loadTraffic(cfData);
+    updateConnectivityMetrics(cfData);
+  })();
   setInterval(pollStatus, 15000);
   setInterval(() => {
     const tab = sessionStorage.getItem('active_tab') || 'overview';
     if (tab === 'overview') loadFeed();
   }, 30000);
   // Analytics data refresh every 60s
-  setInterval(() => {
+  setInterval(async () => {
     const tab = sessionStorage.getItem('active_tab') || 'overview';
     if (tab === 'overview') {
-      loadFunnel();
-      loadTraffic();
+      const cfData = await apiFetch('/analytics/cloudflare').catch(() => ({}));
+      loadFunnel(cfData);
+      loadTraffic(cfData);
+      updateConnectivityMetrics(cfData);
     }
   }, 60000);
   setInterval(() => {
@@ -2136,8 +2150,8 @@ function updateStatusPills(health) {
   // Etsy token
   if (health.etsy_token_expired) critical++;
 
-  // Instagram
-  if (!health.instagram_configured) warning++;
+  // Instagram — only count as warning if truly not configured AND no posts today
+  if (!health.instagram_configured && !(health.instagram_today && health.instagram_today > 0)) warning++;
 
   const pillsEl = $('status-pills');
   if (pillsEl) {
@@ -2227,8 +2241,7 @@ async function pollStatus() {
     // TASK 9: Update email badge
     updateEmailNavBadge();
 
-    // Change 8: Update connectivity metrics
-    updateConnectivityMetrics();
+    // Change 8: Connectivity metrics updated via CF data fetch in onTabActivated/polling
 
   } catch (err) {
     $('kpi-status').textContent = 'Offline';
@@ -2243,11 +2256,12 @@ async function pollStatus() {
 // ══════════════════════════════════════════════════════════════════
 // Change 8: Connectivity Metrics
 // ══════════════════════════════════════════════════════════════════
-async function updateConnectivityMetrics() {
+function updateConnectivityMetrics(cfData) {
+  const cf = cfData || {};
   // Cloudflare metric
   const cfMetric = $('conn-cf-metric');
-  if (cfMetric && cfData && cfData.totals) {
-    cfMetric.textContent = (cfData.totals.visitors_7d ?? '--') + ' visitors this week';
+  if (cfMetric && cf.totals) {
+    cfMetric.textContent = (cf.totals.visitors_7d ?? '--') + ' visitors this week';
   }
   // Stripe metric
   const stripeMetric = $('conn-stripe-metric');
@@ -2295,8 +2309,8 @@ async function updateAttentionItems(health) {
     items.push({ level: 'critical', icon: '\uD83D\uDED2', label: 'Etsy', detail: 'API token expired. Listings won\'t sync until reauthorized.', actions: [{ text: 'Reauthorize', cls: 'btn danger btn-sm', fn: "window.open('https://www.etsy.com/your/shops/me/dashboard','_blank')" }] });
   }
 
-  // Check Instagram
-  if (!health.instagram_configured) {
+  // Check Instagram — only warn if truly not configured AND no posts today
+  if (!health.instagram_configured && !(health.instagram_today && health.instagram_today > 0)) {
     items.push({ level: 'warning', icon: '\uD83D\uDCF7', label: 'Instagram', detail: 'Not configured. Set up Meta API credentials to enable auto-posting.', actions: [{ text: 'Setup Guide', cls: 'btn btn-sm', fn: "switchTab('social')" }] });
   }
 
@@ -2569,17 +2583,15 @@ async function runEmailScan() {
 // ══════════════════════════════════════════════════════════════════
 // Change 1: Revenue Funnel
 // ══════════════════════════════════════════════════════════════════
-async function loadFunnel() {
+async function loadFunnel(cfData) {
   const el = $('revenue-funnel');
   if (!el) return;
-  let cf = {}, ig = {}, etsy = {}, broadcast = {}, intel = {};
-  try { cf = await apiFetch('/analytics/cloudflare'); } catch(e) {}
+  const cf = cfData || {};
+  let ig = {}, etsy = {}, broadcast = {}, intel = {};
   try { ig = await apiFetch('/instagram/insights'); } catch(e) {}
   try { etsy = await apiFetch('/etsy/shop-stats'); } catch(e) {}
   try { broadcast = await apiFetch('/broadcast/status'); } catch(e) {}
   try { intel = await apiFetch('/api/license/agent-intelligence'); } catch(e) {}
-
-  cfData = cf; // cache for connectivity metrics
 
   const visitors = cf.totals?.visitors_7d ?? '--';
   const pageViews = cf.totals?.page_views_7d ?? '--';
@@ -2635,19 +2647,16 @@ async function loadFunnel() {
     ${recommendation ? `<div style="padding:12px 16px; background:rgba(251,191,36,0.1); border-radius:8px; font-size:13px; color:var(--status-warning);">${esc(recommendation)}</div>` : ''}
   `;
 
-  // Update connectivity metrics now that we have cfData
-  updateConnectivityMetrics();
 }
 
 // ══════════════════════════════════════════════════════════════════
 // Change 2: Cloudflare Traffic Card
 // ══════════════════════════════════════════════════════════════════
-async function loadTraffic() {
+async function loadTraffic(cfData) {
   const el = $('cf-traffic');
   if (!el) return;
   try {
-    const d = await apiFetch('/analytics/cloudflare');
-    cfData = d;
+    const d = cfData || {};
     if (!d.configured) {
       el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">&#128202;</div><div class="empty-state-text">Add CLOUDFLARE_API_TOKEN to .env to see real visitor data</div></div>`;
       return;
@@ -2815,13 +2824,20 @@ async function loadRedditQueueFull() {
       return;
     }
     container.innerHTML = posts.map(p => {
-      const submitUrl = `https://old.reddit.com/r/${encodeURIComponent(p.subreddit || '')}/submit`;
+      const sub = (p.subreddit || '').replace(/^r\//, '');
+      const submitUrl = `https://old.reddit.com/r/${encodeURIComponent(sub)}/submit`;
       const titleEsc = esc(p.title || '').replace(/'/g, "\\'");
+      const thumbUrl = p.image_id ? `${API_BASE}/photos/${encodeURIComponent(p.image_id)}/thumbnail?size=200` : '';
       return `
         <div class="queue-item">
-          <div class="sub-name">r/${esc(p.subreddit || '')}</div>
-          <div class="q-title" onclick="copyToClipboard('${titleEsc}', this)" title="Click to copy title">${esc(p.title || '')}</div>
-          <div class="q-body">${esc((p.body || '').substring(0, 120))}</div>
+          <div class="sub-name">r/${esc(sub)}</div>
+          <div style="display:flex; align-items:flex-start;">
+            ${thumbUrl ? `<img src="${esc(thumbUrl)}" style="width:120px; height:80px; object-fit:cover; border-radius:8px; margin-right:12px; flex-shrink:0;" onerror="this.style.display='none'">` : ''}
+            <div style="flex:1; min-width:0;">
+              <div class="q-title" onclick="copyToClipboard('${titleEsc}', this)" title="Click to copy title">${esc(p.title || '')}</div>
+              <div class="q-body">${esc((p.body || '').substring(0, 120))}</div>
+            </div>
+          </div>
           <div class="q-actions">
             <button class="btn success btn-sm" onclick="btnAction(this, () => redditMarkPosted('${esc(p.id)}'))">Mark Posted</button>
             <button class="btn btn-sm" onclick="btnAction(this, () => redditSkip('${esc(p.id)}'))">Skip</button>
@@ -3431,25 +3447,38 @@ function setFeedFilter(component) {
 }
 
 // TASK 4: Format feed entry as human-readable one-liner
-function formatFeedAction(e) {
-  const comp = esc(e.component || 'system');
-  const action = esc(e.action || '');
+const FEED_TRANSLATIONS = {
+  'system_startup': 'System started',
+  'pipeline_daily_complete': 'Daily pipeline completed',
+  'pipeline_daily_start': 'Daily pipeline started',
+  'social_post_dry_run': 'Social post queued (dry run)',
+  'social_post_failed': 'Social post failed',
+  'social_published': 'Content published',
+  'content_generate': 'Content generated',
+  'instagram_agent_post': 'Instagram post published',
+  'instagram_published': 'Instagram image published',
+  'broadcast_complete': 'Broadcast completed',
+  'etsy_seo_audit': 'Etsy SEO audit ran',
+  'etsy_auto_fulfilled': 'Etsy order fulfilled',
+};
 
-  // Try to parse details if it's a JSON string, and simplify
-  let detailStr = '';
-  if (e.details) {
-    const raw = String(e.details);
-    // If it looks like JSON, don't show it
-    if (raw.startsWith('{') || raw.startsWith('[')) {
-      // Skip raw JSON — just show component + action
-      detailStr = '';
-    } else {
-      // Truncate long details
-      detailStr = raw.length > 80 ? raw.substring(0, 80) + '...' : raw;
-    }
+function translateFeedAction(component, action) {
+  const key = `${component}_${action}`;
+  return FEED_TRANSLATIONS[key] || null;
+}
+
+function formatFeedAction(e) {
+  const comp = (e.component || 'system');
+  const action = (e.action || '');
+
+  // Try known translation first
+  const translated = translateFeedAction(comp, action);
+  if (translated) {
+    return `<strong>${esc(comp)}</strong> ${esc(translated)}`;
   }
 
-  return `<strong>${comp}</strong> ${action}${detailStr ? ' <span style="color:var(--text-dim)">' + esc(detailStr) + '</span>' : ''}`;
+  // Fallback: show component + action in human-readable form, hide raw JSON details
+  return `<strong>${esc(comp)}</strong> ${esc(action)}`;
 }
 
 // Determine feed dot type from action/component

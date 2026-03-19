@@ -1,5 +1,5 @@
 # CLAUDE.md — archive-35
-Last updated: March 18, 2026
+Last updated: March 19, 2026
 
 > Read this COMPLETELY before touching anything.
 > This is a LIVE business with real customers and real payments.
@@ -207,13 +207,71 @@ Any change to a shared file = test ALL THREE: Studio + Agent + Mockup
     safe-catalog-editor.md # Rules for modifying catalog files
 ```
 
-## How to Use Commands
-When Claude Code builds something, it should:
-1. Build the feature
+## How Claude Code Must Work (MANDATORY)
+
+These are non-negotiable behavioral rules. Every session. Every task.
+
+### READ BEFORE YOU THINK
+- Before writing ANY code, READ the actual file you're about to modify
+- Before calling ANY API, READ the existing integration code to learn the params/limits
+- Before modifying ANY catalog, READ `.claude/agents/safe-catalog-editor.md`
+- Don't assume file formats, field names, API limits, or data structures — read them
+- Multiple bugs in past sessions were caused by assumptions that one `cat` command would have prevented
+
+### SMALL TASKS, NOT MONOLITHS
+- Break every feature into steps of 50 lines or less
+- After EACH step: verify it works before moving to the next
+- A 500-line spec delivered in one shot = half-finished garbage. Don't do it.
+- If the task feels big, split it. Build → verify → build → verify.
+
+### VERIFY YOUR OWN OUTPUT
+After EVERY change, before reporting success:
+- **Files modified?** Re-read them. Confirm the change is actually there.
+- **JSON catalogs?** Count records before and after. Check required fields exist.
+- **API endpoints?** Hit them with curl. Confirm they return valid JSON.
+- **Frontend changes?** Check the page loads without console errors.
+- **R2 uploads?** Verify the object exists with HeadObject.
+- If you can't verify it, you didn't finish it.
+
+### RUN THE COMMANDS
+When Claude Code builds something, it MUST:
+1. Build the feature (small steps, verified individually)
 2. Run `/test-endpoints` to verify API
 3. Run `/deploy` to ship it
 4. Run `/verify-pages` to confirm nothing broke
 5. Run the `verifier` agent for full quality check
+6. Only THEN report success to Wolf
+
+### DON'T SHIP BROKEN THINGS
+- If ANY verification step fails → fix it before moving on
+- "It should work" is not verification. Run the test.
+- If you're not sure a change is safe, ask Wolf. Don't guess.
+- Half-built features shipped without testing is the #1 problem in this project
+
+### CATALOG RULES (ENFORCED)
+- `data/licensing-catalog.json` = ONLY large-scale-photography-stitch collection. ~166 images. $280+.
+- `data/micro-licensing-catalog.json` = ALL 1,109 images. $2.50/$5.00.
+- `data/photos.json` = Gallery display ONLY. Not a licensing file.
+- NEVER dump one catalog into another
+- ALWAYS back up before modifying: `cp data/X.json data/X.json.bak`
+- ALWAYS count records before and after modification
+
+### API LIMITS YOU WILL FORGET
+- Etsy: max `limit` = 100 (not 200 — 200 causes 400 errors)
+- Cloudflare `httpRequestsAdaptiveGroups`: 1-day max range on free tier
+- Instagram Insights: returns 400 in Development Mode
+- Pinterest: trial = read-only, cannot create pins
+- Reddit: new app creation blocked since Nov 2025
+
+### IPTC METADATA
+- Must be embedded IN the JPEG using `exiftool -overwrite_original`
+- XMP sidecar files (.xmp) are useless — agents and Google Images can't read them
+- Every micro-license delivery image needs copyright, creator, license URL, C2PA notice
+
+### DOCKER
+- uvicorn must bind to `0.0.0.0` inside Docker, not `127.0.0.1`
+- `.env` must be volume-mounted so token refresh can write back
+- `docker compose ps --format json` returns a JSON array, not one object per line
 
 ## Two-Catalog Architecture (CRITICAL)
 - `data/licensing-catalog.json` → 510 high-res images (10K+ px) → licensing.html → $280+

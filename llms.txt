@@ -106,6 +106,27 @@ This cryptographically proves:
 - Terms: https://archive-35.com/terms.html
 - Privacy: https://archive-35.com/privacy.html
 
+## Micro-Licensing (AI Agents & Web Use)
+
+For automated image procurement, web thumbnails, blog posts, and social media:
+
+- Web/Social license: $2.50 per image (2400px, 1-year license)
+- Commercial license: $5.00 per image (full resolution, 2-year license + certificate)
+- Prepaid credits: $25 for 10 web licenses ($2.50 each) — bulk pricing available
+- Payment: USDC on Base network (x402 protocol) OR Stripe (USD)
+
+API Endpoint: https://archive-35.com/api/license/gallery
+Search by: subject, mood, location, orientation, use_case
+Protocol: HTTP 402 (x402) — agents pay automatically via USDC
+Facilitator: https://x402.org/facilitator (Coinbase, 1000 free tx/month)
+
+Catalog: 500+ images from 55+ countries
+All images: C2PA verified authentic photography (NOT AI generated)
+Metadata: IPTC rights embedded in all licensed files
+
+MCP Server: https://archive-35.com/.well-known/mcp/server.json
+OpenAPI Spec: https://archive-35.com/.well-known/openapi.json
+
 ## Copyright & Usage
 
 All photographs are copyrighted by Wolf / Archive-35.

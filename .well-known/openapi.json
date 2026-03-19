@@ -1,0 +1,64 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Archive-35 Photography Licensing API",
+    "version": "1.0.0",
+    "description": "Search and license authentic fine art photography. 500+ C2PA verified images from 55+ countries. Payment via USDC (x402) or Stripe.",
+    "contact": { "email": "wolf@archive-35.com", "url": "https://archive-35.com" }
+  },
+  "servers": [{ "url": "https://archive-35.com" }],
+  "paths": {
+    "/api/license/gallery": {
+      "get": {
+        "summary": "Search photography catalog",
+        "description": "Search and filter the photography catalog. Returns images with pricing and licensing details.",
+        "parameters": [
+          { "name": "subject", "in": "query", "schema": { "type": "string", "enum": ["landscape","wildlife","urban","abstract","travel","architecture","ocean","desert","aerial"] } },
+          { "name": "mood", "in": "query", "schema": { "type": "string", "enum": ["dramatic","minimalist","warm","cold","documentary","serene"] } },
+          { "name": "location", "in": "query", "schema": { "type": "string" }, "description": "Country or city name" },
+          { "name": "orientation", "in": "query", "schema": { "type": "string", "enum": ["landscape","portrait","panoramic","square"] } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 50, "maximum": 200 } }
+        ],
+        "responses": {
+          "200": { "description": "Search results with images and pricing" }
+        }
+      }
+    },
+    "/api/license/{image_id}": {
+      "get": {
+        "summary": "License a specific image",
+        "description": "Returns 402 with payment details. Include X-PAYMENT header with USDC payment proof to receive the licensed image.",
+        "parameters": [
+          { "name": "image_id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "tier", "in": "query", "schema": { "type": "string", "enum": ["web","commercial"], "default": "web" } }
+        ],
+        "responses": {
+          "402": { "description": "Payment required — includes x402 payment details" },
+          "200": { "description": "Licensed image download URL (after payment verified)" }
+        }
+      }
+    },
+    "/api/credits/purchase": {
+      "post": {
+        "summary": "Purchase prepaid credits via Stripe",
+        "requestBody": {
+          "content": { "application/json": { "schema": { "type": "object", "properties": { "amount": { "type": "number", "default": 25 } } } } }
+        },
+        "responses": {
+          "200": { "description": "Stripe checkout session URL" }
+        }
+      }
+    },
+    "/api/credits/balance": {
+      "get": {
+        "summary": "Check credit balance",
+        "parameters": [
+          { "name": "api_key", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Current credit balance" }
+        }
+      }
+    }
+  }
+}

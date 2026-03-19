@@ -24,9 +24,8 @@
 const EDITORIAL_ONLY_COLLECTIONS = ["concerts"];
 
 const LICENSE_TIERS = {
-  thumbnail: { price: "0.01", description: "400px watermarked preview" },
-  web: { price: "0.50", description: "1200px clean, web/blog/social" },
-  commercial: { price: "2.50", description: "Full resolution + license certificate" },
+  web: { price: "2.50", description: "2400px clean, web/blog/social, 1-year license" },
+  commercial: { price: "5.00", description: "Full resolution + license certificate, 2-year license" },
 };
 
 // ── Subject → tag mapping ───────────────────────────────────────────
@@ -89,6 +88,10 @@ export async function onRequest(context) {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
     "Cache-Control": "public, max-age=300",
+    "X-Payment-Required": "true",
+    "X-Payment-Network": "base",
+    "X-Payment-Currency": "USDC",
+    "X-Payment-Facilitator": "https://x402.org/facilitator",
   };
 
   // Log request for intelligence (fire and forget to agent API if available)
@@ -165,7 +168,7 @@ export async function onRequest(context) {
   const items = page.map(photo => {
     const isEditorial = EDITORIAL_ONLY_COLLECTIONS.includes(photo.collection) || editorialOnly;
     const availableTiers = isEditorial
-      ? { thumbnail: LICENSE_TIERS.thumbnail, web: LICENSE_TIERS.web }
+      ? { web: LICENSE_TIERS.web }
       : { ...LICENSE_TIERS };
 
     return {
@@ -180,7 +183,7 @@ export async function onRequest(context) {
       tags: (photo.tags || []).slice(0, 8),
       editorial_only: isEditorial,
       default_tier: "web",
-      default_price: "0.50",
+      default_price: "2.50",
       currency: "USDC",
       network: "base",
       chain_id: 8453,
@@ -223,7 +226,7 @@ function buildDiscoveryResponse(origin) {
       what_is_your_use_case: {
         param: "use_case",
         options: ["editorial", "commercial", "training_data", "content_generation", "product_mockup"],
-        note: "editorial restricts to thumbnail + web tiers only",
+        note: "editorial restricts to web tier only",
       },
       what_subject_matter: {
         param: "subject",

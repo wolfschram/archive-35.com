@@ -192,6 +192,35 @@ Any change to a shared file = test ALL THREE: Studio + Agent + Mockup
   PHASE-*.md              # Build specifications (Phases 1-8)
 ```
 
+## Claude Code Project Structure
+```
+.claude/
+  settings.json          # Hooks, permissions
+  commands/
+    deploy.md            # Deploy website (sync → commit → push → verify)
+    test-endpoints.md    # Test ALL API endpoints
+    restart-agent.md     # Restart Docker agent API
+    verify-pages.md      # Check all live pages load
+    run-broadcast.md     # Push to AI search indices
+  agents/
+    verifier.md          # Self-reflection agent — run AFTER every build
+    safe-catalog-editor.md # Rules for modifying catalog files
+```
+
+## How to Use Commands
+When Claude Code builds something, it should:
+1. Build the feature
+2. Run `/test-endpoints` to verify API
+3. Run `/deploy` to ship it
+4. Run `/verify-pages` to confirm nothing broke
+5. Run the `verifier` agent for full quality check
+
+## Two-Catalog Architecture (CRITICAL)
+- `data/licensing-catalog.json` → 510 high-res images (10K+ px) → licensing.html → $280+
+- `data/micro-licensing-catalog.json` → 1,109 all images → micro-licensing.html → $2.50/$5.00
+- `data/photos.json` → gallery display → gallery.html (NOT a licensing file)
+NEVER merge these files. They serve different purposes.
+
 ## Key Repos
 - Website: github.com/wolfschram/archive-35.com
 - MCP server: 06_Automation/archive35_mcp.py

@@ -74,6 +74,9 @@ mockups/
 _site/
 
 # Email MCP credentials (NEVER commit)
+
+# PyPI credentials and recovery codes
+Archive 35 Agent/data/credentials/
 06_Automation/email_mcp/.env
 
 # Etsy listing exports — local workflow only (machine → Etsy)

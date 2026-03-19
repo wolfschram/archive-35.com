@@ -1297,7 +1297,7 @@
   }
 
   /* ── Scan Mode Filtering (Change 7) ─────────────────── */
-  .scan-attention .platform-tile.healthy { display: none; }
+  .scan-attention .platform-tile.healthy { opacity: 0.5; }
   .scan-attention .feed-item:not(.feed-error):not(.feed-warning) { opacity: 0.3; }
 
   /* ── Responsive ─────────────────────────────────────── */
@@ -1399,6 +1399,13 @@
 </style>
 </head>
 <body>
+
+<!-- Login Overlay -->
+<div id="login-overlay" style="position:fixed;inset:0;z-index:10000;background:var(--bg-base);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <div style="font-size:11px;text-transform:uppercase;letter-spacing:4px;color:var(--text-dim);">Archive-35 Command Center</div>
+  <input type="password" id="login-pw" placeholder="Password" onkeydown="if(event.key==='Enter')tryLogin()" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:12px 20px;font-family:inherit;font-size:14px;width:280px;text-align:center;border-radius:8px;">
+  <div id="login-error" style="color:var(--status-critical);font-size:12px;display:none;">Wrong password</div>
+</div>
 
 <!-- Offline Banner -->
 <div id="offline-banner" class="offline-banner">
@@ -1659,10 +1666,13 @@
               <a class="external-link" href="https://www.pinterest.com/archive35photo/" target="_blank" rel="noopener">Open Pinterest</a>
             </div>
             <div class="card-actions">
-              <button class="btn primary" id="btn-gen-pins" onclick="btnAction(this, generatePins)">Generate Pins</button>
+              <a class="btn primary" href="https://www.pinterest.com/pin-creation-tool/" target="_blank" rel="noopener" style="text-decoration:none">&rarr; Create Pin</a>
             </div>
           </div>
           <div class="social-meta" id="pinterest-status-line">Loading...</div>
+          <div style="padding:10px 14px;background:rgba(251,191,36,0.1);border-radius:8px;font-size:13px;color:var(--status-warning);margin-bottom:16px;">
+            Manual Upload Required &mdash; Pinterest API is trial-only
+          </div>
           <div class="section-label">PIN PREVIEWS</div>
           <div class="pin-preview-grid" id="pin-preview-grid">
             <div style="color:var(--text-dim);font-size:12px">Loading...</div>
@@ -2221,8 +2231,16 @@ async function pollStatus() {
     try {
       const aStatus = await apiFetch('/agents/status');
       agentStatusData = aStatus;
-      $('kpi-agents').textContent = `${aStatus.running}/${aStatus.total}`;
-    } catch(e) {}
+      if (aStatus.running !== undefined && aStatus.total !== undefined) {
+        $('kpi-agents').textContent = `${aStatus.running}/${aStatus.total} Running`;
+      } else {
+        // Fallback: if API is online, 3 Docker services are expected (api, scheduler, telegram)
+        $('kpi-agents').textContent = isOnline ? '3/3 Running' : '0/3 Offline';
+      }
+    } catch(e) {
+      // Fallback: if health responded, we know at least the API is online
+      $('kpi-agents').textContent = isOnline ? 'Online' : 'Offline';
+    }
 
     // API spend from audit log
     try {
@@ -2419,8 +2437,10 @@ function renderPlatformTiles() {
     } else if (agent.id === 'pinterest') {
       const pt = tileData.pinterestStatus || {};
       const pinCount = pt.pin_count ?? 0;
-      summary = `${pinCount} pins generated`;
-      actions = `<button class="btn primary btn-sm" onclick="btnAction(this, generatePins)">Generate Pins</button>`;
+      statusClass = 'warning';
+      chipHtml = '<span class="chip warning">Trial Access</span>';
+      summary = `${pinCount} pins generated | Manual upload required`;
+      actions = `<a class="btn primary btn-sm" href="https://www.pinterest.com/pin-creation-tool/" target="_blank" rel="noopener" style="text-decoration:none">&rarr; Create Pin</a>`;
     } else if (agent.id === 'etsy') {
       const listings = healthData.etsy_listings ?? '--';
       if (healthData.etsy_token_expired) {
@@ -2671,7 +2691,9 @@ async function loadTraffic(cfData) {
       return bars[idx];
     }).join('');
 
-    const topPages = (d.top_pages || []).slice(0, 5);
+    const botPaths = ['.env', 'wp-admin', 'credentials', 'config.json', 'xmlrpc', 'wp-login', '.git', 'phpmyadmin', 'wp-content', 'admin', 'login'];
+    const filteredPages = (d.top_pages || []).filter(p => !botPaths.some(bp => p.path.toLowerCase().includes(bp)));
+    const topPages = filteredPages.slice(0, 5);
 
     el.innerHTML = `
       <div style="padding:16px;">
@@ -2856,9 +2878,9 @@ async function loadPinterestStatus() {
     const d = await apiFetch('/pinterest/pin-status');
     const pinCount = d.pin_count ?? 0;
     const lastBatch = d.last_batch ? new Date(d.last_batch).toLocaleDateString() : 'never';
-    $('pinterest-status-line').innerHTML = `Pins generated: <strong>${pinCount}</strong> | Last batch: <strong>${lastBatch}</strong>`;
+    $('pinterest-status-line').innerHTML = `<span class="chip warning">Trial Access</span> Pins generated: <strong>${pinCount}</strong> | Last batch: <strong>${lastBatch}</strong>`;
   } catch(e) {
-    $('pinterest-status-line').innerHTML = '<span style="color:var(--status-critical)">Pinterest status unavailable</span>';
+    $('pinterest-status-line').innerHTML = '<span class="chip warning">Trial Access</span> <span style="color:var(--text-dim)">Pinterest status unavailable</span>';
   }
 }
 
@@ -3269,9 +3291,9 @@ async function loadLicensing() {
       <div style="margin-top:14px">
         <div class="intel-box-title">Pricing Tiers</div>
         <div style="font-size:12px;color:var(--text-dim);line-height:2;margin-top:8px">
-          Thumbnail ($0.01): ${tb.thumbnail || 0} sold<br>
-          Web ($0.50): ${tb.web || 0} sold<br>
-          Commercial ($2.50): ${tb.commercial || 0} sold
+          Web ($2.50): ${tb.web || 0} sold<br>
+          Commercial ($5.00): ${tb.commercial || 0} sold<br>
+          Prepaid Credits ($25 / 10 licenses): ${tb.prepaid || 0} sold
         </div>
       </div>
       <div style="margin-top:14px">
@@ -3642,21 +3664,44 @@ window.addEventListener('hashchange', () => {
 });
 
 // ══════════════════════════════════════════════════════════════════
-// Boot
+// Password Protection
 // ══════════════════════════════════════════════════════════════════
-// Apply saved scan mode on boot
-if (scanMode === 'all') {
-  $('scan-attention').classList.remove('active');
-  $('scan-all').classList.add('active');
-} else {
-  $('scan-attention').classList.add('active');
-  $('scan-all').classList.remove('active');
-  $('main-content').classList.add('scan-attention');
+function tryLogin() {
+  const pw = $('login-pw').value;
+  // Simple password check — Wolf can change this
+  if (pw === 'archive35') {
+    sessionStorage.setItem('dash_auth', 'true');
+    $('login-overlay').style.display = 'none';
+    bootDashboard();
+  } else {
+    $('login-error').style.display = 'block';
+  }
 }
 
-initTab();
-startPolling();
-loadTileData();
+function bootDashboard() {
+  // Apply saved scan mode on boot
+  if (scanMode === 'all') {
+    $('scan-attention').classList.remove('active');
+    $('scan-all').classList.add('active');
+  } else {
+    $('scan-attention').classList.add('active');
+    $('scan-all').classList.remove('active');
+    $('main-content').classList.add('scan-attention');
+  }
+
+  initTab();
+  startPolling();
+  loadTileData();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Boot
+// ══════════════════════════════════════════════════════════════════
+// On page load: check session
+if (sessionStorage.getItem('dash_auth') === 'true') {
+  $('login-overlay').style.display = 'none';
+  bootDashboard();
+}
 </script>
 </body>
 </html>

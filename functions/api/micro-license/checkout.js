@@ -3,7 +3,7 @@
  * Cloudflare Pages Function
  *
  * POST /api/micro-license/checkout
- * Creates a Stripe Checkout Session for micro-license purchases ($0.50 - $2.50)
+ * Creates a Stripe Checkout Session for micro-license purchases ($2.50 - $5.00)
  *
  * Body: { image_id, tier, image_title, image_filename, classification }
  *
@@ -14,14 +14,14 @@
 
 const TIER_CONFIG = {
   web: {
-    price_cents: 50,        // $0.50
+    price_cents: 250,       // $2.50
     name_suffix: "Web / Social License",
-    description: "1200px clean image. Web, blog, social media use. 1 year license.",
-    resolution: "1200px",
+    description: "2400px clean image. Web, blog, social media use. 1 year license.",
+    resolution: "2400px",
     duration: "1 year",
   },
   commercial: {
-    price_cents: 250,       // $2.50
+    price_cents: 500,       // $5.00
     name_suffix: "Commercial License",
     description: "Full resolution + license certificate. Commercial use. 2 years.",
     resolution: "Full resolution",

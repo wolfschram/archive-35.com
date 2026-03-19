@@ -7,10 +7,9 @@
  * Returns HTTP 402 Payment Required with USDC payment details.
  * After payment confirmation on Base network, returns full-res download URL.
  *
- * Three license tiers:
- *   - thumbnail:  $0.01  — 400px watermarked preview
- *   - web:        $0.50  — 1200px clean, web/blog/social use (DEFAULT)
- *   - commercial: $2.50  — full resolution + license certificate
+ * Two license tiers:
+ *   - web:        $2.50  — 2400px clean, web/blog/social use (DEFAULT)
+ *   - commercial: $5.00  — full resolution + license certificate
  *
  * Payment: USDC on Base network via Coinbase x402 protocol.
  * Facilitator: Coinbase (1,000 free transactions/month).
@@ -24,26 +23,18 @@
 // ── License tiers ──────────────────────────────────────────────────────
 
 const LICENSE_TIERS = {
-  thumbnail: {
-    price: "0.01",
-    currency: "USDC",
-    description: "Thumbnail preview — 400px max, watermarked",
-    max_dimension: 400,
-    watermarked: true,
-    usage: "Preview only. Watermarked. No commercial or editorial use.",
-  },
   web: {
-    price: "0.50",
+    price: "2.50",
     currency: "USDC",
-    description: "Web license — 1200px clean, web/blog/social use",
-    max_dimension: 1200,
+    description: "Web license — 2400px clean, web/blog/social use, 1-year license",
+    max_dimension: 2400,
     watermarked: false,
     usage: "Web use permitted. Credit required: Wolf Schram / Archive-35",
   },
   commercial: {
-    price: "2.50",
+    price: "5.00",
     currency: "USDC",
-    description: "Commercial full-resolution license — print, web, advertising + license certificate",
+    description: "Commercial full-resolution license — print, web, advertising + license certificate, 2-year license",
     max_dimension: null, // full res
     watermarked: false,
     usage: "Commercial use permitted. No exclusivity. License certificate included. Credit appreciated.",
@@ -88,27 +79,30 @@ function buildPaymentRequired(imageId, tier, walletAddress) {
   };
 }
 
-// ── Payment verification (stub — real verification via Coinbase SDK) ──
+// ── Payment verification via x402 facilitator ──────────────────────────
 
-async function verifyPayment(txHash, expectedAmount, walletAddress) {
-  // TODO: Verify on-chain via Base RPC or Coinbase CDP SDK
-  // For now, check transaction hash format
-  if (!txHash || !txHash.startsWith("0x") || txHash.length !== 66) {
-    return { verified: false, error: "Invalid transaction hash format" };
+async function verifyPayment(paymentHeader, expectedAmount, expectedRecipient) {
+  const FACILITATOR_URL = "https://x402.org/facilitator";
+  try {
+    const response = await fetch(`${FACILITATOR_URL}/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        payment: paymentHeader,
+        expectedAmount: expectedAmount,
+        expectedRecipient: expectedRecipient,
+        network: "base",
+        currency: "USDC",
+      }),
+    });
+    if (!response.ok) {
+      return { valid: false, error: `Facilitator returned ${response.status}` };
+    }
+    const result = await response.json();
+    return { valid: result.valid === true, txHash: result.txHash || null, error: result.error || null };
+  } catch (e) {
+    return { valid: false, error: e.message };
   }
-
-  // Real implementation would:
-  // 1. Query Base network for transaction receipt
-  // 2. Verify: to === walletAddress
-  // 3. Verify: value >= expectedAmount in USDC
-  // 4. Verify: status === 1 (success)
-  // 5. Verify: not already used (idempotency)
-
-  return {
-    verified: false,
-    error: "On-chain verification not yet implemented — coming with CDP SDK integration",
-    tx_hash: txHash,
-  };
 }
 
 // ── Signed download URL generation ─────────────────────────────────────
@@ -167,10 +161,22 @@ export async function onRequest(context) {
 
   const url = new URL(request.url);
   const tier = url.searchParams.get("tier") || "web";
-  const txHash = url.searchParams.get("tx");
+  const paymentHeader = request.headers.get("X-PAYMENT");
 
-  // If no transaction hash — return 402 Payment Required
-  if (!txHash) {
+  // Validate tier
+  const license = LICENSE_TIERS[tier];
+  if (!license) {
+    return new Response(
+      JSON.stringify({
+        error: `Invalid tier: ${tier}`,
+        valid_tiers: Object.keys(LICENSE_TIERS),
+      }),
+      { status: 400, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
+    );
+  }
+
+  // If no X-PAYMENT header — return 402 Payment Required
+  if (!paymentHeader) {
     const payment = buildPaymentRequired(imageId, tier, walletAddress);
     if (!payment) {
       return new Response(
@@ -178,36 +184,27 @@ export async function onRequest(context) {
           error: `Invalid tier: ${tier}`,
           valid_tiers: Object.keys(LICENSE_TIERS),
         }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
       );
     }
 
     return new Response(JSON.stringify(payment.body), {
       status: 402,
-      headers: payment.headers,
+      headers: { ...payment.headers, "Access-Control-Allow-Origin": "*" },
     });
   }
 
-  // Transaction hash provided — verify payment
-  const license = LICENSE_TIERS[tier];
-  if (!license) {
-    return new Response(
-      JSON.stringify({ error: `Invalid tier: ${tier}` }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
-    );
-  }
+  // X-PAYMENT header present — verify payment via x402 facilitator
+  const verification = await verifyPayment(paymentHeader, license.price, walletAddress);
 
-  const verification = await verifyPayment(txHash, license.price, walletAddress);
-
-  if (!verification.verified) {
+  if (!verification.valid) {
     return new Response(
       JSON.stringify({
         verified: false,
         error: verification.error,
-        tx_hash: txHash,
-        note: "On-chain verification coming soon. Contact wolf@archive-35.com for manual licensing.",
+        note: "Payment verification failed. Contact wolf@archive-35.com for manual licensing.",
       }),
-      { status: 402, headers: { "Content-Type": "application/json" } }
+      { status: 402, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
     );
   }
 
@@ -232,9 +229,10 @@ export async function onRequest(context) {
       license: tier,
       image_id: imageId,
       download_url: downloadUrl,
+      tx_hash: verification.txHash,
       usage_terms: license.usage,
       expires_in: "1 hour",
     }),
-    { status: 200, headers: { "Content-Type": "application/json" } }
+    { status: 200, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
   );
 }

@@ -53,6 +53,13 @@ cp robots.txt _site/ 2>/dev/null || true
 cp llms.txt _site/ 2>/dev/null || true
 cp llms-full.txt _site/ 2>/dev/null || true
 cp sitemap.xml _site/ 2>/dev/null || true
+cp sitemap-images.xml _site/ 2>/dev/null || true
+
+# Copy IndexNow verification key (required for Bing/ChatGPT search indexing)
+cp bec4410ec1fa5d67379a63e652ce0c4d.txt _site/ 2>/dev/null || true
+
+# Copy .well-known directory (MCP server discovery, OpenAPI spec)
+cp -r .well-known _site/ 2>/dev/null || true
 
 # Copy API endpoint (machine-readable product feed for AI agents)
 cp -r api _site/ 2>/dev/null || true

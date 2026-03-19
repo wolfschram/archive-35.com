@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.wolfschram/archive35-photography",
+  "description": "Search and license C2PA verified fine art photography. 1,109 images, 55 countries.",
+  "repository": {
+    "url": "https://github.com/wolfschram/archive-35.com",
+    "source": "github"
+  },
+  "version": "1.0.1",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "archive35-commerce-mcp",
+      "version": "1.0.1",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

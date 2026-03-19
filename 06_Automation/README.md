@@ -1,5 +1,7 @@
 # Archive 35 — Automation Scripts
 
+mcp-name: io.github.wolfschram/archive35-photography
+
 *Python scripts for content management and posting*
 
 ---

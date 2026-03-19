@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "archive35-commerce-mcp"
-version = "1.0.0"
+version = "1.0.1"
 description = "Search and license authentic fine art photography. 1,274 C2PA verified images from 55+ countries."
 authors = [{name = "Wolf Schram", email = "wolf@archive-35.com"}]
 readme = "README.md"
@@ -28,4 +28,7 @@ Repository = "https://github.com/wolfschram/archive-35.com"
 archive35-mcp = "archive35_commerce_mcp:mcp.run"
 
 [tool.hatch.build.targets.wheel]
-packages = ["."]
+only-include = ["archive35_commerce_mcp.py"]
+
+[tool.hatch.build.targets.sdist]
+only-include = ["archive35_commerce_mcp.py", "README.md", "pyproject.toml"]

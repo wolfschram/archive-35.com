@@ -4680,20 +4680,37 @@ def agents_status():
             cwd=str(Path(__file__).resolve().parent.parent),
         )
         if result.returncode == 0 and result.stdout.strip():
-            for line in result.stdout.strip().splitlines():
-                try:
-                    svc = json.loads(line)
+            raw = result.stdout.strip()
+            # Docker may output a JSON array or one object per line
+            try:
+                parsed = json.loads(raw)
+                if isinstance(parsed, list):
+                    svc_list = parsed
+                elif isinstance(parsed, dict):
+                    svc_list = [parsed]
+                else:
+                    svc_list = []
+            except json.JSONDecodeError:
+                # Try line-by-line parsing
+                svc_list = []
+                for line in raw.splitlines():
+                    try:
+                        svc_list.append(json.loads(line))
+                    except json.JSONDecodeError:
+                        pass
+            for svc in svc_list:
+                if isinstance(svc, dict):
                     name = svc.get("Service", svc.get("Name", "unknown"))
                     state = svc.get("State", svc.get("Status", "unknown"))
                     services[name] = {"status": state, "health": svc.get("Health", "")}
-                except json.JSONDecodeError:
-                    pass
     except Exception as e:
         logger.warning("Docker status check failed: %s", e)
 
     conn = _get_conn()
     try:
-        ks = kill_switch.get_status(conn)
+        ks_list = kill_switch.get_status(conn)
+        # Convert list to dict keyed by scope
+        ks = {row.get("scope", ""): row for row in ks_list if isinstance(row, dict)}
         agent_names = ["instagram", "pinterest", "reddit", "etsy", "content_pipeline", "broadcast"]
         for name in agent_names:
             if name not in services:
@@ -5436,6 +5453,10 @@ def get_instagram_insights():
             },
             timeout=15,
         )
+        if r.status_code == 400:
+            # Instagram insights requires Business/Creator account with 100+ followers
+            # Don't spam logs — this is expected in Development Mode
+            return {"configured": True, "insights_available": False, "note": "Instagram app in Development Mode — insights require Business account with 100+ followers", "recent_media": []}
         insights_data = r.json().get("data", []) if r.status_code == 200 else []
 
         # Recent media

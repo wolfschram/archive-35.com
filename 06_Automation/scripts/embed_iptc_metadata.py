@@ -1,124 +1,104 @@
 #!/usr/bin/env python3
 """
-Embed copyright/credit metadata into licensed JPG images.
-Uses piexif for EXIF fields + writes XMP sidecar files for full IPTC/XMP coverage.
+Embed IPTC/XMP rights metadata directly INTO JPEG files using exiftool.
+No sidecar files — everything embedded in the image so agents and Google can read it.
+
+Requires: exiftool (brew install exiftool)
+
+Usage:
+    python3 embed_iptc_metadata.py          # Process all images
+    python3 embed_iptc_metadata.py 10       # Process first 10 per directory
 """
-import os
+import subprocess
 import sys
-import glob
-import piexif
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 
-COPYRIGHT = "\u00a9 2026 Wolf Schram / Archive-35. All rights reserved."
-CREATOR = "Wolf Schram"
-CREDIT = "Archive-35 / The Restless Eye"
-SOURCE = "archive-35.com"
-RIGHTS = "Licensed image. Terms at https://archive-35.com/terms.html"
-
-DIRS = [
+DIRECTORIES = [
     ROOT / "09_Licensing" / "watermarked",
     ROOT / "09_Licensing" / "micro",
+    ROOT / "09_Licensing" / "thumbnails",
 ]
 
-XMP_TEMPLATE = """<?xpacket begin="\xef\xbb\xbf" id="W5M0MpCehiHzreSzNTczkc9d"?>
-<x:xmpmeta xmlns:x="adobe:ns:meta/">
-  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <rdf:Description rdf:about=""
-      xmlns:dc="http://purl.org/dc/elements/1.1/"
-      xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/"
-      xmlns:xmpRights="http://ns.adobe.com/xap/1.0/rights/"
-      xmlns:Iptc4xmpCore="http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/">
-      <dc:creator>
-        <rdf:Seq><rdf:li>{creator}</rdf:li></rdf:Seq>
-      </dc:creator>
-      <dc:rights>
-        <rdf:Alt><rdf:li xml:lang="x-default">{copyright}</rdf:li></rdf:Alt>
-      </dc:rights>
-      <photoshop:Credit>{credit}</photoshop:Credit>
-      <photoshop:Source>{source}</photoshop:Source>
-      <xmpRights:UsageTerms>
-        <rdf:Alt><rdf:li xml:lang="x-default">{rights}</rdf:li></rdf:Alt>
-      </xmpRights:UsageTerms>
-      <xmpRights:WebStatement>https://archive-35.com/terms.html</xmpRights:WebStatement>
-      <xmpRights:Marked>True</xmpRights:Marked>
-    </rdf:Description>
-  </rdf:RDF>
-</x:xmpmeta>
-<?xpacket end="w"?>"""
+# Full metadata for licensing images
+LICENSING_FIELDS = [
+    "-IPTC:CopyrightNotice=© 2026 Wolf Schram / Archive-35. All rights reserved.",
+    "-IPTC:Credit=Archive-35 / The Restless Eye",
+    "-IPTC:Source=archive-35.com",
+    "-IPTC:Contact=wolf@archive-35.com",
+    "-IPTC:SpecialInstructions=C2PA verified authentic photography. NOT AI generated. License required for any use.",
+    "-XMP:Creator=Wolf Schram",
+    "-XMP:Rights=© 2026 Wolf Schram / Archive-35. All rights reserved.",
+    "-XMP:WebStatement=https://archive-35.com/terms.html",
+    "-XMP:UsageTerms=Licensed image. Purchase license at https://archive-35.com/micro-licensing.html",
+    "-XMP:Marked=True",
+]
 
 
-def embed_exif(filepath):
-    """Embed copyright info into EXIF data using piexif."""
+def check_exiftool():
     try:
-        exif_dict = piexif.load(str(filepath))
-    except Exception:
-        exif_dict = {"0th": {}, "Exif": {}, "GPS": {}, "1st": {}}
-
-    # EXIF 0th IFD fields
-    exif_dict["0th"][piexif.ImageIFD.Copyright] = COPYRIGHT.encode("utf-8")
-    exif_dict["0th"][piexif.ImageIFD.Artist] = CREATOR.encode("utf-8")
-
-    try:
-        exif_bytes = piexif.dump(exif_dict)
-        piexif.insert(exif_bytes, str(filepath))
+        r = subprocess.run(["exiftool", "-ver"], capture_output=True, text=True)
+        print(f"exiftool version: {r.stdout.strip()}")
         return True
-    except Exception as e:
-        print(f"  WARN: EXIF embed failed for {filepath.name}: {e}")
+    except FileNotFoundError:
+        print("ERROR: exiftool not found. Install with: brew install exiftool")
         return False
 
 
-def write_xmp_sidecar(filepath):
-    """Write an XMP sidecar file next to the image."""
-    xmp_path = filepath.with_suffix(".xmp")
-    xmp_content = XMP_TEMPLATE.format(
-        creator=CREATOR,
-        copyright=COPYRIGHT,
-        credit=CREDIT,
-        source=SOURCE,
-        rights=RIGHTS,
-    )
-    xmp_path.write_text(xmp_content, encoding="utf-8")
-    return True
+def embed_directory(directory, fields, limit=None):
+    if not directory.exists():
+        print(f"  Skipping {directory.name}/ (not found)")
+        return 0
+
+    jpgs = sorted(directory.glob("*.jpg"))
+    if limit:
+        jpgs = jpgs[:limit]
+
+    if not jpgs:
+        print(f"  Skipping {directory.name}/ (no JPEGs)")
+        return 0
+
+    cmd = ["exiftool", "-overwrite_original"] + fields + [str(j) for j in jpgs]
+    r = subprocess.run(cmd, capture_output=True, text=True)
+
+    # Parse count from exiftool output
+    for line in r.stdout.splitlines():
+        if "image files updated" in line:
+            print(f"  {directory.name}/: {line.strip()}")
+            return int(line.strip().split()[0])
+
+    if r.returncode != 0:
+        print(f"  {directory.name}/: ERROR — {r.stderr[:200]}")
+    return 0
+
+
+def delete_xmp_sidecars():
+    """Delete orphan .xmp sidecar files — metadata is now in the JPEGs."""
+    count = 0
+    for d in DIRECTORIES:
+        if not d.exists():
+            continue
+        for xmp in d.glob("*.xmp"):
+            xmp.unlink()
+            count += 1
+    if count:
+        print(f"Deleted {count} orphan .xmp sidecar files")
 
 
 def main():
-    limit = int(sys.argv[1]) if len(sys.argv) > 1 else 0  # 0 = all
-    total_exif = 0
-    total_xmp = 0
-    total_files = 0
-    errors = 0
+    if not check_exiftool():
+        sys.exit(1)
 
-    for d in DIRS:
-        if not d.exists():
-            print(f"SKIP: {d} does not exist")
-            continue
+    limit = int(sys.argv[1]) if len(sys.argv) > 1 else None
+    total = 0
 
-        jpgs = sorted(d.glob("*.jpg"))
-        if limit:
-            jpgs = jpgs[:limit]
+    print(f"\nEmbedding IPTC/XMP metadata into JPEGs{f' (limit: {limit} per dir)' if limit else ''}...")
+    for d in DIRECTORIES:
+        total += embed_directory(d, LICENSING_FIELDS, limit)
 
-        print(f"\nProcessing {len(jpgs)} images in {d.name}/")
-
-        for jpg in jpgs:
-            total_files += 1
-            ok_exif = embed_exif(jpg)
-            ok_xmp = write_xmp_sidecar(jpg)
-
-            if ok_exif:
-                total_exif += 1
-            if ok_xmp:
-                total_xmp += 1
-            if not ok_exif and not ok_xmp:
-                errors += 1
-
-    print(f"\n--- Summary ---")
-    print(f"Files processed: {total_files}")
-    print(f"EXIF embedded:   {total_exif}")
-    print(f"XMP sidecars:    {total_xmp}")
-    if errors:
-        print(f"Errors:          {errors}")
+    delete_xmp_sidecars()
+    print(f"\nTotal: {total} images updated")
 
 
 if __name__ == "__main__":

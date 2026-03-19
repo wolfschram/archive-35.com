@@ -103,9 +103,13 @@ export async function onRequest(context) {
       );
     }
 
-    // Look up the image in R2
+    // Look up the image in R2 — use micro delivery versions, NOT originals
+    // Web tier ($2.50) gets 2400px, commercial ($5.00) gets 4000px
+    // Full license ($280+) still gets originals
+    const microKey = `micro/${tier}/${imageId}.jpg`;
     const possibleKeys = [
-      `originals/${filename}`,
+      microKey,                    // Micro delivery version (preferred)
+      `originals/${filename}`,     // Fallback to original if micro not generated yet
       filename,
       `${imageId}.jpg`,
       `originals/${imageId}.jpg`,
@@ -154,7 +158,7 @@ export async function onRequest(context) {
       license: {
         type: tier === "commercial" ? "Commercial License" : "Web / Social License",
         duration: tier === "commercial" ? "2 years" : "1 year",
-        resolution: tier === "commercial" ? "Full resolution" : "1200px",
+        resolution: tier === "commercial" ? "4000px max" : "2400px max",
         c2pa_verified: true,
       },
     };

@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "archive35-commerce-mcp"
+version = "1.0.0"
+description = "Search and license authentic fine art photography. 1,274 C2PA verified images from 55+ countries."
+authors = [{name = "Wolf Schram", email = "wolf@archive-35.com"}]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["mcp[cli]>=1.0.0"]
+keywords = ["mcp", "photography", "licensing", "fine-art", "C2PA", "stock-images"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Multimedia :: Graphics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Homepage = "https://archive-35.com"
+Repository = "https://github.com/wolfschram/archive-35.com"
+"Bug Tracker" = "https://github.com/wolfschram/archive-35.com/issues"
+
+[project.scripts]
+archive35-mcp = "archive35_commerce_mcp:mcp.run"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]

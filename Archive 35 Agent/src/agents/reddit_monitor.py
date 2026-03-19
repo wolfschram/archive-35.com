@@ -4,21 +4,28 @@ Reddit Comment Monitor for Archive-35
 Monitors comments on Archive-35 Reddit posts for engagement opportunities,
 especially "do you sell prints?" questions and purchase intent signals.
 
-If Reddit credentials are not available, creates the framework and logs
-what it would monitor. Activatable when credentials are added.
+Uses Reddit's public JSON endpoints (no API keys or PRAW needed).
+Append .json to any Reddit URL to get structured data.
+Rate limited to 10 requests/minute with proper User-Agent.
 """
 import json
 import logging
-import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+
+import httpx
 
 logger = logging.getLogger(__name__)
 
 AGENT_BASE = Path(__file__).resolve().parents[2]  # Archive 35 Agent
 QUEUE_FILE = AGENT_BASE / "data" / "reddit_queue.json"
 ALERTS_FILE = AGENT_BASE / "data" / "reddit_alerts.json"
+
+# Rate limiting for public JSON
+MAX_REQUESTS_PER_MINUTE = 10
+REQUEST_INTERVAL = 60.0 / MAX_REQUESTS_PER_MINUTE  # 6 seconds between requests
+USER_AGENT = "Archive35Monitor/1.0 (fine art photography print business; contact: wolf@archive-35.com)"
 
 # Keywords that indicate purchase interest
 PURCHASE_KEYWORDS = [
@@ -64,30 +71,6 @@ REPLY_TEMPLATES = {
         "Good question. ",
     ],
 }
-
-
-def _load_env() -> dict:
-    """Load .env file."""
-    env = {}
-    env_path = AGENT_BASE / ".env"
-    if env_path.exists():
-        for line in env_path.read_text().splitlines():
-            line = line.strip()
-            if line and not line.startswith("#") and "=" in line:
-                k, _, v = line.partition("=")
-                env[k.strip()] = v.strip()
-    env.update(os.environ)
-    return env
-
-
-def _check_reddit_creds() -> bool:
-    """Check if Reddit API credentials are configured."""
-    env = _load_env()
-    return bool(
-        env.get("REDDIT_CLIENT_ID")
-        and env.get("REDDIT_CLIENT_SECRET")
-        and env.get("REDDIT_USERNAME")
-    )
 
 
 def _load_queue() -> dict:
@@ -174,38 +157,55 @@ def generate_reply_draft(classification: dict, comment_text: str, post_title: st
 
     templates = REPLY_TEMPLATES[reply_type]
     # Pick the first template (in production, could rotate)
-    base_reply = templates[0]
+    return templates[0]
 
-    return base_reply
+
+def _extract_reddit_id_from_url(reddit_url: str) -> str | None:
+    """Extract the Reddit post ID from a URL like https://old.reddit.com/r/sub/comments/abc123/..."""
+    if not reddit_url:
+        return None
+    parts = reddit_url.split("/comments/")
+    if len(parts) < 2:
+        return None
+    post_id = parts[1].split("/")[0]
+    return post_id if post_id else None
+
+
+def fetch_post_json(reddit_url: str) -> dict | None:
+    """Fetch public JSON data for a Reddit post.
+    Appends .json to the URL to get structured data.
+    """
+    # Normalize URL to old.reddit.com
+    url = reddit_url.replace("www.reddit.com", "old.reddit.com")
+    url = url.replace("reddit.com", "old.reddit.com")
+    if url.count("old.reddit.com") > 1:
+        url = url.replace("old.old.reddit.com", "old.reddit.com")
+
+    # Ensure URL ends with .json
+    url = url.rstrip("/")
+    if not url.endswith(".json"):
+        url += ".json"
+
+    try:
+        resp = httpx.get(url, headers={"User-Agent": USER_AGENT}, timeout=15)
+        if resp.status_code == 200:
+            return resp.json()
+        logger.warning(f"Reddit JSON returned {resp.status_code} for {url}")
+        return None
+    except Exception as e:
+        logger.error(f"Failed to fetch {url}: {e}")
+        return None
 
 
 def monitor_comments_live() -> list:
-    """Monitor comments on posted Reddit submissions using PRAW.
+    """Monitor comments on posted Reddit submissions using public JSON.
 
     Returns list of new alerts.
     """
-    if not _check_reddit_creds():
-        logger.warning("Reddit credentials not configured. Monitor is in standby mode.")
-        return []
-
-    try:
-        import praw
-    except ImportError:
-        logger.error("PRAW not installed. Run: pip install praw")
-        return []
-
-    env = _load_env()
-    reddit = praw.Reddit(
-        client_id=env.get("REDDIT_CLIENT_ID"),
-        client_secret=env.get("REDDIT_CLIENT_SECRET"),
-        username=env.get("REDDIT_USERNAME"),
-        password=env.get("REDDIT_PASSWORD", ""),
-        user_agent=env.get("REDDIT_USER_AGENT", "Archive35Bot/1.0"),
-    )
-
     # Load posted items from queue
     queue = _load_queue()
-    posted = [p for p in queue.get("posts", []) if p.get("status") == "posted" and p.get("reddit_id")]
+    posted = [p for p in queue.get("posts", [])
+              if p.get("status") == "posted" and p.get("reddit_url")]
 
     if not posted:
         logger.info("No posted Reddit items to monitor")
@@ -216,46 +216,95 @@ def monitor_comments_live() -> list:
     seen_comment_ids = {a.get("comment_id") for a in existing_alerts}
 
     new_alerts = []
+    request_count = 0
 
     for post_data in posted:
-        try:
-            submission = reddit.submission(id=post_data["reddit_id"])
-            submission.comments.replace_more(limit=0)
+        reddit_url = post_data.get("reddit_url", "")
+        if not reddit_url:
+            continue
 
-            for comment in submission.comments.list():
-                if comment.id in seen_comment_ids:
+        # Rate limiting
+        if request_count > 0:
+            time.sleep(REQUEST_INTERVAL)
+        request_count += 1
+
+        if request_count > MAX_REQUESTS_PER_MINUTE:
+            logger.info("Rate limit reached, stopping for this cycle")
+            break
+
+        json_data = fetch_post_json(reddit_url)
+        if not json_data or not isinstance(json_data, list) or len(json_data) < 2:
+            continue
+
+        # json_data[0] = post data, json_data[1] = comments
+        try:
+            post_info = json_data[0]["data"]["children"][0]["data"]
+            score = post_info.get("score", 0)
+            num_comments = post_info.get("num_comments", 0)
+
+            # Update queue with latest stats
+            post_data["reddit_score"] = score
+            post_data["reddit_comments"] = num_comments
+
+            # Parse comments
+            comments_listing = json_data[1]["data"]["children"]
+            for comment_entry in comments_listing:
+                if comment_entry.get("kind") != "t1":
                     continue
 
-                classification = classify_comment(comment.body)
+                comment = comment_entry["data"]
+                comment_id = comment.get("id", "")
+
+                if comment_id in seen_comment_ids:
+                    continue
+
+                body = comment.get("body", "")
+                if not body:
+                    continue
+
+                classification = classify_comment(body)
                 if not classification["matched_keywords"]:
                     continue
 
                 reply_draft = generate_reply_draft(
                     classification,
-                    comment.body,
+                    body,
                     post_data.get("title", ""),
                 )
 
+                permalink = comment.get("permalink", "")
                 alert = {
-                    "id": f"alert_{comment.id}",
-                    "comment_id": comment.id,
+                    "id": f"alert_{comment_id}",
+                    "comment_id": comment_id,
                     "post_id": post_data.get("id"),
-                    "reddit_post_id": post_data.get("reddit_id"),
+                    "reddit_post_id": _extract_reddit_id_from_url(reddit_url),
                     "subreddit": post_data.get("subreddit"),
                     "post_title": post_data.get("title"),
-                    "comment_author": str(comment.author),
-                    "comment_body": comment.body[:500],
-                    "comment_url": f"https://reddit.com{comment.permalink}",
+                    "comment_author": comment.get("author", "[deleted]"),
+                    "comment_body": body[:500],
+                    "comment_url": f"https://reddit.com{permalink}" if permalink else "",
                     "classification": classification,
                     "reply_draft": reply_draft,
                     "status": "new",
                     "detected_at": datetime.now(timezone.utc).isoformat(),
+                    "post_score": score,
+                    "post_num_comments": num_comments,
                 }
                 new_alerts.append(alert)
-                seen_comment_ids.add(comment.id)
+                seen_comment_ids.add(comment_id)
 
-        except Exception as e:
-            logger.error(f"Error monitoring post {post_data.get('reddit_id')}: {e}")
+        except (KeyError, IndexError, TypeError) as e:
+            logger.error(f"Error parsing JSON for {reddit_url}: {e}")
+
+    # Save updated queue with scores
+    try:
+        from src.agents.reddit_poster import save_queue
+        save_queue(queue)
+    except Exception:
+        # Fallback: save directly
+        QUEUE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(QUEUE_FILE, "w") as f:
+            json.dump(queue, f, indent=2)
 
     return new_alerts
 
@@ -263,25 +312,10 @@ def monitor_comments_live() -> list:
 def run_monitor():
     """Run the full monitoring cycle."""
     print("Reddit Comment Monitor starting...")
+    print(f"Using public JSON endpoints (no API keys needed)")
+    print(f"Rate limit: {MAX_REQUESTS_PER_MINUTE} requests/minute\n")
 
-    # Check credentials
-    if not _check_reddit_creds():
-        print("Reddit API credentials not configured.")
-        print("Add the following to .env to activate:")
-        print("  REDDIT_CLIENT_ID=")
-        print("  REDDIT_CLIENT_SECRET=")
-        print("  REDDIT_USERNAME=")
-        print("  REDDIT_PASSWORD=")
-        print("  REDDIT_USER_AGENT=Archive35Bot/1.0")
-        print("\nMonitor is in standby mode. Framework is ready.")
-
-        # Save empty alerts file to show framework is in place
-        alerts = _load_alerts()
-        _save_alerts(alerts)
-        print(f"Alerts file: {ALERTS_FILE}")
-        return
-
-    # Run live monitoring
+    # Run monitoring
     new_alerts = monitor_comments_live()
 
     # Merge with existing alerts

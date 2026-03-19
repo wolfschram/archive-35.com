@@ -107,10 +107,18 @@ async function verifyPayment(paymentHeader, expectedAmount, expectedRecipient) {
 
 // ── Signed download URL generation ─────────────────────────────────────
 
-async function generateDownloadUrl(imageId, maxDimension, secret) {
-  // Generate time-limited signed URL for R2 original
+async function generateDownloadUrl(imageId, maxDimension, secret, tier) {
+  // Generate time-limited signed URL
+  // Route micro-license tiers to down-converted versions, not originals
   const expiry = Date.now() + 3600000; // 1 hour
-  const key = imageId.includes("/") ? imageId : `originals/${imageId}`;
+  let key;
+  if (tier === "web" || tier === "commercial") {
+    // Micro-license: serve down-converted version (2400px web / 4000px commercial)
+    key = `micro/${tier}/${imageId}.jpg`;
+  } else {
+    // Full license: serve original
+    key = imageId.includes("/") ? imageId : `originals/${imageId}`;
+  }
   const message = `${key}:${expiry}`;
 
   const encoder = new TextEncoder();
@@ -220,7 +228,8 @@ export async function onRequest(context) {
   const downloadUrl = await generateDownloadUrl(
     imageId,
     license.max_dimension,
-    secret
+    secret,
+    tier
   );
 
   return new Response(

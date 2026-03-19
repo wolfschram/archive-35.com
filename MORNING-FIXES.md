@@ -158,4 +158,66 @@ git push
 
 ---
 
-# FIX ALL 10 ITEMS. TEST EACH ONE. LOG RESULTS.
+## FIX 11: Publish MCP Server to PyPI + Submit to Registry
+
+The Archive-35 Commerce MCP server at `06_Automation/archive35_commerce_mcp.py` needs to be published so AI agents worldwide can discover it.
+
+### Step 1: Package for PyPI
+
+Create `06_Automation/pyproject.toml`:
+```toml
+[project]
+name = "archive35-commerce-mcp"
+version = "1.0.0"
+description = "Search and license authentic fine art photography. 1,274 C2PA verified images from 55+ countries."
+authors = [{name = "Wolf Schram", email = "wolf@archive-35.com"}]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["mcp[cli]"]
+keywords = ["mcp", "photography", "licensing", "fine-art", "C2PA", "stock-images"]
+
+[project.urls]
+Homepage = "https://archive-35.com"
+Repository = "https://github.com/wolfschram/archive-35.com"
+
+[project.scripts]
+archive35-mcp = "archive35_commerce_mcp:mcp.run"
+```
+
+Create `06_Automation/README.md` for the package with usage instructions.
+
+Build and publish:
+```bash
+cd 06_Automation
+pip install build twine --break-system-packages
+python -m build
+twine upload dist/*
+```
+
+Wolf will need a PyPI account (pypi.org) — if not already set up, create one and use an API token.
+
+### Step 2: Submit to MCP Registry
+
+The official MCP Registry is at https://registry.modelcontextprotocol.io/
+Submission requires the `mcp-publisher` CLI:
+
+```bash
+npx @anthropic/mcp-publisher publish
+```
+
+Or via the registry GitHub repo (https://github.com/modelcontextprotocol/registry) — open a PR to add the server entry.
+
+The server.json at `.well-known/mcp/server.json` is already deployed and accessible.
+
+### Step 3: Verify Discovery
+
+After submission, verify:
+- https://archive-35.com/.well-known/mcp/server.json returns valid JSON
+- https://archive-35.com/.well-known/openapi.json returns valid OpenAPI spec
+- `llms.txt` references both files
+
+**Test:** Search the MCP registry for "archive-35" or "photography" — should appear in results after approval.
+
+---
+
+# FIX ALL 11 ITEMS. TEST EACH ONE. LOG RESULTS.

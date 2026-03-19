@@ -776,7 +776,7 @@ select.filter-select{padding:8px 16px;border:1px solid var(--border);background:
 <section class="hero">
   <h1>Digital Licenses</h1>
   <p>License fine art photography instantly. Web, commercial, and full resolution digital downloads from a 25-year, 55-country archive.</p>
-  <p>166 images. C2PA verified. Not AI generated.</p>
+  <p>1,109 images. C2PA verified. Not AI generated.</p>
   <p class="price-highlight">FROM $2.50 / IMAGE</p>
 </section>
 
@@ -847,7 +847,7 @@ select.filter-select{padding:8px 16px;border:1px solid var(--border);background:
     Tiers: web ($2.50) | commercial ($5.00)<br>
     Currency: USD via Stripe, USDC via x402<br>
     Protocol: x402 | Network: Base (chain 8453)<br>
-    Catalog: /data/licensing-catalog.json<br>
+    Catalog: /data/micro-licensing-catalog.json<br>
     LLM context: /llms.txt | /llms-full.txt
   </div>
   <p>All images are C2PA verified with Content Credentials. Authentic photography, not AI generated. Machine-readable provenance data included with every license.</p>
@@ -865,7 +865,7 @@ let filtered = [];
 
 async function loadCatalog() {
   try {
-    const res = await fetch('data/licensing-catalog.json');
+    const res = await fetch('data/micro-licensing-catalog.json');
     const data = await res.json();
     catalog = data.images || [];
     populateFilters();

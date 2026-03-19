@@ -7,14 +7,21 @@ Use this agent when modifying ANY data catalog file.
 ### The Two-Catalog Architecture
 Archive-35 has TWO separate catalog files. NEVER merge them or use one for the other's purpose.
 
-1. **`data/licensing-catalog.json`** — High-res full licensing ($280+)
-   - Only images with longest side >= 10,000px
+1. **`data/licensing-catalog.json`** — Large Scale Photography ONLY ($280+)
+   - ONLY images from the `large-scale-photography-stitch` collection (~166 images)
+   - These are ultra-high-res stitched panoramas (20,000-30,000+ pixels)
+   - Buyers get FULL ORIGINAL RESOLUTION
    - Used by: licensing.html
    - Fields required: id, title, classification, width, height, thumbnail, preview, starting_price, pricing (6 tiers)
+   - NEVER add standard photos to this catalog even if they have high resolution
 
-2. **`data/micro-licensing-catalog.json`** — All images for micro-licensing ($2.50/$5.00)
-   - All 1,109+ images from photos.json
+2. **`data/micro-licensing-catalog.json`** — ALL images for micro-licensing ($2.50/$5.00)
+   - All 1,109 images from photos.json (including large-scale at down-converted resolution)
    - Used by: micro-licensing.html
+   - Buyers get DOWN-CONVERTED versions ONLY:
+     - Web tier: max 2400px
+     - Commercial tier: max 4000px
+     - NEVER deliver original 10,000px+ files through micro-licensing
    - Fields required: id, title, collection, width, height, thumbnail, classification, starting_price, pricing (2 tiers: web, commercial)
 
 3. **`data/photos.json`** — Gallery display (NOT a licensing catalog)

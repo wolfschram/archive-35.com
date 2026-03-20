@@ -381,14 +381,12 @@ def health():
 
         today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-        # Etsy listings count (from live Etsy API cache in content table)
+        # Etsy listings count (from cached DB value, not live API)
         try:
-            from src.integrations.etsy import get_listings, has_valid_token
-            if has_valid_token():
-                data = get_listings(state="active", limit=100)
-                extra["etsy_listings"] = data.get("count", len(data.get("results", [])))
-            else:
-                extra["etsy_listings"] = 0
+            row = conn.execute(
+                "SELECT value FROM agent_state WHERE key = 'etsy_active_listings'"
+            ).fetchone()
+            extra["etsy_listings"] = int(row["value"]) if row else 0
         except Exception:
             extra["etsy_listings"] = 0
 
@@ -410,12 +408,12 @@ def health():
         except Exception:
             extra["instagram_today"] = 0
 
-        # Etsy sales/orders (from receipts — calls live API)
+        # Etsy sales/orders (from cached DB value, not live API)
         try:
-            from src.integrations.etsy import EtsyClient
-            client = EtsyClient()
-            receipts = client.get_receipts(was_paid=True, limit=100)
-            extra["sales"] = len(receipts.get("results", []))
+            row = conn.execute(
+                "SELECT value FROM agent_state WHERE key = 'etsy_total_sales'"
+            ).fetchone()
+            extra["sales"] = int(row["value"]) if row else 0
         except Exception:
             extra["sales"] = 0
 

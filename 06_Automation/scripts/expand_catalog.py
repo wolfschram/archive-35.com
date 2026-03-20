@@ -88,7 +88,10 @@ def main():
         c = img.get("classification", "UNKNOWN")
         counts[c] = counts.get(c, 0) + 1
 
-    CATALOG_FILE.write_text(json.dumps(catalog, indent=2))
+    tmp = CATALOG_FILE.with_suffix('.tmp')
+    tmp.write_text(json.dumps(catalog, indent=2))
+    import os
+    os.replace(str(tmp), str(CATALOG_FILE))  # atomic on same filesystem
 
     print(f"Catalog expanded: {added} images added")
     print(f"Total: {len(existing_images)} images")

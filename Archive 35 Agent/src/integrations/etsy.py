@@ -57,6 +57,19 @@ DEFAULT_SHIPPING_PROFILE_ID = None
 # Cached taxonomy ID (discovered at runtime from Etsy's taxonomy API)
 _cached_taxonomy_id: Optional[int] = None
 
+# Simple rate limiter — stay at 4 req/sec (Etsy allows ~10)
+_last_etsy_call: float = 0
+
+
+def _rate_limit():
+    """Enforce 4 req/sec rate limit on Etsy API calls."""
+    global _last_etsy_call
+    now = time.time()
+    elapsed = now - _last_etsy_call
+    if elapsed < 0.25:
+        time.sleep(0.25 - elapsed)
+    _last_etsy_call = time.time()
+
 
 # ── Environment & Credentials ────────────────────────────────────────────
 
@@ -462,6 +475,8 @@ def _api_request(
     Returns:
         Parsed JSON response or error dict.
     """
+    _rate_limit()
+
     # Proactively refresh token if expired before making the request
     token_check = ensure_valid_token()
     if not token_check.get("valid"):

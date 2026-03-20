@@ -30,8 +30,9 @@ from src import ssl_fix  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
-# Instagram API base
-IG_API_BASE = "https://graph.instagram.com/v21.0"
+# Instagram API base — version configurable via env
+IG_API_VERSION = os.environ.get("IG_API_VERSION", "v21.0")
+IG_API_BASE = f"https://graph.instagram.com/{IG_API_VERSION}"
 
 # Max posts per 24-hour window
 MAX_POSTS_PER_DAY = 25
@@ -149,7 +150,7 @@ def refresh_token() -> dict:
         return {"success": False, "error": "No access token configured"}
 
     token = urllib.parse.quote(creds["access_token"])
-    url = f"{IG_API_BASE.replace('/v21.0', '')}/refresh_access_token?grant_type=ig_refresh_token&access_token={token}"
+    url = f"https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token={token}"
     result = _api_request(url)
 
     if "error" in result:

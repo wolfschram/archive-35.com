@@ -1319,6 +1319,10 @@ export async function onRequestPost(context) {
       notes: !orderSucceeded ? 'Pictorem rejected order: ' + JSON.stringify(orderResult).substring(0, 200) : (originalResult.source !== 'r2-original' ? 'LOW-RES IMAGE WARNING' : ''),
     });
 
+    // Return 500 if Pictorem rejected the order so Stripe retries the webhook.
+    // This gives us another chance to fulfill after fixing the issue.
+    const responseStatus = orderSucceeded ? 200 : 500;
+
     return new Response(JSON.stringify({
       received: true,
       fulfilled: orderSucceeded,
@@ -1332,7 +1336,7 @@ export async function onRequestPost(context) {
         wolf: wolfEmailResult?.id ? true : false,
       },
     }), {
-      status: 200,
+      status: responseStatus,
       headers: { 'Content-Type': 'application/json' },
     });
 

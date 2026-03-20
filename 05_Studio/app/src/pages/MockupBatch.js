@@ -85,7 +85,7 @@ function MockupBatch() {
       const thumbs = {};
       for (const p of photos_data) {
         try {
-          const thumbResult = await window.electronAPI.mockupApiCall(`/thumbnail?path=${encodeURIComponent(p.path)}&size=120`);
+          const thumbResult = await window.electronAPI.mockupApiCall(`/thumbnail?path=${encodeURIComponent(p.path)}&size=800`);
           if (thumbResult?.data) {
             thumbs[p.path] = thumbResult.data;
           }
@@ -248,8 +248,8 @@ function MockupBatch() {
             </div>
           )}
 
-          <div style={{ maxHeight: '400px', overflowY: 'auto', background: '#222', borderRadius: '6px', padding: '8px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+          <div style={{ maxHeight: '600px', overflowY: 'auto', background: '#222', borderRadius: '6px', padding: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '8px' }}>
               {photos.map(photo => (
                 <div
                   key={photo.path}

@@ -87,19 +87,28 @@ def upload_to_r2(local_path: str, r2_key: str) -> str:
     content_type = content_types.get(ext, "application/octet-stream")
 
     cfg = _get_r2_config()
-    client = _get_s3_client()
+
+    try:
+        client = _get_s3_client()
+    except RuntimeError as e:
+        logger.error("R2 client init failed: %s", e)
+        raise
 
     logger.info("Uploading %s → r2://%s/%s", filepath.name, cfg["bucket"], r2_key)
 
-    client.upload_file(
-        str(filepath),
-        cfg["bucket"],
-        r2_key,
-        ExtraArgs={
-            "ContentType": content_type,
-            "CacheControl": "public, max-age=86400",  # 24h cache
-        },
-    )
+    try:
+        client.upload_file(
+            str(filepath),
+            cfg["bucket"],
+            r2_key,
+            ExtraArgs={
+                "ContentType": content_type,
+                "CacheControl": "public, max-age=86400",  # 24h cache
+            },
+        )
+    except Exception as e:
+        logger.error("R2 upload failed for %s: %s", r2_key, e)
+        raise RuntimeError(f"R2 upload failed for {r2_key}: {e}") from e
 
     public_url = f"{cfg['public_domain'].rstrip('/')}/{r2_key}"
     logger.info("Uploaded: %s", public_url)

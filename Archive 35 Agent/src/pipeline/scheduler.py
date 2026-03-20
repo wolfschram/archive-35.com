@@ -146,6 +146,45 @@ def daily_email_briefing():
     return run_briefing(days_back=1)
 
 
+@huey.periodic_task(crontab(hour="*/6", minute="15"))
+def etsy_token_refresh():
+    """Auto-refresh Etsy token if expiring within 2 hours."""
+    from src.integrations.etsy import get_credentials, has_valid_token, refresh_access_token
+
+    logger.info("Cron: Checking Etsy token expiry")
+    try:
+        creds = get_credentials()
+        if not creds.get("refresh_token"):
+            return {"refreshed": False, "reason": "no refresh token"}
+
+        # Check if token expires within 2 hours
+        expires = creds.get("token_expires", "")
+        if expires:
+            from datetime import datetime, timedelta, timezone
+
+            try:
+                exp_dt = datetime.fromisoformat(expires)
+                threshold = datetime.now(timezone.utc) + timedelta(hours=2)
+                if exp_dt > threshold:
+                    return {"refreshed": False, "reason": "token still valid"}
+            except (ValueError, TypeError):
+                pass
+
+        # Token is expired or expiring soon — refresh
+        if not has_valid_token() or (expires and exp_dt <= threshold):
+            result = refresh_access_token()
+            if "error" in result:
+                logger.error("Etsy token refresh failed: %s", result["error"])
+                return {"error": result["error"]}
+            logger.info("Etsy token refreshed automatically")
+            return {"refreshed": True}
+
+        return {"refreshed": False, "reason": "token still valid"}
+    except Exception as e:
+        logger.error("Etsy token refresh failed: %s", e)
+        return {"error": str(e)}
+
+
 # Task registration info for documentation
 SCHEDULE = {
     "daily_pipeline": "06:00 UTC — Full daily cycle",
@@ -154,4 +193,5 @@ SCHEDULE = {
     "expire_content": "Every hour — Expire unapproved content",
     "daily_summary": "20:00 UTC — Daily summary to Telegram",
     "email_briefing": "07:00 UTC — Scan all inboxes, generate prioritized briefing",
+    "etsy_token_refresh": "Every 6 hours — Check and refresh Etsy API token",
 }

@@ -475,7 +475,7 @@ function WebsiteControl() {
       }}>
         <span style={{ color: dot.color, flexShrink: 0, marginTop: '1px' }}>{dot.symbol}</span>
         <span style={{ color: 'var(--text-primary)', minWidth: '120px', flexShrink: 0 }}>{check.name}</span>
-        <span style={{ color: check.status === 'error' ? '#ef4444' : check.status === 'warning' ? '#fbbf24' : 'var(--text-muted)' }}>{check.detail}</span>
+        <span style={{ color: check.status === 'error' ? '#ef4444' : check.status === 'warning' ? '#fbbf24' : 'var(--text-muted)', flex: 1, minWidth: 0, wordBreak: 'break-word', lineHeight: '1.4' }}>{check.detail}</span>
       </div>
     );
   };

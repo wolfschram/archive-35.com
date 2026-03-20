@@ -1270,6 +1270,90 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
           }
         }
 
+        // ── Generate & upload micro-license versions to R2 ──
+        try {
+          const s3 = getR2Client();
+          const bucketName = parseEnvFileSync().R2_BUCKET_NAME;
+          if (s3 && bucketName) {
+            const { PutObjectCommand } = require('@aws-sdk/client-s3');
+            const imageId = photo.id || baseName;
+
+            // 1. R2 Thumbnail (800px) for catalog previews
+            const thumbR2Buffer = await sharp(photo.path)
+              .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+              .jpeg({ quality: 85 })
+              .toBuffer();
+            await s3.send(new PutObjectCommand({
+              Bucket: bucketName,
+              Key: `thumbnails/${imageId}.jpg`,
+              Body: thumbR2Buffer,
+              ContentType: 'image/jpeg',
+            }));
+
+            // 2. Watermarked Preview (1600px) for licensing page grid
+            const previewBuffer = await sharp(photo.path)
+              .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true })
+              .jpeg({ quality: 85 })
+              .toBuffer();
+            // Add simple watermark via composite (text overlay)
+            const previewWithWatermark = await sharp(previewBuffer)
+              .composite([{
+                input: Buffer.from(
+                  `<svg width="200" height="30">
+                    <text x="0" y="22" font-family="Arial" font-size="16" fill="rgba(255,255,255,0.4)">ARCHIVE-35</text>
+                  </svg>`
+                ),
+                gravity: 'southeast',
+              }])
+              .jpeg({ quality: 85 })
+              .toBuffer();
+            await s3.send(new PutObjectCommand({
+              Bucket: bucketName,
+              Key: `previews/${imageId}.jpg`,
+              Body: previewWithWatermark,
+              ContentType: 'image/jpeg',
+            }));
+
+            // 3. Micro Web Version (2400px, q90) — $2.50 delivery
+            const microWebBuffer = await sharp(photo.path)
+              .resize(2400, 2400, { fit: 'inside', withoutEnlargement: true })
+              .jpeg({ quality: 90 })
+              .toBuffer();
+            await s3.send(new PutObjectCommand({
+              Bucket: bucketName,
+              Key: `micro/web/${imageId}.jpg`,
+              Body: microWebBuffer,
+              ContentType: 'image/jpeg',
+            }));
+
+            // 4. Micro Commercial Version (4000px, q92) — $5.00 delivery
+            const microCommBuffer = await sharp(photo.path, { limitInputPixels: false })
+              .resize(4000, 4000, { fit: 'inside', withoutEnlargement: true })
+              .jpeg({ quality: 92 })
+              .toBuffer();
+            await s3.send(new PutObjectCommand({
+              Bucket: bucketName,
+              Key: `micro/commercial/${imageId}.jpg`,
+              Body: microCommBuffer,
+              ContentType: 'image/jpeg',
+            }));
+
+            console.log(`R2 micro versions uploaded: ${imageId} (thumb + preview + web + commercial)`);
+            if (mainWindow) {
+              mainWindow.webContents.send('ingest-progress', {
+                phase: 'finalize',
+                current: processedCount,
+                total: totalPhotos,
+                filename: photo.filename,
+                message: `Uploaded 4 micro versions to R2: ${photo.filename}`
+              });
+            }
+          }
+        } catch (microErr) {
+          console.error('R2 micro version upload failed:', microErr.message);
+          // Non-fatal — original upload already succeeded
+        }
+
         // Create web-optimized version (max 2000px long edge, 85% quality)
         const webDest = path.join(webFolder, `${baseName}-full.jpg`);
         await sharp(photo.path)
@@ -1346,6 +1430,62 @@ ipcMain.handle('finalize-ingest', async (event, { photos, mode, portfolioId, new
 
     const allPhotos = [...existingPhotos, ...processedPhotos];
     await fs.writeFile(photosJsonPath, JSON.stringify(allPhotos, null, 2));
+
+    // ── Update micro-licensing catalog ──
+    try {
+      const microCatalogPath = path.join(ARCHIVE_BASE, 'data', 'micro-licensing-catalog.json');
+      if (fsSync.existsSync(microCatalogPath)) {
+        const microCatalog = JSON.parse(await fs.readFile(microCatalogPath, 'utf8'));
+        const existingIds = new Set((microCatalog.images || []).map(i => i.id));
+
+        let collectionSlug;
+        try {
+          const galleryPath = path.join(targetFolder, '_gallery.json');
+          if (fsSync.existsSync(galleryPath)) {
+            const gal = JSON.parse(fsSync.readFileSync(galleryPath, 'utf8'));
+            collectionSlug = gal.slug;
+          }
+        } catch (e) {}
+        if (!collectionSlug) {
+          collectionSlug = (portfolioId || (newGallery?.name || 'unknown').toLowerCase())
+            .replace(/[_\s]+/g, '-').replace(/-+$/, '');
+        }
+
+        for (const photo of processedPhotos) {
+          const imageId = photo.id || photo.filename.replace(/\.[^.]+$/, '');
+          if (existingIds.has(imageId)) continue;
+
+          const w = photo.dimensions?.width || 0;
+          const h = photo.dimensions?.height || 0;
+          const longest = Math.max(w, h);
+          const classification = longest >= 15000 ? 'ULTRA' : longest >= 8000 ? 'PREMIUM' : 'STANDARD';
+
+          microCatalog.images.push({
+            id: imageId,
+            title: photo.title || imageId,
+            collection: collectionSlug,
+            filename: photo.filename,
+            width: w,
+            height: h,
+            thumbnail: `thumbnails/${imageId}.jpg`,
+            classification: classification,
+            starting_price: 2.50,
+            pricing: {
+              web: { price: 2.50, resolution: '2400px', duration: '1 year' },
+              commercial: { price: 5.00, resolution: '4000px', duration: '2 years' },
+            },
+            c2pa_verified: photo.c2pa || false,
+          });
+          existingIds.add(imageId);
+        }
+
+        microCatalog.total_images = microCatalog.images.length;
+        await fs.writeFile(microCatalogPath, JSON.stringify(microCatalog, null, 2));
+        console.log(`Micro-licensing catalog updated: ${microCatalog.images.length} images`);
+      }
+    } catch (catalogErr) {
+      console.error('Micro catalog update failed:', catalogErr.message);
+    }
 
     // Notify all pages that ingest completed — WebsiteControl uses this to refresh status
     if (mainWindow) {
@@ -2612,7 +2752,10 @@ ${collectionsText}${staticFooter}`;
       // Stage ALL website-relevant files INCLUDING per-collection metadata
       // _photos.json files are the source of truth for each portfolio collection
       // _catalog.json is the source of truth for licensing — ALL must be committed
-      execSync('git add data/ images/ *.html css/ js/ functions/ build.sh llms*.txt sitemap.xml robots.txt logos/ 09_Licensing/thumbnails/ 09_Licensing/watermarked/ 09_Licensing/zoom/ api/ licensing/ 01_Portfolio/*/_photos.json 09_Licensing/_catalog.json _site/', gitOpts);
+      // NOTE: Do NOT add 09_Licensing/zoom/ (8000px sellable images — repo is PUBLIC)
+      // Do NOT add 09_Licensing/_catalog.json or _site/ (gitignored, not needed for deploy)
+      // Thumbnails and watermarked are low-res display copies — safe for public repo
+      execSync('git add data/ images/ *.html css/ js/ functions/ build.sh llms*.txt sitemap.xml robots.txt logos/ 09_Licensing/thumbnails/ 09_Licensing/watermarked/ api/ licensing/ 01_Portfolio/*/_photos.json', gitOpts);
 
       // Check if there are staged changes before committing
       const gitStatus = execSync('git diff --cached --stat', gitOpts).trim();

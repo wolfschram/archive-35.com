@@ -83,6 +83,7 @@ Archive 35 Agent/data/credentials/
 06_Automation/etsy-export/
 
 # Licensing — ignore everything except thumbnails + watermarked (needed for website)
+# CRITICAL: zoom/ contains 8000px sellable images (645MB) — NEVER commit to public repo
 09_Licensing/*
 !09_Licensing/thumbnails/
 !09_Licensing/watermarked/

@@ -9,9 +9,6 @@ const studioTabs = [
   { id: 'licensing', label: 'Licensing', icon: '📜' },
   { id: 'sales', label: 'Sales', icon: '🛒' },
   { id: 'promos', label: 'Promos', icon: '🏷️' },
-  { id: 'sync', label: 'Sync', icon: '☁️' },
-  { id: 'social', label: 'Social', icon: '📱' },
-  { id: 'analytics', label: 'Analytics', icon: '📊' },
   { id: 'about', label: 'About', icon: '👤' },
   { id: 'settings', label: 'Settings', icon: '⚙️' },
 ];
@@ -24,15 +21,8 @@ const mockupTabs = [
 ];
 
 const agentTabs = [
-  { id: 'agent-dash', label: 'Dashboard', icon: '🤖' },
-  { id: 'agent-photos', label: 'Photos', icon: '🖼️' },
-  { id: 'agent-queue', label: 'Queue', icon: '📋' },
-  { id: 'agent-pipeline', label: 'Pipeline', icon: '🔄' },
-  { id: 'agent-etsy', label: 'Etsy', icon: '🏷️' },
-  { id: 'agent-cafe', label: 'CaFE', icon: '🎨' },
-  { id: 'agent-instagram', label: 'Instagram', icon: '📷' },
-  { id: 'agent-pinterest', label: 'Pinterest', icon: '📌' },
   { id: 'agent-compose', label: 'Compose', icon: '✏️' },
+  { id: 'agent-cafe', label: 'CaFE', icon: '🎨' },
   { id: 'agent-health', label: 'Health', icon: '🩺' },
   { id: 'agent-settings', label: 'Settings', icon: '⚙️' },
 ];

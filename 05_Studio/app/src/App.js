@@ -5,21 +5,11 @@ import ContentManagement from './pages/ContentManagement';
 import WebsiteControl from './pages/WebsiteControl';
 import LicensingManager from './pages/LicensingManager';
 import SalesPictorem from './pages/SalesPictorem';
-import SocialMedia from './pages/SocialMedia';
-import Analytics from './pages/Analytics';
 import GalleryPreview from './pages/GalleryPreview';
 import PromoCodeManager from './pages/PromoCodeManager';
-import FolderSync from './pages/FolderSync';
 import Settings from './pages/Settings';
 import AboutEditor from './pages/AboutEditor';
-import AgentDashboard from './pages/AgentDashboard';
-import AgentPhotoImport from './pages/AgentPhotoImport';
-import AgentContentQueue from './pages/AgentContentQueue';
-import AgentPipelineMonitor from './pages/AgentPipelineMonitor';
-import AgentEtsyListings from './pages/AgentEtsyListings';
 import AgentCafeExport from './pages/AgentCafeExport';
-import AgentInstagram from './pages/AgentInstagram';
-import AgentPinterest from './pages/AgentPinterest';
 import AgentCompose from './pages/AgentCompose';
 import AgentHealthPanel from './pages/AgentHealthPanel';
 import AgentSettings from './pages/AgentSettings';
@@ -95,15 +85,6 @@ function App() {
         <TabPanel id="promos" activeTab={activeTab}>
           <PromoCodeManager />
         </TabPanel>
-        <TabPanel id="sync" activeTab={activeTab}>
-          <FolderSync />
-        </TabPanel>
-        <TabPanel id="social" activeTab={activeTab}>
-          <SocialMedia />
-        </TabPanel>
-        <TabPanel id="analytics" activeTab={activeTab}>
-          <Analytics />
-        </TabPanel>
         <TabPanel id="about" activeTab={activeTab}>
           <AboutEditor />
         </TabPanel>
@@ -112,32 +93,11 @@ function App() {
         </TabPanel>
 
         {/* Agent Pages */}
-        <TabPanel id="agent-dash" activeTab={activeTab}>
-          <AgentDashboard />
-        </TabPanel>
-        <TabPanel id="agent-photos" activeTab={activeTab}>
-          <AgentPhotoImport />
-        </TabPanel>
-        <TabPanel id="agent-queue" activeTab={activeTab}>
-          <AgentContentQueue />
-        </TabPanel>
-        <TabPanel id="agent-pipeline" activeTab={activeTab}>
-          <AgentPipelineMonitor />
-        </TabPanel>
-        <TabPanel id="agent-etsy" activeTab={activeTab}>
-          <AgentEtsyListings />
+        <TabPanel id="agent-compose" activeTab={activeTab}>
+          <AgentCompose />
         </TabPanel>
         <TabPanel id="agent-cafe" activeTab={activeTab}>
           <AgentCafeExport />
-        </TabPanel>
-        <TabPanel id="agent-instagram" activeTab={activeTab}>
-          <AgentInstagram />
-        </TabPanel>
-        <TabPanel id="agent-pinterest" activeTab={activeTab}>
-          <AgentPinterest />
-        </TabPanel>
-        <TabPanel id="agent-compose" activeTab={activeTab}>
-          <AgentCompose />
         </TabPanel>
         <TabPanel id="agent-health" activeTab={activeTab}>
           <AgentHealthPanel />

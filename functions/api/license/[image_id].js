@@ -110,7 +110,7 @@ async function verifyPayment(paymentHeader, expectedAmount, expectedRecipient) {
 async function generateDownloadUrl(imageId, maxDimension, secret, tier) {
   // Generate time-limited signed URL
   // Route micro-license tiers to down-converted versions, not originals
-  const expiry = Date.now() + 3600000; // 1 hour
+  const expiry = Date.now() + 72 * 60 * 60 * 1000; // 72 hours
   let key;
   if (tier === "web" || tier === "commercial") {
     // Micro-license: serve down-converted version (2400px web / 4000px commercial)
@@ -240,7 +240,7 @@ export async function onRequest(context) {
       download_url: downloadUrl,
       tx_hash: verification.txHash,
       usage_terms: license.usage,
-      expires_in: "1 hour",
+      expires_in: "72 hours",
     }),
     { status: 200, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }
   );

@@ -185,6 +185,39 @@ def etsy_token_refresh():
         return {"error": str(e)}
 
 
+@huey.periodic_task(crontab(hour="*/12", minute="30"))
+def instagram_token_refresh():
+    """Auto-refresh Instagram token if expiring within 7 days."""
+    logger.info("Cron: Checking Instagram token expiry")
+    try:
+        from src.integrations.instagram import get_credentials, refresh_token
+
+        creds = get_credentials()
+        token = creds.get("access_token")
+        expires = creds.get("token_expires")
+        if not token:
+            return {"refreshed": False, "reason": "no token"}
+        if expires:
+            from datetime import datetime, timedelta, timezone
+
+            try:
+                exp_dt = datetime.fromisoformat(expires)
+                if exp_dt.tzinfo is None:
+                    exp_dt = exp_dt.replace(tzinfo=timezone.utc)
+                if exp_dt > datetime.now(timezone.utc) + timedelta(days=7):
+                    return {"refreshed": False, "reason": "token valid for 7+ days"}
+            except (ValueError, TypeError):
+                pass
+        result = refresh_token()
+        if result.get("success"):
+            logger.info("Instagram token refreshed")
+            return {"refreshed": True}
+        return {"refreshed": False, "error": str(result)}
+    except Exception as e:
+        logger.error("Instagram token refresh failed: %s", e)
+        return {"error": str(e)}
+
+
 # Task registration info for documentation
 SCHEDULE = {
     "daily_pipeline": "06:00 UTC — Full daily cycle",
@@ -194,4 +227,5 @@ SCHEDULE = {
     "daily_summary": "20:00 UTC — Daily summary to Telegram",
     "email_briefing": "07:00 UTC — Scan all inboxes, generate prioritized briefing",
     "etsy_token_refresh": "Every 6 hours — Check and refresh Etsy API token",
+    "instagram_token_refresh": "Every 12 hours — Check and refresh Instagram token",
 }

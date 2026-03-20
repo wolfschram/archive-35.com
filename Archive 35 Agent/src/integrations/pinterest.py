@@ -421,6 +421,15 @@ def create_pin(
     Returns:
         Created pin dict with 'id'.
     """
+    # Pinterest trial mode cannot create pins — block early with clear message
+    # Remove this check once Standard access is granted
+    access_tier = os.environ.get("PINTEREST_ACCESS_TIER", "trial").lower()
+    if access_tier == "trial":
+        return {
+            "error": "Pinterest API is in trial mode — cannot create pins. "
+            "Use manual upload at pinterest.com/pin-creation-tool/"
+        }
+
     pin_data: dict[str, Any] = {
         "board_id": board_id,
         "title": title[:100],

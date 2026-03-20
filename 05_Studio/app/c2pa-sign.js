@@ -76,6 +76,12 @@ function signImageC2PA(imagePath, metadata = {}) {
       return;
     }
 
+    if (!fs.existsSync(imagePath)) {
+      console.warn(`C2PA: Input file not found, skipping: ${imagePath}`);
+      resolve({ success: false, error: `File not found: ${imagePath}` });
+      return;
+    }
+
     const title = metadata.title || path.basename(imagePath, '.jpg');
     const author = metadata.author || 'Wolf';
     const location = metadata.location || '';

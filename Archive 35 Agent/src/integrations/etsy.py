@@ -462,6 +462,11 @@ def _api_request(
     Returns:
         Parsed JSON response or error dict.
     """
+    # Proactively refresh token if expired before making the request
+    token_check = ensure_valid_token()
+    if not token_check.get("valid"):
+        return {"error": token_check.get("error", "Token invalid")}
+
     creds = get_credentials()
     if not creds.get("access_token"):
         return {"error": "No Etsy access token. Run OAuth flow first."}
@@ -1726,6 +1731,28 @@ class EtsyClient:
     @property
     def shop_id(self) -> str:
         return get_credentials().get("shop_id", "")
+
+    def token_expires_within(self, hours: int = 2) -> bool:
+        """Check if the access token expires within the given hours."""
+        creds = get_credentials()
+        expires = creds.get("token_expires", "")
+        if not expires:
+            return True  # No expiry info — assume needs refresh
+        try:
+            from datetime import timedelta
+            exp_dt = datetime.fromisoformat(expires)
+            threshold = datetime.now(timezone.utc) + timedelta(hours=hours)
+            return exp_dt <= threshold
+        except (ValueError, TypeError):
+            return True  # Can't parse — assume needs refresh
+
+    def ensure_valid_token(self) -> dict[str, Any]:
+        """Check and refresh token if needed. Delegates to module-level function."""
+        return ensure_valid_token()
+
+    def refresh_access_token(self) -> dict[str, Any]:
+        """Refresh the access token. Delegates to module-level function."""
+        return refresh_access_token()
 
     def generate_oauth_url(self) -> tuple[str, str]:
         """Generate OAuth URL, store code_verifier for later exchange.

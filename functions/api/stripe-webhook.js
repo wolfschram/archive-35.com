@@ -885,8 +885,15 @@ export async function onRequestPost(context) {
     // Read raw body for signature verification
     const rawBody = await request.text();
 
-    // Verify webhook signature — try live secret first, then test secret
+    // Verify webhook signature — reject if no secret configured
     const sigHeader = request.headers.get('stripe-signature') || '';
+    if (!STRIPE_WEBHOOK_SECRET && !STRIPE_TEST_WEBHOOK_SECRET) {
+      console.error('STRIPE_WEBHOOK_SECRET not configured — rejecting event');
+      return new Response(JSON.stringify({ error: 'Webhook not configured' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
     if (STRIPE_WEBHOOK_SECRET || STRIPE_TEST_WEBHOOK_SECRET) {
       const liveValid = STRIPE_WEBHOOK_SECRET
         ? await verifyWebhookSignature(rawBody, sigHeader, STRIPE_WEBHOOK_SECRET)
@@ -930,6 +937,31 @@ export async function onRequestPost(context) {
     // ROUTE: License vs Print order
     // ====================================================================
     const orderType = metadata.orderType || 'print';
+
+    if (orderType === 'credit_pack') {
+      // ================================================================
+      // CREDIT PACK — add credits to customer balance in KV
+      // ================================================================
+      const amountCents = session.amount_total || 2500;
+      const credits = Math.floor(amountCents / 250); // $2.50 per credit
+      const email = session.customer_details?.email || session.customer_email || 'unknown';
+
+      // Store in KV
+      if (env.AGENT_REQUESTS) {
+        const kvKey = `credits:${email}`;
+        const existing = await env.AGENT_REQUESTS.get(kvKey);
+        let balance = existing ? JSON.parse(existing) : { credits: 0 };
+        balance.credits += credits;
+        balance.last_updated = new Date().toISOString();
+        balance.last_purchase_session = session.id;
+        await env.AGENT_REQUESTS.put(kvKey, JSON.stringify(balance));
+        console.log(`Credits stored: ${credits} for ${email} (total: ${balance.credits})`);
+      }
+
+      return new Response(JSON.stringify({ received: true, credits_added: credits }), {
+        status: 200, headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
     if (orderType === 'license') {
       // ================================================================

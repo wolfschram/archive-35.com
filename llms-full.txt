@@ -12,7 +12,7 @@
 - Content Authenticity: All images C2PA signed (ES256, verifiable at contentcredentials.org)
 - Website: https://archive-35.com
 
-## Print Collections (1109 photographs, 48 collections)
+## Print Collections (1174 photographs, 51 collections)
 
 ### Alps (2 photographs)
 - URL: https://archive-35.com/collection.html?id=alps
@@ -54,7 +54,7 @@
   - Badlands Erosion: Arizona's Painted Desert | Petrified Forest National Park / Painted Desert, Arizona | 50.6MP | Tags: badlands, painted-desert, arizona-landscape, geological-formations, erosion-patterns, panoramic-photography, petrified-forest, fine-art-landscape
   - ... and 7 more photographs
 
-### Australia (8 photographs)
+### Australia (20 photographs)
 - URL: https://archive-35.com/collection.html?id=australia
 - Gallery: https://archive-35.com/gallery.html?collection=australia
 
@@ -63,7 +63,7 @@
   - Eucalyptus Grove in Golden Light | Murray River Region, Victoria, Australia | 20.0MP | Tags: eucalyptus-trees, australian-landscape, fine-art-photography, nature-photography, golden-bark, arid-plains, victoria-australia, inland-australia
   - Coastal Art Installation by Turquoise Waters | New South Wales Coast, Australia | 13.4MP | Tags: art-installation, coastal-landscape, new-south-wales, australia-coast, turquoise-water, fine-art-photography, rocky-shore, artistic-intervention
   - Coastal Frame: Ocean's Circle | New South Wales South Coast, Australia | 16.9MP | Tags: sculpture-art, coastal-landscape, fine-art-photography, australia-coast, ocean-view, geometric-frame, turquoise-water, sandy-beach
-  - ... and 3 more photographs
+  - ... and 15 more photographs
 
 ### Black and White (42 photographs)
 - URL: https://archive-35.com/collection.html?id=black-and-white
@@ -76,6 +76,23 @@
   - Intimate Connection | Studio | 50.3MP | Tags: portrait-photography, black-and-white, fine-art, human-connection, intimate-moment, emotional-depth, monochromatic, studio-portrait
   - ... and 37 more photographs
 
+### Bonneville Salt Flats (14 photographs)
+- URL: https://archive-35.com/collection.html?id=bonneville-salt-flats
+- Gallery: https://archive-35.com/gallery.html?collection=bonneville-salt-flats
+
+  - Desert Road to Isolation | Bonneville Salt Flats, Tooele County, Utah - Desert Access Road | 25.3MP | Tags: bonneville-salt-flats, desert-landscape, high-desert, dirt-road, panoramic, utah-landscape, minimalist, butte
+  - Desert Road to Salt Flats | Bonneville Salt Flats, Tooele County, Utah - Western approach road | 34.5MP | Tags: bonneville-salt-flats, desert-landscape, utah-photography, gravel-road, salt-flats, geological-formations, arid-terrain, minimalist-landscape
+  - Mountains Across the Expanse | Bonneville Salt Flats, Utah—Central Flats toward Silver Island Mountains | 33.2MP | Tags: bonneville-salt-flats, salt-flat-landscape, desert-photography, fine-art-landscape, utah-nature, geometric-patterns, salt-polygons, mountain-vista
+  - Salt Flats Mirage at Dusk | Bonneville Salt Flats, Utah | 36.0MP | Tags: bonneville-salt-flats, salt-formations, polygonal-patterns, utah-landscape, crystalline-geometry, desert-landscape, salt-crust, mineral-deposits
+  - Salt Flats Panorama with Desert Mountains | Bonneville Salt Flats, Tooele County, Utah | 41.7MP | Tags: bonneville-salt-flats, salt-flats, desert-landscape, panoramic-photography, mountain-vista, utah-landscape, white-salt-expanse, fine-art-photography
+  - ... and 9 more photographs
+
+### Boston (1 photographs)
+- URL: https://archive-35.com/collection.html?id=boston
+- Gallery: https://archive-35.com/gallery.html?collection=boston
+
+  - Back Bay Reflections at Night | Back Bay, Boston - Charles River viewpoint | 14.0MP | Tags: boston-skyline, back-bay, charles-river, urban-landscape, city-reflection, night-photography, architecture, fine-art-landscape
+
 ### Brazil (14 photographs)
 - URL: https://archive-35.com/collection.html?id=brazil
 - Gallery: https://archive-35.com/gallery.html?collection=brazil
@@ -87,7 +104,7 @@
   - Emerald Waves Meet Golden Shore | Brazilian Atlantic Coast, Southern Region | 50.3MP | Tags: beach-photography, coastal-landscape, fine-art-photography, brazil-coast, emerald-waters, ocean-waves, sandy-beach, seascape
   - ... and 9 more photographs
 
-### Canada (23 photographs)
+### Canada (29 photographs)
 - URL: https://archive-35.com/collection.html?id=canada
 - Gallery: https://archive-35.com/gallery.html?collection=canada
 
@@ -96,9 +113,9 @@
   - Emerald Waters, Boreal Sanctuary | British Columbia, Canada - Likely Garibaldi Lake or similar alpine lake region | 50.3MP | Tags: emerald-lake, turquoise-water, boreal-forest, coniferous-trees, glacial-lake, british-columbia, canadian-landscape, forest-reflection
   - Glacial Fracture, Canadian Rockies | British Columbia, Canada  | 50.3MP | Tags: glacier, canadian-rockies, ice-formation, crevasse, serac, jasper-national-park, alberta, canada
   - Glacial Peak Above Alpine Forest | British Columbia, Canada  | 50.3MP | Tags: canadian-landscape, glacier, snow-capped-mountain, coniferous-forest, british-columbia, alpine-scenery, mountain-photography, dramatic-landscape
-  - ... and 18 more photographs
+  - ... and 24 more photographs
 
-### Chicago (16 photographs)
+### Chicago (21 photographs)
 - URL: https://archive-35.com/collection.html?id=chicago
 - Gallery: https://archive-35.com/gallery.html?collection=chicago
 
@@ -107,7 +124,7 @@
   - Parisian Balconies in Chicago | Chicago, Illinois, USA | 45.2MP | Tags: urban-architecture, chicago-illinois, fine-art-photography, architectural-design, balconies, historic-buildings, urban-landscape, facade
   - Chicago Riverfront Urban Landscape | Chicago River, Downtown Chicago, Illinois, USA | 50.3MP | Tags: chicago, chicago-river, urban-landscape, skyline, architecture, cityscape, downtown-chicago, illinois
   - Chicago Riverfront Urban Canvas | Chicago River, Chicago, Illinois, USA | 50.3MP | Tags: chicago-river, urban-landscape, chicago-skyline, architecture-photography, fine-art-photography, riverfront, illinois, midwest-usa
-  - ... and 11 more photographs
+  - ... and 16 more photographs
 
 ### Coast of California (25 photographs)
 - URL: https://archive-35.com/collection.html?id=coast-of-california
@@ -164,7 +181,7 @@
   - Mineral Waters of the High Desert | Ladakh region, Jammu and Kashmir, India | 20.0MP | Tags: mountain-landscape, alpine-lake, ladakh, turquoise-water, mineral-lake, high-altitude, desert-mountain, geological-formations
   - ... and 40 more photographs
 
-### Desert Dunes (10 photographs)
+### Desert Dunes (20 photographs)
 - URL: https://archive-35.com/collection.html?id=desert-dunes
 - Gallery: https://archive-35.com/gallery.html?collection=desert-dunes
 
@@ -173,7 +190,7 @@
   - Volcanoes of the Atacama Desert | Atacama Desert, Northern Chile - San Pedro de Atacama Region | 50.3MP | Tags: volcano, volcanic-landscape, atacama-desert, chile, aerial-photography, mountain-peaks, snow-capped-volcano, arid-landscape
   - Mineral Pools of Silence | Geothermal hot springs region | 36.6MP | Tags: geothermal-springs, mineral-deposits, abstract-landscape, fine-art-photography, white-landscape, thermal-pools, nature-abstraction, monochromatic
   - Veiled Mountain Landscape | Alpine mountain region | 36.6MP | Tags: mountain-landscape, mist-photography, fog-clouds, alpine-peaks, minimalist-landscape, fine-art-photography, nature-photography, atmospheric-conditions
-  - ... and 5 more photographs
+  - ... and 15 more photographs
 
 ### Flowers and Leaves (18 photographs)
 - URL: https://archive-35.com/collection.html?id=flowers-and-leaves
@@ -252,7 +269,7 @@
   - Stone Cairn, Emerald Waters | Lake Braies, Dolomites, Italy | 33.8MP | Tags: landscape-photography, fine-art-nature, italian-lakes, dolomites, mountain-scenery, alpine-landscape, stone-cairn, emerald-water
   - ... and 32 more photographs
 
-### Joshua Tree (5 photographs)
+### Joshua Tree (9 photographs)
 - URL: https://archive-35.com/collection.html?id=joshua-tree
 - Gallery: https://archive-35.com/gallery.html?collection=joshua-tree
 
@@ -261,6 +278,7 @@
   - Cholla Garden Luminescence | Cholla Cactus Garden, Joshua Tree National Park | 44.8MP | Tags: cholla-cactus, joshua-tree, joshua-tree-national-park, desert-landscape, desert-photography, fine-art-photography, landscape-photography, nature-photography
   - Cholla Garden's Golden Sentinels | Cholla Cactus Garden, Joshua Tree National Park | 44.8MP | Tags: cholla-cactus, joshua-tree, joshua-tree-national-park, desert-landscape, mojave-desert, cacti, spines, botanical-detail
   - Boulder-Strewn Desert Vastness | Joshua Tree National Park, Mojave Desert Region | 49.0MP | Tags: joshua-tree, granite-boulders, desert-landscape, mojave-desert, rock-formations, arid-wilderness, fine-art-landscape, nature-photography
+  - ... and 4 more photographs
 
 ### Lake Powell (14 photographs)
 - URL: https://archive-35.com/collection.html?id=lake-powell
@@ -367,11 +385,13 @@
   - Waterfall Through Native Forest |  New Zealand | 16.7MP | Tags: waterfall, new-zealand, native-forest, landscape-photography, fine-art-print, cascade, beech-forest, ferns
   - ... and 22 more photographs
 
-### Paris (1 photographs)
+### Paris (3 photographs)
 - URL: https://archive-35.com/collection.html?id=paris
 - Gallery: https://archive-35.com/gallery.html?collection=paris
 
   - Iron Lattice Against Sky | Paris, France | 20.0MP | Tags: eiffel-tower, paris, france, iron-lattice, architectural-photography, fine-art-photography, geometric-composition, wrought-iron
+  - Iron Lattice Against Parisian Sky | Eiffel Tower, Champ de Mars, Paris | 20.0MP | Tags: eiffel-tower, paris-landmark, iron-structure, architectural-photography, geometric-patterns, lattice-work, upward-perspective, paris-monument
+  - Monumental Steps Through Parisian Streets | Rue Monsieur-le-Prince, Latin Quarter, Paris | 16.3MP | Tags: paris-architecture, haussmann-buildings, classical-staircase, urban-landscape, sculptural-details, parisian-streets, architectural-photography, fine-art-print
 
 ### Planes (11 photographs)
 - URL: https://archive-35.com/collection.html?id=planes
@@ -393,7 +413,7 @@
   - Legionnaires Bridge Passage | Most Legií (Legionnaires Bridge), Prague 1, Vltava River | 38.1MP | Tags: prague-bridge, most-legii, architectural-perspective, urban-landscape, vltava-river, tramway-tracks, prague-old-town, symmetrical-composition
   - Vltava Reflections at Prague | Vltava Riverfront, Prague Old Town | 39.8MP | Tags: prague-landscape, vltava-river, urban-waterfront, czech-republic, old-town-prague, riverscape, architectural-reflection, fine-art-photography
 
-### Random Stuff (25 photographs)
+### Random Stuff (29 photographs)
 - URL: https://archive-35.com/collection.html?id=random-stuff
 - Gallery: https://archive-35.com/gallery.html?collection=random-stuff
 
@@ -402,7 +422,7 @@
   - Weathered Wood's Spiral Memory | Weathered wood detail | 37.9MP | Tags: wood-grain, macro-photography, nature-abstract, aged-wood, fine-art-photography, texture-detail, organic-patterns, natural-composition
   - Chromatic Journey Through Urban Space | Central Europe, urban plaza | 12.3MP | Tags: vintage-automobile, street-art, color-field, urban-landscape, trabant, contemporary-art, geometric-patterns, colorful-stripes
   - Geometric Rhythms in Green | Urban Metropolitan Area | 49.2MP | Tags: architecture-photography, urban-landscape, fine-art-photography, geometric-patterns, modern-buildings, residential-architecture, green-facade, contemporary-design
-  - ... and 20 more photographs
+  - ... and 24 more photographs
 
 ### San Francisco (9 photographs)
 - URL: https://archive-35.com/collection.html?id=san-francisco
@@ -414,6 +434,17 @@
   - Cable Car Descent to the Bay | California Street, Financial District, San Francisco | 17.3MP | Tags: san-francisco, cable-car, urban-landscape, financial-district, california-street, bay-bridge-view, city-street, architectural-photography
   - Victorian Archway in the City | Pacific Heights, San Francisco | 77.6MP | Tags: san-francisco, victorian-architecture, architectural-photography, fine-art-photography, historic-building, ornate-archway, classical-columns, pacific-heights
   - ... and 4 more photographs
+
+### santiago de Chile (7 photographs)
+- URL: https://archive-35.com/collection.html?id=santiago-de-chile
+- Gallery: https://archive-35.com/gallery.html?collection=santiago-de-chile
+
+  - Santiago Valley Lights | San Cristóbal Hill viewpoint, Santiago de Chile | 20.0MP | Tags: santiago-de-chile, urban-landscape, andes-mountains, city-lights, metropolitan-vista, fine-art-photography, landscape-photography, architectural-cityscape
+  - Santiago Valley in Twilight Haze | San Cristóbal Hill viewpoint, Santiago de Chile | 18.8MP | Tags: santiago-de-chile, andes-mountains, urban-landscape, mountain-vista, cityscape, atmospheric-haze, metropolitan-view, cordillera
+  - Santiago Valley at Twilight Glow | San Cristóbal Hill viewpoint, Santiago de Chile | 20.0MP | Tags: santiago-de-chile, urban-landscape, andes-mountains, city-lights, metropolitan-vista, mountain-range, atmospheric-haze, architectural-cityscape
+  - Santiago Valley at Golden Hour | San Cristóbal Hill viewpoint, Santiago de Chile | 19.6MP | Tags: santiago de chile, landscape-photography, urban-landscape, andes-mountains, metropolitan-valley, fine-art-print, nature-photography, mountain-vista
+  - Santiago Valley at Golden Hour | San Cristóbal Hill viewpoint, Santiago de Chile | 20.0MP | Tags: santiago de chile, andes mountains, urban landscape, metropolitan, valley vista, mountain range, cityscape, fine-art-photography
+  - ... and 2 more photographs
 
 ### Sequoia National Park (8 photographs)
 - URL: https://archive-35.com/collection.html?id=sequoia-national-park

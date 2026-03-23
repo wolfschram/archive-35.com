@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.archive35.social</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/node</string>
+        <string>/Users/wolf/Library/Mobile Documents/com~apple~CloudDocs/Shared for Archive 35/Archive35-Social/social_media_app/main.js</string>
+    </array>
+    
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <key>KeepAlive</key>
+    <true/>
+    
+    <key>WorkingDirectory</key>
+    <string>/Users/wolf/Library/Mobile Documents/com~apple~CloudDocs/Shared for Archive 35/Archive35-Social/social_media_app</string>
+    
+    <key>StandardOutPath</key>
+    <string>/Users/wolf/Library/Mobile Documents/com~apple~CloudDocs/Shared for Archive 35/Archive35-Social/social_media_app/logs/launchd_stdout.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/wolf/Library/Mobile Documents/com~apple~CloudDocs/Shared for Archive 35/Archive35-Social/social_media_app/logs/launchd_stderr.log</string>
+    
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>NODE_ENV</key>
+        <string>production</string>
+        <key>ELECTRON_ENABLE_LOGGING</key>
+        <string>1</string>
+    </dict>
+    
+    <key>ProcessType</key>
+    <string>Interactive</string>
+</dict>
+</plist>

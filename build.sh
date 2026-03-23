@@ -64,5 +64,9 @@ cp -r .well-known _site/ 2>/dev/null || true
 # Copy API endpoint (machine-readable product feed for AI agents)
 cp -r api _site/ 2>/dev/null || true
 
+# Copy client preview pages and Riedel office scene images
+cp -r clients _site/ 2>/dev/null || true
+cp -r "Riedel office photo mock up" _site/ 2>/dev/null || true
+
 echo "Build complete! Output in _site/"
 ls -la _site/

@@ -1,18 +1,1552 @@
-2026-03-18 19:55:09 [INFO] __main__: Archive-35 Agent API starting up
-2026-03-18 19:55:09 [INFO] __main__: Agent resumed — broadcast — last activity: 2026-03-18T14:28:56.277584+00:00
-2026-03-18 19:55:09 [INFO] __main__: Agent resumed — content_pipeline — last activity: 2026-03-18T14:28:56.277676+00:00
-2026-03-18 19:55:09 [INFO] __main__: Agent resumed — instagram — last activity: 2026-03-18T14:28:56.276904+00:00
-2026-03-18 19:55:09 [INFO] __main__: Agent resumed — micro_licensing — last activity: 2026-03-18T14:28:56.277760+00:00
-2026-03-18 19:55:09 [INFO] __main__: Agent resumed — etsy_seo — last activity: 2026-03-18T14:28:56.277495+00:00
-2026-03-18 19:55:09 [INFO] __main__: Agent resumed — reddit — last activity: 2026-03-18T16:25:09.793797+00:00
-2026-03-18 19:55:09 [INFO] __main__: Agent resumed — pinterest — last activity: 2026-03-18T14:28:56.277400+00:00
-2026-03-18 19:55:09 [INFO] __main__: Startup health check complete
-2026-03-18 21:14:25 [INFO] __main__: Archive-35 Agent API starting up
-2026-03-18 21:14:25 [INFO] __main__: Agent resumed — broadcast — last activity: 2026-03-18T14:28:56.277584+00:00
-2026-03-18 21:14:25 [INFO] __main__: Agent resumed — content_pipeline — last activity: 2026-03-18T14:28:56.277676+00:00
-2026-03-18 21:14:25 [INFO] __main__: Agent resumed — instagram — last activity: 2026-03-18T14:28:56.276904+00:00
-2026-03-18 21:14:25 [INFO] __main__: Agent resumed — micro_licensing — last activity: 2026-03-18T14:28:56.277760+00:00
-2026-03-18 21:14:25 [INFO] __main__: Agent resumed — etsy_seo — last activity: 2026-03-18T14:28:56.277495+00:00
-2026-03-18 21:14:25 [INFO] __main__: Agent resumed — reddit — last activity: 2026-03-18T16:25:09.793797+00:00
-2026-03-18 21:14:25 [INFO] __main__: Agent resumed — pinterest — last activity: 2026-03-18T14:28:56.277400+00:00
-2026-03-18 21:14:25 [INFO] __main__: Startup health check complete
+2026-03-20 00:48:47 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/receipts?limit=100&offset=0 → 401: {"error":"invalid_token","error_description":"access token is expired"}
+
+2026-03-20 00:48:47 [INFO] src.integrations.etsy: Token expired, attempting refresh...
+2026-03-20 00:48:47 [INFO] src.integrations.etsy: Saved Etsy tokens to .env (expires: 2026-03-20T01:48:47.851818+00:00)
+2026-03-20 01:48:48 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/receipts?limit=100&offset=0 → 401: {"error":"invalid_token","error_description":"access token is expired"}
+
+2026-03-20 01:48:48 [INFO] src.integrations.etsy: Token expired, attempting refresh...
+2026-03-20 01:48:48 [INFO] src.integrations.etsy: Saved Etsy tokens to .env (expires: 2026-03-20T02:48:48.602010+00:00)
+2026-03-20 02:29:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:29:51 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:29:51 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-20 02:29:51 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:29:51 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-20 02:29:52 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:29:58 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:30:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:30:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:30:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:30:49 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:30:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:31:06 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:31:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:31:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:31:50 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:31:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:32:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:32:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:32:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:32:49 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:32:51 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:33:06 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:33:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:33:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:33:49 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:33:51 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:34:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:34:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:34:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:34:49 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:34:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:35:06 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:35:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:35:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:35:50 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:35:51 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:36:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:36:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:36:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:36:50 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:36:51 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:37:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:37:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:37:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:37:49 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:37:51 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:38:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:38:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:38:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:38:49 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:38:51 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:39:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:39:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:39:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:39:49 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:39:51 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:40:06 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:40:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:40:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:40:50 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:40:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:41:06 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:41:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:41:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:41:50 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:41:51 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:42:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:42:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:42:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:42:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:42:51 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:43:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:43:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:43:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:43:50 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:43:51 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:44:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:44:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:44:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:44:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:44:52 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:45:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:45:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:45:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:45:50 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:45:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:46:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:46:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:46:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:46:49 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:46:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:47:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:47:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:47:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:47:50 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:47:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:48:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:48:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:48:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:48:49 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/receipts?limit=100&offset=0 → 401: {"error":"invalid_token","error_description":"access token is expired"}
+
+2026-03-20 02:48:49 [INFO] src.integrations.etsy: Token expired, attempting refresh...
+2026-03-20 02:48:49 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/listings?state=active&limit=100&offset=0 → 401: {"error":"invalid_token","error_description":"access token is expired"}
+
+2026-03-20 02:48:49 [INFO] src.integrations.etsy: Token expired, attempting refresh...
+2026-03-20 02:48:49 [INFO] src.integrations.etsy: Saved Etsy tokens to .env (expires: 2026-03-20T03:48:49.841271+00:00)
+2026-03-20 02:48:49 [INFO] src.integrations.etsy: Saved Etsy tokens to .env (expires: 2026-03-20T03:48:49.843609+00:00)
+2026-03-20 02:48:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:48:51 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:49:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:49:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:49:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:49:49 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:49:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:50:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:50:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:50:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:50:49 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:50:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:51:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:51:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:51:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:51:49 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:51:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:52:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:52:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:52:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:52:50 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:52:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:53:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:53:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:53:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:53:50 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:53:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:54:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:54:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:54:35 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:54:49 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:54:50 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:55:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:55:21 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:55:36 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:55:51 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:55:52 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:56:06 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:57:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:57:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:58:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:58:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 02:59:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 02:59:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:00:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:00:08 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:01:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:01:03 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:02:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:02:03 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:03:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:03:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:04:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:04:03 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:05:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:05:06 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:06:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:06:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:07:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:07:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:08:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:08:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:09:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:09:03 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:10:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:10:06 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:11:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:11:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:12:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:12:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:13:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:13:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:14:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:14:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:15:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:15:05 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:16:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:16:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:17:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:17:04 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:18:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:18:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:19:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:19:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:20:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:20:07 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:21:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:21:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:21:47 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:21:49 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:21:51 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:22:05 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:22:20 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:22:36 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:22:50 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:22:51 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:23:06 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:23:21 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:24:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:24:03 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:25:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:25:05 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:26:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:26:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:27:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:27:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:28:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:28:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:29:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:29:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:30:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:30:09 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:31:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:31:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:32:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:32:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:33:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:33:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:34:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:34:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:35:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:35:07 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:36:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:36:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:37:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:37:06 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:38:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:38:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:39:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:39:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:40:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:40:07 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:41:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:41:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:42:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:42:04 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:43:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:43:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:44:03 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:44:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:45:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:45:06 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:46:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:46:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:47:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:47:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:48:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:48:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:48:56 [ERROR] src.integrations.etsy: Etsy API GET /application/shops/64687967/receipts?limit=100&offset=0 → 401: {"error":"invalid_token","error_description":"access token is expired"}
+
+2026-03-20 03:48:56 [INFO] src.integrations.etsy: Token expired, attempting refresh...
+2026-03-20 03:48:57 [INFO] src.integrations.etsy: Saved Etsy tokens to .env (expires: 2026-03-20T04:48:57.150599+00:00)
+2026-03-20 03:49:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:49:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:50:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:50:06 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:51:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:51:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:52:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:52:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:53:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:53:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:53:27 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:53:27 [INFO] __main__: AI caption generated for mockup 5b876d4d-283
+2026-03-20 03:53:36 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:53:36 [INFO] __main__: AI caption generated for mockup 971fdef9-f2b
+2026-03-20 03:53:47 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:53:47 [INFO] __main__: AI caption generated for mockup 4ebd8314-cc7
+2026-03-20 03:53:55 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:53:55 [INFO] __main__: AI caption generated for mockup dbbf3154-873
+2026-03-20 03:54:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:00 [INFO] __main__: AI caption generated for mockup 250c42fd-a82
+2026-03-20 03:54:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:54:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:54:05 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:05 [INFO] __main__: AI caption generated for mockup c5c88d75-f13
+2026-03-20 03:54:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:09 [INFO] __main__: AI caption generated for mockup 746d9937-6df
+2026-03-20 03:54:15 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:15 [INFO] __main__: AI caption generated for mockup aea1b5a1-313
+2026-03-20 03:54:21 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:21 [INFO] __main__: AI caption generated for mockup 47876ae7-f6f
+2026-03-20 03:54:25 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:25 [INFO] __main__: AI caption generated for mockup 9b57b102-753
+2026-03-20 03:54:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:31 [INFO] __main__: AI caption generated for mockup 86922025-11d
+2026-03-20 03:54:36 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:36 [INFO] __main__: AI caption generated for mockup eef7f668-876
+2026-03-20 03:54:40 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:40 [INFO] __main__: AI caption generated for mockup 73aa4275-614
+2026-03-20 03:54:45 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:45 [INFO] __main__: AI caption generated for mockup 7484ea8c-7dc
+2026-03-20 03:54:46 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:46 [INFO] __main__: AI caption generated for mockup 068aa1b7-580
+2026-03-20 03:54:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:51 [INFO] __main__: AI caption generated for mockup 758846a0-f86
+2026-03-20 03:54:54 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:54 [INFO] __main__: AI caption generated for mockup 3183b491-050
+2026-03-20 03:54:54 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:54:54 [INFO] __main__: AI caption generated for mockup 40ad305f-e56
+2026-03-20 03:55:01 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:01 [INFO] __main__: AI caption generated for mockup c1b8ff1e-8b3
+2026-03-20 03:55:02 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:02 [INFO] __main__: AI caption generated for mockup e4d638de-dc4
+2026-03-20 03:55:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:55:03 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:03 [INFO] __main__: AI caption generated for mockup 533cba74-d31
+2026-03-20 03:55:07 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:55:10 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:10 [INFO] __main__: AI caption generated for mockup 060bdd66-b1c
+2026-03-20 03:55:10 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:10 [INFO] __main__: AI caption generated for mockup a08872e4-8da
+2026-03-20 03:55:18 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:18 [INFO] __main__: AI caption generated for mockup 57636fbd-e51
+2026-03-20 03:55:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:19 [INFO] __main__: AI caption generated for mockup fbbc5d2a-92e
+2026-03-20 03:55:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:19 [INFO] __main__: AI caption generated for mockup b2d6679b-c58
+2026-03-20 03:55:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:20 [INFO] __main__: AI caption generated for mockup 8c97319a-13d
+2026-03-20 03:55:28 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:28 [INFO] __main__: AI caption generated for mockup 10ac5466-a8e
+2026-03-20 03:55:28 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:28 [INFO] __main__: AI caption generated for mockup 8064fe6d-90d
+2026-03-20 03:55:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:31 [INFO] __main__: AI caption generated for mockup c0b333a9-58f
+2026-03-20 03:55:32 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:32 [INFO] __main__: AI caption generated for mockup 1e3e20c2-b3b
+2026-03-20 03:55:37 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:37 [INFO] __main__: AI caption generated for mockup e242fdff-713
+2026-03-20 03:55:37 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:37 [INFO] __main__: AI caption generated for mockup f5bbc366-5c8
+2026-03-20 03:55:40 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:40 [INFO] __main__: AI caption generated for mockup 266f67b0-cf8
+2026-03-20 03:55:42 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:42 [INFO] __main__: AI caption generated for mockup ab590dab-409
+2026-03-20 03:55:47 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:47 [INFO] __main__: AI caption generated for mockup 5edc03be-9c8
+2026-03-20 03:55:47 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:47 [INFO] __main__: AI caption generated for mockup 030ddc54-2be
+2026-03-20 03:55:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:50 [INFO] __main__: AI caption generated for mockup e7a02714-7b6
+2026-03-20 03:55:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:51 [INFO] __main__: AI caption generated for mockup 00fef01f-6b7
+2026-03-20 03:55:55 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:55 [INFO] __main__: AI caption generated for mockup e3e1c971-1c1
+2026-03-20 03:55:56 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:56 [INFO] __main__: AI caption generated for mockup 3d47e3f4-428
+2026-03-20 03:55:56 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:56 [INFO] __main__: AI caption generated for mockup f91d60f6-a74
+2026-03-20 03:55:59 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:55:59 [INFO] __main__: AI caption generated for mockup 90361fe0-4d1
+2026-03-20 03:56:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:00 [INFO] __main__: AI caption generated for mockup 2a93bb10-d96
+2026-03-20 03:56:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:56:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:56:04 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:04 [INFO] __main__: AI caption generated for mockup 481c7ba9-88e
+2026-03-20 03:56:06 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:06 [INFO] __main__: AI caption generated for mockup 658c0ca7-50f
+2026-03-20 03:56:08 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:08 [INFO] __main__: AI caption generated for mockup 4c92f0a3-240
+2026-03-20 03:56:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:09 [INFO] __main__: AI caption generated for mockup e98e8cdb-b5a
+2026-03-20 03:56:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:09 [INFO] __main__: AI caption generated for mockup 7e0a5ef8-7e6
+2026-03-20 03:56:14 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:14 [INFO] __main__: AI caption generated for mockup c15149f9-6f1
+2026-03-20 03:56:15 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:15 [INFO] __main__: AI caption generated for mockup a6f9f866-cef
+2026-03-20 03:56:16 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:16 [INFO] __main__: AI caption generated for mockup 33de36ac-bfd
+2026-03-20 03:56:17 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:17 [INFO] __main__: AI caption generated for mockup b612ab41-ac3
+2026-03-20 03:56:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:19 [INFO] __main__: AI caption generated for mockup c9bd8088-508
+2026-03-20 03:56:22 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:22 [INFO] __main__: AI caption generated for mockup b83666e6-aa1
+2026-03-20 03:56:24 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:24 [INFO] __main__: AI caption generated for mockup 4ad6215a-105
+2026-03-20 03:56:25 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:25 [INFO] __main__: AI caption generated for mockup 6cc5517b-528
+2026-03-20 03:56:29 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:29 [INFO] __main__: AI caption generated for mockup aec1feb3-0a8
+2026-03-20 03:56:29 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:30 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:31 [INFO] __main__: AI caption generated for mockup c7e2ef2a-9f5
+2026-03-20 03:56:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:31 [INFO] __main__: AI caption generated for mockup c9b5293f-04d
+2026-03-20 03:56:32 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:32 [INFO] __main__: AI caption generated for mockup 29db7aeb-d41
+2026-03-20 03:56:34 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:34 [INFO] __main__: AI caption generated for mockup 19860e48-303
+2026-03-20 03:56:38 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:38 [INFO] __main__: AI caption generated for mockup adad96c0-2a8
+2026-03-20 03:56:40 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:40 [INFO] __main__: AI caption generated for mockup a12c4d81-e40
+2026-03-20 03:56:42 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:42 [INFO] __main__: AI caption generated for mockup 11faad5a-5fa
+2026-03-20 03:56:43 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:43 [INFO] __main__: AI caption generated for mockup 22a18009-d46
+2026-03-20 03:56:44 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:44 [INFO] __main__: AI caption generated for mockup a1e540dc-82b
+2026-03-20 03:56:47 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:47 [INFO] __main__: AI caption generated for mockup 82539399-f8f
+2026-03-20 03:56:49 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:49 [INFO] __main__: AI caption generated for mockup 9fa524e1-6a1
+2026-03-20 03:56:49 [INFO] src.pipeline.daily: === Daily pipeline started ===
+2026-03-20 03:56:50 [WARNING] src.pipeline.import_photos: Import directory does not exist: /01_Portfolio
+2026-03-20 03:56:50 [INFO] src.pipeline.daily: Imported 0 new photos
+2026-03-20 03:56:50 [INFO] src.pipeline.daily: Vision analysis: 0 photos
+2026-03-20 03:56:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:50 [INFO] __main__: AI caption generated for mockup 24266e86-143
+2026-03-20 03:56:52 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:52 [INFO] __main__: AI caption generated for mockup 36c65e28-061
+2026-03-20 03:56:53 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:53 [INFO] __main__: AI caption generated for mockup 21c62863-7e0
+2026-03-20 03:56:54 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:54 [INFO] src.agents.content: Generated pinterest content for dd2f56f867b4 (variant 1)
+2026-03-20 03:56:55 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:55 [INFO] __main__: AI caption generated for mockup 864d424c-f8a
+2026-03-20 03:56:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:57 [INFO] src.agents.content: Generated pinterest content for dd2f56f867b4 (variant 2)
+2026-03-20 03:56:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:57 [INFO] __main__: AI caption generated for mockup 44aa75a6-89f
+2026-03-20 03:56:58 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:56:58 [INFO] __main__: AI caption generated for mockup fde7e7da-5cb
+2026-03-20 03:57:02 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:02 [INFO] __main__: AI caption generated for mockup 2447a664-943
+2026-03-20 03:57:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:57:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:57:03 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:03 [INFO] src.agents.content: Generated instagram content for dd2f56f867b4 (variant 1)
+2026-03-20 03:57:04 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:04 [INFO] __main__: AI caption generated for mockup f7fda4fd-52a
+2026-03-20 03:57:06 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:06 [INFO] __main__: AI caption generated for mockup e61b060e-d4f
+2026-03-20 03:57:07 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:07 [INFO] __main__: AI caption generated for mockup 7ae9afb8-a1f
+2026-03-20 03:57:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:09 [INFO] src.agents.content: Generated instagram content for dd2f56f867b4 (variant 2)
+2026-03-20 03:57:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:09 [INFO] __main__: AI caption generated for mockup aad98524-f7c
+2026-03-20 03:57:11 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:11 [INFO] __main__: AI caption generated for mockup f2ae5592-052
+2026-03-20 03:57:13 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:13 [INFO] __main__: AI caption generated for mockup ed024447-bb8
+2026-03-20 03:57:17 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:17 [INFO] __main__: AI caption generated for mockup 3058a457-fb2
+2026-03-20 03:57:17 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:17 [INFO] __main__: AI caption generated for mockup 49cce3a8-b3f
+2026-03-20 03:57:17 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:17 [INFO] __main__: AI caption generated for mockup e0997258-e50
+2026-03-20 03:57:18 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:18 [INFO] src.agents.content: Generated etsy content for dd2f56f867b4 (variant 1)
+2026-03-20 03:57:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:20 [INFO] __main__: AI caption generated for mockup 7d1f11a8-447
+2026-03-20 03:57:23 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:23 [INFO] __main__: AI caption generated for mockup 4172cb11-f8c
+2026-03-20 03:57:26 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:26 [INFO] __main__: AI caption generated for mockup 4245c2f4-7bc
+2026-03-20 03:57:27 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:27 [INFO] __main__: AI caption generated for mockup 8e333e78-8c9
+2026-03-20 03:57:28 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:28 [INFO] __main__: AI caption generated for mockup 646c53e0-996
+2026-03-20 03:57:29 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:29 [INFO] src.agents.content: Generated etsy content for dd2f56f867b4 (variant 2)
+2026-03-20 03:57:29 [INFO] src.agents.content: Generated 6 content items for photo dd2f56f867b4
+2026-03-20 03:57:30 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:30 [INFO] __main__: AI caption generated for mockup a104abf5-186
+2026-03-20 03:57:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:31 [INFO] __main__: AI caption generated for mockup dd47ddf6-a88
+2026-03-20 03:57:33 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:33 [INFO] src.agents.content: Generated pinterest content for 1231697da716 (variant 1)
+2026-03-20 03:57:35 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:35 [INFO] __main__: AI caption generated for mockup 1aa12a87-d43
+2026-03-20 03:57:36 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:36 [INFO] __main__: AI caption generated for mockup 0426955b-669
+2026-03-20 03:57:37 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:37 [INFO] src.agents.content: Generated pinterest content for 1231697da716 (variant 2)
+2026-03-20 03:57:37 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:37 [INFO] __main__: AI caption generated for mockup 7e297d52-5cf
+2026-03-20 03:57:40 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:40 [INFO] __main__: AI caption generated for mockup 7540ede7-156
+2026-03-20 03:57:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:41 [INFO] src.agents.content: Generated instagram content for 1231697da716 (variant 1)
+2026-03-20 03:57:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:41 [INFO] __main__: AI caption generated for mockup e3493ade-433
+2026-03-20 03:57:44 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:44 [INFO] __main__: AI caption generated for mockup 7fc7d939-938
+2026-03-20 03:57:46 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:46 [INFO] src.agents.content: Generated instagram content for 1231697da716 (variant 2)
+2026-03-20 03:57:47 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:47 [INFO] __main__: AI caption generated for mockup 33f1ade7-ae7
+2026-03-20 03:57:48 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:48 [INFO] __main__: AI caption generated for mockup ae9b4b4f-d42
+2026-03-20 03:57:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:50 [INFO] __main__: AI caption generated for mockup d40eef54-838
+2026-03-20 03:57:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:50 [INFO] __main__: AI caption generated for mockup d4e8d38e-55b
+2026-03-20 03:57:53 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:53 [INFO] __main__: AI caption generated for mockup ad903704-a8f
+2026-03-20 03:57:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:57 [INFO] __main__: AI caption generated for mockup 65bf3af1-7e7
+2026-03-20 03:57:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:57 [INFO] __main__: AI caption generated for mockup 312dade3-305
+2026-03-20 03:57:58 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:58 [INFO] src.agents.content: Generated etsy content for 1231697da716 (variant 1)
+2026-03-20 03:57:59 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:57:59 [INFO] __main__: AI caption generated for mockup 34d260f6-af9
+2026-03-20 03:58:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:00 [INFO] __main__: AI caption generated for mockup 2076e92f-c8d
+2026-03-20 03:58:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:58:01 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:01 [INFO] __main__: AI caption generated for mockup 53ed8cd8-ec4
+2026-03-20 03:58:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:58:08 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:08 [INFO] __main__: AI caption generated for mockup 0fdeecd4-24a
+2026-03-20 03:58:08 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:08 [INFO] __main__: AI caption generated for mockup 67cb65cd-063
+2026-03-20 03:58:08 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:08 [INFO] src.agents.content: Generated etsy content for 1231697da716 (variant 2)
+2026-03-20 03:58:08 [INFO] src.agents.content: Generated 6 content items for photo 1231697da716
+2026-03-20 03:58:10 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:10 [INFO] __main__: AI caption generated for mockup 02d66482-81b
+2026-03-20 03:58:10 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:10 [INFO] __main__: AI caption generated for mockup bc61ae9c-fda
+2026-03-20 03:58:14 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:14 [INFO] src.agents.content: Generated pinterest content for e06a8a525d86 (variant 1)
+2026-03-20 03:58:17 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:17 [INFO] __main__: AI caption generated for mockup b254d8a7-302
+2026-03-20 03:58:18 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:18 [INFO] __main__: AI caption generated for mockup bf54dab6-f20
+2026-03-20 03:58:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:19 [INFO] __main__: AI caption generated for mockup a0bf9ad5-a32
+2026-03-20 03:58:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:19 [INFO] __main__: AI caption generated for mockup da6c4870-906
+2026-03-20 03:58:22 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:22 [INFO] src.agents.content: Generated pinterest content for e06a8a525d86 (variant 2)
+2026-03-20 03:58:27 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:27 [INFO] __main__: AI caption generated for mockup e3dbfe15-402
+2026-03-20 03:58:27 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:27 [INFO] __main__: AI caption generated for mockup 5f5901f9-1cf
+2026-03-20 03:58:27 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:27 [INFO] src.agents.content: Generated instagram content for e06a8a525d86 (variant 1)
+2026-03-20 03:58:27 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:27 [INFO] __main__: AI caption generated for mockup dfa5f1a4-45f
+2026-03-20 03:58:28 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:28 [INFO] __main__: AI caption generated for mockup 655999b0-b0b
+2026-03-20 03:58:32 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:32 [INFO] src.agents.content: Generated instagram content for e06a8a525d86 (variant 2)
+2026-03-20 03:58:36 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:36 [INFO] __main__: AI caption generated for mockup 7a0bcbcc-fca
+2026-03-20 03:58:36 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:36 [INFO] __main__: AI caption generated for mockup 73ef1db7-1b6
+2026-03-20 03:58:36 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:36 [INFO] __main__: AI caption generated for mockup a118c0a8-caa
+2026-03-20 03:58:37 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:37 [INFO] __main__: AI caption generated for mockup 37da3efc-625
+2026-03-20 03:58:42 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:42 [INFO] src.agents.content: Generated etsy content for e06a8a525d86 (variant 1)
+2026-03-20 03:58:45 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:45 [INFO] __main__: AI caption generated for mockup 3fa64f48-5b1
+2026-03-20 03:58:45 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:45 [INFO] __main__: AI caption generated for mockup ba74aab6-697
+2026-03-20 03:58:47 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:47 [INFO] __main__: AI caption generated for mockup 10f23358-764
+2026-03-20 03:58:53 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:53 [INFO] src.agents.content: Generated etsy content for e06a8a525d86 (variant 2)
+2026-03-20 03:58:53 [INFO] src.agents.content: Generated 6 content items for photo e06a8a525d86
+2026-03-20 03:58:54 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:54 [INFO] __main__: AI caption generated for mockup 236fe645-2e3
+2026-03-20 03:58:56 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:56 [INFO] __main__: AI caption generated for mockup 37d02589-49e
+2026-03-20 03:58:58 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:58 [INFO] __main__: AI caption generated for mockup a82ffca3-95f
+2026-03-20 03:58:58 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:58:58 [INFO] src.agents.content: Generated pinterest content for ca27b6487fca (variant 1)
+2026-03-20 03:59:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 03:59:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 03:59:03 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:03 [INFO] src.agents.content: Generated pinterest content for ca27b6487fca (variant 2)
+2026-03-20 03:59:04 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:04 [INFO] __main__: AI caption generated for mockup c8b2445a-29c
+2026-03-20 03:59:05 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:05 [INFO] __main__: AI caption generated for mockup dce8bc32-4b1
+2026-03-20 03:59:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:09 [INFO] src.agents.content: Generated instagram content for ca27b6487fca (variant 1)
+2026-03-20 03:59:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:09 [INFO] __main__: AI caption generated for mockup 20fe7f52-307
+2026-03-20 03:59:12 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:12 [INFO] __main__: AI caption generated for mockup bf4ca7f8-6af
+2026-03-20 03:59:14 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:14 [INFO] __main__: AI caption generated for mockup 5aa46131-f99
+2026-03-20 03:59:15 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:15 [INFO] src.agents.content: Generated instagram content for ca27b6487fca (variant 2)
+2026-03-20 03:59:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:19 [INFO] __main__: AI caption generated for mockup 808f7364-04a
+2026-03-20 03:59:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:20 [INFO] __main__: AI caption generated for mockup ed906c2c-71b
+2026-03-20 03:59:22 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:22 [INFO] __main__: AI caption generated for mockup 78e8aace-e35
+2026-03-20 03:59:25 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:25 [INFO] src.agents.content: Generated etsy content for ca27b6487fca (variant 1)
+2026-03-20 03:59:28 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:28 [INFO] __main__: AI caption generated for mockup 92a17f13-c6a
+2026-03-20 03:59:30 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:30 [INFO] __main__: AI caption generated for mockup c3eb5696-fa1
+2026-03-20 03:59:32 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:32 [INFO] __main__: AI caption generated for mockup 5e3e07ff-5b0
+2026-03-20 03:59:34 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:34 [INFO] src.agents.content: Generated etsy content for ca27b6487fca (variant 2)
+2026-03-20 03:59:34 [INFO] src.agents.content: Generated 6 content items for photo ca27b6487fca
+2026-03-20 03:59:37 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:37 [INFO] src.agents.content: Generated pinterest content for 4161b4a7d8d1 (variant 1)
+2026-03-20 03:59:39 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:39 [INFO] __main__: AI caption generated for mockup a4a1520b-a39
+2026-03-20 03:59:42 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:42 [INFO] __main__: AI caption generated for mockup 68335e52-e27
+2026-03-20 03:59:44 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:44 [INFO] src.agents.content: Generated pinterest content for 4161b4a7d8d1 (variant 2)
+2026-03-20 03:59:48 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:48 [INFO] __main__: AI caption generated for mockup bae44320-b79
+2026-03-20 03:59:49 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:49 [INFO] src.agents.content: Generated instagram content for 4161b4a7d8d1 (variant 1)
+2026-03-20 03:59:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:51 [INFO] __main__: AI caption generated for mockup 3275ba46-020
+2026-03-20 03:59:55 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:55 [INFO] src.agents.content: Generated instagram content for 4161b4a7d8d1 (variant 2)
+2026-03-20 03:59:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 03:59:57 [INFO] __main__: AI caption generated for mockup 33dfa033-0ed
+2026-03-20 04:00:02 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:02 [INFO] __main__: AI caption generated for mockup bfe0db86-ce4
+2026-03-20 04:00:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:00:05 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:05 [INFO] src.agents.content: Generated etsy content for 4161b4a7d8d1 (variant 1)
+2026-03-20 04:00:07 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:00:07 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:07 [INFO] __main__: AI caption generated for mockup 55ceca32-396
+2026-03-20 04:00:11 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:11 [INFO] __main__: AI caption generated for mockup 111c366b-433
+2026-03-20 04:00:15 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:15 [INFO] src.agents.content: Generated etsy content for 4161b4a7d8d1 (variant 2)
+2026-03-20 04:00:15 [INFO] src.agents.content: Generated 6 content items for photo 4161b4a7d8d1
+2026-03-20 04:00:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:19 [INFO] __main__: AI caption generated for mockup 45df4cf7-53a
+2026-03-20 04:00:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:20 [INFO] src.agents.content: Generated pinterest content for 71d1de1f6d70 (variant 1)
+2026-03-20 04:00:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:20 [INFO] __main__: AI caption generated for mockup 30c9535f-361
+2026-03-20 04:00:24 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:24 [INFO] src.agents.content: Generated pinterest content for 71d1de1f6d70 (variant 2)
+2026-03-20 04:00:30 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:30 [INFO] __main__: AI caption generated for mockup e9e934e0-7a6
+2026-03-20 04:00:30 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:30 [INFO] src.agents.content: Generated instagram content for 71d1de1f6d70 (variant 1)
+2026-03-20 04:00:32 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:32 [INFO] __main__: AI caption generated for mockup e2a05015-3b0
+2026-03-20 04:00:38 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:38 [INFO] src.agents.content: Generated instagram content for 71d1de1f6d70 (variant 2)
+2026-03-20 04:00:40 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:40 [INFO] __main__: AI caption generated for mockup 78129dd7-047
+2026-03-20 04:00:42 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:42 [INFO] __main__: AI caption generated for mockup 60739489-0f7
+2026-03-20 04:00:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:50 [INFO] __main__: AI caption generated for mockup 4bc77edd-e88
+2026-03-20 04:00:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:50 [INFO] src.agents.content: Generated etsy content for 71d1de1f6d70 (variant 1)
+2026-03-20 04:00:52 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:00:52 [INFO] __main__: AI caption generated for mockup e5fb1e1b-5a7
+2026-03-20 04:01:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:00 [INFO] __main__: AI caption generated for mockup 09a563ac-008
+2026-03-20 04:01:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:01:03 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:03 [INFO] src.agents.content: Generated etsy content for 71d1de1f6d70 (variant 2)
+2026-03-20 04:01:03 [INFO] src.agents.content: Generated 6 content items for photo 71d1de1f6d70
+2026-03-20 04:01:03 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:01:04 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:04 [INFO] __main__: AI caption generated for mockup e04e3c0f-ceb
+2026-03-20 04:01:06 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:06 [INFO] src.agents.content: Generated pinterest content for 1b5eae8c591c (variant 1)
+2026-03-20 04:01:10 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:10 [INFO] __main__: AI caption generated for mockup 97a06653-bff
+2026-03-20 04:01:11 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:11 [INFO] src.agents.content: Generated pinterest content for 1b5eae8c591c (variant 2)
+2026-03-20 04:01:13 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:13 [INFO] __main__: AI caption generated for mockup ea371b3b-0d8
+2026-03-20 04:01:16 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:16 [INFO] src.agents.content: Generated instagram content for 1b5eae8c591c (variant 1)
+2026-03-20 04:01:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:20 [INFO] __main__: AI caption generated for mockup db97bfbd-6b8
+2026-03-20 04:01:23 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:23 [INFO] src.agents.content: Generated instagram content for 1b5eae8c591c (variant 2)
+2026-03-20 04:01:23 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:23 [INFO] __main__: AI caption generated for mockup b0b67c18-26e
+2026-03-20 04:01:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:31 [INFO] src.agents.content: Generated etsy content for 1b5eae8c591c (variant 1)
+2026-03-20 04:01:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:31 [INFO] __main__: AI caption generated for mockup 6a55ff00-93d
+2026-03-20 04:01:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:31 [INFO] __main__: AI caption generated for mockup 2e17789f-f18
+2026-03-20 04:01:40 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:40 [INFO] __main__: AI caption generated for mockup 3dc14715-078
+2026-03-20 04:01:40 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:40 [INFO] src.agents.content: Generated etsy content for 1b5eae8c591c (variant 2)
+2026-03-20 04:01:40 [INFO] src.agents.content: Generated 6 content items for photo 1b5eae8c591c
+2026-03-20 04:01:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:41 [INFO] __main__: AI caption generated for mockup d489986e-fe0
+2026-03-20 04:01:43 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:43 [INFO] src.agents.content: Generated pinterest content for 58d88864c389 (variant 1)
+2026-03-20 04:01:48 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:48 [INFO] src.agents.content: Generated pinterest content for 58d88864c389 (variant 2)
+2026-03-20 04:01:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:50 [INFO] __main__: AI caption generated for mockup daa578a8-3ec
+2026-03-20 04:01:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:51 [INFO] __main__: AI caption generated for mockup 76e44875-fb5
+2026-03-20 04:01:54 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:54 [INFO] src.agents.content: Generated instagram content for 58d88864c389 (variant 1)
+2026-03-20 04:01:58 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:01:58 [INFO] __main__: AI caption generated for mockup 01ba9df1-a52
+2026-03-20 04:02:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:00 [INFO] __main__: AI caption generated for mockup 988054e9-2c8
+2026-03-20 04:02:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:00 [INFO] src.agents.content: Generated instagram content for 58d88864c389 (variant 2)
+2026-03-20 04:02:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:02:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:02:08 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:08 [INFO] __main__: AI caption generated for mockup 56bf6e69-9b0
+2026-03-20 04:02:10 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:10 [INFO] __main__: AI caption generated for mockup 9b6a5c77-903
+2026-03-20 04:02:10 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:10 [INFO] src.agents.content: Generated etsy content for 58d88864c389 (variant 1)
+2026-03-20 04:02:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:19 [INFO] __main__: AI caption generated for mockup bef52878-68d
+2026-03-20 04:02:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:19 [INFO] src.agents.content: Generated etsy content for 58d88864c389 (variant 2)
+2026-03-20 04:02:19 [INFO] src.agents.content: Generated 6 content items for photo 58d88864c389
+2026-03-20 04:02:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:19 [INFO] __main__: AI caption generated for mockup d5e7b8e2-f9a
+2026-03-20 04:02:23 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:23 [INFO] src.agents.content: Generated pinterest content for 829f0c161663 (variant 1)
+2026-03-20 04:02:27 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:27 [INFO] src.agents.content: Generated pinterest content for 829f0c161663 (variant 2)
+2026-03-20 04:02:28 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:28 [INFO] __main__: AI caption generated for mockup b9742c14-632
+2026-03-20 04:02:29 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:29 [INFO] __main__: AI caption generated for mockup 11e797b4-2f0
+2026-03-20 04:02:32 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:32 [INFO] src.agents.content: Generated instagram content for 829f0c161663 (variant 1)
+2026-03-20 04:02:37 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:37 [INFO] __main__: AI caption generated for mockup eadd907a-8f6
+2026-03-20 04:02:37 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:37 [INFO] src.agents.content: Generated instagram content for 829f0c161663 (variant 2)
+2026-03-20 04:02:38 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:38 [INFO] __main__: AI caption generated for mockup a3f4390b-0c1
+2026-03-20 04:02:45 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:45 [INFO] src.agents.content: Generated etsy content for 829f0c161663 (variant 1)
+2026-03-20 04:02:46 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:46 [INFO] __main__: AI caption generated for mockup 21b1e368-bf2
+2026-03-20 04:02:47 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:47 [INFO] __main__: AI caption generated for mockup 5571ef20-f10
+2026-03-20 04:02:54 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:54 [INFO] src.agents.content: Generated etsy content for 829f0c161663 (variant 2)
+2026-03-20 04:02:54 [INFO] src.agents.content: Generated 6 content items for photo 829f0c161663
+2026-03-20 04:02:55 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:55 [INFO] __main__: AI caption generated for mockup 7961c166-6da
+2026-03-20 04:02:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:57 [INFO] src.agents.content: Generated pinterest content for 823ff8032512 (variant 1)
+2026-03-20 04:02:58 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:02:58 [INFO] __main__: AI caption generated for mockup 7a7d83cc-b99
+2026-03-20 04:03:01 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:01 [INFO] src.agents.content: Generated pinterest content for 823ff8032512 (variant 2)
+2026-03-20 04:03:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:03:03 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:03:04 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:04 [INFO] __main__: AI caption generated for mockup d0097d5e-cfa
+2026-03-20 04:03:07 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:07 [INFO] src.agents.content: Generated instagram content for 823ff8032512 (variant 1)
+2026-03-20 04:03:08 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:08 [INFO] __main__: AI caption generated for mockup bbfdea03-d7a
+2026-03-20 04:03:12 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:12 [INFO] src.agents.content: Generated instagram content for 823ff8032512 (variant 2)
+2026-03-20 04:03:14 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:14 [INFO] __main__: AI caption generated for mockup 4b2a3ed6-e60
+2026-03-20 04:03:16 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:16 [INFO] __main__: AI caption generated for mockup 11f55dc4-ca6
+2026-03-20 04:03:22 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:22 [INFO] src.agents.content: Generated etsy content for 823ff8032512 (variant 1)
+2026-03-20 04:03:24 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:24 [INFO] __main__: AI caption generated for mockup 674fd400-8c6
+2026-03-20 04:03:26 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:26 [INFO] __main__: AI caption generated for mockup 53fdb4fc-855
+2026-03-20 04:03:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:31 [INFO] src.agents.content: Generated etsy content for 823ff8032512 (variant 2)
+2026-03-20 04:03:31 [INFO] src.agents.content: Generated 6 content items for photo 823ff8032512
+2026-03-20 04:03:33 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:33 [INFO] __main__: AI caption generated for mockup a0e56e21-abf
+2026-03-20 04:03:35 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:35 [INFO] src.agents.content: Generated pinterest content for f55d14586bec (variant 1)
+2026-03-20 04:03:36 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:36 [INFO] __main__: AI caption generated for mockup 3882de65-5ff
+2026-03-20 04:03:39 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:39 [INFO] src.agents.content: Generated pinterest content for f55d14586bec (variant 2)
+2026-03-20 04:03:42 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:42 [INFO] __main__: AI caption generated for mockup 70806c1b-329
+2026-03-20 04:03:44 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:44 [INFO] src.agents.content: Generated instagram content for f55d14586bec (variant 1)
+2026-03-20 04:03:47 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:47 [INFO] __main__: AI caption generated for mockup 4d12368f-25c
+2026-03-20 04:03:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:51 [INFO] src.agents.content: Generated instagram content for f55d14586bec (variant 2)
+2026-03-20 04:03:53 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:53 [INFO] __main__: AI caption generated for mockup bff28e19-5b5
+2026-03-20 04:03:56 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:03:56 [INFO] __main__: AI caption generated for mockup 49e0d589-452
+2026-03-20 04:04:01 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:01 [INFO] src.agents.content: Generated etsy content for f55d14586bec (variant 1)
+2026-03-20 04:04:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:04:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:04:02 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:02 [INFO] __main__: AI caption generated for mockup ab4d8898-4b6
+2026-03-20 04:04:07 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:07 [INFO] __main__: AI caption generated for mockup f1876b14-ea6
+2026-03-20 04:04:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:09 [INFO] src.agents.content: Generated etsy content for f55d14586bec (variant 2)
+2026-03-20 04:04:09 [INFO] src.agents.content: Generated 6 content items for photo f55d14586bec
+2026-03-20 04:04:12 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:12 [INFO] __main__: AI caption generated for mockup faa60f10-be5
+2026-03-20 04:04:14 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:14 [INFO] src.agents.content: Generated pinterest content for eddde5a07e16 (variant 1)
+2026-03-20 04:04:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:19 [INFO] src.agents.content: Generated pinterest content for eddde5a07e16 (variant 2)
+2026-03-20 04:04:21 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:22 [INFO] __main__: AI caption generated for mockup f9084372-4b3
+2026-03-20 04:04:25 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:25 [INFO] src.agents.content: Generated instagram content for eddde5a07e16 (variant 1)
+2026-03-20 04:04:30 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:30 [INFO] src.agents.content: Generated instagram content for eddde5a07e16 (variant 2)
+2026-03-20 04:04:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:31 [INFO] __main__: AI caption generated for mockup e6b19a24-0e9
+2026-03-20 04:04:40 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:40 [INFO] src.agents.content: Generated etsy content for eddde5a07e16 (variant 1)
+2026-03-20 04:04:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:41 [INFO] __main__: AI caption generated for mockup 3929268e-2af
+2026-03-20 04:04:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:50 [INFO] src.agents.content: Generated etsy content for eddde5a07e16 (variant 2)
+2026-03-20 04:04:50 [INFO] src.agents.content: Generated 6 content items for photo eddde5a07e16
+2026-03-20 04:04:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:51 [INFO] __main__: AI caption generated for mockup 3823b027-f0e
+2026-03-20 04:04:53 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:53 [INFO] src.agents.content: Generated pinterest content for 5cf7a826946d (variant 1)
+2026-03-20 04:04:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:04:57 [INFO] src.agents.content: Generated pinterest content for 5cf7a826946d (variant 2)
+2026-03-20 04:05:01 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:01 [INFO] __main__: AI caption generated for mockup 6cfdee2c-dcf
+2026-03-20 04:05:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:05:04 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:04 [INFO] src.agents.content: Generated instagram content for 5cf7a826946d (variant 1)
+2026-03-20 04:05:06 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:05:10 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:10 [INFO] src.agents.content: Generated instagram content for 5cf7a826946d (variant 2)
+2026-03-20 04:05:11 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:11 [INFO] __main__: AI caption generated for mockup 01887cc9-2ed
+2026-03-20 04:05:21 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:21 [INFO] src.agents.content: Generated etsy content for 5cf7a826946d (variant 1)
+2026-03-20 04:05:22 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:22 [INFO] __main__: AI caption generated for mockup 3c696c6f-9dd
+2026-03-20 04:05:29 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:29 [INFO] src.agents.content: Generated etsy content for 5cf7a826946d (variant 2)
+2026-03-20 04:05:29 [INFO] src.agents.content: Generated 6 content items for photo 5cf7a826946d
+2026-03-20 04:05:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:31 [INFO] __main__: AI caption generated for mockup 75175158-a5c
+2026-03-20 04:05:33 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:33 [INFO] src.agents.content: Generated pinterest content for b2b90a42b7fb (variant 1)
+2026-03-20 04:05:38 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:38 [INFO] src.agents.content: Generated pinterest content for b2b90a42b7fb (variant 2)
+2026-03-20 04:05:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:41 [INFO] __main__: AI caption generated for mockup 2fdb381b-8f0
+2026-03-20 04:05:44 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:44 [INFO] src.agents.content: Generated instagram content for b2b90a42b7fb (variant 1)
+2026-03-20 04:05:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:50 [INFO] src.agents.content: Generated instagram content for b2b90a42b7fb (variant 2)
+2026-03-20 04:05:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:05:51 [INFO] __main__: AI caption generated for mockup 66be187b-706
+2026-03-20 04:06:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:00 [INFO] __main__: AI caption generated for mockup 50b0ce80-a9e
+2026-03-20 04:06:01 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:01 [INFO] src.agents.content: Generated etsy content for b2b90a42b7fb (variant 1)
+2026-03-20 04:06:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:06:03 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:06:10 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:10 [INFO] __main__: AI caption generated for mockup e9c3ff12-74b
+2026-03-20 04:06:12 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:12 [INFO] src.agents.content: Generated etsy content for b2b90a42b7fb (variant 2)
+2026-03-20 04:06:12 [INFO] src.agents.content: Generated 6 content items for photo b2b90a42b7fb
+2026-03-20 04:06:16 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:16 [INFO] src.agents.content: Generated pinterest content for 8ba480ed2d44 (variant 1)
+2026-03-20 04:06:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:20 [INFO] src.agents.content: Generated pinterest content for 8ba480ed2d44 (variant 2)
+2026-03-20 04:06:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:20 [INFO] __main__: AI caption generated for mockup 228a33bc-763
+2026-03-20 04:06:25 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:25 [INFO] src.agents.content: Generated instagram content for 8ba480ed2d44 (variant 1)
+2026-03-20 04:06:29 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:29 [INFO] __main__: AI caption generated for mockup 4c79fb97-5e3
+2026-03-20 04:06:30 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:30 [INFO] src.agents.content: Generated instagram content for 8ba480ed2d44 (variant 2)
+2026-03-20 04:06:38 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:38 [INFO] __main__: AI caption generated for mockup cc45c869-017
+2026-03-20 04:06:40 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:40 [INFO] src.agents.content: Generated etsy content for 8ba480ed2d44 (variant 1)
+2026-03-20 04:06:48 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:48 [INFO] __main__: AI caption generated for mockup 5f0978a5-fe4
+2026-03-20 04:06:53 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:53 [INFO] src.agents.content: Generated etsy content for 8ba480ed2d44 (variant 2)
+2026-03-20 04:06:53 [INFO] src.agents.content: Generated 6 content items for photo 8ba480ed2d44
+2026-03-20 04:06:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:57 [INFO] __main__: AI caption generated for mockup 82a3425e-c09
+2026-03-20 04:06:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:06:57 [INFO] src.agents.content: Generated pinterest content for 03716f104845 (variant 1)
+2026-03-20 04:07:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:00 [INFO] src.agents.content: Generated pinterest content for 03716f104845 (variant 2)
+2026-03-20 04:07:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:07:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:07:05 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:05 [INFO] src.agents.content: Generated instagram content for 03716f104845 (variant 1)
+2026-03-20 04:07:08 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:08 [INFO] __main__: AI caption generated for mockup 142adbd8-530
+2026-03-20 04:07:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:09 [INFO] src.agents.content: Generated instagram content for 03716f104845 (variant 2)
+2026-03-20 04:07:17 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:17 [INFO] __main__: AI caption generated for mockup f566daac-37b
+2026-03-20 04:07:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:20 [INFO] src.agents.content: Generated etsy content for 03716f104845 (variant 1)
+2026-03-20 04:07:26 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:26 [INFO] __main__: AI caption generated for mockup d9c72f18-b2f
+2026-03-20 04:07:29 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:29 [INFO] src.agents.content: Generated etsy content for 03716f104845 (variant 2)
+2026-03-20 04:07:29 [INFO] src.agents.content: Generated 6 content items for photo 03716f104845
+2026-03-20 04:07:32 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:32 [INFO] src.agents.content: Generated pinterest content for 30d6f6f6b24e (variant 1)
+2026-03-20 04:07:35 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:35 [INFO] __main__: AI caption generated for mockup 29220c04-41d
+2026-03-20 04:07:36 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:36 [INFO] src.agents.content: Generated pinterest content for 30d6f6f6b24e (variant 2)
+2026-03-20 04:07:42 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:42 [INFO] src.agents.content: Generated instagram content for 30d6f6f6b24e (variant 1)
+2026-03-20 04:07:45 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:45 [INFO] __main__: AI caption generated for mockup 7f3ddabb-a5e
+2026-03-20 04:07:47 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:47 [INFO] src.agents.content: Generated instagram content for 30d6f6f6b24e (variant 2)
+2026-03-20 04:07:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:57 [INFO] src.agents.content: Generated etsy content for 30d6f6f6b24e (variant 1)
+2026-03-20 04:07:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:07:57 [INFO] __main__: AI caption generated for mockup 2ef72a58-7fa
+2026-03-20 04:08:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:08:04 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:08:06 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:06 [INFO] __main__: AI caption generated for mockup 2abf4fd2-9dc
+2026-03-20 04:08:07 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:07 [INFO] src.agents.content: Generated etsy content for 30d6f6f6b24e (variant 2)
+2026-03-20 04:08:07 [INFO] src.agents.content: Generated 6 content items for photo 30d6f6f6b24e
+2026-03-20 04:08:11 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:11 [INFO] src.agents.content: Generated pinterest content for 1c0df2fb03e7 (variant 1)
+2026-03-20 04:08:15 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:15 [INFO] __main__: AI caption generated for mockup 8d789879-589
+2026-03-20 04:08:16 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:16 [INFO] src.agents.content: Generated pinterest content for 1c0df2fb03e7 (variant 2)
+2026-03-20 04:08:21 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:21 [INFO] src.agents.content: Generated instagram content for 1c0df2fb03e7 (variant 1)
+2026-03-20 04:08:23 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:23 [INFO] __main__: AI caption generated for mockup 93f2efd2-1b9
+2026-03-20 04:08:27 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:27 [INFO] src.agents.content: Generated instagram content for 1c0df2fb03e7 (variant 2)
+2026-03-20 04:08:32 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:32 [INFO] __main__: AI caption generated for mockup fbf4bb7b-dde
+2026-03-20 04:08:37 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:37 [INFO] src.agents.content: Generated etsy content for 1c0df2fb03e7 (variant 1)
+2026-03-20 04:08:44 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:44 [INFO] __main__: AI caption generated for mockup a88f0c1a-dd6
+2026-03-20 04:08:47 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:47 [INFO] src.agents.content: Generated etsy content for 1c0df2fb03e7 (variant 2)
+2026-03-20 04:08:47 [INFO] src.agents.content: Generated 6 content items for photo 1c0df2fb03e7
+2026-03-20 04:08:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:50 [INFO] src.agents.content: Generated pinterest content for 8c4b2a9ae16d (variant 1)
+2026-03-20 04:08:54 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:54 [INFO] __main__: AI caption generated for mockup 30646182-08f
+2026-03-20 04:08:55 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:08:55 [INFO] src.agents.content: Generated pinterest content for 8c4b2a9ae16d (variant 2)
+2026-03-20 04:09:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:00 [INFO] src.agents.content: Generated instagram content for 8c4b2a9ae16d (variant 1)
+2026-03-20 04:09:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:09:02 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:02 [INFO] __main__: AI caption generated for mockup 3e3d1cdf-62c
+2026-03-20 04:09:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:09:03 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:03 [INFO] __main__: AI caption generated for mockup 48e5e32c-b3d
+2026-03-20 04:09:05 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:05 [INFO] src.agents.content: Generated instagram content for 8c4b2a9ae16d (variant 2)
+2026-03-20 04:09:11 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:11 [INFO] __main__: AI caption generated for mockup 37b43629-959
+2026-03-20 04:09:12 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:12 [INFO] __main__: AI caption generated for mockup 4bab9f3c-654
+2026-03-20 04:09:14 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:14 [INFO] src.agents.content: Generated etsy content for 8c4b2a9ae16d (variant 1)
+2026-03-20 04:09:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:20 [INFO] __main__: AI caption generated for mockup 53763a00-065
+2026-03-20 04:09:23 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:23 [INFO] __main__: AI caption generated for mockup e8996046-195
+2026-03-20 04:09:23 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:23 [INFO] src.agents.content: Generated etsy content for 8c4b2a9ae16d (variant 2)
+2026-03-20 04:09:23 [INFO] src.agents.content: Generated 6 content items for photo 8c4b2a9ae16d
+2026-03-20 04:09:28 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:28 [INFO] src.agents.content: Generated pinterest content for cd7f4e642388 (variant 1)
+2026-03-20 04:09:29 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:29 [INFO] __main__: AI caption generated for mockup 4b5f7952-ec8
+2026-03-20 04:09:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:31 [INFO] src.agents.content: Generated pinterest content for cd7f4e642388 (variant 2)
+2026-03-20 04:09:33 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:33 [INFO] __main__: AI caption generated for mockup 0660277f-7fe
+2026-03-20 04:09:36 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:36 [INFO] src.agents.content: Generated instagram content for cd7f4e642388 (variant 1)
+2026-03-20 04:09:38 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:38 [INFO] __main__: AI caption generated for mockup bf393b8b-9f0
+2026-03-20 04:09:42 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:42 [INFO] src.agents.content: Generated instagram content for cd7f4e642388 (variant 2)
+2026-03-20 04:09:44 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:44 [INFO] __main__: AI caption generated for mockup d94a2537-8e3
+2026-03-20 04:09:47 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:47 [INFO] __main__: AI caption generated for mockup 4568af8c-faf
+2026-03-20 04:09:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:50 [INFO] src.agents.content: Generated etsy content for cd7f4e642388 (variant 1)
+2026-03-20 04:09:53 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:53 [INFO] __main__: AI caption generated for mockup 0a74a09f-0cb
+2026-03-20 04:09:55 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:09:55 [INFO] __main__: AI caption generated for mockup 882097df-a63
+2026-03-20 04:10:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:10:00 [INFO] src.agents.content: Generated etsy content for cd7f4e642388 (variant 2)
+2026-03-20 04:10:00 [INFO] src.agents.content: Generated 6 content items for photo cd7f4e642388
+2026-03-20 04:10:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:10:04 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:10:04 [INFO] src.agents.content: Generated pinterest content for bf8702e539e1 (variant 1)
+2026-03-20 04:10:06 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:10:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:10:09 [INFO] src.agents.content: Generated pinterest content for bf8702e539e1 (variant 2)
+2026-03-20 04:10:15 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:10:15 [INFO] src.agents.content: Generated instagram content for bf8702e539e1 (variant 1)
+2026-03-20 04:10:23 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:10:23 [INFO] src.agents.content: Generated instagram content for bf8702e539e1 (variant 2)
+2026-03-20 04:10:35 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:10:35 [INFO] src.agents.content: Generated etsy content for bf8702e539e1 (variant 1)
+2026-03-20 04:10:48 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:10:48 [INFO] src.agents.content: Generated etsy content for bf8702e539e1 (variant 2)
+2026-03-20 04:10:48 [INFO] src.agents.content: Generated 6 content items for photo bf8702e539e1
+2026-03-20 04:10:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:10:51 [INFO] src.agents.content: Generated pinterest content for 3ab5a80a5c43 (variant 1)
+2026-03-20 04:10:54 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:10:54 [INFO] src.agents.content: Generated pinterest content for 3ab5a80a5c43 (variant 2)
+2026-03-20 04:11:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:11:02 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:11:02 [INFO] src.agents.content: Generated instagram content for 3ab5a80a5c43 (variant 1)
+2026-03-20 04:11:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:11:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:11:09 [INFO] src.agents.content: Generated instagram content for 3ab5a80a5c43 (variant 2)
+2026-03-20 04:11:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:11:20 [INFO] src.agents.content: Generated etsy content for 3ab5a80a5c43 (variant 1)
+2026-03-20 04:11:29 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:11:29 [INFO] src.agents.content: Generated etsy content for 3ab5a80a5c43 (variant 2)
+2026-03-20 04:11:29 [INFO] src.agents.content: Generated 6 content items for photo 3ab5a80a5c43
+2026-03-20 04:11:36 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:11:36 [INFO] src.agents.content: Generated pinterest content for 41c3a90ab0d2 (variant 1)
+2026-03-20 04:11:43 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:11:43 [INFO] src.agents.content: Generated pinterest content for 41c3a90ab0d2 (variant 2)
+2026-03-20 04:11:49 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:11:49 [INFO] src.agents.content: Generated instagram content for 41c3a90ab0d2 (variant 1)
+2026-03-20 04:11:55 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:11:55 [INFO] src.agents.content: Generated instagram content for 41c3a90ab0d2 (variant 2)
+2026-03-20 04:12:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:12:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:12:05 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:12:05 [INFO] src.agents.content: Generated etsy content for 41c3a90ab0d2 (variant 1)
+2026-03-20 04:12:16 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:12:16 [INFO] src.agents.content: Generated etsy content for 41c3a90ab0d2 (variant 2)
+2026-03-20 04:12:16 [INFO] src.agents.content: Generated 6 content items for photo 41c3a90ab0d2
+2026-03-20 04:12:24 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:12:24 [INFO] src.agents.content: Generated pinterest content for 4e7bb724ed4a (variant 1)
+2026-03-20 04:12:33 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:12:33 [INFO] src.agents.content: Generated pinterest content for 4e7bb724ed4a (variant 2)
+2026-03-20 04:12:38 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:12:38 [INFO] src.agents.content: Generated instagram content for 4e7bb724ed4a (variant 1)
+2026-03-20 04:12:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:12:41 [INFO] __main__: AI caption generated for mockup 4f405922-c1e
+2026-03-20 04:12:43 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:12:43 [INFO] src.agents.content: Generated instagram content for 4e7bb724ed4a (variant 2)
+2026-03-20 04:12:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:12:50 [INFO] __main__: AI caption generated for mockup 7e6c72d0-5b4
+2026-03-20 04:12:53 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:12:53 [INFO] src.agents.content: Generated etsy content for 4e7bb724ed4a (variant 1)
+2026-03-20 04:12:59 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:12:59 [INFO] __main__: AI caption generated for mockup d67a7f22-97f
+2026-03-20 04:13:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:13:03 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:03 [INFO] src.agents.content: Generated etsy content for 4e7bb724ed4a (variant 2)
+2026-03-20 04:13:03 [INFO] src.agents.content: Generated 6 content items for photo 4e7bb724ed4a
+2026-03-20 04:13:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:13:10 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:10 [INFO] src.agents.content: Generated pinterest content for 9c776b70c151 (variant 1)
+2026-03-20 04:13:12 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:12 [INFO] __main__: AI caption generated for mockup 8f9b8947-e40
+2026-03-20 04:13:17 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:17 [INFO] src.agents.content: Generated pinterest content for 9c776b70c151 (variant 2)
+2026-03-20 04:13:22 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:22 [INFO] __main__: AI caption generated for mockup 438b8e55-62c
+2026-03-20 04:13:23 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:23 [INFO] src.agents.content: Generated instagram content for 9c776b70c151 (variant 1)
+2026-03-20 04:13:30 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:30 [INFO] __main__: AI caption generated for mockup ee94f0d3-4e6
+2026-03-20 04:13:30 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:30 [INFO] src.agents.content: Generated instagram content for 9c776b70c151 (variant 2)
+2026-03-20 04:13:40 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:40 [INFO] src.agents.content: Generated etsy content for 9c776b70c151 (variant 1)
+2026-03-20 04:13:40 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:40 [INFO] __main__: AI caption generated for mockup 8ce60645-c92
+2026-03-20 04:13:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:50 [INFO] src.agents.content: Generated etsy content for 9c776b70c151 (variant 2)
+2026-03-20 04:13:50 [INFO] src.agents.content: Generated 6 content items for photo 9c776b70c151
+2026-03-20 04:13:52 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:52 [INFO] __main__: AI caption generated for mockup a2eabee3-042
+2026-03-20 04:13:55 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:55 [INFO] src.agents.content: Generated pinterest content for 56790dba7f3c (variant 1)
+2026-03-20 04:13:58 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:13:58 [INFO] src.agents.content: Generated pinterest content for 56790dba7f3c (variant 2)
+2026-03-20 04:14:01 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:01 [INFO] __main__: AI caption generated for mockup a6862d63-ad8
+2026-03-20 04:14:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:14:02 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:14:03 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:03 [INFO] src.agents.content: Generated instagram content for 56790dba7f3c (variant 1)
+2026-03-20 04:14:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:09 [INFO] src.agents.content: Generated instagram content for 56790dba7f3c (variant 2)
+2026-03-20 04:14:12 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:12 [INFO] __main__: AI caption generated for mockup 3db6f4b1-a0b
+2026-03-20 04:14:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:20 [INFO] src.agents.content: Generated etsy content for 56790dba7f3c (variant 1)
+2026-03-20 04:14:21 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:21 [INFO] __main__: AI caption generated for mockup 6572a642-1f2
+2026-03-20 04:14:30 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:30 [INFO] src.agents.content: Generated etsy content for 56790dba7f3c (variant 2)
+2026-03-20 04:14:30 [INFO] src.agents.content: Generated 6 content items for photo 56790dba7f3c
+2026-03-20 04:14:34 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:34 [INFO] src.agents.content: Generated pinterest content for c598036115c3 (variant 1)
+2026-03-20 04:14:36 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:36 [INFO] __main__: AI caption generated for mockup 4c8632ed-9b4
+2026-03-20 04:14:39 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:39 [INFO] src.agents.content: Generated pinterest content for c598036115c3 (variant 2)
+2026-03-20 04:14:44 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:44 [INFO] src.agents.content: Generated instagram content for c598036115c3 (variant 1)
+2026-03-20 04:14:46 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:46 [INFO] __main__: AI caption generated for mockup 7dd16d10-ad4
+2026-03-20 04:14:49 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:49 [INFO] src.agents.content: Generated instagram content for c598036115c3 (variant 2)
+2026-03-20 04:14:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:14:57 [INFO] __main__: AI caption generated for mockup 5ad26b3e-002
+2026-03-20 04:15:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:00 [INFO] src.agents.content: Generated etsy content for c598036115c3 (variant 1)
+2026-03-20 04:15:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:15:06 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:06 [INFO] __main__: AI caption generated for mockup f5773ea2-e4c
+2026-03-20 04:15:06 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:15:11 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:11 [INFO] src.agents.content: Generated etsy content for c598036115c3 (variant 2)
+2026-03-20 04:15:11 [INFO] src.agents.content: Generated 6 content items for photo c598036115c3
+2026-03-20 04:15:15 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:15 [INFO] src.agents.content: Generated pinterest content for ae6c2ef6edd4 (variant 1)
+2026-03-20 04:15:16 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:16 [INFO] __main__: AI caption generated for mockup d39e9922-688
+2026-03-20 04:15:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:20 [INFO] src.agents.content: Generated pinterest content for ae6c2ef6edd4 (variant 2)
+2026-03-20 04:15:26 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:26 [INFO] src.agents.content: Generated instagram content for ae6c2ef6edd4 (variant 1)
+2026-03-20 04:15:27 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:27 [INFO] __main__: AI caption generated for mockup b9661fad-988
+2026-03-20 04:15:32 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:32 [INFO] src.agents.content: Generated instagram content for ae6c2ef6edd4 (variant 2)
+2026-03-20 04:15:36 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:36 [INFO] __main__: AI caption generated for mockup d3c02833-e2f
+2026-03-20 04:15:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:41 [INFO] src.agents.content: Generated etsy content for ae6c2ef6edd4 (variant 1)
+2026-03-20 04:15:46 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:46 [INFO] __main__: AI caption generated for mockup da2843b4-941
+2026-03-20 04:15:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:51 [INFO] src.agents.content: Generated etsy content for ae6c2ef6edd4 (variant 2)
+2026-03-20 04:15:51 [INFO] src.agents.content: Generated 6 content items for photo ae6c2ef6edd4
+2026-03-20 04:15:55 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:55 [INFO] __main__: AI caption generated for mockup d6aa3b1f-3f0
+2026-03-20 04:15:56 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:15:56 [INFO] src.agents.content: Generated pinterest content for 7163b45dd2b4 (variant 1)
+2026-03-20 04:16:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:00 [INFO] src.agents.content: Generated pinterest content for 7163b45dd2b4 (variant 2)
+2026-03-20 04:16:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:16:03 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:16:04 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:04 [INFO] __main__: AI caption generated for mockup befbc0f6-0be
+2026-03-20 04:16:07 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:07 [INFO] src.agents.content: Generated instagram content for 7163b45dd2b4 (variant 1)
+2026-03-20 04:16:14 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:14 [INFO] src.agents.content: Generated instagram content for 7163b45dd2b4 (variant 2)
+2026-03-20 04:16:16 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:16 [INFO] __main__: AI caption generated for mockup afca10fc-226
+2026-03-20 04:16:24 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:24 [INFO] src.agents.content: Generated etsy content for 7163b45dd2b4 (variant 1)
+2026-03-20 04:16:25 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:25 [INFO] __main__: AI caption generated for mockup 9a1fb9c6-48f
+2026-03-20 04:16:34 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:34 [INFO] __main__: AI caption generated for mockup d7cfd4c3-1f1
+2026-03-20 04:16:36 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:36 [INFO] src.agents.content: Generated etsy content for 7163b45dd2b4 (variant 2)
+2026-03-20 04:16:36 [INFO] src.agents.content: Generated 6 content items for photo 7163b45dd2b4
+2026-03-20 04:16:40 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:40 [INFO] src.agents.content: Generated pinterest content for 264b95d53dd7 (variant 1)
+2026-03-20 04:16:43 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:43 [INFO] __main__: AI caption generated for mockup d74dc4fe-c47
+2026-03-20 04:16:44 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:44 [INFO] src.agents.content: Generated pinterest content for 264b95d53dd7 (variant 2)
+2026-03-20 04:16:49 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:49 [INFO] src.agents.content: Generated instagram content for 264b95d53dd7 (variant 1)
+2026-03-20 04:16:53 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:53 [INFO] __main__: AI caption generated for mockup d789f45c-1ac
+2026-03-20 04:16:55 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:16:55 [INFO] src.agents.content: Generated instagram content for 264b95d53dd7 (variant 2)
+2026-03-20 04:17:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:17:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:17:03 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:03 [INFO] __main__: AI caption generated for mockup 67011702-186
+2026-03-20 04:17:04 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:04 [INFO] src.agents.content: Generated etsy content for 264b95d53dd7 (variant 1)
+2026-03-20 04:17:11 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:11 [INFO] __main__: AI caption generated for mockup e1f4958c-13d
+2026-03-20 04:17:14 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:14 [INFO] src.agents.content: Generated etsy content for 264b95d53dd7 (variant 2)
+2026-03-20 04:17:14 [INFO] src.agents.content: Generated 6 content items for photo 264b95d53dd7
+2026-03-20 04:17:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:19 [INFO] src.agents.content: Generated pinterest content for 084bebabe5f0 (variant 1)
+2026-03-20 04:17:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:20 [INFO] __main__: AI caption generated for mockup c4984b21-a87
+2026-03-20 04:17:23 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:23 [INFO] src.agents.content: Generated pinterest content for 084bebabe5f0 (variant 2)
+2026-03-20 04:17:28 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:28 [INFO] src.agents.content: Generated instagram content for 084bebabe5f0 (variant 1)
+2026-03-20 04:17:29 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:29 [INFO] __main__: AI caption generated for mockup 7ff538f2-7fa
+2026-03-20 04:17:34 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:34 [INFO] src.agents.content: Generated instagram content for 084bebabe5f0 (variant 2)
+2026-03-20 04:17:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:41 [INFO] __main__: AI caption generated for mockup f398378a-e2e
+2026-03-20 04:17:44 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:44 [INFO] src.agents.content: Generated etsy content for 084bebabe5f0 (variant 1)
+2026-03-20 04:17:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:51 [INFO] __main__: AI caption generated for mockup a3ecce6b-93e
+2026-03-20 04:17:52 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:52 [INFO] src.agents.content: Generated etsy content for 084bebabe5f0 (variant 2)
+2026-03-20 04:17:52 [INFO] src.agents.content: Generated 6 content items for photo 084bebabe5f0
+2026-03-20 04:17:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:17:57 [INFO] src.agents.content: Generated pinterest content for ef2228ab3406 (variant 1)
+2026-03-20 04:18:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:00 [INFO] src.agents.content: Generated pinterest content for ef2228ab3406 (variant 2)
+2026-03-20 04:18:01 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:01 [INFO] __main__: AI caption generated for mockup 1d2c3b15-941
+2026-03-20 04:18:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:18:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:18:05 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:05 [INFO] src.agents.content: Generated instagram content for ef2228ab3406 (variant 1)
+2026-03-20 04:18:13 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:13 [INFO] src.agents.content: Generated instagram content for ef2228ab3406 (variant 2)
+2026-03-20 04:18:14 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:14 [INFO] __main__: AI caption generated for mockup e4615d37-138
+2026-03-20 04:18:22 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:22 [INFO] src.agents.content: Generated etsy content for ef2228ab3406 (variant 1)
+2026-03-20 04:18:26 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:26 [INFO] __main__: AI caption generated for mockup be7aeeb4-290
+2026-03-20 04:18:34 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:34 [INFO] src.agents.content: Generated etsy content for ef2228ab3406 (variant 2)
+2026-03-20 04:18:34 [INFO] src.agents.content: Generated 6 content items for photo ef2228ab3406
+2026-03-20 04:18:37 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:37 [INFO] __main__: AI caption generated for mockup 6d3f84bc-6ea
+2026-03-20 04:18:38 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:38 [INFO] src.agents.content: Generated pinterest content for da088989fb1e (variant 1)
+2026-03-20 04:18:42 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:42 [INFO] src.agents.content: Generated pinterest content for da088989fb1e (variant 2)
+2026-03-20 04:18:46 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:46 [INFO] __main__: AI caption generated for mockup cb3ee571-071
+2026-03-20 04:18:46 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:46 [INFO] src.agents.content: Generated instagram content for da088989fb1e (variant 1)
+2026-03-20 04:18:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:51 [INFO] src.agents.content: Generated instagram content for da088989fb1e (variant 2)
+2026-03-20 04:18:56 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:18:56 [INFO] __main__: AI caption generated for mockup 5e4945ad-fb8
+2026-03-20 04:19:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:00 [INFO] src.agents.content: Generated etsy content for da088989fb1e (variant 1)
+2026-03-20 04:19:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:19:05 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:19:06 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:06 [INFO] __main__: AI caption generated for mockup 38181424-f49
+2026-03-20 04:19:12 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:12 [WARNING] src.agents.content: Failed to parse content response as JSON
+2026-03-20 04:19:12 [INFO] src.agents.content: Generated etsy content for da088989fb1e (variant 2)
+2026-03-20 04:19:12 [INFO] src.agents.content: Generated 6 content items for photo da088989fb1e
+2026-03-20 04:19:16 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:16 [INFO] __main__: AI caption generated for mockup feb88cbe-1ec
+2026-03-20 04:19:17 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:17 [INFO] src.agents.content: Generated pinterest content for 0ac0eaafabfe (variant 1)
+2026-03-20 04:19:21 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:21 [INFO] src.agents.content: Generated pinterest content for 0ac0eaafabfe (variant 2)
+2026-03-20 04:19:25 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:25 [INFO] __main__: AI caption generated for mockup b83a80e4-192
+2026-03-20 04:19:25 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:25 [INFO] src.agents.content: Generated instagram content for 0ac0eaafabfe (variant 1)
+2026-03-20 04:19:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:31 [INFO] src.agents.content: Generated instagram content for 0ac0eaafabfe (variant 2)
+2026-03-20 04:19:35 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:35 [INFO] __main__: AI caption generated for mockup 47648aa2-bad
+2026-03-20 04:19:40 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:40 [INFO] src.agents.content: Generated etsy content for 0ac0eaafabfe (variant 1)
+2026-03-20 04:19:44 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:44 [INFO] __main__: AI caption generated for mockup b750c56b-667
+2026-03-20 04:19:52 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:52 [INFO] src.agents.content: Generated etsy content for 0ac0eaafabfe (variant 2)
+2026-03-20 04:19:52 [INFO] src.agents.content: Generated 6 content items for photo 0ac0eaafabfe
+2026-03-20 04:19:54 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:54 [INFO] __main__: AI caption generated for mockup aeb4b502-a16
+2026-03-20 04:19:58 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:19:58 [INFO] src.agents.content: Generated pinterest content for 24b6bddd6fe0 (variant 1)
+2026-03-20 04:20:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:20:03 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:03 [INFO] src.agents.content: Generated pinterest content for 24b6bddd6fe0 (variant 2)
+2026-03-20 04:20:03 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:03 [INFO] __main__: AI caption generated for mockup 12b86b3f-5ea
+2026-03-20 04:20:06 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:20:10 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:10 [INFO] src.agents.content: Generated instagram content for 24b6bddd6fe0 (variant 1)
+2026-03-20 04:20:13 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:13 [INFO] __main__: AI caption generated for mockup 45eac4a0-d38
+2026-03-20 04:20:15 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:15 [INFO] src.agents.content: Generated instagram content for 24b6bddd6fe0 (variant 2)
+2026-03-20 04:20:24 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:24 [INFO] __main__: AI caption generated for mockup 22385635-066
+2026-03-20 04:20:25 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:25 [INFO] src.agents.content: Generated etsy content for 24b6bddd6fe0 (variant 1)
+2026-03-20 04:20:34 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:34 [INFO] __main__: AI caption generated for mockup 16016690-9cd
+2026-03-20 04:20:35 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:35 [INFO] src.agents.content: Generated etsy content for 24b6bddd6fe0 (variant 2)
+2026-03-20 04:20:35 [INFO] src.agents.content: Generated 6 content items for photo 24b6bddd6fe0
+2026-03-20 04:20:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:41 [INFO] __main__: AI caption generated for mockup 81327458-9b5
+2026-03-20 04:20:42 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:42 [INFO] src.agents.content: Generated pinterest content for 766de3440211 (variant 1)
+2026-03-20 04:20:47 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:47 [INFO] src.agents.content: Generated pinterest content for 766de3440211 (variant 2)
+2026-03-20 04:20:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:51 [INFO] __main__: AI caption generated for mockup 4fc30a68-f0c
+2026-03-20 04:20:53 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:53 [INFO] src.agents.content: Generated instagram content for 766de3440211 (variant 1)
+2026-03-20 04:20:59 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:20:59 [INFO] src.agents.content: Generated instagram content for 766de3440211 (variant 2)
+2026-03-20 04:21:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:21:00 [INFO] __main__: AI caption generated for mockup ed994bf4-e2c
+2026-03-20 04:21:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:21:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:21:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:21:09 [INFO] __main__: AI caption generated for mockup c0126063-801
+2026-03-20 04:21:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:21:09 [INFO] src.agents.content: Generated etsy content for 766de3440211 (variant 1)
+2026-03-20 04:21:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:21:19 [INFO] src.agents.content: Generated etsy content for 766de3440211 (variant 2)
+2026-03-20 04:21:19 [INFO] src.agents.content: Generated 6 content items for photo 766de3440211
+2026-03-20 04:21:24 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:21:24 [INFO] __main__: AI caption generated for mockup c018f434-48d
+2026-03-20 04:21:24 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:21:24 [INFO] src.agents.content: Generated pinterest content for 1b720f4f1e93 (variant 1)
+2026-03-20 04:21:29 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:21:29 [INFO] src.agents.content: Generated pinterest content for 1b720f4f1e93 (variant 2)
+2026-03-20 04:21:34 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:21:34 [INFO] __main__: AI caption generated for mockup 9e44d62b-a96
+2026-03-20 04:21:35 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:21:35 [INFO] src.agents.content: Generated instagram content for 1b720f4f1e93 (variant 1)
+2026-03-20 04:21:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:21:41 [INFO] src.agents.content: Generated instagram content for 1b720f4f1e93 (variant 2)
+2026-03-20 04:21:44 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:21:44 [INFO] __main__: AI caption generated for mockup fc50d3b6-cb2
+2026-03-20 04:21:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:21:51 [INFO] src.agents.content: Generated etsy content for 1b720f4f1e93 (variant 1)
+2026-03-20 04:21:53 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:21:53 [INFO] __main__: AI caption generated for mockup 3e47a6c8-5ff
+2026-03-20 04:22:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:00 [INFO] src.agents.content: Generated etsy content for 1b720f4f1e93 (variant 2)
+2026-03-20 04:22:00 [INFO] src.agents.content: Generated 6 content items for photo 1b720f4f1e93
+2026-03-20 04:22:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:22:04 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:22:04 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:04 [INFO] __main__: AI caption generated for mockup cb17a6df-4cb
+2026-03-20 04:22:05 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:05 [INFO] src.agents.content: Generated pinterest content for b85f73f477a5 (variant 1)
+2026-03-20 04:22:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:09 [INFO] src.agents.content: Generated pinterest content for b85f73f477a5 (variant 2)
+2026-03-20 04:22:12 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:12 [INFO] __main__: AI caption generated for mockup 5d9795f3-3ae
+2026-03-20 04:22:15 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:15 [INFO] src.agents.content: Generated instagram content for b85f73f477a5 (variant 1)
+2026-03-20 04:22:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:20 [INFO] src.agents.content: Generated instagram content for b85f73f477a5 (variant 2)
+2026-03-20 04:22:22 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:22 [INFO] __main__: AI caption generated for mockup 9426bd7b-b6e
+2026-03-20 04:22:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:31 [INFO] src.agents.content: Generated etsy content for b85f73f477a5 (variant 1)
+2026-03-20 04:22:32 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:32 [INFO] __main__: AI caption generated for mockup 50769dcc-e54
+2026-03-20 04:22:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:41 [INFO] __main__: AI caption generated for mockup e5c664de-e38
+2026-03-20 04:22:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:41 [INFO] src.agents.content: Generated etsy content for b85f73f477a5 (variant 2)
+2026-03-20 04:22:41 [INFO] src.agents.content: Generated 6 content items for photo b85f73f477a5
+2026-03-20 04:22:46 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:46 [INFO] src.agents.content: Generated pinterest content for 41dc9a91c0fd (variant 1)
+2026-03-20 04:22:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:50 [INFO] src.agents.content: Generated pinterest content for 41dc9a91c0fd (variant 2)
+2026-03-20 04:22:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:51 [INFO] __main__: AI caption generated for mockup ebda60ee-0fe
+2026-03-20 04:22:55 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:55 [INFO] src.agents.content: Generated instagram content for 41dc9a91c0fd (variant 1)
+2026-03-20 04:22:58 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:22:58 [INFO] __main__: AI caption generated for mockup 4ce6c576-307
+2026-03-20 04:23:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:00 [INFO] src.agents.content: Generated instagram content for 41dc9a91c0fd (variant 2)
+2026-03-20 04:23:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:23:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:23:08 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:08 [INFO] __main__: AI caption generated for mockup 76fb3060-3ed
+2026-03-20 04:23:12 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:12 [INFO] src.agents.content: Generated etsy content for 41dc9a91c0fd (variant 1)
+2026-03-20 04:23:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:19 [INFO] __main__: AI caption generated for mockup 43160a96-df5
+2026-03-20 04:23:23 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:23 [INFO] src.agents.content: Generated etsy content for 41dc9a91c0fd (variant 2)
+2026-03-20 04:23:23 [INFO] src.agents.content: Generated 6 content items for photo 41dc9a91c0fd
+2026-03-20 04:23:27 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:27 [INFO] src.agents.content: Generated pinterest content for 6af0a9716e3e (variant 1)
+2026-03-20 04:23:30 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:30 [INFO] __main__: AI caption generated for mockup 56144279-e61
+2026-03-20 04:23:32 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:32 [INFO] src.agents.content: Generated pinterest content for 6af0a9716e3e (variant 2)
+2026-03-20 04:23:37 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:37 [INFO] src.agents.content: Generated instagram content for 6af0a9716e3e (variant 1)
+2026-03-20 04:23:39 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:39 [INFO] __main__: AI caption generated for mockup 363d07b8-615
+2026-03-20 04:23:42 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:42 [INFO] src.agents.content: Generated instagram content for 6af0a9716e3e (variant 2)
+2026-03-20 04:23:48 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:48 [INFO] __main__: AI caption generated for mockup 6bd52725-75b
+2026-03-20 04:23:53 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:53 [INFO] src.agents.content: Generated etsy content for 6af0a9716e3e (variant 1)
+2026-03-20 04:23:56 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:23:56 [INFO] __main__: AI caption generated for mockup 3c59d4cb-1e5
+2026-03-20 04:24:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:24:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:24:03 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:03 [INFO] src.agents.content: Generated etsy content for 6af0a9716e3e (variant 2)
+2026-03-20 04:24:03 [INFO] src.agents.content: Generated 6 content items for photo 6af0a9716e3e
+2026-03-20 04:24:06 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:06 [INFO] __main__: AI caption generated for mockup 05d62e0f-1e2
+2026-03-20 04:24:08 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:08 [INFO] src.agents.content: Generated pinterest content for 640133099664 (variant 1)
+2026-03-20 04:24:12 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:12 [INFO] src.agents.content: Generated pinterest content for 640133099664 (variant 2)
+2026-03-20 04:24:18 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:18 [INFO] __main__: AI caption generated for mockup 0aa84291-597
+2026-03-20 04:24:19 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:19 [INFO] src.agents.content: Generated instagram content for 640133099664 (variant 1)
+2026-03-20 04:24:24 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:25 [INFO] src.agents.content: Generated instagram content for 640133099664 (variant 2)
+2026-03-20 04:24:29 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:29 [INFO] __main__: AI caption generated for mockup 70870c64-f39
+2026-03-20 04:24:37 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:37 [INFO] src.agents.content: Generated etsy content for 640133099664 (variant 1)
+2026-03-20 04:24:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:41 [INFO] __main__: AI caption generated for mockup ca1cd4e7-521
+2026-03-20 04:24:46 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:46 [INFO] src.agents.content: Generated etsy content for 640133099664 (variant 2)
+2026-03-20 04:24:46 [INFO] src.agents.content: Generated 6 content items for photo 640133099664
+2026-03-20 04:24:50 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:50 [INFO] src.agents.content: Generated pinterest content for bf6d6a12af56 (variant 1)
+2026-03-20 04:24:51 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:51 [INFO] __main__: AI caption generated for mockup e0ad11f3-d73
+2026-03-20 04:24:55 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:24:55 [INFO] src.agents.content: Generated pinterest content for bf6d6a12af56 (variant 2)
+2026-03-20 04:25:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:00 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:00 [INFO] __main__: AI caption generated for mockup 12161aef-9d3
+2026-03-20 04:25:00 [INFO] src.agents.content: Generated instagram content for bf6d6a12af56 (variant 1)
+2026-03-20 04:25:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:25:05 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:05 [INFO] src.agents.content: Generated instagram content for bf6d6a12af56 (variant 2)
+2026-03-20 04:25:09 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:25:10 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:10 [INFO] __main__: AI caption generated for mockup 9b278219-17f
+2026-03-20 04:25:16 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:16 [INFO] src.agents.content: Generated etsy content for bf6d6a12af56 (variant 1)
+2026-03-20 04:25:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:20 [INFO] __main__: AI caption generated for mockup 05564785-39c
+2026-03-20 04:25:25 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:25 [INFO] src.agents.content: Generated etsy content for bf6d6a12af56 (variant 2)
+2026-03-20 04:25:25 [INFO] src.agents.content: Generated 6 content items for photo bf6d6a12af56
+2026-03-20 04:25:30 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:30 [INFO] src.agents.content: Generated pinterest content for b932929e0d2a (variant 1)
+2026-03-20 04:25:31 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:31 [INFO] __main__: AI caption generated for mockup db71770d-829
+2026-03-20 04:25:34 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:34 [INFO] src.agents.content: Generated pinterest content for b932929e0d2a (variant 2)
+2026-03-20 04:25:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:41 [INFO] src.agents.content: Generated instagram content for b932929e0d2a (variant 1)
+2026-03-20 04:25:41 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:41 [INFO] __main__: AI caption generated for mockup 52d5fe30-bab
+2026-03-20 04:25:46 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:46 [INFO] src.agents.content: Generated instagram content for b932929e0d2a (variant 2)
+2026-03-20 04:25:52 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:52 [INFO] __main__: AI caption generated for mockup f2f80aeb-d64
+2026-03-20 04:25:57 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:25:57 [INFO] src.agents.content: Generated etsy content for b932929e0d2a (variant 1)
+2026-03-20 04:26:01 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:26:01 [INFO] __main__: AI caption generated for mockup 3372b95d-70c
+2026-03-20 04:26:01 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-20 04:26:02 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-20 04:26:06 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-20 04:26:06 [INFO] src.agents.content: Generated etsy content for b932929e0d2a (variant 2)
+2026-03-20 04:26:06 [INFO] src.agents.content: Generated 6 content items for photo b932929e0d2a

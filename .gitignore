@@ -104,3 +104,6 @@ Frame_Material_Border_Research.docx
 
 # Any generated .docx in repo root
 /*.docx
+
+# Agent logs
+"Archive 35 Agent/logs/"

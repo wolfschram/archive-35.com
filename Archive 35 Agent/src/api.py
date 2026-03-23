@@ -3381,7 +3381,7 @@ def export_etsy_folder(req: EtsyExportRequest):
                 fname = img.get("filename", "")
                 # Use the photo's own collection; fall back to gallery_name
                 collection = img.get("collection") or req.gallery_name
-                photo_dir = project_root / "Photography" / collection
+                photo_dir = project_root / "photography" / collection
                 src_path = photo_dir / fname
                 if src_path.exists():
                     dest_name = f"{image_order:02d}-original-{fname}"
@@ -3400,7 +3400,7 @@ def export_etsy_folder(req: EtsyExportRequest):
         if img.get("type") == "photo":
             fname = img.get("filename", "")
             collection = img.get("collection") or req.gallery_name
-            photo_path = project_root / "Photography" / collection / fname
+            photo_path = project_root / "photography" / collection / fname
             if photo_path.exists():
                 try:
                     from PIL import Image as PILImage
@@ -3787,7 +3787,7 @@ def export_cafe(req: CaFEExportRequest):
         search_paths = [
             portfolio_root / collection / "originals" / filename,
             portfolio_root / collection / filename,
-            project_root / "Photography" / collection / filename,
+            project_root / "photography" / collection / filename,
         ]
         for sp in search_paths:
             if sp.exists():

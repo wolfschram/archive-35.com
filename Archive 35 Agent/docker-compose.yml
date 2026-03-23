@@ -58,6 +58,15 @@ services:
       - ./.env:/app/.env
       # Mount source code for live development
       - ./src:/app/src
+      # Mount repo-level directories for mockups, photos, portfolio, and CaFE
+      # Agent code resolves Path(__file__).parent.parent.parent = / (root)
+      # So these must exist at filesystem root in container
+      - ../mockups:/mockups
+      - ../photography:/photography:ro
+      - ../01_Portfolio:/01_Portfolio:ro
+      - "../CaFE Ready:/CaFE Ready"
+      - ../06_Automation:/06_Automation
+      - ../data:/data:ro
     environment:
       # Log level: DEBUG, INFO (default), WARNING, ERROR
       LOG_LEVEL: ${LOG_LEVEL:-INFO}

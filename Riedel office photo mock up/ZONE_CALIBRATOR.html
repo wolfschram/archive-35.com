@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Zone Calibrator — Archive-35</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #111; color: #eee; font-family: monospace; display: flex; height: 100vh; overflow: hidden; }
+
+#panel {
+  width: 280px; min-width: 280px;
+  background: #1a1a1a;
+  border-right: 1px solid #333;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+.section { padding: 10px 12px; border-bottom: 1px solid #2a2a2a; flex-shrink: 0; }
+.section-label { font-size: 9px; color: #555; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
+h1 { font-size: 11px; color: #c8a96e; letter-spacing: 0.15em; padding: 10px 12px; border-bottom: 1px solid #2a2a2a; flex-shrink: 0; }
+
+button {
+  padding: 6px 11px; font-size: 11px; font-family: monospace;
+  background: #252525; border: 1px solid #3a3a3a; color: #ccc;
+  cursor: pointer; border-radius: 3px; white-space: nowrap;
+}
+button:hover { border-color: #c8a96e; color: #fff; }
+button.primary { background: #c8a96e; color: #111; border-color: #c8a96e; font-weight: bold; }
+button.primary:hover { background: #d4b87a; }
+button.active { border-color: #c8a96e; color: #c8a96e; background: #1f1800; }
+button.danger { border-color: #e05c5c; color: #e05c5c; }
+button.danger:hover { background: #e05c5c; color: #fff; }
+button.small { padding: 3px 8px; font-size: 10px; }
+
+#scene-tabs { display: flex; flex-direction: column; gap: 3px; }
+.scene-tab { text-align: left; }
+.scene-tab.calibrated { border-color: #4caf84; color: #4caf84; }
+.scene-tab.calibrated.active { background: #0a1f15; }
+
+#zone-list { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
+.zone-item {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 7px; border-radius: 3px;
+  border: 1px solid #333; font-size: 10px; cursor: pointer;
+}
+.zone-item:hover { border-color: #555; }
+.zone-item.selected { border-color: #c8a96e; background: #1f1800; }
+.zone-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.zone-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zone-photo { font-size: 9px; color: #4caf84; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zone-del { color: #555; cursor: pointer; font-size: 11px; flex-shrink: 0; }
+.zone-del:hover { color: #e05c5c; }
+
+#zone-name-input, #wall-w, #photo-search {
+  background: #222; border: 1px solid #444;
+  color: #eee; padding: 5px 8px; font-family: monospace;
+  font-size: 11px; border-radius: 3px;
+}
+#zone-name-input { width: 100%; margin-bottom: 5px; }
+#wall-w { width: 65px; padding: 4px 6px; }
+#photo-search { width: 100%; margin-bottom: 6px; }
+
+#info-box {
+  padding: 10px 12px; font-size: 11px; line-height: 1.75;
+  color: #777; border-bottom: 1px solid #2a2a2a; flex-shrink: 0; min-height: 60px;
+}
+#info-box span { color: #c8a96e; }
+#info-box .good { color: #4caf84; }
+#info-box .warn { color: #e8b84b; }
+#info-box .bad  { color: #e05c5c; }
+
+#photo-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 10px 12px; }
+#photo-grid { flex: 1; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+.pt { cursor: pointer; border: 2px solid transparent; border-radius: 2px; overflow: hidden; }
+.pt:hover { border-color: #c8a96e; }
+.pt.sel { border-color: #4caf84; }
+.pt img { width: 100%; height: 60px; object-fit: cover; display: block; }
+.pt-title { font-size: 9px; color: #666; padding: 2px 3px; background: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+#canvas-wrap { flex: 1; overflow: auto; background: #0d0d0d; }
+canvas { display: block; }
+#statusbar {
+  position: fixed; bottom: 0; left: 280px; right: 0;
+  background: #1a1a1a; border-top: 1px solid #333;
+  padding: 4px 10px; font-size: 10px; color: #555; z-index: 20;
+}
+</style>
+</head>
+<body>
+
+<div id="panel">
+  <h1>ARCHIVE-35 — ZONE CALIBRATOR</h1>
+
+  <div class="section">
+    <div class="section-label">Scene</div>
+    <div id="scene-tabs">
+      <button class="scene-tab active" data-scene="wall1"    onclick="loadScene('wall1')">Close-up</button>
+      <button class="scene-tab"        data-scene="closeup"  onclick="loadScene('closeup')">Wide Shot</button>
+      <button class="scene-tab"        data-scene="cubicle"  onclick="loadScene('cubicle')">Cubicle</button>
+      <button class="scene-tab"        data-scene="confroom" onclick="loadScene('confroom')">Conference Room</button>
+      <button class="scene-tab"        data-scene="training" onclick="loadScene('training')">Training Room</button>
+      <button class="scene-tab"        data-scene="training2" onclick="loadScene('training2')">Training Wall 2</button>
+    </div>
+    <div style="margin-top:6px;">
+      <button onclick="document.getElementById('img-file').click()">📂 Load Custom Image</button>
+      <input type="file" id="img-file" accept="image/*" style="display:none" onchange="loadCustomImage(this)">
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Zones — each holds one photo</div>
+    <input id="zone-name-input" type="text" placeholder="Zone name" value="left_wall">
+    <div style="display:flex;gap:5px;flex-wrap:wrap;">
+      <button class="primary" onclick="startDraw()">+ Draw Zone</button>
+      <button class="danger small" onclick="deleteSelected()">✕ Delete</button>
+      <button class="small" onclick="clearAllZones()">Clear All</button>
+    </div>
+    <div id="zone-list"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Wall Width (inches)</div>
+    <input id="wall-w" type="number" value="145" min="60" max="400" onchange="render()">
+    <span style="font-size:10px;color:#555;"> est.</span>
+    <div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap;">
+
+      <button onclick="saveScene()" class="primary">💾 Save Scene</button>
+    </div>
+  </div>
+
+  <div id="info-box">Draw a zone, then pick a photo to place in it.</div>
+
+  <div class="section" style="padding-bottom:6px;">
+    <div class="section-label">Photo → goes into selected zone</div>
+    <button onclick="document.getElementById('art-file').click()">📂 Load from Disk</button>
+    <input type="file" id="art-file" accept="image/*" style="display:none" onchange="loadArtFromDisk(this)">
+  </div>
+  <div id="photo-section">
+    <input id="photo-search" type="text" placeholder="Search collection..." oninput="filterPhotos()">
+    <div id="photo-grid">Loading...</div>
+  </div>
+</div>
+
+<div id="canvas-wrap"><canvas id="canvas"></canvas></div>
+<div id="statusbar">Select a scene to begin.</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
+
+const SCENES = {
+  wall1:    'Riedel office wall 1.png',
+  closeup:  'Riedel office wall 1 close up.png',
+  cubicle:  'Cubicle .png',
+  confroom: 'conference room .png',
+  training: 'training room .png',
+  training2:'training room wall 2.png',
+};
+const COLORS = ['#f5c542','#42c5f5','#f542a7','#42f5a7','#f58c42','#c542f5','#ffffff'];
+
+let currentScene = 'wall1';
+let sceneImg = null, imgNatW = 0, imgNatH = 0, scale = 1;
+let allPhotos = [];
+
+// Each zone has its own photo: { id, x1,y1,x2,y2, color, img, photoTitle }
+let allZones = {};
+let selZoneIdx = -1;
+
+let drawing = false, drawStart = null, drawCurrent = null;
+let dragging = false, dragHandle = null;
+let show48 = true;
+
+// ── Photo index ────────────────────────────────────────────────────────────
+fetch('photos_index.json')
+  .then(r => { if(!r.ok) throw new Error('not found'); return r.json(); })
+  .then(d => { allPhotos = d; renderGrid(d.slice(0,80)); })
+  .catch(() => { document.getElementById('photo-grid').textContent = 'Collection not found.'; });
+
+function filterPhotos() {
+  const q = document.getElementById('photo-search').value.toLowerCase();
+  renderGrid((q ? allPhotos.filter(p => p.title.toLowerCase().includes(q)) : allPhotos).slice(0,80));
+}
+
+function renderGrid(list) {
+  const g = document.getElementById('photo-grid');
+  g.innerHTML = '';
+  list.forEach(p => {
+    const d = document.createElement('div');
+    const z = selZoneIdx >= 0 ? currentZones()[selZoneIdx] : null;
+    const isSel = z && z.photoId === p.id;
+    d.className = 'pt' + (isSel ? ' sel' : '');
+    d.innerHTML = `<img src="../${p.thumb}" loading="lazy"><div class="pt-title">${p.title}</div>`;
+    d.onclick = () => pickPhoto(p, d);
+    g.appendChild(d);
+  });
+}
+
+function pickPhoto(p, el) {
+  const zz = currentZones();
+  if (selZoneIdx < 0 || selZoneIdx >= zz.length) {
+    status('Select a zone first, then pick a photo.');
+    return;
+  }
+  document.querySelectorAll('.pt').forEach(d => d.classList.remove('sel'));
+  el.classList.add('sel');
+  const full = p.thumb.replace('-thumb.jpg', '-full.jpg');
+  const img = new Image();
+  img.onload = () => { render(); updateInfo(); };
+  img.src = `../${full}`;
+  // Assign photo to this zone only
+  zz[selZoneIdx].img = img;
+  zz[selZoneIdx].photoTitle = p.title;
+  zz[selZoneIdx].photoId = p.id;
+  zz[selZoneIdx].photoW = p.w;
+  zz[selZoneIdx].photoH = p.h;
+  updateZoneList();
+  status(`"${p.title}" → ${zz[selZoneIdx].id}`);
+}
+
+function loadArtFromDisk(input) {
+  const f = input.files[0]; if (!f) return;
+  const zz = currentZones();
+  if (selZoneIdx < 0 || selZoneIdx >= zz.length) {
+    status('Select a zone first, then load a photo.'); return;
+  }
+  const url = URL.createObjectURL(f);
+  const img = new Image();
+  img.onload = () => {
+    zz[selZoneIdx].photoW = img.naturalWidth;
+    zz[selZoneIdx].photoH = img.naturalHeight;
+    render(); updateInfo();
+  };
+  img.src = url;
+  zz[selZoneIdx].img = img;
+  zz[selZoneIdx].photoTitle = f.name;
+  zz[selZoneIdx].photoId = null;
+  updateZoneList();
+  status(`Loaded "${f.name}" → ${zz[selZoneIdx].id}`);
+  input.value = '';
+}
+
+// ── Scene loading ──────────────────────────────────────────────────────────
+function currentZones() { return allZones[currentScene] || (allZones[currentScene] = []); }
+
+function loadScene(name) {
+  currentScene = name;
+  selZoneIdx = -1;
+  document.querySelectorAll('.scene-tab').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`[data-scene="${name}"]`);
+  if (btn) btn.classList.add('active');
+  drawing = false;
+  const src = SCENES[name];
+  if (!src) return;
+  const img = new Image();
+  img.onload = () => {
+    sceneImg = img;
+    imgNatW = img.naturalWidth;
+    imgNatH = img.naturalHeight;
+    fitCanvas(); render(); updateZoneList(); updateInfo();
+    status(`${name} — ${imgNatW}×${imgNatH}px`);
+  };
+  img.onerror = () => status(`Could not load: ${src}`);
+  img.src = src;
+}
+
+function loadCustomImage(input) {
+  const f = input.files[0]; if (!f) return;
+  const url = URL.createObjectURL(f);
+  const img = new Image();
+  img.onload = () => {
+    sceneImg = img; imgNatW = img.naturalWidth; imgNatH = img.naturalHeight;
+    currentScene = 'custom_' + Date.now();
+    allZones[currentScene] = [];
+    fitCanvas(); render(); updateZoneList(); updateInfo();
+    status(`Custom: ${f.name} — ${imgNatW}×${imgNatH}px`);
+  };
+  img.src = url;
+  input.value = '';
+}
+
+function fitCanvas() {
+  const wrap = document.getElementById('canvas-wrap');
+  const maxW = wrap.clientWidth - 4;
+  const maxH = wrap.clientHeight - 30;
+  scale = Math.min(1, maxW / imgNatW, maxH / imgNatH);
+  canvas.width  = Math.round(imgNatW * scale);
+  canvas.height = Math.round(imgNatH * scale);
+}
+
+// ── Zone management ────────────────────────────────────────────────────────
+function startDraw() {
+  drawing = true; drawStart = null; drawCurrent = null;
+  canvas.style.cursor = 'crosshair';
+  status('Click and drag on the image to define the zone...');
+}
+
+function deleteSelected() {
+  const zz = currentZones();
+  if (selZoneIdx < 0 || selZoneIdx >= zz.length) { status('Select a zone first'); return; }
+  zz.splice(selZoneIdx, 1);
+  selZoneIdx = -1;
+  updateZoneList(); render(); updateInfo();
+}
+
+function clearAllZones() {
+  allZones[currentScene] = []; selZoneIdx = -1;
+  updateZoneList(); render(); updateInfo();
+}
+
+function updateZoneList() {
+  const list = document.getElementById('zone-list');
+  const zz = currentZones();
+  list.innerHTML = '';
+  zz.forEach((z, i) => {
+    const d = document.createElement('div');
+    d.className = 'zone-item' + (i === selZoneIdx ? ' selected' : '');
+    const photoLabel = z.photoTitle
+      ? `<span class="zone-photo">${z.photoTitle.substring(0,18)}</span>`
+      : `<span style="color:#444">no photo</span>`;
+    d.innerHTML = `<div class="zone-dot" style="background:${z.color}"></div><div class="zone-label">${z.id}</div>${photoLabel}<div class="zone-del" onclick="delZone(${i},event)">✕</div>`;
+    d.onclick = () => { selZoneIdx = i; updateZoneList(); render(); updateInfo(); renderGrid(allPhotos.slice(0,80)); };
+    list.appendChild(d);
+  });
+  // Scene calibrated badge
+  const scBtn = document.querySelector(`[data-scene="${currentScene}"]`);
+  if (scBtn) {
+    if (zz.length > 0) scBtn.classList.add('calibrated');
+    else scBtn.classList.remove('calibrated');
+  }
+}
+
+function delZone(i, e) {
+  e.stopPropagation();
+  currentZones().splice(i, 1);
+  if (selZoneIdx === i) selZoneIdx = -1;
+  else if (selZoneIdx > i) selZoneIdx--;
+  updateZoneList(); render(); updateInfo();
+}
+
+// ── Canvas interaction ─────────────────────────────────────────────────────
+const HS = 12;
+function s2i(v) { return v / scale; }
+function i2s(v) { return v * scale; }
+function xy(e) { const r = canvas.getBoundingClientRect(); return { x: e.clientX-r.left, y: e.clientY-r.top }; }
+function getHandles(z) {
+  return {
+    tl:{x:i2s(z.x1),y:i2s(z.y1)}, tr:{x:i2s(z.x2),y:i2s(z.y1)},
+    bl:{x:i2s(z.x1),y:i2s(z.y2)}, br:{x:i2s(z.x2),y:i2s(z.y2)},
+  };
+}
+
+canvas.addEventListener('mousedown', e => {
+  if (!sceneImg) return;
+  const {x,y} = xy(e);
+  if (drawing) { drawStart={x,y}; drawCurrent={x,y}; return; }
+  const zz = currentZones();
+  for (let i = zz.length-1; i >= 0; i--) {
+    const h = getHandles(zz[i]);
+    for (const [n,pt] of Object.entries(h)) {
+      if (Math.abs(x-pt.x)<HS && Math.abs(y-pt.y)<HS) {
+        dragging=true; dragHandle={type:'corner',name:n,idx:i};
+        selZoneIdx=i; updateZoneList(); renderGrid(allPhotos.slice(0,80)); return;
+      }
+    }
+    if (x>i2s(zz[i].x1)&&x<i2s(zz[i].x2)&&y>i2s(zz[i].y1)&&y<i2s(zz[i].y2)) {
+      dragging=true; dragHandle={type:'move',idx:i,ox:s2i(x)-zz[i].x1,oy:s2i(y)-zz[i].y1};
+      selZoneIdx=i; updateZoneList(); renderGrid(allPhotos.slice(0,80)); return;
+    }
+  }
+  selZoneIdx=-1; updateZoneList(); render();
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (!sceneImg) return;
+  const {x,y} = xy(e);
+  if (drawing && drawStart) { drawCurrent={x,y}; render(); return; }
+  if (dragging && dragHandle) {
+    const z = currentZones()[dragHandle.idx];
+    const ix=s2i(x), iy=s2i(y);
+    if (dragHandle.type==='move') {
+      const w=z.x2-z.x1, h=z.y2-z.y1;
+      z.x1=Math.max(0,Math.min(imgNatW-w,ix-dragHandle.ox));
+      z.y1=Math.max(0,Math.min(imgNatH-h,iy-dragHandle.oy));
+      z.x2=z.x1+w; z.y2=z.y1+h;
+    } else {
+      const n=dragHandle.name;
+      if(n==='tl'){z.x1=Math.min(z.x2-20,Math.max(0,ix));z.y1=Math.min(z.y2-20,Math.max(0,iy));}
+      if(n==='tr'){z.x2=Math.max(z.x1+20,Math.min(imgNatW,ix));z.y1=Math.min(z.y2-20,Math.max(0,iy));}
+      if(n==='bl'){z.x1=Math.min(z.x2-20,Math.max(0,ix));z.y2=Math.max(z.y1+20,Math.min(imgNatH,iy));}
+      if(n==='br'){z.x2=Math.max(z.x1+20,Math.min(imgNatW,ix));z.y2=Math.max(z.y1+20,Math.min(imgNatH,iy));}
+    }
+    render(); updateInfo();
+  }
+});
+
+canvas.addEventListener('mouseup', e => {
+  if (!sceneImg) return;
+  const {x,y} = xy(e);
+  if (drawing && drawStart) {
+    const ix1=Math.min(s2i(drawStart.x),s2i(x)), iy1=Math.min(s2i(drawStart.y),s2i(y));
+    const ix2=Math.max(s2i(drawStart.x),s2i(x)), iy2=Math.max(s2i(drawStart.y),s2i(y));
+    if (ix2-ix1>10 && iy2-iy1>10) {
+      const zz=currentZones();
+      const id=document.getElementById('zone-name-input').value.trim()||`zone_${zz.length+1}`;
+      zz.push({ id, x1:ix1,y1:iy1,x2:ix2,y2:iy2, color:COLORS[zz.length%COLORS.length], img:null, photoTitle:null, photoId:null, photoW:0, photoH:0 });
+      selZoneIdx=zz.length-1;
+      updateZoneList(); updateInfo();
+      status(`Zone "${id}" created — now pick a photo for it`);
+    }
+    drawing=false; drawStart=null; drawCurrent=null;
+    canvas.style.cursor='default'; render(); return;
+  }
+  if (dragging) { dragging=false; dragHandle=null; canvas.style.cursor='default'; updateInfo(); }
+});
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function render() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if (!sceneImg) return;
+  ctx.drawImage(sceneImg,0,0,canvas.width,canvas.height);
+
+  if (drawing && drawStart && drawCurrent) {
+    ctx.save();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.setLineDash([6,3]);
+    ctx.strokeRect(Math.min(drawStart.x,drawCurrent.x),Math.min(drawStart.y,drawCurrent.y),
+      Math.abs(drawCurrent.x-drawStart.x),Math.abs(drawCurrent.y-drawStart.y));
+    ctx.restore(); return;
+  }
+
+  // Zone IS the 48x32 reference — derive px/inch from the zone itself
+  // ppiX = zone width px / 48, ppiY = zone height px / 32
+  // Use these to calculate real print size of any image in that zone
+
+  // Draw ALL zones — each with its own photo
+  currentZones().forEach((z, i) => {
+    const sx1=i2s(z.x1), sy1=i2s(z.y1);
+    const sw=i2s(z.x2-z.x1), sh=i2s(z.y2-z.y1);
+    const scx=sx1+sw/2, scy=sy1+sh/2;
+    const isSel = i===selZoneIdx;
+    const zoneW=z.x2-z.x1, zoneH=z.y2-z.y1;
+
+    // ── Photo in this zone (each zone has its own) ──
+    if (z.img && z.img.complete && z.img.naturalWidth>0) {
+      const aw=z.img.naturalWidth, ah=z.img.naturalHeight;
+      const ratio=aw/ah, zRatio=zoneW/zoneH;
+      let artW, artH;
+      if (ratio>zRatio) { artW=zoneW; artH=artW/ratio; }
+      else              { artH=zoneH; artW=artH*ratio; }
+      // Center in zone
+      const ax1=i2s(z.x1+(zoneW-artW)/2);
+      const ay1=i2s(z.y1+(zoneH-artH)/2);
+      ctx.drawImage(z.img, ax1, ay1, i2s(artW), i2s(artH));
+      // Zone IS the 48x32 reference — scale print size proportionally from it
+      const refPpiX = zoneW / 48; // px per inch horizontal
+      const refPpiY = zoneH / 32; // px per inch vertical
+      const pW = (artW / refPpiX).toFixed(0);
+      const pH = (artH / refPpiY).toFixed(0);
+      ctx.fillStyle='rgba(0,0,0,0.8)';
+      ctx.fillRect(ax1, ay1-22, 170, 19);
+      ctx.fillStyle='#c8a96e'; ctx.font='bold 11px monospace';
+      ctx.fillText(`${pW}" × ${pH}" metal`, ax1+5, ay1-7);
+    }
+
+    // Zone — tint first, single border on top
+    ctx.save();
+    ctx.fillStyle=z.color+'15';
+    ctx.fillRect(sx1,sy1,sw,sh);
+    ctx.strokeStyle=z.color;
+    ctx.lineWidth=isSel?2:1.5;
+    ctx.setLineDash(isSel?[]:[6,3]);
+    ctx.strokeRect(sx1,sy1,sw,sh);
+    ctx.setLineDash([]);
+    // Zone label
+    const lw=ctx.measureText(z.id).width+10;
+    ctx.fillStyle='rgba(0,0,0,0.75)'; ctx.fillRect(sx1+3,sy1+3,lw,16);
+    ctx.fillStyle=z.color; ctx.font='bold 10px monospace';
+    ctx.fillText(z.id, sx1+6, sy1+14);
+    ctx.restore();
+
+    // Zone boundary = 48x32 reference — no separate cyan box needed
+
+    // Corner handles — selected zone only
+    if (isSel) {
+      Object.values(getHandles(z)).forEach(pt => {
+        ctx.fillStyle=z.color;
+        ctx.fillRect(pt.x-HS/2, pt.y-HS/2, HS, HS);
+        ctx.strokeStyle='#fff'; ctx.lineWidth=1.5;
+        ctx.strokeRect(pt.x-HS/2, pt.y-HS/2, HS, HS);
+      });
+    }
+  });
+}
+
+// ── Info ───────────────────────────────────────────────────────────────────
+function updateInfo() {
+  const zz=currentZones(), z=selZoneIdx>=0?zz[selZoneIdx]:null;
+  // Zone = 48x32 reference
+  const ppiX = z ? (z.x2-z.x1)/48 : 1;
+  const ppiY = z ? (z.y2-z.y1)/32 : 1;
+  if (!z) { document.getElementById('info-box').innerHTML=`${zz.length} zone(s). Select a zone then pick a photo.`; return; }
+  const zW = 48, zH = 32; // Zone always represents 48x32 by definition
+  let html=`<b style="color:#eee">${z.id}</b> — Ref: <span>48" × 32"</span><br>`;
+  if (z.photoTitle) {
+    html+=`Photo: <span>${z.photoTitle.substring(0,28)}</span><br>`;
+    if (z.photoW) {
+      const dpi48=(z.photoW/48).toFixed(0);
+      const q=dpi48>=200?'<span class="good">✅ Excellent</span>':
+               dpi48>=150?'<span class="warn">⚠️ OK</span>':'<span class="bad">❌ Low</span>';
+      html+=`Max print: <span>${(z.photoW/300).toFixed(0)}"×${(z.photoH/300).toFixed(0)}"</span> — ${q}`;
+    }
+  } else {
+    html+=`<span style="color:#555">No photo — click one below</span>`;
+  }
+  document.getElementById('info-box').innerHTML=html;
+}
+
+// ── Toggles & Save ─────────────────────────────────────────────────────────
+function toggle48() {
+  show48=!show48;
+  document.getElementById('btn48').classList.toggle('active',show48);
+  render();
+}
+
+function buildSceneData() {
+  const out = {};
+  for (const [scene, zz] of Object.entries(allZones)) {
+    if (!zz || !zz.length) continue;
+    out[scene] = {
+      scene: SCENES[scene] || scene,
+      zones: zz.map(z => ({
+        id: z.id,
+        photo: z.photoTitle || null,
+        photoId: z.photoId || null,
+        position: { x: +(z.x1/imgNatW).toFixed(4), y: +(z.y1/imgNatH).toFixed(4) },
+        size: { width: +((z.x2-z.x1)/imgNatW).toFixed(4), height: +((z.y2-z.y1)/imgNatH).toFixed(4) },
+        centerPct: { x: +((z.x1+(z.x2-z.x1)/2)/imgNatW).toFixed(4), y: +((z.y1+(z.y2-z.y1)/2)/imgNatH).toFixed(4) },
+        pixelCoords: { x1:Math.round(z.x1), y1:Math.round(z.y1), x2:Math.round(z.x2), y2:Math.round(z.y2) },
+        ref: { widthInches: 48, heightInches: 32 }
+      }))
+    };
+  }
+  return out;
+}
+
+function saveScene() {
+  const out = buildSceneData();
+  const json = JSON.stringify(out, null, 2);
+  // Download scenes.json directly into the same folder
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'scenes.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  status('✓ scenes.json downloaded — save it to this folder');
+}
+
+function status(m){document.getElementById('statusbar').textContent=m;}
+
+loadScene('wall1');
+</script>
+</body>
+</html>

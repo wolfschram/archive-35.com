@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARCHIVE-35 | Riedel Communications</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="apple-touch-icon" href="../logos/archive35-favicon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SE2WETEK5D"></script>
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('js',new Date());gtag('config','G-SE2WETEK5D',{anonymize_ip:true,allow_google_signals:false,allow_ad_personalization_signals:false});
+  </script>
+  <style>
+    /* ===== Login Gate ===== */
+    #login-gate {
+      position: fixed; inset: 0;
+      background: var(--bg-primary);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 20000;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    #login-gate.hidden { display: none; }
+    .login-logo {
+      font-size: 1rem;
+      font-weight: 300;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+    }
+    .login-logo span { color: var(--accent); }
+    .login-box {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 3rem 2.5rem;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+    .login-box h2 {
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      font-weight: 300;
+    }
+    .login-box p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+    .login-input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      padding: 0.75rem 1rem;
+      font-family: var(--font-main);
+      font-size: 0.85rem;
+      outline: none;
+      margin-bottom: 1rem;
+      text-align: center;
+      letter-spacing: 0.1em;
+    }
+    .login-input:focus { border-color: var(--glass-border-hover); }
+    .login-btn {
+      width: 100%;
+      padding: 0.8rem;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-main);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .login-btn:hover { background: var(--accent-hover); }
+    .login-error {
+      font-size: 0.7rem;
+      color: #e05c5c;
+      margin-top: 0.75rem;
+      display: none;
+    }
+
+    /* ===== Page Content ===== */
+    #page-content { display: none; }
+    #page-content.visible { display: block; }
+
+    /* ===== Hero ===== */
+    .riedel-hero {
+      padding: 8rem 2rem 3rem;
+      text-align: center;
+    }
+    .riedel-badge {
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      opacity: 0.8;
+    }
+    .riedel-hero h1 {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 100;
+      letter-spacing: 0.12em;
+      margin-bottom: 1rem;
+    }
+    .riedel-hero p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* ===== Visualizer Section ===== */
+    .visualizer-section { padding: 2rem 0 4rem; }
+
+    /* Scene thumbnail carousel */
+    .template-carousel {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0 2rem 1rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-bottom: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .template-carousel::-webkit-scrollbar { display: none; }
+
+    .template-thumb {
+      flex: 0 0 auto;
+      width: 120px; height: 72px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      opacity: 0.6;
+      scroll-snap-align: center;
+      position: relative;
+    }
+    .template-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .template-thumb:hover { opacity: 0.9; border-color: var(--glass-border-hover); }
+    .template-thumb.active { opacity: 1; border-color: var(--accent); box-shadow: 0 0 20px rgba(232,184,77,0.3); }
+    .template-thumb .tmpl-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em;
+      padding: 2px 4px;
+      background: rgba(0,0,0,0.7);
+      color: var(--text-secondary);
+      text-align: center; white-space: nowrap; overflow: hidden;
+    }
+
+    /* Zone pills */
+    .zone-bar {
+      display: flex; gap: 0.5rem; justify-content: center;
+      padding: 0 2rem 1rem; flex-wrap: wrap;
+    }
+    .zone-pill {
+      padding: 0.35rem 1rem;
+      font-size: 0.65rem; letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      background: none; color: var(--text-secondary);
+      cursor: pointer; font-family: var(--font-main);
+      transition: all 0.2s;
+    }
+    .zone-pill:hover { border-color: var(--glass-border-hover); color: var(--text-primary); }
+    .zone-pill.active { border-color: var(--accent); color: var(--accent); background: rgba(232,184,77,0.08); }
+
+    /* Canvas */
+    .visualizer-canvas-wrap {
+      position: relative;
+      max-width: 960px;
+      margin: 0 auto 1.5rem;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+    }
+    .visualizer-canvas-wrap canvas {
+      display: block; width: 100%; height: auto;
+    }
+
+    /* Size controls */
+    .size-controls {
+      max-width: 960px;
+      margin: 0 auto 1.5rem;
+      padding: 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .size-label-wrap {
+      display: flex; flex-direction: column; gap: 0.2rem;
+      min-width: 100px;
+    }
+    .size-value {
+      font-size: 1.1rem;
+      font-weight: 200;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+    }
+    .size-unit {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .size-slider-wrap { flex: 1; min-width: 160px; }
+    input[type=range].size-slider {
+      width: 100%;
+      appearance: none;
+      height: 2px;
+      background: var(--glass-border);
+      outline: none;
+      border-radius: 1px;
+      cursor: pointer;
+    }
+    input[type=range].size-slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+    }
+    input[type=range].size-slider::-moz-range-thumb {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+    }
+    .size-range-ends {
+      display: flex; justify-content: space-between;
+      font-size: 0.6rem; color: var(--text-muted);
+      margin-top: 0.3rem;
+    }
+    .quality-badge {
+      font-size: 0.65rem; letter-spacing: 0.1em;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      border: 1px solid var(--glass-border);
+      white-space: nowrap;
+    }
+    .quality-badge.good  { border-color: #5aaf84; color: #5aaf84; }
+    .quality-badge.ok    { border-color: var(--accent); color: var(--accent); }
+    .quality-badge.low   { border-color: #e05c5c; color: #e05c5c; }
+
+    /* Gallery browser */
+    .gallery-browser {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    .gb-header {
+      display: flex; gap: 1rem; align-items: center;
+      margin-bottom: 1rem; flex-wrap: wrap;
+    }
+    .gb-back {
+      display: none; align-items: center; gap: 0.4rem;
+      background: none; border: 1px solid var(--glass-border);
+      border-radius: 6px; color: var(--text-secondary);
+      font-size: 0.75rem; font-family: var(--font-main);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.4rem 0.8rem; cursor: pointer; transition: all 0.2s;
+    }
+    .gb-back:hover { border-color: var(--accent); color: var(--accent); }
+    .gb-back.visible { display: flex; }
+    .gb-breadcrumb { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+    .gb-count { font-size: 0.75rem; color: var(--text-muted); margin-left: auto; }
+    .gb-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.75rem;
+      max-height: 420px;
+      overflow-y: auto;
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg-secondary);
+      border: 1px solid var(--glass-border);
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) var(--bg-tertiary);
+    }
+    .gb-grid::-webkit-scrollbar { width: 6px; }
+    .gb-grid::-webkit-scrollbar-track { background: var(--bg-tertiary); border-radius: 3px; }
+    .gb-grid::-webkit-scrollbar-thumb { background: rgba(232,184,77,0.4); border-radius: 3px; }
+    .gb-grid.photo-level { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; }
+    .gb-coll-card {
+      position: relative; border-radius: 8px; overflow: hidden;
+      cursor: pointer; border: 2px solid transparent;
+      transition: all 0.25s; padding-bottom: 66.67%; height: 0;
+    }
+    .gb-coll-card img { position: absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition: transform 0.4s; }
+    .gb-coll-card:hover img { transform: scale(1.05); }
+    .gb-coll-card:hover { border-color: var(--glass-border-hover); }
+    .gb-coll-label {
+      position: absolute; bottom:0; left:0; right:0;
+      padding: 1.5rem 0.6rem 0.5rem;
+      background: linear-gradient(transparent, rgba(0,0,0,0.85));
+      color: white;
+    }
+    .gb-coll-name { font-size: 0.7rem; font-weight:400; letter-spacing:0.1em; text-transform:uppercase; line-height:1.3; }
+    .gb-coll-count { font-size:0.6rem; color:rgba(255,255,255,0.5); margin-top:2px; }
+    .gb-photo {
+      position: relative; border-radius: 6px; overflow: hidden;
+      cursor: pointer; border: 2px solid transparent;
+      transition: all 0.2s; padding-bottom: 66.67%; height: 0;
+    }
+    .gb-photo img { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; }
+    .gb-photo:hover { border-color: var(--glass-border-hover); transform: scale(1.03); }
+    .gb-photo.active { border-color: var(--accent); box-shadow: 0 0 12px rgba(232,184,77,0.3); }
+    .gb-photo .gb-title {
+      position: absolute; bottom:0; left:0; right:0;
+      font-size:0.6rem; padding:3px 5px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      opacity:0; transition: opacity 0.2s;
+    }
+    .gb-photo:hover .gb-title { opacity: 1; }
+
+    /* CTA bar */
+    .cta-bar {
+      max-width: 960px;
+      margin: 2rem auto 0;
+      padding: 1.5rem 1rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--glass-border);
+      flex-wrap: wrap;
+    }
+    .cta-selection-info { font-size:0.8rem; color:var(--text-secondary); }
+    .cta-selection-info strong { color: var(--text-primary); font-weight:400; }
+    .cta-buttons { display:flex; gap:0.75rem; flex-wrap:wrap; }
+    .btn-add-basket {
+      padding: 0.7rem 1.5rem;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-main);
+      font-size: 0.7rem;
+      font-weight:500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn-add-basket:hover { background: var(--accent-hover); }
+    .btn-add-basket:disabled { opacity:0.4; cursor:not-allowed; }
+    .btn-request {
+      padding: 0.7rem 1.5rem;
+      background: none;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: var(--font-main);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn-request:hover { border-color: var(--glass-border-hover); color: var(--text-primary); }
+
+    /* Basket indicator */
+    .basket-bar {
+      max-width: 960px; margin: 1rem auto; padding: 0 1rem;
+      display: none;
+    }
+    .basket-bar.visible { display: block; }
+    .basket-summary {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.5rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .basket-item { margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--glass-border); }
+    .basket-item:last-child { border-bottom: none; margin-bottom:0; padding-bottom:0; }
+    .basket-item strong { color: var(--text-primary); font-weight:400; }
+
+    /* ===== Mobile ===== */
+    @media (max-width: 768px) {
+      .template-carousel {
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+        padding: 0 0.75rem 1rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .template-thumb {
+        min-width: 90px;
+        width: 90px;
+        height: 54px;
+      }
+      .size-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+      .size-slider-wrap { width: 100%; }
+      .cta-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .gb-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        max-height: 320px;
+      }
+      .gb-grid.photo-level {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN GATE -->
+  <div id="login-gate">
+    <div class="login-logo">ARCHIVE<span>-35</span></div>
+    <div class="login-box">
+      <h2>Private Preview</h2>
+      <p>This page is exclusively for Riedel Communications</p>
+      <input type="password" class="login-input" id="pw-input" placeholder="Enter access code" autocomplete="off">
+      <button class="login-btn" id="login-btn">Access</button>
+      <div class="login-error" id="login-error">Incorrect access code</div>
+    </div>
+  </div>
+
+  <!-- PAGE CONTENT -->
+  <div id="page-content">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-inner">
+        <a href="../index.html" class="logo"><span class="logo-white">ARCHIVE</span><span class="logo-gold">-35</span></a>
+        <nav class="nav">
+          <a href="../gallery.html">Gallery</a>
+          <a href="../licensing.html">Licensing</a>
+          <a href="../contact.html">Contact</a>
+        </nav>
+        <button class="nav-toggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="riedel-hero">
+      <div class="riedel-badge">Curated for Riedel Communications</div>
+      <h1>Art for Your Spaces</h1>
+      <p>Browse the Archive-35 collection and preview any image in your Riedel offices. Printed on ChromaLux&eacute; HD metal &mdash; free shipping within North America.</p>
+    </section>
+
+    <!-- Visualizer -->
+    <section class="visualizer-section">
+
+      <!-- Scene thumbnails -->
+      <div class="template-carousel" id="tmplCarousel"></div>
+
+      <!-- Zone selector -->
+      <div class="zone-bar" id="zoneBar"></div>
+
+      <!-- Canvas -->
+      <div class="visualizer-canvas-wrap">
+        <canvas id="vizCanvas"></canvas>
+      </div>
+
+      <!-- Size controls -->
+      <div class="size-controls">
+        <div class="size-label-wrap">
+          <div class="size-value" id="sizeValue">&#8212;</div>
+          <div class="size-unit">Inches &mdash; HD Metal</div>
+        </div>
+        <div class="size-slider-wrap">
+          <input type="range" class="size-slider" id="sizeSlider" min="0" max="100" value="50">
+          <div class="size-range-ends">
+            <span>Smallest</span>
+            <span id="maxSizeLabel">Largest</span>
+          </div>
+        </div>
+        <div class="quality-badge" id="qualityBadge">Select an image</div>
+      </div>
+
+      <!-- Basket -->
+      <div class="basket-bar" id="basketBar">
+        <div class="basket-summary" id="basketSummary"></div>
+      </div>
+
+      <!-- Gallery browser -->
+      <div class="gallery-browser">
+        <div class="gb-header">
+          <button class="gb-back" id="gbBack">&larr; Back</button>
+          <span class="gb-breadcrumb" id="gbBreadcrumb">All Collections</span>
+          <span class="gb-count" id="gbCount"></span>
+        </div>
+        <div class="gb-grid" id="gbGrid"></div>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-bar">
+        <div class="cta-selection-info" id="selectionInfo">Select a scene, wall position, and image to begin</div>
+        <div class="cta-buttons">
+          <button class="btn-add-basket" id="addBasketBtn" disabled>Add to Basket</button>
+          <button class="btn-request" id="requestBtn">Request This Print</button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-inner">
+          <div class="footer-brand">
+            <a href="../index.html" class="logo"><span class="logo-white">ARCHIVE</span><span class="logo-gold">-35</span></a>
+            <p>Fine art photography by Wolf Schram. Light. Place. Time.</p>
+          </div>
+          <div class="footer-links">
+            <h4>Explore</h4>
+            <a href="../gallery.html">Gallery</a>
+            <a href="../licensing.html">Licensing</a>
+            <a href="../about.html">About</a>
+          </div>
+          <div class="footer-links">
+            <h4>Connect</h4>
+            <a href="../contact.html">Contact</a>
+            <a href="../privacy.html">Privacy</a>
+            <a href="../terms.html">Terms</a>
+          </div>
+        </div>
+        <div class="footer-bottom">&copy; 2026 ARCHIVE-35. All rights reserved.</div>
+      </div>
+    </footer>
+
+  </div><!-- /page-content -->
+
+  <script src="https://js.stripe.com/v3/"></script>
+  <script>fetch('../data/stripe-config.json').then(r=>r.json()).then(c=>{window.STRIPE_PUBLIC_KEY=c.publishableKey;window.STRIPE_MODE=c.mode;}).catch(()=>{});</script>
+  <script src="../js/cart.js"></script>
+  <script src="../js/cart-ui.js?v=6"></script>
+  <script src="../js/auth.js?v=1"></script>
+  <script src="../js/image-protection.js"></script>
+
+  <script>
+  // ===== LOGIN =====
+  (function() {
+    var ACCESS_CODE = 'riedel2026';
+    var gate = document.getElementById('login-gate');
+    var content = document.getElementById('page-content');
+    var pwInput = document.getElementById('pw-input');
+    var errEl = document.getElementById('login-error');
+
+    function checkPassword() {
+      if (pwInput.value.trim() === ACCESS_CODE) {
+        gate.classList.add('hidden');
+        content.classList.add('visible');
+        localStorage.setItem('riedel_auth', '1');
+        initVisualizer();
+      } else {
+        errEl.style.display = 'block';
+      }
+    }
+
+    document.getElementById('login-btn').addEventListener('click', checkPassword);
+    pwInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') checkPassword(); });
+
+    // Auto-login
+    if (localStorage.getItem('riedel_auth') === '1') {
+      gate.classList.add('hidden');
+      content.classList.add('visible');
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initVisualizer);
+      } else {
+        initVisualizer();
+      }
+    }
+  })();
+  </script>
+
+  <script>
+  // ===== VISUALIZER ENGINE =====
+  function initVisualizer() {
+    'use strict';
+
+    var SCENES = [
+      {
+        id: 'wall1', label: 'Wide Shot',
+        file: '../Riedel office photo mock up/Riedel office wall 1.png',
+        fg:   '../Riedel office photo mock up/foregrounds/wall1_fg.png',
+        w: 1536, h: 1024,
+        zones: [
+          { id:'left_wall',  label:'Left Wall',  px:{x1:312,y1:217,x2:615,y2:383} },
+          { id:'right_wall', label:'Right Wall', px:{x1:910,y1:219,x2:1214,y2:391} },
+        ]
+      },
+      {
+        id: 'closeup', label: 'Close-up',
+        file: '../Riedel office photo mock up/Riedel office wall 1 close up.png',
+        fg:   '../Riedel office photo mock up/foregrounds/closeup_fg.png',
+        w: 1536, h: 1024,
+        zones: [
+          { id:'left_wall',  label:'Left Wall',  px:{x1:414,y1:381,x2:604,y2:482} },
+          { id:'right_wall', label:'Right Wall', px:{x1:884,y1:382,x2:1075,y2:488} },
+        ]
+      },
+      {
+        id: 'cubicle', label: 'Cubicle',
+        file: '../Riedel office photo mock up/Cubicle .png',
+        fg:   '../Riedel office photo mock up/foregrounds/cubicle_fg.png',
+        w: 1536, h: 1024,
+        zones: [
+          { id:'right_wall', label:'Wall', px:{x1:578,y1:294,x2:895,y2:483} },
+        ]
+      },
+      {
+        id: 'confroom', label: 'Conference Room',
+        file: '../Riedel office photo mock up/conference room .png',
+        fg:   '../Riedel office photo mock up/foregrounds/confroom_fg.png',
+        w: 1536, h: 1024,
+        zones: [
+          { id:'center', label:'Main Wall', px:{x1:646,y1:395,x2:878,y2:511} },
+        ]
+      },
+      {
+        id: 'training', label: 'Training Room',
+        file: '../Riedel office photo mock up/training room final .png',
+        fg:   '../Riedel office photo mock up/foregrounds/training_fg.png',
+        w: 1536, h: 1024,
+        zones: [
+          { id:'left',   label:'Left',   px:{x1:275,y1:428,x2:449,y2:522} },
+          { id:'center', label:'Center', px:{x1:652,y1:430,x2:825,y2:521} },
+          { id:'right',  label:'Right',  px:{x1:1039,y1:422,x2:1211,y2:514} },
+        ]
+      },
+      {
+        id: 'training2', label: 'Training Wall 2',
+        file: '../Riedel office photo mock up/training room wall 2.png',
+        fg:   '../Riedel office photo mock up/foregrounds/training2_fg.png',
+        w: 1536, h: 1024,
+        zones: [
+          { id:'left',  label:'Left',  px:{x1:913,y1:384,x2:1118,y2:489} },
+          { id:'right', label:'Right', px:{x1:573,y1:389,x2:773,y2:489} },
+        ]
+      },
+    ];
+
+    // === STATE ===
+    var currentScene   = SCENES[0];
+    var currentZoneIdx = 0;
+    var currentPhoto   = null;
+    var bgImg          = null;
+    var fgImg          = null;
+    var photoImg       = null;
+    var allPhotos      = [];
+    var collectionsMap = {};
+    var activeCollection = null;
+    var sizeT          = 0.5;
+    var basket         = [];
+    var imgCache       = {};
+
+    var canvas = document.getElementById('vizCanvas');
+    var ctx    = canvas.getContext('2d');
+
+    // === INIT ===
+    buildCarousel();
+    loadPhotos();
+    selectScene(SCENES[0]);
+
+    document.getElementById('sizeSlider').addEventListener('input', function() {
+      sizeT = this.value / 100;
+      render();
+      updateSizeDisplay();
+    });
+    document.getElementById('gbBack').addEventListener('click', showCollections);
+    document.getElementById('addBasketBtn').addEventListener('click', addToBasket);
+    document.getElementById('requestBtn').addEventListener('click', requestPrint);
+
+    // === CAROUSEL ===
+    function buildCarousel() {
+      var el = document.getElementById('tmplCarousel');
+      el.innerHTML = '';
+      SCENES.forEach(function(sc) {
+        var div = document.createElement('div');
+        div.className = 'template-thumb' + (sc.id === currentScene.id ? ' active' : '');
+        div.innerHTML = '<img src="' + sc.file + '" alt="' + sc.label + '" loading="lazy"><div class="tmpl-label">' + sc.label + '</div>';
+        div.addEventListener('click', function() { selectScene(sc); });
+        el.appendChild(div);
+      });
+    }
+
+    function updateCarousel() {
+      var thumbs = document.querySelectorAll('.template-thumb');
+      thumbs.forEach(function(el, i) {
+        el.classList.toggle('active', SCENES[i].id === currentScene.id);
+      });
+    }
+
+    // === SCENE ===
+    function selectScene(sc) {
+      currentScene   = sc;
+      currentZoneIdx = 0;
+      bgImg = null;
+      fgImg = null;
+      buildZonePills();
+      updateCarousel();
+
+      // Load background
+      var bg = new Image();
+      bg.onload = function() {
+        bgImg = bg;
+        render();
+      };
+      bg.onerror = function() { console.warn('BG load failed:', sc.file); };
+      bg.src = sc.file;
+
+      // Load foreground
+      var fg = new Image();
+      fg.onload = function() { fgImg = fg; render(); };
+      fg.onerror = function() { console.warn('FG load failed:', sc.fg); };
+      fg.src = sc.fg;
+    }
+
+    // === ZONES ===
+    function buildZonePills() {
+      var bar = document.getElementById('zoneBar');
+      bar.innerHTML = '';
+      if (currentScene.zones.length <= 1) return;
+      currentScene.zones.forEach(function(z, i) {
+        var btn = document.createElement('button');
+        btn.className = 'zone-pill' + (i === currentZoneIdx ? ' active' : '');
+        btn.textContent = z.label;
+        btn.addEventListener('click', function() {
+          currentZoneIdx = i;
+          buildZonePills();
+          render();
+          updateSizeDisplay();
+        });
+        bar.appendChild(btn);
+      });
+    }
+
+    // === RENDER ===
+    function render() {
+      // Retina-sharp setup on EVERY render
+      var dpr = window.devicePixelRatio || 1;
+      canvas.width  = currentScene.w * dpr;
+      canvas.height = currentScene.h * dpr;
+      canvas.style.width  = currentScene.w + 'px';
+      canvas.style.height = currentScene.h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      ctx.clearRect(0, 0, currentScene.w, currentScene.h);
+
+      // Layer 1: background
+      if (bgImg) ctx.drawImage(bgImg, 0, 0, currentScene.w, currentScene.h);
+
+      // Layer 2: artwork centered in zone
+      if (photoImg && photoImg.complete && photoImg.naturalWidth > 0 && currentPhoto) {
+        var zone = currentScene.zones[currentZoneIdx].px;
+        var cx   = (zone.x1 + zone.x2) / 2;
+        var cy   = (zone.y1 + zone.y2) / 2;
+
+        // Zone px dimensions establish scale reference
+        var zoneW = zone.x2 - zone.x1;
+        var zoneH = zone.y2 - zone.y1;
+        var ppiX = zoneW / 48;  // pixels per inch horizontal (48" reference width)
+        var ppiY = zoneH / 32;  // pixels per inch vertical (32" reference height)
+
+        // Print size from slider
+        var ps = calcPrintSize();
+        var printW = ps.w;
+        var printH = ps.h;
+
+        // Render dimensions in scene pixels
+        var drawW = printW * ppiX;
+        var drawH = printH * ppiY;
+
+        // Draw centered at zone center
+        ctx.drawImage(photoImg, cx - drawW/2, cy - drawH/2, drawW, drawH);
+
+        // Print size label above artwork
+        ctx.fillStyle = 'rgba(0,0,0,0.75)';
+        ctx.fillRect(cx - drawW/2, cy - drawH/2 - 22, 200, 18);
+        ctx.fillStyle = '#e8b84d';
+        ctx.font = 'bold 12px Inter, sans-serif';
+        ctx.fillText(Math.round(printW) + '" \u00d7 ' + Math.round(printH) + '" \u2014 HD Metal', cx - drawW/2 + 6, cy - drawH/2 - 8);
+      }
+
+      // Layer 3: foreground
+      if (fgImg) ctx.drawImage(fgImg, 0, 0, currentScene.w, currentScene.h);
+    }
+
+    // === PRINT SIZE ===
+    function calcPrintSize() {
+      if (!currentPhoto) return { w: 48, h: 32, maxW: 48, maxH: 32 };
+
+      var artRatio = currentPhoto.w / currentPhoto.h;
+
+      // Max print at 150 DPI, capped at Pictorem metal max 96x48"
+      var maxW = Math.min(currentPhoto.w / 150, 96);
+      var maxH = Math.min(currentPhoto.h / 150, 48);
+      // Preserve aspect ratio at max
+      var finalMaxW = maxW;
+      var finalMaxH = maxW / artRatio;
+      if (finalMaxH > maxH) { finalMaxH = maxH; finalMaxW = maxH * artRatio; }
+
+      // Min size: 20" on shortest side
+      var minShort = 20;
+      var finalMinW, finalMinH;
+      if (artRatio >= 1) {
+        finalMinH = minShort;
+        finalMinW = minShort * artRatio;
+      } else {
+        finalMinW = minShort;
+        finalMinH = minShort / artRatio;
+      }
+
+      // Interpolate
+      var printW = finalMinW + (finalMaxW - finalMinW) * sizeT;
+      var printH = finalMinH + (finalMaxH - finalMinH) * sizeT;
+
+      return {
+        w: Math.round(printW),
+        h: Math.round(printH),
+        maxW: Math.round(finalMaxW),
+        maxH: Math.round(finalMaxH)
+      };
+    }
+
+    function updateSizeDisplay() {
+      if (!currentPhoto) return;
+      var ps = calcPrintSize();
+      document.getElementById('sizeValue').textContent = ps.w + '" \u00d7 ' + ps.h + '"';
+      document.getElementById('maxSizeLabel').textContent = 'Max ' + ps.maxW + '" \u00d7 ' + ps.maxH + '"';
+
+      // DPI quality badge
+      var dpi = Math.round(currentPhoto.w / ps.w);
+      var badge = document.getElementById('qualityBadge');
+      if (dpi >= 200)      { badge.className = 'quality-badge good'; badge.textContent = '\u2713 Excellent \u2014 ' + dpi + ' DPI'; }
+      else if (dpi >= 150) { badge.className = 'quality-badge ok';   badge.textContent = '\u25CB Good \u2014 ' + dpi + ' DPI'; }
+      else                 { badge.className = 'quality-badge low';  badge.textContent = '\u26A0 Reduce size \u2014 ' + dpi + ' DPI'; }
+
+      // Selection info
+      var zone = currentScene.zones[currentZoneIdx].label;
+      document.getElementById('selectionInfo').innerHTML =
+        '<strong>' + (currentPhoto.title || '') + '</strong> \u2014 ' + ps.w + '" \u00d7 ' + ps.h + '" HD Metal \u2014 ' + currentScene.label + ' / ' + zone;
+      document.getElementById('addBasketBtn').disabled = false;
+    }
+
+    // === PHOTOS ===
+    function loadPhotos() {
+      fetch('../data/photos.json')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          allPhotos = data.photos || data;
+          buildCollectionsMap();
+          showCollections();
+        })
+        .catch(function() {
+          document.getElementById('gbGrid').textContent = 'Could not load collection.';
+        });
+    }
+
+    function buildCollectionsMap() {
+      collectionsMap = {};
+      allPhotos.forEach(function(p) {
+        var slug = p.collection || 'other';
+        if (!collectionsMap[slug]) collectionsMap[slug] = { title: p.collectionTitle || slug, photos: [], hero: null };
+        collectionsMap[slug].photos.push(p);
+        if (!collectionsMap[slug].hero) collectionsMap[slug].hero = p.thumbnail;
+      });
+    }
+
+    function showCollections() {
+      activeCollection = null;
+      document.getElementById('gbBack').classList.remove('visible');
+      document.getElementById('gbBreadcrumb').textContent = 'All Collections';
+      var grid = document.getElementById('gbGrid');
+      grid.className = 'gb-grid';
+      grid.innerHTML = '';
+      var colls = Object.entries(collectionsMap);
+      document.getElementById('gbCount').textContent = colls.length + ' collections';
+      colls.forEach(function(entry) {
+        var slug = entry[0];
+        var coll = entry[1];
+        var div = document.createElement('div');
+        div.className = 'gb-coll-card';
+        div.innerHTML = '<img src="../' + coll.hero + '" loading="lazy" alt="' + coll.title + '"><div class="gb-coll-label"><div class="gb-coll-name">' + coll.title + '</div><div class="gb-coll-count">' + coll.photos.length + ' images</div></div>';
+        div.addEventListener('click', function() { showPhotos(slug, coll); });
+        grid.appendChild(div);
+      });
+    }
+
+    function showPhotos(slug, coll) {
+      activeCollection = slug;
+      document.getElementById('gbBack').classList.add('visible');
+      document.getElementById('gbBreadcrumb').textContent = coll.title;
+      var grid = document.getElementById('gbGrid');
+      grid.className = 'gb-grid photo-level';
+      grid.innerHTML = '';
+      document.getElementById('gbCount').textContent = coll.photos.length + ' images';
+      coll.photos.forEach(function(p) {
+        var div = document.createElement('div');
+        var isActive = currentPhoto && currentPhoto.id === p.id;
+        div.className = 'gb-photo' + (isActive ? ' active' : '');
+        div.innerHTML = '<img src="../' + p.thumbnail + '" loading="lazy" alt="' + (p.title || '') + '"><div class="gb-title">' + (p.title || '') + '</div>';
+        div.addEventListener('click', function() { selectPhoto(p, div); });
+        grid.appendChild(div);
+      });
+    }
+
+    function selectPhoto(p, clickedEl) {
+      var d = p.dimensions || {};
+      currentPhoto = {
+        id: p.id,
+        title: p.title,
+        w: d.width || 6000,
+        h: d.height || 4000,
+        fullPath: '../' + p.full
+      };
+      sizeT = 0.5;
+      document.getElementById('sizeSlider').value = 50;
+
+      // Highlight selected
+      document.querySelectorAll('.gb-photo').forEach(function(el) { el.classList.remove('active'); });
+      if (clickedEl) clickedEl.classList.add('active');
+
+      // Load full image
+      if (imgCache[currentPhoto.id]) {
+        photoImg = imgCache[currentPhoto.id];
+        render();
+        updateSizeDisplay();
+      } else {
+        photoImg = new Image();
+        photoImg.onload = function() {
+          imgCache[currentPhoto.id] = photoImg;
+          render();
+          updateSizeDisplay();
+        };
+        photoImg.onerror = function() { console.warn('Photo load failed:', currentPhoto.fullPath); };
+        photoImg.src = currentPhoto.fullPath;
+      }
+    }
+
+    // === BASKET ===
+    function addToBasket() {
+      if (!currentPhoto) return;
+      var ps   = calcPrintSize();
+      var zone = currentScene.zones[currentZoneIdx].label;
+      basket.push({ title: currentPhoto.title, size: ps.w + '" \u00d7 ' + ps.h + '"', scene: currentScene.label, zone: zone });
+      renderBasket();
+    }
+
+    function renderBasket() {
+      var bar = document.getElementById('basketBar');
+      var summary = document.getElementById('basketSummary');
+      if (!basket.length) { bar.classList.remove('visible'); return; }
+      bar.classList.add('visible');
+      summary.innerHTML = '<div style="font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem;">Basket \u2014 ' + basket.length + ' item' + (basket.length > 1 ? 's' : '') + '</div>' +
+        basket.map(function(item) {
+          return '<div class="basket-item"><strong>' + item.title + '</strong> \u2014 ' + item.size + ' HD Metal \u2014 ' + item.scene + ' / ' + item.zone + '</div>';
+        }).join('');
+    }
+
+    function requestPrint() {
+      var ps = currentPhoto ? calcPrintSize() : null;
+      var subject = currentPhoto ? 'Print Request: ' + currentPhoto.title : 'Print Enquiry \u2014 Archive-35';
+      var body = currentPhoto
+        ? 'Hi Wolf,\n\nI would like to request a print of:\n\n"' + currentPhoto.title + '"\nSize: ' + ps.w + '" \u00d7 ' + ps.h + '" HD Metal\n\nPlease send pricing and availability.'
+        : 'Hi Wolf,\n\nI\'d like more information about your prints for our Riedel offices.';
+      window.location.href = 'mailto:wolf@archive-35.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    }
+
+  } // end initVisualizer
+  </script>
+
+  <!-- Mobile nav toggle -->
+  <script>
+  (function(){
+    var tog = document.querySelector('.nav-toggle');
+    var nav = document.querySelector('.nav');
+    if (tog && nav) {
+      tog.addEventListener('click', function() {
+        nav.classList.toggle('active');
+        tog.classList.toggle('active');
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

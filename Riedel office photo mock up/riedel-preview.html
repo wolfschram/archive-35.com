@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARCHIVE-35 — Riedel Communications</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0c0b;
+  --surface: #141412;
+  --border: rgba(255,255,255,0.06);
+  --border-hover: rgba(200,169,110,0.3);
+  --text: #e8e3d8;
+  --muted: rgba(232,227,216,0.4);
+  --accent: #c8a96e;
+  --accent-dim: rgba(200,169,110,0.12);
+  --good: #5aaf84;
+  --warn: #e8b84b;
+  --bad: #e05c5c;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2.5rem;
+  background: rgba(12,12,11,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 1rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-decoration: none;
+}
+.nav-client {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+/* HERO */
+.hero {
+  padding: 9rem 2.5rem 3rem;
+  max-width: 680px;
+}
+.hero-badge {
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  opacity: 0.7;
+}
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+.hero p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.8;
+  max-width: 480px;
+}
+
+/* MAIN LAYOUT */
+.main {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 0;
+  min-height: calc(100vh - 160px);
+  border-top: 1px solid var(--border);
+}
+
+/* CANVAS SIDE */
+.canvas-side {
+  position: relative;
+  background: #080807;
+  border-right: 1px solid var(--border);
+}
+
+/* Scene tabs */
+.scene-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.scene-tabs::-webkit-scrollbar { display: none; }
+.scene-tab {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  border: none;
+  background: none;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+  font-family: 'Jost', sans-serif;
+  font-weight: 400;
+}
+.scene-tab:hover { color: var(--text); }
+.scene-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Canvas container */
+.canvas-container {
+  position: relative;
+  padding: 1.5rem;
+  overflow-x: auto;
+}
+#render-canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 2px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+.canvas-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+}
+
+/* CONTROL PANEL */
+.panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  overflow-y: auto;
+  max-height: calc(100vh - 62px);
+  position: sticky;
+  top: 62px;
+}
+.panel-section {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.panel-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+/* Zone selector */
+.zone-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.zone-pill {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  cursor: pointer;
+  background: none;
+  color: var(--muted);
+  font-family: 'Jost', sans-serif;
+  transition: all 0.15s;
+}
+.zone-pill:hover { border-color: var(--border-hover); color: var(--text); }
+.zone-pill.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+/* Size slider */
+.size-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.size-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem;
+  font-weight: 300;
+  color: var(--text);
+}
+.size-unit {
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+.size-slider {
+  width: 100%;
+  appearance: none;
+  height: 2px;
+  background: var(--border);
+  outline: none;
+  border-radius: 1px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+.size-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+.size-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+/* Quality indicator */
+.quality-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  margin-top: 0.75rem;
+}
+.quality-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.quality-text { font-size: 0.7rem; color: var(--muted); }
+.quality-text strong { color: var(--text); }
+
+/* Photo browser */
+.photo-search {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.6rem 0.75rem;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.75rem;
+  border-radius: 2px;
+  margin-bottom: 0.75rem;
+  outline: none;
+}
+.photo-search:focus { border-color: var(--border-hover); }
+.photo-search::placeholder { color: var(--muted); }
+.photo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.photo-thumb {
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 1px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+  position: relative;
+}
+.photo-thumb:hover { border-color: var(--accent); }
+.photo-thumb.active { border-color: var(--good); }
+.photo-thumb img { display: block; width: 100%; height: 56px; object-fit: cover; }
+.photo-thumb-title {
+  font-size: 8px;
+  color: var(--muted);
+  padding: 2px 4px;
+  background: #0c0c0b;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* CTA */
+.cta-btn {
+  display: block;
+  width: 100%;
+  padding: 0.9rem;
+  background: var(--accent);
+  color: #0c0c0b;
+  border: none;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+.cta-btn:hover { background: #d4b87a; }
+.cta-secondary {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background: none;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  font-family: 'Jost', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+.cta-secondary:hover { border-color: var(--border-hover); color: var(--text); }
+
+/* Basket count */
+.basket-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  background: var(--accent);
+  color: #0c0c0b;
+  border-radius: 50%;
+  font-size: 0.6rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
+/* Print info */
+.print-info {
+  font-size: 0.7rem;
+  line-height: 1.9;
+  color: var(--muted);
+}
+.print-info strong { color: var(--text); font-weight: 400; }
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; }
+  .panel { position: static; max-height: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://archive-35.com" class="nav-logo">Archive-35</a>
+  <span class="nav-client">Riedel Communications — Private Preview</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">Curated for Riedel Communications</div>
+  <h1>Fine Art for<br><em>Your Spaces</em></h1>
+  <p>Preview any image from the Archive-35 collection on your walls. Each piece is printed on ChromaLuxé HD metal, shipped free within North America.</p>
+</div>
+
+<div class="main">
+
+  <!-- CANVAS -->
+  <div class="canvas-side">
+    <div class="scene-tabs" id="scene-tabs"></div>
+    <div class="canvas-container">
+      <canvas id="render-canvas" width="1536" height="1024"></canvas>
+    </div>
+  </div>
+
+  <!-- PANEL -->
+  <div class="panel">
+
+    <!-- Zone selector -->
+    <div class="panel-section">
+      <div class="panel-label">Wall Position</div>
+      <div class="zone-pills" id="zone-pills"></div>
+    </div>
+
+    <!-- Size -->
+    <div class="panel-section">
+      <div class="panel-label">Print Size</div>
+      <div class="size-display">
+        <span class="size-value" id="size-label">48 × 32</span>
+        <span class="size-unit">inches — HD Metal</span>
+      </div>
+      <input type="range" class="size-slider" id="size-slider" min="0" max="100" value="0">
+      <div class="size-range-labels">
+        <span>48 × 32"</span>
+        <span id="max-size-label">Max</span>
+      </div>
+      <div class="quality-bar" id="quality-bar">
+        <div class="quality-dot" id="quality-dot" style="background:var(--good)"></div>
+        <div class="quality-text" id="quality-text">Select an image to see print quality</div>
+      </div>
+    </div>
+
+    <!-- Print info -->
+    <div class="panel-section" id="print-info-section" style="display:none">
+      <div class="panel-label">Print Details</div>
+      <div class="print-info" id="print-info"></div>
+    </div>
+
+    <!-- Photo browser -->
+    <div class="panel-section" style="flex:1">
+      <div class="panel-label">Collection</div>
+      <input type="text" class="photo-search" id="photo-search" placeholder="Search images…">
+      <div class="photo-grid" id="photo-grid">Loading…</div>
+    </div>
+
+    <!-- CTA -->
+    <div class="panel-section">
+      <button class="cta-btn" id="add-basket-btn" onclick="addToBasket()">Add to Basket<span class="basket-count" id="basket-count" style="display:none">0</span></button>
+      <button class="cta-secondary" onclick="requestPrint()">Request This Print</button>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <span>© Archive-35 — The Restless Eye</span>
+  <span>All images are licensed fine art. Not for redistribution.</span>
+</footer>
+
+<script>
+// ── SCENE CONFIG (from your calibration) ───────────────────────────────────────────
+// Each zone's pixelCoords define the 48x32" reference
+const SCENES = {
+  wall1: {
+    label: 'Wide Shot',
+    bg: 'Riedel office wall 1.png',
+    fg: 'foregrounds/wall1_fg.png',
+    zones: [
+      { id:'left_wall',  label:'Left Wall',   px:{x1:312,y1:217,x2:615,y2:383} },
+      { id:'right_wall', label:'Right Wall',  px:{x1:910,y1:219,x2:1214,y2:391} },
+    ]
+  },
+  closeup: {
+    label: 'Close-up',
+    bg: 'Riedel office wall 1 close up.png',
+    fg: 'foregrounds/closeup_fg.png',
+    zones: [
+      { id:'left_wall',  label:'Left Wall',  px:{x1:414,y1:381,x2:604,y2:482} },
+      { id:'right_wall', label:'Right Wall', px:{x1:884,y1:382,x2:1075,y2:488} },
+    ]
+  },
+  cubicle: {
+    label: 'Cubicle',
+    bg: 'Cubicle .png',
+    fg: 'foregrounds/cubicle_fg.png',
+    zones: [
+      { id:'right_wall', label:'Wall', px:{x1:578,y1:294,x2:895,y2:483} },
+    ]
+  },
+  confroom: {
+    label: 'Conference Room',
+    bg: 'conference room .png',
+    fg: 'foregrounds/confroom_fg.png',
+    zones: [
+      { id:'center', label:'Main Wall', px:{x1:646,y1:395,x2:878,y2:511} },
+    ]
+  },
+  training: {
+    label: 'Training Room',
+    bg: 'training room final .png',
+    fg: 'foregrounds/training_fg.png',
+    zones: [
+      { id:'left',   label:'Left Wall',   px:{x1:275,y1:428,x2:449,y2:522} },
+      { id:'center', label:'Center Wall', px:{x1:652,y1:430,x2:825,y2:521} },
+      { id:'right',  label:'Right Wall',  px:{x1:1039,y1:422,x2:1211,y2:514} },
+    ]
+  },
+  training2: {
+    label: 'Training Wall 2',
+    bg: 'training room wall 2.png',
+    fg: 'foregrounds/training2_fg.png',
+    zones: [
+      { id:'left',  label:'Left Wall',  px:{x1:913,y1:384,x2:1118,y2:489} },
+      { id:'right', label:'Right Wall', px:{x1:573,y1:389,x2:773,y2:489} },
+    ]
+  },
+};
+
+// IMG_W/H of all source images
+const IMG_W = 1536, IMG_H = 1024;
+// 48x32" is the reference size for the zone as drawn
+const REF_W_IN = 48, REF_H_IN = 32;
+
+// ── STATE ────────────────────────────────────────────────────────────────
+let currentScene = 'wall1';
+let currentZoneIdx = 0;
+let currentPhoto = null;    // { id, title, w, h, thumb, full }
+let artImg = null;          // loaded Image
+let sceneImgs = {};         // cache: { bg, fg }
+let allPhotos = [];
+let basket = [];
+let sizePercent = 0;        // 0=48x32, 100=max
+
+const canvas = document.getElementById('render-canvas');
+const ctx = canvas.getContext('2d');
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+function init() {
+  buildSceneTabs();
+  loadPhotos();
+  switchScene('wall1');
+}
+
+function buildSceneTabs() {
+  const tabs = document.getElementById('scene-tabs');
+  tabs.innerHTML = '';
+  Object.entries(SCENES).forEach(([key, sc]) => {
+    const btn = document.createElement('button');
+    btn.className = 'scene-tab' + (key === currentScene ? ' active' : '');
+    btn.textContent = sc.label;
+    btn.onclick = () => switchScene(key);
+    tabs.appendChild(btn);
+  });
+}
+
+function buildZonePills() {
+  const container = document.getElementById('zone-pills');
+  container.innerHTML = '';
+  const zones = SCENES[currentScene].zones;
+  zones.forEach((z, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'zone-pill' + (i === currentZoneIdx ? ' active' : '');
+    btn.textContent = z.label;
+    btn.onclick = () => { currentZoneIdx = i; buildZonePills(); render(); updateSizeInfo(); };
+    container.appendChild(btn);
+  });
+}
+
+// ── SCENE SWITCHING ─────────────────────────────────────────────────────
+function switchScene(key) {
+  currentScene = key;
+  currentZoneIdx = 0;
+  document.querySelectorAll('.scene-tab').forEach((b,i) => {
+    b.classList.toggle('active', Object.keys(SCENES)[i] === key);
+  });
+  buildZonePills();
+  loadSceneImages(key, () => { render(); });
+}
+
+function loadSceneImages(key, cb) {
+  if (sceneImgs[key]) { cb(); return; }
+  const sc = SCENES[key];
+  sceneImgs[key] = { bg: null, fg: null, ready: 0 };
+  const check = () => { if (++sceneImgs[key].ready === 2) cb(); };
+  const bg = new Image(); bg.onload = () => { sceneImgs[key].bg = bg; check(); };
+  bg.onerror = () => check();
+  bg.src = sc.bg;
+  const fg = new Image(); fg.onload = () => { sceneImgs[key].fg = fg; check(); };
+  fg.onerror = () => check();
+  fg.src = sc.fg;
+}
+
+// ── RENDER ──────────────────────────────────────────────────────────────────
+function render() {
+  // Use devicePixelRatio for sharp retina rendering
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = IMG_W * dpr;
+  canvas.height = IMG_H * dpr;
+  canvas.style.width = IMG_W + 'px';
+  canvas.style.height = IMG_H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, IMG_W, IMG_H);
+
+  const imgs = sceneImgs[currentScene];
+  if (!imgs || !imgs.bg) return;
+
+  // Layer 1: background
+  ctx.drawImage(imgs.bg, 0, 0, IMG_W, IMG_H);
+
+  // Layer 2: artwork in selected zone
+  if (artImg && artImg.complete && artImg.naturalWidth > 0) {
+    const zone = SCENES[currentScene].zones[currentZoneIdx];
+    const px = zone.px;
+    const zoneW = px.x2 - px.x1;
+    const zoneH = px.y2 - px.y1;
+    const zoneCX = px.x1 + zoneW / 2;
+    const zoneCY = px.y1 + zoneH / 2;
+
+    // px per inch from zone (zone = 48x32" reference)
+    const ppiX = zoneW / REF_W_IN;
+    const ppiY = zoneH / REF_H_IN;
+
+    // Current print size based on slider
+    const printSize = calcPrintSize();
+    const artPxW = printSize.w * ppiX;
+    const artPxH = printSize.h * ppiY;
+
+    // Scale artwork image to fit print size
+    const aw = artImg.naturalWidth, ah = artImg.naturalHeight;
+    const artRatio = aw / ah;
+    const printRatio = printSize.w / printSize.h;
+    let drawW, drawH;
+    if (artRatio > printRatio) { drawW = artPxW; drawH = artPxW / artRatio; }
+    else                        { drawH = artPxH; drawW = artPxH * artRatio; }
+
+    const drawX = zoneCX - drawW / 2;
+    const drawY = zoneCY - drawH / 2;
+
+    ctx.drawImage(artImg, drawX, drawY, drawW, drawH);
+
+    // Size label
+    const labelW = currentPhoto.w, labelH = currentPhoto.h;
+    const actualW = (drawW / ppiX).toFixed(0);
+    const actualH = (drawH / ppiY).toFixed(0);
+    ctx.fillStyle = 'rgba(0,0,0,0.78)';
+    ctx.fillRect(drawX, drawY - 24, 180, 20);
+    ctx.fillStyle = '#c8a96e';
+    ctx.font = 'bold 12px monospace';
+    ctx.fillText(`${actualW}" × ${actualH}" — HD Metal`, drawX + 6, drawY - 9);
+  }
+
+  // Layer 3: foreground (furniture on top)
+  if (imgs.fg) {
+    ctx.drawImage(imgs.fg, 0, 0, IMG_W, IMG_H);
+  }
+}
+
+// ── PRINT SIZE CALC ───────────────────────────────────────────────────────
+function calcPrintSize() {
+  if (!currentPhoto) return { w: REF_W_IN, h: REF_H_IN };
+  // Max size at 150 DPI
+  const maxW = currentPhoto.w / 150;
+  const maxH = currentPhoto.h / 150;
+  // Clamp to Pictorem metal max: 96x48
+  const clampW = Math.min(maxW, 96);
+  const clampH = Math.min(maxH, 48);
+  // Keep ratio
+  const ratio = currentPhoto.w / currentPhoto.h;
+  let finalMaxW = clampW, finalMaxH = clampW / ratio;
+  if (finalMaxH > clampH) { finalMaxH = clampH; finalMaxW = clampH * ratio; }
+  // Interpolate from 48x32 to max
+  const t = sizePercent / 100;
+  const startW = REF_W_IN, startH = REF_H_IN;
+  const w = startW + (finalMaxW - startW) * t;
+  const h = startH + (finalMaxH - startH) * t;
+  return { w: Math.round(w), h: Math.round(h), maxW: Math.round(finalMaxW), maxH: Math.round(finalMaxH) };
+}
+
+function updateSizeInfo() {
+  if (!currentPhoto) return;
+  const ps = calcPrintSize();
+  document.getElementById('size-label').textContent = `${ps.w} × ${ps.h}`;
+  document.getElementById('max-size-label').textContent = `${ps.maxW} × ${ps.maxH}"`;
+
+  // Quality
+  const dpi = currentPhoto.w / ps.w;
+  const dot = document.getElementById('quality-dot');
+  const txt = document.getElementById('quality-text');
+  if (dpi >= 200) {
+    dot.style.background = 'var(--good)';
+    txt.innerHTML = `<strong>Excellent</strong> — ${Math.round(dpi)} DPI at this size`;
+  } else if (dpi >= 150) {
+    dot.style.background = 'var(--warn)';
+    txt.innerHTML = `<strong>Good</strong> — ${Math.round(dpi)} DPI at this size`;
+  } else {
+    dot.style.background = 'var(--bad)';
+    txt.innerHTML = `<strong>Low quality</strong> — reduce size for better results`;
+  }
+
+  // Print info
+  const infoEl = document.getElementById('print-info');
+  const infoSection = document.getElementById('print-info-section');
+  infoSection.style.display = 'block';
+  infoEl.innerHTML = `
+    <strong>${ps.w}" × ${ps.h}"</strong> HD ChromaLuxé Metal<br>
+    Resolution: ${Math.round(dpi)} DPI<br>
+    Max available: ${ps.maxW}" × ${ps.maxH}"<br>
+    Shipping: Free — Continental USA &amp; Canada
+  `;
+}
+
+// Slider
+document.getElementById('size-slider').addEventListener('input', function() {
+  sizePercent = parseInt(this.value);
+  updateSizeInfo();
+  render();
+});
+
+// ── PHOTOS ──────────────────────────────────────────────────────────────────
+function loadPhotos() {
+  fetch('../data/photos.json')
+    .then(r => r.json())
+    .then(data => {
+      allPhotos = data.photos || data;
+      renderGrid(allPhotos.slice(0, 80));
+    })
+    .catch(() => {
+      document.getElementById('photo-grid').textContent = 'Could not load collection.';
+    });
+}
+
+document.getElementById('photo-search').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  const filtered = q ? allPhotos.filter(p => p.title.toLowerCase().includes(q) || (p.collection||'').toLowerCase().includes(q)) : allPhotos;
+  renderGrid(filtered.slice(0, 80));
+});
+
+function renderGrid(list) {
+  const grid = document.getElementById('photo-grid');
+  grid.innerHTML = '';
+  list.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'photo-thumb' + (currentPhoto && currentPhoto.id === p.id ? ' active' : '');
+    const d = p.dimensions || {};
+    div.innerHTML = `<img src="../${p.thumbnail}" loading="lazy" alt=""><div class="photo-thumb-title">${p.title}</div>`;
+    div.onclick = () => selectPhoto(p);
+    grid.appendChild(div);
+  });
+}
+
+function selectPhoto(p) {
+  currentPhoto = {
+    id: p.id,
+    title: p.title,
+    w: p.dimensions ? p.dimensions.width : 6000,
+    h: p.dimensions ? p.dimensions.height : 4000,
+    thumb: p.thumbnail,
+    full: p.thumbnail.replace('-thumb.jpg', '-full.jpg')
+  };
+  sizePercent = 0;
+  document.getElementById('size-slider').value = 0;
+  document.querySelectorAll('.photo-thumb').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  artImg = new Image();
+  artImg.onload = () => { render(); updateSizeInfo(); };
+  artImg.src = `../${currentPhoto.full}`;
+}
+
+// ── BASKET ──────────────────────────────────────────────────────────────────
+function addToBasket() {
+  if (!currentPhoto) { alert('Please select an image first.'); return; }
+  const ps = calcPrintSize();
+  basket.push({
+    photo: currentPhoto,
+    size: ps,
+    scene: currentScene,
+    zone: SCENES[currentScene].zones[currentZoneIdx].label
+  });
+  const countEl = document.getElementById('basket-count');
+  countEl.textContent = basket.length;
+  countEl.style.display = 'inline-flex';
+  document.getElementById('add-basket-btn').textContent = `Added! (${basket.length} in basket)`;
+  setTimeout(() => {
+    document.getElementById('add-basket-btn').innerHTML =
+      `Add to Basket<span class="basket-count" id="basket-count" style="display:inline-flex">${basket.length}</span>`;
+  }, 1500);
+}
+
+function requestPrint() {
+  const subject = currentPhoto
+    ? `Print Request: ${currentPhoto.title}`
+    : 'Print Inquiry — Archive-35';
+  const body = currentPhoto
+    ? `Hi Wolf,\n\nI would like to request a print of:\n\n"${currentPhoto.title}"\nSize: ${calcPrintSize().w}" x ${calcPrintSize().h}" HD Metal\n\nPlease send me pricing and availability.`
+    : 'Hi Wolf,\n\nI\'d like to request more information about your prints.';
+  window.location.href = `mailto:wolf@archive-35.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+init();
+</script>
+</body>
+</html>

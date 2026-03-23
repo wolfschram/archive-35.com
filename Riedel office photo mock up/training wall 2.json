@@ -1,0 +1,329 @@
+{
+  "wall1": {
+    "scene": "Riedel office wall 1.png",
+    "zones": [
+      {
+        "id": "left_wall",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.2031,
+          "y": 0.2119
+        },
+        "size": {
+          "width": 0.1973,
+          "height": 0.1621
+        },
+        "centerPct": {
+          "x": 0.3018,
+          "y": 0.293
+        },
+        "pixelCoords": {
+          "x1": 312,
+          "y1": 217,
+          "x2": 615,
+          "y2": 383
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      },
+      {
+        "id": "right_wall",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.5924,
+          "y": 0.2139
+        },
+        "size": {
+          "width": 0.1979,
+          "height": 0.168
+        },
+        "centerPct": {
+          "x": 0.6914,
+          "y": 0.2979
+        },
+        "pixelCoords": {
+          "x1": 910,
+          "y1": 219,
+          "x2": 1214,
+          "y2": 391
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      }
+    ]
+  },
+  "closeup": {
+    "scene": "Riedel office wall 1 close up.png",
+    "zones": [
+      {
+        "id": "left_wall",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.2695,
+          "y": 0.3721
+        },
+        "size": {
+          "width": 0.1237,
+          "height": 0.0986
+        },
+        "centerPct": {
+          "x": 0.3314,
+          "y": 0.4214
+        },
+        "pixelCoords": {
+          "x1": 414,
+          "y1": 381,
+          "x2": 604,
+          "y2": 482
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      },
+      {
+        "id": "right_wall",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.5755,
+          "y": 0.373
+        },
+        "size": {
+          "width": 0.1243,
+          "height": 0.1035
+        },
+        "centerPct": {
+          "x": 0.6377,
+          "y": 0.4248
+        },
+        "pixelCoords": {
+          "x1": 884,
+          "y1": 382,
+          "x2": 1075,
+          "y2": 488
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      }
+    ]
+  },
+  "cubicle": {
+    "scene": "Cubicle .png",
+    "zones": [
+      {
+        "id": "right_wall",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.3763,
+          "y": 0.2871
+        },
+        "size": {
+          "width": 0.2064,
+          "height": 0.1846
+        },
+        "centerPct": {
+          "x": 0.4795,
+          "y": 0.3794
+        },
+        "pixelCoords": {
+          "x1": 578,
+          "y1": 294,
+          "x2": 895,
+          "y2": 483
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      }
+    ]
+  },
+  "confroom": {
+    "scene": "conference room .png",
+    "zones": [
+      {
+        "id": "center",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.4206,
+          "y": 0.3857
+        },
+        "size": {
+          "width": 0.151,
+          "height": 0.1133
+        },
+        "centerPct": {
+          "x": 0.4961,
+          "y": 0.4424
+        },
+        "pixelCoords": {
+          "x1": 646,
+          "y1": 395,
+          "x2": 878,
+          "y2": 511
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      }
+    ]
+  },
+  "training": {
+    "scene": "training room .png",
+    "zones": [
+      {
+        "id": "center",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.4245,
+          "y": 0.4199
+        },
+        "size": {
+          "width": 0.1126,
+          "height": 0.0889
+        },
+        "centerPct": {
+          "x": 0.4808,
+          "y": 0.4644
+        },
+        "pixelCoords": {
+          "x1": 652,
+          "y1": 430,
+          "x2": 825,
+          "y2": 521
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      },
+      {
+        "id": "left",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.179,
+          "y": 0.418
+        },
+        "size": {
+          "width": 0.1133,
+          "height": 0.0918
+        },
+        "centerPct": {
+          "x": 0.2357,
+          "y": 0.4639
+        },
+        "pixelCoords": {
+          "x1": 275,
+          "y1": 428,
+          "x2": 449,
+          "y2": 522
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      },
+      {
+        "id": "right",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.6764,
+          "y": 0.4121
+        },
+        "size": {
+          "width": 0.112,
+          "height": 0.0898
+        },
+        "centerPct": {
+          "x": 0.7324,
+          "y": 0.457
+        },
+        "pixelCoords": {
+          "x1": 1039,
+          "y1": 422,
+          "x2": 1211,
+          "y2": 514
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      }
+    ]
+  },
+  "training2": {
+    "scene": "training room wall 2.png",
+    "zones": [
+      {
+        "id": "right",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.373,
+          "y": 0.3799
+        },
+        "size": {
+          "width": 0.1302,
+          "height": 0.0977
+        },
+        "centerPct": {
+          "x": 0.4382,
+          "y": 0.4287
+        },
+        "pixelCoords": {
+          "x1": 573,
+          "y1": 389,
+          "x2": 773,
+          "y2": 489
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      },
+      {
+        "id": "left",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.5944,
+          "y": 0.375
+        },
+        "size": {
+          "width": 0.1335,
+          "height": 0.1025
+        },
+        "centerPct": {
+          "x": 0.6611,
+          "y": 0.4263
+        },
+        "pixelCoords": {
+          "x1": 913,
+          "y1": 384,
+          "x2": 1118,
+          "y2": 489
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      }
+    ]
+  }
+}

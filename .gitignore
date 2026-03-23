@@ -110,3 +110,6 @@ Frame_Material_Border_Research.docx
 
 # MCP registry tokens
 06_Automation/.mcpregistry_*
+
+# MCP publisher binary
+mcp-publisher

@@ -1,16 +1,18 @@
 {
   "id": "santiago_de_chile",
-  "title": "santiago de Chile",
+  "title": "Santiago de Chile",
   "slug": "santiago-de-chile",
-  "status": "draft",
+  "status": "published",
   "dates": {
-    "published": null
+    "published": "2026-03-23"
   },
   "location": {
-    "country": "",
-    "region": "",
-    "place": "",
-    "coordinates": null
+    "country": "Chile",
+    "region": "Santiago Metropolitan Region",
+    "place": "Santiago de Chile",
+    "coordinates": [-33.4569, -70.6483]
   },
-  "photo_count": 7
+  "photo_count": 7,
+  "description": "Santiago seen from above — the city spread across the valley floor, framed by the Andes. Captured from San Cristóbal Hill at golden hour and into the night.",
+  "tags": ["santiago", "chile", "south-america", "cityscape", "aerial", "andes", "fine-art-photography"]
 }

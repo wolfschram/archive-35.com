@@ -2,15 +2,17 @@
   "id": "bonneville_salt_flats",
   "title": "Bonneville Salt Flats",
   "slug": "bonneville-salt-flats",
-  "status": "draft",
+  "status": "published",
   "dates": {
-    "published": null
+    "published": "2026-03-23"
   },
   "location": {
-    "country": "",
-    "region": "",
-    "place": "",
-    "coordinates": null
+    "country": "United States",
+    "region": "Utah",
+    "place": "Bonneville Salt Flats, Tooele County",
+    "coordinates": [40.7608, -113.8894]
   },
-  "photo_count": 14
+  "photo_count": 14,
+  "description": "A vast, otherworldly expanse of white salt stretching to the horizon. Shot across the Bonneville Salt Flats of Utah — one of the most surreal and minimalist landscapes on earth.",
+  "tags": ["bonneville-salt-flats", "desert-landscape", "utah", "panoramic", "minimalist", "fine-art-photography"]
 }

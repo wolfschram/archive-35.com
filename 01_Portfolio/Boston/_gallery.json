@@ -1,0 +1,16 @@
+{
+  "id": "boston",
+  "title": "Boston",
+  "slug": "boston",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 1
+}

@@ -1,0 +1,364 @@
+2026-03-23 00:00:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:00:31 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:01:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:01:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:02:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:02:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:03:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:03:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:04:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:04:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:05:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:05:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:06:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:06:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:07:30 [INFO] src.integrations.etsy: Token expired, refreshing...
+2026-03-23 00:07:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:07:30 [INFO] src.integrations.etsy: Saved Etsy tokens to .env (expires: 2026-03-23T01:07:30.417314+00:00)
+2026-03-23 00:07:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:08:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:08:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:09:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:09:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:10:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:10:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:11:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:11:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:12:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:12:31 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:13:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:13:32 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:14:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:14:31 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:15:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:15:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:16:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:16:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:17:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:17:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:18:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:18:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:19:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:19:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:20:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:20:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:21:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:21:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:22:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:22:31 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:23:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:23:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:24:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:24:31 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:25:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:25:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:26:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:26:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:27:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:27:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:28:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:28:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:29:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:29:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:30:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:30:31 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:31:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:31:31 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:32:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:32:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:33:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:33:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:34:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:34:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:35:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:35:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:36:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:36:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:37:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:37:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:38:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:38:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:39:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:39:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:40:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:40:31 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:41:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:41:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:42:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:42:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:43:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:43:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:44:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:44:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:45:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:45:31 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:46:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:46:33 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:47:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:47:32 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:48:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:48:31 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:49:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:49:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:50:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:50:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:51:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:51:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:52:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:52:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:53:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:53:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:54:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:54:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:55:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:55:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:56:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:56:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:57:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:57:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:58:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:58:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 00:59:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 00:59:31 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 01:00:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 01:00:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 01:01:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 01:01:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 01:02:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 01:02:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 01:03:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 01:03:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 01:04:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 01:04:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 01:05:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 01:05:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 01:06:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 01:06:31 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 01:07:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 01:07:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 01:08:30 [INFO] src.integrations.etsy: Token expired, refreshing...
+2026-03-23 01:08:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 01:08:30 [INFO] src.integrations.etsy: Saved Etsy tokens to .env (expires: 2026-03-23T02:08:30.455695+00:00)
+2026-03-23 01:08:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 01:09:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 01:09:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 01:10:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 01:10:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 01:11:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 01:11:30 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 16:02:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:02:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:02:28 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 16:02:28 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:02:29 [INFO] httpx: HTTP Request: POST https://api.cloudflare.com/client/v4/graphql "HTTP/1.1 200 OK"
+2026-03-23 16:02:29 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:02:34 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:02:34 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:02:41 [INFO] src.agents.instagram_agent: Skipping listing 4473779596 — aspect ratio 2.38 out of range
+2026-03-23 16:02:41 [INFO] src.agents.instagram_agent: Skipping listing 4473737336 — aspect ratio 1.96 out of range
+2026-03-23 16:02:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:02:42 [INFO] src.agents.instagram_agent: Skipping listing 4473726003 — aspect ratio 2.95 out of range
+2026-03-23 16:02:42 [INFO] src.agents.instagram_agent: Skipping listing 4473728563 — aspect ratio 2.40 out of range
+2026-03-23 16:02:42 [INFO] src.agents.instagram_agent: Skipping listing 4473725531 — aspect ratio 2.40 out of range
+2026-03-23 16:02:43 [INFO] src.agents.instagram_agent: Skipping listing 4473064952 — aspect ratio 2.05 out of range
+2026-03-23 16:02:44 [INFO] src.agents.instagram_agent: Skipping listing 4473063947 — aspect ratio 1.93 out of range
+2026-03-23 16:02:44 [INFO] src.agents.instagram_agent: Skipping listing 4473066162 — aspect ratio 2.29 out of range
+2026-03-23 16:02:46 [INFO] src.agents.instagram_agent: Skipping listing 4473068702 — aspect ratio 2.31 out of range
+2026-03-23 16:02:46 [INFO] src.agents.instagram_agent: Skipping listing 4473068626 — aspect ratio 1.98 out of range
+2026-03-23 16:02:47 [INFO] src.agents.instagram_agent: Skipping listing 4473068422 — aspect ratio 2.16 out of range
+2026-03-23 16:02:47 [INFO] src.agents.instagram_agent: Skipping listing 4473068300 — aspect ratio 2.34 out of range
+2026-03-23 16:02:49 [INFO] src.agents.instagram_agent: Skipping listing 4473067680 — aspect ratio 2.34 out of range
+2026-03-23 16:02:49 [INFO] src.agents.instagram_agent: Skipping listing 4473067560 — aspect ratio 2.65 out of range
+2026-03-23 16:02:50 [INFO] src.agents.instagram_agent: Skipping listing 4473060203 — aspect ratio 2.22 out of range
+2026-03-23 16:02:51 [INFO] src.agents.instagram_agent: Skipping listing 4473066822 — aspect ratio 2.40 out of range
+2026-03-23 16:02:51 [INFO] src.agents.instagram_agent: Skipping listing 4473066620 — aspect ratio 2.28 out of range
+2026-03-23 16:02:51 [INFO] src.agents.instagram_agent: Skipping listing 4473066510 — aspect ratio 1.92 out of range
+2026-03-23 16:02:52 [INFO] src.agents.instagram_agent: Skipping listing 4473059485 — aspect ratio 1.98 out of range
+2026-03-23 16:02:52 [INFO] src.agents.instagram_agent: Skipping listing 4473066248 — aspect ratio 0.67 out of range
+2026-03-23 16:02:52 [INFO] src.agents.instagram_agent: Skipping listing 4468847777 — aspect ratio 2.04 out of range
+2026-03-23 16:02:54 [INFO] src.agents.instagram_agent: Skipping listing 4465674914 — aspect ratio 2.41 out of range
+2026-03-23 16:02:55 [INFO] src.agents.instagram_agent: Skipping listing 4465637466 — aspect ratio 2.40 out of range
+2026-03-23 16:02:56 [INFO] src.agents.instagram_agent: Skipping listing 4465627577 — aspect ratio 2.30 out of range
+2026-03-23 16:02:56 [INFO] src.agents.instagram_agent: Skipping listing 4465629700 — aspect ratio 2.43 out of range
+2026-03-23 16:02:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:03:09 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-03-23 16:03:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:03:16 [INFO] src.integrations.instagram: Created media container: 17853366450687570
+2026-03-23 16:03:21 [INFO] src.integrations.instagram: Published media: 18023828336812929
+2026-03-23 16:03:21 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:03:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:03:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:03:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:03:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:04:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:04:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:04:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:04:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:04:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:05:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:05:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:05:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:05:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:05:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:06:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:06:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:06:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:06:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:06:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:07:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:07:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:07:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:07:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:07:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:08:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:08:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:08:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:08:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:08:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:09:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:09:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:09:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:09:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:09:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:10:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:10:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:10:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:10:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:10:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:11:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:11:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:11:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:11:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:11:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:12:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:12:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:12:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:12:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:12:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:13:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:13:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:13:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:13:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:13:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:14:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:14:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:14:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:14:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:14:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:15:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:15:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:15:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:15:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:15:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:16:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:16:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:16:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:16:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:16:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:17:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:17:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:17:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:17:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:17:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:18:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:18:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:18:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:18:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:18:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:19:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:19:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:19:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:19:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:19:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:20:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:20:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:20:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:20:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:20:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:21:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:21:26 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:21:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:21:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:21:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:22:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:22:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:22:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:22:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:22:57 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:23:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:23:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:23:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:23:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:23:57 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:24:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:24:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:24:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:24:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:24:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:25:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:25:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:25:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:25:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:25:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:26:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:26:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:26:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:26:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:26:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:27:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:27:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:27:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:27:42 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:27:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:28:11 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:28:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:28:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:28:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:28:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:29:12 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:29:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:29:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:29:42 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:29:57 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:30:12 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:30:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:30:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:30:42 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:30:57 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:31:12 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:31:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:31:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:31:42 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:31:57 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:32:12 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:32:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:32:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:32:42 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:32:56 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:33:12 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:33:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:33:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:33:41 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:33:57 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:34:12 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:34:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:34:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:34:42 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:35:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:35:30 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:35:45 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:35:57 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:36:12 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:36:27 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:36:27 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:36:42 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:37:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:37:30 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:38:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:38:30 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:39:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:39:30 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:40:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:40:30 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"
+2026-03-23 16:41:30 [WARNING] __main__: Docker status check failed: [Errno 2] No such file or directory: 'docker'
+2026-03-23 16:41:30 [INFO] httpx: HTTP Request: GET https://graph.instagram.com/v21.0/17841480627091785/insights?metric=impressions%2Creach%2Cprofile_views%2Cwebsite_clicks%2Cfollower_count&period=day&access_token=IGAAUXcW45DQdBZAFlCOGNNNkdIY0Nidjh6WVJmdEQzMlFnR2Nwd0MzeXZAVSEQ5UzlncEhGUjRyRHR6bXpVVEtIUkJmc3Q0TFBBTi1pZAUhPV1VkWkoxOWItcFpZAOC1WNWxVVG9QakYzeDI2UUE2Q1N3WVF3 "HTTP/1.1 400 Bad Request"

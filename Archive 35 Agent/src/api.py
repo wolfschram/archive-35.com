@@ -1155,7 +1155,7 @@ def approve_content(content_id: str, auto_publish: bool = True):
                 except Exception as e:
                     logger.error("Auto-publish failed for %s: %s", content_id, e)
                     result["publish_error"] = str(e)
-            # Pinterest and Etsy auto-publish can be added here in future phases
+            # Etsy auto-publish can be added here in future phases
         finally:
             conn.close()
 
@@ -1203,7 +1203,7 @@ def list_available_mockups():
     Scans all subdirectories (social/, gallery/photo-slug/, etc.)
     and returns grouped by photo+template combo with platform variants.
     """
-    KNOWN_PLATFORMS = {"instagram", "pinterest", "etsy", "full", "web-full", "web-thumb"}
+    KNOWN_PLATFORMS = {"instagram", "etsy", "full", "web-full", "web-thumb"}
     mockup_root = Path(__file__).parent.parent.parent / "mockups"
     if not mockup_root.exists():
         return {"items": [], "total": 0}
@@ -1527,7 +1527,7 @@ def create_manual_content(req: CreateManualContentRequest):
 class MockupQueueRequest(BaseModel):
     """Queue a mockup image for social posting."""
     image_path: str          # relative path like mockups/social/foo.jpg
-    platform: str            # instagram, pinterest, etsy
+    platform: str            # instagram, etsy
     photo_path: str          # original photo path (for context in caption gen)
     template_id: str         # room template used
     gallery: str = ""        # gallery name
@@ -1797,30 +1797,6 @@ def publish_mockup_content(content_id: str):
             except ImportError:
                 raise HTTPException(status_code=501, detail="R2 upload not configured — Instagram needs public URL")
 
-        elif platform == "pinterest":
-            from src.integrations.pinterest import PinterestClient
-            settings = get_settings()
-            abs_path = Path(settings.repo_root) / image_path
-
-            # Pinterest also needs public URL
-            try:
-                from src.integrations.r2_upload import upload_to_r2
-                public_url = upload_to_r2(str(abs_path), f"mockups/{abs_path.name}")
-                client = PinterestClient()
-                pin = client.create_pin(
-                    title=caption[:100] if caption else "Fine Art Photography — Archive 35",
-                    description=caption[:500] if caption else "",
-                    image_url=public_url,
-                    link="https://archive-35.com/gallery",
-                    alt_text=f"Wall art mockup — Archive 35 Photography",
-                )
-                if pin:
-                    result["published"] = True
-                    result["pin_id"] = pin.get("id")
-                else:
-                    result["error"] = "Pin creation returned empty"
-            except ImportError:
-                raise HTTPException(status_code=501, detail="R2 upload not configured — Pinterest needs public URL")
 
         elif platform == "etsy":
             # Etsy listing creation is more complex — requires shop setup
@@ -3867,238 +3843,6 @@ def cafe_export_folder(submission_id: str):
     }
 
 
-# ── Pinterest Endpoints ────────────────────────────────────────────
-
-
-@app.get("/pinterest/status")
-def pinterest_status():
-    """Check Pinterest integration status — token, boards, user info."""
-    from src.integrations.pinterest import get_status
-    return get_status()
-
-
-@app.get("/pinterest/oauth/url")
-def pinterest_oauth_url():
-    """Generate Pinterest OAuth authorization URL for the user to visit."""
-    from src.integrations.pinterest import generate_oauth_url
-    result = generate_oauth_url()
-    if "error" in result:
-        raise HTTPException(status_code=400, detail=result["error"])
-    return result
-
-
-class PinterestOAuthCallback(BaseModel):
-    code: str
-
-
-@app.post("/pinterest/oauth/callback")
-def pinterest_oauth_callback(req: PinterestOAuthCallback):
-    """Exchange OAuth authorization code for Pinterest access tokens."""
-    from src.integrations.pinterest import exchange_code
-    conn = _get_conn()
-    try:
-        result = exchange_code(req.code)
-        if "error" in result:
-            raise HTTPException(status_code=400, detail=result["error"])
-        audit.log(conn, "pinterest", "oauth_connected", {
-            "access_token_prefix": result.get("access_token", "")[:10] + "...",
-        })
-        return {"success": True, "token_type": result.get("token_type", "")}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    finally:
-        conn.close()
-
-
-@app.get("/pinterest/boards")
-def pinterest_boards():
-    """List all Pinterest boards for the authenticated user."""
-    from src.integrations.pinterest import list_boards
-    result = list_boards(page_size=250)
-    if "error" in result:
-        raise HTTPException(status_code=400, detail=result["error"])
-    return result
-
-
-class PinterestBoardCreate(BaseModel):
-    name: str
-    description: str = ""
-    privacy: str = "PUBLIC"
-
-
-@app.post("/pinterest/boards/create")
-def create_pinterest_board(req: PinterestBoardCreate):
-    """Create a new Pinterest board."""
-    from src.integrations.pinterest import create_board
-    conn = _get_conn()
-    try:
-        result = create_board(name=req.name, description=req.description, privacy=req.privacy)
-        if "error" in result:
-            raise HTTPException(status_code=400, detail=result["error"])
-        audit.log(conn, "pinterest", "board_created", {
-            "board_id": result.get("id", ""),
-            "name": req.name,
-        })
-        return result
-    finally:
-        conn.close()
-
-
-class PinterestPinCreate(BaseModel):
-    board_id: Optional[str] = None  # Falls back to PINTEREST_BOARD_ID env var
-    title: str
-    description: str = ""
-    image_url: str
-    link: str = ""
-    alt_text: str = ""
-
-
-@app.post("/pinterest/pins/create")
-def create_pinterest_pin(req: PinterestPinCreate):
-    """Create a single Pinterest pin.
-
-    board_id is optional — falls back to PINTEREST_BOARD_ID from .env.
-    image_url can be local (auto-uploaded to R2) or public.
-    """
-    from src.integrations.pinterest import create_pin, get_credentials as get_pinterest_creds
-    conn = _get_conn()
-    try:
-        # Resolve board_id — use default from env if not provided
-        board_id = req.board_id
-        if not board_id:
-            pinterest_creds = get_pinterest_creds()
-            board_id = pinterest_creds.get("board_id", "")
-        if not board_id:
-            raise HTTPException(status_code=400, detail="No board_id provided and PINTEREST_BOARD_ID not set in .env")
-
-        # Ensure image URL is public
-        public_url = _ensure_public_url(req.image_url)
-
-        result = create_pin(
-            board_id=board_id,
-            title=req.title,
-            description=req.description,
-            image_url=public_url,
-            link=req.link,
-            alt_text=req.alt_text,
-        )
-        if "error" in result:
-            raise HTTPException(status_code=400, detail=result["error"])
-        audit.log(conn, "pinterest", "pin_created", {
-            "pin_id": result.get("id", ""),
-            "board_id": board_id,
-            "title": req.title,
-        })
-        return result
-    finally:
-        conn.close()
-
-
-class PinterestPhotoPin(BaseModel):
-    photo_id: str
-    board_id: Optional[str] = None
-
-
-@app.post("/pinterest/pins/from-photo")
-def create_pin_from_photo(req: PinterestPhotoPin):
-    """Create a Pinterest pin from an Archive-35 photo in the database.
-
-    Pulls photo metadata (title, description, tags, image URL) from the
-    photos table and creates a formatted pin with gallery link.
-    """
-    from src.integrations.pinterest import post_photo_as_pin
-    conn = _get_conn()
-    try:
-        photo = conn.execute(
-            "SELECT * FROM photos WHERE id = ?",
-            (req.photo_id,),
-        ).fetchone()
-        if not photo:
-            raise HTTPException(status_code=404, detail=f"Photo {req.photo_id} not found")
-
-        photo_data = {
-            "title": photo["title"] or photo["filename"],
-            "description": photo["description"] or "",
-            "tags": photo["tags"] or "[]",
-            "image_url": f"https://archive-35.com/images/{photo['collection']}/{photo['filename']}",
-            "collection": photo["collection"],
-            "filename": photo["filename"],
-        }
-
-        result = post_photo_as_pin(photo_data, board_id=req.board_id)
-        if "error" in result:
-            raise HTTPException(status_code=400, detail=result["error"])
-
-        audit.log(conn, "pinterest", "photo_pinned", {
-            "photo_id": req.photo_id,
-            "pin_id": result.get("id", ""),
-            "collection": photo["collection"],
-        })
-        return result
-    finally:
-        conn.close()
-
-
-@app.get("/pinterest/user")
-def pinterest_user():
-    """Get the authenticated Pinterest user account info."""
-    from src.integrations.pinterest import get_user_account
-    result = get_user_account()
-    if "error" in result:
-        raise HTTPException(status_code=400, detail=result["error"])
-    return result
-
-
-@app.get("/pinterest/boards/{board_id}/pins")
-def pinterest_board_pins(board_id: str, page_size: int = 25, bookmark: str = ""):
-    """List pins on a specific board."""
-    from src.integrations.pinterest import list_pins
-    result = list_pins(board_id, page_size=page_size, bookmark=bookmark)
-    if "error" in result:
-        raise HTTPException(status_code=400, detail=result["error"])
-    return result
-
-
-@app.delete("/pinterest/pins/{pin_id}")
-def delete_pinterest_pin(pin_id: str):
-    """Delete a single Pinterest pin."""
-    from src.integrations.pinterest import delete_pin
-    result = delete_pin(pin_id)
-    if isinstance(result, dict) and "error" in result:
-        raise HTTPException(status_code=400, detail=result["error"])
-    return {"deleted": True, "pin_id": pin_id}
-
-
-@app.post("/pinterest/pins/delete-batch")
-def delete_pinterest_pins_batch(req: dict):
-    """Delete multiple Pinterest pins at once.
-
-    Body: { "pin_ids": ["123", "456", ...] }
-    """
-    from src.integrations.pinterest import delete_pin
-    pin_ids = req.get("pin_ids", [])
-    if not pin_ids:
-        raise HTTPException(status_code=400, detail="No pin_ids provided")
-
-    results = []
-    for pid in pin_ids:
-        try:
-            result = delete_pin(str(pid))
-            has_error = isinstance(result, dict) and "error" in result
-            results.append({
-                "pin_id": pid,
-                "status": "error" if has_error else "deleted",
-                "detail": result.get("error", "") if has_error else "",
-            })
-        except Exception as e:
-            results.append({"pin_id": pid, "status": "error", "detail": str(e)})
-
-    deleted = sum(1 for r in results if r["status"] == "deleted")
-    return {"total": len(pin_ids), "deleted": deleted, "results": results}
-
-
 # ── Config ─────────────────────────────────────────────────────
 
 
@@ -4709,7 +4453,7 @@ def agents_status():
         ks_list = kill_switch.get_status(conn)
         # Convert list to dict keyed by scope
         ks = {row.get("scope", ""): row for row in ks_list if isinstance(row, dict)}
-        agent_names = ["instagram", "pinterest", "reddit", "etsy", "content_pipeline", "broadcast"]
+        agent_names = ["instagram", "reddit", "etsy", "content_pipeline", "broadcast"]
         for name in agent_names:
             if name not in services:
                 services[name] = {"status": "process", "health": ""}
@@ -4973,67 +4717,6 @@ def etsy_seo_run():
         return {"success": result.returncode == 0, "output": result.stdout[:1000]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/pinterest/generate-pins")
-def pinterest_generate_pins():
-    """Trigger pinterest_pin_generator.py."""
-    import subprocess
-    agent_root = Path(__file__).resolve().parent.parent
-    script = agent_root.parent / "06_Automation" / "scripts" / "pinterest_pin_generator.py"
-    if not script.exists():
-        for alt in [agent_root / "src" / "agents" / "pinterest_pin_generator.py", agent_root / "pinterest_pin_generator.py"]:
-            if alt.exists():
-                script = alt
-                break
-    if not script.exists():
-        return {"error": "pinterest_pin_generator.py not found", "success": False}
-    try:
-        result = subprocess.run(
-            ["python3", str(script)], capture_output=True, text=True, timeout=180, cwd=str(agent_root),
-        )
-        return {"success": result.returncode == 0, "output": result.stdout[:1000]}
-    except Exception as e:
-        return {"error": str(e), "success": False}
-
-
-@app.get("/pinterest/pin-status")
-def pinterest_pin_status():
-    """Return generated pin count and last batch date."""
-    agent_root = Path(__file__).resolve().parent.parent
-    pin_dir = agent_root / "data" / "pinterest_pins"
-    if not pin_dir.exists():
-        pin_dir = agent_root.parent / "mockups" / "pinterest"
-    pin_count = 0
-    last_batch = None
-    if pin_dir and pin_dir.exists():
-        pins = list(pin_dir.glob("*.jpg")) + list(pin_dir.glob("*.png")) + list(pin_dir.glob("*.webp"))
-        pin_count = len(pins)
-        if pins:
-            latest = max(pins, key=lambda p: p.stat().st_mtime)
-            last_batch = datetime.fromtimestamp(latest.stat().st_mtime, tz=timezone.utc).isoformat()
-    return {"pin_count": pin_count, "last_batch": last_batch}
-
-
-@app.get("/pinterest/pin-image/{filename}")
-def serve_pin_image(filename: str):
-    """Serve a generated Pinterest pin image."""
-    pin_dir = Path(__file__).resolve().parents[2] / "02_Social" / "pinterest" / "pins"
-    filepath = pin_dir / filename
-    if not filepath.exists() or not filepath.is_file():
-        raise HTTPException(status_code=404, detail="Pin image not found")
-    from fastapi.responses import FileResponse
-    return FileResponse(filepath, media_type="image/png")
-
-
-@app.get("/pinterest/pins-list")
-def list_pin_images():
-    """List all generated Pinterest pin images."""
-    pin_dir = Path(__file__).resolve().parents[2] / "02_Social" / "pinterest" / "pins"
-    if not pin_dir.exists():
-        return {"pins": []}
-    pins = sorted([f.name for f in pin_dir.glob("*.png")], reverse=True)
-    return {"pins": pins[:20], "total": len(pins)}
 
 
 @app.get("/system/docker-status")

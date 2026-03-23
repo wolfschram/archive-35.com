@@ -1,0 +1,16 @@
+{
+  "id": "santiago_de_chile",
+  "title": "santiago de Chile",
+  "slug": "santiago-de-chile",
+  "status": "draft",
+  "dates": {
+    "published": null
+  },
+  "location": {
+    "country": "",
+    "region": "",
+    "place": "",
+    "coordinates": null
+  },
+  "photo_count": 7
+}

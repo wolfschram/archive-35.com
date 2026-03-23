@@ -107,3 +107,6 @@ Frame_Material_Border_Research.docx
 
 # Agent logs
 "Archive 35 Agent/logs/"
+
+# MCP registry tokens
+06_Automation/.mcpregistry_*

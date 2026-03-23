@@ -22,18 +22,20 @@ cp *.html _site/ 2>/dev/null || true
 cp CNAME _site/ 2>/dev/null || true
 
 # Clean stale _site/ subdirectories that may contain orphan data from previous builds
-# (e.g., removed collections like "africa" or typo directories)
-rm -rf _site/images _site/data _site/css _site/js _site/logos 2>/dev/null || true
+rm -rf _site/images _site/data _site/css _site/js _site/logos _site/09_Licensing _site/clients _site/"Riedel office photo mock up" 2>/dev/null || true
 
 # Copy static assets (fresh copy eliminates orphans)
 cp -r css js images data logos _site/ 2>/dev/null || true
 
 # Remove orphan image folders that exist on disk but are NOT in photos.json
-# (e.g., deleted collections whose source images couldn't be removed due to permissions)
 rm -rf _site/images/africa 2>/dev/null || true
 rm -rf _site/images/iceland-ring-road 2>/dev/null || true
 rm -rf _site/images/mexico-city 2>/dev/null || true
 rm -rf _site/images/antilope-canyon 2>/dev/null || true
+
+# Remove HD webp files — 790MB of unused high-res webp versions
+# Site uses -thumb.jpg and -full.jpg only. Keeps deploy under GitHub Pages 1GB limit.
+find _site/images -name "*-hd.webp" -delete 2>/dev/null || true
 
 # Copy prototype gallery assets (thumbs, labels, textures)
 cp -r prototype _site/ 2>/dev/null || true

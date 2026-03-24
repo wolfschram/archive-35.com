@@ -1,0 +1,7 @@
+{
+  "close-up": { "scene": "close-up.jpg", "zones": [] },
+  "conference-room": { "scene": "conference-room.jpg", "zones": [] },
+  "cubicle": { "scene": "cubicle.jpg", "zones": [] },
+  "training-room-1": { "scene": "training-room-1.jpg", "zones": [] },
+  "training-room-2": { "scene": "training-room-2.jpg", "zones": [] }
+}

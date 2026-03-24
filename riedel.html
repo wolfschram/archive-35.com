@@ -303,20 +303,6 @@
     }
     .btn-buy:hover { background: var(--accent-hover); }
     .btn-buy:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-request {
-      padding: 0.7rem 1.5rem;
-      background: none;
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-sm);
-      color: var(--text-secondary);
-      font-family: var(--font-main);
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all var(--transition);
-    }
-    .btn-request:hover { border-color: var(--glass-border-hover); color: var(--text-primary); }
 
     /* ===== Mobile ===== */
     @media (max-width: 768px) {
@@ -411,7 +397,6 @@
         <div id="selectionInfo" style="font-size:0.8rem;color:var(--text-secondary);">Select a wall position, then choose a photo from the gallery below</div>
         <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
           <button id="configureBtn" class="btn-buy" disabled>Configure &amp; Buy</button>
-          <button id="requestBtn" class="btn-request">Request This Print</button>
         </div>
       </div>
 
@@ -583,7 +568,6 @@
     }
 
     document.getElementById('gbBack').addEventListener('click', showCollections);
-    document.getElementById('requestBtn').addEventListener('click', requestPrint);
     document.getElementById('configureBtn').addEventListener('click', openConfigure);
 
     // Click on canvas to select zone under cursor
@@ -904,16 +888,6 @@
 
     // === BASKET ===
     // === REQUEST PRINT ===
-    function requestPrint() {
-      var zone  = currentScene.zones[currentZoneIdx];
-      var photo = zone ? zone.photoData : null;
-      var subject = photo ? 'Print Request: ' + photo.title : 'Print Enquiry \u2014 Archive-35';
-      var body = photo
-        ? 'Hi Wolf,\n\nI would like to request a print of:\n\n"' + photo.title + '"\nScene: ' + currentScene.label + ' / ' + zone.label + '\n\nPlease send pricing and availability.'
-        : 'Hi Wolf,\n\nI\'d like more information about prints for our Riedel offices.';
-      window.location.href = 'mailto:wolf@archive-35.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-    }
-
   } // end initVisualizer
   </script>
 

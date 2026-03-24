@@ -276,25 +276,98 @@
     }
     .gb-photo:hover .gb-title { opacity: 1; }
 
-    /* CTA bar */
-    .riedel-cta-bar {
-      margin-top: 2rem;
-      padding-top: 1.25rem;
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      justify-content: space-between;
+    /* Inline Configurator */
+    .inline-config {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+    }
+    .ic-zone-label {
+      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1rem; font-weight: 400;
+    }
+    .ic-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .ic-section { }
+    .ic-label {
+      font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 0.5rem;
+    }
+    .ic-tabs {
+      display: flex; gap: 0.4rem; flex-wrap: wrap;
+    }
+    .ic-tab {
+      padding: 0.4rem 0.8rem; font-size: 0.7rem; font-family: var(--font-main);
+      background: var(--bg-tertiary); border: 1px solid var(--glass-border);
+      border-radius: 6px; color: var(--text-secondary); cursor: pointer;
+      transition: all 0.2s; letter-spacing: 0.03em;
+    }
+    .ic-tab:hover { border-color: var(--glass-border-hover); color: var(--text-primary); }
+    .ic-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(232,184,77,0.08); }
+    .ic-subtypes {
+      margin-top: 0.4rem;
+      display: flex; gap: 0.35rem; flex-wrap: wrap;
+    }
+    .ic-subtype {
+      padding: 0.3rem 0.6rem; font-size: 0.6rem; font-family: var(--font-main);
+      background: none; border: 1px solid var(--glass-border);
+      border-radius: 4px; color: var(--text-muted); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ic-subtype:hover { color: var(--text-secondary); border-color: var(--glass-border-hover); }
+    .ic-subtype.active { border-color: var(--accent); color: var(--accent); }
+    .ic-sizes {
+      display: flex; gap: 0.35rem; flex-wrap: wrap;
+    }
+    .ic-size {
+      padding: 0.35rem 0.7rem; font-size: 0.65rem; font-family: var(--font-main);
+      background: var(--bg-tertiary); border: 1px solid var(--glass-border);
+      border-radius: 4px; color: var(--text-secondary); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ic-size:hover { border-color: var(--glass-border-hover); }
+    .ic-size.active { border-color: var(--accent); color: var(--accent); background: rgba(232,184,77,0.08); }
+    .ic-size .ic-size-dpi {
+      font-size: 0.5rem; display: block; margin-top: 1px;
+    }
+    .ic-size .ic-size-dpi.museum { color: #7ecfa4; }
+    .ic-size .ic-size-dpi.excellent { color: #5aaf84; }
+    .ic-size .ic-size-dpi.good { color: var(--accent); }
+    .ic-size .ic-size-dpi.low { color: #e05c5c; }
+    .ic-size-display {
+      font-size: 1.4rem; font-weight: 100; color: var(--text-primary);
+      letter-spacing: 0.05em; margin-bottom: 0.5rem;
+    }
+    .ic-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 1.25rem; padding-top: 1rem;
       border-top: 1px solid var(--glass-border);
-      flex-wrap: wrap;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .ic-price-area { }
+    .ic-dpi {
+      font-size: 0.7rem; letter-spacing: 0.1em; color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+    .ic-price {
+      font-size: 1.8rem; font-weight: 100; color: var(--text-primary);
+      letter-spacing: 0.05em;
+    }
+    .ic-price-note {
+      font-size: 0.6rem; color: var(--text-muted); margin-top: 0.2rem;
     }
     .btn-buy {
-      padding: 0.7rem 1.5rem;
+      padding: 0.8rem 2rem;
       background: var(--accent);
       color: #000;
       border: none;
       border-radius: var(--radius-sm);
       font-family: var(--font-main);
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 500;
       letter-spacing: 0.2em;
       text-transform: uppercase;
@@ -303,6 +376,9 @@
     }
     .btn-buy:hover { background: var(--accent-hover); }
     .btn-buy:disabled { opacity: 0.4; cursor: not-allowed; }
+    @media (max-width: 768px) {
+      .ic-grid { grid-template-columns: 1fr; }
+    }
 
     /* ===== Mobile ===== */
     @media (max-width: 768px) {
@@ -392,11 +468,46 @@
         <canvas id="vizCanvas"></canvas>
       </div>
 
-      <!-- ===== CTA BAR ===== -->
-      <div class="riedel-cta-bar" id="ctaBar">
-        <div id="selectionInfo" style="font-size:0.8rem;color:var(--text-secondary);">Select a wall position, then choose a photo from the gallery below</div>
-        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-          <button id="configureBtn" class="btn-buy" disabled>Configure &amp; Buy</button>
+      <!-- ===== INLINE CONFIGURATOR ===== -->
+      <div id="inlineConfig" class="inline-config">
+        <div class="ic-zone-label" id="icZoneLabel">Select a wall position</div>
+
+        <div class="ic-grid">
+          <!-- Material tabs -->
+          <div class="ic-section">
+            <div class="ic-label">Material</div>
+            <div class="ic-tabs" id="icMaterialTabs"></div>
+            <div class="ic-subtypes" id="icSubtypes"></div>
+          </div>
+
+          <!-- Size -->
+          <div class="ic-section">
+            <div class="ic-label">Size</div>
+            <div class="ic-size-display" id="icSizeDisplay">&mdash;</div>
+            <div class="ic-sizes" id="icSizeGrid"></div>
+          </div>
+
+          <!-- Frame -->
+          <div class="ic-section">
+            <div class="ic-label">Frame</div>
+            <div class="ic-tabs" id="icFrameTabs"></div>
+          </div>
+
+          <!-- Border -->
+          <div class="ic-section">
+            <div class="ic-label">Border / Mat</div>
+            <div class="ic-tabs" id="icBorderTabs"></div>
+          </div>
+        </div>
+
+        <!-- Price + Add to Cart -->
+        <div class="ic-footer">
+          <div class="ic-price-area">
+            <div class="ic-dpi" id="icDpi">&mdash;</div>
+            <div class="ic-price" id="icPrice">&mdash;</div>
+            <div class="ic-price-note">Free shipping — Continental USA &amp; Canada</div>
+          </div>
+          <button id="icAddCart" class="btn-buy" disabled>Add to Cart</button>
         </div>
       </div>
 
@@ -568,7 +679,6 @@
     }
 
     document.getElementById('gbBack').addEventListener('click', showCollections);
-    document.getElementById('configureBtn').addEventListener('click', openConfigure);
 
     // Click on canvas to select zone under cursor
     canvas.addEventListener('click', function(e) {
@@ -585,7 +695,7 @@
       if (hitIdx >= 0 && hitIdx !== currentZoneIdx) {
         currentZoneIdx = hitIdx;
         buildZonePills();
-        updateSelectionInfo();
+        refreshConfig();
         render();
       }
     });
@@ -632,7 +742,7 @@
       bgImg = null; fgImg = null;
       buildZonePills();
       updateCarousel();
-      updateSelectionInfo();
+      refreshConfig();
 
       var bg = new Image();
       bg.onload = function() {
@@ -664,7 +774,7 @@
         btn.addEventListener('click', function() {
           currentZoneIdx = i;
           buildZonePills();
-          updateSelectionInfo();
+          refreshConfig();
           render();
         });
         bar.appendChild(btn);
@@ -724,45 +834,338 @@
       if (fgImg) ctx.drawImage(fgImg, 0, 0, currentScene.w, currentScene.h);
     }
 
-    // === CONFIG PANEL ===
-    // === SELECTION INFO ===
-    function updateSelectionInfo() {
+    // === INLINE CONFIGURATOR ===
+    var catalog = null;
+    var icState = { mat: 'metal', subtype: 'hd', sizeW: 0, sizeH: 0, frame: 'none', border: 'none' };
+
+    // Price table (same as product-selector.js)
+    var IC_PRICES = {
+      canvas: { '12x8': 101, '16x9': 109, '12x12': 90, '16x12': 98, '18x12': 120, '24x10': 124, '24x12': 113, '20x16': 137, '24x14': 140, '24x16': 129, '20x20': 151, '24x18': 156, '36x12': 137, '42x12': 168, '36x15': 174, '32x18': 179, '36x18': 191, '48x16': 192, '36x24': 208, '56x16': 232, '30x30': 214, '60x15': 233, '48x20': 242, '48x24': 255, '40x30': 282, '60x20': 282, '48x27': 298, '72x18': 459, '60x25': 331, '48x32': 337, '60x40': 640 },
+      metal: { '12x8': 90, '16x9': 110, '12x12': 110, '16x12': 130, '18x12': 140, '24x10': 150, '24x12': 170, '20x16': 183, '24x14': 190, '24x16': 210, '20x20': 217, '24x18': 230, '36x12': 230, '42x12': 260, '36x15': 275, '32x18': 290, '36x18': 320, '48x16': 370, '36x24': 409, '56x16': 423, '30x30': 424, '60x15': 424, '48x20': 449, '48x24': 529, '40x30': 549, '60x20': 549, '48x27': 589, '72x18': 750, '60x25': 674, '48x32': 689, '60x40': 1209 },
+      acrylic: { '12x8': 123, '16x9': 142, '12x12': 142, '16x12': 160, '18x12': 170, '24x10': 179, '24x12': 197, '20x16': 210, '24x14': 216, '24x16': 234, '20x20': 240, '24x18': 253, '36x12': 253, '42x12': 281, '36x15': 294, '32x18': 308, '36x18': 336, '48x16': 382, '36x24': 419, '56x16': 432, '30x30': 433, '60x15': 433, '48x20': 456, '48x24': 530, '40x30': 549, '60x20': 549, '48x27': 586, '72x18': 747, '60x25': 664, '48x32': 678, '60x40': 1173 },
+      paper: { '12x8': 33, '16x9': 37, '12x12': 37, '16x12': 42, '18x12': 44, '24x10': 46, '24x12': 50, '20x16': 53, '24x14': 54, '24x16': 59, '20x20': 60, '24x18': 63, '36x12': 63, '42x12': 69, '36x15': 72, '32x18': 75, '36x18': 82, '48x16': 92, '36x24': 101, '56x16': 104, '30x30': 104, '60x15': 104, '48x20': 109, '48x24': 126, '40x30': 131, '60x20': 131, '48x27': 139, '72x18': 139, '60x25': 157, '48x32': 160, '60x40': 237 },
+      wood: { '12x8': 54, '16x9': 66, '12x12': 66, '16x12': 79, '18x12': 85, '24x10': 92, '24x12': 104, '20x16': 113, '24x14': 117, '24x16': 130, '20x20': 134, '24x18': 143, '36x12': 143, '42x12': 162, '36x15': 171, '32x18': 181, '36x18': 200, '48x16': 231, '36x24': 257, '56x16': 265, '30x30': 266, '60x15': 266, '48x20': 282, '48x24': 333, '40x30': 346, '60x20': 346, '48x27': 371, '72x18': 533, '60x25': 425, '48x32': 435, '60x40': 825 }
+    };
+
+    function icLookupPrice(mat, w, h) {
+      var key = w + 'x' + h;
+      var alt = h + 'x' + w;
+      if (IC_PRICES[mat] && IC_PRICES[mat][key]) return IC_PRICES[mat][key];
+      if (IC_PRICES[mat] && IC_PRICES[mat][alt]) return IC_PRICES[mat][alt];
+      return 0;
+    }
+
+    function icCalcDPI(photoW, photoH, printW, printH) {
+      return Math.round(Math.min(photoW / printW, photoH / printH));
+    }
+
+    function icDPIClass(dpi) {
+      if (dpi >= 300) return 'museum';
+      if (dpi >= 200) return 'excellent';
+      if (dpi >= 150) return 'good';
+      return 'low';
+    }
+
+    function icDPILabel(dpi) {
+      if (dpi >= 300) return dpi + ' DPI — Museum Quality';
+      if (dpi >= 200) return dpi + ' DPI — Excellent';
+      if (dpi >= 150) return dpi + ' DPI — Good';
+      return dpi + ' DPI — Low Resolution';
+    }
+
+    // Load catalog once
+    fetch('data/product-catalog.json').then(function(r) { return r.json(); }).then(function(c) {
+      catalog = c;
+      refreshConfig();
+    }).catch(function() { console.warn('Product catalog unavailable'); });
+
+    function refreshConfig() {
       var zone = currentScene.zones[currentZoneIdx];
-      var info = document.getElementById('selectionInfo');
-      if (!zone) {
-        info.textContent = 'No zones calibrated for this scene';
-        document.getElementById('configureBtn').disabled = true;
+      var label = document.getElementById('icZoneLabel');
+      var addBtn = document.getElementById('icAddCart');
+
+      if (!zone || !zone.photoData) {
+        label.textContent = zone ? 'Select an image for ' + zone.label + ' from the gallery below' : 'No zones calibrated for this scene';
+        addBtn.disabled = true;
+        document.getElementById('icMaterialTabs').innerHTML = '';
+        document.getElementById('icSubtypes').innerHTML = '';
+        document.getElementById('icSizeGrid').innerHTML = '';
+        document.getElementById('icFrameTabs').innerHTML = '';
+        document.getElementById('icBorderTabs').innerHTML = '';
+        document.getElementById('icSizeDisplay').innerHTML = '&mdash;';
+        document.getElementById('icDpi').innerHTML = '&mdash;';
+        document.getElementById('icPrice').innerHTML = '&mdash;';
         return;
       }
-      if (zone.photoData) {
-        info.innerHTML = '<strong style="color:var(--text-primary);font-weight:400;">' + zone.photoData.title + '</strong> \u2014 ' + currentScene.label + ' / ' + zone.label;
-        document.getElementById('configureBtn').disabled = false;
-      } else {
-        info.textContent = 'Select an image for ' + zone.label + ' from the gallery below';
-        document.getElementById('configureBtn').disabled = true;
+
+      label.innerHTML = '<strong style="color:var(--text-primary);font-weight:400;">' + zone.photoData.title + '</strong> &mdash; ' + currentScene.label + ' / ' + zone.label;
+
+      buildMaterialTabs();
+      buildSubtypeTabs();
+      buildSizeGrid();
+      buildFrameTabs();
+      buildBorderTabs();
+      updateFooter();
+    }
+
+    // === Material tabs ===
+    function buildMaterialTabs() {
+      var el = document.getElementById('icMaterialTabs');
+      el.innerHTML = '';
+      var mats = ['metal', 'canvas', 'acrylic', 'paper', 'wood'];
+      mats.forEach(function(m) {
+        var catM = catalog && catalog.materials && catalog.materials[m];
+        var name = catM ? catM.name : m;
+        var btn = document.createElement('button');
+        btn.className = 'ic-tab' + (icState.mat === m ? ' active' : '');
+        btn.textContent = name;
+        btn.addEventListener('click', function() {
+          icState.mat = m;
+          // Pick default subtype
+          if (catM && catM.subtypes) {
+            var keys = Object.keys(catM.subtypes);
+            var def = keys.find(function(k) { return catM.subtypes[k].default; }) || keys[0];
+            icState.subtype = def;
+          } else {
+            icState.subtype = '';
+          }
+          icState.sizeW = 0; icState.sizeH = 0;
+          icState.frame = 'none'; icState.border = 'none';
+          refreshConfig();
+        });
+        el.appendChild(btn);
+      });
+    }
+
+    // === Subtype tabs ===
+    function buildSubtypeTabs() {
+      var el = document.getElementById('icSubtypes');
+      el.innerHTML = '';
+      if (!catalog || !catalog.materials) return;
+      var catM = catalog.materials[icState.mat];
+      if (!catM || !catM.subtypes) return;
+      Object.keys(catM.subtypes).forEach(function(code) {
+        var st = catM.subtypes[code];
+        var btn = document.createElement('button');
+        btn.className = 'ic-subtype' + (icState.subtype === code ? ' active' : '');
+        btn.textContent = st.name;
+        if (st.recommended) btn.textContent += ' ★';
+        btn.title = st.shortDescription || st.description || '';
+        btn.addEventListener('click', function() {
+          icState.subtype = code;
+          icState.sizeW = 0; icState.sizeH = 0;
+          buildSubtypeTabs();
+          buildSizeGrid();
+          updateFooter();
+        });
+        el.appendChild(btn);
+      });
+    }
+
+    // === Size grid ===
+    function buildSizeGrid() {
+      var el = document.getElementById('icSizeGrid');
+      el.innerHTML = '';
+      var zone = currentScene.zones[currentZoneIdx];
+      if (!zone || !zone.photoData) return;
+      var sizes = getSizesForPhoto(zone.photoData);
+      sizes.forEach(function(sz) {
+        var w = sz[0], h = sz[1];
+        var dpi = icCalcDPI(zone.photoData.w, zone.photoData.h, w, h);
+        if (dpi < 100) return; // Skip sizes below minimum quality
+        var price = icLookupPrice(icState.mat, w, h);
+        if (!price) return;
+        var btn = document.createElement('button');
+        btn.className = 'ic-size' + (icState.sizeW === w && icState.sizeH === h ? ' active' : '');
+        btn.innerHTML = w + '&times;' + h + '"<span class="ic-size-dpi ' + icDPIClass(dpi) + '">' + dpi + ' DPI</span>';
+        btn.addEventListener('click', function() {
+          icState.sizeW = w; icState.sizeH = h;
+          // Update zone cfg for canvas render
+          var idx = sizes.indexOf(sz);
+          zone.cfg.sizeIdx = idx;
+          buildSizeGrid();
+          updateFooter();
+          render();
+        });
+        el.appendChild(btn);
+      });
+      // Auto-select largest size if none selected
+      if (icState.sizeW === 0 && el.children.length > 0) {
+        el.lastChild.click();
       }
     }
 
-    // === CONFIGURE & BUY — opens full product selector modal ===
-    function openConfigure() {
-      var zone = currentScene.zones[currentZoneIdx];
-      if (!zone || !zone.photoData) return;
-      if (typeof openProductSelector !== 'function') {
-        alert('Product selector not loaded. Please refresh the page.');
-        return;
+    // === Frame tabs ===
+    function buildFrameTabs() {
+      var el = document.getElementById('icFrameTabs');
+      el.innerHTML = '';
+      if (!catalog || !catalog.frameOptions) return;
+      var catM = catalog.materials && catalog.materials[icState.mat];
+      // None option
+      var noneBtn = document.createElement('button');
+      noneBtn.className = 'ic-tab' + (icState.frame === 'none' ? ' active' : '');
+      noneBtn.textContent = 'No Frame';
+      noneBtn.addEventListener('click', function() { icState.frame = 'none'; buildFrameTabs(); updateFooter(); });
+      el.appendChild(noneBtn);
+
+      // Determine which frame set applies
+      var frameSet = null;
+      if (catalog.frameOptions.floatingFrames && catalog.frameOptions.floatingFrames.applicableMaterials.indexOf(icState.mat) >= 0) {
+        frameSet = catalog.frameOptions.floatingFrames.mouldings;
+      } else if (icState.mat === 'paper' && catalog.frameOptions.pictureFrames) {
+        frameSet = catalog.frameOptions.pictureFrames.mouldings;
       }
-      openProductSelector({
-        id: zone.photoData.id,
-        title: zone.photoData.title,
-        dimensions: {
-          width: zone.photoData.w,
-          height: zone.photoData.h,
-          aspectRatio: zone.photoData.w / zone.photoData.h
-        },
-        thumbnail: zone.photoData.thumbnail || '',
-        full: zone.photoData.full
+      if (!frameSet) return;
+
+      Object.keys(frameSet).forEach(function(code) {
+        var fr = frameSet[code];
+        var btn = document.createElement('button');
+        btn.className = 'ic-tab' + (icState.frame === code ? ' active' : '');
+        btn.innerHTML = '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + (fr.colorHex || '#888') + ';margin-right:6px;vertical-align:middle;border:1px solid rgba(255,255,255,0.2);"></span>' + fr.name;
+        btn.addEventListener('click', function() { icState.frame = code; buildFrameTabs(); updateFooter(); });
+        el.appendChild(btn);
       });
     }
+
+    // === Border tabs (canvas edge / finish, or mounting for metal/acrylic) ===
+    function buildBorderTabs() {
+      var el = document.getElementById('icBorderTabs');
+      el.innerHTML = '';
+      if (!catalog || !catalog.materials) return;
+      var catM = catalog.materials[icState.mat];
+      if (!catM) return;
+
+      // For canvas: show edge options
+      if (catM.edgeOptions) {
+        Object.keys(catM.edgeOptions).forEach(function(code) {
+          var opt = catM.edgeOptions[code];
+          var btn = document.createElement('button');
+          btn.className = 'ic-tab' + (icState.border === code ? ' active' : '');
+          btn.textContent = opt.name;
+          btn.title = opt.shortDescription || '';
+          btn.addEventListener('click', function() { icState.border = code; buildBorderTabs(); updateFooter(); });
+          el.appendChild(btn);
+        });
+        if (!icState.border || icState.border === 'none') {
+          var defEdge = Object.keys(catM.edgeOptions).find(function(k) { return catM.edgeOptions[k].default; });
+          if (defEdge) { icState.border = defEdge; buildBorderTabs(); }
+        }
+      }
+      // For metal/acrylic: show mounting options
+      else if (catM.mountingOptions) {
+        Object.keys(catM.mountingOptions).forEach(function(code) {
+          var opt = catM.mountingOptions[code];
+          var btn = document.createElement('button');
+          btn.className = 'ic-tab' + (icState.border === code ? ' active' : '');
+          btn.textContent = opt.name;
+          btn.title = opt.shortDescription || '';
+          btn.addEventListener('click', function() { icState.border = code; buildBorderTabs(); updateFooter(); });
+          el.appendChild(btn);
+        });
+        if (!icState.border || icState.border === 'none') {
+          var defMount = Object.keys(catM.mountingOptions).find(function(k) { return catM.mountingOptions[k].default; });
+          if (defMount) { icState.border = defMount; buildBorderTabs(); }
+        }
+      }
+      // Paper: no edge/mounting — show finish options if any
+      else if (catM.finishOptions) {
+        Object.keys(catM.finishOptions).forEach(function(code) {
+          var opt = catM.finishOptions[code];
+          var btn = document.createElement('button');
+          btn.className = 'ic-tab' + (icState.border === code ? ' active' : '');
+          btn.textContent = opt.name;
+          btn.title = opt.shortDescription || '';
+          btn.addEventListener('click', function() { icState.border = code; buildBorderTabs(); updateFooter(); });
+          el.appendChild(btn);
+        });
+        if (!icState.border || icState.border === 'none') {
+          var defFin = Object.keys(catM.finishOptions).find(function(k) { return catM.finishOptions[k].default; });
+          if (defFin) { icState.border = defFin; buildBorderTabs(); }
+        }
+      }
+      // Update label based on what we're showing
+      var labelEl = el.previousElementSibling;
+      if (labelEl && labelEl.classList.contains('ic-label')) {
+        if (catM.edgeOptions) labelEl.textContent = 'Edge Wrap';
+        else if (catM.mountingOptions) labelEl.textContent = 'Mounting';
+        else if (catM.finishOptions) labelEl.textContent = 'Finish';
+        else labelEl.textContent = 'Options';
+      }
+    }
+
+    // === Footer: price + DPI ===
+    function updateFooter() {
+      var zone = currentScene.zones[currentZoneIdx];
+      var dpiEl = document.getElementById('icDpi');
+      var priceEl = document.getElementById('icPrice');
+      var sizeEl = document.getElementById('icSizeDisplay');
+      var addBtn = document.getElementById('icAddCart');
+
+      if (!zone || !zone.photoData || !icState.sizeW) {
+        dpiEl.innerHTML = '&mdash;';
+        priceEl.innerHTML = '&mdash;';
+        sizeEl.innerHTML = '&mdash;';
+        addBtn.disabled = true;
+        return;
+      }
+
+      var w = icState.sizeW, h = icState.sizeH;
+      var dpi = icCalcDPI(zone.photoData.w, zone.photoData.h, w, h);
+      var price = icLookupPrice(icState.mat, w, h);
+
+      sizeEl.textContent = w + ' × ' + h + '"';
+      dpiEl.innerHTML = '<span class="' + icDPIClass(dpi) + '" style="font-weight:400;">' + icDPILabel(dpi) + '</span>';
+      priceEl.textContent = price ? '$' + price : '—';
+      addBtn.disabled = !price || dpi < 100;
+    }
+
+    // === Add to Cart ===
+    document.getElementById('icAddCart').addEventListener('click', function() {
+      var zone = currentScene.zones[currentZoneIdx];
+      if (!zone || !zone.photoData || !icState.sizeW) return;
+
+      var price = icLookupPrice(icState.mat, icState.sizeW, icState.sizeH);
+      if (!price) return;
+
+      var matLabel = icState.mat.charAt(0).toUpperCase() + icState.mat.slice(1);
+      var subtypeLabel = icState.subtype;
+      if (catalog && catalog.materials && catalog.materials[icState.mat] && catalog.materials[icState.mat].subtypes && catalog.materials[icState.mat].subtypes[icState.subtype]) {
+        subtypeLabel = catalog.materials[icState.mat].subtypes[icState.subtype].name;
+      }
+
+      var item = {
+        photoId: zone.photoData.id,
+        title: zone.photoData.title,
+        material: matLabel + ' — ' + subtypeLabel,
+        size: icState.sizeW + '×' + icState.sizeH + '"',
+        price: price,
+        thumbnail: zone.photoData.thumbnail || '',
+        metadata: {
+          photoId: zone.photoData.id,
+          material: icState.mat,
+          subtype: icState.subtype,
+          width: icState.sizeW,
+          height: icState.sizeH,
+          frame: icState.frame,
+          mounting: icState.border,
+          scene: currentScene.label,
+          zone: zone.label,
+          dpi: icCalcDPI(zone.photoData.w, zone.photoData.h, icState.sizeW, icState.sizeH)
+        }
+      };
+
+      if (window.cart && window.cart.addToCart(item)) {
+        // Flash button green
+        var btn = document.getElementById('icAddCart');
+        btn.textContent = 'ADDED ✓';
+        btn.style.background = '#4a9';
+        setTimeout(function() {
+          btn.textContent = 'ADD TO CART';
+          btn.style.background = '';
+        }, 1500);
+        // Cart badge auto-updates via cartChanged event
+      }
+    });
 
     // === PHOTOS ===
     function loadPhotos() {
@@ -852,7 +1255,7 @@
       // Use cached full-res if available
       if (imgCache[p.id + '_full']) {
         zone.photoImg = imgCache[p.id + '_full'];
-        render(); updateSelectionInfo(); buildZonePills();
+        render(); refreshConfig(); buildZonePills();
         return;
       }
 
@@ -879,7 +1282,7 @@
         imgCache[p.id + '_full'] = full;
         if (zone.photoData && zone.photoData.id === p.id) {
           zone.photoImg = full;
-          render(); updateSelectionInfo(); buildZonePills();
+          render(); refreshConfig(); buildZonePills();
         }
       };
       full.onerror = function() { console.warn('Full-res failed:', p.full); };

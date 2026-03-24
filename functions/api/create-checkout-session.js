@@ -25,7 +25,7 @@ export async function onRequestPost(context) {
 
   try {
     const body = await request.json();
-    const { lineItems, successUrl, cancelUrl, pictorem, license, testMode, stripeCustomerId } = body;
+    const { lineItems, successUrl, cancelUrl, returnUrl, uiMode, pictorem, license, testMode, stripeCustomerId } = body;
 
     // Select appropriate Stripe key based on test mode flag
     const isTestMode = testMode === true;
@@ -112,11 +112,18 @@ export async function onRequestPost(context) {
     const origin = new URL(request.url).origin;
 
     // Build Stripe API params (form-encoded)
+    const isEmbedded = uiMode === 'embedded';
     const params = new URLSearchParams();
     params.append('mode', 'payment');
     params.append('allow_promotion_codes', 'true');
-    params.append('success_url', successUrl || `${origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`);
-    params.append('cancel_url', cancelUrl || `${origin}/gallery.html`);
+
+    if (isEmbedded) {
+      params.append('ui_mode', 'embedded');
+      params.append('return_url', returnUrl || `${origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`);
+    } else {
+      params.append('success_url', successUrl || `${origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`);
+      params.append('cancel_url', cancelUrl || `${origin}/gallery.html`);
+    }
 
     // Support multiple line items
     lineItems.forEach((item, i) => {
@@ -223,13 +230,20 @@ export async function onRequestPost(context) {
       );
     }
 
+    const responsePayload = {
+      sessionId: session.id,
+      url: session.url,
+      mode: keyIsTest ? 'test' : 'live',
+      livemode: session.livemode
+    };
+
+    // For embedded mode, include client_secret for stripe.initEmbeddedCheckout()
+    if (isEmbedded && session.client_secret) {
+      responsePayload.clientSecret = session.client_secret;
+    }
+
     return new Response(
-      JSON.stringify({
-        sessionId: session.id,
-        url: session.url,
-        mode: keyIsTest ? 'test' : 'live',
-        livemode: session.livemode
-      }),
+      JSON.stringify(responsePayload),
       { status: 200, headers: corsHeaders }
     );
 

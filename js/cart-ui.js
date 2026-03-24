@@ -68,7 +68,7 @@ class CartUI {
           <button class="cart-close-btn" aria-label="Close cart">&times;</button>
         </div>
 
-        <div class="cart-panel-body">
+        <div class="cart-panel-body" id="cart-panel-body">
           <div class="cart-empty-state" id="cart-empty">
             <p>Your cart is empty</p>
             <p class="cart-empty-hint">Start adding prints to get started</p>
@@ -79,17 +79,19 @@ class CartUI {
           </div>
         </div>
 
-        <div class="cart-panel-footer">
+        <div class="cart-panel-footer" id="cart-panel-footer">
           <div class="cart-total">
             <span>Subtotal:</span>
             <span id="cart-total-price">$0</span>
           </div>
-          <button class="cart-checkout-btn" id="cart-checkout-btn">
-            Proceed to Checkout
-          </button>
-          <button class="cart-continue-shopping-btn" id="cart-continue-btn">
-            Continue Shopping
-          </button>
+          <div class="cart-footer-actions">
+            <button class="cart-continue-shopping-btn" id="cart-continue-btn">
+              Continue Shopping
+            </button>
+            <button class="cart-checkout-btn" id="cart-checkout-btn">
+              Proceed to Checkout
+            </button>
+          </div>
         </div>
       </div>
 
@@ -392,47 +394,128 @@ class CartUI {
     const authState = window.getAuthState ? window.getAuthState() : {};
     const customerIdForCheckout = authState.loggedIn ? authState.stripeCustomerId : undefined;
 
+    const orderType = license && pictorem ? 'mixed' : license ? 'license' : 'print';
     const apiBase = 'https://archive-35-com.pages.dev';
-    fetch(`${apiBase}/api/create-checkout-session`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        lineItems,
-        successUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}&type=${license && pictorem ? 'mixed' : license ? 'license' : 'print'}`,
-        cancelUrl: window.location.href,
-        pictorem: pictorem || undefined,
-        license: license || undefined,
-        testMode: isTestMode || undefined,
-        stripeCustomerId: customerIdForCheckout || undefined,
-      })
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Checkout endpoint not available');
-        return res.json();
-      })
-      .then((data) => {
-        if (data.mode) {
-          console.log(`[ARCHIVE-35] Checkout session created in ${data.mode.toUpperCase()} mode`);
-        }
-        if (data.url) {
-          // Clear cart before redirecting to Stripe — order is submitted
-          if (window.cart) window.cart.clearCart();
-          window.location.href = data.url;
-        } else if (data.sessionId && window.Stripe && window.STRIPE_PUBLIC_KEY) {
-          if (window.cart) window.cart.clearCart();
-          window.Stripe(window.STRIPE_PUBLIC_KEY).redirectToCheckout({ sessionId: data.sessionId });
-        } else {
-          throw new Error('No checkout URL returned');
-        }
-      })
-      .catch((error) => {
-        console.error('Stripe checkout error:', error);
-        this.showToast('Checkout failed. Please try again.');
-        if (checkoutBtn) {
-          checkoutBtn.disabled = false;
-          checkoutBtn.textContent = 'Proceed to Checkout';
-        }
+
+    try {
+      // Try embedded checkout first
+      const embeddedRes = await fetch(`${apiBase}/api/create-checkout-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lineItems,
+          uiMode: 'embedded',
+          returnUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}&type=${orderType}`,
+          successUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}&type=${orderType}`,
+          cancelUrl: window.location.href,
+          pictorem: pictorem || undefined,
+          license: license || undefined,
+          testMode: isTestMode || undefined,
+          stripeCustomerId: customerIdForCheckout || undefined,
+        })
       });
+
+      if (!embeddedRes.ok) throw new Error('Checkout endpoint not available');
+      const data = await embeddedRes.json();
+
+      if (data.mode) {
+        console.log(`[ARCHIVE-35] Checkout session created in ${data.mode.toUpperCase()} mode`);
+      }
+
+      // If we got a clientSecret, show embedded checkout in the cart modal
+      if (data.clientSecret && window.Stripe && window.STRIPE_PUBLIC_KEY) {
+        this.showEmbeddedCheckout(data.clientSecret);
+        return;
+      }
+
+      // Fallback: redirect to hosted checkout
+      if (data.url) {
+        if (window.cart) window.cart.clearCart();
+        window.location.href = data.url;
+      } else if (data.sessionId && window.Stripe && window.STRIPE_PUBLIC_KEY) {
+        if (window.cart) window.cart.clearCart();
+        window.Stripe(window.STRIPE_PUBLIC_KEY).redirectToCheckout({ sessionId: data.sessionId });
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (error) {
+      console.error('Stripe checkout error:', error);
+      this.showToast('Checkout failed. Please try again.');
+      if (checkoutBtn) {
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Proceed to Checkout';
+      }
+    }
+  }
+
+  /**
+   * Show Stripe Embedded Checkout inside the cart modal
+   */
+  async showEmbeddedCheckout(clientSecret) {
+    const body = document.getElementById('cart-panel-body');
+    const footer = document.getElementById('cart-panel-footer');
+    const header = document.querySelector('.cart-panel-header h2');
+
+    // Save original body content for back button
+    this._savedBody = body.innerHTML;
+    this._savedFooterDisplay = footer.style.display;
+
+    // Replace body with checkout embed
+    header.textContent = 'Secure Checkout';
+    footer.style.display = 'none';
+
+    body.innerHTML = `
+      <button class="cart-checkout-back" id="checkout-back-btn">&larr; Back to Cart</button>
+      <div class="cart-checkout-embed">
+        <div id="stripe-checkout-container"></div>
+      </div>
+    `;
+
+    // Back button
+    document.getElementById('checkout-back-btn').addEventListener('click', () => {
+      this.hideEmbeddedCheckout();
+    });
+
+    // Mount Stripe embedded checkout
+    try {
+      const stripe = window.Stripe(window.STRIPE_PUBLIC_KEY);
+      this._embeddedCheckout = await stripe.initEmbeddedCheckout({ clientSecret });
+      this._embeddedCheckout.mount('#stripe-checkout-container');
+      console.log('[ARCHIVE-35] Embedded checkout mounted');
+    } catch (err) {
+      console.error('[ARCHIVE-35] Embedded checkout mount failed:', err);
+      this.hideEmbeddedCheckout();
+      this.showToast('Could not load checkout. Redirecting...');
+      // Fallback: the hosted checkout URL should still work
+    }
+  }
+
+  /**
+   * Go back from embedded checkout to cart view
+   */
+  hideEmbeddedCheckout() {
+    if (this._embeddedCheckout) {
+      this._embeddedCheckout.destroy();
+      this._embeddedCheckout = null;
+    }
+    const body = document.getElementById('cart-panel-body');
+    const footer = document.getElementById('cart-panel-footer');
+    const header = document.querySelector('.cart-panel-header h2');
+
+    header.textContent = 'Shopping Cart';
+    body.innerHTML = this._savedBody || '';
+    footer.style.display = this._savedFooterDisplay || '';
+
+    // Re-render cart items
+    this.renderCart();
+    this.updateBadge();
+
+    // Re-enable checkout button
+    const checkoutBtn = document.getElementById('cart-checkout-btn');
+    if (checkoutBtn) {
+      checkoutBtn.disabled = false;
+      checkoutBtn.textContent = 'Proceed to Checkout';
+    }
   }
 
   /**

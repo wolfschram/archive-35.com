@@ -1,7 +1,270 @@
 {
-  "close-up": { "scene": "close-up.jpg", "zones": [] },
-  "conference-room": { "scene": "conference-room.jpg", "zones": [] },
-  "cubicle": { "scene": "cubicle.jpg", "zones": [] },
-  "training-room-1": { "scene": "training-room-1.jpg", "zones": [] },
-  "training-room-2": { "scene": "training-room-2.jpg", "zones": [] }
+  "close-up": {
+    "scene": "close-up.jpg",
+    "zones": [
+      {
+        "id": "left wall",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.1484,
+          "y": 0.2264
+        },
+        "size": {
+          "width": 0.1861,
+          "height": 0.2201
+        },
+        "centerPct": {
+          "x": 0.2414,
+          "y": 0.3364
+        },
+        "pixelCoords": {
+          "x1": 212,
+          "y1": 182,
+          "x2": 478,
+          "y2": 359
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      },
+      {
+        "id": "right wall",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.5843,
+          "y": 0.2276
+        },
+        "size": {
+          "width": 0.1872,
+          "height": 0.2218
+        },
+        "centerPct": {
+          "x": 0.6779,
+          "y": 0.3385
+        },
+        "pixelCoords": {
+          "x1": 835,
+          "y1": 183,
+          "x2": 1103,
+          "y2": 361
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      }
+    ]
+  },
+  "conference-room": {
+    "scene": "conference-room.jpg",
+    "zones": [
+      {
+        "id": "center",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.4277,
+          "y": 0.3589
+        },
+        "size": {
+          "width": 0.1315,
+          "height": 0.1473
+        },
+        "centerPct": {
+          "x": 0.4935,
+          "y": 0.4325
+        },
+        "pixelCoords": {
+          "x1": 657,
+          "y1": 328,
+          "x2": 859,
+          "y2": 463
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      }
+    ]
+  },
+  "cubicle": {
+    "scene": "cubicle.jpg",
+    "zones": [
+      {
+        "id": "center",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.3977,
+          "y": 0.1923
+        },
+        "size": {
+          "width": 0.1865,
+          "height": 0.1996
+        },
+        "centerPct": {
+          "x": 0.4909,
+          "y": 0.2921
+        },
+        "pixelCoords": {
+          "x1": 581,
+          "y1": 175,
+          "x2": 854,
+          "y2": 357
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      }
+    ]
+  },
+  "training-room-1": {
+    "scene": "training-room-1.jpg",
+    "zones": [
+      {
+        "id": "left",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.0908,
+          "y": 0.3928
+        },
+        "size": {
+          "width": 0.1087,
+          "height": 0.1586
+        },
+        "centerPct": {
+          "x": 0.1452,
+          "y": 0.4721
+        },
+        "pixelCoords": {
+          "x1": 127,
+          "y1": 251,
+          "x2": 279,
+          "y2": 352
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      },
+      {
+        "id": "center",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.4199,
+          "y": 0.3991
+        },
+        "size": {
+          "width": 0.1087,
+          "height": 0.1586
+        },
+        "centerPct": {
+          "x": 0.4742,
+          "y": 0.4784
+        },
+        "pixelCoords": {
+          "x1": 587,
+          "y1": 255,
+          "x2": 739,
+          "y2": 356
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      },
+      {
+        "id": "right",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.7396,
+          "y": 0.4022
+        },
+        "size": {
+          "width": 0.108,
+          "height": 0.1575
+        },
+        "centerPct": {
+          "x": 0.7936,
+          "y": 0.481
+        },
+        "pixelCoords": {
+          "x1": 1034,
+          "y1": 257,
+          "x2": 1185,
+          "y2": 358
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      }
+    ]
+  },
+  "training-room-2": {
+    "scene": "training-room-2.jpg",
+    "zones": [
+      {
+        "id": "left",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.1541,
+          "y": 0.3511
+        },
+        "size": {
+          "width": 0.1694,
+          "height": 0.1963
+        },
+        "centerPct": {
+          "x": 0.2388,
+          "y": 0.4493
+        },
+        "pixelCoords": {
+          "x1": 161,
+          "y1": 211,
+          "x2": 338,
+          "y2": 329
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      },
+      {
+        "id": "right",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.5206,
+          "y": 0.3494
+        },
+        "size": {
+          "width": 0.1699,
+          "height": 0.1969
+        },
+        "centerPct": {
+          "x": 0.6055,
+          "y": 0.4479
+        },
+        "pixelCoords": {
+          "x1": 544,
+          "y1": 210,
+          "x2": 722,
+          "y2": 328
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      }
+    ]
+  }
 }

@@ -345,6 +345,124 @@
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       }
     }
+  
+    /* ===== Inline Config Panel ===== */
+    .config-panel {
+      display: flex;
+      gap: 2rem;
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--glass-border);
+      border-bottom: 1px solid var(--glass-border);
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .config-col { flex: 1; min-width: 240px; }
+    .config-col-right { display: flex; flex-direction: column; gap: 1rem; }
+    .config-zone-label {
+      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1rem; font-weight: 400;
+    }
+    .config-row { margin-bottom: 0.75rem; }
+    .config-label {
+      display: block; font-size: 0.6rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.35rem;
+    }
+    .config-select {
+      width: 100%;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      padding: 0.55rem 0.8rem;
+      font-family: var(--font-main);
+      font-size: 0.8rem;
+      font-weight: 300;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23e8b84d' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      padding-right: 2rem;
+      transition: border-color 0.2s;
+    }
+    .config-select:focus { border-color: var(--glass-border-hover); }
+    .config-size-display {
+      display: flex; align-items: baseline; gap: 0.5rem;
+    }
+    .config-size-value {
+      font-size: 1.6rem; font-weight: 100; letter-spacing: 0.05em;
+      color: var(--text-primary); line-height: 1;
+    }
+    .config-size-unit {
+      font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .config-slider-wrap { width: 100%; }
+    .config-slider {
+      width: 100%; appearance: none; height: 3px;
+      background: var(--glass-border); outline: none; border-radius: 2px; cursor: pointer;
+    }
+    .config-slider::-webkit-slider-thumb {
+      appearance: none; width: 16px; height: 16px;
+      border-radius: 50%; background: var(--accent); cursor: pointer;
+      box-shadow: 0 0 6px rgba(232,184,77,0.4);
+    }
+    .config-slider:disabled { opacity: 0.35; cursor: not-allowed; }
+    .config-slider:disabled::-webkit-slider-thumb { cursor: not-allowed; }
+    .config-slider-ends {
+      display: flex; justify-content: space-between;
+      font-size: 0.58rem; color: var(--text-muted); margin-top: 0.3rem;
+    }
+    .config-quality {
+      font-size: 0.7rem; letter-spacing: 0.1em;
+      padding: 0.3rem 0.75rem; border-radius: 20px;
+      border: 1px solid var(--glass-border);
+      display: inline-block; align-self: flex-start;
+    }
+    .config-quality.museum { border-color: #7ecfa4; color: #7ecfa4; }
+    .config-quality.excellent { border-color: #5aaf84; color: #5aaf84; }
+    .config-quality.good { border-color: var(--accent); color: var(--accent); }
+    .config-quality.low { border-color: #e05c5c; color: #e05c5c; }
+    .config-price-wrap { margin-top: auto; }
+    .config-price {
+      font-size: 2rem; font-weight: 100; color: var(--text-primary);
+      letter-spacing: 0.05em; line-height: 1;
+    }
+    .config-price-note {
+      font-size: 0.65rem; color: var(--text-muted); margin-top: 0.3rem;
+    }
+    .config-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; }
+
+    /* Basket */
+    .basket-bar {
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+    }
+    .basket-header {
+      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 0.75rem;
+    }
+    .basket-header span { color: var(--accent); }
+    .basket-item {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 0.5rem 0; border-bottom: 1px solid var(--glass-border);
+      font-size: 0.75rem; gap: 1rem;
+    }
+    .basket-item:last-child { border-bottom: none; }
+    .basket-item-info { flex: 1; line-height: 1.6; }
+    .basket-item-title { color: var(--text-primary); font-weight: 300; }
+    .basket-item-detail { color: var(--text-muted); font-size: 0.68rem; }
+    .basket-item-price { color: var(--accent); font-weight: 400; white-space: nowrap; }
+    .basket-item-remove {
+      background: none; border: none; color: var(--text-muted);
+      cursor: pointer; font-size: 14px; padding: 0 0.25rem; line-height: 1;
+    }
+    .basket-item-remove:hover { color: #e05c5c; }
+    .basket-total {
+      text-align: right; font-size: 0.8rem; color: var(--text-secondary);
+      margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid var(--glass-border);
+    }
+    .basket-total strong { color: var(--accent); font-size: 1rem; font-weight: 300; }
   </style>
 </head>
 <body>
@@ -405,6 +523,83 @@
         <canvas id="vizCanvas"></canvas>
       </div>
 
+      <!-- ===== INLINE CONFIG PANEL ===== -->
+      <div class="config-panel" id="configPanel">
+
+        <!-- Left: zone info + material + frame -->
+        <div class="config-col config-col-left">
+          <div class="config-zone-label" id="configZoneLabel">Select a wall position</div>
+
+          <div class="config-row">
+            <label class="config-label">Material</label>
+            <select id="materialSelect" class="config-select">
+              <option value="">-- Select --</option>
+              <option value="metal">HD Metal (ChromaLuxé)</option>
+              <option value="acrylic">Acrylic</option>
+              <option value="canvas">Canvas Wrap</option>
+              <option value="paper">Fine Art Paper</option>
+              <option value="wood">Wood</option>
+            </select>
+          </div>
+
+          <div class="config-row">
+            <label class="config-label">Frame / Mounting</label>
+            <select id="frameSelect" class="config-select">
+              <option value="none">No Frame — Standoff Mount</option>
+              <option value="float">Floating Frame (+$80)</option>
+              <option value="moulding">Moulding Frame (+$120)</option>
+              <option value="backframe">Back Float Frame (included)</option>
+            </select>
+          </div>
+
+          <div class="config-row">
+            <label class="config-label">Border / Mat</label>
+            <select id="matSelect" class="config-select">
+              <option value="none">No Border</option>
+              <option value="white">White Mat Border (+$30)</option>
+              <option value="black">Black Mat Border (+$30)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Right: size slider + DPI + price -->
+        <div class="config-col config-col-right">
+
+          <div class="config-size-display">
+            <span class="config-size-value" id="configSizeValue">—</span>
+            <span class="config-size-unit">inches</span>
+          </div>
+
+          <div class="config-slider-wrap">
+            <input type="range" id="configSizeSlider" class="config-slider" min="0" max="100" value="80" disabled>
+            <div class="config-slider-ends">
+              <span id="configSizeMin">Smallest</span>
+              <span id="configSizeMax">Largest</span>
+            </div>
+          </div>
+
+          <div class="config-quality" id="configQuality">&mdash;</div>
+
+          <div class="config-price-wrap">
+            <div class="config-price" id="configPrice">&mdash;</div>
+            <div class="config-price-note">Free shipping — Continental USA &amp; Canada</div>
+          </div>
+
+          <div class="config-actions">
+            <button id="addBasketBtn" class="btn-buy" disabled>Add to Basket</button>
+            <button id="requestBtn" class="btn-request">Request This Print</button>
+          </div>
+
+        </div>
+      </div><!-- /config-panel -->
+
+      <!-- Basket -->
+      <div class="basket-bar" id="basketBar" style="display:none;">
+        <div class="basket-header">Basket <span id="basketCount">0</span> item(s)</div>
+        <div id="basketItems"></div>
+        <div class="basket-total">Total: <strong id="basketTotal">$0</strong></div>
+      </div>
+
       <!-- Gallery browser -->
       <div class="gallery-browser">
         <div class="gb-header">
@@ -413,15 +608,6 @@
           <span class="gb-count" id="gbCount"></span>
         </div>
         <div class="gb-grid" id="gbGrid"></div>
-      </div>
-
-      <!-- CTA -->
-      <div class="riedel-cta-bar">
-        <div id="selectionInfo" style="font-size:0.8rem;color:var(--text-secondary);">Select a room, wall position, and image to begin</div>
-        <div style="display:flex;gap:0.75rem;">
-          <button id="configureBtn" class="btn-buy" disabled>Configure &amp; Buy</button>
-          <button id="requestBtn" class="btn-request">Request This Print</button>
-        </div>
       </div>
 
       </div><!-- /viz-container -->
@@ -501,25 +687,74 @@
   function initVisualizer() {
     'use strict';
 
+    // PRICE TABLE (from product-selector.js — exact same data)
+    var PRICE_TABLE = {
+      canvas: { '12x8':101,'18x12':120,'24x16':129,'36x24':208,'48x32':337,'60x40':640,'24x12':113,'36x18':191,'48x24':255,'60x25':331,'36x12':137,'48x16':192,'60x20':282,'24x10':124,'36x15':174,'48x20':242,'60x15':233 },
+      metal:  { '12x8':90, '18x12':140,'24x16':210,'36x24':409,'48x32':689,'60x40':1209,'24x12':170,'36x18':320,'48x24':529,'60x25':674,'36x12':230,'48x16':370,'60x20':549,'24x10':150,'36x15':275,'48x20':449,'60x15':424 },
+      acrylic:{ '12x8':123,'18x12':170,'24x16':234,'36x24':419,'48x32':678,'60x40':1173,'24x12':197,'36x18':336,'48x24':530,'60x25':664,'36x12':253,'48x16':382,'60x20':549,'24x10':179,'36x15':294,'48x20':456,'60x15':433 },
+      paper:  { '12x8':33, '18x12':44, '24x16':59, '36x24':101,'48x32':160,'60x40':237,'24x12':50, '36x18':82, '48x24':126,'60x25':157,'36x12':63, '48x16':92, '60x20':131,'24x10':46, '36x15':72, '48x20':109,'60x15':104 },
+      wood:   { '12x8':54, '18x12':85, '24x16':130,'36x24':257,'48x32':435,'60x40':825,'24x12':104,'36x18':200,'48x24':333,'60x25':425,'36x12':143,'48x16':231,'60x20':346,'24x10':92, '36x15':171,'48x20':282,'60x15':266 }
+    };
+
+    // ASPECT RATIO -> SIZES (from product-selector.js)
+    var AR_SIZES = {
+      '3:2':   [ [12,8],[18,12],[24,16],[36,24],[48,32],[60,40] ],
+      '16:9':  [ [24,14],[32,18],[48,27] ],
+      '4:3':   [ [16,12],[24,18],[40,30] ],
+      'pano':  [ [24,12],[36,18],[48,24] ],
+      'wide':  [ [24,10],[36,15],[48,20],[60,25] ],
+      '3:1':   [ [36,12],[48,16],[60,20] ],
+      'square':[ [12,12],[20,20],[30,30] ]
+    };
+
+    function getSizesForPhoto(photo) {
+      if (!photo) return AR_SIZES['3:2'];
+      var ar = photo.w / photo.h;
+      if (ar >= 0.95 && ar <= 1.05) return AR_SIZES['square'];
+      if (ar >= 1.2  && ar <= 1.4)  return AR_SIZES['4:3'];
+      if (ar >= 1.4  && ar <= 1.65) return AR_SIZES['3:2'];
+      if (ar >= 1.65 && ar <= 1.9)  return AR_SIZES['16:9'];
+      if (ar >= 1.9  && ar <= 2.2)  return AR_SIZES['pano'];
+      if (ar >= 2.2  && ar <= 2.7)  return AR_SIZES['wide'];
+      if (ar >= 2.7  && ar <= 3.3)  return AR_SIZES['3:1'];
+      return AR_SIZES['3:2'];
+    }
+
+    function getPrice(mat, w, h) {
+      var key = w + 'x' + h;
+      var alt = h + 'x' + w;
+      return (PRICE_TABLE[mat] && (PRICE_TABLE[mat][key] || PRICE_TABLE[mat][alt])) || 0;
+    }
+
+    function getDPI(photo, w, h) {
+      if (!photo) return 0;
+      return Math.round(Math.min(photo.w / w, photo.h / h));
+    }
+
+    // === SCENE CONFIG ===
+    // wall1 and closeup are LINKED — same room, different angle
+    // Swapped labels per Wolf: "Close-up" is what was "Wide Shot" and vice versa
     var SCENES = [
-      {
-        id: 'wall1', label: 'Wide Shot',
-        file: 'images/riedel-scenes/wall1.png',
-        fg:   'images/riedel-scenes/foregrounds/wall1_fg.png',
-        w: 1536, h: 1024,
-        zones: [
-          { id:'left_wall',  label:'Left Wall',  px:{x1:312,y1:217,x2:615,y2:383}, photoImg:null, photoData:null },
-          { id:'right_wall', label:'Right Wall', px:{x1:910,y1:219,x2:1214,y2:391}, photoImg:null, photoData:null },
-        ]
-      },
       {
         id: 'closeup', label: 'Close-up',
         file: 'images/riedel-scenes/closeup.png',
         fg:   'images/riedel-scenes/foregrounds/closeup_fg.png',
         w: 1536, h: 1024,
+        linkedTo: 'wall1',
         zones: [
-          { id:'left_wall',  label:'Left Wall',  px:{x1:414,y1:381,x2:604,y2:482}, photoImg:null, photoData:null },
-          { id:'right_wall', label:'Right Wall', px:{x1:884,y1:382,x2:1075,y2:488}, photoImg:null, photoData:null },
+          { id:'left_wall',  label:'Left Wall',  px:{x1:414,y1:381,x2:604,y2:482}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
+          { id:'right_wall', label:'Right Wall', px:{x1:884,y1:382,x2:1075,y2:488}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
+        ]
+      },
+      {
+        id: 'wall1', label: 'Wide Shot',
+        file: 'images/riedel-scenes/wall1.png',
+        fg:   'images/riedel-scenes/foregrounds/wall1_fg.png',
+        w: 1536, h: 1024,
+        linkedTo: 'closeup',
+        zones: [
+          { id:'left_wall',  label:'Left Wall',  px:{x1:312,y1:217,x2:615,y2:383}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
+          { id:'right_wall', label:'Right Wall', px:{x1:910,y1:219,x2:1214,y2:391}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
         ]
       },
       {
@@ -528,7 +763,7 @@
         fg:   'images/riedel-scenes/foregrounds/cubicle_fg.png',
         w: 1536, h: 1024,
         zones: [
-          { id:'right_wall', label:'Wall', px:{x1:578,y1:294,x2:895,y2:483}, photoImg:null, photoData:null },
+          { id:'right_wall', label:'Wall', px:{x1:578,y1:294,x2:895,y2:483}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
         ]
       },
       {
@@ -537,7 +772,7 @@
         fg:   'images/riedel-scenes/foregrounds/confroom_fg.png',
         w: 1536, h: 1024,
         zones: [
-          { id:'center', label:'Main Wall', px:{x1:646,y1:395,x2:878,y2:511}, photoImg:null, photoData:null },
+          { id:'center', label:'Main Wall', px:{x1:646,y1:395,x2:878,y2:511}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
         ]
       },
       {
@@ -546,9 +781,9 @@
         fg:   'images/riedel-scenes/foregrounds/training_fg.png',
         w: 1536, h: 1024,
         zones: [
-          { id:'left',   label:'Left',   px:{x1:275,y1:428,x2:449,y2:522}, photoImg:null, photoData:null },
-          { id:'center', label:'Center', px:{x1:652,y1:430,x2:825,y2:521}, photoImg:null, photoData:null },
-          { id:'right',  label:'Right',  px:{x1:1039,y1:422,x2:1211,y2:514}, photoImg:null, photoData:null },
+          { id:'left',   label:'Left',   px:{x1:275,y1:428,x2:449,y2:522}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
+          { id:'center', label:'Center', px:{x1:652,y1:430,x2:825,y2:521}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
+          { id:'right',  label:'Right',  px:{x1:1039,y1:422,x2:1211,y2:514}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
         ]
       },
       {
@@ -557,8 +792,8 @@
         fg:   'images/riedel-scenes/foregrounds/training2_fg.png',
         w: 1536, h: 1024,
         zones: [
-          { id:'left',  label:'Left',  px:{x1:913,y1:384,x2:1118,y2:489}, photoImg:null, photoData:null },
-          { id:'right', label:'Right', px:{x1:573,y1:389,x2:773,y2:489}, photoImg:null, photoData:null },
+          { id:'left',  label:'Left',  px:{x1:913,y1:384,x2:1118,y2:489}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
+          { id:'right', label:'Right', px:{x1:573,y1:389,x2:773,y2:489}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
         ]
       },
     ];
@@ -570,8 +805,8 @@
     var fgImg          = null;
     var allPhotos      = [];
     var collectionsMap = {};
-    var activeCollection = null;
     var imgCache       = {};
+    var basket         = [];
 
     var canvas = document.getElementById('vizCanvas');
     var ctx    = canvas.getContext('2d');
@@ -582,8 +817,51 @@
     selectScene(SCENES[0]);
 
     document.getElementById('gbBack').addEventListener('click', showCollections);
-    document.getElementById('configureBtn').addEventListener('click', openConfigure);
     document.getElementById('requestBtn').addEventListener('click', requestPrint);
+    document.getElementById('addBasketBtn').addEventListener('click', addToBasket);
+
+    // Config panel controls
+    document.getElementById('configSizeSlider').addEventListener('input', function() {
+      var zone = currentScene.zones[currentZoneIdx];
+      zone.cfg.sizeIdx = parseInt(this.value);
+      render();
+      updateConfigPanel();
+      syncLinkedScene();
+    });
+    document.getElementById('materialSelect').addEventListener('change', function() {
+      var zone = currentScene.zones[currentZoneIdx];
+      zone.cfg.mat = this.value;
+      updateConfigPanel();
+      syncLinkedScene();
+    });
+    document.getElementById('frameSelect').addEventListener('change', function() {
+      var zone = currentScene.zones[currentZoneIdx];
+      zone.cfg.frame = this.value;
+      updateConfigPanel();
+      syncLinkedScene();
+    });
+    document.getElementById('matSelect').addEventListener('change', function() {
+      var zone = currentScene.zones[currentZoneIdx];
+      zone.cfg.mat_border = this.value;
+      updateConfigPanel();
+      syncLinkedScene();
+    });
+
+    // === LINKED SCENE SYNC ===
+    // wall1 and closeup are the same room — sync photos and config between them
+    function syncLinkedScene() {
+      if (!currentScene.linkedTo) return;
+      var linked = SCENES.find(function(s) { return s.id === currentScene.linkedTo; });
+      if (!linked) return;
+      // Sync each zone by index
+      currentScene.zones.forEach(function(zone, i) {
+        if (linked.zones[i]) {
+          linked.zones[i].photoData = zone.photoData;
+          linked.zones[i].photoImg  = zone.photoImg;
+          linked.zones[i].cfg = JSON.parse(JSON.stringify(zone.cfg));
+        }
+      });
+    }
 
     // === CAROUSEL ===
     function buildCarousel() {
@@ -601,7 +879,7 @@
     function updateCarousel() {
       var thumbs = document.querySelectorAll('.template-thumb');
       thumbs.forEach(function(el, i) {
-        el.classList.toggle('active', SCENES[i].id === currentScene.id);
+        el.classList.toggle('active', SCENES[i] && SCENES[i].id === currentScene.id);
       });
     }
 
@@ -609,11 +887,10 @@
     function selectScene(sc) {
       currentScene   = sc;
       currentZoneIdx = 0;
-      bgImg = null;
-      fgImg = null;
+      bgImg = null; fgImg = null;
       buildZonePills();
       updateCarousel();
-      updateSelectionInfo();
+      updateConfigPanel();
 
       var bg = new Image();
       bg.onload = function() { bgImg = bg; render(); };
@@ -634,13 +911,11 @@
       currentScene.zones.forEach(function(z, i) {
         var btn = document.createElement('button');
         btn.className = 'zone-pill' + (i === currentZoneIdx ? ' active' : '');
-        var label = z.label;
-        if (z.photoData) label += ' \u2713';
-        btn.textContent = label;
+        btn.textContent = z.label + (z.photoData ? ' \u2713' : '');
         btn.addEventListener('click', function() {
           currentZoneIdx = i;
           buildZonePills();
-          updateSelectionInfo();
+          updateConfigPanel();
           render();
         });
         bar.appendChild(btn);
@@ -652,78 +927,118 @@
       var dpr = window.devicePixelRatio || 1;
       canvas.width  = currentScene.w * dpr;
       canvas.height = currentScene.h * dpr;
-      // Do NOT set inline width/height — let CSS control display size
-      // CSS has width:100% height:auto on the canvas element
       canvas.style.width  = '';
       canvas.style.height = '';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
       ctx.clearRect(0, 0, currentScene.w, currentScene.h);
 
-      // Layer 1: background
       if (bgImg) ctx.drawImage(bgImg, 0, 0, currentScene.w, currentScene.h);
 
-      // Layer 2: artwork in ALL zones that have a photo
+      // Render all zones that have photos
       currentScene.zones.forEach(function(zone, i) {
         if (!zone.photoImg || !zone.photoImg.complete || !zone.photoImg.naturalWidth) return;
         if (!zone.photoData) return;
 
-        var px = zone.px;
-        var cx = (px.x1 + px.x2) / 2;
-        var cy = (px.y1 + px.y2) / 2;
-        var zoneW = px.x2 - px.x1;
-        var zoneH = px.y2 - px.y1;
-        var ppiX = zoneW / 48;
-        var ppiY = zoneH / 32;
+        var px   = zone.px;
+        var cx   = (px.x1 + px.x2) / 2;
+        var cy   = (px.y1 + px.y2) / 2;
+        var ppiX = (px.x2 - px.x1) / 48;
+        var ppiY = (px.y2 - px.y1) / 32;
 
-        var ps = calcPrintSizeForPhoto(zone.photoData, 0.5);
-        var drawW = ps.w * ppiX;
-        var drawH = ps.h * ppiY;
+        var sizes  = getSizesForPhoto(zone.photoData);
+        var si     = zone.cfg.sizeIdx;
+        if (si < 0 || si >= sizes.length) si = sizes.length - 1; // default to largest
+        var sz     = sizes[si];
+        var drawW  = sz[0] * ppiX;
+        var drawH  = sz[1] * ppiY;
 
         ctx.drawImage(zone.photoImg, cx - drawW/2, cy - drawH/2, drawW, drawH);
 
-        // Size label only on selected zone
+        // Border/mat indicator
+        if (zone.cfg.mat_border !== 'none' && zone.cfg.mat_border) {
+          var bw = Math.max(4, drawW * 0.04);
+          ctx.strokeStyle = zone.cfg.mat_border === 'white' ? 'rgba(255,255,255,0.85)' : 'rgba(20,20,20,0.85)';
+          ctx.lineWidth = bw;
+          ctx.strokeRect(cx - drawW/2 - bw/2, cy - drawH/2 - bw/2, drawW + bw, drawH + bw);
+        }
+
+        // Size label on selected zone only
         if (i === currentZoneIdx) {
-          ctx.fillStyle = 'rgba(0,0,0,0.75)';
-          ctx.fillRect(cx - drawW/2, cy - drawH/2 - 22, 200, 18);
+          var label = sz[0] + '\u201d \u00d7 ' + sz[1] + '\u201d';
+          ctx.fillStyle = 'rgba(0,0,0,0.78)';
+          ctx.fillRect(cx - drawW/2, cy - drawH/2 - 22, 120, 18);
           ctx.fillStyle = '#e8b84d';
-          ctx.font = 'bold 12px Inter, sans-serif';
-          ctx.fillText(Math.round(ps.w) + '" \u00d7 ' + Math.round(ps.h) + '"', cx - drawW/2 + 6, cy - drawH/2 - 8);
+          ctx.font = 'bold 11px Inter, sans-serif';
+          ctx.fillText(label, cx - drawW/2 + 5, cy - drawH/2 - 8);
         }
       });
 
-      // Layer 3: foreground
       if (fgImg) ctx.drawImage(fgImg, 0, 0, currentScene.w, currentScene.h);
     }
 
-    // === PRINT SIZE ===
-    function calcPrintSizeForPhoto(photo, t) {
-      if (!photo) return { w: 48, h: 32, maxW: 48, maxH: 32 };
-      var artRatio = photo.w / photo.h;
-      var maxW = Math.min(photo.w / 150, 96);
-      var maxH = Math.min(photo.h / 150, 48);
-      var finalMaxW = maxW, finalMaxH = maxW / artRatio;
-      if (finalMaxH > maxH) { finalMaxH = maxH; finalMaxW = maxH * artRatio; }
-      var minShort = 20;
-      var finalMinW, finalMinH;
-      if (artRatio >= 1) { finalMinH = minShort; finalMinW = minShort * artRatio; }
-      else { finalMinW = minShort; finalMinH = minShort / artRatio; }
-      var printW = finalMinW + (finalMaxW - finalMinW) * t;
-      var printH = finalMinH + (finalMaxH - finalMinH) * t;
-      return { w: Math.round(printW), h: Math.round(printH), maxW: Math.round(finalMaxW), maxH: Math.round(finalMaxH) };
-    }
+    // === CONFIG PANEL ===
+    function updateConfigPanel() {
+      var zone   = currentScene.zones[currentZoneIdx];
+      var photo  = zone ? zone.photoData : null;
+      var cfg    = zone ? zone.cfg : null;
 
-    // === SELECTION INFO ===
-    function updateSelectionInfo() {
-      var zone = currentScene.zones[currentZoneIdx];
-      var info = document.getElementById('selectionInfo');
-      if (zone.photoData) {
-        info.innerHTML = '<strong style="color:var(--text-primary);font-weight:400;">' + zone.photoData.title + '</strong> \u2014 ' + currentScene.label + ' / ' + zone.label;
-      } else {
-        info.textContent = 'Select an image to place on ' + zone.label;
+      document.getElementById('configZoneLabel').textContent =
+        currentScene.label + ' \u2014 ' + (zone ? zone.label : '');
+
+      if (!photo) {
+        document.getElementById('configSizeSlider').disabled = true;
+        document.getElementById('configSizeValue').textContent = '\u2014';
+        document.getElementById('configQuality').textContent = 'Select an image';
+        document.getElementById('configQuality').className = 'config-quality';
+        document.getElementById('configPrice').textContent = '\u2014';
+        document.getElementById('addBasketBtn').disabled = true;
+        return;
       }
-      var hasPhoto = currentScene.zones.some(function(z) { return z.photoData; });
-      document.getElementById('configureBtn').disabled = !hasPhoto;
+
+      var sizes = getSizesForPhoto(photo);
+      var slider = document.getElementById('configSizeSlider');
+      slider.disabled = false;
+      slider.min = 0;
+      slider.max = sizes.length - 1;
+      slider.step = 1;
+
+      // Default to largest size
+      if (cfg.sizeIdx < 0 || cfg.sizeIdx >= sizes.length) {
+        cfg.sizeIdx = sizes.length - 1;
+      }
+      slider.value = cfg.sizeIdx;
+
+      var sz    = sizes[cfg.sizeIdx];
+      var mat   = cfg.mat || 'metal';
+      var dpi   = getDPI(photo, sz[0], sz[1]);
+      var price = getPrice(mat, sz[0], sz[1]);
+
+      // Add frame/mat price
+      if (cfg.frame === 'float')    price += 80;
+      if (cfg.frame === 'moulding') price += 120;
+      if (cfg.mat_border !== 'none' && cfg.mat_border) price += 30;
+
+      // Size display
+      document.getElementById('configSizeValue').textContent = sz[0] + '\u201d \u00d7 ' + sz[1] + '\u201d';
+      document.getElementById('configSizeMin').textContent = sizes[0][0] + '\u201d \u00d7 ' + sizes[0][1] + '\u201d';
+      document.getElementById('configSizeMax').textContent = sizes[sizes.length-1][0] + '\u201d \u00d7 ' + sizes[sizes.length-1][1] + '\u201d';
+
+      // DPI quality
+      var qEl = document.getElementById('configQuality');
+      if (dpi >= 300) { qEl.textContent = '\u2605\u2605\u2605 Museum Quality \u2014 ' + dpi + ' DPI'; qEl.className = 'config-quality museum'; }
+      else if (dpi >= 200) { qEl.textContent = '\u2605\u2605 Excellent \u2014 ' + dpi + ' DPI'; qEl.className = 'config-quality excellent'; }
+      else if (dpi >= 150) { qEl.textContent = '\u2605 Good \u2014 ' + dpi + ' DPI'; qEl.className = 'config-quality good'; }
+      else { qEl.textContent = '\u26a0 Reduce size \u2014 ' + dpi + ' DPI'; qEl.className = 'config-quality low'; }
+
+      // Price
+      document.getElementById('configPrice').textContent = price ? '$' + price : 'Select material';
+
+      // Sync dropdowns to zone config
+      document.getElementById('materialSelect').value = cfg.mat || 'metal';
+      document.getElementById('frameSelect').value    = cfg.frame || 'none';
+      document.getElementById('matSelect').value      = cfg.mat_border || 'none';
+
+      document.getElementById('addBasketBtn').disabled = !price;
     }
 
     // === PHOTOS ===
@@ -734,40 +1049,78 @@
           allPhotos = data.photos || data;
           buildCollectionsMap();
           showCollections();
-
-          // Place default photo (New York) on canvas immediately
-          var defaultPhoto = allPhotos.find(function(p) {
-            return p.collection === 'new-york';
-          }) || allPhotos[0];
-          if (defaultPhoto) selectPhoto(defaultPhoto, null);
+          loadDefaultPhotos();
         })
         .catch(function() {
           document.getElementById('gbGrid').textContent = 'Could not load collection.';
         });
     }
 
-    function buildCollectionsMap() {
-      collectionsMap = {};
-      allPhotos.forEach(function(p) {
-        var slug = p.collection || 'other';
-        if (!collectionsMap[slug]) collectionsMap[slug] = { title: p.collectionTitle || slug, photos: [], hero: null };
-        collectionsMap[slug].photos.push(p);
-        if (!collectionsMap[slug].hero) collectionsMap[slug].hero = p.thumbnail;
+    // Load default photos into every scene/zone on startup
+    function loadDefaultPhotos() {
+      // Pick diverse defaults from different collections
+      var defaults = [
+        allPhotos.find(function(p) { return p.collection === 'new-york'; }),
+        allPhotos.find(function(p) { return p.collection === 'iceland'; }),
+        allPhotos.find(function(p) { return p.collection === 'antelope-canyon'; }),
+        allPhotos.find(function(p) { return p.collection === 'grand-teton'; }),
+        allPhotos.find(function(p) { return p.collection === 'tanzania'; }),
+      ].filter(Boolean);
+
+      if (!defaults.length) defaults = [allPhotos[0]];
+
+      var di = 0;
+      SCENES.forEach(function(sc) {
+        sc.zones.forEach(function(zone) {
+          var photo = defaults[di % defaults.length];
+          di++;
+          if (!photo) return;
+          var d = photo.dimensions || {};
+          zone.photoData = { id: photo.id, title: photo.title, w: d.width||6000, h: d.height||4000, full: photo.full, thumbnail: photo.thumbnail };
+          zone.cfg.sizeIdx = -1; // will default to largest
+          var img = new Image();
+          img.onload = function() { imgCache[photo.id] = img; zone.photoImg = img; render(); updateConfigPanel(); buildZonePills(); };
+          img.src = photo.full;
+          imgCache[photo.id] = img; // assign optimistically
+        });
+      });
+
+      // Sync linked scenes
+      SCENES.forEach(function(sc) { if (sc.linkedTo) syncLinkedSceneFor(sc); });
+    }
+
+    function syncLinkedSceneFor(sc) {
+      var linked = SCENES.find(function(s) { return s.id === sc.linkedTo; });
+      if (!linked) return;
+      sc.zones.forEach(function(zone, i) {
+        if (linked.zones[i]) {
+          linked.zones[i].photoData = zone.photoData;
+          linked.zones[i].photoImg  = zone.photoImg;
+          linked.zones[i].cfg = JSON.parse(JSON.stringify(zone.cfg));
+        }
       });
     }
 
+    function buildCollectionsMap() {
+      var map = {};
+      allPhotos.forEach(function(p) {
+        var slug = p.collection || 'other';
+        if (!map[slug]) map[slug] = { title: p.collectionTitle || slug, photos: [], hero: null };
+        map[slug].photos.push(p);
+        if (!map[slug].hero) map[slug].hero = p.thumbnail;
+      });
+      collectionsMap = map;
+    }
+
     function showCollections() {
-      activeCollection = null;
       document.getElementById('gbBack').classList.remove('visible');
       document.getElementById('gbBreadcrumb').textContent = 'All Collections';
       var grid = document.getElementById('gbGrid');
-      grid.className = 'gb-grid';
-      grid.innerHTML = '';
+      grid.className = 'gb-grid'; grid.innerHTML = '';
       var colls = Object.entries(collectionsMap);
       document.getElementById('gbCount').textContent = colls.length + ' collections';
       colls.forEach(function(entry) {
-        var slug = entry[0];
-        var coll = entry[1];
+        var slug = entry[0], coll = entry[1];
         var div = document.createElement('div');
         div.className = 'gb-coll-card';
         div.innerHTML = '<img src="' + coll.hero + '" loading="lazy" alt="' + coll.title + '"><div class="gb-coll-label"><div class="gb-coll-name">' + coll.title + '</div><div class="gb-coll-count">' + coll.photos.length + ' images</div></div>';
@@ -777,19 +1130,16 @@
     }
 
     function showPhotos(slug, coll) {
-      activeCollection = slug;
       document.getElementById('gbBack').classList.add('visible');
       document.getElementById('gbBreadcrumb').textContent = coll.title;
       var grid = document.getElementById('gbGrid');
-      grid.className = 'gb-grid photo-level';
-      grid.innerHTML = '';
+      grid.className = 'gb-grid photo-level'; grid.innerHTML = '';
       document.getElementById('gbCount').textContent = coll.photos.length + ' images';
+      var zone = currentScene.zones[currentZoneIdx];
       coll.photos.forEach(function(p) {
         var div = document.createElement('div');
-        var zone = currentScene.zones[currentZoneIdx];
-        var isActive = zone.photoData && zone.photoData.id === p.id;
-        div.className = 'gb-photo' + (isActive ? ' active' : '');
-        div.innerHTML = '<img src="' + p.thumbnail + '" loading="lazy" alt="' + (p.title || '') + '"><div class="gb-title">' + (p.title || '') + '</div>';
+        div.className = 'gb-photo' + (zone.photoData && zone.photoData.id === p.id ? ' active' : '');
+        div.innerHTML = '<img src="' + p.thumbnail + '" loading="lazy" alt="' + (p.title||'') + '"><div class="gb-title">' + (p.title||'') + '</div>';
         div.addEventListener('click', function() { selectPhoto(p, div); });
         grid.appendChild(div);
       });
@@ -798,68 +1148,79 @@
     function selectPhoto(p, clickedEl) {
       var zone = currentScene.zones[currentZoneIdx];
       var d = p.dimensions || {};
-      zone.photoData = {
-        id: p.id,
-        title: p.title,
-        w: d.width || 6000,
-        h: d.height || 4000,
-        full: p.full,
-        thumbnail: p.thumbnail
-      };
+      zone.photoData = { id: p.id, title: p.title, w: d.width||6000, h: d.height||4000, full: p.full, thumbnail: p.thumbnail };
+      zone.cfg.sizeIdx = -1; // reset to largest
 
-      // Highlight selected
       document.querySelectorAll('.gb-photo').forEach(function(el) { el.classList.remove('active'); });
       if (clickedEl) clickedEl.classList.add('active');
 
-      // Load full image for this zone
       if (imgCache[p.id]) {
         zone.photoImg = imgCache[p.id];
-        render();
-        updateSelectionInfo();
-        buildZonePills();
+        render(); updateConfigPanel(); buildZonePills();
+        syncLinkedScene();
       } else {
         var img = new Image();
         img.onload = function() {
-          imgCache[p.id] = img;
-          zone.photoImg = img;
-          render();
-          updateSelectionInfo();
-          buildZonePills();
+          imgCache[p.id] = img; zone.photoImg = img;
+          render(); updateConfigPanel(); buildZonePills();
+          syncLinkedScene();
         };
-        img.onerror = function() { console.warn('Photo load failed:', p.full); };
+        img.onerror = function() { console.warn('Photo failed:', p.full); };
         img.src = p.full;
       }
     }
 
-    // === CONFIGURE & BUY ===
-    function openConfigure() {
-      var zone = currentScene.zones[currentZoneIdx];
-      if (!zone.photoData) return;
-      if (typeof openProductSelector !== 'function') {
-        alert('Product selector not loaded. Please refresh.');
-        return;
-      }
-      openProductSelector({
-        id: zone.photoData.id,
-        title: zone.photoData.title,
-        dimensions: {
-          width: zone.photoData.w,
-          height: zone.photoData.h,
-          aspectRatio: zone.photoData.w / zone.photoData.h
-        },
-        thumbnail: zone.photoData.thumbnail || '',
-        full: zone.photoData.full
+    // === BASKET ===
+    function addToBasket() {
+      var zone  = currentScene.zones[currentZoneIdx];
+      var photo = zone.photoData;
+      if (!photo) return;
+      var sizes  = getSizesForPhoto(photo);
+      var si     = zone.cfg.sizeIdx < 0 ? sizes.length - 1 : zone.cfg.sizeIdx;
+      var sz     = sizes[si];
+      var mat    = zone.cfg.mat || 'metal';
+      var price  = getPrice(mat, sz[0], sz[1]);
+      if (zone.cfg.frame === 'float')    price += 80;
+      if (zone.cfg.frame === 'moulding') price += 120;
+      if (zone.cfg.mat_border !== 'none' && zone.cfg.mat_border) price += 30;
+
+      basket.push({
+        title: photo.title,
+        size: sz[0] + '\u201d \u00d7 ' + sz[1] + '\u201d',
+        mat: mat, frame: zone.cfg.frame, matBorder: zone.cfg.mat_border,
+        scene: currentScene.label, zone: zone.label,
+        price: price
       });
+      renderBasket();
     }
+
+    function renderBasket() {
+      var bar = document.getElementById('basketBar');
+      if (!basket.length) { bar.style.display = 'none'; return; }
+      bar.style.display = 'block';
+      document.getElementById('basketCount').textContent = basket.length;
+      var total = basket.reduce(function(s,i) { return s + i.price; }, 0);
+      document.getElementById('basketTotal').textContent = '$' + total;
+      var items = document.getElementById('basketItems');
+      items.innerHTML = basket.map(function(item, idx) {
+        var matNames = {metal:'HD Metal',acrylic:'Acrylic',canvas:'Canvas',paper:'Fine Art Paper',wood:'Wood'};
+        var detail = matNames[item.mat] + ' \u2014 ' + item.size + ' \u2014 ' + item.scene + ' / ' + item.zone;
+        return '<div class="basket-item"><div class="basket-item-info"><div class="basket-item-title">' + item.title + '</div><div class="basket-item-detail">' + detail + '</div></div><div class="basket-item-price">$' + item.price + '</div><button class="basket-item-remove" onclick="removeBasketItem(' + idx + ')" title="Remove">&times;</button></div>';
+      }).join('');
+    }
+    window.removeBasketItem = function(idx) {
+      basket.splice(idx, 1);
+      renderBasket();
+    };
 
     // === REQUEST PRINT ===
     function requestPrint() {
-      var zone = currentScene.zones[currentZoneIdx];
+      var zone  = currentScene.zones[currentZoneIdx];
       var photo = zone ? zone.photoData : null;
       var subject = photo ? 'Print Request: ' + photo.title : 'Print Enquiry \u2014 Archive-35';
       var body = photo
-        ? 'Hi Wolf,\n\nI would like to request a print of:\n\n"' + photo.title + '"\nFor: ' + currentScene.label + ' / ' + zone.label + '\n\nPlease send pricing and availability.'
-        : 'Hi Wolf,\n\nI\'d like more information about your prints for our Riedel offices.';
+        ? 'Hi Wolf,\n\nI would like to request a print of:\n\n"' + photo.title + '"\nScene: ' + currentScene.label + ' / ' + zone.label + '\n\nPlease send pricing and availability.'
+        : 'Hi Wolf,\n\nI\'d like more information about prints for our Riedel offices.';
       window.location.href = 'mailto:wolf@archive-35.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
     }
 

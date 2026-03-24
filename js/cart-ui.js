@@ -71,7 +71,7 @@ class CartUI {
         <div class="cart-panel-body" id="cart-panel-body">
           <div class="cart-empty-state" id="cart-empty">
             <p>Your cart is empty</p>
-            <p class="cart-empty-hint">Start adding prints to get started</p>
+            <p class="cart-empty-hint">Browse the gallery and add prints to get started</p>
           </div>
 
           <div class="cart-items" id="cart-items">
@@ -193,17 +193,16 @@ class CartUI {
     return `
       <div class="cart-item">
         <div class="cart-item-thumbnail">
-          <img src="${item.thumbnail}" alt="${item.title}">
+          <img src="${item.thumbnail}" alt="${this.escapeHtml(item.title)}">
         </div>
         <div class="cart-item-details">
           <h4 class="cart-item-title">${this.escapeHtml(item.title)}</h4>
-          <p class="cart-item-specs">
-            ${this.escapeHtml(item.material)} • ${item.size}"
-          </p>
+          <p class="cart-item-specs">${this.escapeHtml(item.material)}</p>
+          <p class="cart-item-specs">${this.escapeHtml(item.size)}</p>
           <p class="cart-item-price">${priceStr}</p>
         </div>
         <button class="cart-item-remove" data-index="${index}" aria-label="Remove item">
-          &times;
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
       </div>
     `;

@@ -19,6 +19,7 @@
     gtag('js',new Date());gtag('config','G-SE2WETEK5D',{anonymize_ip:true,allow_google_signals:false,allow_ad_personalization_signals:false});
   </script>
   <style>
+    html, body { overflow-y: scroll; } /* prevent layout shift when content shows */
     /* ===== Login Gate ===== */
     #login-gate {
       position: fixed; inset: 0;
@@ -97,8 +98,8 @@
     }
 
     /* ===== Page Content ===== */
-    #page-content { display: none; }
-    #page-content.visible { display: block; }
+    #page-content { opacity: 0; pointer-events: none; }
+    #page-content.visible { opacity: 1; pointer-events: auto; }
 
     /* ===== Hero ===== */
     .riedel-hero {
@@ -586,7 +587,7 @@
 
           <div class="config-price-wrap">
             <div class="config-price" id="configPrice">&mdash;</div>
-            <div class="config-price-breakdown" id="configPriceBreakdown" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.25rem;"></div>
+            <div id="configPriceBreakdown" style="margin-top:0.5rem;"></div>
             <div class="config-price-note">Free shipping — Continental USA &amp; Canada</div>
           </div>
 
@@ -741,22 +742,10 @@
     // Swapped labels per Wolf: "Close-up" is what was "Wide Shot" and vice versa
     var SCENES = [
       {
-        id: 'closeup', label: 'Wide Shot',
-        file: 'images/riedel-scenes/closeup.png',
-        fg:   'images/riedel-scenes/foregrounds/closeup_fg.png',
-        w: 1536, h: 1024,
-        linkedTo: 'wall1',
-        zones: [
-          { id:'left_wall',  label:'Left Wall',  px:{x1:414,y1:381,x2:604,y2:482}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
-          { id:'right_wall', label:'Right Wall', px:{x1:884,y1:382,x2:1075,y2:488}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
-        ]
-      },
-      {
-        id: 'wall1', label: 'Close-up',
+        id: 'wall1', label: 'Wide Shot',
         file: 'images/riedel-scenes/wall1.png',
         fg:   'images/riedel-scenes/foregrounds/wall1_fg.png',
         w: 1536, h: 1024,
-        linkedTo: 'closeup',
         zones: [
           { id:'left_wall',  label:'Left Wall',  px:{x1:312,y1:217,x2:615,y2:383}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
           { id:'right_wall', label:'Right Wall', px:{x1:910,y1:219,x2:1214,y2:391}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
@@ -777,7 +766,7 @@
         fg:   'images/riedel-scenes/foregrounds/confroom_fg.png',
         w: 1536, h: 1024,
         zones: [
-          { id:'center', label:'Main Wall', px:{x1:646,y1:395,x2:878,y2:511}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
+          { id:'center', label:'Main Wall', px:{x1:629,y1:386,x2:895,y2:520}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
         ]
       },
       {
@@ -852,8 +841,7 @@
       syncLinkedScene();
     });
 
-    // === LINKED SCENE SYNC ===
-    // wall1 and closeup are the same room — sync photos and config between them
+    // === LINKED SCENE SYNC (no linked scenes active) ===
     function syncLinkedScene() {
       if (!currentScene.linkedTo) return;
       var linked = SCENES.find(function(s) { return s.id === currentScene.linkedTo; });
@@ -1056,11 +1044,25 @@
         if (z.cfg.frame === 'float') zP += 80;
         if (z.cfg.frame === 'moulding') zP += 120;
         if (z.cfg.mat_border !== 'none' && z.cfg.mat_border) zP += 30;
-        if (zP) breakdown.push(z.label + ': $' + zP);
+        if (zP) breakdown.push({ label: z.label, sz: zSz[0] + '×' + zSz[1], price: zP });
       });
       var bdEl = document.getElementById('configPriceBreakdown');
       if (bdEl) {
-        bdEl.textContent = breakdown.length > 1 ? breakdown.join('  •  ') + '  =  Total: $' + breakdown.map(function(s){return parseInt(s.split('$')[1]);}).reduce(function(a,b){return a+b;},0) : '';
+        if (breakdown.length > 1) {
+          var roomTotal = breakdown.map(function(b){return b.price;}).reduce(function(a,b){return a+b;},0);
+          var html = '<div style="border-top:1px solid var(--glass-border);padding-top:0.6rem;margin-top:0.2rem;">';
+          html += '<div style="font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Room Total</div>';
+          breakdown.forEach(function(b) {
+            html += '<div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-secondary);padding:0.15rem 0;">';
+            html += '<span>' + b.label + ' &mdash; ' + b.sz + '&rdquo;</span>';
+            html += '<span style="color:var(--accent);">&dollar;' + b.price + '</span></div>';
+          });
+          html += '<div style="display:flex;justify-content:space-between;font-size:0.82rem;font-weight:400;color:var(--text-primary);border-top:1px solid var(--glass-border);padding-top:0.4rem;margin-top:0.3rem;">';
+          html += '<span>Total for room</span><span style="color:var(--accent);">&dollar;' + roomTotal + '</span></div></div>';
+          bdEl.innerHTML = html;
+        } else {
+          bdEl.innerHTML = '';
+        }
       }
 
       // Sync dropdowns to zone config
@@ -1107,11 +1109,23 @@
           if (!photo) return;
           var d = photo.dimensions || {};
           zone.photoData = { id: photo.id, title: photo.title, w: d.width||6000, h: d.height||4000, full: photo.full, thumbnail: photo.thumbnail };
-          zone.cfg.sizeIdx = -1; // will default to largest
-          var img = new Image();
-          img.onload = function() { imgCache[photo.id] = img; zone.photoImg = img; render(); updateConfigPanel(); buildZonePills(); };
-          img.src = photo.full;
-          imgCache[photo.id] = img; // assign optimistically
+          zone.cfg.sizeIdx = -1;
+          // Load thumbnail first for instant preview
+          (function(z, ph) {
+            var thumb = new Image();
+            thumb.onload = function() {
+              imgCache[ph.id + '_thumb'] = thumb;
+              if (!imgCache[ph.id + '_full']) { z.photoImg = thumb; render(); updateConfigPanel(); buildZonePills(); }
+            };
+            thumb.src = ph.thumbnail;
+            // Full-res in background
+            var full = new Image();
+            full.onload = function() {
+              imgCache[ph.id + '_full'] = full;
+              z.photoImg = full; render(); updateConfigPanel(); buildZonePills();
+            };
+            full.src = ph.full;
+          })(zone, photo);
         });
       });
 
@@ -1197,25 +1211,46 @@
       var zone = currentScene.zones[currentZoneIdx];
       var d = p.dimensions || {};
       zone.photoData = { id: p.id, title: p.title, w: d.width||6000, h: d.height||4000, full: p.full, thumbnail: p.thumbnail };
-      zone.cfg.sizeIdx = -1; // reset to largest
+      zone.cfg.sizeIdx = -1;
 
       document.querySelectorAll('.gb-photo').forEach(function(el) { el.classList.remove('active'); });
       if (clickedEl) clickedEl.classList.add('active');
 
-      if (imgCache[p.id]) {
-        zone.photoImg = imgCache[p.id];
+      // Use cached full-res if available
+      if (imgCache[p.id + '_full']) {
+        zone.photoImg = imgCache[p.id + '_full'];
         render(); updateConfigPanel(); buildZonePills();
-        syncLinkedScene();
-      } else {
-        var img = new Image();
-        img.onload = function() {
-          imgCache[p.id] = img; zone.photoImg = img;
-          render(); updateConfigPanel(); buildZonePills();
-          syncLinkedScene();
-        };
-        img.onerror = function() { console.warn('Photo failed:', p.full); };
-        img.src = p.full;
+        return;
       }
+
+      // Step 1: load thumbnail immediately for instant canvas preview
+      if (p.thumbnail && !imgCache[p.id + '_thumb']) {
+        var thumb = new Image();
+        thumb.onload = function() {
+          imgCache[p.id + '_thumb'] = thumb;
+          // Only use thumb if full-res not loaded yet
+          if (!imgCache[p.id + '_full'] && zone.photoData && zone.photoData.id === p.id) {
+            zone.photoImg = thumb;
+            render();
+          }
+        };
+        thumb.src = p.thumbnail;
+      } else if (imgCache[p.id + '_thumb']) {
+        zone.photoImg = imgCache[p.id + '_thumb'];
+        render();
+      }
+
+      // Step 2: load full-res in background, swap when ready
+      var full = new Image();
+      full.onload = function() {
+        imgCache[p.id + '_full'] = full;
+        if (zone.photoData && zone.photoData.id === p.id) {
+          zone.photoImg = full;
+          render(); updateConfigPanel(); buildZonePills();
+        }
+      };
+      full.onerror = function() { console.warn('Full-res failed:', p.full); };
+      full.src = p.full;
     }
 
     // === BASKET ===

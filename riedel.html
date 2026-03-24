@@ -496,6 +496,10 @@
           <a href="search.html">Search</a>
           <a href="riedel.html" class="active">Client</a>
         </nav>
+        <button class="nav-basket" id="navBasketBtn" onclick="document.getElementById('basketBar').scrollIntoView({behavior:'smooth'})" title="View Basket" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-family:var(--font-main);font-size:0.7rem;letter-spacing:0.1em;display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.75rem;border:1px solid var(--glass-border);border-radius:6px;transition:all 0.2s;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          <span>Basket</span><span id="navBasketCount" style="display:none;background:var(--accent);color:#000;border-radius:50%;width:16px;height:16px;font-size:9px;display:none;align-items:center;justify-content:center;font-weight:600;">0</span>
+        </button>
         <button class="nav-toggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
       </div>
     </header>
@@ -582,6 +586,7 @@
 
           <div class="config-price-wrap">
             <div class="config-price" id="configPrice">&mdash;</div>
+            <div class="config-price-breakdown" id="configPriceBreakdown" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.25rem;"></div>
             <div class="config-price-note">Free shipping — Continental USA &amp; Canada</div>
           </div>
 
@@ -736,7 +741,7 @@
     // Swapped labels per Wolf: "Close-up" is what was "Wide Shot" and vice versa
     var SCENES = [
       {
-        id: 'closeup', label: 'Close-up',
+        id: 'closeup', label: 'Wide Shot',
         file: 'images/riedel-scenes/closeup.png',
         fg:   'images/riedel-scenes/foregrounds/closeup_fg.png',
         w: 1536, h: 1024,
@@ -747,7 +752,7 @@
         ]
       },
       {
-        id: 'wall1', label: 'Wide Shot',
+        id: 'wall1', label: 'Close-up',
         file: 'images/riedel-scenes/wall1.png',
         fg:   'images/riedel-scenes/foregrounds/wall1_fg.png',
         w: 1536, h: 1024,
@@ -1002,9 +1007,14 @@
       slider.max = sizes.length - 1;
       slider.step = 1;
 
-      // Default to largest size
+      // Default to best DPI: largest size that achieves >= 200 DPI
       if (cfg.sizeIdx < 0 || cfg.sizeIdx >= sizes.length) {
-        cfg.sizeIdx = sizes.length - 1;
+        var bestIdx = 0;
+        for (var bi = sizes.length - 1; bi >= 0; bi--) {
+          var bDpi = getDPI(photo, sizes[bi][0], sizes[bi][1]);
+          if (bDpi >= 200) { bestIdx = bi; break; }
+        }
+        cfg.sizeIdx = bestIdx;
       }
       slider.value = cfg.sizeIdx;
 
@@ -1032,6 +1042,26 @@
 
       // Price
       document.getElementById('configPrice').textContent = price ? '$' + price : 'Select material';
+
+      // Show price breakdown for all zones that have photos
+      var breakdown = [];
+      currentScene.zones.forEach(function(z) {
+        if (!z.photoData) return;
+        var zSizes = getSizesForPhoto(z.photoData);
+        var zSi = z.cfg.sizeIdx < 0 ? zSizes.length-1 : z.cfg.sizeIdx;
+        if (zSi >= zSizes.length) zSi = zSizes.length - 1;
+        var zSz = zSizes[zSi];
+        var zMat = z.cfg.mat || 'metal';
+        var zP = getPrice(zMat, zSz[0], zSz[1]);
+        if (z.cfg.frame === 'float') zP += 80;
+        if (z.cfg.frame === 'moulding') zP += 120;
+        if (z.cfg.mat_border !== 'none' && z.cfg.mat_border) zP += 30;
+        if (zP) breakdown.push(z.label + ': $' + zP);
+      });
+      var bdEl = document.getElementById('configPriceBreakdown');
+      if (bdEl) {
+        bdEl.textContent = breakdown.length > 1 ? breakdown.join('  •  ') + '  =  Total: $' + breakdown.map(function(s){return parseInt(s.split('$')[1]);}).reduce(function(a,b){return a+b;},0) : '';
+      }
 
       // Sync dropdowns to zone config
       document.getElementById('materialSelect').value = cfg.mat || 'metal';
@@ -1112,12 +1142,30 @@
       collectionsMap = map;
     }
 
+    // Priority order for collections display
+    var COLLECTION_PRIORITY = [
+      'large-scale-photography-stitch','black-and-white','new-york','los-angeles',
+      'yosemite-national-park','grand-teton','utah-national-parks','sequoia-national-park',
+      'joshua-tree','glacier-national-park','death-valley','white-sands-national-park',
+      'mexico','canada','coast-of-california','somewhere-in-california','san-francisco',
+      'iceland','tanzania','antelope-canyon','monument-valley','lake-powell','hawaii',
+      'new-zealand','south-africa'
+    ];
+
     function showCollections() {
       document.getElementById('gbBack').classList.remove('visible');
       document.getElementById('gbBreadcrumb').textContent = 'All Collections';
       var grid = document.getElementById('gbGrid');
       grid.className = 'gb-grid'; grid.innerHTML = '';
-      var colls = Object.entries(collectionsMap);
+      // Sort by priority then alphabetically
+      var colls = Object.entries(collectionsMap).sort(function(a, b) {
+        var ai = COLLECTION_PRIORITY.indexOf(a[0]);
+        var bi = COLLECTION_PRIORITY.indexOf(b[0]);
+        if (ai === -1 && bi === -1) return a[1].title.localeCompare(b[1].title);
+        if (ai === -1) return 1;
+        if (bi === -1) return -1;
+        return ai - bi;
+      });
       document.getElementById('gbCount').textContent = colls.length + ' collections';
       colls.forEach(function(entry) {
         var slug = entry[0], coll = entry[1];
@@ -1196,6 +1244,18 @@
 
     function renderBasket() {
       var bar = document.getElementById('basketBar');
+      var navCount = document.getElementById('navBasketCount');
+      if (navCount) {
+        if (basket.length > 0) {
+          navCount.textContent = basket.length;
+          navCount.style.display = 'inline-flex';
+        } else {
+          navCount.style.display = 'none';
+        }
+      }
+      var navBtn = document.getElementById('navBasketBtn');
+      if (navBtn) navBtn.style.borderColor = basket.length ? 'var(--accent)' : 'var(--glass-border)';
+      if (navBtn) navBtn.style.color = basket.length ? 'var(--accent)' : 'var(--text-secondary)';
       if (!basket.length) { bar.style.display = 'none'; return; }
       bar.style.display = 'block';
       document.getElementById('basketCount').textContent = basket.length;

@@ -102,7 +102,7 @@
 
     /* ===== Hero ===== */
     .riedel-hero {
-      padding: 8rem 2rem 3rem;
+      padding: 5rem 2rem 1.5rem;
       text-align: center;
     }
     .riedel-badge {
@@ -129,18 +129,19 @@
     }
 
     /* ===== Visualizer Section ===== */
-    .visualizer-section { padding: 2rem 0 4rem; }
+    .visualizer-section { padding: 1rem 0 3rem; }
 
     /* Scene thumbnail carousel */
     .template-carousel {
       display: flex;
       gap: 0.75rem;
-      padding: 0 2rem 1rem;
+      padding: 0 1rem 1rem;
       overflow-x: auto;
       scrollbar-width: none;
-      margin-bottom: 1.5rem;
-      justify-content: center;
-      flex-wrap: wrap;
+      margin: 0 auto 1rem;
+      max-width: 1200px;
+      justify-content: flex-start;
+      flex-wrap: nowrap;
     }
     .template-carousel::-webkit-scrollbar { display: none; }
 
@@ -170,8 +171,11 @@
 
     /* Zone pills */
     .zone-bar {
-      display: flex; gap: 0.5rem; justify-content: center;
-      padding: 0 2rem 1rem; flex-wrap: wrap;
+      display: flex; gap: 0.5rem; justify-content: flex-start;
+      padding: 0 1rem 0.75rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      flex-wrap: wrap;
     }
     .zone-pill {
       padding: 0.35rem 1rem;
@@ -186,10 +190,10 @@
     .zone-pill:hover { border-color: var(--glass-border-hover); color: var(--text-primary); }
     .zone-pill.active { border-color: var(--accent); color: var(--accent); background: rgba(232,184,77,0.08); }
 
-    /* Canvas — full width, no cropping */
+    /* Canvas — constrained width, full aspect ratio */
     .visualizer-canvas-wrap {
       position: relative;
-      max-width: 100%;
+      max-width: 1200px;
       margin: 0 auto 1.5rem;
       background: var(--bg-secondary);
       border-radius: var(--radius);
@@ -204,7 +208,7 @@
 
     /* Gallery browser */
     .gallery-browser {
-      max-width: 960px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 0 1rem;
     }
@@ -647,8 +651,10 @@
       var dpr = window.devicePixelRatio || 1;
       canvas.width  = currentScene.w * dpr;
       canvas.height = currentScene.h * dpr;
-      canvas.style.width  = currentScene.w + 'px';
-      canvas.style.height = currentScene.h + 'px';
+      // Do NOT set inline width/height — let CSS control display size
+      // CSS has width:100% height:auto on the canvas element
+      canvas.style.width  = '';
+      canvas.style.height = '';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       ctx.clearRect(0, 0, currentScene.w, currentScene.h);

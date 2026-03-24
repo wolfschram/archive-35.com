@@ -346,141 +346,6 @@
       }
     }
   
-    /* ===== Inline Config Panel ===== */
-    .config-panel {
-      display: flex;
-      gap: 2rem;
-      padding: 1.5rem 0;
-      border-top: 1px solid var(--glass-border);
-      border-bottom: 1px solid var(--glass-border);
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-    .config-col { flex: 1; min-width: 240px; }
-    .config-col-right { display: flex; flex-direction: column; gap: 1rem; }
-    .config-zone-label {
-      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 1rem; font-weight: 400;
-    }
-    .config-row { margin-bottom: 0.75rem; }
-    .config-label {
-      display: block; font-size: 0.6rem; letter-spacing: 0.15em;
-      text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.35rem;
-    }
-    .config-select {
-      width: 100%;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-sm);
-      color: var(--text-primary);
-      padding: 0.55rem 0.8rem;
-      font-family: var(--font-main);
-      font-size: 0.8rem;
-      font-weight: 300;
-      outline: none;
-      cursor: pointer;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23e8b84d' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.75rem center;
-      padding-right: 2rem;
-      transition: border-color 0.2s;
-    }
-    .config-select:focus { border-color: var(--glass-border-hover); }
-    .config-size-display {
-      display: flex; align-items: baseline; gap: 0.5rem;
-    }
-    .config-size-value {
-      font-size: 1.6rem; font-weight: 100; letter-spacing: 0.05em;
-      color: var(--text-primary); line-height: 1;
-    }
-    .config-size-unit {
-      font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;
-    }
-    .config-slider-wrap { width: 100%; }
-    .config-slider {
-      width: 100%; appearance: none; height: 3px;
-      background: var(--glass-border); outline: none; border-radius: 2px; cursor: pointer;
-    }
-    .config-slider::-webkit-slider-thumb {
-      appearance: none; width: 16px; height: 16px;
-      border-radius: 50%; background: var(--accent); cursor: pointer;
-      box-shadow: 0 0 6px rgba(232,184,77,0.4);
-    }
-    .config-slider:disabled { opacity: 0.35; cursor: not-allowed; }
-    .config-slider:disabled::-webkit-slider-thumb { cursor: not-allowed; }
-    .config-slider-ends {
-      display: flex; justify-content: space-between;
-      font-size: 0.58rem; color: var(--text-muted); margin-top: 0.3rem;
-    }
-    .config-quality {
-      font-size: 0.7rem; letter-spacing: 0.1em;
-      padding: 0.3rem 0.75rem; border-radius: 20px;
-      border: 1px solid var(--glass-border);
-      display: inline-block; align-self: flex-start;
-    }
-    .config-quality.museum { border-color: #7ecfa4; color: #7ecfa4; }
-    .config-quality.excellent { border-color: #5aaf84; color: #5aaf84; }
-    .config-quality.good { border-color: var(--accent); color: var(--accent); }
-    .config-quality.low { border-color: #e05c5c; color: #e05c5c; }
-    .config-price-wrap { margin-top: auto; }
-    .config-price {
-      font-size: 2rem; font-weight: 100; color: var(--text-primary);
-      letter-spacing: 0.05em; line-height: 1;
-    }
-    .config-price-note {
-      font-size: 0.65rem; color: var(--text-muted); margin-top: 0.3rem;
-    }
-    .config-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; }
-
-    /* Basket */
-    .basket-bar {
-      background: var(--glass-bg); border: 1px solid var(--glass-border);
-      border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.5rem;
-    }
-    .basket-header {
-      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--text-muted); margin-bottom: 0.75rem;
-    }
-    .basket-header span { color: var(--accent); }
-    .basket-item {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      padding: 0.5rem 0; border-bottom: 1px solid var(--glass-border);
-      font-size: 0.75rem; gap: 1rem;
-    }
-    .basket-item:last-child { border-bottom: none; }
-    .basket-item-info { flex: 1; line-height: 1.6; }
-    .basket-item-title { color: var(--text-primary); font-weight: 300; }
-    .basket-item-detail { color: var(--text-muted); font-size: 0.68rem; }
-    .basket-item-price { color: var(--accent); font-weight: 400; white-space: nowrap; }
-    .basket-item-remove {
-      background: none; border: none; color: var(--text-muted);
-      cursor: pointer; font-size: 14px; padding: 0 0.25rem; line-height: 1;
-    }
-    .basket-item-remove:hover { color: #e05c5c; }
-    .basket-total {
-      font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap;
-    }
-    .basket-total strong { color: var(--accent); font-size: 1rem; font-weight: 300; }
-    .basket-checkout-row {
-      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-      padding-top: 0.75rem; border-top: 1px solid var(--glass-border); margin-top: 0.5rem;
-    }
-    .basket-company-wrap { flex: 1; min-width: 200px; }
-    .basket-company-label {
-      display: block; font-size: 0.58rem; letter-spacing: 0.15em;
-      text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;
-    }
-    .basket-company-input {
-      width: 100%; background: var(--bg-tertiary);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-sm);
-      color: var(--text-primary); padding: 0.5rem 0.75rem;
-      font-family: var(--font-main); font-size: 0.8rem; outline: none;
-      transition: border-color 0.2s;
-    }
-    .basket-company-input:focus { border-color: var(--accent); }
-    .basket-company-input::placeholder { color: var(--text-muted); }
   </style>
 </head>
 <body>
@@ -514,10 +379,6 @@
           <a href="search.html">Search</a>
           <a href="riedel.html" class="active">Client</a>
         </nav>
-        <button class="nav-basket" id="navBasketBtn" onclick="riedelShowBasket()" title="View Basket" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-family:var(--font-main);font-size:0.7rem;letter-spacing:0.1em;display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.75rem;border:1px solid var(--glass-border);border-radius:6px;transition:all 0.2s;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-          <span>Basket</span><span id="navBasketCount" style="display:none;background:var(--accent);color:#000;border-radius:50%;width:16px;height:16px;font-size:9px;display:none;align-items:center;justify-content:center;font-weight:600;">0</span>
-        </button>
         <button class="nav-toggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
       </div>
     </header>
@@ -545,92 +406,12 @@
         <canvas id="vizCanvas"></canvas>
       </div>
 
-      <!-- ===== INLINE CONFIG PANEL ===== -->
-      <div class="config-panel" id="configPanel">
-
-        <!-- Left: zone info + material + frame -->
-        <div class="config-col config-col-left">
-          <div class="config-zone-label" id="configZoneLabel">Select a wall position</div>
-
-          <div class="config-row">
-            <label class="config-label">Material</label>
-            <select id="materialSelect" class="config-select">
-              <option value="">-- Select --</option>
-              <option value="metal">HD Metal (ChromaLuxé)</option>
-              <option value="acrylic">Acrylic</option>
-              <option value="canvas">Canvas Wrap</option>
-              <option value="paper">Fine Art Paper</option>
-              <option value="wood">Wood</option>
-            </select>
-          </div>
-
-          <div class="config-row">
-            <label class="config-label">Frame / Mounting</label>
-            <select id="frameSelect" class="config-select">
-              <option value="none">No Frame — Standoff Mount</option>
-              <option value="float">Floating Frame (+$80)</option>
-              <option value="moulding">Moulding Frame (+$120)</option>
-              <option value="backframe">Back Float Frame (included)</option>
-            </select>
-          </div>
-
-          <div class="config-row">
-            <label class="config-label">Border / Mat</label>
-            <select id="matSelect" class="config-select">
-              <option value="none">No Border</option>
-              <option value="white">White Mat Border (+$30)</option>
-              <option value="black">Black Mat Border (+$30)</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Right: size slider + DPI + price -->
-        <div class="config-col config-col-right">
-
-          <div class="config-size-display">
-            <span class="config-size-value" id="configSizeValue">—</span>
-            <span class="config-size-unit">inches</span>
-          </div>
-
-          <div class="config-slider-wrap">
-            <input type="range" id="configSizeSlider" class="config-slider" min="0" max="100" value="80" disabled>
-            <div class="config-slider-ends">
-              <span id="configSizeMin">Smallest</span>
-              <span id="configSizeMax">Largest</span>
-            </div>
-          </div>
-
-          <div class="config-quality" id="configQuality">&mdash;</div>
-
-          <div class="config-price-wrap">
-            <div class="config-price" id="configPrice">&mdash;</div>
-            <div id="configPriceBreakdown" style="margin-top:0.5rem;"></div>
-            <div class="config-price-note">Free shipping — Continental USA &amp; Canada</div>
-          </div>
-
-          <div class="config-actions">
-            <button id="addBasketBtn" class="btn-buy" disabled>Add to Basket</button>
-            <button id="addAllBtn" class="btn-buy" style="display:none;">Add All Walls to Basket</button>
-            <button id="requestBtn" class="btn-request">Request This Print</button>
-          </div>
-
-        </div>
-      </div><!-- /config-panel -->
-
-      <!-- Basket -->
-      <div class="basket-bar" id="basketBar" style="display:none;">
-        <div class="basket-header">Your Selection &mdash; <span id="basketCount">0</span> item(s)</div>
-        <div id="basketItems"></div>
-        <div class="basket-checkout-row">
-          <div class="basket-total">Total: <strong id="basketTotal">$0</strong></div>
-          <div class="basket-company-wrap">
-            <label class="basket-company-label">Billing Company Name</label>
-            <input type="text" id="riedelCompanyName" class="basket-company-input" placeholder="Riedel Communications" autocomplete="organization">
-          </div>
-          <div style="display:flex;gap:0.75rem;">
-            <button onclick="riedelCheckout()" class="btn-buy" id="riedelCheckoutBtn">Pay Now</button>
-            <button onclick="riedelClearBasket()" class="btn-request">Clear</button>
-          </div>
+      <!-- ===== CTA BAR ===== -->
+      <div class="riedel-cta-bar" id="ctaBar">
+        <div id="selectionInfo" style="font-size:0.8rem;color:var(--text-secondary);">Select a wall position, then choose a photo from the gallery below</div>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+          <button id="configureBtn" class="btn-buy" disabled>Configure &amp; Buy</button>
+          <button id="requestBtn" class="btn-request">Request This Print</button>
         </div>
       </div>
 
@@ -721,16 +502,7 @@
   function initVisualizer() {
     'use strict';
 
-    // PRICE TABLE (from product-selector.js — exact same data)
-    var PRICE_TABLE = {
-      canvas:  { '12x8':101,'16x9':109,'12x12':90,'16x12':98,'18x12':120,'24x10':124,'24x12':113,'20x16':137,'24x14':140,'24x16':129,'20x20':151,'24x18':156,'36x12':137,'42x12':168,'36x15':174,'32x18':179,'36x18':191,'48x16':192,'36x24':208,'56x16':232,'30x30':214,'60x15':233,'48x20':242,'48x24':255,'40x30':282,'60x20':282,'48x27':298,'72x18':459,'60x25':331,'48x32':337,'60x40':640 },
-      metal:   { '12x8':90,'16x9':110,'12x12':110,'16x12':130,'18x12':140,'24x10':150,'24x12':170,'20x16':183,'24x14':190,'24x16':210,'20x20':217,'24x18':230,'36x12':230,'42x12':260,'36x15':275,'32x18':290,'36x18':320,'48x16':370,'36x24':409,'56x16':423,'30x30':424,'60x15':424,'48x20':449,'48x24':529,'40x30':549,'60x20':549,'48x27':589,'72x18':750,'60x25':674,'48x32':689,'60x40':1209 },
-      acrylic: { '12x8':123,'16x9':142,'12x12':142,'16x12':160,'18x12':170,'24x10':179,'24x12':197,'20x16':210,'24x14':216,'24x16':234,'20x20':240,'24x18':253,'36x12':253,'42x12':281,'36x15':294,'32x18':308,'36x18':336,'48x16':382,'36x24':419,'56x16':432,'30x30':433,'60x15':433,'48x20':456,'48x24':530,'40x30':549,'60x20':549,'48x27':586,'72x18':747,'60x25':664,'48x32':678,'60x40':1173 },
-      paper:   { '12x8':33,'16x9':37,'12x12':37,'16x12':42,'18x12':44,'24x10':46,'24x12':50,'20x16':53,'24x14':54,'24x16':59,'20x20':60,'24x18':63,'36x12':63,'42x12':69,'36x15':72,'32x18':75,'36x18':82,'48x16':92,'36x24':101,'56x16':104,'30x30':104,'60x15':104,'48x20':109,'48x24':126,'40x30':131,'60x20':131,'48x27':139,'72x18':139,'60x25':157,'48x32':160,'60x40':237 },
-      wood:    { '12x8':54,'16x9':66,'12x12':66,'16x12':79,'18x12':85,'24x10':92,'24x12':104,'20x16':113,'24x14':117,'24x16':130,'20x20':134,'24x18':143,'36x12':143,'42x12':162,'36x15':171,'32x18':181,'36x18':200,'48x16':231,'36x24':257,'56x16':265,'30x30':266,'60x15':266,'48x20':282,'48x24':333,'40x30':346,'60x20':346,'48x27':371,'72x18':533,'60x25':425,'48x32':435,'60x40':825 }
-    };
-
-    // ASPECT RATIO -> SIZES (from product-selector.js)
+    // ASPECT RATIO -> SIZES (for canvas render display size)
     var AR_SIZES = {
       '3:2':   [ [12,8],[18,12],[24,16],[36,24],[48,32],[60,40] ],
       '16:9':  [ [24,14],[32,18],[48,27] ],
@@ -754,16 +526,6 @@
       return AR_SIZES['3:2'];
     }
 
-    function getPrice(mat, w, h) {
-      var key = w + 'x' + h;
-      var alt = h + 'x' + w;
-      return (PRICE_TABLE[mat] && (PRICE_TABLE[mat][key] || PRICE_TABLE[mat][alt])) || 0;
-    }
-
-    function getDPI(photo, w, h) {
-      if (!photo) return 0;
-      return Math.round(Math.min(photo.w / w, photo.h / h));
-    }
 
     // === SCENE CONFIG — zones loaded from riedel-zones.json ===
     var SCENES = [
@@ -782,7 +544,6 @@
     var allPhotos      = [];
     var collectionsMap = {};
     var imgCache       = {};
-    var basket         = []; window._riedelBasket = basket;
 
     var canvas = document.getElementById('vizCanvas');
     var ctx    = canvas.getContext('2d');
@@ -823,75 +584,26 @@
 
     document.getElementById('gbBack').addEventListener('click', showCollections);
     document.getElementById('requestBtn').addEventListener('click', requestPrint);
-    document.getElementById('addBasketBtn').addEventListener('click', addToBasket);
-    document.getElementById('addAllBtn').addEventListener('click', addAllToBasket);
+    document.getElementById('configureBtn').addEventListener('click', openConfigure);
 
-    // Click on canvas to select the zone under the cursor
+    // Click on canvas to select zone under cursor
     canvas.addEventListener('click', function(e) {
       var rect = canvas.getBoundingClientRect();
-      // Convert click to scene pixel coords
       var scaleX = currentScene.w / rect.width;
       var scaleY = currentScene.h / rect.height;
       var sx = (e.clientX - rect.left) * scaleX;
       var sy = (e.clientY - rect.top)  * scaleY;
-
-      // Find which zone was clicked
       var hitIdx = -1;
       currentScene.zones.forEach(function(zone, i) {
-        if (!zone.photoData) return;
-        // Check if click is within drawn image bounds
-        var sizes   = getSizesForPhoto(zone.photoData);
-        var si      = zone.cfg.sizeIdx;
-        if (si < 0 || si >= sizes.length) si = sizes.length - 1;
-        var sz      = sizes[si];
-        var zW = zone.px.x2 - zone.px.x1;
-        var ppiX = zW / 48;
-        var drawW = sz[0] * ppiX;
-        var drawH = sz[0] * ppiX / (zone.photoData.w / zone.photoData.h);
-        var cx      = (zone.px.x1 + zone.px.x2) / 2;
-        var cy      = (zone.px.y1 + zone.px.y2) / 2;
-        var imgX1 = cx - drawW/2;
-        var imgY1 = cy - drawH/2;
-        var imgX2 = cx + drawW/2;
-        var imgY2 = cy + drawH/2;
-        if (sx >= imgX1 && sx <= imgX2 && sy >= imgY1 && sy <= imgY2) {
-          hitIdx = i;
-        }
+        var px = zone.px;
+        if (sx >= px.x1 && sx <= px.x2 && sy >= px.y1 && sy <= px.y2) hitIdx = i;
       });
-
       if (hitIdx >= 0 && hitIdx !== currentZoneIdx) {
         currentZoneIdx = hitIdx;
         buildZonePills();
-        updateConfigPanel();
+        updateSelectionInfo();
         render();
       }
-    });
-
-    // Config panel controls
-    document.getElementById('configSizeSlider').addEventListener('input', function() {
-      var zone = currentScene.zones[currentZoneIdx];
-      zone.cfg.sizeIdx = parseInt(this.value);
-      render();
-      updateConfigPanel();
-      syncLinkedScene();
-    });
-    document.getElementById('materialSelect').addEventListener('change', function() {
-      var zone = currentScene.zones[currentZoneIdx];
-      zone.cfg.mat = this.value;
-      updateConfigPanel();
-      syncLinkedScene();
-    });
-    document.getElementById('frameSelect').addEventListener('change', function() {
-      var zone = currentScene.zones[currentZoneIdx];
-      zone.cfg.frame = this.value;
-      updateConfigPanel();
-      syncLinkedScene();
-    });
-    document.getElementById('matSelect').addEventListener('change', function() {
-      var zone = currentScene.zones[currentZoneIdx];
-      zone.cfg.mat_border = this.value;
-      updateConfigPanel();
-      syncLinkedScene();
     });
 
     // === LINKED SCENE SYNC (no linked scenes active) ===
@@ -936,7 +648,7 @@
       bgImg = null; fgImg = null;
       buildZonePills();
       updateCarousel();
-      updateConfigPanel();
+      updateSelectionInfo();
 
       var bg = new Image();
       bg.onload = function() {
@@ -968,7 +680,7 @@
         btn.addEventListener('click', function() {
           currentZoneIdx = i;
           buildZonePills();
-          updateConfigPanel();
+          updateSelectionInfo();
           render();
         });
         bar.appendChild(btn);
@@ -1029,114 +741,43 @@
     }
 
     // === CONFIG PANEL ===
-    function updateConfigPanel() {
-      var zone   = currentScene.zones[currentZoneIdx];
-      var photo  = zone ? zone.photoData : null;
-      var cfg    = zone ? zone.cfg : null;
-
-      document.getElementById('configZoneLabel').textContent =
-        currentScene.label + ' \u2014 ' + (zone ? zone.label : '');
-
-      if (!photo) {
-        document.getElementById('configSizeSlider').disabled = true;
-        document.getElementById('configSizeValue').textContent = '\u2014';
-        document.getElementById('configQuality').textContent = 'Select an image';
-        document.getElementById('configQuality').className = 'config-quality';
-        document.getElementById('configPrice').textContent = '\u2014';
-        document.getElementById('addBasketBtn').disabled = true;
+    // === SELECTION INFO ===
+    function updateSelectionInfo() {
+      var zone = currentScene.zones[currentZoneIdx];
+      var info = document.getElementById('selectionInfo');
+      if (!zone) {
+        info.textContent = 'No zones calibrated for this scene';
+        document.getElementById('configureBtn').disabled = true;
         return;
       }
-
-      var sizes = getSizesForPhoto(photo);
-      var slider = document.getElementById('configSizeSlider');
-      slider.disabled = false;
-      slider.min = 0;
-      slider.max = sizes.length - 1;
-      slider.step = 1;
-
-      // Default to best DPI: largest size that achieves >= 200 DPI
-      if (cfg.sizeIdx < 0 || cfg.sizeIdx >= sizes.length) {
-        var bestIdx = 0;
-        for (var bi = sizes.length - 1; bi >= 0; bi--) {
-          var bDpi = getDPI(photo, sizes[bi][0], sizes[bi][1]);
-          if (bDpi >= 200) { bestIdx = bi; break; }
-        }
-        cfg.sizeIdx = bestIdx;
+      if (zone.photoData) {
+        info.innerHTML = '<strong style="color:var(--text-primary);font-weight:400;">' + zone.photoData.title + '</strong> \u2014 ' + currentScene.label + ' / ' + zone.label;
+        document.getElementById('configureBtn').disabled = false;
+      } else {
+        info.textContent = 'Select an image for ' + zone.label + ' from the gallery below';
+        document.getElementById('configureBtn').disabled = true;
       }
-      slider.value = cfg.sizeIdx;
+    }
 
-      var sz    = sizes[cfg.sizeIdx];
-      var mat   = cfg.mat || 'metal';
-      var dpi   = getDPI(photo, sz[0], sz[1]);
-      var price = getPrice(mat, sz[0], sz[1]);
-
-      // Add frame/mat price
-      if (cfg.frame === 'float')    price += 80;
-      if (cfg.frame === 'moulding') price += 120;
-      if (cfg.mat_border !== 'none' && cfg.mat_border) price += 30;
-
-      // Size display
-      document.getElementById('configSizeValue').textContent = sz[0] + '\u201d \u00d7 ' + sz[1] + '\u201d';
-      document.getElementById('configSizeMin').textContent = sizes[0][0] + '\u201d \u00d7 ' + sizes[0][1] + '\u201d';
-      document.getElementById('configSizeMax').textContent = sizes[sizes.length-1][0] + '\u201d \u00d7 ' + sizes[sizes.length-1][1] + '\u201d';
-
-      // DPI quality
-      var qEl = document.getElementById('configQuality');
-      if (dpi >= 300) { qEl.textContent = '\u2605\u2605\u2605 Museum Quality \u2014 ' + dpi + ' DPI'; qEl.className = 'config-quality museum'; }
-      else if (dpi >= 200) { qEl.textContent = '\u2605\u2605 Excellent \u2014 ' + dpi + ' DPI'; qEl.className = 'config-quality excellent'; }
-      else if (dpi >= 150) { qEl.textContent = '\u2605 Good \u2014 ' + dpi + ' DPI'; qEl.className = 'config-quality good'; }
-      else { qEl.textContent = '\u26a0 Reduce size \u2014 ' + dpi + ' DPI'; qEl.className = 'config-quality low'; }
-
-      // Price
-      document.getElementById('configPrice').textContent = price ? '$' + price : 'Select material';
-
-      // Show price breakdown for all zones that have photos
-      var breakdown = [];
-      currentScene.zones.forEach(function(z) {
-        if (!z.photoData) return;
-        var zSizes = getSizesForPhoto(z.photoData);
-        var zSi = z.cfg.sizeIdx < 0 ? zSizes.length-1 : z.cfg.sizeIdx;
-        if (zSi >= zSizes.length) zSi = zSizes.length - 1;
-        var zSz = zSizes[zSi];
-        var zMat = z.cfg.mat || 'metal';
-        var zP = getPrice(zMat, zSz[0], zSz[1]);
-        if (z.cfg.frame === 'float') zP += 80;
-        if (z.cfg.frame === 'moulding') zP += 120;
-        if (z.cfg.mat_border !== 'none' && z.cfg.mat_border) zP += 30;
-        if (zP) breakdown.push({ label: z.label, sz: zSz[0] + '×' + zSz[1], price: zP });
+    // === CONFIGURE & BUY — opens full product selector modal ===
+    function openConfigure() {
+      var zone = currentScene.zones[currentZoneIdx];
+      if (!zone || !zone.photoData) return;
+      if (typeof openProductSelector !== 'function') {
+        alert('Product selector not loaded. Please refresh the page.');
+        return;
+      }
+      openProductSelector({
+        id: zone.photoData.id,
+        title: zone.photoData.title,
+        dimensions: {
+          width: zone.photoData.w,
+          height: zone.photoData.h,
+          aspectRatio: zone.photoData.w / zone.photoData.h
+        },
+        thumbnail: zone.photoData.thumbnail || '',
+        full: zone.photoData.full
       });
-      var bdEl = document.getElementById('configPriceBreakdown');
-      if (bdEl) {
-        if (breakdown.length > 1) {
-          var roomTotal = breakdown.map(function(b){return b.price;}).reduce(function(a,b){return a+b;},0);
-          var html = '<div style="border-top:1px solid var(--glass-border);padding-top:0.6rem;margin-top:0.2rem;">';
-          html += '<div style="font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Room Total</div>';
-          breakdown.forEach(function(b) {
-            html += '<div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-secondary);padding:0.15rem 0;">';
-            html += '<span>' + b.label + ' &mdash; ' + b.sz + '&rdquo;</span>';
-            html += '<span style="color:var(--accent);">&dollar;' + b.price + '</span></div>';
-          });
-          html += '<div style="display:flex;justify-content:space-between;font-size:0.82rem;font-weight:400;color:var(--text-primary);border-top:1px solid var(--glass-border);padding-top:0.4rem;margin-top:0.3rem;">';
-          html += '<span>Total for room</span><span style="color:var(--accent);">&dollar;' + roomTotal + '</span></div></div>';
-          bdEl.innerHTML = html;
-        } else {
-          bdEl.innerHTML = '';
-        }
-      }
-
-      // Sync dropdowns to zone config
-      document.getElementById('materialSelect').value = cfg.mat || 'metal';
-      document.getElementById('frameSelect').value    = cfg.frame || 'backframe';
-      document.getElementById('matSelect').value      = cfg.mat_border || 'none';
-
-      document.getElementById('addBasketBtn').disabled = !price;
-
-      // Show "Add All" button when multi-zone scene has >1 zone with photos
-      var addAllBtn = document.getElementById('addAllBtn');
-      var zonesWithPhotos = currentScene.zones.filter(function(z) { return z.photoData; }).length;
-      if (addAllBtn) {
-        addAllBtn.style.display = (currentScene.zones.length > 1 && zonesWithPhotos > 1) ? '' : 'none';
-      }
     }
 
     // === PHOTOS ===
@@ -1147,68 +788,10 @@
           allPhotos = data.photos || data;
           buildCollectionsMap();
           showCollections();
-          // Default photos removed — zones start empty until calibrated
         })
         .catch(function() {
           document.getElementById('gbGrid').textContent = 'Could not load collection.';
         });
-    }
-
-    // Load default photos into every scene/zone on startup
-    function loadDefaultPhotos() {
-      // Pick diverse defaults from different collections
-      var defaults = [
-        allPhotos.find(function(p) { return p.collection === 'new-york'; }),
-        allPhotos.find(function(p) { return p.collection === 'iceland'; }),
-        allPhotos.find(function(p) { return p.collection === 'antelope-canyon'; }),
-        allPhotos.find(function(p) { return p.collection === 'grand-teton'; }),
-        allPhotos.find(function(p) { return p.collection === 'tanzania'; }),
-      ].filter(Boolean);
-
-      if (!defaults.length) defaults = [allPhotos[0]];
-
-      var di = 0;
-      SCENES.forEach(function(sc) {
-        sc.zones.forEach(function(zone) {
-          var photo = defaults[di % defaults.length];
-          di++;
-          if (!photo) return;
-          var d = photo.dimensions || {};
-          zone.photoData = { id: photo.id, title: photo.title, w: d.width||6000, h: d.height||4000, full: photo.full, thumbnail: photo.thumbnail };
-          zone.cfg.sizeIdx = -1;
-          // Load thumbnail first for instant preview
-          (function(z, ph) {
-            var thumb = new Image();
-            thumb.onload = function() {
-              imgCache[ph.id + '_thumb'] = thumb;
-              if (!imgCache[ph.id + '_full']) { z.photoImg = thumb; render(); updateConfigPanel(); buildZonePills(); }
-            };
-            thumb.src = ph.thumbnail;
-            // Full-res in background
-            var full = new Image();
-            full.onload = function() {
-              imgCache[ph.id + '_full'] = full;
-              z.photoImg = full; render(); updateConfigPanel(); buildZonePills();
-            };
-            full.src = ph.full;
-          })(zone, photo);
-        });
-      });
-
-      // Sync linked scenes
-      SCENES.forEach(function(sc) { if (sc.linkedTo) syncLinkedSceneFor(sc); });
-    }
-
-    function syncLinkedSceneFor(sc) {
-      var linked = SCENES.find(function(s) { return s.id === sc.linkedTo; });
-      if (!linked) return;
-      sc.zones.forEach(function(zone, i) {
-        if (linked.zones[i]) {
-          linked.zones[i].photoData = zone.photoData;
-          linked.zones[i].photoImg  = zone.photoImg;
-          linked.zones[i].cfg = JSON.parse(JSON.stringify(zone.cfg));
-        }
-      });
     }
 
     function buildCollectionsMap() {
@@ -1285,7 +868,7 @@
       // Use cached full-res if available
       if (imgCache[p.id + '_full']) {
         zone.photoImg = imgCache[p.id + '_full'];
-        render(); updateConfigPanel(); buildZonePills();
+        render(); updateSelectionInfo(); buildZonePills();
         return;
       }
 
@@ -1312,7 +895,7 @@
         imgCache[p.id + '_full'] = full;
         if (zone.photoData && zone.photoData.id === p.id) {
           zone.photoImg = full;
-          render(); updateConfigPanel(); buildZonePills();
+          render(); updateSelectionInfo(); buildZonePills();
         }
       };
       full.onerror = function() { console.warn('Full-res failed:', p.full); };
@@ -1320,99 +903,6 @@
     }
 
     // === BASKET ===
-    function calcZonePrice(zone) {
-      if (!zone.photoData) return 0;
-      var sizes = getSizesForPhoto(zone.photoData);
-      var si = zone.cfg.sizeIdx < 0 ? sizes.length - 1 : zone.cfg.sizeIdx;
-      if (si >= sizes.length) si = sizes.length - 1;
-      var sz = sizes[si];
-      var mat = zone.cfg.mat || 'metal';
-      var price = getPrice(mat, sz[0], sz[1]);
-      if (zone.cfg.frame === 'float') price += 80;
-      if (zone.cfg.frame === 'moulding') price += 120;
-      if (zone.cfg.mat_border !== 'none' && zone.cfg.mat_border) price += 30;
-      return price;
-    }
-
-    function addToBasket() {
-      var zone  = currentScene.zones[currentZoneIdx];
-      var photo = zone.photoData;
-      if (!photo) return;
-      var sizes  = getSizesForPhoto(photo);
-      var si     = zone.cfg.sizeIdx < 0 ? sizes.length - 1 : zone.cfg.sizeIdx;
-      if (si >= sizes.length) si = sizes.length - 1;
-      var sz     = sizes[si];
-      var price  = calcZonePrice(zone);
-
-      basket.push({
-        title: photo.title,
-        photoId: photo.id,
-        sizeW: sz[0],
-        sizeH: sz[1],
-        size: sz[0] + '\u201d \u00d7 ' + sz[1] + '\u201d',
-        mat: zone.cfg.mat || 'metal', frame: zone.cfg.frame, matBorder: zone.cfg.mat_border,
-        scene: currentScene.label, zone: zone.label,
-        price: price
-      });
-      renderBasket();
-    }
-
-    // Add ALL zones with photos in current scene to basket at once
-    function addAllToBasket() {
-      var added = 0;
-      currentScene.zones.forEach(function(zone) {
-        if (!zone.photoData) return;
-        var sizes = getSizesForPhoto(zone.photoData);
-        var si = zone.cfg.sizeIdx < 0 ? sizes.length - 1 : zone.cfg.sizeIdx;
-        if (si >= sizes.length) si = sizes.length - 1;
-        var sz = sizes[si];
-        var price = calcZonePrice(zone);
-        basket.push({
-          title: zone.photoData.title,
-          photoId: zone.photoData.id,
-          sizeW: sz[0],
-          sizeH: sz[1],
-          size: sz[0] + '\u201d \u00d7 ' + sz[1] + '\u201d',
-          mat: zone.cfg.mat || 'metal', frame: zone.cfg.frame, matBorder: zone.cfg.mat_border,
-          scene: currentScene.label, zone: zone.label,
-          price: price
-        });
-        added++;
-      });
-      if (added) renderBasket();
-    }
-
-    function renderBasket() {
-      var bar = document.getElementById('basketBar');
-      var navCount = document.getElementById('navBasketCount');
-      if (navCount) {
-        if (basket.length > 0) {
-          navCount.textContent = basket.length;
-          navCount.style.display = 'inline-flex';
-        } else {
-          navCount.style.display = 'none';
-        }
-      }
-      var navBtn = document.getElementById('navBasketBtn');
-      if (navBtn) navBtn.style.borderColor = basket.length ? 'var(--accent)' : 'var(--glass-border)';
-      if (navBtn) navBtn.style.color = basket.length ? 'var(--accent)' : 'var(--text-secondary)';
-      if (!basket.length) { bar.style.display = 'none'; return; }
-      bar.style.display = 'block';
-      document.getElementById('basketCount').textContent = basket.length;
-      var total = basket.reduce(function(s,i) { return s + i.price; }, 0);
-      document.getElementById('basketTotal').textContent = '$' + total;
-      var items = document.getElementById('basketItems');
-      items.innerHTML = basket.map(function(item, idx) {
-        var matNames = {metal:'HD Metal',acrylic:'Acrylic',canvas:'Canvas',paper:'Fine Art Paper',wood:'Wood'};
-        var detail = matNames[item.mat] + ' \u2014 ' + item.size + ' \u2014 ' + item.scene + ' / ' + item.zone;
-        return '<div class="basket-item"><div class="basket-item-info"><div class="basket-item-title">' + item.title + '</div><div class="basket-item-detail">' + detail + '</div></div><div class="basket-item-price">$' + item.price + '</div><button class="basket-item-remove" onclick="removeBasketItem(' + idx + ')" title="Remove">&times;</button></div>';
-      }).join('');
-    }
-    window.removeBasketItem = function(idx) {
-      basket.splice(idx, 1);
-      renderBasket();
-    };
-
     // === REQUEST PRINT ===
     function requestPrint() {
       var zone  = currentScene.zones[currentZoneIdx];
@@ -1425,127 +915,6 @@
     }
 
   } // end initVisualizer
-
-  // Basket nav helper - scroll to basket or show it
-  function riedelShowBasket() {
-    var bar = document.getElementById('basketBar');
-    if (!bar) return;
-    // Make sure it's visible first
-    if (bar.style.display === 'none') {
-      // Nothing in basket - flash the add button
-      var addBtn = document.getElementById('addBasketBtn');
-      if (addBtn) {
-        addBtn.style.outline = '2px solid var(--accent)';
-        setTimeout(function() { addBtn.style.outline = ''; }, 1500);
-      }
-      return;
-    }
-    // Scroll to it
-    bar.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    bar.style.boxShadow = '0 0 0 2px var(--accent)';
-    setTimeout(function() { bar.style.boxShadow = ''; }, 1500);
-  }
-
-
-  function riedelCheckout() {
-    var b = window._riedelBasket;
-    if (!b || !b.length) { alert('Your basket is empty.'); return; }
-
-    var company = (document.getElementById('riedelCompanyName')?.value || '').trim();
-    if (!company) {
-      document.getElementById('riedelCompanyName')?.focus();
-      document.getElementById('riedelCompanyName')?.style && (document.getElementById('riedelCompanyName').style.borderColor = 'var(--accent)');
-      return;
-    }
-
-    var btn = document.getElementById('riedelCheckoutBtn');
-    if (btn) { btn.textContent = 'Processing...'; btn.disabled = true; }
-
-    // Build Stripe line items from basket
-    var matNames = { metal:'HD Metal (ChromaLuxé)', acrylic:'Acrylic', canvas:'Canvas Wrap', paper:'Fine Art Paper', wood:'Wood' };
-    var lineItems = b.map(function(item) {
-      var desc = (matNames[item.mat] || item.mat) + ' — ' + item.size;
-      if (item.frame && item.frame !== 'none') desc += ' + Frame';
-      desc += ' — ' + item.scene + ' / ' + item.zone;
-      return {
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: item.title,
-            description: desc,
-            metadata: {
-              photoId: item.photoId || '',
-              material: item.mat || '',
-              frame: item.frame || '',
-              width: String(item.sizeW || ''),
-              height: String(item.sizeH || ''),
-              scene: item.scene || '',
-              zone: item.zone || '',
-              company: company
-            }
-          },
-          unit_amount: item.price * 100
-        },
-        quantity: 1
-      };
-    });
-
-    var payload = {
-      lineItems: lineItems,
-      successUrl: window.location.origin + '/thank-you.html?company=' + encodeURIComponent(company) + '&source=riedel',
-      cancelUrl: window.location.href,
-      customerEmail: null,
-      billingCompany: company,
-      pictorem: {
-        source: 'riedel-client-page',
-        company: company,
-        items: b.map(function(item) {
-          return {
-            photoId: item.photoId,
-            photoTitle: item.title,
-            material: item.mat,
-            frame: item.frame,
-            width: item.sizeW,
-            height: item.sizeH,
-            scene: item.scene,
-            zone: item.zone,
-            price: item.price
-          };
-        })
-      }
-    };
-
-    fetch('/api/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-      if (data.url) {
-        window.location.href = data.url;
-      } else if (data.sessionId && window.Stripe && window.STRIPE_PUBLIC_KEY) {
-        window.Stripe(window.STRIPE_PUBLIC_KEY).redirectToCheckout({ sessionId: data.sessionId });
-      } else {
-        throw new Error(data.error || 'Checkout failed');
-      }
-    })
-    .catch(function(err) {
-      console.error('Checkout error:', err);
-      if (btn) { btn.textContent = 'Pay Now'; btn.disabled = false; }
-      alert('Payment could not be started. Please try again or contact wolf@archive-35.com');
-    });
-  }
-
-  function riedelClearBasket() {
-    var b = window._riedelBasket; if (b) b.length = 0;
-    var bar = document.getElementById('basketBar');
-    if (bar) bar.style.display = 'none';
-    var navCount = document.getElementById('navBasketCount');
-    if (navCount) navCount.style.display = 'none';
-    var navBtn = document.getElementById('navBasketBtn');
-    if (navBtn) { navBtn.style.borderColor = ''; navBtn.style.color = ''; }
-  }
   </script>
 
   <!-- Mobile nav toggle -->

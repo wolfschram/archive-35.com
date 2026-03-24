@@ -459,10 +459,28 @@
     }
     .basket-item-remove:hover { color: #e05c5c; }
     .basket-total {
-      text-align: right; font-size: 0.8rem; color: var(--text-secondary);
-      margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid var(--glass-border);
+      font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap;
     }
     .basket-total strong { color: var(--accent); font-size: 1rem; font-weight: 300; }
+    .basket-checkout-row {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding-top: 0.75rem; border-top: 1px solid var(--glass-border); margin-top: 0.5rem;
+    }
+    .basket-company-wrap { flex: 1; min-width: 200px; }
+    .basket-company-label {
+      display: block; font-size: 0.58rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;
+    }
+    .basket-company-input {
+      width: 100%; background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary); padding: 0.5rem 0.75rem;
+      font-family: var(--font-main); font-size: 0.8rem; outline: none;
+      transition: border-color 0.2s;
+    }
+    .basket-company-input:focus { border-color: var(--accent); }
+    .basket-company-input::placeholder { color: var(--text-muted); }
   </style>
 </head>
 <body>
@@ -602,11 +620,15 @@
       <div class="basket-bar" id="basketBar" style="display:none;">
         <div class="basket-header">Your Selection &mdash; <span id="basketCount">0</span> item(s)</div>
         <div id="basketItems"></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:0.75rem;border-top:1px solid var(--glass-border);margin-top:0.5rem;flex-wrap:wrap;gap:0.75rem;">
+        <div class="basket-checkout-row">
           <div class="basket-total">Total: <strong id="basketTotal">$0</strong></div>
+          <div class="basket-company-wrap">
+            <label class="basket-company-label">Billing Company Name</label>
+            <input type="text" id="riedelCompanyName" class="basket-company-input" placeholder="Riedel Communications" autocomplete="organization">
+          </div>
           <div style="display:flex;gap:0.75rem;">
-            <button onclick="riedelRequestQuote()" class="btn-buy" style="font-size:0.7rem;">Request Quote</button>
-            <button onclick="riedelClearBasket()" class="btn-request" style="font-size:0.7rem;">Clear All</button>
+            <button onclick="riedelCheckout()" class="btn-buy" id="riedelCheckoutBtn">Pay Now</button>
+            <button onclick="riedelClearBasket()" class="btn-request">Clear</button>
           </div>
         </div>
       </div>
@@ -1388,30 +1410,95 @@
     setTimeout(function() { bar.style.boxShadow = ''; }, 1500);
   }
 
-  function riedelRequestQuote() {
-    // Build email with all basket items
-    var bar = document.getElementById('basketItems');
-    var items = document.querySelectorAll('.basket-item-info');
-    var total = document.getElementById('basketTotal')?.textContent || '';
-    var lines = [];
-    items.forEach(function(el) {
-      var title = el.querySelector('.basket-item-title')?.textContent || '';
-      var detail = el.querySelector('.basket-item-detail')?.textContent || '';
-      lines.push(title + ' — ' + detail);
+
+  function riedelCheckout() {
+    var b = window._riedelBasket;
+    if (!b || !b.length) { alert('Your basket is empty.'); return; }
+
+    var company = (document.getElementById('riedelCompanyName')?.value || '').trim();
+    if (!company) {
+      document.getElementById('riedelCompanyName')?.focus();
+      document.getElementById('riedelCompanyName')?.style && (document.getElementById('riedelCompanyName').style.borderColor = 'var(--accent)');
+      return;
+    }
+
+    var btn = document.getElementById('riedelCheckoutBtn');
+    if (btn) { btn.textContent = 'Processing...'; btn.disabled = true; }
+
+    // Build Stripe line items from basket
+    var matNames = { metal:'HD Metal (ChromaLuxé)', acrylic:'Acrylic', canvas:'Canvas Wrap', paper:'Fine Art Paper', wood:'Wood' };
+    var lineItems = b.map(function(item) {
+      var desc = (matNames[item.mat] || item.mat) + ' — ' + item.size;
+      if (item.frame && item.frame !== 'none') desc += ' + Frame';
+      desc += ' — ' + item.scene + ' / ' + item.zone;
+      return {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.title,
+            description: desc,
+            metadata: {
+              photoId: item.photoId || '',
+              material: item.mat || '',
+              frame: item.frame || '',
+              width: String(item.sizeW || ''),
+              height: String(item.sizeH || ''),
+              scene: item.scene || '',
+              zone: item.zone || '',
+              company: company
+            }
+          },
+          unit_amount: item.price * 100
+        },
+        quantity: 1
+      };
     });
-    var subject = 'Art Print Quote Request — Riedel Communications';
-    var body = 'Hi Wolf,
 
-I would like to request a quote for the following prints for our Riedel offices:
+    var payload = {
+      lineItems: lineItems,
+      successUrl: window.location.origin + '/thank-you.html?company=' + encodeURIComponent(company) + '&source=riedel',
+      cancelUrl: window.location.href,
+      customerEmail: null,
+      billingCompany: company,
+      pictorem: {
+        source: 'riedel-client-page',
+        company: company,
+        items: b.map(function(item) {
+          return {
+            photoId: item.photoId,
+            photoTitle: item.title,
+            material: item.mat,
+            frame: item.frame,
+            width: item.sizeW,
+            height: item.sizeH,
+            scene: item.scene,
+            zone: item.zone,
+            price: item.price
+          };
+        })
+      }
+    };
 
-' +
-      lines.join('
-') + '
-
-Estimated Total: ' + total + '
-
-Please confirm pricing and availability.';
-    window.location.href = 'mailto:wolf@archive-35.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    fetch('https://archive-35-com.pages.dev/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (data.sessionId && window.Stripe && window.STRIPE_PUBLIC_KEY) {
+        window.Stripe(window.STRIPE_PUBLIC_KEY).redirectToCheckout({ sessionId: data.sessionId });
+      } else {
+        throw new Error(data.error || 'Checkout failed');
+      }
+    })
+    .catch(function(err) {
+      console.error('Checkout error:', err);
+      if (btn) { btn.textContent = 'Pay Now'; btn.disabled = false; }
+      alert('Payment could not be started. Please try again or contact wolf@archive-35.com');
+    });
   }
 
   function riedelClearBasket() {

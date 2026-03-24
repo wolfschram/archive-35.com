@@ -47,9 +47,9 @@ This was discovered by screenshotting both images. Never trust filenames alone.
 All coordinates are in the 1536×1024 scene pixel space.
 
 ```javascript
-// Wide Shot (closeup.png)
-left_wall:  { x1:280, y1:250, x2:690,  y2:570 }  // above left bench
-right_wall: { x1:760, y1:250, x2:1270, y2:570 }  // above right bench
+// Wide Shot (closeup.png) -- FROM ZONE CALIBRATOR JSON (wide_shot_LR.json)
+left_wall:  { x1:384, y1:372, x2:595,  y2:482 }  // verified from Zone Calibrator
+right_wall: { x1:874, y1:366, x2:1092, y2:481 }  // verified from Zone Calibrator
 
 // Cubicle (cubicle.png) — not re-measured, use with caution
 wall: { x1:578, y1:294, x2:895, y2:483 }
@@ -206,3 +206,10 @@ This is coded in `COLLECTION_PRIORITY` array in the JS.
 - Wide Shot and Training Wall 2 zones may need fine-tuning after latest coord update
 - Conference Room zone was increased +15% but not re-verified visually
 - Cubicle and Training Room zones not re-measured (were visually confirmed working earlier)
+
+
+## ZONE CALIBRATOR
+
+The Zone Calibrator tool is at: `Riedel office photo mock up/ZONE_CALIBRATOR.html`
+Wolf ran it and exported `wide_shot_LR.json` with pixel coords verified against the actual image.
+Always use the Zone Calibrator output. Never guess coords.

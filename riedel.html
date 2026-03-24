@@ -130,16 +130,16 @@
 
     /* ===== Visualizer Section ===== */
     .visualizer-section { padding: 1rem 0 3rem; }
+    .visualizer-section .viz-container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
 
     /* Scene thumbnail carousel */
     .template-carousel {
       display: flex;
       gap: 0.75rem;
-      padding: 0 1rem 1rem;
+      padding: 0 0 1rem;
       overflow-x: auto;
       scrollbar-width: none;
-      margin: 0 auto 1rem;
-      max-width: 1200px;
+      margin-bottom: 1rem;
       justify-content: flex-start;
       flex-wrap: nowrap;
     }
@@ -173,8 +173,7 @@
     .zone-bar {
       display: flex; gap: 0.5rem; justify-content: flex-start;
       padding: 0 1rem 0.75rem;
-      max-width: 1200px;
-      margin: 0 auto;
+      margin: 0;
       flex-wrap: wrap;
     }
     .zone-pill {
@@ -193,8 +192,7 @@
     /* Canvas — constrained width, full aspect ratio */
     .visualizer-canvas-wrap {
       position: relative;
-      max-width: 1200px;
-      margin: 0 auto 1.5rem;
+      margin: 0 0 1.5rem;
       background: var(--bg-secondary);
       border-radius: var(--radius);
       overflow: hidden;
@@ -280,9 +278,8 @@
 
     /* CTA bar */
     .riedel-cta-bar {
-      max-width: 960px;
-      margin: 2rem auto 0;
-      padding: 1.25rem 1rem 0;
+      margin-top: 2rem;
+      padding-top: 1.25rem;
       display: flex;
       gap: 1rem;
       align-items: center;
@@ -395,6 +392,8 @@
     <!-- Visualizer -->
     <section class="visualizer-section">
 
+      <div class="viz-container">
+
       <!-- Scene thumbnails -->
       <div class="template-carousel" id="tmplCarousel"></div>
 
@@ -424,6 +423,8 @@
           <button id="requestBtn" class="btn-request">Request This Print</button>
         </div>
       </div>
+
+      </div><!-- /viz-container -->
 
     </section>
 

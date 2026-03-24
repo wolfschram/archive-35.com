@@ -1,0 +1,61 @@
+{
+  "closeup": {
+    "scene": "Riedel office wall 1 close up.png",
+    "zones": [
+      {
+        "id": "left",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.25,
+          "y": 0.3633
+        },
+        "size": {
+          "width": 0.1374,
+          "height": 0.1074
+        },
+        "centerPct": {
+          "x": 0.3187,
+          "y": 0.417
+        },
+        "pixelCoords": {
+          "x1": 384,
+          "y1": 372,
+          "x2": 595,
+          "y2": 482
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      },
+      {
+        "id": "right",
+        "photo": null,
+        "photoId": null,
+        "position": {
+          "x": 0.569,
+          "y": 0.3574
+        },
+        "size": {
+          "width": 0.1419,
+          "height": 0.1123
+        },
+        "centerPct": {
+          "x": 0.64,
+          "y": 0.4136
+        },
+        "pixelCoords": {
+          "x1": 874,
+          "y1": 366,
+          "x2": 1092,
+          "y2": 481
+        },
+        "ref": {
+          "widthInches": 48,
+          "heightInches": 32
+        }
+      }
+    ]
+  }
+}

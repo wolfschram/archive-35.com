@@ -20,6 +20,7 @@ cp *.html _site/ 2>/dev/null || true
 
 # Copy CNAME
 cp CNAME _site/ 2>/dev/null || true
+cp _headers _site/ 2>/dev/null || true  # Cloudflare cache rules
 
 # Clean stale _site/ subdirectories that may contain orphan data from previous builds
 rm -rf _site/images _site/data _site/css _site/js _site/logos _site/09_Licensing _site/clients _site/"Riedel office photo mock up" 2>/dev/null || true

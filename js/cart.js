@@ -62,13 +62,15 @@ class ShoppingCart {
     }
 
     // Add to cart array
-    this.cart.push({
+    const cartItem = {
       id: this.generateItemId(),
       ...item,
       addedAt: new Date().toISOString()
-    });
+    };
+    this.cart.push(cartItem);
 
     this.saveCart();
+    this.fireCartEvent('cart_add', cartItem);
     return true;
   }
 
@@ -77,8 +79,10 @@ class ShoppingCart {
    */
   removeFromCart(index) {
     if (index >= 0 && index < this.cart.length) {
+      const removed = this.cart[index];
       this.cart.splice(index, 1);
       this.saveCart();
+      this.fireCartEvent('cart_remove', removed);
       return true;
     }
     return false;
@@ -109,6 +113,7 @@ class ShoppingCart {
    * Clear entire cart
    */
   clearCart() {
+    this.fireCartEvent('cart_clear', null);
     this.cart = [];
     this.saveCart();
   }
@@ -125,6 +130,54 @@ class ShoppingCart {
    */
   generateItemId() {
     return `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * Fire cart event to /api/cart-event (non-blocking)
+   * @param {string} eventType - cart_add, cart_remove, cart_clear, cart_abandoned
+   * @param {Object} item - the cart item involved (optional)
+   */
+  fireCartEvent(eventType, item) {
+    try {
+      // Get Riedel user identity if available
+      const riedelUser = (() => {
+        try { return JSON.parse(localStorage.getItem('riedel_user') || 'null'); } catch { return null; }
+      })();
+      const authState = typeof window.getAuthState === 'function' ? window.getAuthState() : {};
+
+      const payload = {
+        eventType: eventType,
+        timestamp: new Date().toISOString(),
+        sessionId: this._sessionId || (this._sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6)),
+        userName: (riedelUser && riedelUser.name) || authState.name || '',
+        userEmail: (riedelUser && riedelUser.email) || authState.email || '',
+        photoTitle: (item && item.title) || '',
+        photoId: (item && (item.photoId || (item.metadata && item.metadata.photoId))) || '',
+        photoFilename: (item && item.metadata && item.metadata.photoFilename) || '',
+        collection: (item && item.metadata && item.metadata.collection) || '',
+        material: (item && item.material) || '',
+        size: (item && item.size) || '',
+        options: item && item.metadata ? [
+          item.metadata.subtype || '',
+          item.metadata.frame || '',
+          item.metadata.mounting || '',
+        ].filter(Boolean).join(', ') : '',
+        scene: (item && item.metadata && item.metadata.scene) || '',
+        zone: (item && item.metadata && item.metadata.zone) || '',
+        price: (item && item.price) || '',
+        cartTotal: this.getCartTotal(),
+        cartCount: this.getCartCount(),
+        pageUrl: window.location.pathname,
+      };
+
+      fetch('/api/cart-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }).catch(() => {}); // Fire and forget
+    } catch (e) {
+      // Never block cart operations
+    }
   }
 
   /**

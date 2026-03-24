@@ -23,6 +23,7 @@ const ORDERS_TAB = 'Orders';
 const CLIENTS_TAB = 'Clients';
 const ISSUES_TAB = 'Issues';
 const SIGNUPS_TAB = 'Signups';
+const CART_ACTIVITY_TAB = 'Cart Activity';
 
 // Column headers for Orders tab (Row 1)
 const ORDER_HEADERS = [
@@ -92,6 +93,27 @@ const SIGNUP_HEADERS = [
   'Notes'              // F
 ];
 
+// Column headers for Cart Activity tab (Row 1)
+const CART_ACTIVITY_HEADERS = [
+  'Timestamp',          // A
+  'Event Type',         // B (cart_add / cart_remove / cart_clear / cart_abandoned)
+  'User Name',          // C
+  'User Email',         // D
+  'Photo',              // E
+  'Photo ID',           // F
+  'Collection',         // G
+  'Material',           // H
+  'Size',               // I
+  'Options',            // J (frame, mounting, subtype etc)
+  'Price',              // K
+  'Scene',              // L
+  'Zone',               // M
+  'Cart Total',         // N
+  'Cart Count',         // O
+  'Session ID',         // P
+  'Page URL',           // Q
+];
+
 // ============================================================================
 // WEB APP ENTRY POINT
 // ============================================================================
@@ -105,13 +127,11 @@ function doPost(e) {
 
     // Route based on type
     if (data.orderType === 'signup') {
-      // Log new account signup
       logSignup(data);
+    } else if (data.orderType === 'cart_add' || data.orderType === 'cart_remove' || data.orderType === 'cart_clear' || data.orderType === 'cart_abandoned') {
+      logCartActivity(data);
     } else {
-      // Log the order
       logOrder(data);
-
-      // Update client database
       updateClient(data);
     }
 
@@ -133,7 +153,7 @@ function doGet(e) {
   ensureHeaders();
   return ContentService.createTextOutput(JSON.stringify({
     status: 'Archive-35 Order Log is active',
-    tabs: ['Orders', 'Clients', 'Issues', 'Signups'],
+    tabs: ['Orders', 'Clients', 'Issues', 'Signups', 'Cart Activity'],
     timestamp: new Date().toISOString()
   })).setMimeType(ContentService.MimeType.JSON);
 }
@@ -194,6 +214,25 @@ function ensureHeaders() {
       .setFontColor('#c4973b')
       .setFontSize(10);
     issuesSheet.setFrozenRows(1);
+  }
+
+  // Cart Activity tab
+  let cartSheet = ss.getSheetByName(CART_ACTIVITY_TAB);
+  if (!cartSheet) {
+    cartSheet = ss.insertSheet(CART_ACTIVITY_TAB);
+  }
+  if (cartSheet.getRange('A1').getValue() === '') {
+    cartSheet.getRange(1, 1, 1, CART_ACTIVITY_HEADERS.length).setValues([CART_ACTIVITY_HEADERS]);
+    cartSheet.getRange(1, 1, 1, CART_ACTIVITY_HEADERS.length)
+      .setFontWeight('bold')
+      .setBackground('#1a1a1a')
+      .setFontColor('#c4973b')
+      .setFontSize(10);
+    cartSheet.setFrozenRows(1);
+    cartSheet.setColumnWidth(1, 160);  // Timestamp
+    cartSheet.setColumnWidth(2, 120);  // Event Type
+    cartSheet.setColumnWidth(4, 220);  // Email
+    cartSheet.setColumnWidth(5, 200);  // Photo
   }
 
   // Signups tab
@@ -377,6 +416,50 @@ function logSignup(data) {
   // Green highlight for active signups
   const lastRow = sheet.getLastRow();
   sheet.getRange(lastRow, 4).setBackground('#e8f5e9').setFontColor('#2e7d32');
+}
+
+// ============================================================================
+// LOG CART ACTIVITY
+// ============================================================================
+
+function logCartActivity(data) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(CART_ACTIVITY_TAB);
+
+  const row = [
+    data.timestamp || new Date().toISOString(),  // Timestamp
+    data.orderType || '',                         // Event Type
+    data.customerName || '',                      // User Name
+    data.customerEmail || '',                     // User Email
+    data.photoTitle || '',                        // Photo
+    data.photoId || '',                           // Photo ID
+    data.collection || '',                        // Collection
+    data.material || '',                          // Material
+    data.size || '',                              // Size
+    data.options || '',                           // Options
+    data.price || '',                             // Price
+    data.scene || '',                             // Scene
+    data.zone || '',                              // Zone
+    data.cartTotal || '',                         // Cart Total
+    data.cartCount || '',                         // Cart Count
+    data.sessionId || '',                         // Session ID
+    data.pageUrl || '',                           // Page URL
+  ];
+
+  sheet.appendRow(row);
+
+  // Color code by event type
+  const lastRow = sheet.getLastRow();
+  const eventType = data.orderType || '';
+  if (eventType === 'cart_add') {
+    sheet.getRange(lastRow, 2).setBackground('#e8f5e9').setFontColor('#2e7d32');
+  } else if (eventType === 'cart_remove') {
+    sheet.getRange(lastRow, 2).setBackground('#fff3e0').setFontColor('#e65100');
+  } else if (eventType === 'cart_abandoned') {
+    sheet.getRange(lastRow, 2).setBackground('#ffebee').setFontColor('#c62828');
+  } else if (eventType === 'cart_clear') {
+    sheet.getRange(lastRow, 2).setBackground('#fce4ec').setFontColor('#ad1457');
+  }
 }
 
 // ============================================================================

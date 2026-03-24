@@ -469,7 +469,54 @@
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       }
     }
-  
+
+    /* Email capture modal */
+    .id-overlay {
+      position: fixed; inset: 0; z-index: 15000;
+      background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .id-overlay.hidden { display: none; }
+    .id-box {
+      background: var(--bg-primary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 2.5rem 2rem;
+      width: 100%; max-width: 380px;
+      text-align: center;
+    }
+    .id-box h3 {
+      font-size: 0.85rem; font-weight: 300;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--text-primary); margin-bottom: 0.5rem;
+    }
+    .id-box p {
+      font-size: 0.7rem; color: var(--text-muted);
+      margin-bottom: 1.5rem; line-height: 1.5;
+    }
+    .id-box input {
+      width: 100%; background: rgba(255,255,255,0.04);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary); padding: 0.7rem 1rem;
+      font-family: var(--font-main); font-size: 0.8rem;
+      outline: none; margin-bottom: 0.75rem;
+    }
+    .id-box input:focus { border-color: var(--glass-border-hover); }
+    .id-box .id-submit {
+      width: 100%; padding: 0.75rem;
+      background: var(--accent); color: #000; border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-main); font-size: 0.7rem;
+      font-weight: 500; letter-spacing: 0.15em;
+      text-transform: uppercase; cursor: pointer;
+      transition: all var(--transition);
+    }
+    .id-box .id-submit:hover { background: var(--accent-hover); }
+    .id-box .id-error {
+      font-size: 0.65rem; color: #e05c5c; margin-top: 0.5rem; display: none;
+    }
+
   </style>
 </head>
 <body>
@@ -557,6 +604,18 @@
       </div><!-- /viz-container -->
 
     </section>
+
+    <!-- Email Capture Modal -->
+    <div id="idOverlay" class="id-overlay hidden">
+      <div class="id-box">
+        <h3>Before You Add to Cart</h3>
+        <p>So we can follow up on your order and keep you updated, please enter your name and email.</p>
+        <input type="text" id="idName" placeholder="Your name" autocomplete="name">
+        <input type="email" id="idEmail" placeholder="Your email" autocomplete="email">
+        <button class="id-submit" id="idSubmit">Continue</button>
+        <div class="id-error" id="idError">Please enter a valid email address</div>
+      </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -1370,8 +1429,128 @@
       full.src = p.full;
     }
 
-    // === BASKET ===
-    // === REQUEST PRINT ===
+    // === EMAIL CAPTURE GATE ===
+    // Intercepts Add to Cart if user hasn't identified themselves yet.
+    // Stores { name, email } in localStorage as riedel_user.
+    var _pendingCartAction = null;
+
+    function getRiedelUser() {
+      try { return JSON.parse(localStorage.getItem('riedel_user') || 'null'); } catch(e) { return null; }
+    }
+
+    function requireIdentity(callback) {
+      var user = getRiedelUser();
+      if (user && user.email) {
+        callback();
+        return;
+      }
+      _pendingCartAction = callback;
+      document.getElementById('idOverlay').classList.remove('hidden');
+      document.getElementById('idName').focus();
+    }
+
+    document.getElementById('idSubmit').addEventListener('click', function() {
+      var name = document.getElementById('idName').value.trim();
+      var email = document.getElementById('idEmail').value.trim();
+      if (!email || email.indexOf('@') < 1 || email.indexOf('.') < 3) {
+        document.getElementById('idError').style.display = 'block';
+        return;
+      }
+      document.getElementById('idError').style.display = 'none';
+      localStorage.setItem('riedel_user', JSON.stringify({ name: name, email: email }));
+      document.getElementById('idOverlay').classList.add('hidden');
+      if (_pendingCartAction) {
+        _pendingCartAction();
+        _pendingCartAction = null;
+      }
+    });
+
+    // Allow Enter key in email field
+    document.getElementById('idEmail').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('idSubmit').click();
+    });
+
+    // Override addZoneToCart to gate on identity
+    var _origAddZoneToCart = addZoneToCart;
+    addZoneToCart = function(zone, cfg, btn) {
+      requireIdentity(function() { _origAddZoneToCart(zone, cfg, btn); });
+    };
+
+    // Override Add All button to gate on identity
+    var addAllBtn = document.getElementById('icAddAll');
+    var _origAddAllHandler = null;
+    // Re-bind: remove old listener by cloning
+    var newAddAllBtn = addAllBtn.cloneNode(true);
+    addAllBtn.parentNode.replaceChild(newAddAllBtn, addAllBtn);
+    newAddAllBtn.addEventListener('click', function() {
+      requireIdentity(function() {
+        var btn = newAddAllBtn;
+        var added = 0;
+        currentScene.zones.forEach(function(zone, zi) {
+          if (!zone.photoData) return;
+          var cfg = getZoneCfg(currentScene.id, zi);
+          var price = cfg.sizeW ? icPrice(cfg.mat, cfg.sizeW, cfg.sizeH) : 0;
+          if (!price) return;
+          var item = {
+            photoId: zone.photoData.id,
+            title: zone.photoData.title,
+            material: icMatName(cfg.mat) + ' \u2014 ' + icSubName(cfg.mat, cfg.subtype),
+            size: cfg.sizeW + '\u00d7' + cfg.sizeH + '"',
+            price: price,
+            thumbnail: zone.photoData.thumbnail || '',
+            metadata: {
+              photoId: zone.photoData.id,
+              material: cfg.mat, subtype: cfg.subtype,
+              width: cfg.sizeW, height: cfg.sizeH,
+              frame: cfg.frame === 'none' ? '' : cfg.frame, mounting: cfg.border,
+              scene: currentScene.label, zone: zone.label,
+              dpi: icDPI(zone.photoData.w, zone.photoData.h, cfg.sizeW, cfg.sizeH)
+            }
+          };
+          if (window.cart && window.cart.addToCart(item)) added++;
+        });
+        if (added) {
+          btn.textContent = added + ' ITEMS ADDED \u2713';
+          btn.style.background = '#4a9';
+          setTimeout(function() { btn.textContent = 'Add All to Cart'; btn.style.background = ''; }, 2000);
+        }
+      });
+    });
+
+    // Pass riedel_user email to Stripe checkout as customer_email
+    // (cart-ui.js handleCheckout reads this)
+    document.addEventListener('cartChanged', function() {
+      var user = getRiedelUser();
+      if (user && user.email) {
+        window._riedelCustomerEmail = user.email;
+        window._riedelCustomerName = user.name || '';
+      }
+    });
+
+    // === CHECKOUT ABANDONMENT DETECTION ===
+    var _abandonTimer = null;
+    var ABANDON_MINUTES = 30;
+
+    function resetAbandonTimer() {
+      if (_abandonTimer) clearTimeout(_abandonTimer);
+      if (window.cart && window.cart.getCartCount() > 0) {
+        _abandonTimer = setTimeout(fireAbandonEvent, ABANDON_MINUTES * 60 * 1000);
+      }
+    }
+
+    function fireAbandonEvent() {
+      if (!window.cart || window.cart.getCartCount() === 0) return;
+      var user = getRiedelUser();
+      var items = window.cart.getCart();
+      var firstItem = items[0] || {};
+      window.cart.fireCartEvent('cart_abandoned', firstItem);
+    }
+
+    // Reset timer on every cart change
+    document.addEventListener('cartChanged', resetAbandonTimer);
+    // Start timer if cart already has items
+    resetAbandonTimer();
+
   } // end initVisualizer
   </script>
 

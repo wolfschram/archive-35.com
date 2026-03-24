@@ -25,7 +25,7 @@ export async function onRequestPost(context) {
 
   try {
     const body = await request.json();
-    const { lineItems, successUrl, cancelUrl, returnUrl, uiMode, pictorem, license, testMode, stripeCustomerId } = body;
+    const { lineItems, successUrl, cancelUrl, returnUrl, uiMode, pictorem, license, testMode, stripeCustomerId, customerEmail } = body;
 
     // Select appropriate Stripe key based on test mode flag
     const isTestMode = testMode === true;
@@ -208,6 +208,10 @@ export async function onRequestPost(context) {
       params.append('customer', stripeCustomerId);
     } else {
       params.append('customer_creation', 'always');
+      // Pre-fill email from Riedel portal or auth
+      if (customerEmail) {
+        params.append('customer_email', customerEmail);
+      }
     }
 
     // Create Stripe Checkout Session

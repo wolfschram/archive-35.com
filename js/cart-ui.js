@@ -394,6 +394,9 @@ class CartUI {
     const authState = window.getAuthState ? window.getAuthState() : {};
     const customerIdForCheckout = authState.loggedIn ? authState.stripeCustomerId : undefined;
 
+    // Riedel portal user email (from identity capture) or auth email
+    const customerEmail = window._riedelCustomerEmail || authState.email || undefined;
+
     const orderType = license && pictorem ? 'mixed' : license ? 'license' : 'print';
     const apiBase = 'https://archive-35-com.pages.dev';
 
@@ -412,6 +415,7 @@ class CartUI {
           license: license || undefined,
           testMode: isTestMode || undefined,
           stripeCustomerId: customerIdForCheckout || undefined,
+          customerEmail: customerEmail || undefined,
         })
       });
 

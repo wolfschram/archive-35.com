@@ -935,15 +935,22 @@
         var px   = zone.px;
         var cx   = (px.x1 + px.x2) / 2;
         var cy   = (px.y1 + px.y2) / 2;
-        var ppiX = (px.x2 - px.x1) / 48;
-        var ppiY = (px.y2 - px.y1) / 32;
+        var zoneW = px.x2 - px.x1;
+        var zoneH = px.y2 - px.y1;
 
         var sizes  = getSizesForPhoto(zone.photoData);
         var si     = zone.cfg.sizeIdx;
-        if (si < 0 || si >= sizes.length) si = sizes.length - 1; // default to largest
+        if (si < 0 || si >= sizes.length) si = sizes.length - 1;
         var sz     = sizes[si];
-        var drawW  = sz[0] * ppiX;
-        var drawH  = sz[1] * ppiY;
+        var maxSz  = sizes[sizes.length - 1]; // largest available size
+
+        // Scale: largest size fills 92% of zone width, smaller sizes scale down proportionally
+        var maxDrawW = zoneW * 0.92;
+        var scale    = sz[0] / maxSz[0];  // ratio of current size to max size
+        var drawW    = maxDrawW * scale;
+        // Preserve the photo aspect ratio (not the print aspect ratio)
+        var photoAR  = zone.photoData.w / zone.photoData.h;
+        var drawH    = drawW / photoAR;
 
         ctx.drawImage(zone.photoImg, cx - drawW/2, cy - drawH/2, drawW, drawH);
 

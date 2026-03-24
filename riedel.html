@@ -496,7 +496,7 @@
           <a href="search.html">Search</a>
           <a href="riedel.html" class="active">Client</a>
         </nav>
-        <button class="nav-basket" id="navBasketBtn" onclick="document.getElementById('basketBar').scrollIntoView({behavior:'smooth'})" title="View Basket" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-family:var(--font-main);font-size:0.7rem;letter-spacing:0.1em;display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.75rem;border:1px solid var(--glass-border);border-radius:6px;transition:all 0.2s;">
+        <button class="nav-basket" id="navBasketBtn" onclick="riedelShowBasket()" title="View Basket" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);font-family:var(--font-main);font-size:0.7rem;letter-spacing:0.1em;display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.75rem;border:1px solid var(--glass-border);border-radius:6px;transition:all 0.2s;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
           <span>Basket</span><span id="navBasketCount" style="display:none;background:var(--accent);color:#000;border-radius:50%;width:16px;height:16px;font-size:9px;display:none;align-items:center;justify-content:center;font-weight:600;">0</span>
         </button>
@@ -600,9 +600,15 @@
 
       <!-- Basket -->
       <div class="basket-bar" id="basketBar" style="display:none;">
-        <div class="basket-header">Basket <span id="basketCount">0</span> item(s)</div>
+        <div class="basket-header">Your Selection &mdash; <span id="basketCount">0</span> item(s)</div>
         <div id="basketItems"></div>
-        <div class="basket-total">Total: <strong id="basketTotal">$0</strong></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:0.75rem;border-top:1px solid var(--glass-border);margin-top:0.5rem;flex-wrap:wrap;gap:0.75rem;">
+          <div class="basket-total">Total: <strong id="basketTotal">$0</strong></div>
+          <div style="display:flex;gap:0.75rem;">
+            <button onclick="riedelRequestQuote()" class="btn-buy" style="font-size:0.7rem;">Request Quote</button>
+            <button onclick="riedelClearBasket()" class="btn-request" style="font-size:0.7rem;">Clear All</button>
+          </div>
+        </div>
       </div>
 
       <!-- Gallery browser -->
@@ -799,7 +805,7 @@
     var allPhotos      = [];
     var collectionsMap = {};
     var imgCache       = {};
-    var basket         = [];
+    var basket         = []; window._riedelBasket = basket;
 
     var canvas = document.getElementById('vizCanvas');
     var ctx    = canvas.getContext('2d');
@@ -1361,6 +1367,62 @@
     }
 
   } // end initVisualizer
+
+  // Basket nav helper - scroll to basket or show it
+  function riedelShowBasket() {
+    var bar = document.getElementById('basketBar');
+    if (!bar) return;
+    // Make sure it's visible first
+    if (bar.style.display === 'none') {
+      // Nothing in basket - flash the add button
+      var addBtn = document.getElementById('addBasketBtn');
+      if (addBtn) {
+        addBtn.style.outline = '2px solid var(--accent)';
+        setTimeout(function() { addBtn.style.outline = ''; }, 1500);
+      }
+      return;
+    }
+    // Scroll to it
+    bar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    bar.style.boxShadow = '0 0 0 2px var(--accent)';
+    setTimeout(function() { bar.style.boxShadow = ''; }, 1500);
+  }
+
+  function riedelRequestQuote() {
+    // Build email with all basket items
+    var bar = document.getElementById('basketItems');
+    var items = document.querySelectorAll('.basket-item-info');
+    var total = document.getElementById('basketTotal')?.textContent || '';
+    var lines = [];
+    items.forEach(function(el) {
+      var title = el.querySelector('.basket-item-title')?.textContent || '';
+      var detail = el.querySelector('.basket-item-detail')?.textContent || '';
+      lines.push(title + ' — ' + detail);
+    });
+    var subject = 'Art Print Quote Request — Riedel Communications';
+    var body = 'Hi Wolf,
+
+I would like to request a quote for the following prints for our Riedel offices:
+
+' +
+      lines.join('
+') + '
+
+Estimated Total: ' + total + '
+
+Please confirm pricing and availability.';
+    window.location.href = 'mailto:wolf@archive-35.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
+
+  function riedelClearBasket() {
+    var b = window._riedelBasket; if (b) b.length = 0;
+    var bar = document.getElementById('basketBar');
+    if (bar) bar.style.display = 'none';
+    var navCount = document.getElementById('navBasketCount');
+    if (navCount) navCount.style.display = 'none';
+    var navBtn = document.getElementById('navBasketBtn');
+    if (navBtn) { navBtn.style.borderColor = ''; navBtn.style.color = ''; }
+  }
   </script>
 
   <!-- Mobile nav toggle -->

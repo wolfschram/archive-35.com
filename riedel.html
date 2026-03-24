@@ -814,6 +814,50 @@
     document.getElementById('requestBtn').addEventListener('click', requestPrint);
     document.getElementById('addBasketBtn').addEventListener('click', addToBasket);
 
+    // Click on canvas to select the zone under the cursor
+    canvas.addEventListener('click', function(e) {
+      var rect = canvas.getBoundingClientRect();
+      // Convert click to scene pixel coords
+      var scaleX = currentScene.w / rect.width;
+      var scaleY = currentScene.h / rect.height;
+      var sx = (e.clientX - rect.left) * scaleX;
+      var sy = (e.clientY - rect.top)  * scaleY;
+
+      // Find which zone was clicked
+      var hitIdx = -1;
+      currentScene.zones.forEach(function(zone, i) {
+        if (!zone.photoData) return;
+        // Check if click is within drawn image bounds
+        var sizes   = getSizesForPhoto(zone.photoData);
+        var si      = zone.cfg.sizeIdx;
+        if (si < 0 || si >= sizes.length) si = sizes.length - 1;
+        var sz      = sizes[si];
+        var maxSz   = sizes[sizes.length - 1];
+        var minZoneW = Math.min.apply(null, currentScene.zones.map(function(z){return z.px.x2-z.px.x1;}));
+        var maxDrawW = minZoneW * 0.88;
+        var scale   = sz[0] / maxSz[0];
+        var drawW   = maxDrawW * scale;
+        var photoAR = zone.photoData.w / zone.photoData.h;
+        var drawH   = drawW / photoAR;
+        var cx      = (zone.px.x1 + zone.px.x2) / 2;
+        var cy      = (zone.px.y1 + zone.px.y2) / 2;
+        var imgX1 = cx - drawW/2;
+        var imgY1 = cy - drawH/2;
+        var imgX2 = cx + drawW/2;
+        var imgY2 = cy + drawH/2;
+        if (sx >= imgX1 && sx <= imgX2 && sy >= imgY1 && sy <= imgY2) {
+          hitIdx = i;
+        }
+      });
+
+      if (hitIdx >= 0 && hitIdx !== currentZoneIdx) {
+        currentZoneIdx = hitIdx;
+        buildZonePills();
+        updateConfigPanel();
+        render();
+      }
+    });
+
     // Config panel controls
     document.getElementById('configSizeSlider').addEventListener('input', function() {
       var zone = currentScene.zones[currentZoneIdx];
@@ -965,16 +1009,7 @@
           ctx.strokeRect(cx - drawW/2 - bw/2, cy - drawH/2 - bw/2, drawW + bw, drawH + bw);
         }
 
-        // Size label on selected zone only
-        if (i === currentZoneIdx) {
-          var label = sz[0] + '\u201d \u00d7 ' + sz[1] + '\u201d';
-          ctx.fillStyle = 'rgba(0,0,0,0.78)';
-          ctx.fillRect(cx - drawW/2, cy - drawH/2 - 22, 120, 18);
-          ctx.fillStyle = '#e8b84d';
-          ctx.font = 'bold 11px Inter, sans-serif';
-          ctx.fillText(label, cx - drawW/2 + 5, cy - drawH/2 - 8);
-        }
-      });
+        // Size label removed - displayed in config panel only
 
       if (fgImg) ctx.drawImage(fgImg, 0, 0, currentScene.w, currentScene.h);
     }

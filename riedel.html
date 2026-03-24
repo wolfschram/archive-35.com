@@ -832,13 +832,12 @@
         var si      = zone.cfg.sizeIdx;
         if (si < 0 || si >= sizes.length) si = sizes.length - 1;
         var sz      = sizes[si];
-        var maxSz   = sizes[sizes.length - 1];
-        var minZoneW = Math.min.apply(null, currentScene.zones.map(function(z){return z.px.x2-z.px.x1;}));
-        var maxDrawW = minZoneW * 0.88;
-        var scale   = sz[0] / maxSz[0];
-        var drawW   = maxDrawW * scale;
-        var photoAR = zone.photoData.w / zone.photoData.h;
-        var drawH   = drawW / photoAR;
+        var zW = zone.px.x2 - zone.px.x1;
+        var zH = zone.px.y2 - zone.px.y1;
+        var ppiX = zW / 48;
+        var ppiY = zH / 32;
+        var drawW = sz[0] * ppiX;
+        var drawH = sz[1] * ppiY;
         var cx      = (zone.px.x1 + zone.px.x2) / 2;
         var cy      = (zone.px.y1 + zone.px.y2) / 2;
         var imgX1 = cx - drawW/2;
@@ -988,16 +987,12 @@
         var si     = zone.cfg.sizeIdx;
         if (si < 0 || si >= sizes.length) si = sizes.length - 1;
         var sz     = sizes[si];
-        var maxSz  = sizes[sizes.length - 1];
 
-        // Consistent scale: use smallest zone in scene as reference
-        // so same print size looks same size on all walls
-        var minZoneW = Math.min.apply(null, currentScene.zones.map(function(z){return z.px.x2-z.px.x1;}));
-        var maxDrawW = minZoneW * 0.88;
-        var scale    = sz[0] / maxSz[0];
-        var drawW    = maxDrawW * scale;
-        var photoAR  = zone.photoData.w / zone.photoData.h;
-        var drawH    = drawW / photoAR;
+        // Scale image to zone: ppiX = pixels per inch based on zone width / 48 inch reference
+        var ppiX = zoneW / 48;
+        var ppiY = zoneH / 32;
+        var drawW = sz[0] * ppiX;
+        var drawH = sz[1] * ppiY;
 
         ctx.drawImage(zone.photoImg, cx - drawW/2, cy - drawH/2, drawW, drawH);
 

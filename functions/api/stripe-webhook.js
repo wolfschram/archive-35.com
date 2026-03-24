@@ -185,7 +185,7 @@ function buildPreorderCode(material, printWidth, printHeight, subOptions = {}) {
   // Phase 4: Append frame moulding code if selected
   // Floating frames (canvas/metal/acrylic): mountingType = 'moulding'
   // Picture frames (paper): mountingType = 'frame'
-  if (frameCode) {
+  if (frameCode && frameCode !== 'none') {
     const frameMountingType = material === 'paper' ? 'frame' : 'moulding';
     parts.push(frameMountingType, frameCode);
   }

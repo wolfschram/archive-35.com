@@ -1202,7 +1202,7 @@
           photoId: zone.photoData.id,
           material: cfg.mat, subtype: cfg.subtype,
           width: cfg.sizeW, height: cfg.sizeH,
-          frame: cfg.frame, mounting: cfg.border,
+          frame: cfg.frame === 'none' ? '' : cfg.frame, mounting: cfg.border,
           scene: currentScene.label, zone: zone.label,
           dpi: icDPI(zone.photoData.w, zone.photoData.h, cfg.sizeW, cfg.sizeH)
         }
@@ -1234,7 +1234,7 @@
             photoId: zone.photoData.id,
             material: cfg.mat, subtype: cfg.subtype,
             width: cfg.sizeW, height: cfg.sizeH,
-            frame: cfg.frame, mounting: cfg.border,
+            frame: cfg.frame === 'none' ? '' : cfg.frame, mounting: cfg.border,
             scene: currentScene.label, zone: zone.label,
             dpi: icDPI(zone.photoData.w, zone.photoData.h, cfg.sizeW, cfg.sizeH)
           }

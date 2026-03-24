@@ -744,7 +744,7 @@
       {
         id: 'wall1', label: 'Wide Shot',
         file: 'images/riedel-scenes/closeup.png',
-        fg:   'images/riedel-scenes/foregrounds/closeup_fg.png',
+        fg:   null,  // closeup_fg.png is opaque — do not use
         w: 1536, h: 1024,
         zones: [
           { id:'left_wall',  label:'Left Wall',  px:{x1:280,y1:250,x2:690,y2:570}, photoImg:null, photoData:null, cfg:{mat:'metal',frame:'none',mat_border:'none',sizeIdx:-1} },
@@ -890,10 +890,12 @@
       bg.onerror = function() { console.warn('BG load failed:', sc.file); };
       bg.src = sc.file;
 
-      var fg = new Image();
-      fg.onload = function() { fgImg = fg; render(); };
-      fg.onerror = function() { console.warn('FG load failed:', sc.fg); };
-      fg.src = sc.fg;
+      if (sc.fg) {
+        var fg = new Image();
+        fg.onload = function() { fgImg = fg; render(); };
+        fg.onerror = function() { console.warn('FG load failed:', sc.fg); };
+        fg.src = sc.fg;
+      }
     }
 
     // === ZONES ===

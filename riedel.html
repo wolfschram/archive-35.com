@@ -19,7 +19,6 @@
     gtag('js',new Date());gtag('config','G-SE2WETEK5D',{anonymize_ip:true,allow_google_signals:false,allow_ad_personalization_signals:false});
   </script>
   <style>
-    html, body { overflow-y: scroll; } /* prevent layout shift when content shows */
     /* ===== Login Gate ===== */
     #login-gate {
       position: fixed; inset: 0;
@@ -98,8 +97,8 @@
     }
 
     /* ===== Page Content ===== */
-    #page-content { opacity: 0; pointer-events: none; }
-    #page-content.visible { opacity: 1; pointer-events: auto; }
+    #page-content { display: none; }
+    #page-content.visible { display: block; }
 
     /* ===== Hero ===== */
     .riedel-hero {

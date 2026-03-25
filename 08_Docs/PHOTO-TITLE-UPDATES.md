@@ -110,3 +110,41 @@
 | 103 | 164 | Wolf 9399 | Mountain Road Descending Into Valley |
 | 104 | 165 | Wolf 9403 | Valley of Granite Walls and Pines |
 | 105 | 166 | Wolf 9422 | Granite Domes at Alpine Twilight |
+
+
+## Location Identification Pass (2026-03-24)
+
+Added city/location names to urban shots and titled remaining raw-filename panoramas.
+
+| # | ID | Old Title | New Title |
+|---|----|-----------|-----------|
+| 1 | 056 | Neon Pulse of the City | Neon Pulse of Times Square |
+| 2 | 067 | Skyline Under Brooding Clouds | Los Angeles Skyline Under Brooding Clouds |
+| 3 | 068 | Towers in Overcast Amber | Downtown Los Angeles in Overcast Amber |
+| 4 | 069 | City Glass Catching Storm Light | Los Angeles Glass Catching Storm Light |
+| 5 | 070 | Downtown Dusk Before the Rain | Downtown Los Angeles Before the Rain |
+| 6 | 153 | Skyline Under Approaching Storm Front | Los Angeles Under Approaching Storm Front |
+| 7 | 089 | Grand Hall of Gilded Light | Grand Hall of Union Station |
+| 8 | 127 | City Skyline at Golden Twilight | Arlington Twilight Toward the Capital |
+| 9 | 142 | Towers of Glass Against Open Sky | Chicago Towers Against Open Sky |
+| 10 | 143 | River Corridor Through Glass and Steel | Chicago River Through Glass and Steel |
+| 11 | 144 | Old Brick Meets Modern Glass | Old Brick Meets New Glass, Chicago |
+| 12 | 145 | Iron and Shadow Beneath the Elevated | Iron and Shadow Beneath the Chicago L |
+| 13 | 146 | Elevated Rail Against the Skyline | The L Against Chicago's Skyline |
+| 14 | 045 | 104A9021 Panorama 2 | Dune Ridge at White Sands |
+| 15 | 046 | 104A9021 Panorama | White Sands Rising |
+| 16 | 047 | 104A9032 Panorama | Rippled Gypsum Under Open Sky |
+| 17 | 048 | 104A9122 Panorama | Soft Contours of White Sands |
+| 18 | 049 | 104A9139 Panorama | Sundown Over the Basin |
+| 19 | 050 | 104A9184 Panorama | Wind Lines Before the Mountains |
+| 20 | 051 | 104A9245 Panorama | Last Light on White Sands |
+| 21 | 052 | 104A9291 Panorama | Afterglow on Gypsum Dunes |
+| 22 | 053 | LA Flip | Los Angeles Mirrored |
+| 23 | 054 | WOLF6158 Panorama | Badlands Carved by Time, Death Valley |
+| 24 | 055 | WOLF6485 Panorama | Storm Shelf Over Owens Valley |
+| 25 | 066 | Wolf 3375 Panorama | Shadow and Sand at Mesquite Flat |
+| 26 | 085 | Wolf 5132 Panorama 2 | Still Water in Glacier Country |
+| 27 | 147 | 104A9055 Panorama | Meridian Light at White Sands |
+| 28 | 148 | 104A9145 Panorama | Quiet Dunes Before Dusk |
+| 29 | 149 | IMG 0140 Panorama | Manhattan and Central Park From Above |
+| 30 | 150 | WOLF6451 Panorama | Basin Floor at First Light |

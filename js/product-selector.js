@@ -1722,7 +1722,6 @@ function initiateStripeCheckout(photoData, materialKey, size) {
   };
 
   // Close the modal while processing
-  const modal = document.getElementById('product-selector-modal');
   const checkoutBtn = modal?.querySelector('#checkout-button');
   if (checkoutBtn) {
     checkoutBtn.textContent = 'Processing...';

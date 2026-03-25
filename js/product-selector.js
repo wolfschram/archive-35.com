@@ -1548,6 +1548,13 @@ function updatePriceSummary(modal, materialKey, size, photoData) {
         else priceEl.title = '';
         // Store resolved price for addToCart/checkout
         modal._lastResolvedPrice = result.retail;
+      })
+      .catch(err => {
+        console.error('[ARCHIVE-35] Price fetch failed:', err);
+        let price = calculatePrice(materialKey, size.inches, size.width, size.height);
+        if (selectedFrame) price += getFrameAddOnPrice(size);
+        priceEl.textContent = `$${price}`;
+        modal._lastResolvedPrice = price;
       });
   } else {
     // Fallback: static table + frame addon

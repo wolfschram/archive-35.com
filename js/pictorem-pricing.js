@@ -12,7 +12,7 @@
   'use strict';
 
   var MARKUP = 2; // retail = wholesale × 2
-  var API_URL = '/api/pictorem-products';
+  var API_URL = 'https://archive-35-com.pages.dev/api/pictorem-products';
   var cache = {};
 
   // Material defaults (mirrors MATERIAL_MAP in stripe-webhook.js)
@@ -85,7 +85,7 @@
       }
       additionals.push('none', 'none');
     } else if (materialKey === 'metal' || materialKey === 'acrylic') {
-      var mounting = opts.mounting || '';
+      var mounting = opts.mounting || 'standoff';
       if (mounting && mounting !== 'none') {
         additionals = [mounting];
       }

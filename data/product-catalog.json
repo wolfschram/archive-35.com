@@ -384,10 +384,10 @@
           "included": true
         },
         "frenchcleat": {
-          "name": "French Cleat (upgrade)",
+          "name": "French Cleat",
           "code": "frenchcleat",
           "description": "Heavy-duty angled bracket system. Recommended for prints over 36 inches.",
-          "shortDescription": "Heavy-duty upgrade",
+          "shortDescription": "Heavy-duty mounting",
           "recommendedMinSize": 36
         }
       },

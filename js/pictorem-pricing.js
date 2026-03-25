@@ -11,7 +11,16 @@
 (function() {
   'use strict';
 
-  var MARKUP = 2; // retail = wholesale × 2
+  // Per-material markup: retail = wholesale × multiplier
+  // Canvas & paper: 1.75 (75% margin). Others: 2.0 (50% margin).
+  var MARKUP = {
+    canvas: 1.75,
+    paper:  1.75,
+    metal:  2,
+    acrylic: 2,
+    wood:   2
+  };
+  var DEFAULT_MARKUP = 2;
   var API_URL = 'https://archive-35-com.pages.dev/api/pictorem-products';
   var cache = {};
 
@@ -163,7 +172,8 @@
     .then(function(json) {
       if (json.data && json.data.status === true && json.data.worksheet && json.data.worksheet.price) {
         var wholesale = json.data.worksheet.price.subTotal;
-        var retail = Math.ceil(wholesale * MARKUP);
+        var multiplier = MARKUP[materialKey] || DEFAULT_MARKUP;
+        var retail = Math.ceil(wholesale * multiplier);
         var result = {
           retail: retail,
           wholesale: Math.round(wholesale * 100) / 100,

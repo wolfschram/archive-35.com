@@ -11,16 +11,28 @@
 (function() {
   'use strict';
 
-  // Per-material markup: retail = wholesale × multiplier
+  // Per-material markup on the ART (print itself)
   // Canvas & paper: 1.75 (75% margin). Others: 2.0 (50% margin).
-  var MARKUP = {
+  var ART_MARKUP = {
     canvas: 1.75,
     paper:  1.75,
     metal:  2,
     acrylic: 2,
     wood:   2
   };
-  var DEFAULT_MARKUP = 2;
+  var DEFAULT_ART_MARKUP = 2;
+
+  // Markup on add-ons (frames, mounting, borders) — just 15% to cover handling
+  var ADDON_MARKUP = 1.15;
+
+  // Keys that are part of the art print (get full markup)
+  // Everything else (frames, mounting, borders) gets ADDON_MARKUP
+  var ART_KEYS = {
+    'main': true,
+    'semigloss': true, 'matte': true, 'knife': true, 'silver': true,  // canvas finishes
+    'mirrorimage': true, 'gallerywrap': true, 'solidcolor': true,       // canvas edges
+    'none': true, 'c15': true, 'c075': true, 'stretched': true, 'canvas': true  // canvas types
+  };
   var API_URL = 'https://archive-35-com.pages.dev/api/pictorem-products';
   var cache = {};
 
@@ -171,12 +183,32 @@
     .then(function(res) { return res.json(); })
     .then(function(json) {
       if (json.data && json.data.status === true && json.data.worksheet && json.data.worksheet.price) {
-        var wholesale = json.data.worksheet.price.subTotal;
-        var multiplier = MARKUP[materialKey] || DEFAULT_MARKUP;
-        var retail = Math.ceil(wholesale * multiplier);
+        var priceData = json.data.worksheet.price;
+        var listItems = priceData.list || {};
+        var discItems = priceData.discount || {};
+        var wholesale = priceData.subTotal;
+
+        // Split cost: art (full markup) vs add-ons (15% markup)
+        var artCost = 0;
+        var addonCost = 0;
+        for (var key in listItems) {
+          if (listItems.hasOwnProperty(key)) {
+            var net = (listItems[key] || 0) - (discItems[key] || 0);
+            if (ART_KEYS[key]) {
+              artCost += net;
+            } else {
+              addonCost += net;
+            }
+          }
+        }
+
+        var artMultiplier = ART_MARKUP[materialKey] || DEFAULT_ART_MARKUP;
+        var retail = Math.ceil(artCost * artMultiplier + addonCost * ADDON_MARKUP);
         var result = {
           retail: retail,
           wholesale: Math.round(wholesale * 100) / 100,
+          artCost: Math.round(artCost * 100) / 100,
+          addonCost: Math.round(addonCost * 100) / 100,
           preorderCode: code,
           fallback: false
         };

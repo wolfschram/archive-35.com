@@ -160,37 +160,42 @@ export async function onRequestPost(context) {
       });
     }
 
-    // For new customers: send welcome email + notify Wolf + log to Google Sheet
+    // Notifications + logging — for ALL logins (new and returning)
     // CRITICAL: Use context.waitUntil() so Cloudflare keeps the Worker alive
     // until all background operations complete. Without this, fire-and-forget
     // fetch() calls can be killed when the Response is returned.
-    if (isNewCustomer) {
+    {
       const RESEND_KEY2 = env.RESEND_API_KEY;
       const WOLF_BIZ = 'wolf@archive-35.com';
       const backgroundTasks = [];
 
-      // Send welcome email from Wolf with BCC to Wolf
-      if (RESEND_KEY2) {
-        backgroundTasks.push(
-          fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${RESEND_KEY2}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              from: 'Wolf Schram <wolf@archive-35.com>',
-              to: [normalizedEmail],
-              bcc: [WOLF_BIZ],
-              subject: 'Welcome to Archive-35',
-              html: buildWelcomeEmail(customerName),
-            }),
-          }).catch(err => console.error('Welcome email error:', err))
-        );
+      if (isNewCustomer) {
+        // Send welcome email from Wolf with BCC to Wolf
+        if (RESEND_KEY2) {
+          backgroundTasks.push(
+            fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${RESEND_KEY2}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                from: 'Wolf Schram <wolf@archive-35.com>',
+                to: [normalizedEmail],
+                bcc: [WOLF_BIZ],
+                subject: 'Welcome to Archive-35',
+                html: buildWelcomeEmail(customerName),
+              }),
+            }).catch(err => console.error('Welcome email error:', err))
+          );
+        }
       }
 
-      // Send signup notification to Wolf
+      // Notify Wolf on EVERY login (new signup or returning customer)
       if (RESEND_KEY2) {
+        const subject = isNewCustomer
+          ? `[New Signup] ${customerName || normalizedEmail}`
+          : `[Returning] ${customerName || normalizedEmail}`;
         backgroundTasks.push(
           fetch('https://api.resend.com/emails', {
             method: 'POST',
@@ -201,14 +206,16 @@ export async function onRequestPost(context) {
             body: JSON.stringify({
               from: 'Archive-35 <orders@archive-35.com>',
               to: [WOLF_BIZ],
-              subject: `[New Signup] ${customerName || normalizedEmail}`,
-              html: buildSignupNotificationEmail(customerName, normalizedEmail),
+              subject: subject,
+              html: isNewCustomer
+                ? buildSignupNotificationEmail(customerName, normalizedEmail)
+                : buildReturnNotificationEmail(customerName, normalizedEmail),
             }),
-          }).catch(err => console.error('Signup notification error:', err))
+          }).catch(err => console.error('Login notification error:', err))
         );
       }
 
-      // Log new signup to Google Sheet
+      // Log ALL logins to Google Sheet
       const SHEET_URL = env.GOOGLE_SHEET_WEBHOOK_URL;
       if (SHEET_URL) {
         backgroundTasks.push(
@@ -216,12 +223,13 @@ export async function onRequestPost(context) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              orderType: 'signup',
+              orderType: isNewCustomer ? 'signup' : 'activity',
+              activityType: isNewCustomer ? 'signup' : 'login',
               customerName: customerName,
               customerEmail: normalizedEmail,
               customerPaid: 0,
               status: 'active',
-              notes: 'Account signup via magic link',
+              notes: isNewCustomer ? 'New account signup' : 'Returning customer login',
             }),
           }).catch(err => console.error('Google Sheet log error:', err))
         );
@@ -350,6 +358,26 @@ function buildSignupNotificationEmail(name, email) {
   <tr><td style="color:#999;">Time</td><td style="color:#fff;">${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}</td></tr>
 </table>
 <p style="margin:16px 0 0;color:#999;font-size:13px;">A welcome email has been sent to the customer. Their info has been logged to the Google Sheet.</p>
+</body>
+</html>`;
+}
+
+/**
+ * Build returning customer notification email for Wolf
+ */
+function buildReturnNotificationEmail(name, email) {
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:20px;background:#111;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#ccc;">
+<h2 style="color:#e8b84d;margin:0 0 8px;">Returning Customer</h2>
+<p style="color:#666;font-size:13px;margin:0 0 24px;">Archive-35 &middot; ${new Date().toISOString().split('T')[0]}</p>
+<table cellpadding="8" cellspacing="0" style="background:#1a1a1a;border:1px solid #333;border-radius:8px;width:100%;max-width:600px;font-size:14px;">
+  <tr><td style="color:#999;">Name</td><td style="color:#fff;"><strong>${name || 'Not provided'}</strong></td></tr>
+  <tr><td style="color:#999;">Email</td><td style="color:#fff;">${email}</td></tr>
+  <tr><td style="color:#999;">Time</td><td style="color:#fff;">${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}</td></tr>
+</table>
+<p style="margin:16px 0 0;color:#999;font-size:13px;">This customer has logged in again. Check the Activity tab in Google Sheets for their browsing and cart activity.</p>
 </body>
 </html>`;
 }

@@ -1406,6 +1406,11 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
       input.checked = true;
       selectedMaterial = input.value;
 
+      // Track material selection
+      if (window.A35Track) {
+        window.A35Track.event('config_change', { field: 'material', value: selectedMaterial, photoId: photoData.id });
+      }
+
       // Update summary
       const materialName = MATERIALS[selectedMaterial].name;
       modal.querySelector('#summary-material').textContent = materialName;
@@ -1494,6 +1499,9 @@ function populateSizes(container, sizes, photoData, materialKey, modal, onSelect
     input.addEventListener('change', () => {
       const [w, h] = input.value.split('x').map(Number);
       const selectedSize = { width: w, height: h, inches: (w * h) };
+      if (window.A35Track) {
+        window.A35Track.event('config_change', { field: 'size', value: w + 'x' + h });
+      }
       onSelect(selectedSize);
     });
   });
@@ -1778,6 +1786,11 @@ function initiateStripeCheckout(photoData, materialKey, size) {
  * @param {Object} photoData - Photo object from photos.json with dimensions
  */
 async function openProductSelector(photoData) {
+  // Track product selector open
+  if (window.A35Track) {
+    window.A35Track.event('product_open', { photoId: photoData.id, title: photoData.title });
+  }
+
   // Load product catalog (non-blocking — sub-options just won't show if it fails)
   loadProductCatalog();
 

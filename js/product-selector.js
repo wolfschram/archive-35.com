@@ -1365,7 +1365,8 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
                   .then(frameResult => {
                     const delta = frameResult.retail - basePrice;
                     priceEl.textContent = delta > 0 ? `+ $${delta}` : 'included';
-                  });
+                  })
+                  .catch(() => { priceEl.textContent = '+ $' + getFrameAddOnPrice(size); });
               });
               // Update frame summary
               const frameSummary = modal.querySelector('#summary-frame');

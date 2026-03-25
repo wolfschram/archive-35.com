@@ -656,7 +656,8 @@
   <script src="js/cart-ui.js?v=6"></script>
   <script src="js/auth.js?v=1"></script>
   <script src="js/image-protection.js"></script>
-  <script src="js/product-selector.js?v=11"></script>
+  <script src="js/pictorem-pricing.js?v=1"></script>
+  <script src="js/product-selector.js?v=12"></script>
 
   <script>
   // ===== LOGIN =====
@@ -1277,7 +1278,7 @@
         // Footer: price + DPI + border label + individual add button
         var footer = document.createElement('div');
         footer.className = 'ic-card-footer';
-        var price = cfg.sizeW ? icPrice(cfg.mat, cfg.sizeW, cfg.sizeH) : 0;
+        var fallbackPrice = cfg.sizeW ? icPrice(cfg.mat, cfg.sizeW, cfg.sizeH) : 0;
         var dpi = cfg.sizeW ? icDPI(zone.photoData.w, zone.photoData.h, cfg.sizeW, cfg.sizeH) : 0;
         var borderLabel = '';
         if (cfg.border_type === 'white') borderLabel = cfg.border_width + '" White Border';
@@ -1288,12 +1289,12 @@
             '<div class="ic-card-dpi">' + (dpi ? '<span class="' + icDPICls(dpi) + '">' + icDPILbl(dpi) + '</span>' : '&mdash;') + '</div>' +
             (cfg.sizeW && getCropWarning(zone.photoData, cfg.sizeW, cfg.sizeH) ? '<div class="ic-crop-warn">' + getCropWarning(zone.photoData, cfg.sizeW, cfg.sizeH) + '</div>' : '') +
             (borderLabel ? '<div class="ic-card-border" style="font-size:0.65rem;color:var(--text-muted);margin-top:2px;">' + borderLabel + '</div>' : '') +
-            '<div class="ic-card-price">' + (price ? '$' + price : '&mdash;') + '</div>' +
+            '<div class="ic-card-price" id="ic-price-z' + zi + '">' + (cfg.sizeW ? '...' : '&mdash;') + '</div>' +
           '</div>';
         var addBtn = document.createElement('button');
         addBtn.className = 'btn-buy btn-buy-sm';
         addBtn.textContent = 'Add to Cart';
-        addBtn.disabled = !price || dpi < 100;
+        addBtn.disabled = dpi < 100;
         addBtn.addEventListener('click', function(e) {
           e.stopPropagation();
           addZoneToCart(zone, cfg, addBtn);
@@ -1301,21 +1302,59 @@
         footer.appendChild(addBtn);
         card.appendChild(footer);
 
+        // Fetch real-time price
+        if (cfg.sizeW && window.PictoremPricing) {
+          (function(zoneIdx, cfgRef) {
+            var opts = icBuildOpts(cfgRef);
+            window.PictoremPricing.getRetailPrice(cfgRef.mat, cfgRef.sizeW, cfgRef.sizeH, opts)
+              .then(function(result) {
+                var priceEl = document.getElementById('ic-price-z' + zoneIdx);
+                if (priceEl) priceEl.textContent = result.retail ? '$' + result.retail : '$' + icPrice(cfgRef.mat, cfgRef.sizeW, cfgRef.sizeH);
+                cfgRef._resolvedPrice = result.retail || icPrice(cfgRef.mat, cfgRef.sizeW, cfgRef.sizeH);
+                updateTotalBar();
+              });
+          })(zi, cfg);
+        } else if (cfg.sizeW) {
+          var priceEl = document.getElementById('ic-price-z' + zi);
+          if (priceEl) priceEl.textContent = fallbackPrice ? '$' + fallbackPrice : '—';
+          cfg._resolvedPrice = fallbackPrice;
+        }
+
         grid.appendChild(card);
       }); // end zones.forEach
 
-      // Total bar — show when 2+ zones have photos
+      updateTotalBar();
+    }
+
+    // Build sub-options from riedel zone config for PictoremPricing
+    function icBuildOpts(cfg) {
+      var matVal = '';
+      if (cfg.border_type === 'white') matVal = cfg.mat === 'paper' ? 'whitematboard' : 'whitespace';
+      else if (cfg.border_type === 'black') matVal = cfg.mat === 'paper' ? 'blackmatboard' : 'whitespace';
+      return {
+        subType: cfg.subtype || '',
+        mounting: cfg.border || '',
+        frame: cfg.frame === 'none' ? '' : cfg.frame,
+        mat: matVal,
+        matWidth: cfg.border_type !== 'none' ? String(cfg.border_width) : ''
+      };
+    }
+
+    // Total bar — updates from resolved prices
+    function updateTotalBar() {
+      var totalBar = document.getElementById('icTotalBar');
+      var zones = currentScene.zones;
       var configuredZones = [];
       var total = 0;
       var itemLines = [];
       zones.forEach(function(zone, zi) {
         if (!zone.photoData) return;
         var cfg = getZoneCfg(currentScene.id, zi);
-        var p = cfg.sizeW ? icPrice(cfg.mat, cfg.sizeW, cfg.sizeH) : 0;
+        var p = cfg._resolvedPrice || (cfg.sizeW ? icPrice(cfg.mat, cfg.sizeW, cfg.sizeH) : 0);
         if (p) {
           configuredZones.push({ zone: zone, cfg: cfg, price: p, zi: zi });
           total += p;
-          itemLines.push(zone.label + ': ' + zone.photoData.title + ' — ' + icMatName(cfg.mat) + ' ' + cfg.sizeW + '×' + cfg.sizeH + '" — $' + p);
+          itemLines.push(zone.label + ': ' + zone.photoData.title + ' — ' + icMatName(cfg.mat) + ' ' + cfg.sizeW + '\u00d7' + cfg.sizeH + '" — $' + p);
         }
       });
 
@@ -1351,7 +1390,7 @@
     // Add single zone to cart
     function addZoneToCart(zone, cfg, btn) {
       if (!zone.photoData || !cfg.sizeW) return;
-      var price = icPrice(cfg.mat, cfg.sizeW, cfg.sizeH);
+      var price = cfg._resolvedPrice || icPrice(cfg.mat, cfg.sizeW, cfg.sizeH);
       if (!price) return;
       var item = {
         photoId: zone.photoData.id,
@@ -1385,7 +1424,7 @@
       currentScene.zones.forEach(function(zone, zi) {
         if (!zone.photoData) return;
         var cfg = getZoneCfg(currentScene.id, zi);
-        var price = cfg.sizeW ? icPrice(cfg.mat, cfg.sizeW, cfg.sizeH) : 0;
+        var price = cfg._resolvedPrice || (cfg.sizeW ? icPrice(cfg.mat, cfg.sizeW, cfg.sizeH) : 0);
         if (!price) return;
         var item = {
           photoId: zone.photoData.id,

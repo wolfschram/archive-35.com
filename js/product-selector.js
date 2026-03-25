@@ -1330,8 +1330,7 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
             const frameSummary = modal.querySelector('#summary-frame');
             if (selectedFrame && mouldings[selectedFrame]) {
               frameRow.style.display = '';
-              const addonPrice = selectedSize ? getFrameAddOnPrice(selectedSize) : null;
-              frameSummary.textContent = mouldings[selectedFrame].name + (addonPrice ? ` (+$${addonPrice})` : '');
+              frameSummary.textContent = mouldings[selectedFrame].name;
             } else {
               frameRow.style.display = 'none';
               frameSummary.textContent = '—';
@@ -1348,17 +1347,37 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
         modal._updateFramePreview = updateFramePreview;
         // Store a function to update frame addon prices when size is selected
         modal._updateFrameAddonPrices = function(size) {
-          if (!size) return;
-          const addonPrice = getFrameAddOnPrice(size);
-          Object.keys(mouldings).forEach(code => {
-            const priceEl = modal.querySelector(`#frame-price-${code}`);
-            if (priceEl) priceEl.textContent = `+ $${addonPrice}`;
-          });
-          // Also update frame summary if frame selected
-          const frameSummary = modal.querySelector('#summary-frame');
-          if (selectedFrame && mouldings[selectedFrame] && frameSummary) {
-            frameSummary.textContent = mouldings[selectedFrame].name + ` (+$${addonPrice})`;
-          }
+          if (!size || !window.PictoremPricing) return;
+          // Get base price (no frame) for comparison
+          const baseOpts = buildCurrentSubOptions();
+          baseOpts.frame = '';
+          window.PictoremPricing.getRetailPrice(selectedMaterial, size.width, size.height, baseOpts)
+            .then(baseResult => {
+              const basePrice = baseResult.retail;
+              // Get price for each frame moulding
+              Object.keys(mouldings).forEach(code => {
+                const priceEl = modal.querySelector(`#frame-price-${code}`);
+                if (!priceEl) return;
+                priceEl.textContent = '...';
+                const frameOpts = buildCurrentSubOptions();
+                frameOpts.frame = code;
+                window.PictoremPricing.getRetailPrice(selectedMaterial, size.width, size.height, frameOpts)
+                  .then(frameResult => {
+                    const delta = frameResult.retail - basePrice;
+                    priceEl.textContent = delta > 0 ? `+ $${delta}` : 'included';
+                  });
+              });
+              // Update frame summary
+              const frameSummary = modal.querySelector('#summary-frame');
+              if (selectedFrame && mouldings[selectedFrame] && frameSummary) {
+                const selOpts = buildCurrentSubOptions();
+                window.PictoremPricing.getRetailPrice(selectedMaterial, size.width, size.height, selOpts)
+                  .then(selResult => {
+                    const delta = selResult.retail - basePrice;
+                    frameSummary.textContent = mouldings[selectedFrame].name + (delta > 0 ? ` (+$${delta})` : '');
+                  });
+              }
+            });
         };
       }
     }
@@ -1430,16 +1449,14 @@ function setupProductSelectorEvents(modal, category, applicableSizes, photoData,
 function populateSizes(container, sizes, photoData, materialKey, modal, onSelect) {
   const { width: photoWidth, height: photoHeight } = photoData.dimensions;
 
+  // Render with fallback prices first, then update with real-time API prices
   container.innerHTML = sizes
     .map((size) => {
       const dpi = calculateDPI(photoWidth, photoHeight, size.width, size.height);
       const quality = getQualityBadge(dpi);
-      const price = calculatePrice(materialKey, size.inches, size.width, size.height);
+      const fallbackPrice = calculatePrice(materialKey, size.inches, size.width, size.height);
 
-      // Skip if quality is too low
-      if (!quality) {
-        return '';
-      }
+      if (!quality) return '';
 
       return `
         <div class="size-option" data-size="${size.width}x${size.height}">
@@ -1449,12 +1466,26 @@ function populateSizes(container, sizes, photoData, materialKey, modal, onSelect
             <div class="size-dimensions">${size.width}" × ${size.height}"</div>
             <div class="size-dpi">${dpi} DPI</div>
             <div class="quality-badge ${quality.class}">${quality.level}</div>
-            <div class="size-price">$${price}</div>
+            <div class="size-price" id="size-price-${size.width}x${size.height}">$${fallbackPrice}</div>
           </label>
         </div>
       `;
     })
     .join('');
+
+  // Fetch real-time prices for each size
+  if (window.PictoremPricing) {
+    const opts = buildCurrentSubOptions();
+    sizes.forEach(size => {
+      const dpi = calculateDPI(photoWidth, photoHeight, size.width, size.height);
+      if (!getQualityBadge(dpi)) return;
+      window.PictoremPricing.getRetailPrice(materialKey, size.width, size.height, opts)
+        .then(result => {
+          const el = container.querySelector(`#size-price-${size.width}x${size.height}`);
+          if (el && result.retail) el.textContent = `$${result.retail}`;
+        });
+    });
+  }
 
   // Add event listeners to size options
   const sizeInputs = container.querySelectorAll('input[type="radio"]');
@@ -1467,33 +1498,64 @@ function populateSizes(container, sizes, photoData, materialKey, modal, onSelect
   });
 }
 
-// Phase 4: Frame add-on pricing (~20% margin over estimated Pictorem frame cost)
+// Phase 6: Real-time Pictorem pricing (replaces static frame addon tiers)
+// getFrameAddOnPrice kept as emergency fallback only — real prices come from PictoremPricing.getRetailPrice()
 function getFrameAddOnPrice(size) {
-  // Frame addon tiers: ~20% margin over Pictorem frame cost (API-verified 2026-03-02)
   const area = size.width * size.height;
-  if (area <= 144) return 65;       // 12x12 and under (est cost ~$53)
-  if (area <= 288) return 75;       // up to 24x12 (est cost ~$60)
-  if (area <= 480) return 85;       // up to 24x16 (API cost $68)
-  if (area <= 864) return 130;      // up to 36x24 (API cost $102)
-  if (area <= 1536) return 170;     // up to 48x32 (API cost $136)
-  return 235;                        // 60x40 and up (est cost ~$188)
+  if (area <= 144) return 65;
+  if (area <= 288) return 75;
+  if (area <= 480) return 85;
+  if (area <= 864) return 130;
+  if (area <= 1536) return 170;
+  return 235;
+}
+
+/**
+ * Build the current sub-options object for PictoremPricing
+ */
+function buildCurrentSubOptions() {
+  return {
+    subType: selectedSubtype || '',
+    mounting: selectedMounting || '',
+    finish: selectedFinish || '',
+    edge: selectedEdge || '',
+    frame: selectedFrame || '',
+    mat: selectedMat || '',
+    matWidth: (selectedMat && selectedMat !== 'none') ? String(selectedMatWidth) : ''
+  };
 }
 
 function updatePriceSummary(modal, materialKey, size, photoData) {
   const { width: photoWidth, height: photoHeight } = photoData.dimensions;
   const dpi = calculateDPI(photoWidth, photoHeight, size.width, size.height);
   const quality = getQualityBadge(dpi);
-  let price = calculatePrice(materialKey, size.inches, size.width, size.height);
-  // Phase 4: Add frame cost if selected
-  if (selectedFrame) {
-    price += getFrameAddOnPrice(size);
-  }
-  // Phase 5: Mat has no additional cost per Pictorem API (included in frame addon)
 
   modal.querySelector('#summary-size').textContent =
     `${size.width}" × ${size.height}"`;
   modal.querySelector('#summary-quality').textContent = quality ? quality.level : '—';
-  modal.querySelector('#summary-price').textContent = `$${price}`;
+
+  // Show loading state
+  const priceEl = modal.querySelector('#summary-price');
+  priceEl.textContent = '...';
+
+  // Real-time Pictorem pricing
+  const opts = buildCurrentSubOptions();
+  if (window.PictoremPricing) {
+    window.PictoremPricing.getRetailPrice(materialKey, size.width, size.height, opts)
+      .then(result => {
+        priceEl.textContent = result.retail ? `$${result.retail}` : '$0';
+        if (result.fallback) priceEl.title = 'Estimated price (API unavailable)';
+        else priceEl.title = '';
+        // Store resolved price for addToCart/checkout
+        modal._lastResolvedPrice = result.retail;
+      });
+  } else {
+    // Fallback: static table + frame addon
+    let price = calculatePrice(materialKey, size.inches, size.width, size.height);
+    if (selectedFrame) price += getFrameAddOnPrice(size);
+    priceEl.textContent = `$${price}`;
+    modal._lastResolvedPrice = price;
+  }
 
   // Update frame addon prices for selected size
   if (modal._updateFrameAddonPrices) {
@@ -1512,8 +1574,10 @@ function updatePriceSummary(modal, materialKey, size, photoData) {
 function addToCart(photoData, materialKey, size) {
   const { id, title, thumbnail, dimensions } = photoData;
   const material = MATERIALS[materialKey];
-  let price = calculatePrice(materialKey, size.inches, size.width, size.height);
-  if (selectedFrame) {
+  const modal = document.getElementById('product-selector-modal');
+  // Use real-time resolved price; fall back to static calculation
+  let price = (modal && modal._lastResolvedPrice) || calculatePrice(materialKey, size.inches, size.width, size.height);
+  if (!modal?._lastResolvedPrice && selectedFrame) {
     price += getFrameAddOnPrice(size);
   }
   const sizeStr = `${size.width}" × ${size.height}"`;
@@ -1574,8 +1638,9 @@ function addToCart(photoData, materialKey, size) {
 function initiateStripeCheckout(photoData, materialKey, size) {
   const { id, title, dimensions } = photoData;
   const material = MATERIALS[materialKey];
-  let price = calculatePrice(materialKey, size.inches, size.width, size.height);
-  if (selectedFrame) {
+  const modal = document.getElementById('product-selector-modal');
+  let price = (modal && modal._lastResolvedPrice) || calculatePrice(materialKey, size.inches, size.width, size.height);
+  if (!modal?._lastResolvedPrice && selectedFrame) {
     price += getFrameAddOnPrice(size);
   }
   const priceInCents = price * 100;

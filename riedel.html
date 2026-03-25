@@ -1125,7 +1125,7 @@
               cfg.subtype = (keys.find(function(k) { return catM.subtypes[k].default; }) || keys[0]);
             }
             cfg.sizeW = 0; cfg.sizeH = 0; cfg.frame = 'none'; cfg.border = 'none'; cfg.border_type = 'none'; cfg.border_width = 2;
-            refreshConfig();
+            refreshConfig(); render();
           });
           matTabs.appendChild(btn);
         });
@@ -1142,7 +1142,7 @@
             btn.addEventListener('click', function(e) {
               e.stopPropagation();
               cfg.subtype = code; cfg.sizeW = 0; cfg.sizeH = 0;
-              refreshConfig();
+              refreshConfig(); render();
             });
             subRow.appendChild(btn);
           });

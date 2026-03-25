@@ -641,6 +641,7 @@
             <a href="contact.html">Contact</a>
             <a href="privacy.html">Privacy</a>
             <a href="terms.html">Terms</a>
+            <a href="#" id="resetDefaults" style="color:var(--text-muted);font-size:0.7rem;margin-top:0.5rem;">Reset Gallery Selections</a>
           </div>
         </div>
         <div class="footer-bottom">&copy; 2026 ARCHIVE-35. All rights reserved.</div>
@@ -725,6 +726,15 @@
       return '';
     }
 
+
+    // === DEFAULT PHOTO SELECTIONS — Wolf's curated picks ===
+    var RIEDEL_DEFAULTS = {
+      'close-up':        { 0: 'chicago-001', 1: 'chicago-010' },
+      'conference-room': { 0: 'black-and-white-041' },
+      'cubicle':         { 0: 'black-and-white-001' },
+      'training-room-1': { 0: 'large-scale-photography-stitch-056', 1: 'new-york-021', 2: 'new-york-028' },
+      'training-room-2': { 0: 'canada-001', 1: 'mexico-004' }
+    };
 
     // === SCENE CONFIG — zones loaded from riedel-zones.json ===
     var SCENES = [
@@ -1327,11 +1337,100 @@
           allPhotos = data.photos || data;
           buildCollectionsMap();
           showCollections();
+          // Apply saved selections or defaults
+          applyPhotoSelections();
         })
         .catch(function() {
           document.getElementById('gbGrid').textContent = 'Could not load collection.';
         });
     }
+
+    // === PHOTO SELECTION PERSISTENCE ===
+    function applyPhotoSelections() {
+      var saved = null;
+      try { saved = JSON.parse(localStorage.getItem('riedel_selections')); } catch(e) {}
+
+      // Use saved selections if they exist, otherwise use defaults
+      var selections = saved || RIEDEL_DEFAULTS;
+      var isFirstVisit = !saved;
+
+      // Build photo lookup
+      var photoById = {};
+      allPhotos.forEach(function(p) { photoById[p.id] = p; });
+
+      // Remember current scene/zone to restore after
+      var origScene = currentScene;
+      var origZoneIdx = currentZoneIdx;
+
+      // Apply selections to each scene + zone
+      SCENES.forEach(function(scene) {
+        var sceneSelections = selections[scene.id];
+        if (!sceneSelections) return;
+
+        Object.keys(sceneSelections).forEach(function(zoneIdxStr) {
+          var photoId = sceneSelections[zoneIdxStr];
+          var zoneIdx = parseInt(zoneIdxStr);
+          var photo = photoById[photoId];
+          if (!photo || !scene.zones[zoneIdx]) return;
+
+          // Set the scene and zone context for selectPhoto
+          currentScene = scene;
+          currentZoneIdx = zoneIdx;
+
+          // Place the photo (no clickedEl — programmatic)
+          selectPhoto(photo, null);
+        });
+      });
+
+      // Restore to first scene
+      currentScene = origScene;
+      currentZoneIdx = 0;
+      selectScene(SCENES[0]);
+
+      // Save defaults as selections on first visit
+      if (isFirstVisit) {
+        saveSelections();
+      }
+    }
+
+    function saveSelections() {
+      var selections = {};
+      SCENES.forEach(function(scene) {
+        scene.zones.forEach(function(zone, zi) {
+          if (zone.photoData && zone.photoData.id) {
+            if (!selections[scene.id]) selections[scene.id] = {};
+            selections[scene.id][zi] = zone.photoData.id;
+          }
+        });
+      });
+      localStorage.setItem('riedel_selections', JSON.stringify(selections));
+    }
+
+    function resetToDefaults() {
+      localStorage.removeItem('riedel_selections');
+      // Clear all zone photos
+      SCENES.forEach(function(scene) {
+        scene.zones.forEach(function(zone) {
+          zone.photoData = null;
+          zone.photoImg = null;
+          zone.cfg.sizeIdx = -1;
+        });
+      });
+      // Re-apply defaults
+      applyPhotoSelections();
+    }
+
+    // Save selections whenever a photo is placed by the user
+    // (hook into the existing selectPhoto — watch for changes)
+    document.addEventListener('cartChanged', function() { saveSelections(); });
+    // Also save after each render that has photo changes
+    var _origRender = render;
+    render = function() {
+      _origRender();
+      // Debounced save
+      clearTimeout(render._saveTimer);
+      render._saveTimer = setTimeout(saveSelections, 1000);
+    };
 
     function buildCollectionsMap() {
       var map = {};
@@ -1562,6 +1661,16 @@
     document.addEventListener('cartChanged', resetAbandonTimer);
     // Start timer if cart already has items
     resetAbandonTimer();
+
+    // === RESET TO DEFAULTS BUTTON ===
+    var resetBtn = document.getElementById('resetDefaults');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        resetToDefaults();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
 
   } // end initVisualizer
   </script>

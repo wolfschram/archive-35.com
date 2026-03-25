@@ -15,7 +15,7 @@
   // Canvas & paper: 1.75 (75% margin). Others: 2.0 (50% margin).
   var ART_MARKUP = {
     canvas: 1.75,
-    paper:  1.75,
+    paper:  2,
     metal:  2,
     acrylic: 2,
     wood:   2

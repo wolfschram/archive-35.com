@@ -1202,7 +1202,7 @@
         var frameSec = buildSection('Frame');
         var frameTabs = frameSec.querySelector('.ic-tabs');
         frameTabs.appendChild(mkTab('No Frame', cfg.frame === 'none', function(e) {
-          e.stopPropagation(); cfg.frame = 'none'; refreshConfig();
+          e.stopPropagation(); cfg.frame = 'none'; refreshConfig(); render();
         }));
         if (catalog && catalog.frameOptions) {
           var fSet = null;
@@ -1213,7 +1213,7 @@
           if (fSet) {
             Object.keys(fSet).forEach(function(code) {
               var fr = fSet[code];
-              var btn = mkTab('', cfg.frame === code, function(e) { e.stopPropagation(); cfg.frame = code; refreshConfig(); });
+              var btn = mkTab('', cfg.frame === code, function(e) { e.stopPropagation(); cfg.frame = code; refreshConfig(); render(); });
               btn.innerHTML = '<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:' + (fr.colorHex || '#888') + ';margin-right:5px;vertical-align:middle;border:1px solid rgba(255,255,255,0.2);"></span>' + fr.name;
               frameTabs.appendChild(btn);
             });

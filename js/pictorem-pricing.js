@@ -12,13 +12,13 @@
   'use strict';
 
   // Per-material markup on the ART (print itself)
-  // Canvas: 1.75× (75% markup). All others: 2.0× (100% markup).
+  // Canvas: 75% markup (1.75×). Paper: 100% markup (2.0×). Metal/Acrylic/Wood: 50% markup (1.5×).
   var ART_MARKUP = {
-    canvas: 1.75,
-    paper:  2,
-    metal:  2,
-    acrylic: 2,
-    wood:   2
+    canvas:  1.75,
+    paper:   2.0,
+    metal:   1.5,
+    acrylic: 1.5,
+    wood:    1.5
   };
   var DEFAULT_ART_MARKUP = 2;
 

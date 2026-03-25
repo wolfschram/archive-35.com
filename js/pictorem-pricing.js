@@ -12,7 +12,7 @@
   'use strict';
 
   // Per-material markup on the ART (print itself)
-  // Canvas & paper: 1.75 (75% margin). Others: 2.0 (50% margin).
+  // Canvas: 1.75× (75% markup). All others: 2.0× (100% markup).
   var ART_MARKUP = {
     canvas: 1.75,
     paper:  2,

@@ -314,44 +314,50 @@ class CartUI {
     const printItems = items.filter(i => !i.metadata?.licenseTier && i.metadata?.material !== 'license');
     const licenseItems = items.filter(i => i.metadata?.licenseTier || i.metadata?.material === 'license');
 
-    // Build Pictorem metadata from first PRINT item (if any)
-    let pictorem = null;
+    // Build Pictorem metadata for ALL print items (multi-item fulfillment)
+    let pictorem = null;       // backward compat: first print item
+    let pictoremItems = null;  // NEW: array of ALL print items
     if (printItems.length > 0) {
-      const firstPrint = printItems[0];
-      const meta = firstPrint.metadata || {};
-      const photoId = meta.photoId || firstPrint.photoId || 'unknown';
-      const photoRecord = photosLookup[photoId] || {};
+      pictoremItems = printItems.map(printItem => {
+        const meta = printItem.metadata || {};
+        const photoId = meta.photoId || printItem.photoId || 'unknown';
+        const photoRecord = photosLookup[photoId] || {};
 
-      let fallbackWidth = 0, fallbackHeight = 0;
-      if (firstPrint.size) {
-        const sizeParts = firstPrint.size.replace(/["\s]/g, '').split(/[x×]/i);
-        if (sizeParts.length === 2) {
-          fallbackWidth = parseInt(sizeParts[0]) || 0;
-          fallbackHeight = parseInt(sizeParts[1]) || 0;
+        let fallbackWidth = 0, fallbackHeight = 0;
+        if (printItem.size) {
+          const sizeParts = printItem.size.replace(/["\s]/g, '').split(/[x×]/i);
+          if (sizeParts.length === 2) {
+            fallbackWidth = parseInt(sizeParts[0]) || 0;
+            fallbackHeight = parseInt(sizeParts[1]) || 0;
+          }
         }
-      }
 
-      pictorem = {
-        photoId: photoId,
-        photoTitle: firstPrint.title || 'Untitled',
-        photoFilename: meta.photoFilename || photoRecord.filename || photoId,
-        collection: meta.collection || photoRecord.collection || '',
-        material: meta.material || firstPrint.material || '',
-        // Phase 3+4: Sub-options from product configurator
-        subType: meta.subType || '',
-        mounting: meta.mounting || '',
-        finish: meta.finish || '',
-        edge: meta.edge || '',
-        frame: meta.frame || '',
-        dimensions: {
-          width: parseInt(meta.width) || fallbackWidth,
-          height: parseInt(meta.height) || fallbackHeight,
-          originalWidth: parseInt(meta.originalPhotoWidth) || 0,
-          originalHeight: parseInt(meta.originalPhotoHeight) || 0,
-          dpi: parseInt(meta.dpi) || 0
-        }
-      };
-      console.log('[ARCHIVE-35] Print checkout metadata:', pictorem.photoId, pictorem.material);
+        return {
+          photoId: photoId,
+          photoTitle: printItem.title || 'Untitled',
+          photoFilename: meta.photoFilename || photoRecord.filename || photoId,
+          collection: meta.collection || photoRecord.collection || '',
+          material: meta.material || printItem.material || '',
+          subType: meta.subType || '',
+          mounting: meta.mounting || '',
+          finish: meta.finish || '',
+          edge: meta.edge || '',
+          frame: meta.frame || '',
+          mat: meta.mat || '',
+          matWidth: meta.matWidth || '',
+          dimensions: {
+            width: parseInt(meta.width) || fallbackWidth,
+            height: parseInt(meta.height) || fallbackHeight,
+            originalWidth: parseInt(meta.originalPhotoWidth) || 0,
+            originalHeight: parseInt(meta.originalPhotoHeight) || 0,
+            dpi: parseInt(meta.dpi) || 0
+          }
+        };
+      });
+
+      // backward compat: single pictorem = first item
+      pictorem = pictoremItems[0];
+      console.log(`[ARCHIVE-35] Print checkout: ${pictoremItems.length} item(s)`, pictoremItems.map(p => `${p.photoId}/${p.material}`));
     }
 
     // Build license metadata from first LICENSE item (if any)
@@ -411,6 +417,7 @@ class CartUI {
           successUrl: `${window.location.origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}&type=${orderType}`,
           cancelUrl: window.location.href,
           pictorem: pictorem || undefined,
+          pictoremItems: pictoremItems || undefined,
           license: license || undefined,
           testMode: isTestMode || undefined,
           stripeCustomerId: customerIdForCheckout || undefined,

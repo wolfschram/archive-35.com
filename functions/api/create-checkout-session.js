@@ -25,7 +25,7 @@ export async function onRequestPost(context) {
 
   try {
     const body = await request.json();
-    const { lineItems, successUrl, cancelUrl, returnUrl, uiMode, pictorem, license, testMode, stripeCustomerId, customerEmail } = body;
+    const { lineItems, successUrl, cancelUrl, returnUrl, uiMode, pictorem, pictoremItems, license, testMode, stripeCustomerId, customerEmail } = body;
 
     // Select appropriate Stripe key based on test mode flag
     const isTestMode = testMode === true;
@@ -66,9 +66,13 @@ export async function onRequestPost(context) {
       // Build list of R2 keys to verify
       const r2Checks = [];
 
-      if (pictorem) {
-        const fn = pictorem.photoFilename || pictorem.photoId || '';
-        const col = pictorem.collection || '';
+      // Check ALL print items (multi-item array or single pictorem object)
+      const allPrintChecks = pictoremItems && pictoremItems.length > 0
+        ? pictoremItems
+        : pictorem ? [pictorem] : [];
+      for (const printItem of allPrintChecks) {
+        const fn = printItem.photoFilename || printItem.photoId || '';
+        const col = printItem.collection || '';
         if (fn) {
           let key = col ? `${col}/${fn}` : fn;
           if (!key.match(/\.(jpg|jpeg|png|tiff?)$/i)) key += '.jpg';
@@ -117,6 +121,12 @@ export async function onRequestPost(context) {
     params.append('mode', 'payment');
     params.append('allow_promotion_codes', 'true');
 
+    // Automatic sales tax calculation via Stripe Tax
+    // Requires: Stripe Tax enabled + tax registrations configured in Stripe Dashboard
+    // (Settings → Tax → Add registration → at minimum California)
+    // Tax is calculated based on shipping address (prints) or billing address (licenses)
+    params.append('automatic_tax[enabled]', 'true');
+
     if (isEmbedded) {
       params.append('ui_mode', 'embedded');
       params.append('return_url', returnUrl || `${origin}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`);
@@ -134,6 +144,7 @@ export async function onRequestPost(context) {
         params.append(`line_items[${i}][price_data][product_data][description]`, desc);
       }
       params.append(`line_items[${i}][price_data][unit_amount]`, item.price_data.unit_amount.toString());
+      params.append(`line_items[${i}][price_data][tax_behavior]`, 'exclusive'); // tax added on top of price
       params.append(`line_items[${i}][quantity]`, '1');
 
       // Per-item metadata (for Pictorem fulfillment)
@@ -151,28 +162,58 @@ export async function onRequestPost(context) {
     const orderType = hasPrint && hasLicense ? 'mixed' : hasLicense ? 'license' : 'print';
     params.append('metadata[orderType]', orderType);
 
-    if (pictorem) {
-      // PRINT metadata — physical fulfillment via Pictorem
-      params.append('metadata[photoId]', pictorem.photoId || '');
-      params.append('metadata[photoTitle]', pictorem.photoTitle || '');
-      params.append('metadata[photoFilename]', pictorem.photoFilename || '');
-      params.append('metadata[collection]', pictorem.collection || '');
-      params.append('metadata[material]', pictorem.material || '');
-      params.append('metadata[printWidth]', String(pictorem.dimensions?.width || ''));
-      params.append('metadata[printHeight]', String(pictorem.dimensions?.height || ''));
-      params.append('metadata[originalWidth]', String(pictorem.dimensions?.originalWidth || ''));
-      params.append('metadata[originalHeight]', String(pictorem.dimensions?.originalHeight || ''));
-      params.append('metadata[dpi]', String(pictorem.dimensions?.dpi || ''));
-      // Phase 3: Sub-options from product configurator (subtype, mounting, finish, edge)
-      params.append('metadata[subType]', pictorem.subType || '');
-      params.append('metadata[mounting]', pictorem.mounting || '');
-      params.append('metadata[finish]', pictorem.finish || '');
-      params.append('metadata[edge]', pictorem.edge || '');
-      // Phase 4: Frame moulding code (e.g., '303-19' for floating, '241-29' for picture)
-      params.append('metadata[frame]', pictorem.frame || '');
-      // Phase 5: Mat/border options
-      params.append('metadata[mat]', pictorem.mat || '');
-      params.append('metadata[matWidth]', String(pictorem.matWidth || ''));
+    // PRINT metadata — physical fulfillment via Pictorem
+    // Support multi-item: pictoremItems[] array (new), or single pictorem object (backward compat)
+    const allPrintItems = pictoremItems && pictoremItems.length > 0
+      ? pictoremItems
+      : pictorem ? [pictorem] : [];
+
+    if (allPrintItems.length > 0) {
+      params.append('metadata[printItemCount]', String(allPrintItems.length));
+
+      allPrintItems.forEach((item, idx) => {
+        // Each item stored as compact JSON — Stripe allows up to 500 chars per value
+        const itemData = JSON.stringify({
+          photoId: item.photoId || '',
+          photoTitle: item.photoTitle || '',
+          photoFilename: item.photoFilename || '',
+          collection: item.collection || '',
+          material: item.material || '',
+          w: item.dimensions?.width || '',
+          h: item.dimensions?.height || '',
+          ow: item.dimensions?.originalWidth || '',
+          oh: item.dimensions?.originalHeight || '',
+          dpi: item.dimensions?.dpi || '',
+          subType: item.subType || '',
+          mounting: item.mounting || '',
+          finish: item.finish || '',
+          edge: item.edge || '',
+          frame: item.frame || '',
+          mat: item.mat || '',
+          matW: item.matWidth || '',
+        });
+        params.append(`metadata[printItem_${idx}]`, itemData);
+      });
+
+      // Backward compat: also store first item as flat keys (for older webhook versions during rollout)
+      const first = allPrintItems[0];
+      params.append('metadata[photoId]', first.photoId || '');
+      params.append('metadata[photoTitle]', first.photoTitle || '');
+      params.append('metadata[photoFilename]', first.photoFilename || '');
+      params.append('metadata[collection]', first.collection || '');
+      params.append('metadata[material]', first.material || '');
+      params.append('metadata[printWidth]', String(first.dimensions?.width || ''));
+      params.append('metadata[printHeight]', String(first.dimensions?.height || ''));
+      params.append('metadata[originalWidth]', String(first.dimensions?.originalWidth || ''));
+      params.append('metadata[originalHeight]', String(first.dimensions?.originalHeight || ''));
+      params.append('metadata[dpi]', String(first.dimensions?.dpi || ''));
+      params.append('metadata[subType]', first.subType || '');
+      params.append('metadata[mounting]', first.mounting || '');
+      params.append('metadata[finish]', first.finish || '');
+      params.append('metadata[edge]', first.edge || '');
+      params.append('metadata[frame]', first.frame || '');
+      params.append('metadata[mat]', first.mat || '');
+      params.append('metadata[matWidth]', String(first.matWidth || ''));
     }
 
     if (license) {

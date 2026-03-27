@@ -998,218 +998,279 @@ export async function onRequestPost(context) {
     }
 
     // ================================================================
-    // PRINT ORDER — physical fulfillment via Pictorem (existing flow)
+    // PRINT ORDER — physical fulfillment via Pictorem
+    // Supports multi-item orders: reads printItem_0..N from metadata
+    // Falls back to flat keys for backward compat (single-item orders)
     // ================================================================
 
-    // Extract order info from session metadata
-    const photoId = metadata.photoId;
-    const material = metadata.material;
-    const printWidth = parseInt(metadata.printWidth);
-    const printHeight = parseInt(metadata.printHeight);
-    const photoTitle = metadata.photoTitle || photoId;
+    // --- Parse print items from session metadata ---
+    const printItemCount = parseInt(metadata.printItemCount) || 0;
+    let printItems = [];
 
-    if (!photoId || !material || !printWidth || !printHeight) {
-      const missing = [];
-      if (!photoId) missing.push('photoId');
-      if (!material) missing.push('material');
-      if (!printWidth) missing.push('printWidth');
-      if (!printHeight) missing.push('printHeight');
-      console.error('Missing order metadata fields:', missing.join(', '), '| Full metadata:', JSON.stringify(metadata));
-      return new Response(JSON.stringify({
-        error: 'Missing order metadata',
-        missingFields: missing,
-        receivedMetadata: Object.keys(metadata || {})
-      }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    if (printItemCount > 0) {
+      // NEW multi-item format: each item stored as JSON in printItem_0, printItem_1, ...
+      for (let i = 0; i < printItemCount; i++) {
+        const raw = metadata[`printItem_${i}`];
+        if (!raw) {
+          console.warn(`printItem_${i} missing from metadata (expected ${printItemCount} items)`);
+          continue;
+        }
+        try {
+          const item = JSON.parse(raw);
+          printItems.push({
+            photoId: item.photoId || '',
+            photoTitle: item.photoTitle || item.photoId || '',
+            photoFilename: item.photoFilename || item.photoId || '',
+            collection: item.collection || '',
+            material: item.material || '',
+            printWidth: parseInt(item.w) || 0,
+            printHeight: parseInt(item.h) || 0,
+            subOptions: {
+              subType: item.subType || '',
+              mounting: item.mounting || '',
+              finish: item.finish || '',
+              edge: item.edge || '',
+              frame: item.frame || '',
+              mat: item.mat || '',
+              matWidth: item.matW || '',
+            },
+          });
+        } catch (parseErr) {
+          console.error(`Failed to parse printItem_${i}:`, parseErr.message, '| raw:', raw);
+        }
+      }
+      console.log(`Parsed ${printItems.length} of ${printItemCount} print items from metadata`);
     }
 
-    // Get full session details (shipping address, customer info)
-    // Fall back to event payload data if Stripe API call fails
+    // BACKWARD COMPAT: If no multi-item data, fall back to flat metadata keys (single item)
+    if (printItems.length === 0 && metadata.photoId) {
+      printItems.push({
+        photoId: metadata.photoId,
+        photoTitle: metadata.photoTitle || metadata.photoId,
+        photoFilename: metadata.photoFilename || metadata.photoId,
+        collection: metadata.collection || '',
+        material: metadata.material || '',
+        printWidth: parseInt(metadata.printWidth) || 0,
+        printHeight: parseInt(metadata.printHeight) || 0,
+        subOptions: {
+          subType: metadata.subType || '',
+          mounting: metadata.mounting || '',
+          finish: metadata.finish || '',
+          edge: metadata.edge || '',
+          frame: metadata.frame || '',
+          mat: metadata.mat || '',
+          matWidth: metadata.matWidth || '',
+        },
+      });
+      console.log('Using backward-compat single-item metadata');
+    }
+
+    // Validate we have at least one item
+    if (printItems.length === 0) {
+      console.error('No print items found in metadata | Full metadata:', JSON.stringify(metadata));
+      return new Response(JSON.stringify({
+        error: 'No print items found in metadata',
+        receivedMetadata: Object.keys(metadata || {}),
+      }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    }
+
+    // Validate each item has required fields
+    for (const item of printItems) {
+      if (!item.photoId || !item.material || !item.printWidth || !item.printHeight) {
+        const missing = [];
+        if (!item.photoId) missing.push('photoId');
+        if (!item.material) missing.push('material');
+        if (!item.printWidth) missing.push('printWidth');
+        if (!item.printHeight) missing.push('printHeight');
+        console.error(`Print item incomplete: ${item.photoId || '?'} missing ${missing.join(', ')}`);
+      }
+    }
+
+    // --- Get session details (shared across all items) ---
     const fullSession = await getStripeSession(session.id, STRIPE_SECRET_KEY);
     const hasApiData = !fullSession.error;
     if (!hasApiData) {
       console.warn('Stripe session fetch failed — falling back to event payload data');
     }
-    // Prefer API data, fall back to event payload (session = event.data.object)
     const shipping = fullSession.shipping_details || session.shipping_details || fullSession.customer_details || session.customer_details || {};
     const address = shipping.address || {};
     const customerName = fullSession.customer_details?.name || session.customer_details?.name || shipping.name || '';
     const customerEmail = fullSession.customer_details?.email || session.customer_details?.email || fullSession.customer_email || session.customer_email || '';
     console.log('Shipping address:', JSON.stringify(address));
     console.log('Customer:', customerName, customerEmail);
-    // Get amount from expanded session, fallback to event session, fallback to line items
     const rawAmount = fullSession.amount_total || session.amount_total || 0;
     const amountPaid = rawAmount ? (rawAmount / 100).toFixed(2) : '0';
-    console.log('Amount paid:', amountPaid, '(raw:', rawAmount, 'fullSession.amount_total:', fullSession.amount_total, 'session.amount_total:', session.amount_total, ')');
+    console.log('Amount paid:', amountPaid);
 
-    // Split name into first/last
     const nameParts = customerName.split(' ');
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
-
-    // Build Pictorem preorder code — Phase 3: use sub-options from metadata when available
-    const subOptions = {
-      subType: metadata.subType || '',
-      mounting: metadata.mounting || '',
-      finish: metadata.finish || '',
-      edge: metadata.edge || '',
-      frame: metadata.frame || '',
-      mat: metadata.mat || '',
-      matWidth: metadata.matWidth || '',
-    };
-    const preorderCode = buildPreorderCode(material, printWidth, printHeight, subOptions);
-    console.log('Pictorem preorder code:', preorderCode, '| sub-options:', JSON.stringify(subOptions));
-
-    // Step 1: Validate the preorder
-    let validation, wholesalePrice;
-
-    if (isTestMode) {
-      // MOCK: Skip real Pictorem calls in test mode
-      validation = { valid: true, mock: true };
-      wholesalePrice = '29.99';
-      console.log('TEST: Mocked Pictorem validation (skipped real API)');
-    } else {
-      validation = await validatePreorder(PICTOREM_API_KEY, preorderCode);
-      console.log('Pictorem validation:', JSON.stringify(validation));
-
-      // Check validation: status must be boolean true (not just truthy like an HTTP status code)
-      // If Pictorem returns an error (wrong API key, server error), pictoremRequest returns
-      // { raw: "...", status: 401 } — where status is the HTTP code, NOT boolean true.
-      // Using strict === true prevents false-positive validation on error responses.
-      const validationFailed = validation.status !== true ||
-        (validation.data && validation.data.preordercode === false) ||
-        (validation.data && validation.data.errorlist && validation.data.errorlist.length > 0);
-
-      if (validationFailed) {
-        console.error('Pictorem validation failed:', JSON.stringify(validation));
-        // Send alert to Wolf about failed validation
-        await sendEmail(RESEND_API_KEY, {
-          to: WOLF_EMAIL,
-          subject: `⚠️ Pictorem validation FAILED — manual fulfillment needed`,
-          html: `<h2>Pictorem Validation Failed</h2>
-            <p><strong>Preorder code:</strong> ${preorderCode}</p>
-            <p><strong>Validation response:</strong> ${JSON.stringify(validation)}</p>
-            <p><strong>Stripe Session:</strong> ${session.id}</p>
-            <p><strong>Action needed:</strong> Manually submit this order to Pictorem.</p>`
-        });
-        return new Response(JSON.stringify({
-          received: true,
-          warning: 'Pictorem validation failed — needs manual fulfillment',
-          validation,
-          preorderCode,
-        }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        });
-      }
-
-      // Step 2: Get Pictorem price (for logging/verification)
-      const priceResult = await getPrice(PICTOREM_API_KEY, preorderCode);
-      console.log('Pictorem price:', JSON.stringify(priceResult));
-      wholesalePrice = priceResult?.worksheet?.price?.total || priceResult?.price || priceResult?.totalPrice || null;
-    }
-
-    // Step 3: Build image URLs
-    // Prefer explicit collection slug from checkout metadata; fall back to photoId prefix map
-    const collection = metadata.collection || getCollectionFromPhotoId(photoId);
-    const photoFilename = metadata.photoFilename || photoId;
-
-    // HIGH-RES for Pictorem: Try R2 original first
-    let originalResult;
-    let pictoremImageUrl;
-
-    if (isTestMode) {
-      // MOCK: Skip R2 check in test mode — test items may not have originals
-      originalResult = { source: 'r2-original', url: `https://archive-35.com/images/${collection}/${photoFilename}-full.jpg`, size: 0, mock: true };
-      pictoremImageUrl = originalResult.url;
-      console.log('TEST: Mocked R2 original check (skipped real R2 lookup)');
-    } else {
-      originalResult = await getOriginalImageUrl(env, collection, photoFilename);
-      console.log(`Image for Pictorem: ${originalResult.source}${originalResult.size ? ` (${(originalResult.size / 1024 / 1024).toFixed(1)}MB)` : ''}`);
-
-      // HARD BLOCK: If R2 original is missing, do NOT send garbage to Pictorem
-      if (originalResult.source !== 'r2-original') {
-        console.error(`BLOCKED: Cannot fulfill print order — R2 original missing for ${collection}/${photoFilename}`);
-        // Send alert email to Wolf
-        try {
-          await sendEmail(RESEND_API_KEY, {
-            to: WOLF_EMAIL,
-            subject: `URGENT: Print order BLOCKED — R2 original missing`,
-            html: `<h2>Print Order Blocked</h2>
-              <p><strong>Reason:</strong> High-res original not found in R2 bucket</p>
-              <p><strong>Missing file:</strong> ${collection}/${photoFilename}.jpg</p>
-              <p><strong>Customer:</strong> ${customerEmail}</p>
-              <p><strong>Order amount:</strong> $${(session.amount_total / 100).toFixed(2)}</p>
-              <p><strong>Stripe Session:</strong> ${session.id}</p>
-              <p><strong>Action needed:</strong> Upload the original to R2 via Studio > Website Control > R2 Original Backup, then manually submit order to Pictorem.</p>`
-          });
-        } catch (emailErr) {
-          console.error('Failed to send R2 missing alert email:', emailErr.message);
-        }
-        return new Response(JSON.stringify({
-          received: true,
-          warning: 'Print order BLOCKED — R2 original missing. Alert email sent to seller.',
-          missingFile: `${collection}/${photoFilename}.jpg`
-        }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-      }
-
-      pictoremImageUrl = originalResult.url;
-    }
-
-    // WEB-OPTIMIZED for emails: Always use the web version (smaller, loads fast in email)
-    const emailImageUrl = `https://archive-35.com/images/${collection}/${photoFilename}-full.jpg`;
-
-    // Step 4: Submit order to Pictorem
-    const orderPayload = {
-      'orderList[0][code]': preorderCode,
-      'orderList[0][fileurl]': pictoremImageUrl,
-      'orderList[0][filetype]': 'jpg',
-      'deliveryInfo[firstname]': firstName,
-      'deliveryInfo[lastname]': lastName,
-      'deliveryInfo[address1]': address.line1 || '',
-      'deliveryInfo[address2]': address.line2 || '',
-      'deliveryInfo[city]': address.city || '',
-      'deliveryInfo[province]': address.state || '',
-      'deliveryInfo[country]': address.country || 'US',
-      'deliveryInfo[cp]': address.postal_code || '',
-      'deliveryInfo[phone]': '',
-      'ordercomment': `Stripe ref: stripe_${session.id} | Customer: ${customerEmail}`,
-    };
-
-    let orderResult;
-    let orderSucceeded = false;
-    if (isTestMode) {
-      // MOCK: Don't submit real order to Pictorem in test mode
-      orderResult = {
-        mock: true,
-        status: 'simulated',
-        message: 'TEST MODE — no real Pictorem order created',
-        orderId: `mock_${Date.now()}`,
-      };
-      orderSucceeded = true;
-      console.log('TEST: Mocked Pictorem order (no real order placed)');
-    } else {
-      console.log('Submitting Pictorem order:', JSON.stringify(orderPayload));
-      orderResult = await sendOrder(PICTOREM_API_KEY, orderPayload);
-      console.log('Pictorem order result:', JSON.stringify(orderResult));
-      // Verify Pictorem actually accepted the order
-      // Success: { status: true, data: { orderId: "..." } } or similar
-      // Failure: { raw: "...", status: 401 } or { status: false, ... }
-      orderSucceeded = orderResult.status === true || !!orderResult.orderId;
-      if (!orderSucceeded) {
-        console.error('PICTOREM ORDER REJECTED:', JSON.stringify(orderResult));
-      }
-    }
-
-    // ====================================================================
-    // Step 5: Send confirmation emails
-    // ====================================================================
-
-    const materialDisplayName = MATERIAL_MAP[material]?.displayName || material;
-    const sizeStr = `${printWidth}" x ${printHeight}"`;
     const orderRef = `stripe_${session.id}`;
+
+    // --- Process each print item ---
+    console.log(`Processing ${printItems.length} print item(s) for Pictorem fulfillment`);
+    const itemResults = []; // collect results for each item
+
+    for (let idx = 0; idx < printItems.length; idx++) {
+      const item = printItems[idx];
+      const itemLabel = `[${idx + 1}/${printItems.length}] ${item.photoId}`;
+      console.log(`--- ${itemLabel}: ${item.material} ${item.printWidth}x${item.printHeight} ---`);
+
+      // Build preorder code
+      const preorderCode = buildPreorderCode(item.material, item.printWidth, item.printHeight, item.subOptions);
+      console.log(`${itemLabel} preorder code: ${preorderCode}`);
+
+      // Validate & price
+      let validation, wholesalePrice;
+      if (isTestMode) {
+        validation = { valid: true, mock: true };
+        wholesalePrice = '29.99';
+      } else {
+        validation = await validatePreorder(PICTOREM_API_KEY, preorderCode);
+        const validationFailed = validation.status !== true ||
+          (validation.data && validation.data.preordercode === false) ||
+          (validation.data && validation.data.errorlist && validation.data.errorlist.length > 0);
+
+        if (validationFailed) {
+          console.error(`${itemLabel} validation FAILED:`, JSON.stringify(validation));
+          itemResults.push({ ...item, preorderCode, succeeded: false, error: 'validation_failed', detail: validation });
+          continue; // skip to next item — don't block other items
+        }
+
+        const priceResult = await getPrice(PICTOREM_API_KEY, preorderCode);
+        wholesalePrice = priceResult?.worksheet?.price?.total || priceResult?.price || priceResult?.totalPrice || null;
+      }
+
+      // Resolve R2 image URL
+      const collection = item.collection || getCollectionFromPhotoId(item.photoId);
+      const photoFilename = item.photoFilename || item.photoId;
+      let pictoremImageUrl, originalResult;
+
+      if (isTestMode) {
+        originalResult = { source: 'r2-original', url: `https://archive-35.com/images/${collection}/${photoFilename}-full.jpg`, size: 0, mock: true };
+        pictoremImageUrl = originalResult.url;
+      } else {
+        originalResult = await getOriginalImageUrl(env, collection, photoFilename);
+        console.log(`${itemLabel} image: ${originalResult.source}${originalResult.size ? ` (${(originalResult.size / 1024 / 1024).toFixed(1)}MB)` : ''}`);
+
+        if (originalResult.source !== 'r2-original') {
+          console.error(`${itemLabel} BLOCKED: R2 original missing for ${collection}/${photoFilename}`);
+          try {
+            await sendEmail(RESEND_API_KEY, {
+              to: WOLF_EMAIL,
+              subject: `URGENT: Print item BLOCKED — R2 original missing (${item.photoId})`,
+              html: `<h2>Print Item Blocked</h2>
+                <p><strong>Item ${idx + 1} of ${printItems.length}</strong></p>
+                <p><strong>Missing file:</strong> ${collection}/${photoFilename}.jpg</p>
+                <p><strong>Customer:</strong> ${customerEmail}</p>
+                <p><strong>Stripe Session:</strong> ${session.id}</p>`
+            });
+          } catch (emailErr) {
+            console.error('Failed to send R2 missing alert:', emailErr.message);
+          }
+          itemResults.push({ ...item, preorderCode, collection, succeeded: false, error: 'r2_missing', detail: `${collection}/${photoFilename}.jpg` });
+          continue; // skip to next item
+        }
+        pictoremImageUrl = originalResult.url;
+      }
+
+      // Submit to Pictorem
+      let orderResult;
+      if (isTestMode) {
+        orderResult = { mock: true, status: 'simulated', orderId: `mock_${Date.now()}_${idx}` };
+      } else {
+        const orderPayload = {
+          'orderList[0][code]': preorderCode,
+          'orderList[0][fileurl]': pictoremImageUrl,
+          'orderList[0][filetype]': 'jpg',
+          'deliveryInfo[firstname]': firstName,
+          'deliveryInfo[lastname]': lastName,
+          'deliveryInfo[address1]': address.line1 || '',
+          'deliveryInfo[address2]': address.line2 || '',
+          'deliveryInfo[city]': address.city || '',
+          'deliveryInfo[province]': address.state || '',
+          'deliveryInfo[country]': address.country || 'US',
+          'deliveryInfo[cp]': address.postal_code || '',
+          'deliveryInfo[phone]': '',
+          'ordercomment': `Stripe ref: stripe_${session.id} | Customer: ${customerEmail} | Item ${idx + 1} of ${printItems.length} (${item.photoTitle})`,
+        };
+        console.log(`${itemLabel} submitting to Pictorem...`);
+        orderResult = await sendOrder(PICTOREM_API_KEY, orderPayload);
+        console.log(`${itemLabel} result:`, JSON.stringify(orderResult));
+      }
+
+      const succeeded = orderResult.status === true || !!orderResult.orderId;
+      if (!succeeded) {
+        console.error(`${itemLabel} PICTOREM REJECTED:`, JSON.stringify(orderResult));
+      }
+
+      const emailImageUrl = `https://archive-35.com/images/${collection}/${photoFilename}-full.jpg`;
+      const materialDisplayName = MATERIAL_MAP[item.material]?.displayName || item.material;
+      const sizeStr = `${item.printWidth}" x ${item.printHeight}"`;
+      const subOptionSummary = [
+        item.subOptions.subType ? `Type: ${item.subOptions.subType}` : '',
+        item.subOptions.mounting ? `Mounting: ${item.subOptions.mounting}` : '',
+        item.subOptions.finish ? `Finish: ${item.subOptions.finish}` : '',
+        item.subOptions.edge ? `Edge: ${item.subOptions.edge}` : '',
+        item.subOptions.frame ? `Frame: ${item.subOptions.frame}` : '',
+        item.subOptions.mat && item.subOptions.mat !== 'none' ? `Mat: ${item.subOptions.mat} ${item.subOptions.matWidth}"` : '',
+      ].filter(Boolean).join(' · ') || 'defaults';
+
+      itemResults.push({
+        ...item,
+        preorderCode,
+        collection,
+        succeeded,
+        orderResult,
+        wholesalePrice,
+        originalResult,
+        emailImageUrl,
+        pictoremImageUrl,
+        materialDisplayName,
+        sizeStr,
+        subOptionSummary,
+      });
+
+      // Log each item to Google Sheet
+      logToGoogleSheet(GOOGLE_SHEET_WEBHOOK_URL, {
+        orderType: 'print',
+        orderRef,
+        customerName,
+        customerEmail,
+        photoTitle: item.photoTitle,
+        photoId: item.photoId,
+        collection,
+        material: materialDisplayName,
+        size: sizeStr,
+        customerPaid: printItems.length === 1 ? amountPaid : '', // only show total for single-item
+        pictoremCost: wholesalePrice || 0,
+        pictoremOrderId: orderResult?.orderId || '',
+        pictoremStatus: orderResult?.status || JSON.stringify(orderResult).substring(0, 100),
+        imageSource: originalResult.source,
+        shipCity: address.city || '',
+        shipState: address.state || '',
+        shipCountry: address.country || '',
+        shipAddress: (address.line1 || '') + (address.line2 ? ', ' + address.line2 : ''),
+        shipZip: address.postal_code || '',
+        subType: item.subOptions.subType || '',
+        mounting: item.subOptions.mounting || '',
+        finish: item.subOptions.finish || '',
+        edge: item.subOptions.edge || '',
+        frame: item.subOptions.frame || '',
+        testMode: isTestMode,
+        status: succeeded ? 'completed' : 'FAILED',
+        notes: `Item ${idx + 1} of ${printItems.length}` + (!succeeded ? ' — Pictorem rejected' : '') + (originalResult.source !== 'r2-original' ? ' — LOW-RES' : ''),
+      });
+    } // end item loop
+
+    // ====================================================================
+    // Step 5: Send confirmation emails (aggregated for all items)
+    // ====================================================================
+
+    const succeededItems = itemResults.filter(r => r.succeeded);
+    const failedItems = itemResults.filter(r => !r.succeeded);
+    const allSucceeded = failedItems.length === 0;
+    const anySucceeded = succeededItems.length > 0;
 
     // Estimated delivery: 2-4 weeks from now
     const deliveryDate = new Date();
@@ -1218,121 +1279,98 @@ export async function onRequestPost(context) {
       month: 'long', day: 'numeric', year: 'numeric'
     });
 
-    // Phase 3+4: Build human-readable sub-option summary for emails
-    const subOptionSummary = [
-      subOptions.subType ? `Type: ${subOptions.subType}` : '',
-      subOptions.mounting ? `Mounting: ${subOptions.mounting}` : '',
-      subOptions.finish ? `Finish: ${subOptions.finish}` : '',
-      subOptions.edge ? `Edge: ${subOptions.edge}` : '',
-      subOptions.frame ? `Frame: ${subOptions.frame}` : '',
-      subOptions.mat && subOptions.mat !== 'none' ? `Mat: ${subOptions.mat} ${subOptions.matWidth}"` : '',
-    ].filter(Boolean).join(' · ') || 'defaults';
-
+    // Build order details from FIRST succeeded item (for backward-compat email templates)
+    // TODO: Update email templates to show all items in a multi-item order
+    const primaryItem = succeededItems[0] || itemResults[0];
     const orderDetails = {
-      photoId,
-      photoTitle,
-      material,
-      materialName: materialDisplayName,
-      sizeStr,
+      photoId: primaryItem.photoId,
+      photoTitle: primaryItem.photoTitle,
+      material: primaryItem.material,
+      materialName: primaryItem.materialDisplayName || primaryItem.material,
+      sizeStr: primaryItem.sizeStr || `${primaryItem.printWidth}" x ${primaryItem.printHeight}"`,
       price: amountPaid,
-      imageUrl: emailImageUrl,         // Web-optimized for email previews
-      pictoremImageUrl,                // High-res URL sent to Pictorem
-      imageSource: originalResult.source, // 'r2-original' or 'web-optimized-fallback'
+      imageUrl: primaryItem.emailImageUrl || '',
+      pictoremImageUrl: primaryItem.pictoremImageUrl || '',
+      imageSource: primaryItem.originalResult?.source || 'unknown',
       customerName,
       customerEmail,
       orderRef,
       estimatedDelivery,
       shippingAddress: address,
-      preorderCode,
-      pictoremResult: orderResult,
-      wholesalePrice,
-      subOptions,
-      subOptionSummary,
+      preorderCode: primaryItem.preorderCode || '',
+      pictoremResult: primaryItem.orderResult || {},
+      wholesalePrice: primaryItem.wholesalePrice || null,
+      subOptions: primaryItem.subOptions || {},
+      subOptionSummary: primaryItem.subOptionSummary || 'defaults',
+      // Multi-item context
+      itemCount: printItems.length,
+      allItems: itemResults,
     };
 
-    // Only send customer confirmation if Pictorem actually accepted the order
     let customerEmailResult, wolfEmailResult;
-    if (orderSucceeded) {
+    if (anySucceeded) {
+      // Customer confirmation
+      const itemSummary = printItems.length > 1
+        ? ` (${succeededItems.length} of ${printItems.length} prints)`
+        : '';
       customerEmailResult = await sendEmail(RESEND_API_KEY, {
         to: customerEmail,
         bcc: WOLF_EMAIL,
-        subject: `Your Archive-35 Print Order — ${photoTitle}`,
+        subject: `Your Archive-35 Print Order — ${primaryItem.photoTitle}${itemSummary}`,
         html: buildCustomerEmail(orderDetails),
       });
       console.log('Customer email result:', JSON.stringify(customerEmailResult));
 
-      // Send Wolf notification email
+      // Wolf notification — include ALL items summary
+      const wolfSubject = printItems.length > 1
+        ? `New Order: ${printItems.length} prints — $${amountPaid}${failedItems.length > 0 ? ` (${failedItems.length} FAILED)` : ''}`
+        : `New Order: ${primaryItem.photoTitle} — ${primaryItem.materialDisplayName} ${primaryItem.sizeStr} — $${amountPaid}`;
       wolfEmailResult = await sendEmail(RESEND_API_KEY, {
         to: WOLF_EMAIL,
-        subject: `${originalResult.source !== 'r2-original' ? '⚠️ LOW-RES ALERT — ' : ''}New Order: ${photoTitle} — ${materialDisplayName} ${sizeStr} — $${amountPaid}`,
+        subject: wolfSubject,
         html: buildWolfNotificationEmail(orderDetails),
       });
       console.log('Wolf notification result:', JSON.stringify(wolfEmailResult));
-    } else {
-      // Order failed — send URGENT alert to Wolf, do NOT send customer fake confirmation
-      console.error('ORDER FAILED — sending urgent alert to Wolf, withholding customer email');
-      wolfEmailResult = await sendEmail(RESEND_API_KEY, {
-        to: WOLF_EMAIL,
-        subject: `🚨 ORDER FAILED — Pictorem rejected: ${photoTitle} — $${amountPaid}`,
-        html: `<h2 style="color:#f44336;">Pictorem Order REJECTED</h2>
-          <p><strong>Customer charged but order NOT submitted to Pictorem.</strong></p>
-          <p><strong>Customer:</strong> ${customerName} &lt;${customerEmail}&gt;</p>
-          <p><strong>Photo:</strong> ${photoTitle} (${photoId})</p>
-          <p><strong>Material:</strong> ${materialDisplayName} ${sizeStr}</p>
-          <p><strong>Amount charged:</strong> $${amountPaid}</p>
-          <p><strong>Preorder code:</strong> ${preorderCode}</p>
-          <p><strong>Pictorem response:</strong> <pre>${JSON.stringify(orderResult, null, 2)}</pre></p>
-          <p><strong>Stripe session:</strong> ${session.id}</p>
-          <p><strong>Action needed:</strong> Manually submit to Pictorem or refund the customer.</p>`,
-      });
-      console.log('Wolf urgent alert result:', JSON.stringify(wolfEmailResult));
     }
 
-    // Log to Google Sheet (non-blocking)
-    logToGoogleSheet(GOOGLE_SHEET_WEBHOOK_URL, {
-      orderType: 'print',
-      orderRef,
-      customerName,
-      customerEmail,
-      photoTitle,
-      photoId,
-      collection,
-      material: materialDisplayName,
-      size: sizeStr,
-      customerPaid: amountPaid,
-      pictoremCost: wholesalePrice || 0,
-      pictoremOrderId: orderResult?.orderId || orderResult?.mock ? 'mock_' + Date.now() : '',
-      pictoremStatus: orderResult?.status || JSON.stringify(orderResult).substring(0, 100),
-      imageSource: originalResult.source,
-      shipCity: address.city || '',
-      shipState: address.state || '',
-      shipCountry: address.country || '',
-      shipAddress: (address.line1 || '') + (address.line2 ? ', ' + address.line2 : ''),
-      shipZip: address.postal_code || '',
-      subType: subOptions.subType || '',
-      mounting: subOptions.mounting || '',
-      finish: subOptions.finish || '',
-      edge: subOptions.edge || '',
-      frame: subOptions.frame || '',
-      testMode: isTestMode,
-      status: orderSucceeded ? 'completed' : 'FAILED',
-      notes: !orderSucceeded ? 'Pictorem rejected order: ' + JSON.stringify(orderResult).substring(0, 200) : (originalResult.source !== 'r2-original' ? 'LOW-RES IMAGE WARNING' : ''),
-    });
+    // Alert Wolf about any failed items
+    if (failedItems.length > 0) {
+      const failedSummary = failedItems.map(f => `• ${f.photoTitle || f.photoId} — ${f.error}: ${JSON.stringify(f.detail || f.orderResult).substring(0, 200)}`).join('<br>');
+      await sendEmail(RESEND_API_KEY, {
+        to: WOLF_EMAIL,
+        subject: `🚨 ${failedItems.length} print item(s) FAILED — $${amountPaid} order`,
+        html: `<h2 style="color:#f44336;">Pictorem Fulfillment Partially Failed</h2>
+          <p><strong>${succeededItems.length} of ${printItems.length} items submitted successfully.</strong></p>
+          <p><strong>Customer:</strong> ${customerName} &lt;${customerEmail}&gt;</p>
+          <p><strong>Amount charged:</strong> $${amountPaid}</p>
+          <p><strong>Failed items:</strong></p><p>${failedSummary}</p>
+          <p><strong>Succeeded:</strong> ${succeededItems.map(s => `${s.photoId} → Pictorem #${s.orderResult?.orderId || '?'}`).join(', ') || 'none'}</p>
+          <p><strong>Stripe session:</strong> ${session.id}</p>
+          <p><strong>Action needed:</strong> Manually submit failed items to Pictorem or refund.</p>`,
+      });
+    }
 
-    // Return 500 if Pictorem rejected the order so Stripe retries the webhook.
-    // This gives us another chance to fulfill after fixing the issue.
-    const responseStatus = orderSucceeded ? 200 : 500;
+    // Return 500 only if ALL items failed (so Stripe retries)
+    const responseStatus = anySucceeded ? 200 : 500;
 
     return new Response(JSON.stringify({
       received: true,
-      fulfilled: orderSucceeded,
+      fulfilled: allSucceeded,
+      partiallyFulfilled: anySucceeded && !allSucceeded,
       testMode: isTestMode,
-      preorderCode,
-      imageSource: originalResult.source,
-      pictoremOrder: orderResult,
+      itemCount: printItems.length,
+      succeededCount: succeededItems.length,
+      failedCount: failedItems.length,
+      items: itemResults.map(r => ({
+        photoId: r.photoId,
+        preorderCode: r.preorderCode,
+        succeeded: r.succeeded,
+        pictoremOrderId: r.orderResult?.orderId || null,
+        error: r.error || null,
+      })),
       stripeSessionId: session.id,
       emailsSent: {
-        customer: orderSucceeded && customerEmailResult?.id ? true : false,
+        customer: anySucceeded && customerEmailResult?.id ? true : false,
         wolf: wolfEmailResult?.id ? true : false,
       },
     }), {

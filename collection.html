@@ -45,6 +45,101 @@
   <!-- Replace with your Cloudflare beacon token -->
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "CLOUDFLARE_BEACON_TOKEN"}'></script>
 
+  <!-- SEO: Dynamic canonical + meta for collection pages -->
+  <script>
+  (function() {
+    var params = new URLSearchParams(window.location.search);
+    var id = params.get('id');
+    if (!id) return;
+
+    // Collection metadata for SEO
+    var collections = {
+      'grand-teton': { title: 'Grand Teton', desc: 'Fine art photography from Grand Teton National Park. Winter landscapes, wildlife, and mountain majesty.' },
+      'new-zealand': { title: 'New Zealand', desc: 'Fine art photography from New Zealand. Geothermal wonders, fjords, glowworm caves, and pristine wilderness.' },
+      'south-africa': { title: 'South Africa', desc: 'Fine art photography from South Africa. Safari wildlife, Cape Peninsula coastline, and African landscapes.' },
+      'iceland': { title: 'Iceland', desc: 'Fine art photography from Iceland. Glaciers, waterfalls, volcanic highlands, puffins, and black sand beaches.' },
+      'death-valley': { title: 'Death Valley', desc: 'Fine art photography from Death Valley. Racetrack Playa, Zabriskie Point, sand dunes, and desert highways.' },
+      'glacier-national-park': { title: 'Glacier National Park', desc: 'Fine art photography from Glacier National Park. Mountain lakes, alpine passes, bison, and starlit peaks.' },
+      'tanzania': { title: 'Tanzania', desc: 'Fine art photography from Tanzania. Serengeti wildlife, wildebeest migration, elephants, lions, and cheetahs.' },
+      'colorado': { title: 'Colorado', desc: 'Fine art photography from Colorado. Mountain valleys, ancient stone formations, and alpine wildlife.' },
+      'yosemite-national-park': { title: 'Yosemite National Park', desc: 'Fine art photography from Yosemite National Park. El Capitan, Half Dome, waterfalls, and granite sentinels.' },
+      'white-sands-national-park': { title: 'White Sands National Park', desc: 'Fine art photography from White Sands National Park. Gypsum dunes, ethereal light, and desert solitude.' },
+      'hawaii': { title: 'Hawaii', desc: 'Fine art photography from Hawaii. Kilauea volcano, Mauna Kea, Na Pali Coast, and volcanic shores.' },
+      'cuba': { title: 'Cuba', desc: 'Fine art photography from Cuba. Havana street life, vintage cars, colonial architecture, and vibrant color.' },
+      'italy': { title: 'Italy', desc: 'Fine art photography from Italy. Dolomites, Tre Cime, Venice canals, and alpine lakes.' },
+      'argentina': { title: 'Argentina', desc: 'Fine art photography from Argentina. Perito Moreno glacier, Patagonian peaks, and Buenos Aires street scenes.' },
+      'australia': { title: 'Australia', desc: 'Fine art photography from Australia. Pinnacles Desert, Melbourne, Sydney, and native wildlife.' },
+      'brazil': { title: 'Brazil', desc: 'Fine art photography from Brazil. Rio de Janeiro, Sugarloaf, favelas, and dramatic coastline.' },
+      'canada': { title: 'Canada', desc: 'Fine art photography from Canada. Rocky Mountains, glaciers, emerald lakes, Vancouver, and Toronto.' },
+      'chicago': { title: 'Chicago', desc: 'Fine art photography from Chicago. Cloud Gate, urban canyons, elevated railways, and river architecture.' },
+      'coast-of-california': { title: 'Coast of California', desc: 'Fine art photography from the California coast. Rocky shores, golden light, tide pools, and coastal wildlife.' },
+      'los-angeles': { title: 'Los Angeles', desc: 'Fine art photography from Los Angeles. Downtown skyline, Pacific shores, bioluminescent waves, and mountain fires.' },
+      'new-york': { title: 'New York', desc: 'Fine art photography from New York City. Manhattan skyline, Times Square, Brooklyn Bridge, and urban geometry.' },
+      'bonneville-salt-flats': { title: 'Bonneville Salt Flats', desc: 'Fine art photography from Bonneville Salt Flats. Mirrored horizons, desert roads, and infinite expanse.' },
+      'desert-dunes': { title: 'Desert Dunes', desc: 'Fine art photography of desert dunes. Aerial views, golden sand, volcanic cones, and shadow play.' },
+      'antelope-canyon': { title: 'Antelope Canyon', desc: 'Fine art photography from Antelope Canyon. Light beams, flowing sandstone, and crimson passages.' },
+      'monument-valley': { title: 'Monument Valley', desc: 'Fine art photography from Monument Valley. Desert sentinels, red rock monoliths, and vast horizons.' },
+      'lake-powell': { title: 'Lake Powell', desc: 'Fine art photography from Lake Powell. Horseshoe Bend, desert arches, and sandstone canyons.' },
+      'utah-national-parks': { title: 'Utah National Parks', desc: 'Fine art photography from Utah. Arches, Canyonlands, Zion, and red rock desert landscapes.' },
+      'joshua-tree': { title: 'Joshua Tree', desc: 'Fine art photography from Joshua Tree National Park. Cholla gardens, boulder fields, and high desert solitude.' },
+      'san-francisco': { title: 'San Francisco', desc: 'Fine art photography from San Francisco. Golden Gate fog, cable cars, Victorian architecture, and bay views.' },
+      'germany': { title: 'Germany', desc: 'Fine art photography from Germany. Berlin street art, Bavarian Alps, timber-framed villages, and urban culture.' },
+      'moscow': { title: 'Moscow', desc: 'Fine art photography from Moscow. Orthodox cathedrals, modern skyline, river architecture, and city lights.' },
+      'mexico': { title: 'Mexico', desc: 'Fine art photography from Mexico. Teotihuacán pyramids, Guanajuato hillsides, and cenotes.' },
+      'sequoia-national-park': { title: 'Sequoia National Park', desc: 'Fine art photography from Sequoia National Park. Giant sequoias, forest cathedrals, and ancient groves.' },
+      'concerts': { title: 'Concerts', desc: 'Fine art photography from live concerts. Stage lighting, arena energy, and performance art.' },
+      'flowers-and-leaves': { title: 'Flowers and Leaves', desc: 'Fine art macro photography. Blooms, ferns, botanical details, and natural patterns.' },
+      'black-and-white': { title: 'Black and White', desc: 'Fine art black and white photography. Monochrome landscapes, portraits, urban geometry, and desert dunes.' },
+      'large-scale-photography-stitch': { title: 'Large Scale Photography', desc: 'Large-scale panoramic fine art photography. High-resolution stitched images for gallery and commercial display.' },
+      'alps': { title: 'Alps', desc: 'Fine art photography from the Alps. Snow-crowned peaks, frozen valleys, and high alpine majesty.' },
+      'arizona': { title: 'Arizona', desc: 'Fine art photography from Arizona. Desert highways, badlands, and painted desert landscapes.' },
+      'new-mexico': { title: 'New Mexico', desc: 'Fine art photography from New Mexico. VLA radio telescopes, high desert, and vast horizons.' },
+      'paris': { title: 'Paris', desc: 'Fine art photography from Paris. Eiffel Tower details and Parisian street scenes.' },
+      'prague': { title: 'Prague', desc: 'Fine art photography from Prague. Old Town architecture, Vltava reflections, and Czech urban charm.' },
+      'south-america': { title: 'South America', desc: 'Fine art photography from South America. Bogotá street art, mountain vistas, and urban llamas.' },
+      'santiago-de-chile': { title: 'Santiago de Chile', desc: 'Fine art photography from Santiago de Chile. Andes backdrop, valley lights, and urban twilight.' },
+      'somewhere-in-california': { title: 'Somewhere in California', desc: 'Fine art photography from hidden corners of California. Desert canyons, trestles, and agricultural landscapes.' },
+      'washington-dc': { title: 'Washington DC', desc: 'Fine art photography from Washington DC. Monuments, memorials, and Potomac reflections at night.' },
+      'valley-of-fire': { title: 'Valley of Fire', desc: 'Fine art photography from Valley of Fire. Desert ridges, stone formations, and russet plateaus.' },
+      'random-stuff': { title: 'Random Stuff', desc: 'Fine art photography from unexpected moments. Desert relics, Salton Sea, hummingbirds, and Americana.' },
+      'planes': { title: 'Planes', desc: 'Fine art photography of planes and aviation. Runway geometry, vintage aircraft, and aerial perspectives.' },
+      'london': { title: 'London', desc: 'Fine art photography from London. London Eye reflections and Thames nightscape.' },
+      'boston': { title: 'Boston', desc: 'Fine art photography from Boston. Back Bay reflections and urban nightscape.' }
+    };
+
+    var c = collections[id];
+    if (!c) return;
+
+    var url = 'https://archive-35.com/collection.html?id=' + id;
+    var title = c.title + ' Photography | ARCHIVE-35';
+
+    // Update canonical to include the ?id= parameter
+    var canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) canonical.href = url;
+
+    // Update page title
+    document.title = title;
+
+    // Update meta description
+    var desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.content = c.desc;
+
+    // Update OG tags
+    var ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.content = title;
+    var ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.content = c.desc;
+    var ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.content = url;
+
+    // Update Twitter tags
+    var twTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twTitle) twTitle.content = title;
+    var twDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twDesc) twDesc.content = c.desc;
+  })();
+  </script>
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",

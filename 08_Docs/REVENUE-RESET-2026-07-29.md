@@ -58,6 +58,12 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
 - A narrow daily Revenue Operator automation captures orders, actual payment facts,
   demand deltas, ad configuration, and budget status without waking unrelated
   social-posting jobs.
+- The first post-launch readback shows one Etsy Ads impression, zero clicks, zero
+  ad spend, and zero orders. Offsite Ads are already active with no upfront cost,
+  and Etsy's existing 25% abandoned-cart and favorited-item offers remain active.
+- Etsy Search Visibility identified 27 repetitive physical-listing titles. Every
+  recommendation was reviewed; the flawed duplicated Venice wording was corrected,
+  and all 27 clearer titles were published. An API readback confirmed the changes.
 - The focused workflow passes 39 tests. The historical full suite still stops at a
   pre-existing physical-pricing import mismatch unrelated to this digital product.
 

@@ -64,6 +64,17 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
 - Etsy Search Visibility identified 27 repetitive physical-listing titles. Every
   recommendation was reviewed; the flawed duplicated Venice wording was corrected,
   and all 27 clearer titles were published. An API readback confirmed the changes.
+- The public Etsy shop now leads with the search-facing title “Original Photography
+  Printables & Fine Art Metal Prints.” Its expired March launch-sale announcement
+  was replaced with current $12 printable and premium-metal guidance.
+- A `Printable Downloads` shop section (ID `59608958`) was created and all five
+  controlled digital listings were assigned to it. Etsy API readback confirmed the
+  same section ID on every listing.
+- A shop FAQ now explains the five delivered ratios, download timing, and that no
+  physical print or frame is shipped.
+- Current discovery baseline: 33 active listings, 54 lifetime views, zero favorites,
+  13 listings with zero views, zero orders, and no first-party website-to-Etsy click
+  events yet. This is insufficient exposure to draw a pricing conclusion.
 - The focused workflow passes 39 tests. The historical full suite still stops at a
   pre-existing physical-pricing import mismatch unrelated to this digital product.
 

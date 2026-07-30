@@ -32,6 +32,7 @@ URLS = [
     f"https://{HOST}/printables",
     f"https://{HOST}/printable-desert-wall-art-set-of-3.html",
     f"https://{HOST}/printable-iceland-wall-art-set-of-3.html",
+    f"https://{HOST}/printable-safari-nursery-wall-art-set-of-3.html",
     f"https://{HOST}/licensing.html",
     f"https://{HOST}/hospitality.html",
     f"https://{HOST}/about.html",

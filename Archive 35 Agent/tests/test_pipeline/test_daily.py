@@ -24,7 +24,7 @@ def setup(tmp_path):
     conn = get_initialized_connection(db_path)
     conn.close()
 
-    return db_path, str(photo_dir)
+    return db_path, str(photo_dir.parent)
 
 
 def test_full_pipeline_dry_run(setup):
@@ -70,8 +70,8 @@ def test_pipeline_kill_switch_blocks(setup):
     assert results["status"] == "blocked"
 
 
-def test_pipeline_generates_content(setup):
-    """Pipeline should generate content for imported+analyzed photos."""
+def test_pipeline_skips_content_without_an_api_client(setup):
+    """Dry runs must not manufacture stub marketing content."""
     db_path, photo_dir = setup
 
     # First run: import + stub analysis
@@ -98,7 +98,8 @@ def test_pipeline_generates_content(setup):
 
     content_result = results["steps"].get("content", {})
     assert content_result.get("status") == "ok"
-    assert content_result.get("content_created", 0) > 0
+    assert content_result.get("photos_processed") == 1
+    assert content_result.get("content_created", 0) == 0
 
 
 def test_pipeline_empty_directory(tmp_path):

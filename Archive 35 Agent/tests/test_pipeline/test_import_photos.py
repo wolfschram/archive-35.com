@@ -25,12 +25,12 @@ def sample_photos(tmp_path):
         img = Image.new("RGB", size, color=(i * 50, 100, 200))
         img.save(photo_dir / f"photo_{i}.jpg")
 
-    return photo_dir
+    return tmp_path
 
 
 def test_import_single_photo(conn, sample_photos):
     """Should import a single photo and return its hash."""
-    photo_path = list(sample_photos.glob("*.jpg"))[0]
+    photo_path = list((sample_photos / "ICE").glob("*.jpg"))[0]
     photo_id = import_photo(conn, photo_path)
     assert photo_id is not None
     assert len(photo_id) == 64  # SHA256 hex
@@ -38,7 +38,7 @@ def test_import_single_photo(conn, sample_photos):
 
 def test_import_stores_in_db(conn, sample_photos):
     """Imported photo should be in the database."""
-    photo_path = list(sample_photos.glob("*.jpg"))[0]
+    photo_path = list((sample_photos / "ICE").glob("*.jpg"))[0]
     photo_id = import_photo(conn, photo_path)
 
     row = conn.execute("SELECT * FROM photos WHERE id = ?", (photo_id,)).fetchone()
@@ -50,7 +50,7 @@ def test_import_stores_in_db(conn, sample_photos):
 
 def test_import_dedup(conn, sample_photos):
     """Re-importing the same photo should return None (skipped)."""
-    photo_path = list(sample_photos.glob("*.jpg"))[0]
+    photo_path = list((sample_photos / "ICE").glob("*.jpg"))[0]
     first = import_photo(conn, photo_path)
     second = import_photo(conn, photo_path)
     assert first is not None
@@ -73,8 +73,7 @@ def test_import_directory_dedup(conn, sample_photos):
 
 def test_guesses_collection(conn, sample_photos):
     """Should guess collection from parent directory name."""
-    photo_path = list(sample_photos.glob("*.jpg"))[0]
-    photo_id = import_photo(conn, photo_path)
+    photo_id = import_directory(conn, sample_photos)[0]
     row = conn.execute("SELECT collection FROM photos WHERE id = ?", (photo_id,)).fetchone()
     assert row["collection"] == "ICE"
 
@@ -87,16 +86,9 @@ def test_skips_unsupported_files(conn, tmp_path):
     assert result is None
 
 
-def test_resize_output(conn, sample_photos, tmp_path):
-    """Should create resized copies when output_dir is provided."""
+def test_import_keeps_photos_in_place(conn, sample_photos, tmp_path):
+    """The current importer stores references and does not duplicate photos."""
     output = tmp_path / "resized"
     imported = import_directory(conn, sample_photos, output_dir=output)
     assert len(imported) == 3
-
-    resized_files = list(output.glob("*.jpg"))
-    assert len(resized_files) == 3
-
-    # Check that large images were resized
-    for f in resized_files:
-        img = Image.open(f)
-        assert max(img.size) <= 1024
+    assert not output.exists()

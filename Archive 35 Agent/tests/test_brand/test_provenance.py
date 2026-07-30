@@ -32,16 +32,18 @@ def test_provenance_with_exif():
 
 
 def test_provenance_with_mood():
-    """Should include mood-based closing."""
+    """Vision mood must not be turned into fabricated provenance."""
     story = generate_provenance(vision_mood="serene")
-    assert "stillness" in story.lower() or "restless eye" in story.lower() or "serene" in story.lower()
+    assert "serene" not in story.lower()
+    assert "Fine art photography by Wolf Schram" in story
 
 
 def test_provenance_unknown_collection():
-    """Should use generic story for unknown collections."""
+    """Unknown collection names may be repeated but never embellished."""
     story = generate_provenance(collection="UNKNOWN")
     assert len(story) > 20
-    assert "Restless Eye" in story or "journey" in story or "restless eye" in story.lower()
+    assert "UNKNOWN collection" in story
+    assert "journey" not in story.lower()
 
 
 def test_provenance_no_exif():

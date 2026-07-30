@@ -61,16 +61,11 @@ def _mock_content_response(platform):
     return mock_response
 
 
-def test_generate_stub_content(conn, photo_in_db):
-    """Should create stub content when no API client provided."""
+def test_no_client_skips_fake_content(conn, photo_in_db):
+    """No API client must never create fake or stub marketing copy."""
     content_id = generate_content(conn, photo_in_db, "pinterest")
-    assert content_id is not None
-
-    row = conn.execute("SELECT * FROM content WHERE id = ?", (content_id,)).fetchone()
-    assert row["platform"] == "pinterest"
-    assert row["status"] == "pending"
-    assert "[Stub]" in row["body"]
-    assert row["expires_at"] is not None
+    assert content_id is None
+    assert conn.execute("SELECT COUNT(*) FROM content").fetchone()[0] == 0
 
 
 def test_generate_with_mock_client(conn, photo_in_db):
@@ -89,7 +84,11 @@ def test_generate_with_mock_client(conn, photo_in_db):
 
 def test_generate_all_platforms(conn, photo_in_db):
     """Should generate content for all 3 platforms with 2 variants each."""
-    content_ids = generate_all_platforms(conn, photo_in_db, variants=2)
+    mock_client = MagicMock()
+    mock_client.messages.create.return_value = _mock_content_response("pinterest")
+    content_ids = generate_all_platforms(
+        conn, photo_in_db, client=mock_client, variants=2,
+    )
     assert len(content_ids) == 6  # 3 platforms * 2 variants
 
     # Check platform distribution
@@ -110,7 +109,9 @@ def test_generate_nonexistent_photo(conn):
 
 def test_content_has_expiry(conn, photo_in_db):
     """Content should have a 48h expiry set."""
-    content_id = generate_content(conn, photo_in_db, "instagram")
+    mock_client = MagicMock()
+    mock_client.messages.create.return_value = _mock_content_response("instagram")
+    content_id = generate_content(conn, photo_in_db, "instagram", client=mock_client)
     row = conn.execute("SELECT created_at, expires_at FROM content WHERE id = ?", (content_id,)).fetchone()
     assert row["expires_at"] is not None
     assert row["expires_at"] > row["created_at"]
@@ -118,13 +119,17 @@ def test_content_has_expiry(conn, photo_in_db):
 
 def test_etsy_content_type_is_listing(conn, photo_in_db):
     """Etsy content should have content_type 'listing'."""
-    content_id = generate_content(conn, photo_in_db, "etsy")
+    mock_client = MagicMock()
+    mock_client.messages.create.return_value = _mock_content_response("etsy")
+    content_id = generate_content(conn, photo_in_db, "etsy", client=mock_client)
     row = conn.execute("SELECT content_type FROM content WHERE id = ?", (content_id,)).fetchone()
     assert row["content_type"] == "listing"
 
 
 def test_social_content_type_is_caption(conn, photo_in_db):
     """Pinterest/Instagram content should have content_type 'caption'."""
-    content_id = generate_content(conn, photo_in_db, "pinterest")
+    mock_client = MagicMock()
+    mock_client.messages.create.return_value = _mock_content_response("pinterest")
+    content_id = generate_content(conn, photo_in_db, "pinterest", client=mock_client)
     row = conn.execute("SELECT content_type FROM content WHERE id = ?", (content_id,)).fetchone()
     assert row["content_type"] == "caption"

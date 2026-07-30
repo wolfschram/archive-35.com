@@ -3166,10 +3166,10 @@ async function loadEtsy() {
           <div style="font-size:12px;color:var(--text-dim)">/100 SEO Health</div>
         </div>
         <div class="seo-details">
-          <div class="metric"><span>Titles using full 140 chars</span><span class="val">${summary.titles_full_length ?? '--'}/${totalListings}</span></div>
-          <div class="metric"><span>Using all 13 tags</span><span class="val">${summary.using_all_tags ?? '--'}/${totalListings}</span></div>
-          <div class="metric"><span>Seasonal keywords</span><span class="val">${summary.seasonal_keywords_present ?? '--'}/${totalListings}</span></div>
-          <div class="metric"><span>Room-type keywords</span><span class="val">${summary.room_keywords_present ?? '--'}/${totalListings}</span></div>
+          <div class="metric"><span>Buyer-friendly titles</span><span class="val">${summary.titles_buyer_friendly ?? '--'}/${totalListings}</span></div>
+          <div class="metric"><span>All 13 relevant tags</span><span class="val">${summary.using_all_tags ?? '--'}/${totalListings}</span></div>
+          <div class="metric"><span>Buyer-complete descriptions</span><span class="val">${summary.descriptions_buyer_complete ?? '--'}/${totalListings}</span></div>
+          <div class="metric"><span>Catalog scope</span><span class="val">${seo.catalog_scope === 'controlled_digital_downloads' ? 'Digital downloads' : 'Listings'}</span></div>
         </div>`;
     } else {
       seoHtml = '<div style="color:var(--text-dim);font-size:12px">No SEO report available. Run audit to generate.</div>';

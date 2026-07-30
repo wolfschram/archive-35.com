@@ -1,5 +1,7 @@
 """Tests for the approval queue manager."""
 
+from datetime import datetime, timedelta, timezone
+
 import pytest
 
 from src.db import get_initialized_connection
@@ -15,6 +17,9 @@ from src.telegram.queue import (
 def conn(tmp_path):
     db_path = str(tmp_path / "test.db")
     c = get_initialized_connection(db_path)
+    now = datetime.now(timezone.utc)
+    created_at = now.isoformat()
+    expires_at = (now + timedelta(hours=48)).isoformat()
 
     c.execute(
         "INSERT INTO photos (id, filename, path, imported_at, collection) VALUES (?, ?, ?, ?, ?)",
@@ -30,7 +35,7 @@ def conn(tmp_path):
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (f"c{i}", "photo1", "pinterest" if i < 3 else "instagram",
              "caption", f"Content {i}", '["tag"]', "pending",
-             "2026-02-18T00:00:00Z", "2026-02-20T00:00:00Z", i + 1),
+             created_at, expires_at, i + 1),
         )
 
     # 1 expired item (expires_at in the past)

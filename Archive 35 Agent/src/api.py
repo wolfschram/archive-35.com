@@ -382,12 +382,17 @@ def health():
 
         today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-        # Etsy listings count (from cached DB value, not live API)
+        # Etsy listings count from the latest measured shop snapshot.
         try:
             row = conn.execute(
-                "SELECT value FROM agent_state WHERE key = 'etsy_active_listings'"
+                """SELECT COUNT(*) AS cnt
+                   FROM etsy_listing_snapshots
+                   WHERE captured_at = (
+                     SELECT MAX(captured_at) FROM etsy_listing_snapshots
+                   )
+                   AND state = 'active'"""
             ).fetchone()
-            extra["etsy_listings"] = int(row["value"]) if row else 0
+            extra["etsy_listings"] = int(row["cnt"]) if row else 0
         except Exception:
             extra["etsy_listings"] = 0
 
@@ -409,12 +414,12 @@ def health():
         except Exception:
             extra["instagram_today"] = 0
 
-        # Etsy sales/orders (from cached DB value, not live API)
+        # Etsy sales/orders from captured transaction facts.
         try:
             row = conn.execute(
-                "SELECT value FROM agent_state WHERE key = 'etsy_total_sales'"
+                "SELECT COUNT(DISTINCT receipt_id) AS cnt FROM etsy_order_facts"
             ).fetchone()
-            extra["sales"] = int(row["value"]) if row else 0
+            extra["sales"] = int(row["cnt"]) if row else 0
         except Exception:
             extra["sales"] = 0
 

@@ -1,0 +1,78 @@
+{
+  "observed_at": "2026-07-30T11:02:49Z",
+  "source": "Signed-in Etsy Shop Manager Marketplace Insights",
+  "search_visibility": {
+    "shop": "set up for success",
+    "listings": "high-quality listings and clear info",
+    "action_required": false
+  },
+  "shop_stats_this_month": {
+    "visits": 4,
+    "listing_views": 6,
+    "orders": 0,
+    "revenue_usd": 0,
+    "etsy_search_visits": 2,
+    "etsy_marketing_and_seo_visits": 1,
+    "direct_and_other_visits": 1,
+    "etsy_ads_visits": 0
+  },
+  "last_30_days": [
+    {
+      "term": "printable wall art",
+      "searches": 22400,
+      "results": 2800000,
+      "conversion": "very low",
+      "median_purchase_price_usd": [3.6, 4.4]
+    },
+    {
+      "term": "black and white wall art",
+      "searches": 13300,
+      "results": 1600000,
+      "conversion": "very low",
+      "median_purchase_price_usd": [7.2, 8.8]
+    },
+    {
+      "term": "elephant wall art",
+      "searches": 1200,
+      "results": 70000,
+      "conversion": "very low",
+      "median_purchase_price_usd": [17.1, 20.9]
+    },
+    {
+      "term": "giraffe wall art",
+      "searches": 680,
+      "results": 37200,
+      "conversion": "very low"
+    },
+    {
+      "term": "cheetah wall art",
+      "searches": 3000,
+      "results": 51500,
+      "conversion": "very low",
+      "median_purchase_price_usd": [7.2, 8.8]
+    },
+    {
+      "term": "lion wall art",
+      "searches": 1000,
+      "results": 87600,
+      "conversion": "very low",
+      "median_purchase_price_usd": [34.2, 41.8]
+    },
+    {
+      "term": "black and white photography",
+      "searches": 3300,
+      "results": 255300,
+      "conversion": "very low",
+      "median_purchase_price_usd": [7.2, 8.8]
+    }
+  ],
+  "decision": {
+    "live_listing_changes": "none",
+    "reason": "Etsy reports no visibility defects, the strongest exact niche phrases are already present in the corresponding titles or tags, and the listings are still inside their temporary recency-learning window.",
+    "next_gate": "Wait for listing-level views, favorites, ad clicks, or orders before changing titles, tags, thumbnails, or price."
+  },
+  "official_guidance": [
+    "https://www.etsy.com/seller-handbook/article/1399426136697",
+    "https://www.etsy.com/seller-handbook/article/how-etsy-search-works/375461474487"
+  ]
+}

@@ -47,8 +47,9 @@ def test_negative_budget_rejected():
         Settings(_env_file=None, daily_budget_usd=-1.0)
 
 
-def test_has_anthropic_key_false_by_default():
+def test_has_anthropic_key_false_by_default(monkeypatch):
     """has_anthropic_key should return False when not configured."""
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     settings = Settings(_env_file=None)
     assert settings.has_anthropic_key() is False
 

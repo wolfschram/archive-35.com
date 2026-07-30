@@ -1,9 +1,11 @@
 """Tests for the Etsy listing restructure + SEO rewrite agent."""
 
 import json
+from io import BytesIO
 from unittest.mock import patch, MagicMock
 
 import pytest
+from PIL import Image
 
 from src.agents.etsy_agent import (
     analyze_listing_image,
@@ -58,13 +60,20 @@ def mock_pricing():
     }
 
 
+@pytest.fixture
+def jpeg_bytes():
+    buffer = BytesIO()
+    Image.new("RGB", (1200, 800), color=(80, 100, 120)).save(buffer, "JPEG")
+    return buffer.getvalue()
+
+
 class TestAnalyzeListingImage:
-    def test_successful_analysis(self, mock_seo_response):
+    def test_successful_analysis(self, mock_seo_response, jpeg_bytes):
         mock_client = MagicMock()
         mock_client.messages.create.return_value = MagicMock(
             content=[MagicMock(text=json.dumps(mock_seo_response))]
         )
-        with patch("src.agents.etsy_agent._download_image_bytes", return_value=b"\xff\xd8\xff"):
+        with patch("src.agents.etsy_agent._download_image_bytes", return_value=jpeg_bytes):
             result = analyze_listing_image(
                 "https://example.com/img.jpg", "Old Title", "20×30 inches", mock_client,
             )
@@ -110,7 +119,7 @@ class TestSaveDeactivatedLog:
 
 
 class TestRestructureAllListings:
-    def test_dry_run(self, conn, mock_seo_response):
+    def test_dry_run(self, conn, mock_seo_response, jpeg_bytes):
         mock_client = MagicMock()
         mock_client.messages.create.return_value = MagicMock(
             content=[MagicMock(text=json.dumps(mock_seo_response))]
@@ -126,7 +135,7 @@ class TestRestructureAllListings:
             patch("src.agents.etsy_agent.ensure_valid_token", return_value={"valid": True}),
             patch("src.agents.etsy_agent.get_listings", side_effect=mock_get_listings),
             patch("src.agents.etsy_agent._fetch_listing_images", return_value=fake_images),
-            patch("src.agents.etsy_agent._download_image_bytes", return_value=b"\xff\xd8\xff"),
+            patch("src.agents.etsy_agent._download_image_bytes", return_value=jpeg_bytes),
             patch("src.agents.etsy_agent.check_limit", return_value=True),
             patch("src.agents.etsy_agent.record_usage"),
         ):
@@ -138,7 +147,7 @@ class TestRestructureAllListings:
         # Both should be landscape (2000x1333)
         for r in result["results"]:
             assert r["orientation"] == "landscape"
-            assert r["size"] == "30×20 inches"
+            assert r["size"] == "48×32 inches"
 
     def test_invalid_token(self, conn):
         mock_client = MagicMock()
@@ -147,7 +156,7 @@ class TestRestructureAllListings:
             result = restructure_all_listings(conn, mock_client)
         assert "error" in result
 
-    def test_reactivates_inactive_after_update(self, conn, mock_seo_response):
+    def test_reactivates_inactive_after_update(self, conn, mock_seo_response, jpeg_bytes):
         mock_client = MagicMock()
         mock_client.messages.create.return_value = MagicMock(
             content=[MagicMock(text=json.dumps(mock_seo_response))]
@@ -163,7 +172,7 @@ class TestRestructureAllListings:
             patch("src.agents.etsy_agent.ensure_valid_token", return_value={"valid": True}),
             patch("src.agents.etsy_agent.get_listings", side_effect=mock_get_listings),
             patch("src.agents.etsy_agent._fetch_listing_images", return_value=fake_images),
-            patch("src.agents.etsy_agent._download_image_bytes", return_value=b"\xff\xd8\xff"),
+            patch("src.agents.etsy_agent._download_image_bytes", return_value=jpeg_bytes),
             patch("src.agents.etsy_agent._apply_update", return_value={"listing_id": 333}),
             patch("src.agents.etsy_agent.activate_listing", return_value={"listing_id": 333}) as mock_activate,
             patch("src.agents.etsy_agent.check_limit", return_value=True),

@@ -53,9 +53,10 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
 - Publication is a separate command: it verifies each remote draft, reserves the
   $0.20 listing fee against the $50 authorization, publishes, and reads back the
   active state. Actual experiment spend is $2.20 in listing-fee reserves.
-- Etsy Ads are active at $1/day on exactly the original five digital products; the
-  five additions and the first bundle are organic-only controls. A $21 campaign
-  reservation leaves total authorized exposure at $23.20 and $26.80 uncommitted.
+- Etsy Ads are active at $1/day. Etsy automatically included the first bundle
+  alongside the original five digital products; the five additional singles remain
+  organic-only controls. A $21 campaign reservation leaves total authorized
+  exposure at $23.20 and $26.80 uncommitted.
   The safety stop pauses ads at $21 actual ad spend or on August 19, whichever
   occurs first.
 - A narrow daily Revenue Operator automation captures orders, actual payment facts,
@@ -82,6 +83,12 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
 - A 14.4-second silent 1080×1080 H.264 listing video now presents the five approved
   bundle cards. Etsy API readback confirmed video `835525705` is active, with no
   additional listing or advertising fee.
+- All ten $12 singles now have one active 14.4-second silent 1080×1080 H.264
+  listing video. Every video was built from hash-approved cards, visually reviewed,
+  uploaded idempotently, and read back as active through Etsy. The batch workflow
+  binds the rendered MP4 to the exact approved preview hashes and refuses stale
+  assets; the five older packages were explicitly re-reviewed before approval was
+  renewed. This added no listing fee or advertising spend.
 - A shop FAQ now explains the five delivered ratios, download timing, and that no
   physical print or frame is shipped.
 - Current discovery baseline before the second batch: 33 active listings, 54
@@ -107,9 +114,9 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
   shop's older physical inventory.
 - Port 8035 now has one authoritative Docker Agent. A duplicate native Python
   process that served stale monitoring code was stopped.
-- The first ten-product snapshot found 38 active/draft shop listings, zero orders,
+- The latest revenue snapshot found 39 active/draft shop listings, zero orders,
   $0 ad spend, one ad view, no `/printables` pageviews, and no website-to-Etsy
-  clicks. Actual experiment contribution remains -$2 from listing fees.
+  clicks. Actual experiment contribution remains -$2.20 from listing fees.
 
 Etsy currently estimates $10.41 earnings on the $12 listing before advertising and
 income tax. Reaching $500 monthly contribution at this mix requires approximately

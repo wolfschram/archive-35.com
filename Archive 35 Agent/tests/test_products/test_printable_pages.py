@@ -59,7 +59,7 @@ def test_generates_one_crawlable_page_per_controlled_product(tmp_path):
 
     sitemap = ET.parse(tmp_path / "sitemap-printables.xml")
     namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-    assert len(sitemap.findall("s:url", namespace)) == 17
+    assert len(sitemap.findall("s:url", namespace)) == 18
 
 
 def test_bundle_page_is_truthful_and_links_to_live_etsy_listing():
@@ -88,6 +88,22 @@ def test_iceland_bundle_page_is_truthful_and_links_to_live_etsy_listing():
     assert "No physical prints or frames" in page
 
 
+def test_safari_bundle_page_is_truthful_and_links_to_live_etsy_listing():
+    page = (ROOT / "printable-safari-nursery-wall-art-set-of-3.html").read_text()
+    schema_text = re.findall(
+        r'<script type="application/ld\+json">(.*?)</script>', page, re.S
+    )
+    schema = json.loads(schema_text[0])
+    assert schema["offers"]["price"] == "15.00"
+    assert "priceValidUntil" not in schema["offers"]
+    assert "4546839790" in schema["offers"]["url"]
+    assert schema["sku"] == "A35-DIG-SET-SAF-0001"
+    assert "15 JPEG files" in page
+    assert "No physical prints or frames" in page
+    assert "printable-sale.js" not in page
+    assert "js/tracker-v2.js" in page
+
+
 def test_hub_links_to_every_generated_product_page():
     spec = json.loads(
         (ROOT / "Archive 35 Agent/experiments/etsy-digital-mvp.json").read_text()
@@ -103,19 +119,29 @@ def test_hub_links_to_every_generated_product_page():
     )
     collection = json.loads(schemas[0])
     items = collection["mainEntity"]["itemListElement"]
-    assert len(items) == 17
+    assert len(items) == 18
     assert {item["item"]["offers"]["price"] for item in items} == {
         "9.00",
         "13.50",
+        "15.00",
     }
     assert {
-        item["item"]["offers"]["priceValidUntil"] for item in items
+        item["item"]["offers"]["priceValidUntil"]
+        for item in items
+        if "priceValidUntil" in item["item"]["offers"]
     } == {"2026-08-06"}
+    safari = next(
+        item["item"]
+        for item in items
+        if item["item"]["name"] == "Safari Nursery Wall Art Set of 3"
+    )
+    assert "priceValidUntil" not in safari["offers"]
     assert hub.count("data-sale-active-label=") == 17
-    assert hub.count("data-price-usd=") == 17
+    assert hub.count("data-price-usd=") == 18
+    assert hub.count("selected sets of 3") == 2
     assert hub.count('class="btn btn-primary direct-printable-button"') == 5
     assert hub.count('data-printable-sku="') == 5
-    assert hub.count('data-placement="printables_card"') >= 17
+    assert hub.count('data-placement="printables_card"') >= 18
     assert "js/printable-checkout-v2.js" in hub
     assert "js/tracker-v2.js" in hub
 

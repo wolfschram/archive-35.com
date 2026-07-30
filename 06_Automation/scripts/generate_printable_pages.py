@@ -18,6 +18,7 @@ BASE_URL = "https://archive-35.com"
 BUNDLE_PAGES = [
     "printable-desert-wall-art-set-of-3.html",
     "printable-iceland-wall-art-set-of-3.html",
+    "printable-safari-nursery-wall-art-set-of-3.html",
 ]
 
 

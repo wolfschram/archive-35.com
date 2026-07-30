@@ -26,6 +26,19 @@
           items: [{ item_id: result.sku, item_category: 'printable' }]
         });
       }
+      try {
+        if (window.A35Track) {
+          window.A35Track.anonymousEvent('direct_printable_checkout', {
+            product_id: result.sku,
+            placement: button.dataset.placement || 'printable_detail',
+            destination: 'stripe_checkout',
+            price_usd: result.price_usd
+          });
+          window.A35Track.flush();
+        }
+      } catch (trackingError) {
+        // Measurement must never interrupt a paid checkout.
+      }
       window.location.assign(result.url);
     } catch (error) {
       if (status) {

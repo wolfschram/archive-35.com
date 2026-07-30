@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  var API_URL = 'https://archive-35-com.pages.dev/api/track';
+  var API_URL = '/api/track';
   var FLUSH_INTERVAL = 30000;
   var queue = [];
   var sessionId = '';
@@ -41,8 +41,7 @@
   /**
    * Push an event onto the queue
    */
-  function addEvent(type, data) {
-    var user = getUser();
+  function queueEvent(type, data, user) {
     queue.push({
       type: type,
       data: data || {},
@@ -51,6 +50,14 @@
       sid: sessionId,
       user: user
     });
+  }
+
+  function addEvent(type, data) {
+    queueEvent(type, data, getUser());
+  }
+
+  function addAnonymousEvent(type, data) {
+    queueEvent(type, data, null);
   }
 
   /**
@@ -98,6 +105,7 @@
   // --- Public API ---
   window.A35Track = {
     event: addEvent,
+    anonymousEvent: addAnonymousEvent,
     flush: flush,
     getSessionId: function() { return sessionId; }
   };

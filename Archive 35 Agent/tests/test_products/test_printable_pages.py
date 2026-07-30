@@ -52,7 +52,9 @@ def test_generates_one_crawlable_page_per_controlled_product(tmp_path):
         assert "No physical print or frame." in text
         assert 'data-sale-price-usd="9"' in text
         assert "js/printable-sale.js?v=1" in text
-        assert "js/printable-checkout.js?v=1" in text
+        assert 'data-placement="printable_detail"' in text
+        assert "js/printable-checkout.js?v=2" in text
+        assert "js/tracker.js?v=2" in text
         assert "{{" not in text
 
     sitemap = ET.parse(tmp_path / "sitemap-printables.xml")
@@ -113,7 +115,9 @@ def test_hub_links_to_every_generated_product_page():
     assert hub.count("data-price-usd=") == 17
     assert hub.count('class="btn btn-primary direct-printable-button"') == 5
     assert hub.count('data-printable-sku="') == 5
-    assert "js/printable-checkout.js?v=1" in hub
+    assert hub.count('data-placement="printables_card"') >= 17
+    assert "js/printable-checkout.js?v=2" in hub
+    assert "js/tracker.js?v=2" in hub
 
     direct_ids = set(spec["campaign"]["advertised_product_ids"])
     direct_products = {
@@ -176,6 +180,22 @@ def test_sale_controller_and_click_tracking_use_actual_offer_price():
     assert "value: priceUsd" in analytics
     assert "js/printable-sale.js?v=1" in homepage
     assert "Printables · from $9" in homepage
+
+
+def test_direct_checkout_tracking_is_same_origin_and_privacy_safe():
+    tracker = (ROOT / "js/tracker.js").read_text()
+    checkout = (ROOT / "js/printable-checkout.js").read_text()
+
+    assert "var API_URL = '/api/track';" in tracker
+    assert "direct_printable_checkout" in checkout
+    assert "A35Track.anonymousEvent" in checkout
+    assert "anonymousEvent: addAnonymousEvent" in tracker
+    assert "queueEvent(type, data, null)" in tracker
+    assert "product_id: result.sku" in checkout
+    assert "window.A35Track.flush()" in checkout
+    assert checkout.index("catch (trackingError)") < checkout.index(
+        "window.location.assign(result.url)"
+    )
 
 
 def test_committed_cloudflare_artifacts_match_generator(tmp_path):

@@ -52,3 +52,13 @@ def test_hub_links_to_every_generated_product_page():
     for product in spec["products"]:
         filename = f"printable-{product['web_slug']}.html"
         assert hub.count(f'href="{filename}"') == 1
+
+
+def test_committed_cloudflare_artifacts_match_generator(tmp_path):
+    module = load_generator()
+    generated = module.generate(tmp_path)
+
+    for output in generated:
+        committed = ROOT / output.name
+        assert committed.is_file()
+        assert committed.read_text() == output.read_text()

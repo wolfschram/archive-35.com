@@ -2,6 +2,17 @@ name: IndexNow Ping
 on:
   push:
     branches: [main]
+    paths:
+      - '*.html'
+      - 'data/**'
+      - 'images/**'
+      - 'sitemap*.xml'
+      - 'robots.txt'
+      - 'llms.txt'
+      - 'build.sh'
+      - 'functions/**'
+      - '06_Automation/scripts/indexnow_ping.py'
+      - '18ec60561b312a029d7821d84812a085.txt'
 jobs:
   ping:
     runs-on: ubuntu-latest

@@ -44,6 +44,7 @@ def main() -> None:
         "price": round(_price(remote), 2) == round(float(local["price"]), 2),
         "tags": set(remote.get("tags", [])) == set(local["tags"]),
         "sku": local["sku"] in remote.get("skus", []),
+        "section": remote.get("shop_section_id") == local.get("shop_section_id"),
         "images": len(images.get("results", [])) == 5,
         "files": len(files.get("results", [])) == 5,
     }

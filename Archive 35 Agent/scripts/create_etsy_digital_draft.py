@@ -17,6 +17,7 @@ from src.integrations.etsy import (
     get_listing,
     get_listing_files,
     get_listing_images,
+    get_listing_inventory,
 )
 from src.products.preview_approval import load_approved_previews
 
@@ -75,6 +76,7 @@ def main() -> None:
         sku=listing["sku"],
         delivery_files=listing["delivery_files"],
         image_paths=preview_paths,
+        shop_section_id=listing.get("shop_section_id"),
         activate=False,
         on_draft_created=save_initial_state,
     )
@@ -83,8 +85,9 @@ def main() -> None:
         remote_listing = get_listing(listing_id)
         remote_images = get_listing_images(listing_id)
         remote_files = get_listing_files(listing_id)
+        remote_inventory = get_listing_inventory(listing_id)
         if any("error" in value for value in (
-            remote_listing, remote_images, remote_files,
+            remote_listing, remote_images, remote_files, remote_inventory,
         )):
             result["error"] = "Draft created, but Etsy readback failed"
             result["status"] = "unverified_draft"
@@ -102,6 +105,13 @@ def main() -> None:
             verified = (
                 remote_listing.get("state") == "draft"
                 and remote_type == "download"
+                and listing["sku"] in remote_listing.get("skus", [])
+                and remote_listing.get("shop_section_id")
+                == listing.get("shop_section_id")
+                and any(
+                    product.get("sku") == listing["sku"]
+                    for product in remote_inventory.get("products", [])
+                )
                 and remote_listing.get("title") == listing["title"]
                 and round(remote_price, 2) == round(float(listing["price"]), 2)
                 and set(remote_listing.get("tags", [])) == set(listing["tags"])
@@ -114,6 +124,9 @@ def main() -> None:
                 "price_usd": round(remote_price, 2),
                 "title_matches": remote_listing.get("title") == listing["title"],
                 "tags_match": set(remote_listing.get("tags", [])) == set(listing["tags"]),
+                "sku_match": listing["sku"] in remote_listing.get("skus", []),
+                "section_match": remote_listing.get("shop_section_id")
+                == listing.get("shop_section_id"),
                 "images": image_count,
                 "files": file_count,
                 "verified": verified,

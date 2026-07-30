@@ -19,6 +19,7 @@ from src.products.digital_listing import (
 
 
 PRODUCT_ID = "A35-DIG-SET-DES-0001"
+PRINTABLE_DOWNLOADS_SECTION_ID = 59608958
 COLLECTION_TITLE = "Desert Geometry"
 SOURCE_IDS = [
     "A35-DIG-ANT-0001",
@@ -47,6 +48,7 @@ def main() -> None:
         COLLECTION_TITLE,
         ARTWORK_TITLES,
         price_usd=18,
+        shop_section_id=PRINTABLE_DOWNLOADS_SECTION_ID,
     )
     listing = build_bundle_listing_copy(
         product_id=PRODUCT_ID,

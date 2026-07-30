@@ -48,6 +48,7 @@ def build_bundle_listing_copy(
     price_usd: float = 18.0,
     tags: list[str] | None = None,
     etsy_title: str | None = None,
+    shop_section_id: int | None = None,
 ) -> dict[str, Any]:
     """Build clear Etsy copy for a three-photograph ZIP bundle."""
     if len(artwork_titles) != 3 or len(set(artwork_titles)) != 3:
@@ -98,6 +99,7 @@ SKU: {product_id}"""
         "sku": product_id,
         "artwork_title": collection_title,
         "location": "American Southwest",
+        "shop_section_id": shop_section_id,
     }
 
 

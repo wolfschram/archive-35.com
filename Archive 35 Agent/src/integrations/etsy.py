@@ -1605,6 +1605,7 @@ def create_digital_listing(
     delivery_files: list[str],
     image_paths: list[str],
     taxonomy_id: Optional[int] = None,
+    shop_section_id: Optional[int] = None,
     activate: bool = False,
     on_draft_created: Optional[Callable[[dict[str, Any]], None]] = None,
 ) -> dict[str, Any]:
@@ -1647,29 +1648,6 @@ def create_digital_listing(
             "listing_id": listing_id,
             "status": "partial_draft",
         }
-    inventory_result = update_listing_inventory(listing_id, {
-        "products": [{
-            "sku": sku,
-            "offerings": [{
-                "quantity": 999,
-                "is_enabled": True,
-                "price": round(price, 2),
-            }],
-            "property_values": [],
-        }],
-        "price_on_property": [],
-        "quantity_on_property": [],
-        "sku_on_property": [],
-        "readiness_state_on_property": [],
-    })
-    if "error" in inventory_result:
-        return {
-            "error": "Draft SKU inventory update failed",
-            "detail": inventory_result,
-            "listing_id": listing_id,
-            "status": "partial_draft",
-        }
-
     uploaded_images = []
     for rank, image_path in enumerate(image_paths[:20], start=1):
         result = upload_listing_image_from_file(listing_id, image_path, rank)
@@ -1693,6 +1671,51 @@ def create_digital_listing(
                 "status": "partial_draft",
             }
         uploaded_files.append(result)
+
+    # Etsy can reset a draft's inventory SKU while digital files are attached.
+    # Apply inventory last, then require an owner-authenticated readback match.
+    inventory_result = update_listing_inventory(listing_id, {
+        "products": [{
+            "sku": sku,
+            "offerings": [{
+                "quantity": 999,
+                "is_enabled": True,
+                "price": round(price, 2),
+            }],
+            "property_values": [],
+        }],
+        "price_on_property": [],
+        "quantity_on_property": [],
+        "sku_on_property": [],
+        "readiness_state_on_property": [],
+    })
+    if "error" in inventory_result:
+        return {
+            "error": "Draft SKU inventory update failed",
+            "detail": inventory_result,
+            "listing_id": listing_id,
+            "status": "partial_draft",
+        }
+    verified_inventory = get_listing_inventory(listing_id)
+    verified_products = verified_inventory.get("products", [])
+    if not verified_products or verified_products[0].get("sku") != sku:
+        return {
+            "error": "Draft SKU inventory readback failed",
+            "detail": verified_inventory,
+            "listing_id": listing_id,
+            "status": "unverified_draft",
+        }
+    if shop_section_id is not None:
+        section_result = update_listing(
+            listing_id, {"shop_section_id": shop_section_id},
+        )
+        if "error" in section_result:
+            return {
+                "error": "Draft shop section update failed",
+                "detail": section_result,
+                "listing_id": listing_id,
+                "status": "unverified_draft",
+            }
 
     if activate:
         result = update_listing(listing_id, {"state": "active"})

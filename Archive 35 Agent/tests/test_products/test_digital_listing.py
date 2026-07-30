@@ -71,6 +71,7 @@ def test_bundle_copy_discloses_three_photos_five_zips_and_no_physical_item():
         product_id="A35-DIG-SET-DES-0001",
         collection_title="Desert Geometry",
         artwork_titles=["Crimson Passage", "Solitary Tree", "Dunes in Motion"],
+        shop_section_id=59608958,
     )
     assert listing["price"] == 18
     assert listing["type"] == "download"
@@ -78,3 +79,4 @@ def test_bundle_copy_discloses_three_photos_five_zips_and_no_physical_item():
     assert "five ZIP folders" in listing["description"]
     assert "NO PHYSICAL ITEMS OR FRAMES" in listing["description"]
     assert len(listing["tags"]) == 13
+    assert listing["shop_section_id"] == 59608958

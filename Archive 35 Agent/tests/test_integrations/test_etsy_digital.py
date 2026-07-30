@@ -52,7 +52,13 @@ def test_complete_digital_listing_stays_draft_by_default(tmp_path):
         ) as file_upload,
         patch(
             "src.integrations.etsy.get_listing_inventory",
-            return_value={"products": [{"offerings": [{}]}]},
+            side_effect=[
+                {"products": [{"offerings": [{}]}]},
+                {"products": [{
+                    "sku": "A35-DIG-ANT-0001",
+                    "offerings": [{}],
+                }]},
+            ],
         ),
         patch(
             "src.integrations.etsy.update_listing_inventory",
@@ -78,6 +84,37 @@ def test_complete_digital_listing_stays_draft_by_default(tmp_path):
     assert image_upload.call_count == 1
     assert file_upload.call_count == 2
     update.assert_not_called()
+
+
+def test_digital_listing_rejects_missing_sku_readback(tmp_path):
+    delivery = tmp_path / "delivery.jpg"
+    preview = tmp_path / "preview.jpg"
+    delivery.write_bytes(b"jpeg")
+    preview.write_bytes(b"jpeg")
+    with (
+        patch("src.integrations.etsy.create_listing", return_value={"listing_id": 456}),
+        patch("src.integrations.etsy.upload_listing_image_from_file", return_value={}),
+        patch("src.integrations.etsy.upload_listing_file_from_path", return_value={}),
+        patch(
+            "src.integrations.etsy.get_listing_inventory",
+            side_effect=[
+                {"products": [{"offerings": [{}]}]},
+                {"products": [{"sku": "", "offerings": [{}]}]},
+            ],
+        ),
+        patch("src.integrations.etsy.update_listing_inventory", return_value={}),
+    ):
+        result = create_digital_listing(
+            title="Title",
+            description="Digital download",
+            price=12,
+            tags=["wall art"],
+            sku="A35-DIG-TEST",
+            delivery_files=[str(delivery)],
+            image_paths=[str(preview)],
+        )
+    assert result["status"] == "unverified_draft"
+    assert result["error"] == "Draft SKU inventory readback failed"
 
 
 def test_digital_listing_rejects_more_than_five_files():

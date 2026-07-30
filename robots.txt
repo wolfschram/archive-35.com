@@ -21,7 +21,6 @@ Allow: /
 
 # Sitemap
 Sitemap: https://archive-35.com/sitemap.xml
-Sitemap: https://archive-35.com/sitemap-printables.xml
 
 # =============================================================
 # AI SEARCH & ASSISTANT BOTS - Welcome

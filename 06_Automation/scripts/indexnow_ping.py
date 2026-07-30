@@ -44,7 +44,6 @@ URLS = [
     f"https://{HOST}/data/licensing-catalog.json",
     f"https://{HOST}/data/product-catalog.json",
     f"https://{HOST}/sitemap.xml",
-    f"https://{HOST}/sitemap-printables.xml",
     f"https://{HOST}/terms.html",
     f"https://{HOST}/privacy.html",
 ] + printable_urls()

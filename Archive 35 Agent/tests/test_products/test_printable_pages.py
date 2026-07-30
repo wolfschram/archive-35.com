@@ -86,3 +86,18 @@ def test_committed_cloudflare_artifacts_match_generator(tmp_path):
         committed = ROOT / output.name
         assert committed.is_file()
         assert committed.read_text() == output.read_text()
+
+
+def test_primary_sitemap_contains_every_printable_url():
+    module = load_generator()
+    spec = json.loads(module.SPEC_PATH.read_text())
+    sitemap = (ROOT / "sitemap.xml").read_text()
+    expected = [
+        *module.BUNDLE_PAGES,
+        *(f"printable-{product['web_slug']}.html" for product in spec["products"]),
+    ]
+
+    for filename in expected:
+        assert sitemap.count(f"https://archive-35.com/{filename}") == 1
+
+    assert "sitemap-printables.xml" not in (ROOT / "robots.txt").read_text()

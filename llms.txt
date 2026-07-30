@@ -100,8 +100,7 @@ This cryptographically proves:
 - Product catalog (JSON): https://archive-35.com/data/photos.json
 - Licensing catalog (JSON): https://archive-35.com/data/licensing-catalog.json
 - Full catalog for LLMs: https://archive-35.com/llms-full.txt
-- Sitemap: https://archive-35.com/sitemap.xml
-- Printable product sitemap: https://archive-35.com/sitemap-printables.xml
+- Sitemap (including printable products): https://archive-35.com/sitemap.xml
 
 ## Pages
 

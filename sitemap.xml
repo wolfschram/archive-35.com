@@ -15,6 +15,21 @@
     <priority>0.9</priority>
   </url>
 
+  <!-- Printable product pages (kept in the primary sitemap because the active
+       Cloudflare build publishes sitemap.xml directly) -->
+  <url><loc>https://archive-35.com/printable-desert-wall-art-set-of-3.html</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://archive-35.com/printable-iceland-wall-art-set-of-3.html</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://archive-35.com/printable-antelope-canyon-printable-wall-art.html</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://archive-35.com/printable-iceland-mountain-printable-wall-art.html</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://archive-35.com/printable-baboon-mother-baby-printable-wall-art.html</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://archive-35.com/printable-grand-teton-printable-wall-art.html</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://archive-35.com/printable-neutral-desert-dunes-printable-wall-art.html</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://archive-35.com/printable-brooklyn-bridge-printable-wall-art.html</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://archive-35.com/printable-canadian-waterfall-printable-wall-art.html</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://archive-35.com/printable-golden-aerial-dunes-printable-wall-art.html</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://archive-35.com/printable-monument-valley-printable-wall-art.html</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://archive-35.com/printable-canadian-glacier-printable-wall-art.html</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
   <url>
     <loc>https://archive-35.com/gallery.html</loc>
     <lastmod>2026-04-13</lastmod>

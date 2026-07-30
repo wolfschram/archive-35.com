@@ -65,6 +65,7 @@ def main() -> None:
         preview_sources,
         ARTWORK_TITLES,
         output / "previews",
+        collection_title=COLLECTION_TITLE,
     )
     print(json.dumps({
         "product_id": PRODUCT_ID,

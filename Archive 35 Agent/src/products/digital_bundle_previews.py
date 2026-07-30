@@ -48,20 +48,22 @@ def build_bundle_cover(sources: list[Path], destination: Path) -> Path:
 def build_artwork_overview(
     sources: list[Path],
     names: list[str],
+    collection_title: str,
     destination: Path,
 ) -> Path:
     if len(names) != 3:
         raise ValueError("Bundle overview requires three artwork names")
     canvas = Image.new("RGB", (SIZE, SIZE), PAPER)
     draw = ImageDraw.Draw(canvas)
-    _centered(draw, 95, "DESERT GEOMETRY • THE COMPLETE SET", _font(66, True), INK)
+    heading = f"{collection_title.upper()} • THE COMPLETE SET"
+    _centered(draw, 95, heading, _font(66, True), INK)
     photos = _three_photos(sources, box=(520, 980))
     for index, (photo, name) in enumerate(zip(photos, names)):
         x = 140 + index * 575 + (520 - photo.width) // 2
         y = 380 + (980 - photo.height) // 2
         canvas.paste(photo, (x, y))
         draw.rounded_rectangle((130 + index * 575, 1430, 670 + index * 575, 1605), 18, fill="#ffffff")
-        lines = textwrap.wrap(name, width=22)[:2]
+        lines = textwrap.wrap(name, width=27)[:2]
         for line_index, line in enumerate(lines):
             box = draw.textbbox((0, 0), line, font=_font(29, True))
             draw.text(
@@ -98,6 +100,8 @@ def build_bundle_previews(
     sources: list[str | Path],
     names: list[str],
     output_dir: str | Path,
+    *,
+    collection_title: str = "Desert Geometry",
 ) -> list[Path]:
     source_paths = [Path(source).resolve() for source in sources]
     if any(not source.is_file() for source in source_paths):
@@ -105,7 +109,12 @@ def build_bundle_previews(
     output = Path(output_dir).resolve()
     outputs = [
         build_bundle_cover(source_paths, output / "00-set-of-3-cover.jpg"),
-        build_artwork_overview(source_paths, names, output / "01-complete-set.jpg"),
+        build_artwork_overview(
+            source_paths,
+            names,
+            collection_title,
+            output / "01-complete-set.jpg",
+        ),
     ]
     outputs.append(_text_card(
         "15 PRINTABLE FILES INCLUDED",

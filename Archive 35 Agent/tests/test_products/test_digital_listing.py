@@ -80,3 +80,13 @@ def test_bundle_copy_discloses_three_photos_five_zips_and_no_physical_item():
     assert "NO PHYSICAL ITEMS OR FRAMES" in listing["description"]
     assert len(listing["tags"]) == 13
     assert listing["shop_section_id"] == 59608958
+
+
+def test_bundle_copy_preserves_subject_specific_location():
+    listing = build_bundle_listing_copy(
+        product_id="A35-DIG-SET-ICE-0001",
+        collection_title="Quiet Iceland",
+        artwork_titles=["Black Sand", "Mirror", "Still Waters"],
+        location="Iceland",
+    )
+    assert listing["location"] == "Iceland"

@@ -52,11 +52,11 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
   spend reconciliation are complete.
 - Publication is a separate command: it verifies each remote draft, reserves the
   $0.20 listing fee against the $50 authorization, publishes, and reads back the
-  active state. Actual experiment spend is $2.20 in listing-fee reserves.
+  active state. Actual experiment spend is $2.40 in listing-fee reserves.
 - Etsy Ads are active at $1/day. Etsy automatically included the first bundle
   alongside the original five digital products; the five additional singles remain
   organic-only controls. A $21 campaign reservation leaves total authorized
-  exposure at $23.20 and $26.80 uncommitted.
+  exposure at $23.40 and $26.60 uncommitted.
   The safety stop pauses ads at $21 actual ad spend or on August 19, whichever
   occurs first.
 - A narrow daily Revenue Operator automation captures orders, actual payment facts,
@@ -78,6 +78,11 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
   `4546681551`. It contains three original photographs, 15 high-resolution JPEGs
   delivered in five verified ZIP files, five preview images, 13 tags, the expected
   Archive-35 SKU, and the `Printable Downloads` section assignment.
+- The second coordinated offer, `Quiet Iceland`, is live at $18 as Etsy listing
+  `4546706397`. It presents three complementary Vestrahorn photographs, 15
+  rights-metadata-bearing JPEGs in five verified ZIP files, five approved previews,
+  13 Iceland-focused tags, SKU `A35-DIG-SET-ICE-0001`, and the same shop section.
+  Etsy API readback confirmed the listing and video `835502176` are active.
 - Etsy Ads automatically included the bundle inside the existing $1/day campaign;
   the campaign remains at one view, zero clicks, zero spend, and zero orders.
 - A 14.4-second silent 1080×1080 H.264 listing video now presents the five approved
@@ -106,7 +111,7 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
 - A dedicated Desert Geometry bundle page is live and placed first on the printable
   hub. Production verification confirmed the $18 Product schema, direct Etsy URL,
   bundle image, sitemap entry, and successful IndexNow submission.
-- The focused workflow passes 39 tests. The historical full suite still stops at a
+- The focused revenue workflow passes 46 tests. The historical full suite still stops at a
   pre-existing physical-pricing import mismatch unrelated to this digital product.
 - Revenue snapshots now return demand rows for every listing instead of exposing
   only the first ten ranked rows. The daily operator maps all ten controlled Etsy
@@ -114,9 +119,10 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
   shop's older physical inventory.
 - Port 8035 now has one authoritative Docker Agent. A duplicate native Python
   process that served stale monitoring code was stopped.
-- The latest revenue snapshot found 39 active/draft shop listings, zero orders,
+- The latest revenue snapshot found 40 active/draft shop listings, zero orders,
   $0 ad spend, one ad view, no `/printables` pageviews, and no website-to-Etsy
-  clicks. Actual experiment contribution remains -$2.20 from listing fees.
+  clicks. Actual experiment contribution is -$2.40 from listing fees. Total
+  authorized exposure is $23.40, leaving $26.60 uncommitted.
 
 Etsy currently estimates $10.41 earnings on the $12 listing before advertising and
 income tax. Reaching $500 monthly contribution at this mix requires approximately

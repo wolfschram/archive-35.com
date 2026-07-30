@@ -88,6 +88,7 @@ def test_builds_five_square_bundle_previews(tmp_path):
         sources,
         ["Crimson Passage", "Solitary Tree", "Dunes in Motion"],
         tmp_path / "previews",
+        collection_title="Test Collection",
     )
     assert len(outputs) == 5
     for output in outputs:

@@ -13,7 +13,10 @@ ROOT = Path(__file__).resolve().parents[2]
 SPEC_PATH = ROOT / "Archive 35 Agent/experiments/etsy-digital-mvp.json"
 TEMPLATE_PATH = ROOT / "06_Automation/templates/printable-product.html"
 BASE_URL = "https://archive-35.com"
-BUNDLE_PAGE = "printable-desert-wall-art-set-of-3.html"
+BUNDLE_PAGES = [
+    "printable-desert-wall-art-set-of-3.html",
+    "printable-iceland-wall-art-set-of-3.html",
+]
 
 
 def _etsy_url(product: dict) -> str:
@@ -90,11 +93,12 @@ def _render(template: str, values: dict[str, str]) -> str:
 def _sitemap(products: list[dict], lastmod: str) -> str:
     urls = [
         "  <url>\n"
-        f"    <loc>{BASE_URL}/{BUNDLE_PAGE}</loc>\n"
+        f"    <loc>{BASE_URL}/{bundle_page}</loc>\n"
         f"    <lastmod>{lastmod}</lastmod>\n"
         "    <changefreq>monthly</changefreq>\n"
         "    <priority>0.9</priority>\n"
         "  </url>"
+        for bundle_page in BUNDLE_PAGES
     ]
     for product in products:
         location = f"{BASE_URL}/printable-{product['web_slug']}.html"

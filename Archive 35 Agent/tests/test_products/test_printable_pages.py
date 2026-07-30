@@ -40,7 +40,19 @@ def test_generates_one_crawlable_page_per_controlled_product(tmp_path):
 
     sitemap = ET.parse(tmp_path / "sitemap-printables.xml")
     namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-    assert len(sitemap.findall("s:url", namespace)) == 10
+    assert len(sitemap.findall("s:url", namespace)) == 11
+
+
+def test_bundle_page_is_truthful_and_links_to_live_etsy_listing():
+    page = (ROOT / "printable-desert-wall-art-set-of-3.html").read_text()
+    schema_text = re.findall(
+        r'<script type="application/ld\+json">(.*?)</script>', page, re.S
+    )
+    schema = json.loads(schema_text[0])
+    assert schema["offers"]["price"] == "18.00"
+    assert "4546681551" in schema["offers"]["url"]
+    assert "15 JPEG files" in page
+    assert "No physical prints or frames" in page
 
 
 def test_hub_links_to_every_generated_product_page():

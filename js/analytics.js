@@ -70,6 +70,9 @@ function initializeEventTracking() {
 
   // Track the low-cost Etsy conversion path
   trackEtsyDigitalClicks();
+
+  // Track homepage-to-printables handoffs without attaching identity.
+  trackPrintablesHubClicks();
 }
 
 /**
@@ -232,6 +235,33 @@ function trackEtsyDigitalClicks() {
 
       if (window.A35Track) {
         window.A35Track.event('etsy_digital_click', eventData);
+        window.A35Track.flush();
+      }
+    });
+  });
+}
+
+/**
+ * Track internal handoffs into the affordable printables funnel.
+ */
+function trackPrintablesHubClicks() {
+  document.querySelectorAll('.printables-hub-link').forEach((link) => {
+    if (link.dataset.printablesTrackingBound === 'true') return;
+    link.dataset.printablesTrackingBound = 'true';
+
+    link.addEventListener('click', () => {
+      const eventData = {
+        placement: link.dataset.placement || 'unknown',
+        destination: 'printables_hub'
+      };
+
+      gtag('event', 'select_content', {
+        content_type: 'printables_hub',
+        placement: eventData.placement
+      });
+
+      if (window.A35Track) {
+        window.A35Track.anonymousEvent('printables_hub_click', eventData);
         window.A35Track.flush();
       }
     });

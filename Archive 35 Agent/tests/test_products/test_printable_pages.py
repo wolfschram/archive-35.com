@@ -204,8 +204,17 @@ def test_sale_controller_and_click_tracking_use_actual_offer_price():
     assert "Number(link.dataset.priceUsd || 12)" in analytics
     assert "price_usd: priceUsd" in analytics
     assert "value: priceUsd" in analytics
+    assert "trackPrintablesHubClicks()" in analytics
+    assert "A35Track.anonymousEvent('printables_hub_click'" in analytics
+    assert "destination: 'printables_hub'" in analytics
     assert "js/printable-sale.js?v=1" in homepage
+    assert "js/analytics.js?v=4" in homepage
     assert "Printables · from $9" in homepage
+    assert homepage.count('class="printables-hub-link"') == 2
+    assert homepage.count("printables-hub-link") == 4
+    assert "Fifteen photographs and three coordinated sets" in homepage
+    assert '<a href="gallery.html" class="btn">View Gallery</a>' in homepage
+    assert 'class="btn btn-primary printables-hub-link"' in homepage
 
 
 def test_direct_checkout_tracking_is_same_origin_and_privacy_safe():

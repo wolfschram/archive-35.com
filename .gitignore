@@ -90,6 +90,9 @@ Archive 35 Agent/data/credentials/
 
 # Mockup room templates — Studio tool, not web content
 templates/
+!06_Automation/templates/
+06_Automation/templates/*
+!06_Automation/templates/printable-product.html
 
 # Hospitality mockups and docs — not served by website
 hospitalety/

@@ -17,11 +17,18 @@ def test_mvp_has_ten_distinct_valid_products_and_five_advertised():
     assert len(products) == 10
     assert len(product_ids) == 10
     assert len({product["source"] for product in products}) == 10
+    assert len({product["web_slug"] for product in products}) == 10
+    assert len({product["web_image"] for product in products}) == 10
+    assert len({product["etsy_listing_id"] for product in products}) == 10
+    assert len({product["etsy_listing_slug"] for product in products}) == 10
     assert len(advertised) == 5
     assert advertised < product_ids
 
     for product in products:
         assert (AGENT_ROOT / product["source"]).resolve().is_file()
+        assert (
+            AGENT_ROOT.parent / "images" / "printables" / product["web_image"]
+        ).is_file()
         listing = build_listing_copy(
             product_id=product["product_id"],
             artwork_title=product["artwork_title"],

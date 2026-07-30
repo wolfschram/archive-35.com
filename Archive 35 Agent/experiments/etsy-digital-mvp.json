@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "price_usd": 12.0,
+  "web_lastmod": "2026-07-30",
   "campaign": {
     "version": "2026-07-29-a",
     "started_at": "2026-07-29T20:30:00-07:00",
@@ -26,6 +27,10 @@
       "source": "../01_Portfolio/Antelope_Canyon/originals/118A6286.jpg",
       "artwork_title": "Crimson Passage Through Stone",
       "location": "Antelope Canyon, Arizona, USA",
+      "web_slug": "antelope-canyon-printable-wall-art",
+      "web_image": "antelope-canyon-printable.jpg",
+      "etsy_listing_id": 4546594519,
+      "etsy_listing_slug": "antelope-canyon-printable-wall-art",
       "etsy_title": "Antelope Canyon Printable Wall Art, Southwest Photo Digital Download",
       "focal_point": [0.52, 0.5],
       "tags": ["antelope canyon", "southwest wall art", "printable wall art", "digital download", "desert photography", "arizona wall art", "slot canyon print", "red rock decor", "landscape photo", "large wall art", "modern home decor", "nature photography", "instant download"]
@@ -35,6 +40,10 @@
       "source": "../01_Portfolio/Iceland/originals/WOLF4556.jpg",
       "artwork_title": "Vestrahorn's Reflection in Still Waters",
       "location": "Iceland",
+      "web_slug": "iceland-mountain-printable-wall-art",
+      "web_image": "iceland-mountain-printable.jpg",
+      "etsy_listing_id": 4546598415,
+      "etsy_listing_slug": "iceland-mountain-printable-wall-art",
       "etsy_title": "Iceland Mountain Printable Wall Art, Nordic Landscape Digital Download",
       "focal_point": [0.55, 0.5],
       "tags": ["iceland wall art", "vestrahorn print", "nordic wall decor", "mountain printable", "landscape download", "scandinavian art", "blue wall art", "nature photography", "travel wall decor", "instant download", "printable wall art", "iceland photography", "modern home decor"]
@@ -44,6 +53,10 @@
       "source": "../01_Portfolio/Tanzania/originals/118A0037.jpg",
       "artwork_title": "Mother and Child in Motion",
       "location": "Tanzania",
+      "web_slug": "baboon-mother-baby-printable-wall-art",
+      "web_image": "baboon-mother-baby-printable.jpg",
+      "etsy_listing_id": 4546611616,
+      "etsy_listing_slug": "baboon-mother-and-baby-printable-wall",
       "etsy_title": "Baboon Mother and Baby Printable Wall Art, African Wildlife Digital Download",
       "focal_point": [0.52, 0.5],
       "tags": ["baboon wall art", "african wildlife", "animal nursery art", "safari wall decor", "wildlife printable", "mother baby art", "tanzania photo", "nature photography", "animal wall art", "instant download", "printable wall art", "safari photography", "earth tone decor"]
@@ -53,6 +66,10 @@
       "source": "../01_Portfolio/Grand_Teton/originals/WOLF6676.jpg",
       "artwork_title": "Teton Range Winter Reflection",
       "location": "Grand Teton National Park, Wyoming, USA",
+      "web_slug": "grand-teton-printable-wall-art",
+      "web_image": "grand-teton-printable.jpg",
+      "etsy_listing_id": 4546611864,
+      "etsy_listing_slug": "grand-teton-printable-wall-art-wyoming",
       "etsy_title": "Grand Teton Printable Wall Art, Wyoming Mountain Landscape Digital Download",
       "focal_point": [0.55, 0.5],
       "tags": ["grand teton art", "wyoming wall art", "mountain printable", "winter landscape", "national park art", "sunrise wall decor", "nature photography", "landscape download", "printable wall art", "instant download", "cabin wall decor", "mountain wall art", "travel photography"]
@@ -62,6 +79,10 @@
       "source": "../01_Portfolio/Desert_Dunes/originals/DJI_20250518091954_0187_D-Enhanced-NR.jpg",
       "artwork_title": "Desert Dunes in Motion",
       "location": "Desert dunes",
+      "web_slug": "neutral-desert-dunes-printable-wall-art",
+      "web_image": "desert-dunes-printable.jpg",
+      "etsy_listing_id": 4546599089,
+      "etsy_listing_slug": "neutral-desert-dunes-printable-wall-art",
       "etsy_title": "Neutral Desert Dunes Printable Wall Art, Minimalist Digital Download",
       "focal_point": [0.5, 0.5],
       "tags": ["desert wall art", "neutral wall decor", "sand dune print", "minimalist printable", "beige wall art", "desert photography", "nature wall decor", "earth tone art", "landscape download", "printable wall art", "instant download", "modern home decor", "boho wall art"]
@@ -71,6 +92,10 @@
       "source": "../06_Automation/etsy-export/18-new-york-new-york-architecture-photography/images/09-original-118A5029.jpg",
       "artwork_title": "Brooklyn Bridge at Blue Hour",
       "location": "New York City, USA",
+      "web_slug": "brooklyn-bridge-printable-wall-art",
+      "web_image": "brooklyn-bridge-printable.jpg",
+      "etsy_listing_id": 4546650265,
+      "etsy_listing_slug": "brooklyn-bridge-printable-wall-art-new",
       "etsy_title": "Brooklyn Bridge Printable Wall Art, New York City Skyline Digital Download",
       "focal_point": [0.48, 0.5],
       "tags": ["brooklyn bridge", "nyc skyline art", "new york wall art", "city printable", "manhattan decor", "urban photography", "blue wall art", "travel wall decor", "instant download", "printable wall art", "cityscape print", "office wall art", "modern home decor"]
@@ -80,6 +105,10 @@
       "source": "../06_Automation/etsy-export/08-canada-canadian-waterfall-print-moss-canyon-n/images/09-original-Wolf 1346.jpg",
       "artwork_title": "Waterfall in the Green Canyon",
       "location": "Canada",
+      "web_slug": "canadian-waterfall-printable-wall-art",
+      "web_image": "canadian-waterfall-printable.jpg",
+      "etsy_listing_id": 4546650421,
+      "etsy_listing_slug": "canadian-waterfall-printable-wall-art",
       "etsy_title": "Canadian Waterfall Printable Wall Art, Forest Landscape Digital Download",
       "focal_point": [0.56, 0.5],
       "tags": ["canada wall art", "waterfall printable", "forest wall decor", "nature download", "canadian landscape", "moss canyon art", "green wall art", "nature photography", "travel wall decor", "instant download", "printable wall art", "cabin wall decor", "waterfall photo"]
@@ -89,6 +118,10 @@
       "source": "../06_Automation/etsy-export/10-desert-dunes-desert-dunes-abstract-aerial-photography/images/12-original-DJI_20250518090833_0165_D.jpg",
       "artwork_title": "Golden Dunes from Above",
       "location": "Desert dunes",
+      "web_slug": "golden-aerial-dunes-printable-wall-art",
+      "web_image": "golden-aerial-dunes-printable.jpg",
+      "etsy_listing_id": 4546664396,
+      "etsy_listing_slug": "golden-sand-dunes-printable-wall-art",
       "etsy_title": "Golden Sand Dunes Printable Wall Art, Minimalist Aerial Digital Download",
       "focal_point": [0.5, 0.5],
       "tags": ["aerial desert art", "sand dune print", "minimalist printable", "beige wall art", "drone photography", "desert wall art", "abstract landscape", "neutral wall decor", "earth tone art", "instant download", "printable wall art", "modern home decor", "boho wall art"]
@@ -98,6 +131,10 @@
       "source": "../06_Automation/etsy-export/17-monument-valley-monument-valley-landscape-photography-pr/images/09-original-Wolf 514.jpg",
       "artwork_title": "Solitary Tree in Monument Valley",
       "location": "Monument Valley, USA",
+      "web_slug": "monument-valley-printable-wall-art",
+      "web_image": "monument-valley-printable.jpg",
+      "etsy_listing_id": 4546664576,
+      "etsy_listing_slug": "monument-valley-printable-wall-art",
       "etsy_title": "Monument Valley Printable Wall Art, Southwest Desert Digital Download",
       "focal_point": [0.48, 0.5],
       "tags": ["monument valley", "southwest wall art", "desert printable", "arizona wall art", "utah wall decor", "red rock landscape", "western wall art", "nature photography", "travel wall decor", "instant download", "printable wall art", "rustic home decor", "desert photography"]
@@ -107,6 +144,10 @@
       "source": "../06_Automation/etsy-export/09-canada-canada-glacier-photography-print-drama/images/08-original-Wolf 1409.jpg",
       "artwork_title": "Glacier Beneath the Mountain",
       "location": "Canada",
+      "web_slug": "canadian-glacier-printable-wall-art",
+      "web_image": "canadian-glacier-printable.jpg",
+      "etsy_listing_id": 4546651079,
+      "etsy_listing_slug": "canadian-glacier-printable-wall-art",
       "etsy_title": "Canadian Glacier Printable Wall Art, Dramatic Mountain Digital Download",
       "focal_point": [0.52, 0.5],
       "tags": ["glacier wall art", "canada wall art", "mountain printable", "alpine landscape", "blue wall art", "nature photography", "travel wall decor", "instant download", "printable wall art", "mountain wall art", "modern home decor", "adventure wall art", "snow mountain print"]

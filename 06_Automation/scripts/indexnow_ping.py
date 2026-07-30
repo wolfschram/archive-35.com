@@ -7,10 +7,23 @@ Run after every deploy or content update.
 import requests
 import json
 import sys
+from pathlib import Path
 
 INDEXNOW_KEY = "18ec60561b312a029d7821d84812a085"
 HOST = "archive-35.com"
 KEY_LOCATION = f"https://{HOST}/{INDEXNOW_KEY}.txt"
+SPEC_PATH = (
+    Path(__file__).resolve().parents[2]
+    / "Archive 35 Agent/experiments/etsy-digital-mvp.json"
+)
+
+
+def printable_urls():
+    spec = json.loads(SPEC_PATH.read_text())
+    return [
+        f"https://{HOST}/printable-{product['web_slug']}.html"
+        for product in spec["products"]
+    ]
 
 # All pages that should be indexed
 URLS = [
@@ -29,9 +42,10 @@ URLS = [
     f"https://{HOST}/data/licensing-catalog.json",
     f"https://{HOST}/data/product-catalog.json",
     f"https://{HOST}/sitemap.xml",
+    f"https://{HOST}/sitemap-printables.xml",
     f"https://{HOST}/terms.html",
     f"https://{HOST}/privacy.html",
-]
+] + printable_urls()
 
 def submit_urls():
     payload = {

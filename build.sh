@@ -57,6 +57,7 @@ cp llms.txt _site/ 2>/dev/null || true
 cp llms-full.txt _site/ 2>/dev/null || true
 cp sitemap.xml _site/ 2>/dev/null || true
 cp sitemap-images.xml _site/ 2>/dev/null || true
+python3 06_Automation/scripts/generate_printable_pages.py --output _site
 
 # Copy IndexNow verification key (required for Bing/ChatGPT search indexing)
 rm -f _site/bec4410ec1fa5d67379a63e652ce0c4d.txt 2>/dev/null || true

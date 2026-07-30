@@ -84,6 +84,9 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
   `archive35photo.etsy.com` Share & Save-formatted URL, preserves the $12 disclosure,
   and records the controlled product SKU on outbound clicks. The homepage, sitemap,
   structured data, and `llms.txt` now route discovery through this page.
+- Ten build-generated product landing pages now give each printable a distinct
+  search URL, factual Product structured data, an internal link from the printable
+  hub, a dedicated sitemap entry, and an IndexNow submission URL.
 - The focused workflow passes 39 tests. The historical full suite still stops at a
   pre-existing physical-pricing import mismatch unrelated to this digital product.
 - Revenue snapshots now return demand rows for every listing instead of exposing

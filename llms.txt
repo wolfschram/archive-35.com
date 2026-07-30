@@ -51,9 +51,9 @@ Fulfillment: Pictorem Premium with Certificate of Authenticity.
 
 ## $12 Printable Photography Downloads
 
-Five original photographs are available as instant digital downloads for personal wall display. Each purchase includes five high-resolution JPEG files covering 2:3, 3:4, 4:5, 11×14, and international A-series frame ratios. No physical print or frame is included. Secure checkout and file delivery are handled by Etsy.
+Ten original photographs are available as instant digital downloads for personal wall display. Each purchase includes five high-resolution JPEG files covering 2:3, 3:4, 4:5, 11×14, and international A-series frame ratios. No physical print or frame is included. Secure checkout and file delivery are handled by Etsy.
 
-Browse all five: https://archive-35.com/printables.html
+Browse all ten: https://archive-35.com/printables.html
 
 ## Commercial Licensing (45 ultra-high-resolution panoramic images)
 
@@ -101,6 +101,7 @@ This cryptographically proves:
 - Licensing catalog (JSON): https://archive-35.com/data/licensing-catalog.json
 - Full catalog for LLMs: https://archive-35.com/llms-full.txt
 - Sitemap: https://archive-35.com/sitemap.xml
+- Printable product sitemap: https://archive-35.com/sitemap-printables.xml
 
 ## Pages
 

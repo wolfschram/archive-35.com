@@ -1,0 +1,31 @@
+{
+  "captured_at": "2026-07-29T20:45:00-07:00",
+  "shop": "Archive35Photo",
+  "campaign_active": true,
+  "daily_budget_usd": 1.0,
+  "actual_spend_at_launch_usd": 0.0,
+  "maximum_reserved_ad_spend_usd": 21.0,
+  "advertised_listings": [
+    {"listing_id": 4546594519, "sku": "A35-DIG-ANT-0001"},
+    {"listing_id": 4546598415, "sku": "A35-DIG-ICE-0001"},
+    {"listing_id": 4546611616, "sku": "A35-DIG-TAN-0001"},
+    {"listing_id": 4546611864, "sku": "A35-DIG-TET-0001"},
+    {"listing_id": 4546599089, "sku": "A35-DIG-DUN-0001"}
+  ],
+  "advertised_listing_count": 5,
+  "other_active_listings_advertised": 0,
+  "stop_on_or_before": "2026-08-19",
+  "verification": {
+    "source": "signed-in Etsy Ads dashboard",
+    "budget_confirmed": true,
+    "budget_reduced_at": "2026-07-29T21:00:00-07:00",
+    "advertised_filter_confirmed": true,
+    "campaign_stats_at_launch": {
+      "views": 0,
+      "clicks": 0,
+      "orders": 0,
+      "revenue_usd": 0.0,
+      "spend_usd": 0.0
+    }
+  }
+}

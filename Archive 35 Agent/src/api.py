@@ -2294,17 +2294,19 @@ def etsy_revenue_cost(
         raise HTTPException(status_code=401, detail="Operator token required")
     conn = _get_conn()
     try:
-        total = record_experiment_cost(
+        committed = record_experiment_cost(
             conn,
             amount_usd=req.amount_usd,
             category=req.category,
             note=req.note,
             external_reference=req.external_reference,
         )
+        report = revenue_report(conn)
         return {
             "recorded": True,
-            "budget_spent_usd": total,
-            "report": revenue_report(conn),
+            "budget_spent_usd": report["budget_spent_usd"],
+            "budget_committed_usd": committed,
+            "report": report,
         }
     except (ValueError, sqlite3.IntegrityError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

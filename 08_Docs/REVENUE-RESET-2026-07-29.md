@@ -50,10 +50,15 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
   spend reconciliation are complete.
 - Publication is a separate command: it verifies each remote draft, reserves the
   $0.20 listing fee against the $50 authorization, publishes, and reads back the
-  active state. Current recorded spend is $1.00; $49.00 remains. Etsy Ads are off.
+  active state. Actual spend is $1.00 in listing fees.
+- Etsy Ads are active at $1/day on exactly the five digital products. A $21
+  campaign reservation leaves total authorized exposure at $22 and $28 uncommitted.
+  The safety stop pauses ads at $21 actual ad spend or on August 19, whichever
+  occurs first.
 - A narrow daily Revenue Operator automation captures orders, actual payment facts,
-  demand deltas, and budget status without waking unrelated social-posting jobs.
-- The focused workflow passes 37 tests. The historical full suite still stops at a
+  demand deltas, ad configuration, and budget status without waking unrelated
+  social-posting jobs.
+- The focused workflow passes 39 tests. The historical full suite still stops at a
   pre-existing physical-pricing import mismatch unrelated to this digital product.
 
 Etsy currently estimates $10.41 earnings on the $12 listing before advertising and

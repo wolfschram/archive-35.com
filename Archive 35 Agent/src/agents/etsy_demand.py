@@ -15,6 +15,9 @@ ETSY_PERCENT_FEES = 0.095
 ETSY_PAYMENT_FIXED_FEE_USD = 0.25
 ETSY_LISTING_FEE_USD = 0.20
 INITIAL_AD_BUDGET_USD = 50.0
+ETSY_AD_CAMPAIGN_CAP_USD = 21.0
+ETSY_AD_COST_CATEGORY = "etsy_ads"
+ETSY_AD_RESERVE_CATEGORY = "etsy_ads_reserve"
 
 
 def _now_iso() -> str:
@@ -179,6 +182,26 @@ def capture_payment_fact(
     return True
 
 
+def _budget_totals(conn: sqlite3.Connection) -> tuple[float, float, float, float]:
+    """Return non-ad spend, actual ad spend, ad reserve, and committed exposure."""
+    row = conn.execute(
+        """SELECT
+             COALESCE(SUM(CASE WHEN category NOT IN (?, ?)
+                               THEN amount_usd ELSE 0 END), 0),
+             COALESCE(SUM(CASE WHEN category = ?
+                               THEN amount_usd ELSE 0 END), 0),
+             COALESCE(SUM(CASE WHEN category = ?
+                               THEN amount_usd ELSE 0 END), 0)
+           FROM etsy_experiment_costs""",
+        (
+            ETSY_AD_COST_CATEGORY, ETSY_AD_RESERVE_CATEGORY,
+            ETSY_AD_COST_CATEGORY, ETSY_AD_RESERVE_CATEGORY,
+        ),
+    ).fetchone()
+    base, ads, reserve = map(float, row)
+    return base, ads, reserve, base + max(ads, reserve)
+
+
 def record_experiment_cost(
     conn: sqlite3.Connection,
     amount_usd: float,
@@ -195,11 +218,28 @@ def record_experiment_cost(
         raise ValueError("Nonzero experiment costs require an idempotency reference")
     try:
         conn.execute("BEGIN IMMEDIATE")
-        spent = float(conn.execute(
-            "SELECT COALESCE(SUM(amount_usd), 0) FROM etsy_experiment_costs"
-        ).fetchone()[0])
-        if spent + amount > INITIAL_AD_BUDGET_USD:
-            remaining = round(INITIAL_AD_BUDGET_USD - spent, 2)
+        base, ads, reserve, committed = _budget_totals(conn)
+        if category == ETSY_AD_COST_CATEGORY:
+            ads += amount
+        elif category == ETSY_AD_RESERVE_CATEGORY:
+            reserve += amount
+        else:
+            base += amount
+        if category in (ETSY_AD_COST_CATEGORY, ETSY_AD_RESERVE_CATEGORY):
+            category_total = (
+                ads if category == ETSY_AD_COST_CATEGORY else reserve
+            )
+            if category_total > ETSY_AD_CAMPAIGN_CAP_USD:
+                current_total = category_total - amount
+                remaining = round(
+                    ETSY_AD_CAMPAIGN_CAP_USD - current_total, 2,
+                )
+                raise ValueError(
+                    f"Etsy Ads campaign cap exceeded: ${remaining:.2f} remains"
+                )
+        prospective = base + max(ads, reserve)
+        if prospective > INITIAL_AD_BUDGET_USD:
+            remaining = round(INITIAL_AD_BUDGET_USD - committed, 2)
             raise ValueError(
                 f"Initial Etsy budget exceeded: ${remaining:.2f} remains"
             )
@@ -219,7 +259,7 @@ def record_experiment_cost(
     except Exception:
         conn.rollback()
         raise
-    return round(spent + amount, 2)
+    return round(prospective, 2)
 
 
 def revenue_report(
@@ -265,12 +305,13 @@ def revenue_report(
 
     spend = float(conn.execute(
         """SELECT COALESCE(SUM(amount_usd), 0)
-           FROM etsy_experiment_costs WHERE incurred_at >= ?""",
-        (cutoff,),
+           FROM etsy_experiment_costs
+           WHERE incurred_at >= ? AND category != ?""",
+        (cutoff, ETSY_AD_RESERVE_CATEGORY),
     ).fetchone()[0])
-    lifetime_spend = float(conn.execute(
-        "SELECT COALESCE(SUM(amount_usd), 0) FROM etsy_experiment_costs"
-    ).fetchone()[0])
+    base_spend, ad_spend, ad_reserve, committed = _budget_totals(conn)
+    lifetime_spend = base_spend + ad_spend
+    unspent_reserve = max(ad_reserve - ad_spend, 0)
 
     listing_rows = conn.execute(
         """WITH ranked AS (
@@ -329,7 +370,13 @@ def revenue_report(
         "transactions_with_unknown_cogs": unknown_cogs,
         "transactions_outside_usd": non_usd,
         "budget_spent_usd": round(lifetime_spend, 2),
-        "budget_remaining_usd": round(INITIAL_AD_BUDGET_USD - lifetime_spend, 2),
+        "budget_reserved_usd": round(unspent_reserve, 2),
+        "budget_committed_usd": round(committed, 2),
+        "budget_remaining_usd": round(INITIAL_AD_BUDGET_USD - committed, 2),
+        "etsy_ads_cap_usd": ETSY_AD_CAMPAIGN_CAP_USD,
+        "etsy_ads_spend_remaining_usd": round(
+            max(ETSY_AD_CAMPAIGN_CAP_USD - ad_spend, 0), 2,
+        ),
         "monthly_target_usd": 500.0,
         "target_progress_pct": round(max(contribution, 0) / 500 * 100, 1),
         "top_demand": demand[:10],

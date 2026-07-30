@@ -74,13 +74,61 @@ def test_digital_order_has_zero_cogs(conn):
 def test_budget_is_hard_capped_at_fifty_dollars(conn):
     """No recorded experiment spend may exceed Wolf's authorization."""
     assert record_experiment_cost(
-        conn, 42, note="21 days at $2", external_reference="ads-1",
+        conn, 42, category="other", note="authorized costs",
+        external_reference="costs-1",
     ) == 42
     with pytest.raises(ValueError, match="\\$8.00 remains"):
-        record_experiment_cost(conn, 8.01, external_reference="ads-2")
+        record_experiment_cost(
+            conn, 8.01, category="other", external_reference="costs-2",
+        )
     assert record_experiment_cost(
-        conn, 8, external_reference="ads-3",
+        conn, 8, category="other", external_reference="costs-3",
     ) == 50
+
+
+def test_ad_reserve_caps_exposure_without_counting_as_spend(conn):
+    record_experiment_cost(
+        conn, 1, category="etsy_listing_fee_reserve",
+        external_reference="five-listing-fees",
+    )
+    assert record_experiment_cost(
+        conn, 21, category="etsy_ads_reserve",
+        external_reference="ads-21-day-cap",
+    ) == 22
+    record_experiment_cost(
+        conn, 2, category="etsy_ads", external_reference="ads-day-1",
+    )
+    report = revenue_report(conn)
+    assert report["budget_spent_usd"] == 3
+    assert report["budget_reserved_usd"] == 19
+    assert report["budget_committed_usd"] == 22
+    assert report["budget_remaining_usd"] == 28
+    with pytest.raises(ValueError, match="\\$28.00 remains"):
+        record_experiment_cost(
+            conn, 28.01, category="other",
+            external_reference="over-cap",
+        )
+
+
+def test_ads_category_is_hard_capped_at_campaign_authorization(conn):
+    record_experiment_cost(
+        conn, 20, category="etsy_ads", external_reference="ads-through-day-20",
+    )
+    assert record_experiment_cost(
+        conn, 1, category="etsy_ads", external_reference="ads-day-21",
+    ) == 21
+    with pytest.raises(ValueError, match="campaign cap exceeded.*\\$0.00 remains"):
+        record_experiment_cost(
+            conn, 0.01, category="etsy_ads", external_reference="ads-over-cap",
+        )
+    with pytest.raises(ValueError, match="campaign cap exceeded.*\\$21.00 remains"):
+        record_experiment_cost(
+            conn, 21.01, category="etsy_ads_reserve",
+            external_reference="reserve-over-cap",
+        )
+    report = revenue_report(conn)
+    assert report["etsy_ads_cap_usd"] == 21
+    assert report["etsy_ads_spend_remaining_usd"] == 0
 
 
 def test_report_calculates_demand_and_known_contribution(conn):

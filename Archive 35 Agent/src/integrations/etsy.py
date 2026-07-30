@@ -1088,6 +1088,10 @@ def get_listing_images(listing_id: int) -> dict[str, Any]:
     return _api_request(f"/application/listings/{listing_id}/images")
 
 
+def get_listing_videos(listing_id: int) -> dict[str, Any]:
+    return _api_request(f"/application/listings/{listing_id}/videos")
+
+
 def get_listing_files(listing_id: int) -> dict[str, Any]:
     creds = get_credentials()
     shop_id = creds.get("shop_id")
@@ -1593,6 +1597,58 @@ def upload_listing_file_from_path(
         return {"error": f"Digital file upload failed: {error.code}", "detail": detail}
     except Exception as error:
         return {"error": f"Digital file upload failed: {error}"}
+
+
+def upload_listing_video_from_path(
+    listing_id: int,
+    file_path: str,
+) -> dict[str, Any]:
+    """Upload one Etsy listing video after enforcing documented limits."""
+    video_path = Path(file_path)
+    allowed = {".mp4", ".mov", ".flv", ".aac", ".avi", ".3gp", ".mpeg"}
+    if not video_path.is_file() or video_path.suffix.lower() not in allowed:
+        return {"error": f"Invalid listing video: {file_path}"}
+    if video_path.stat().st_size > 100 * 1024 * 1024:
+        return {"error": f"Listing video exceeds Etsy's 100 MB limit: {video_path.name}"}
+    token_check = ensure_valid_token()
+    if not token_check.get("valid"):
+        return {"error": token_check.get("error", "Token invalid")}
+    _rate_limit()
+    creds = get_credentials()
+    shop_id = creds.get("shop_id")
+    if not shop_id:
+        return {"error": "ETSY_SHOP_ID not configured"}
+
+    boundary = f"----Archive35Boundary{secrets.token_hex(8)}"
+    body = bytearray()
+    body += f"--{boundary}\r\n".encode()
+    body += b'Content-Disposition: form-data; name="name"\r\n\r\n'
+    body += f"{video_path.name}\r\n--{boundary}\r\n".encode()
+    body += (
+        f'Content-Disposition: form-data; name="video"; '
+        f'filename="{video_path.name}"\r\n'
+    ).encode()
+    content_type = mimetypes.guess_type(video_path.name)[0] or "video/mp4"
+    body += f"Content-Type: {content_type}\r\n\r\n".encode()
+    body += video_path.read_bytes()
+    body += f"\r\n--{boundary}--\r\n".encode()
+    api_key = creds["api_key"]
+    if creds.get("shared_secret"):
+        api_key = f"{api_key}:{creds['shared_secret']}"
+    request = urllib.request.Request(
+        f"{ETSY_API_BASE}/application/shops/{shop_id}/listings/{listing_id}/videos",
+        data=bytes(body), method="POST",
+        headers={"x-api-key": api_key, "Authorization": f"Bearer {creds['access_token']}",
+                 "Content-Type": f"multipart/form-data; boundary={boundary}"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=120) as response:
+            return json.loads(response.read())
+    except urllib.error.HTTPError as error:
+        detail = error.read().decode() if error.fp else ""
+        return {"error": f"Listing video upload failed: {error.code}", "detail": detail}
+    except Exception as error:
+        return {"error": f"Listing video upload failed: {error}"}
 
 
 def create_digital_listing(

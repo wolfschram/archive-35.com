@@ -20,6 +20,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
+# Printable product URLs are included in the primary sitemap.
 Sitemap: https://archive-35.com/sitemap.xml
 
 # =============================================================

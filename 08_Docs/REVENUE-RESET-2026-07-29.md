@@ -36,8 +36,10 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
 
 - Etsy OAuth is renewed. A read-only baseline found 28 existing listings and zero
   paid orders in the last 30 days.
-- Five $12 instant downloads are live: Antelope Canyon, Iceland, Tanzania wildlife,
-  Grand Teton, and desert dunes. Etsy confirmed each as `download` type with five
+- Ten $12 instant downloads are live. The original five cover Antelope Canyon,
+  Iceland, Tanzania wildlife, Grand Teton, and desert dunes. Five organic-discovery
+  additions cover Brooklyn Bridge, a Canadian waterfall, aerial dunes, Monument
+  Valley, and a Canadian glacier. Etsy confirmed each as `download` type with five
   listing images, five delivery JPGs, 13 tags, and its Archive-35 SKU.
 - Its primary image states “DIGITAL DOWNLOAD” and “NO PHYSICAL ITEM”; the public
   buyer page also shows “Digital download,” “5 JPG,” and the same warning.
@@ -50,9 +52,10 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
   spend reconciliation are complete.
 - Publication is a separate command: it verifies each remote draft, reserves the
   $0.20 listing fee against the $50 authorization, publishes, and reads back the
-  active state. Actual spend is $1.00 in listing fees.
-- Etsy Ads are active at $1/day on exactly the five digital products. A $21
-  campaign reservation leaves total authorized exposure at $22 and $28 uncommitted.
+  active state. Actual spend is $2.00 in listing fees.
+- Etsy Ads are active at $1/day on exactly the original five digital products; the
+  five additions are organic-only controls. A $21 campaign reservation leaves total
+  authorized exposure at $23 and $27 uncommitted.
   The safety stop pauses ads at $21 actual ad spend or on August 19, whichever
   occurs first.
 - A narrow daily Revenue Operator automation captures orders, actual payment facts,
@@ -67,15 +70,16 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
 - The public Etsy shop now leads with the search-facing title “Original Photography
   Printables & Fine Art Metal Prints.” Its expired March launch-sale announcement
   was replaced with current $12 printable and premium-metal guidance.
-- A `Printable Downloads` shop section (ID `59608958`) was created and all five
+- A `Printable Downloads` shop section (ID `59608958`) was created and all ten
   controlled digital listings were assigned to it. Etsy API readback confirmed the
   same section ID on every listing.
 - A shop FAQ now explains the five delivered ratios, download timing, and that no
   physical print or frame is shipped.
-- Current discovery baseline: 33 active listings, 54 lifetime views, zero favorites,
-  13 listings with zero views, zero orders, and no first-party website-to-Etsy click
-  events yet. This is insufficient exposure to draw a pricing conclusion.
-- A dedicated `/printables.html` acquisition page now shows all five offers before
+- Current discovery baseline before the second batch: 33 active listings, 54
+  lifetime views, zero favorites, 13 listings with zero views, zero orders, and no
+  first-party website-to-Etsy click events. This is insufficient exposure to draw a
+  pricing conclusion.
+- A dedicated `/printables.html` acquisition page now shows all ten offers before
   the Etsy handoff. Each product links directly to its matching listing with an
   `archive35photo.etsy.com` Share & Save-formatted URL, preserves the $12 disclosure,
   and records the controlled product SKU on outbound clicks. The homepage, sitemap,

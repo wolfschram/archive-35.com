@@ -65,6 +65,51 @@
       "etsy_title": "Neutral Desert Dunes Printable Wall Art, Minimalist Digital Download",
       "focal_point": [0.5, 0.5],
       "tags": ["desert wall art", "neutral wall decor", "sand dune print", "minimalist printable", "beige wall art", "desert photography", "nature wall decor", "earth tone art", "landscape download", "printable wall art", "instant download", "modern home decor", "boho wall art"]
+    },
+    {
+      "product_id": "A35-DIG-NYC-0001",
+      "source": "../06_Automation/etsy-export/18-new-york-new-york-architecture-photography/images/09-original-118A5029.jpg",
+      "artwork_title": "Brooklyn Bridge at Blue Hour",
+      "location": "New York City, USA",
+      "etsy_title": "Brooklyn Bridge Printable Wall Art, New York City Skyline Digital Download",
+      "focal_point": [0.48, 0.5],
+      "tags": ["brooklyn bridge", "nyc skyline art", "new york wall art", "city printable", "manhattan decor", "urban photography", "blue wall art", "travel wall decor", "instant download", "printable wall art", "cityscape print", "office wall art", "modern home decor"]
+    },
+    {
+      "product_id": "A35-DIG-WAT-0001",
+      "source": "../06_Automation/etsy-export/08-canada-canadian-waterfall-print-moss-canyon-n/images/09-original-Wolf 1346.jpg",
+      "artwork_title": "Waterfall in the Green Canyon",
+      "location": "Canada",
+      "etsy_title": "Canadian Waterfall Printable Wall Art, Forest Landscape Digital Download",
+      "focal_point": [0.56, 0.5],
+      "tags": ["canada wall art", "waterfall printable", "forest wall decor", "nature download", "canadian landscape", "moss canyon art", "green wall art", "nature photography", "travel wall decor", "instant download", "printable wall art", "cabin wall decor", "waterfall photo"]
+    },
+    {
+      "product_id": "A35-DIG-AER-0001",
+      "source": "../06_Automation/etsy-export/10-desert-dunes-desert-dunes-abstract-aerial-photography/images/12-original-DJI_20250518090833_0165_D.jpg",
+      "artwork_title": "Golden Dunes from Above",
+      "location": "Desert dunes",
+      "etsy_title": "Golden Sand Dunes Printable Wall Art, Minimalist Aerial Digital Download",
+      "focal_point": [0.5, 0.5],
+      "tags": ["aerial desert art", "sand dune print", "minimalist printable", "beige wall art", "drone photography", "desert wall art", "abstract landscape", "neutral wall decor", "earth tone art", "instant download", "printable wall art", "modern home decor", "boho wall art"]
+    },
+    {
+      "product_id": "A35-DIG-MON-0001",
+      "source": "../06_Automation/etsy-export/17-monument-valley-monument-valley-landscape-photography-pr/images/09-original-Wolf 514.jpg",
+      "artwork_title": "Solitary Tree in Monument Valley",
+      "location": "Monument Valley, USA",
+      "etsy_title": "Monument Valley Printable Wall Art, Southwest Desert Digital Download",
+      "focal_point": [0.48, 0.5],
+      "tags": ["monument valley", "southwest wall art", "desert printable", "arizona wall art", "utah wall decor", "red rock landscape", "western wall art", "nature photography", "travel wall decor", "instant download", "printable wall art", "rustic home decor", "desert photography"]
+    },
+    {
+      "product_id": "A35-DIG-GLA-0001",
+      "source": "../06_Automation/etsy-export/09-canada-canada-glacier-photography-print-drama/images/08-original-Wolf 1409.jpg",
+      "artwork_title": "Glacier Beneath the Mountain",
+      "location": "Canada",
+      "etsy_title": "Canadian Glacier Printable Wall Art, Dramatic Mountain Digital Download",
+      "focal_point": [0.52, 0.5],
+      "tags": ["glacier wall art", "canada wall art", "mountain printable", "alpine landscape", "blue wall art", "nature photography", "travel wall decor", "instant download", "printable wall art", "mountain wall art", "modern home decor", "adventure wall art", "snow mountain print"]
     }
   ]
 }

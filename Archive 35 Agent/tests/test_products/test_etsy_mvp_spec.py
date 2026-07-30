@@ -7,14 +7,18 @@ from src.products.digital_listing import build_listing_copy
 AGENT_ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_mvp_has_five_distinct_valid_products():
+def test_mvp_has_ten_distinct_valid_products_and_five_advertised():
     spec = json.loads(
         (AGENT_ROOT / "experiments" / "etsy-digital-mvp.json").read_text()
     )
     products = spec["products"]
-    assert len(products) == 5
-    assert len({product["product_id"] for product in products}) == 5
-    assert len({product["location"] for product in products}) == 5
+    product_ids = {product["product_id"] for product in products}
+    advertised = set(spec["campaign"]["advertised_product_ids"])
+    assert len(products) == 10
+    assert len(product_ids) == 10
+    assert len({product["source"] for product in products}) == 10
+    assert len(advertised) == 5
+    assert advertised < product_ids
 
     for product in products:
         assert (AGENT_ROOT / product["source"]).resolve().is_file()

@@ -49,6 +49,14 @@ def test_complete_digital_listing_stays_draft_by_default(tmp_path):
             "src.integrations.etsy.upload_listing_file_from_path",
             return_value={"listing_file_id": 2},
         ) as file_upload,
+        patch(
+            "src.integrations.etsy.get_listing_inventory",
+            return_value={"products": [{"offerings": [{}]}]},
+        ),
+        patch(
+            "src.integrations.etsy.update_listing_inventory",
+            return_value={},
+        ) as inventory_update,
         patch("src.integrations.etsy.update_listing") as update,
     ):
         result = create_digital_listing(
@@ -63,6 +71,9 @@ def test_complete_digital_listing_stays_draft_by_default(tmp_path):
 
     assert result["status"] == "draft"
     assert create.call_args.kwargs["when_made"] == "2020_2026"
+    inventory_payload = inventory_update.call_args.args[1]
+    assert inventory_payload["products"][0]["sku"] == "A35-DIG-ANT-0001"
+    assert inventory_payload["products"][0]["offerings"][0]["price"] == 12
     assert image_upload.call_count == 1
     assert file_upload.call_count == 2
     update.assert_not_called()

@@ -1634,6 +1634,38 @@ def create_digital_listing(
             "price_usd": round(price, 2),
         })
 
+    inventory = get_listing_inventory(listing_id)
+    products = inventory.get("products", [])
+    offerings = products[0].get("offerings", []) if products else []
+    if not products or not offerings:
+        return {
+            "error": "Draft inventory was not created",
+            "listing_id": listing_id,
+            "status": "partial_draft",
+        }
+    inventory_result = update_listing_inventory(listing_id, {
+        "products": [{
+            "sku": sku,
+            "offerings": [{
+                "quantity": 999,
+                "is_enabled": True,
+                "price": round(price, 2),
+            }],
+            "property_values": [],
+        }],
+        "price_on_property": [],
+        "quantity_on_property": [],
+        "sku_on_property": [],
+        "readiness_state_on_property": [],
+    })
+    if "error" in inventory_result:
+        return {
+            "error": "Draft SKU inventory update failed",
+            "detail": inventory_result,
+            "listing_id": listing_id,
+            "status": "partial_draft",
+        }
+
     uploaded_images = []
     for rank, image_path in enumerate(image_paths[:20], start=1):
         result = upload_listing_image_from_file(listing_id, image_path, rank)

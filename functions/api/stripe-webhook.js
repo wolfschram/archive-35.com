@@ -984,6 +984,20 @@ export async function onRequestPost(context) {
       });
     }
 
+    if (orderType === 'printable') {
+      // Delivery is payment-gated by /api/printable/download and serve.
+      // Never send a digital ZIP order to physical Pictorem fulfillment.
+      return new Response(JSON.stringify({
+        received: true,
+        fulfilled: true,
+        orderType: 'printable',
+        stripeSessionId: session.id,
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     if (orderType === 'mixed') {
       // ================================================================
       // MIXED ORDER — process license delivery first (non-blocking),

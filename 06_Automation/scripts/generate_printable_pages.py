@@ -35,7 +35,9 @@ def _sale_is_active(sale: dict, as_of: date | None = None) -> bool:
     )
 
 
-def _page_values(product: dict, sale: dict, sale_active: bool) -> dict[str, str]:
+def _page_values(
+    product: dict, sale: dict, sale_active: bool, direct_ids: set[str]
+) -> dict[str, str]:
     title = product["etsy_title"].split(",", 1)[0]
     location = product["location"]
     artwork = product["artwork_title"]
@@ -46,9 +48,10 @@ def _page_values(product: dict, sale: dict, sale_active: bool) -> dict[str, str]
         f"{title}: original photography from {location}. "
         "Instant download in five JPEG ratios. No physical print or frame."
     )
+    direct_enabled = product["product_id"] in direct_ids
     product_description = (
         f"{artwork} is an original fine-art photograph made in {location}. "
-        "Your Etsy purchase includes five high-resolution JPEG files sized "
+        "Your purchase includes five high-resolution JPEG files sized "
         "for common frames."
     )
     schema = {
@@ -63,7 +66,7 @@ def _page_values(product: dict, sale: dict, sale_active: bool) -> dict[str, str]
         "category": "Printable photography wall art",
         "offers": {
             "@type": "Offer",
-            "url": _etsy_url(product),
+            "url": canonical if direct_enabled else _etsy_url(product),
             "price": "9.00" if sale_active else "12.00",
             "priceCurrency": "USD",
             "availability": "https://schema.org/InStock",
@@ -84,6 +87,24 @@ def _page_values(product: dict, sale: dict, sale_active: bool) -> dict[str, str]
         "PRODUCT_DESCRIPTION": product_description,
         "PRODUCT_ID": product["product_id"],
         "ETSY_URL": _etsy_url(product),
+        "DIRECT_HIDDEN_ATTR": "" if direct_enabled else " hidden",
+        "DIRECT_LABEL": (
+            "Buy direct · $9" if sale_active else "Buy direct · $12"
+        ),
+        "ETSY_BUTTON_CLASS": (
+            "btn printable-etsy-secondary"
+            if direct_enabled
+            else "btn btn-primary"
+        ),
+        "ETSY_LABEL": (
+            "International buyer? Buy on Etsy"
+            if direct_enabled
+            else (
+                "Buy securely on Etsy · $9"
+                if sale_active
+                else "Buy securely on Etsy · $12"
+            )
+        ),
         "SALE_HIDDEN_ATTR": "" if sale_active else " hidden",
         "BASE_HIDDEN_ATTR": " hidden" if sale_active else "",
         "CURRENT_BUTTON_LABEL": (
@@ -142,11 +163,12 @@ def generate(output_dir: Path, as_of: date | None = None) -> list[Path]:
     sale = json.loads(SALE_PATH.read_text())
     sale_active = _sale_is_active(sale, as_of)
     products = spec["products"]
+    direct_ids = set(spec["campaign"]["advertised_product_ids"])
     template = TEMPLATE_PATH.read_text()
     output_dir.mkdir(parents=True, exist_ok=True)
     generated = []
     for product in products:
-        values = _page_values(product, sale, sale_active)
+        values = _page_values(product, sale, sale_active, direct_ids)
         output = output_dir / f"printable-{product['web_slug']}.html"
         output.write_text(_render(template, values))
         generated.append(output)

@@ -186,6 +186,17 @@
           <p style="font-size:0.9rem;">If the button does not appear, <a href="contact.html">contact us</a> with your Stripe receipt.</p>
         </div>
 
+        <!-- PRINTABLE ORDER -->
+        <div id="printable-order-info" style="display:none;">
+          <h2>Your printable is ready!</h2>
+          <p>Your payment is confirmed. Download the ZIP within 72 hours, then keep the included files for personal wall display.</p>
+          <div class="order-details" style="text-align:center;">
+            <p id="printable-download-status">Preparing your five high-resolution files…</p>
+            <a id="printable-download-link" class="btn btn-primary" href="#" hidden>Download ZIP</a>
+          </div>
+          <p style="font-size:0.9rem;">If the button does not appear, <a href="contact.html">contact us</a> with your Stripe receipt.</p>
+        </div>
+
         <!-- MIXED ORDER (prints + licenses) -->
         <div id="mixed-order-info" style="display:none;">
           <h2>Your order has been received!</h2>
@@ -226,6 +237,10 @@
             document.getElementById('micro-license-order-info').style.display = 'block';
             document.querySelector('.page-header h1').textContent = 'Download Ready';
             loadMicroLicense(urlParams.get('session_id'));
+          } else if (orderType === 'printable') {
+            document.getElementById('printable-order-info').style.display = 'block';
+            document.querySelector('.page-header h1').textContent = 'Download Ready';
+            loadPrintable(urlParams.get('session_id'));
           } else if (orderType === 'license') {
             document.getElementById('license-order-info').style.display = 'block';
             document.querySelector('.page-header h1').textContent = 'License Confirmed';
@@ -250,6 +265,26 @@
               link.href = result.download_url;
               link.hidden = false;
               status.textContent = `${result.license.type} · ${result.license.resolution}`;
+            } catch (error) {
+              status.textContent = 'We could not prepare the download automatically. Please contact us with your receipt.';
+            }
+          }
+
+          async function loadPrintable(sessionId) {
+            const status = document.getElementById('printable-download-status');
+            const link = document.getElementById('printable-download-link');
+            if (!sessionId) {
+              status.textContent = 'Missing checkout reference. Please contact us with your receipt.';
+              return;
+            }
+            try {
+              const response = await fetch(`/api/printable/download?session_id=${encodeURIComponent(sessionId)}`);
+              const result = await response.json();
+              if (!response.ok || result.status !== 'ready') throw new Error(result.error);
+              link.href = result.download_url;
+              link.download = result.filename;
+              link.hidden = false;
+              status.textContent = `${result.title} · five print ratios`;
             } catch (error) {
               status.textContent = 'We could not prepare the download automatically. Please contact us with your receipt.';
             }

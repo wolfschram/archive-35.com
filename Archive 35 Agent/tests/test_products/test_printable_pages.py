@@ -21,6 +21,8 @@ def load_generator():
 
 def test_generates_one_crawlable_page_per_controlled_product(tmp_path):
     module = load_generator()
+    spec = json.loads(module.SPEC_PATH.read_text())
+    direct_ids = set(spec["campaign"]["advertised_product_ids"])
     generated = module.generate(tmp_path, as_of=date(2026, 7, 30))
     pages = sorted(tmp_path.glob("printable-*.html"))
 
@@ -36,11 +38,21 @@ def test_generates_one_crawlable_page_per_controlled_product(tmp_path):
         assert product["@type"] == "Product"
         assert product["offers"]["price"] == "9.00"
         assert product["offers"]["priceValidUntil"] == "2026-08-06"
-        assert "archive35photo.etsy.com/listing/" in product["offers"]["url"]
+        sku = product["sku"]
+        if sku in direct_ids:
+            assert product["offers"]["url"] == product["mainEntityOfPage"]
+            assert f'data-printable-sku="{sku}"' in text
+            assert ">Buy direct · $9</button>" in text
+            assert "International buyer? Buy on Etsy" in text
+        else:
+            assert "archive35photo.etsy.com/listing/" in product["offers"]["url"]
+            assert 'class="btn btn-primary direct-printable-button"' in text
+            assert " hidden>Buy direct · $9</button>" in text
+            assert "Buy securely on Etsy · $9" in text
         assert "No physical print or frame." in text
         assert 'data-sale-price-usd="9"' in text
-        assert "Buy securely on Etsy · $9" in text
         assert "js/printable-sale.js?v=1" in text
+        assert "js/printable-checkout.js?v=1" in text
         assert "{{" not in text
 
     sitemap = ET.parse(tmp_path / "sitemap-printables.xml")
@@ -99,10 +111,35 @@ def test_hub_links_to_every_generated_product_page():
     } == {"2026-08-06"}
     assert hub.count("data-sale-active-label=") == 17
     assert hub.count("data-price-usd=") == 17
+    assert hub.count('class="btn btn-primary direct-printable-button"') == 5
+    assert hub.count('data-printable-sku="') == 5
+    assert "js/printable-checkout.js?v=1" in hub
+
+    direct_ids = set(spec["campaign"]["advertised_product_ids"])
+    direct_products = {
+        product["product_id"]: product
+        for product in spec["products"]
+        if product["product_id"] in direct_ids
+    }
+    for item in items:
+        sku = next(
+            (
+                product_id
+                for product_id, product in direct_products.items()
+                if product["etsy_title"].split(",", 1)[0] == item["item"]["name"]
+            ),
+            None,
+        )
+        if sku:
+            assert item["item"]["offers"]["url"].startswith(
+                "https://archive-35.com/printable-"
+            )
 
 
 def test_generator_restores_base_price_after_sale(tmp_path):
     module = load_generator()
+    spec = json.loads(module.SPEC_PATH.read_text())
+    direct_ids = set(spec["campaign"]["advertised_product_ids"])
     generated = module.generate(tmp_path, as_of=date(2026, 8, 7))
 
     pages = [path for path in generated if path.suffix == ".html"]
@@ -115,7 +152,11 @@ def test_generator_restores_base_price_after_sale(tmp_path):
         product = json.loads(schema_text[0])
         assert product["offers"]["price"] == "12.00"
         assert "priceValidUntil" not in product["offers"]
-        assert ">Buy securely on Etsy · $12</a>" in text
+        if product["sku"] in direct_ids:
+            assert ">Buy direct · $12</button>" in text
+            assert ">International buyer? Buy on Etsy</a>" in text
+        else:
+            assert ">Buy securely on Etsy · $12</a>" in text
         assert "<span data-printable-sale hidden>" in text
         assert "<span data-printable-base>" in text
 

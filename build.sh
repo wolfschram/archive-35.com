@@ -59,7 +59,8 @@ cp sitemap.xml _site/ 2>/dev/null || true
 cp sitemap-images.xml _site/ 2>/dev/null || true
 
 # Copy IndexNow verification key (required for Bing/ChatGPT search indexing)
-cp bec4410ec1fa5d67379a63e652ce0c4d.txt _site/ 2>/dev/null || true
+rm -f _site/bec4410ec1fa5d67379a63e652ce0c4d.txt 2>/dev/null || true
+cp 18ec60561b312a029d7821d84812a085.txt _site/ 2>/dev/null || true
 
 # Copy .well-known directory (MCP server discovery, OpenAPI spec)
 cp -r .well-known _site/ 2>/dev/null || true

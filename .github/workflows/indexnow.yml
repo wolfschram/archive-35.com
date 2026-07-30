@@ -11,4 +11,17 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install requests
+      - name: Wait for the ownership key to be live
+        run: |
+          key=$(python -c "import runpy; print(runpy.run_path('06_Automation/scripts/indexnow_ping.py')['INDEXNOW_KEY'])")
+          for attempt in {1..30}; do
+            body=$(curl -fsS "https://archive-35.com/${key}.txt" || true)
+            if [ "$body" = "$key" ]; then
+              echo "IndexNow ownership key is live"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "IndexNow ownership key did not deploy in time"
+          exit 1
       - run: python 06_Automation/scripts/indexnow_ping.py

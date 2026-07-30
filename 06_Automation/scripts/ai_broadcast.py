@@ -32,12 +32,13 @@ HOST = "archive-35.com"
 BASE_URL = f"https://{HOST}"
 
 # IndexNow key (from Task 1)
-INDEXNOW_KEY = "bec4410ec1fa5d67379a63e652ce0c4d"
+INDEXNOW_KEY = "18ec60561b312a029d7821d84812a085"
 
 # All pages to index
 URLS = [
     f"{BASE_URL}/",
     f"{BASE_URL}/gallery.html",
+    f"{BASE_URL}/printables",
     f"{BASE_URL}/licensing.html",
     f"{BASE_URL}/hospitality.html",
     f"{BASE_URL}/about.html",
@@ -103,7 +104,7 @@ def _save_log(entries: list):
 
 
 def ping_indexnow() -> dict:
-    """Ping IndexNow endpoints for all pages."""
+    """Notify the shared IndexNow endpoint for all pages."""
     results = {}
     payload = json.dumps({
         "host": HOST,
@@ -112,11 +113,7 @@ def ping_indexnow() -> dict:
         "urlList": URLS,
     }).encode()
 
-    endpoints = [
-        "https://api.indexnow.org/indexnow",
-        "https://www.bing.com/indexnow",
-        "https://yandex.com/indexnow",
-    ]
+    endpoints = ["https://api.indexnow.org/indexnow"]
 
     for endpoint in endpoints:
         try:

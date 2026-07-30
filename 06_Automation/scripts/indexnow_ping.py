@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
 IndexNow URL Submission for archive-35.com
-Pings Bing/Yandex/IndexNow API to request immediate crawling.
+Notifies the shared IndexNow endpoint after verifying site ownership.
 Run after every deploy or content update.
 """
 import requests
 import json
 import sys
 
-INDEXNOW_KEY = "bec4410ec1fa5d67379a63e652ce0c4d"
+INDEXNOW_KEY = "18ec60561b312a029d7821d84812a085"
 HOST = "archive-35.com"
 KEY_LOCATION = f"https://{HOST}/{INDEXNOW_KEY}.txt"
 
@@ -16,6 +16,7 @@ KEY_LOCATION = f"https://{HOST}/{INDEXNOW_KEY}.txt"
 URLS = [
     f"https://{HOST}/",
     f"https://{HOST}/gallery.html",
+    f"https://{HOST}/printables",
     f"https://{HOST}/licensing.html",
     f"https://{HOST}/hospitality.html",
     f"https://{HOST}/about.html",
@@ -40,16 +41,17 @@ def submit_urls():
         "urlList": URLS
     }
 
-    endpoints = [
-        "https://api.indexnow.org/indexnow",
-        "https://www.bing.com/indexnow",
-        "https://yandex.com/indexnow",
-    ]
+    endpoints = ["https://api.indexnow.org/indexnow"]
 
     results = []
     for endpoint in endpoints:
         try:
-            r = requests.post(endpoint, json=payload, headers={"Content-Type": "application/json"})
+            r = requests.post(
+                endpoint,
+                json=payload,
+                headers={"Content-Type": "application/json; charset=utf-8"},
+                timeout=15,
+            )
             print(f"[IndexNow] {endpoint}: {r.status_code}")
             if r.status_code in (200, 202):
                 print(f"  OK Submitted {len(URLS)} URLs successfully")
@@ -64,4 +66,4 @@ def submit_urls():
     return results
 
 if __name__ == "__main__":
-    submit_urls()
+    sys.exit(0 if any(r.get("success") for r in submit_urls()) else 1)

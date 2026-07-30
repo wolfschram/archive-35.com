@@ -5,6 +5,7 @@ from src.integrations.etsy import (
     create_listing,
     find_listing_by_sku,
     get_receipts,
+    upload_listing_file_from_path,
     update_listing,
 )
 
@@ -90,6 +91,24 @@ def test_digital_listing_rejects_more_than_five_files():
         image_paths=["preview.jpg"],
     )
     assert "between 1 and 5" in result["error"]
+
+
+def test_zip_delivery_upload_uses_zip_content_type(tmp_path):
+    archive = tmp_path / "bundle.zip"
+    archive.write_bytes(b"zip")
+    with (
+        patch("src.integrations.etsy.ensure_valid_token", return_value={"valid": True}),
+        patch("src.integrations.etsy._rate_limit"),
+        patch(
+            "src.integrations.etsy.get_credentials",
+            return_value={"shop_id": "35", "api_key": "key", "access_token": "token"},
+        ),
+        patch("src.integrations.etsy.urllib.request.urlopen") as urlopen,
+    ):
+        urlopen.return_value.__enter__.return_value.read.return_value = b"{}"
+        upload_listing_file_from_path(456, str(archive))
+    body = urlopen.call_args.args[0].data
+    assert b"Content-Type: application/zip" in body
 
 
 def test_paid_receipt_filter_reaches_etsy_api():

@@ -19,6 +19,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import mimetypes
 import os
 import secrets
 import sqlite3
@@ -1564,7 +1565,10 @@ def upload_listing_file_from_path(
         f'Content-Disposition: form-data; name="file"; '
         f'filename="{digital_path.name}"\r\n'
     ).encode()
-    body += b"Content-Type: image/jpeg\r\n\r\n"
+    content_type = mimetypes.guess_type(digital_path.name)[0] or (
+        "application/octet-stream"
+    )
+    body += f"Content-Type: {content_type}\r\n\r\n".encode()
     body += digital_path.read_bytes()
     body += f"\r\n--{boundary}--\r\n".encode()
 

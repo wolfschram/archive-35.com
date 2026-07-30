@@ -2,7 +2,11 @@ import json
 
 import pytest
 
-from src.products.digital_listing import build_listing_copy, write_listing_plan
+from src.products.digital_listing import (
+    build_bundle_listing_copy,
+    build_listing_copy,
+    write_listing_plan,
+)
 
 
 def test_listing_copy_is_digital_clear_and_etsy_compliant():
@@ -60,3 +64,17 @@ def test_listing_accepts_subject_specific_title_and_tags():
     )
     assert listing["title"].startswith("Iceland Mountain")
     assert listing["tags"] == tags
+
+
+def test_bundle_copy_discloses_three_photos_five_zips_and_no_physical_item():
+    listing = build_bundle_listing_copy(
+        product_id="A35-DIG-SET-DES-0001",
+        collection_title="Desert Geometry",
+        artwork_titles=["Crimson Passage", "Solitary Tree", "Dunes in Motion"],
+    )
+    assert listing["price"] == 18
+    assert listing["type"] == "download"
+    assert "three original photographs" in listing["description"]
+    assert "five ZIP folders" in listing["description"]
+    assert "NO PHYSICAL ITEMS OR FRAMES" in listing["description"]
+    assert len(listing["tags"]) == 13

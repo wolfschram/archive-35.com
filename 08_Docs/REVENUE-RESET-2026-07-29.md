@@ -77,6 +77,11 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
   `4546681551`. It contains three original photographs, 15 high-resolution JPEGs
   delivered in five verified ZIP files, five preview images, 13 tags, the expected
   Archive-35 SKU, and the `Printable Downloads` section assignment.
+- Etsy Ads automatically included the bundle inside the existing $1/day campaign;
+  the campaign remains at one view, zero clicks, zero spend, and zero orders.
+- A 14.4-second silent 1080×1080 H.264 listing video now presents the five approved
+  bundle cards. Etsy API readback confirmed video `835525705` is active, with no
+  additional listing or advertising fee.
 - A shop FAQ now explains the five delivered ratios, download timing, and that no
   physical print or frame is shipped.
 - Current discovery baseline before the second batch: 33 active listings, 54

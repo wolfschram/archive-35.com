@@ -208,14 +208,26 @@ function trackCollectionBrowsing() {
 function trackEtsyDigitalClicks() {
   document.querySelectorAll('.etsy-digital-link').forEach((link) => {
     link.addEventListener('click', () => {
+      const eventData = {
+        offer: 'archive35_digital_mvp',
+        placement: link.dataset.placement || 'unknown',
+        destination: 'etsy_share_and_save',
+        price_usd: 12
+      };
+
       gtag('event', 'select_content', {
         content_type: 'etsy_digital_download',
         item_id: 'archive35_digital_mvp',
         link_url: link.href,
-        placement: link.dataset.placement || 'unknown',
+        placement: eventData.placement,
         value: 12,
         currency: 'USD'
       });
+
+      if (window.A35Track) {
+        window.A35Track.event('etsy_digital_click', eventData);
+        window.A35Track.flush();
+      }
     });
   });
 }

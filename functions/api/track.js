@@ -48,7 +48,12 @@ export async function onRequestPost(context) {
 
     // --- Forward significant events to Google Sheet ---
     const SHEET_URL = env.GOOGLE_SHEET_WEBHOOK_URL;
-    const SIGNIFICANT = ['cart_add', 'checkout_start', 'login'];
+    const SIGNIFICANT = [
+      'cart_add',
+      'checkout_start',
+      'etsy_digital_click',
+      'login',
+    ];
 
     if (SHEET_URL) {
       for (const evt of events) {

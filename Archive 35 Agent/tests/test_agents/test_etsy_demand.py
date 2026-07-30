@@ -161,6 +161,24 @@ def test_report_calculates_demand_and_known_contribution(conn):
     assert report["top_demand"][0]["favorite_delta"] == 4
 
 
+def test_report_keeps_demand_for_every_listing(conn):
+    """Controlled listings must remain visible when the shop has over ten rows."""
+    captured_at = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+    capture_listing_snapshots(
+        conn,
+        [listing(listing_id=index) for index in range(100, 112)],
+        captured_at,
+    )
+
+    report = revenue_report(conn)
+
+    assert len(report["listing_demand"]) == 12
+    assert {row["listing_id"] for row in report["listing_demand"]} == set(
+        range(100, 112)
+    )
+    assert len(report["top_demand"]) == 10
+
+
 def test_old_receipt_does_not_reappear_as_current_revenue(conn):
     old_paid_timestamp = int(
         (datetime.now(timezone.utc) - timedelta(days=60)).timestamp()

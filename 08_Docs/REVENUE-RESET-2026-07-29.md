@@ -86,6 +86,15 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
   structured data, and `llms.txt` now route discovery through this page.
 - The focused workflow passes 39 tests. The historical full suite still stops at a
   pre-existing physical-pricing import mismatch unrelated to this digital product.
+- Revenue snapshots now return demand rows for every listing instead of exposing
+  only the first ten ranked rows. The daily operator maps all ten controlled Etsy
+  listing IDs explicitly, so an early view or favorite cannot disappear behind the
+  shop's older physical inventory.
+- Port 8035 now has one authoritative Docker Agent. A duplicate native Python
+  process that served stale monitoring code was stopped.
+- The first ten-product snapshot found 38 active/draft shop listings, zero orders,
+  $0 ad spend, one ad view, no `/printables` pageviews, and no website-to-Etsy
+  clicks. Actual experiment contribution remains -$2 from listing fees.
 
 Etsy currently estimates $10.41 earnings on the $12 listing before advertising and
 income tax. Reaching $500 monthly contribution at this mix requires approximately

@@ -379,6 +379,7 @@ def revenue_report(
         ),
         "monthly_target_usd": 500.0,
         "target_progress_pct": round(max(contribution, 0) / 500 * 100, 1),
+        "listing_demand": demand,
         "top_demand": demand[:10],
     }
 

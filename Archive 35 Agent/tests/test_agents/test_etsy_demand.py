@@ -8,6 +8,7 @@ from src.agents.etsy_demand import (
     capture_listing_snapshots,
     capture_order_facts,
     capture_payment_fact,
+    collect_from_etsy,
     record_experiment_cost,
     revenue_report,
 )
@@ -155,6 +156,7 @@ def test_report_calculates_demand_and_known_contribution(conn):
     assert report["gross_revenue_usd"] == 12
     assert report["estimated_contribution_usd"] == 8.41
     assert report["profit_verified"] is False
+    assert report["facts_complete"] is False
     assert report["fee_data_complete"] is False
     assert report["budget_remaining_usd"] == 48
     assert report["top_demand"][0]["view_delta"] == 20
@@ -236,3 +238,48 @@ def test_actual_payment_fees_replace_estimate_when_complete(conn):
     assert report["fee_data_complete"] is True
     assert report["actual_etsy_fees_usd"] == 1.55
     assert report["estimated_contribution_usd"] == 10.45
+    assert report["facts_complete"] is True
+    assert report["profit_verified"] is True
+
+
+def test_collection_paginates_all_listings_and_paid_receipts(conn):
+    class PaginatedClient:
+        def __init__(self):
+            self.listing_offsets = []
+            self.receipt_offsets = []
+
+        def get_listings(self, state, limit, offset):
+            self.listing_offsets.append((state, offset))
+            rows = (
+                [listing(listing_id=index) for index in range(1, 102)]
+                if state == "active" else []
+            )
+            return {"count": len(rows), "results": rows[offset:offset + limit]}
+
+        def get_receipts(self, was_paid, limit, offset):
+            self.receipt_offsets.append(offset)
+            rows = [{
+                "receipt_id": index,
+                "transactions": [{
+                    "transaction_id": index,
+                    "sku": [f"A35-DIG-{index}"],
+                    "price": {
+                        "amount": 1200, "divisor": 100,
+                        "currency_code": "USD",
+                    },
+                }],
+            } for index in range(1, 102)]
+            return {"count": len(rows), "results": rows[offset:offset + limit]}
+
+        def get_receipt_payments(self, receipt_id):
+            return {"results": []}
+
+    client = PaginatedClient()
+    result = collect_from_etsy(conn, client)
+
+    assert result["listings"] == 101
+    assert result["transactions"] == 101
+    assert client.listing_offsets == [
+        ("active", 0), ("active", 100), ("draft", 0),
+    ]
+    assert client.receipt_offsets == [0, 100]

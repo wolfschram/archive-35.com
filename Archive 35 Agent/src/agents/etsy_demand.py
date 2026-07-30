@@ -350,6 +350,13 @@ def revenue_report(
         actual_net - known_cogs - spend if fee_data_complete
         else gross - estimated_fees - known_cogs - spend
     )
+    facts_complete = (
+        fee_data_complete
+        and unknown_cogs == 0
+        and non_usd == 0
+        and payment_non_usd == 0
+    )
+    profit_verified = facts_complete and contribution > 0
     return {
         "period_days": days,
         "orders": orders,
@@ -362,10 +369,13 @@ def revenue_report(
         "known_cogs_usd": round(known_cogs, 2),
         "experiment_spend_usd": round(spend, 2),
         "estimated_contribution_usd": round(contribution, 2),
-        "profit_verified": False,
+        "facts_complete": facts_complete,
+        "profit_verified": profit_verified,
         "profit_verification_note": (
-            "Requires complete Etsy payment facts, COGS, refunds, and "
-            "payment-account/ad-spend reconciliation."
+            "Verified from Etsy payment facts, known COGS, and recorded spend."
+            if profit_verified else
+            "Positive contribution and complete payment, currency, COGS, "
+            "and recorded-spend facts are required."
         ),
         "transactions_with_unknown_cogs": unknown_cogs,
         "transactions_outside_usd": non_usd,
@@ -392,26 +402,48 @@ def collect_from_etsy(
     timestamp = _now_iso()
     listings = []
     for state in ("active", "draft"):
-        response = client.get_listings(state=state, limit=100, offset=0)
-        if "error" in response:
-            raise RuntimeError(f"Etsy {state} listings: {response['error']}")
-        listings.extend(response.get("results", []))
+        offset = 0
+        while True:
+            response = client.get_listings(
+                state=state, limit=100, offset=offset,
+            )
+            if "error" in response:
+                raise RuntimeError(f"Etsy {state} listings: {response['error']}")
+            page = response.get("results", [])
+            listings.extend(page)
+            offset += len(page)
+            total = response.get("count")
+            if len(page) < 100 or (
+                total is not None and offset >= int(total)
+            ):
+                break
 
-    receipts_response = client.get_receipts(was_paid=True, limit=100)
-    if "error" in receipts_response:
-        raise RuntimeError(f"Etsy receipts: {receipts_response['error']}")
+    receipts = []
+    offset = 0
+    while True:
+        response = client.get_receipts(
+            was_paid=True, limit=100, offset=offset,
+        )
+        if "error" in response:
+            raise RuntimeError(f"Etsy receipts: {response['error']}")
+        page = response.get("results", [])
+        receipts.extend(page)
+        offset += len(page)
+        total = response.get("count")
+        if len(page) < 100 or (
+            total is not None and offset >= int(total)
+        ):
+            break
 
     listing_count = capture_listing_snapshots(
         conn, listings, captured_at=timestamp,
     )
     transaction_count = capture_order_facts(
-        conn,
-        receipts_response.get("results", []),
-        captured_at=timestamp,
+        conn, receipts, captured_at=timestamp,
     )
     payment_count = 0
     payment_errors = []
-    for receipt in receipts_response.get("results", []):
+    for receipt in receipts:
         receipt_id = int(receipt["receipt_id"])
         response = client.get_receipt_payments(receipt_id)
         if "error" in response:

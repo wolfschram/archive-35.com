@@ -27,6 +27,7 @@ def test_schedule_defined():
     assert "posting" in SCHEDULE
     assert "expire_content" in SCHEDULE
     assert "daily_summary" in SCHEDULE
+    assert "etsy_demand_snapshot" in SCHEDULE
 
 
 def test_tasks_registered():
@@ -34,6 +35,7 @@ def test_tasks_registered():
     from src.pipeline.scheduler import (
         daily_pipeline_task,
         daily_summary_task,
+        etsy_demand_snapshot_task,
         expire_content_task,
         posting_task,
     )
@@ -41,3 +43,4 @@ def test_tasks_registered():
     assert callable(posting_task)
     assert callable(expire_content_task)
     assert callable(daily_summary_task)
+    assert callable(etsy_demand_snapshot_task)

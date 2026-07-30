@@ -185,6 +185,29 @@ def etsy_token_refresh():
         return {"error": str(e)}
 
 
+@huey.periodic_task(crontab(hour="8", minute="15"))
+def etsy_demand_snapshot_task() -> dict:
+    """Capture daily read-only Etsy demand and revenue facts."""
+    from src.agents.etsy_demand import collect_from_etsy
+    from src.config import get_settings
+    from src.db import get_initialized_connection
+    from src.integrations.etsy import EtsyClient
+
+    logger.info("Cron: Capturing Etsy demand snapshot")
+    settings = get_settings()
+    conn = get_initialized_connection(settings.db_path)
+    try:
+        client = EtsyClient()
+        if not client.access_token:
+            return {"skipped": True, "reason": "no Etsy access token"}
+        return collect_from_etsy(conn, client)
+    except Exception as exc:
+        logger.error("Etsy demand snapshot failed: %s", exc)
+        return {"error": str(exc)}
+    finally:
+        conn.close()
+
+
 @huey.periodic_task(crontab(hour="*/12", minute="30"))
 def instagram_token_refresh():
     """Auto-refresh Instagram token if expiring within 7 days."""
@@ -227,5 +250,6 @@ SCHEDULE = {
     "daily_summary": "20:00 UTC — Daily summary to Telegram",
     "email_briefing": "07:00 UTC — Scan all inboxes, generate prioritized briefing",
     "etsy_token_refresh": "Every 6 hours — Check and refresh Etsy API token",
+    "etsy_demand_snapshot": "08:15 UTC — Read Etsy demand and revenue facts",
     "instagram_token_refresh": "Every 12 hours — Check and refresh Instagram token",
 }

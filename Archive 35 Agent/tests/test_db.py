@@ -64,6 +64,9 @@ def test_init_schema_creates_all_tables(tmp_db_path: str):
         "kill_switch",
         "sku_catalog",
         "greatest_hits",
+        "etsy_listing_snapshots",
+        "etsy_order_facts",
+        "etsy_experiment_costs",
     }
     assert expected.issubset(tables), f"Missing tables: {expected - tables}"
     conn.close()

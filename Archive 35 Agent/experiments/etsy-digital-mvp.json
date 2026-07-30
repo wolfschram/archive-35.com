@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "price_usd": 12.0,
+  "products": [
+    {
+      "product_id": "A35-DIG-ANT-0001",
+      "source": "../01_Portfolio/Antelope_Canyon/originals/118A6286.jpg",
+      "artwork_title": "Crimson Passage Through Stone",
+      "location": "Antelope Canyon, Arizona, USA",
+      "etsy_title": "Antelope Canyon Printable Wall Art, Southwest Photo Digital Download",
+      "focal_point": [0.52, 0.5],
+      "tags": ["antelope canyon", "southwest wall art", "printable wall art", "digital download", "desert photography", "arizona wall art", "slot canyon print", "red rock decor", "landscape photo", "large wall art", "modern home decor", "nature photography", "instant download"]
+    },
+    {
+      "product_id": "A35-DIG-ICE-0001",
+      "source": "../01_Portfolio/Iceland/originals/WOLF4556.jpg",
+      "artwork_title": "Vestrahorn's Reflection in Still Waters",
+      "location": "Iceland",
+      "etsy_title": "Iceland Mountain Printable Wall Art, Nordic Landscape Digital Download",
+      "focal_point": [0.55, 0.5],
+      "tags": ["iceland wall art", "vestrahorn print", "nordic wall decor", "mountain printable", "landscape download", "scandinavian art", "blue wall art", "nature photography", "travel wall decor", "instant download", "printable wall art", "iceland photography", "modern home decor"]
+    },
+    {
+      "product_id": "A35-DIG-TAN-0001",
+      "source": "../01_Portfolio/Tanzania/originals/118A0037.jpg",
+      "artwork_title": "Mother and Child in Motion",
+      "location": "Tanzania",
+      "etsy_title": "Baboon Mother and Baby Printable Wall Art, African Wildlife Digital Download",
+      "focal_point": [0.52, 0.5],
+      "tags": ["baboon wall art", "african wildlife", "animal nursery art", "safari wall decor", "wildlife printable", "mother baby art", "tanzania photo", "nature photography", "animal wall art", "instant download", "printable wall art", "safari photography", "earth tone decor"]
+    },
+    {
+      "product_id": "A35-DIG-TET-0001",
+      "source": "../01_Portfolio/Grand_Teton/originals/WOLF6676.jpg",
+      "artwork_title": "Teton Range Winter Reflection",
+      "location": "Grand Teton National Park, Wyoming, USA",
+      "etsy_title": "Grand Teton Printable Wall Art, Wyoming Mountain Landscape Digital Download",
+      "focal_point": [0.55, 0.5],
+      "tags": ["grand teton art", "wyoming wall art", "mountain printable", "winter landscape", "national park art", "sunrise wall decor", "nature photography", "landscape download", "printable wall art", "instant download", "cabin wall decor", "mountain wall art", "travel photography"]
+    },
+    {
+      "product_id": "A35-DIG-DUN-0001",
+      "source": "../01_Portfolio/Desert_Dunes/originals/DJI_20250518091954_0187_D-Enhanced-NR.jpg",
+      "artwork_title": "Desert Dunes in Motion",
+      "location": "Desert dunes",
+      "etsy_title": "Neutral Desert Dunes Printable Wall Art, Minimalist Digital Download",
+      "focal_point": [0.5, 0.5],
+      "tags": ["desert wall art", "neutral wall decor", "sand dune print", "minimalist printable", "beige wall art", "desert photography", "nature wall decor", "earth tone art", "landscape download", "printable wall art", "instant download", "modern home decor", "boho wall art"]
+    }
+  ]
+}

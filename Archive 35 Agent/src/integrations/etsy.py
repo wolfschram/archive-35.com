@@ -32,7 +32,7 @@ from datetime import datetime, timezone
 # Fix SSL certs on Python 3.13 / macOS (must run before any HTTPS calls)
 from src import ssl_fix  # noqa: F401
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -504,8 +504,18 @@ def _api_request(
             body = json.dumps(data).encode()
             headers["Content-Type"] = "application/json"
         else:
-            body = urllib.parse.urlencode(data).encode()
-            headers["Content-Type"] = "application/x-www-form-urlencoded"
+            normalized = {}
+            for key, value in data.items():
+                if isinstance(value, list):
+                    normalized[key] = ",".join(str(item) for item in value)
+                elif isinstance(value, bool):
+                    normalized[key] = str(value).lower()
+                else:
+                    normalized[key] = value
+            body = urllib.parse.urlencode(normalized).encode("utf-8")
+            headers["Content-Type"] = (
+                "application/x-www-form-urlencoded; charset=utf-8"
+            )
 
     req = urllib.request.Request(url, data=body, method=method, headers=headers)
 
@@ -837,6 +847,7 @@ def create_listing(
     who_made: str = "i_did",
     when_made: str = "made_to_order",
     is_supply: bool = False,
+    listing_type: str = "physical",
 ) -> dict[str, Any]:
     """Create a new Etsy listing (draft state).
 
@@ -852,6 +863,7 @@ def create_listing(
         who_made: "i_did", "someone_else", "collective"
         when_made: Date range string
         is_supply: False for finished products
+        listing_type: "physical", "download", or "both"
 
     Returns:
         Created listing data or error.
@@ -860,6 +872,8 @@ def create_listing(
     shop_id = creds.get("shop_id")
     if not shop_id:
         return {"error": "ETSY_SHOP_ID not configured"}
+    if listing_type not in {"physical", "download", "both"}:
+        return {"error": f"Unsupported listing type: {listing_type}"}
 
     # Auto-discover taxonomy ID if not provided
     if not taxonomy_id:
@@ -883,13 +897,25 @@ def create_listing(
         "when_made": when_made,
         "is_supply": is_supply,
         "taxonomy_id": taxonomy_id,
-        "type": "physical",  # POD prints are physical goods
+        "type": listing_type,
         # NOTE: Do NOT include "state" — createDraftListing always creates drafts.
         # Sending "state": "draft" causes a 400 error (invalid parameter).
     }
 
     if sku:
         listing_data["sku"] = [sku]
+
+    # Shipping and processing profiles apply only to physical goods.
+    if listing_type == "download":
+        return_policy_id = get_or_create_no_returns_policy_id()
+        if return_policy_id:
+            listing_data["return_policy_id"] = return_policy_id
+        return _api_request(
+            f"/application/shops/{shop_id}/listings",
+            method="POST",
+            data=listing_data,
+            content_type="application/x-www-form-urlencoded",
+        )
 
     # Shipping profile is REQUIRED for physical listings.
     # Auto-fetch the first available profile if none provided.
@@ -927,6 +953,7 @@ def create_listing(
         f"/application/shops/{shop_id}/listings",
         method="POST",
         data=listing_data,
+        content_type="application/x-www-form-urlencoded",
     )
 
     if "error" in result:
@@ -955,6 +982,7 @@ def update_listing(listing_id: int, updates: dict) -> dict[str, Any]:
         f"/application/shops/{shop_id}/listings/{listing_id}",
         method="PATCH",
         data=updates,
+        content_type="application/x-www-form-urlencoded",
     )
 
 
@@ -1049,6 +1077,40 @@ def get_listings(
     return _api_request(
         f"/application/shops/{shop_id}/listings?state={state}&limit={limit}&offset={offset}"
     )
+
+
+def get_listing(listing_id: int) -> dict[str, Any]:
+    return _api_request(f"/application/listings/{listing_id}")
+
+
+def get_listing_images(listing_id: int) -> dict[str, Any]:
+    return _api_request(f"/application/listings/{listing_id}/images")
+
+
+def get_listing_files(listing_id: int) -> dict[str, Any]:
+    creds = get_credentials()
+    shop_id = creds.get("shop_id")
+    if not shop_id:
+        return {"error": "ETSY_SHOP_ID not configured"}
+    return _api_request(
+        f"/application/shops/{shop_id}/listings/{listing_id}/files"
+    )
+
+
+def find_listing_by_sku(sku: str) -> dict[str, Any] | None:
+    """Find an existing shop listing before creating a potentially duplicate draft."""
+    for state in ("draft", "active", "inactive"):
+        response = get_listings(state=state, limit=100, offset=0)
+        if "error" in response:
+            raise RuntimeError(f"Etsy {state} lookup failed: {response['error']}")
+        for listing in response.get("results", []):
+            values = listing.get("skus", listing.get("sku", []))
+            if isinstance(values, str):
+                values = [values]
+            description = str(listing.get("description", ""))
+            if sku in values or f"SKU: {sku}" in description:
+                return listing
+    return None
 
 
 def activate_listing(listing_id: int) -> dict[str, Any]:
@@ -1415,6 +1477,10 @@ def upload_listing_image_from_file(
     img_path = Path(file_path)
     if not img_path.exists():
         return {"error": f"Image file not found: {file_path}"}
+    token_check = ensure_valid_token()
+    if not token_check.get("valid"):
+        return {"error": token_check.get("error", "Token invalid")}
+    _rate_limit()
 
     image_data = img_path.read_bytes()
     filename = img_path.name
@@ -1462,6 +1528,153 @@ def upload_listing_image_from_file(
         resp_body = e.read().decode() if e.fp else ""
         logger.error("Etsy file image upload failed: %s %s", e.code, resp_body)
         return {"error": f"Image upload failed: {e.code}", "detail": resp_body}
+    except Exception as error:
+        return {"error": f"Image upload failed: {error}"}
+
+
+def upload_listing_file_from_path(
+    listing_id: int,
+    file_path: str,
+    rank: int = 1,
+) -> dict[str, Any]:
+    """Upload one buyer-delivery file to an Etsy digital listing."""
+    digital_path = Path(file_path)
+    if not digital_path.is_file():
+        return {"error": f"Digital file not found: {file_path}"}
+    if digital_path.stat().st_size > 20 * 1024 * 1024:
+        return {"error": f"Digital file exceeds Etsy's 20 MB limit: {digital_path.name}"}
+    token_check = ensure_valid_token()
+    if not token_check.get("valid"):
+        return {"error": token_check.get("error", "Token invalid")}
+    _rate_limit()
+
+    creds = get_credentials()
+    shop_id = creds.get("shop_id")
+    if not shop_id:
+        return {"error": "ETSY_SHOP_ID not configured"}
+
+    boundary = f"----Archive35Boundary{secrets.token_hex(8)}"
+    body = bytearray()
+    for name, value in (("name", digital_path.name), ("rank", str(rank))):
+        body += f"--{boundary}\r\n".encode()
+        body += f'Content-Disposition: form-data; name="{name}"\r\n\r\n'.encode()
+        body += f"{value}\r\n".encode()
+    body += f"--{boundary}\r\n".encode()
+    body += (
+        f'Content-Disposition: form-data; name="file"; '
+        f'filename="{digital_path.name}"\r\n'
+    ).encode()
+    body += b"Content-Type: image/jpeg\r\n\r\n"
+    body += digital_path.read_bytes()
+    body += f"\r\n--{boundary}--\r\n".encode()
+
+    api_key = creds["api_key"]
+    if creds.get("shared_secret"):
+        api_key = f"{api_key}:{creds['shared_secret']}"
+    request = urllib.request.Request(
+        f"{ETSY_API_BASE}/application/shops/{shop_id}/listings/{listing_id}/files",
+        data=bytes(body),
+        method="POST",
+        headers={
+            "x-api-key": api_key,
+            "Authorization": f"Bearer {creds['access_token']}",
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            return json.loads(response.read())
+    except urllib.error.HTTPError as error:
+        detail = error.read().decode() if error.fp else ""
+        return {"error": f"Digital file upload failed: {error.code}", "detail": detail}
+    except Exception as error:
+        return {"error": f"Digital file upload failed: {error}"}
+
+
+def create_digital_listing(
+    *,
+    title: str,
+    description: str,
+    price: float,
+    tags: list[str],
+    sku: str,
+    delivery_files: list[str],
+    image_paths: list[str],
+    taxonomy_id: Optional[int] = None,
+    activate: bool = False,
+    on_draft_created: Optional[Callable[[dict[str, Any]], None]] = None,
+) -> dict[str, Any]:
+    """Create a complete digital listing, remaining draft unless activated."""
+    if not 1 <= len(delivery_files) <= 5:
+        return {"error": "Digital listings require between 1 and 5 delivery files"}
+    if not image_paths:
+        return {"error": "At least one listing preview image is required"}
+
+    listing = create_listing(
+        title=title,
+        description=description,
+        price=price,
+        tags=tags,
+        sku=sku,
+        quantity=999,
+        taxonomy_id=taxonomy_id,
+        when_made="2020_2026",
+        listing_type="download",
+    )
+    if "error" in listing:
+        return listing
+    listing_id = listing.get("listing_id")
+    if not listing_id:
+        return {"error": "Etsy created the draft without returning a listing_id"}
+    if on_draft_created:
+        on_draft_created({
+            "listing_id": listing_id,
+            "status": "created_draft",
+            "sku": sku,
+            "price_usd": round(price, 2),
+        })
+
+    uploaded_images = []
+    for rank, image_path in enumerate(image_paths[:20], start=1):
+        result = upload_listing_image_from_file(listing_id, image_path, rank)
+        if "error" in result:
+            return {
+                "error": "Preview image upload failed",
+                "detail": result,
+                "listing_id": listing_id,
+                "status": "partial_draft",
+            }
+        uploaded_images.append(result)
+
+    uploaded_files = []
+    for rank, delivery_file in enumerate(delivery_files, start=1):
+        result = upload_listing_file_from_path(listing_id, delivery_file, rank)
+        if "error" in result:
+            return {
+                "error": "Delivery file upload failed",
+                "detail": result,
+                "listing_id": listing_id,
+                "status": "partial_draft",
+            }
+        uploaded_files.append(result)
+
+    if activate:
+        result = update_listing(listing_id, {"state": "active"})
+        if "error" in result:
+            return {
+                "error": "Activation failed",
+                "detail": result,
+                "listing_id": listing_id,
+                "status": "complete_draft",
+            }
+    return {
+        "listing_id": listing_id,
+        "status": "active" if activate else "draft",
+        "images_uploaded": len(uploaded_images),
+        "files_uploaded": len(uploaded_files),
+        "price_usd": round(price, 2),
+        "sku": sku,
+    }
 
 
 # ── Frame Reference Images (Auto-attach) ─────────────────────────────────
@@ -1528,6 +1741,7 @@ PERSONALIZATION_QUESTIONS = [
 
 def get_receipts(
     min_created: Optional[int] = None,
+    was_paid: Optional[bool] = None,
     limit: int = 25,
     offset: int = 0,
 ) -> dict[str, Any]:
@@ -1537,6 +1751,7 @@ def get_receipts(
 
     Args:
         min_created: Unix timestamp — only receipts created after this
+        was_paid: When set, filter receipts by Etsy payment status
         limit: Max results
         offset: Pagination offset
 
@@ -1551,6 +1766,8 @@ def get_receipts(
     params = f"limit={limit}&offset={offset}"
     if min_created:
         params += f"&min_created={min_created}"
+    if was_paid is not None:
+        params += f"&was_paid={str(was_paid).lower()}"
 
     return _api_request(f"/application/shops/{shop_id}/receipts?{params}")
 
@@ -1563,6 +1780,17 @@ def get_receipt(receipt_id: int) -> dict[str, Any]:
         return {"error": "ETSY_SHOP_ID not configured"}
 
     return _api_request(f"/application/shops/{shop_id}/receipts/{receipt_id}")
+
+
+def get_receipt_payments(receipt_id: int) -> dict[str, Any]:
+    """Get Etsy's posted gross, fee, and net payment facts for one receipt."""
+    creds = get_credentials()
+    shop_id = creds.get("shop_id")
+    if not shop_id:
+        return {"error": "ETSY_SHOP_ID not configured"}
+    return _api_request(
+        f"/application/shops/{shop_id}/receipts/{receipt_id}/payments"
+    )
 
 
 def parse_receipt_for_fulfillment(receipt: dict) -> list[dict]:
@@ -1811,10 +2039,13 @@ class EtsyClient:
 
     def get_receipts(self, was_paid: bool = True, limit: int = 25, **kwargs) -> dict[str, Any]:
         """Poll for receipts/orders."""
-        return get_receipts(limit=limit, **kwargs)
+        return get_receipts(was_paid=was_paid, limit=limit, **kwargs)
 
     def get_receipt(self, receipt_id: int) -> dict[str, Any]:
         return get_receipt(receipt_id)
+
+    def get_receipt_payments(self, receipt_id: int) -> dict[str, Any]:
+        return get_receipt_payments(receipt_id)
 
     def get_listings(self, state: str = "active", limit: int = 25, offset: int = 0) -> dict[str, Any]:
         return get_listings(state=state, limit=limit, offset=offset)

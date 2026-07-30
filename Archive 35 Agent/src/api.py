@@ -13,6 +13,7 @@ import json
 import logging
 import os
 import ssl
+import sqlite3
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -153,7 +154,7 @@ def _install_dns_fallback():
 _install_dns_fallback()
 
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -2238,6 +2239,75 @@ def etsy_status():
         return result
     except Exception as e:
         return {"configured": False, "connected": False, "error": str(e)}
+    finally:
+        conn.close()
+
+
+class EtsyExperimentCostRequest(BaseModel):
+    """A verified charge incurred during the initial Etsy experiment."""
+
+    amount_usd: float
+    category: str = "etsy_ads"
+    note: str = ""
+    external_reference: Optional[str] = None
+
+
+@app.get("/etsy/revenue/report")
+def etsy_revenue_report(days: int = Query(default=30, ge=1, le=365)):
+    """Return measured Etsy demand, revenue, contribution, and budget status."""
+    from src.agents.etsy_demand import revenue_report
+
+    conn = _get_conn()
+    try:
+        return revenue_report(conn, days=days)
+    finally:
+        conn.close()
+
+
+@app.post("/etsy/revenue/snapshot")
+def etsy_revenue_snapshot():
+    """Read current Etsy listings and paid receipts into immutable snapshots."""
+    from src.agents.etsy_demand import collect_from_etsy
+    from src.integrations.etsy import EtsyClient
+
+    conn = _get_conn()
+    try:
+        return collect_from_etsy(conn, EtsyClient())
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    finally:
+        conn.close()
+
+
+@app.post("/etsy/revenue/cost")
+def etsy_revenue_cost(
+    req: EtsyExperimentCostRequest,
+    x_archive35_operator_token: Optional[str] = Header(default=None),
+):
+    """Record a verified charge; disabled until an operator token is configured."""
+    from src.agents.etsy_demand import record_experiment_cost, revenue_report
+
+    configured_token = os.getenv("ARCHIVE35_OPERATOR_TOKEN", "")
+    if not configured_token:
+        raise HTTPException(status_code=503, detail="Cost mutation is disabled")
+    if x_archive35_operator_token != configured_token:
+        raise HTTPException(status_code=401, detail="Operator token required")
+    conn = _get_conn()
+    try:
+        total = record_experiment_cost(
+            conn,
+            amount_usd=req.amount_usd,
+            category=req.category,
+            note=req.note,
+            external_reference=req.external_reference,
+        )
+        return {
+            "recorded": True,
+            "budget_spent_usd": total,
+            "report": revenue_report(conn),
+        }
+    except (ValueError, sqlite3.IntegrityError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     finally:
         conn.close()
 
@@ -4931,6 +5001,28 @@ def archive_email(req: EmailActionRequest):
 
 
 # ── Phase 7: Data Intelligence Endpoints ────────────────────────
+
+
+@app.get("/pinterest/status")
+def pinterest_status():
+    """Report configured Pinterest capability without attempting a write."""
+    token = os.getenv("PINTEREST_ACCESS_TOKEN", "")
+    expires = os.getenv("PINTEREST_TOKEN_EXPIRES", "")
+    expired = None
+    if expires:
+        try:
+            expiry = datetime.fromisoformat(expires.replace("Z", "+00:00"))
+            expired = expiry <= datetime.now(expiry.tzinfo)
+        except ValueError:
+            expired = None
+    return {
+        "connected": bool(token) and expired is not True,
+        "configured": bool(token),
+        "token_expires": expires or None,
+        "expired": expired,
+        "write_access": False,
+        "note": "Pinterest trial access is read-only; automatic pins remain disabled.",
+    }
 
 
 @app.get("/analytics/cloudflare")

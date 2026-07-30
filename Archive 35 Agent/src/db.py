@@ -132,6 +132,65 @@ CREATE TABLE IF NOT EXISTS content_masters (
 CREATE INDEX IF NOT EXISTS idx_content_masters_photo_id ON content_masters(photo_id);
 CREATE INDEX IF NOT EXISTS idx_content_masters_platform ON content_masters(platform);
 
+CREATE TABLE IF NOT EXISTS etsy_listing_snapshots (
+    captured_at TEXT NOT NULL,
+    listing_id INTEGER NOT NULL,
+    state TEXT NOT NULL,
+    title TEXT NOT NULL,
+    listing_type TEXT NOT NULL DEFAULT 'physical',
+    price_usd REAL NOT NULL DEFAULT 0,
+    currency TEXT NOT NULL DEFAULT 'USD',
+    views INTEGER NOT NULL DEFAULT 0,
+    favorites INTEGER NOT NULL DEFAULT 0,
+    quantity INTEGER NOT NULL DEFAULT 0,
+    url TEXT,
+    PRIMARY KEY (captured_at, listing_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_etsy_snapshots_listing
+    ON etsy_listing_snapshots(listing_id, captured_at);
+
+CREATE TABLE IF NOT EXISTS etsy_order_facts (
+    order_key TEXT PRIMARY KEY,
+    receipt_id INTEGER NOT NULL,
+    transaction_id INTEGER,
+    listing_id INTEGER,
+    sku TEXT,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    gross_usd REAL NOT NULL DEFAULT 0,
+    currency TEXT NOT NULL DEFAULT 'USD',
+    cogs_usd REAL,
+    captured_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_etsy_orders_receipt
+    ON etsy_order_facts(receipt_id);
+
+CREATE TABLE IF NOT EXISTS etsy_payment_facts (
+    receipt_id INTEGER PRIMARY KEY,
+    payment_id INTEGER,
+    gross_usd REAL NOT NULL,
+    fees_usd REAL NOT NULL,
+    net_usd REAL NOT NULL,
+    adjusted_gross_usd REAL,
+    adjusted_fees_usd REAL,
+    adjusted_net_usd REAL,
+    currency TEXT NOT NULL DEFAULT 'USD',
+    captured_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS etsy_experiment_costs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    incurred_at TEXT NOT NULL,
+    category TEXT NOT NULL,
+    amount_usd REAL NOT NULL CHECK (amount_usd >= 0),
+    note TEXT,
+    external_reference TEXT UNIQUE
+);
+
+CREATE INDEX IF NOT EXISTS idx_etsy_costs_date
+    ON etsy_experiment_costs(incurred_at);
+
 -- Sentinel row for mockup content (satisfies FK constraint when no real photo)
 INSERT OR IGNORE INTO photos (id, filename, path, imported_at)
     VALUES ('__mockup__', '__mockup__', '__mockup__', '2026-01-01T00:00:00Z');

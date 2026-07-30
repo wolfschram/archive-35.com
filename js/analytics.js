@@ -212,12 +212,13 @@ function trackEtsyDigitalClicks() {
 
     link.addEventListener('click', () => {
       const productId = link.dataset.productId || 'archive35_digital_mvp';
+      const priceUsd = Number(link.dataset.priceUsd || 12);
       const eventData = {
         offer: 'archive35_digital_mvp',
         product_id: productId,
         placement: link.dataset.placement || 'unknown',
         destination: 'etsy_share_and_save',
-        price_usd: 12
+        price_usd: priceUsd
       };
 
       gtag('event', 'select_content', {
@@ -225,7 +226,7 @@ function trackEtsyDigitalClicks() {
         item_id: productId,
         link_url: link.href,
         placement: eventData.placement,
-        value: 12,
+        value: priceUsd,
         currency: 'USD'
       });
 

@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/printables.css">
+  <link rel="stylesheet" href="css/printables.css?v=3">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-SE2WETEK5D"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -40,8 +40,9 @@
     "offers": {
       "@type": "Offer",
       "url": "https://archive35photo.etsy.com/listing/4546706397/iceland-wall-art-set-of-3-nordic",
-      "price": "18.00",
+      "price": "13.50",
       "priceCurrency": "USD",
+      "priceValidUntil": "2026-08-06",
       "availability": "https://schema.org/InStock",
       "itemCondition": "https://schema.org/NewCondition"
     }
@@ -71,10 +72,17 @@
           <p class="printable-location">Vestrahorn · Iceland · Set of three</p>
           <h1>Quiet Iceland</h1>
           <p class="printable-detail-lede">A coordinated gallery set showing Vestrahorn across black sand, reflected light, and still water—three original photographs for less than the price of two singles.</p>
-          <div class="printable-detail-price">$18 <span>instant digital download</span></div>
+          <div class="printable-detail-price printable-sale-price">
+            <span data-printable-sale><strong class="printable-sale-current">$13.50</strong> <del>$18</del><small class="printable-sale-terms">25% off through August 6</small></span>
+            <span data-printable-base hidden><strong>$18</strong> <small>instant digital download</small></span>
+          </div>
           <a class="btn btn-primary etsy-digital-link" data-placement="printable_bundle_detail"
-             data-product-id="A35-DIG-SET-ICE-0001" href="https://archive35photo.etsy.com/listing/4546706397/iceland-wall-art-set-of-3-nordic" target="_blank"
-             rel="noopener">Buy the set securely on Etsy · $18</a>
+             data-product-id="A35-DIG-SET-ICE-0001" data-price-usd="13.5"
+             data-sale-price-usd="13.5" data-base-price-usd="18"
+             data-sale-active-label="Buy the set securely on Etsy · $13.50"
+             data-sale-base-label="Buy the set securely on Etsy · $18"
+             href="https://archive35photo.etsy.com/listing/4546706397/iceland-wall-art-set-of-3-nordic" target="_blank"
+             rel="noopener">Buy the set securely on Etsy · $13.50</a>
           <p class="printables-disclosure">15 JPEG files delivered in five ZIP folders. No physical prints or frames will be shipped.</p>
         </div>
       </div>
@@ -113,7 +121,8 @@
       <div class="footer-bottom"><p>&copy; 2026 Archive-35. All rights reserved.</p></div>
     </div>
   </footer>
-  <script src="js/analytics.js?v=2"></script>
+  <script src="js/printable-sale.js?v=1"></script>
+  <script src="js/analytics.js?v=3"></script>
   <script src="js/main.js"></script>
   <script src="js/tracker.js?v=1"></script>
   <script src="js/image-protection.js"></script>

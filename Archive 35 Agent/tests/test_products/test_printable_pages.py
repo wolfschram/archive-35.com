@@ -2,6 +2,7 @@ import importlib.util
 import json
 import re
 import xml.etree.ElementTree as ET
+from datetime import date
 from pathlib import Path
 
 
@@ -20,7 +21,7 @@ def load_generator():
 
 def test_generates_one_crawlable_page_per_controlled_product(tmp_path):
     module = load_generator()
-    generated = module.generate(tmp_path)
+    generated = module.generate(tmp_path, as_of=date(2026, 7, 30))
     pages = sorted(tmp_path.glob("printable-*.html"))
 
     assert len(generated) == 11
@@ -33,9 +34,13 @@ def test_generates_one_crawlable_page_per_controlled_product(tmp_path):
         assert len(schemas) == 1
         product = json.loads(schemas[0])
         assert product["@type"] == "Product"
-        assert product["offers"]["price"] == "12.00"
+        assert product["offers"]["price"] == "9.00"
+        assert product["offers"]["priceValidUntil"] == "2026-08-06"
         assert "archive35photo.etsy.com/listing/" in product["offers"]["url"]
         assert "No physical print or frame." in text
+        assert 'data-sale-price-usd="9"' in text
+        assert "Buy securely on Etsy · $9" in text
+        assert "js/printable-sale.js?v=1" in text
         assert "{{" not in text
 
     sitemap = ET.parse(tmp_path / "sitemap-printables.xml")
@@ -49,7 +54,8 @@ def test_bundle_page_is_truthful_and_links_to_live_etsy_listing():
         r'<script type="application/ld\+json">(.*?)</script>', page, re.S
     )
     schema = json.loads(schema_text[0])
-    assert schema["offers"]["price"] == "18.00"
+    assert schema["offers"]["price"] == "13.50"
+    assert schema["offers"]["priceValidUntil"] == "2026-08-06"
     assert "4546681551" in schema["offers"]["url"]
     assert "15 JPEG files" in page
     assert "No physical prints or frames" in page
@@ -61,7 +67,8 @@ def test_iceland_bundle_page_is_truthful_and_links_to_live_etsy_listing():
         r'<script type="application/ld\+json">(.*?)</script>', page, re.S
     )
     schema = json.loads(schema_text[0])
-    assert schema["offers"]["price"] == "18.00"
+    assert schema["offers"]["price"] == "13.50"
+    assert schema["offers"]["priceValidUntil"] == "2026-08-06"
     assert "4546706397" in schema["offers"]["url"]
     assert "15 JPEG files" in page
     assert "No physical prints or frames" in page
@@ -76,6 +83,58 @@ def test_hub_links_to_every_generated_product_page():
     for product in spec["products"]:
         filename = f"printable-{product['web_slug']}.html"
         assert hub.count(f'href="{filename}"') == 1
+
+    schemas = re.findall(
+        r'<script type="application/ld\+json">(.*?)</script>', hub, re.S
+    )
+    collection = json.loads(schemas[0])
+    items = collection["mainEntity"]["itemListElement"]
+    assert len(items) == 12
+    assert {item["item"]["offers"]["price"] for item in items} == {
+        "9.00",
+        "13.50",
+    }
+    assert {
+        item["item"]["offers"]["priceValidUntil"] for item in items
+    } == {"2026-08-06"}
+    assert hub.count("data-sale-active-label=") == 12
+    assert hub.count("data-price-usd=") == 12
+
+
+def test_generator_restores_base_price_after_sale(tmp_path):
+    module = load_generator()
+    generated = module.generate(tmp_path, as_of=date(2026, 8, 7))
+
+    pages = [path for path in generated if path.suffix == ".html"]
+    assert len(pages) == 10
+    for page in pages:
+        text = page.read_text()
+        schema_text = re.findall(
+            r'<script type="application/ld\+json">(.*?)</script>', text, re.S
+        )
+        product = json.loads(schema_text[0])
+        assert product["offers"]["price"] == "12.00"
+        assert "priceValidUntil" not in product["offers"]
+        assert ">Buy securely on Etsy · $12</a>" in text
+        assert "<span data-printable-sale hidden>" in text
+        assert "<span data-printable-base>" in text
+
+
+def test_sale_controller_and_click_tracking_use_actual_offer_price():
+    controller = (ROOT / "js/printable-sale.js").read_text()
+    analytics = (ROOT / "js/analytics.js").read_text()
+    homepage = (ROOT / "index.html").read_text()
+
+    assert "2026-07-30T00:00:00-07:00" in controller
+    assert "2026-08-07T00:00:00-07:00" in controller
+    assert "element.dataset.priceUsd" in controller
+    assert "restoreExpiredOfferPrices" in controller
+    assert "delete value.priceValidUntil" in controller
+    assert "Number(link.dataset.priceUsd || 12)" in analytics
+    assert "price_usd: priceUsd" in analytics
+    assert "value: priceUsd" in analytics
+    assert "js/printable-sale.js?v=1" in homepage
+    assert "Printables · from $9" in homepage
 
 
 def test_committed_cloudflare_artifacts_match_generator(tmp_path):

@@ -92,6 +92,13 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
   Public buyer-page verification shows singles at $9 from $12 and bundles at
   $13.50 from $18. The daily Revenue Operator now checks scope and pricing drift
   and verifies that base prices return on August 7; it cannot extend the sale.
+- The website acquisition path now matches the Etsy checkout price: the homepage,
+  printable hub, ten generated single-product pages, and two bundle pages show the
+  active $9/$13.50 offer. Product JSON-LD carries the same prices with an August 6
+  validity date, outbound click events record the actual product price, and a
+  shared browser-side controller restores the $12/$18 display at midnight on
+  August 7 even if no deployment runs that day. A simulated post-sale build also
+  removes expired price metadata and generates the base-price presentation.
 - A 14.4-second silent 1080×1080 H.264 listing video now presents the five approved
   bundle cards. Etsy API readback confirmed video `835525705` is active, with no
   additional listing or advertising fee.

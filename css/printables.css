@@ -49,6 +49,53 @@
   font-size: 0.78rem;
 }
 
+.printables-sale-banner {
+  margin: 1.75rem auto 0;
+  padding: 0.85rem 1.25rem;
+  max-width: 520px;
+  color: var(--text-primary);
+  background: rgba(232, 184, 77, 0.1);
+  border: 1px solid rgba(232, 184, 77, 0.35);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+}
+
+.printables-sale-price {
+  color: var(--accent);
+}
+
+.printable-detail-price.printables-sale-price > span {
+  color: var(--accent);
+  font-size: 2rem;
+}
+
+.printable-detail-price .printable-sale-current {
+  color: var(--accent);
+  font-size: 2rem;
+  font-weight: 300;
+}
+
+.printable-detail-price.printables-sale-price del {
+  margin-left: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.75em;
+  text-decoration-thickness: 1px;
+}
+
+.printable-detail-price .printable-sale-terms {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+[hidden] {
+  display: none !important;
+}
+
 .printables-catalog {
   padding: 6rem 0;
   background: var(--bg-secondary);

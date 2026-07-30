@@ -48,14 +48,15 @@ def test_current_ad_evidence_matches_the_approved_campaign_scope():
     evidence = json.loads(
         (AGENT_ROOT / "experiments" / "etsy-ads-launch-evidence.json").read_text()
     )
-    approved = set(spec["campaign"]["advertised_product_ids"])
-    approved.update(spec["campaign"]["advertised_bundle_product_ids"])
+    approved = set(spec["campaign"]["current_etsy_ads_skus"])
     observed = {
         item["sku"] for item in evidence["current_approved_advertised_listings"]
     }
 
     assert approved == observed
     assert len(observed) == 7
+    assert "A35-DIG-TAN-0001" not in observed
+    assert "A35-DIG-SET-SAF-0001" in observed
     assert evidence["latest_observation"]["advertised_listing_count"] == 7
     assert evidence["latest_observation"]["daily_budget_usd"] == 1.0
 

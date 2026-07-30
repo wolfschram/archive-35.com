@@ -18,11 +18,11 @@
   "current_approved_advertised_listings": [
     {"listing_id": 4546594519, "sku": "A35-DIG-ANT-0001"},
     {"listing_id": 4546598415, "sku": "A35-DIG-ICE-0001"},
-    {"listing_id": 4546611616, "sku": "A35-DIG-TAN-0001"},
     {"listing_id": 4546611864, "sku": "A35-DIG-TET-0001"},
     {"listing_id": 4546599089, "sku": "A35-DIG-DUN-0001"},
     {"listing_id": 4546681551, "sku": "A35-DIG-SET-DES-0001"},
-    {"listing_id": 4546706397, "sku": "A35-DIG-SET-ICE-0001"}
+    {"listing_id": 4546706397, "sku": "A35-DIG-SET-ICE-0001"},
+    {"listing_id": 4546839790, "sku": "A35-DIG-SET-SAF-0001"}
   ],
   "verified_organic_expansion_listings": [
     {"listing_id": 4546764040, "sku": "A35-DIG-ELE-0001"},
@@ -32,11 +32,11 @@
     {"listing_id": 4546764986, "sku": "A35-DIG-LIO-0001"}
   ],
   "latest_observation": {
-    "captured_at": "2026-07-30T03:38:08-07:00",
+    "captured_at": "2026-07-30T06:49:47-07:00",
     "source": "signed-in Etsy Ads dashboard",
     "daily_budget_usd": 1.0,
     "advertised_listing_count": 7,
-    "views": 3,
+    "views": 6,
     "clicks": 0,
     "orders": 0,
     "revenue_usd": 0.0,
@@ -49,6 +49,10 @@
     "budget_reduced_at": "2026-07-29T21:00:00-07:00",
     "advertised_filter_confirmed": true,
     "organic_expansion_excluded_from_ads": true,
+    "automatic_new_listing_drift_corrected": true,
+    "replaced_ad_sku": "A35-DIG-TAN-0001",
+    "replacement_ad_sku": "A35-DIG-SET-SAF-0001",
+    "replacement_reason": "Safari Nursery demand was 5.2k searches against 85.5k results; Baboon had zero ad views and materially weaker keyword demand.",
     "campaign_stats_at_launch": {
       "views": 0,
       "clicks": 0,

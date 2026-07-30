@@ -119,7 +119,7 @@ def test_16_9_photo():
 def test_inventory_payload_structure():
     """Verify the Etsy API payload has the required fields."""
     products = build_variation_matrix(6000, 4000)
-    payload = build_etsy_inventory_payload(products)
+    payload = build_etsy_inventory_payload(products, readiness_state_id=12345)
 
     assert "products" in payload
     assert "price_on_property" in payload
@@ -150,6 +150,7 @@ def test_inventory_payload_structure():
     assert "quantity" in offering
     assert "is_enabled" in offering
     assert offering["quantity"] == 999
+    assert offering["readiness_state_id"] == 12345
 
 
 def test_summary():

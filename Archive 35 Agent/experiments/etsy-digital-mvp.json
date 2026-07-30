@@ -3,7 +3,7 @@
   "price_usd": 12.0,
   "web_lastmod": "2026-07-30",
   "campaign": {
-    "version": "2026-07-29-a",
+    "version": "2026-07-30-b",
     "started_at": "2026-07-29T20:30:00-07:00",
     "stop_on_or_before": "2026-08-19",
     "daily_budget_usd": 1.0,
@@ -23,6 +23,15 @@
     "advertised_bundle_product_ids": [
       "A35-DIG-SET-DES-0001",
       "A35-DIG-SET-ICE-0001"
+    ],
+    "current_etsy_ads_skus": [
+      "A35-DIG-ANT-0001",
+      "A35-DIG-ICE-0001",
+      "A35-DIG-TET-0001",
+      "A35-DIG-DUN-0001",
+      "A35-DIG-SET-DES-0001",
+      "A35-DIG-SET-ICE-0001",
+      "A35-DIG-SET-SAF-0001"
     ]
   },
   "products": [

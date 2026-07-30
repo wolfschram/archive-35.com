@@ -9,10 +9,11 @@ from src.agents.etsy_seo_agent import (
 )
 
 
-def test_audit_loads_the_seventeen_controlled_downloads():
+def test_audit_loads_the_eighteen_controlled_downloads():
     listings = load_listings()
-    assert len(listings) == 17
+    assert len(listings) == 18
     assert all(row["_folder"].startswith("A35-DIG-") for row in listings)
+    assert {row["sku"] for row in listings} >= {"A35-DIG-SET-SAF-0001"}
 
 
 def test_current_titles_follow_etsy_buyer_friendly_guidance():
@@ -51,6 +52,6 @@ def test_current_download_descriptions_cover_buyer_critical_details():
 def test_report_records_scope_and_official_guidance():
     report = run_analysis()
     assert report["catalog_scope"] == "controlled_digital_downloads"
-    assert report["summary"]["titles_buyer_friendly"] == 17
-    assert report["summary"]["descriptions_buyer_complete"] == 17
+    assert report["summary"]["titles_buyer_friendly"] == 18
+    assert report["summary"]["descriptions_buyer_complete"] == 18
     assert report["summary"]["overall_score"] == 100

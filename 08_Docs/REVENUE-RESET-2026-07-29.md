@@ -86,6 +86,12 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
 - Etsy Ads automatically included both bundles inside the existing $1/day campaign.
   The July 30 signed-in readback confirms seven approved advertised listings,
   three views, zero clicks, zero actual spend, and zero orders.
+- A zero-cash seven-day public sale, `PRINTABLE25`, is live from July 30 through
+  August 6. Etsy's final confirmation limited the 25% discount to exactly the 12
+  `Printable Downloads` listings; all 28 `Metal & Acrylic Prints` remain excluded.
+  Public buyer-page verification shows singles at $9 from $12 and bundles at
+  $13.50 from $18. The daily Revenue Operator now checks scope and pricing drift
+  and verifies that base prices return on August 7; it cannot extend the sale.
 - A 14.4-second silent 1080×1080 H.264 listing video now presents the five approved
   bundle cards. Etsy API readback confirmed video `835525705` is active, with no
   additional listing or advertising fee.

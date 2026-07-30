@@ -1,0 +1,52 @@
+{
+  "captured_at": "2026-07-30T02:51:21-07:00",
+  "source": "signed-in Etsy Sales and Discounts plus public buyer listing",
+  "shop": "Archive35Photo",
+  "sale_name": "PRINTABLE25",
+  "status": "active",
+  "discount_percent": 25,
+  "starts_on": "2026-07-30",
+  "ends_on": "2026-08-06",
+  "listing_scope": "selected_listings",
+  "included_section": {
+    "section_id": 59608958,
+    "name": "Printable Downloads",
+    "listing_count": 12
+  },
+  "excluded_sections": [
+    {
+      "name": "Metal & Acrylic Prints",
+      "listing_count": 28
+    }
+  ],
+  "included_listings": [
+    {"listing_id": 4546594519, "sku": "A35-DIG-ANT-0001", "base_price_usd": 12.0, "sale_price_usd": 9.0},
+    {"listing_id": 4546598415, "sku": "A35-DIG-ICE-0001", "base_price_usd": 12.0, "sale_price_usd": 9.0},
+    {"listing_id": 4546611616, "sku": "A35-DIG-TAN-0001", "base_price_usd": 12.0, "sale_price_usd": 9.0},
+    {"listing_id": 4546611864, "sku": "A35-DIG-TET-0001", "base_price_usd": 12.0, "sale_price_usd": 9.0},
+    {"listing_id": 4546599089, "sku": "A35-DIG-DUN-0001", "base_price_usd": 12.0, "sale_price_usd": 9.0},
+    {"listing_id": 4546650265, "sku": "A35-DIG-NYC-0001", "base_price_usd": 12.0, "sale_price_usd": 9.0},
+    {"listing_id": 4546650421, "sku": "A35-DIG-WAT-0001", "base_price_usd": 12.0, "sale_price_usd": 9.0},
+    {"listing_id": 4546664396, "sku": "A35-DIG-AER-0001", "base_price_usd": 12.0, "sale_price_usd": 9.0},
+    {"listing_id": 4546664576, "sku": "A35-DIG-MON-0001", "base_price_usd": 12.0, "sale_price_usd": 9.0},
+    {"listing_id": 4546651079, "sku": "A35-DIG-GLA-0001", "base_price_usd": 12.0, "sale_price_usd": 9.0},
+    {"listing_id": 4546681551, "sku": "A35-DIG-SET-DES-0001", "base_price_usd": 18.0, "sale_price_usd": 13.5},
+    {"listing_id": 4546706397, "sku": "A35-DIG-SET-ICE-0001", "base_price_usd": 18.0, "sale_price_usd": 13.5}
+  ],
+  "public_verification": {
+    "listing_id": 4546599089,
+    "observed_sale_price_usd": 9.0,
+    "observed_original_price_usd": 12.0,
+    "bundle_sale_price_usd": 13.5,
+    "bundle_original_price_usd": 18.0,
+    "excluded_physical_listing_id": 4462200727,
+    "excluded_physical_price_usd": 470.0,
+    "excluded_physical_sale_price_present": false
+  },
+  "cash_cost_usd": 0.0,
+  "guardrails": {
+    "do_not_extend_automatically": true,
+    "do_not_add_physical_listings": true,
+    "verify_base_prices_restored_on_or_after": "2026-08-07"
+  }
+}

@@ -970,6 +970,20 @@ export async function onRequestPost(context) {
       return await handleLicenseOrder(session, metadata, env, isTestMode, STRIPE_SECRET_KEY, RESEND_API_KEY, WOLF_EMAIL);
     }
 
+    if (orderType === 'micro-license') {
+      // Delivery is payment-gated by /api/micro-license/download and serve.
+      // Never let a digital order fall through to physical Pictorem fulfillment.
+      return new Response(JSON.stringify({
+        received: true,
+        fulfilled: true,
+        orderType: 'micro-license',
+        stripeSessionId: session.id,
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     if (orderType === 'mixed') {
       // ================================================================
       // MIXED ORDER — process license delivery first (non-blocking),

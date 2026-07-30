@@ -12,9 +12,11 @@
  */
 
 const TIER_RESOLUTIONS = {
-  web: { maxWidth: 1200, quality: 85 },
-  commercial: { maxWidth: null, quality: 95 }, // Full resolution
+  web: { maxWidth: 2400, quality: 85 },
+  commercial: { maxWidth: 4000, quality: 95 },
 };
+const VALID_IMAGE_ID = /^[A-Za-z0-9_][A-Za-z0-9_()-]{0,127}$/;
+const VALID_TIERS = new Set(["web", "commercial"]);
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -33,7 +35,14 @@ export async function onRequest(context) {
     );
   }
 
-  const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
+  const isTestSession = sessionId.startsWith("cs_test_");
+  if (isTestSession && env.ALLOW_TEST_DELIVERY !== "true") {
+    return new Response(
+      JSON.stringify({ error: "Test delivery is disabled" }),
+      { status: 403, headers: corsHeaders }
+    );
+  }
+  const STRIPE_SECRET_KEY = isTestSession ? env.STRIPE_TEST_SECRET_KEY : env.STRIPE_SECRET_KEY;
   if (!STRIPE_SECRET_KEY) {
     return new Response(
       JSON.stringify({ error: "Payment system not configured" }),
@@ -65,16 +74,28 @@ export async function onRequest(context) {
       );
     }
 
+    const expiresAt = new Date(session.created * 1000 + 72 * 60 * 60 * 1000);
+    if (Date.now() > expiresAt.getTime()) {
+      return new Response(
+        JSON.stringify({ error: "Download link expired", contact: "wolf@archive-35.com" }),
+        { status: 410, headers: corsHeaders }
+      );
+    }
+
     // Extract metadata
     const meta = session.metadata || {};
     const imageId = meta.licensePhotoId;
-    const tier = meta.licenseTier || "web";
+    const tier = meta.licenseTier;
     const filename = meta.licensePhotoFilename || `${imageId}.jpg`;
 
-    if (!imageId) {
+    if (
+      meta.orderType !== "micro-license" ||
+      !VALID_TIERS.has(tier) ||
+      !VALID_IMAGE_ID.test(imageId || "")
+    ) {
       return new Response(
-        JSON.stringify({ error: "No image ID in session metadata" }),
-        { status: 400, headers: corsHeaders }
+        JSON.stringify({ error: "Session does not contain a valid micro-license entitlement" }),
+        { status: 403, headers: corsHeaders }
       );
     }
 
@@ -107,24 +128,7 @@ export async function onRequest(context) {
     // Web tier ($2.50) gets 2400px, commercial ($5.00) gets 4000px
     // Full license ($280+) still gets originals
     const microKey = `micro/${tier}/${imageId}.jpg`;
-    const possibleKeys = [
-      microKey,                    // Micro delivery version (preferred)
-      `originals/${filename}`,     // Fallback to original if micro not generated yet
-      filename,
-      `${imageId}.jpg`,
-      `originals/${imageId}.jpg`,
-    ];
-
-    let imageObject = null;
-    let foundKey = null;
-    for (const key of possibleKeys) {
-      const obj = await R2_BUCKET.head(key);
-      if (obj) {
-        imageObject = obj;
-        foundKey = key;
-        break;
-      }
-    }
+    const imageObject = await R2_BUCKET.head(microKey);
 
     if (!imageObject) {
       // Log the issue and provide manual delivery instructions
@@ -142,11 +146,9 @@ export async function onRequest(context) {
     }
 
     // Generate signed download URL (72 hours expiry)
-    const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000);
-
     // For R2 signed URLs, we need to serve the file through a worker
     // Return the download path that can be accessed with the session token
-    const downloadUrl = `${url.origin}/api/micro-license/serve?session_id=${sessionId}&key=${encodeURIComponent(foundKey)}`;
+    const downloadUrl = `${url.origin}/api/micro-license/serve?session_id=${sessionId}`;
 
     const result = {
       status: "ready",

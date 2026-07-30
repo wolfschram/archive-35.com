@@ -2,7 +2,7 @@
  * ARCHIVE-35 Micro-License Image Serve
  * Cloudflare Pages Function
  *
- * GET /api/micro-license/serve?session_id=cs_xxx&key=micro/web/alps-001.jpg
+ * GET /api/micro-license/serve?session_id=cs_xxx
  *
  * Verifies the Stripe session is paid, checks 72-hour expiry,
  * reads the image from R2, and streams the binary file to the buyer.
@@ -11,6 +11,22 @@
  *   - STRIPE_SECRET_KEY (or STRIPE_TEST_SECRET_KEY)
  *   - ORIGINALS (R2 bucket binding)
  */
+
+const VALID_IMAGE_ID = /^[A-Za-z0-9_][A-Za-z0-9_()-]{0,127}$/;
+const VALID_TIERS = new Set(["web", "commercial"]);
+
+export function getEntitledObject(session) {
+  const meta = session.metadata || {};
+  const imageId = meta.licensePhotoId || "";
+  const tier = meta.licenseTier || "";
+  if (meta.orderType !== "micro-license" || !VALID_TIERS.has(tier) || !VALID_IMAGE_ID.test(imageId)) {
+    return null;
+  }
+  return {
+    key: `micro/${tier}/${imageId}.jpg`,
+    filename: `${imageId}-${tier}.jpg`,
+  };
+}
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -28,16 +44,22 @@ export async function onRequest(context) {
   }
 
   const sessionId = url.searchParams.get("session_id");
-  const key = url.searchParams.get("key");
 
-  if (!sessionId || !key) {
+  if (!sessionId) {
     return new Response(
-      JSON.stringify({ error: "session_id and key parameters are required" }),
+      JSON.stringify({ error: "session_id is required" }),
       { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
 
-  const STRIPE_KEY = env.STRIPE_SECRET_KEY || env.STRIPE_TEST_SECRET_KEY;
+  const isTestSession = sessionId.startsWith("cs_test_");
+  if (isTestSession && env.ALLOW_TEST_DELIVERY !== "true") {
+    return new Response(
+      JSON.stringify({ error: "Test delivery is disabled" }),
+      { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+  const STRIPE_KEY = isTestSession ? env.STRIPE_TEST_SECRET_KEY : env.STRIPE_SECRET_KEY;
   if (!STRIPE_KEY) {
     return new Response(
       JSON.stringify({ error: "Payment verification not configured" }),
@@ -64,6 +86,14 @@ export async function onRequest(context) {
       return new Response(
         JSON.stringify({ error: "Payment not completed", payment_status: session.payment_status }),
         { status: 402, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const entitlement = getEntitledObject(session);
+    if (!entitlement) {
+      return new Response(
+        JSON.stringify({ error: "Session does not contain a valid micro-license entitlement" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
@@ -95,12 +125,11 @@ export async function onRequest(context) {
       );
     }
 
-    const object = await R2_BUCKET.get(key);
+    const object = await R2_BUCKET.get(entitlement.key);
     if (!object) {
       return new Response(
         JSON.stringify({
           error: "Image not found in storage",
-          key: key,
           contact: "wolf@archive-35.com",
           session_id: sessionId,
         }),
@@ -109,14 +138,12 @@ export async function onRequest(context) {
     }
 
     // Extract filename for Content-Disposition
-    const filename = key.split("/").pop() || "archive-35-licensed-image.jpg";
-
     // Stream the image binary
     return new Response(object.body, {
       status: 200,
       headers: {
         "Content-Type": object.httpMetadata?.contentType || "image/jpeg",
-        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Disposition": `attachment; filename="${entitlement.filename}"`,
         "Content-Length": object.size?.toString() || "",
         "Cache-Control": "private, no-store",
         ...corsHeaders,

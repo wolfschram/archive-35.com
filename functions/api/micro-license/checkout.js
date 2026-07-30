@@ -23,11 +23,12 @@ const TIER_CONFIG = {
   commercial: {
     price_cents: 500,       // $5.00
     name_suffix: "Commercial License",
-    description: "Full resolution + license certificate. Commercial use. 2 years.",
-    resolution: "Full resolution",
+    description: "4000px clean image. Commercial use. 2 years.",
+    resolution: "4000px",
     duration: "2 years",
   },
 };
+const VALID_IMAGE_ID = /^[A-Za-z0-9_][A-Za-z0-9_()-]{0,127}$/;
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -41,12 +42,19 @@ export async function onRequestPost(context) {
 
   try {
     const body = await request.json();
-    const { image_id, tier, image_title, image_filename, classification, testMode } = body;
+    const { image_id, tier, image_title, image_filename, classification } = body;
 
     // Validate inputs
     if (!image_id || !tier) {
       return new Response(
         JSON.stringify({ error: "image_id and tier are required" }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    if (!VALID_IMAGE_ID.test(image_id)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid image_id" }),
         { status: 400, headers: corsHeaders }
       );
     }
@@ -60,15 +68,26 @@ export async function onRequestPost(context) {
     }
 
     // Select Stripe key
-    const isTestMode = testMode === true;
-    const STRIPE_SECRET_KEY = isTestMode
-      ? (env.STRIPE_TEST_SECRET_KEY || env.STRIPE_SECRET_KEY)
-      : env.STRIPE_SECRET_KEY;
+    const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY;
 
     if (!STRIPE_SECRET_KEY) {
       return new Response(
         JSON.stringify({ error: "Stripe not configured" }),
         { status: 500, headers: corsHeaders }
+      );
+    }
+
+    if (!env.ORIGINALS) {
+      return new Response(
+        JSON.stringify({ error: "Digital delivery is temporarily unavailable" }),
+        { status: 503, headers: corsHeaders }
+      );
+    }
+    const deliveryKey = `micro/${tier}/${image_id}.jpg`;
+    if (!(await env.ORIGINALS.head(deliveryKey))) {
+      return new Response(
+        JSON.stringify({ error: "This image is not yet available for instant download" }),
+        { status: 409, headers: corsHeaders }
       );
     }
 

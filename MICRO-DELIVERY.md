@@ -37,15 +37,17 @@ Use Pillow for resizing. Use the existing IPTC embedding approach for metadata.
 
 ### Step 2: Upload to R2
 
-Upload the micro_delivery folder to a new R2 prefix (or the existing `archive-35-social` bucket):
+Upload the micro_delivery folder using the existing R2 credentials from the
+gitignored root `.env`. Never place access keys in source code or documentation:
 
 ```python
+import os
 import boto3
 
 r2 = boto3.client('s3',
-    endpoint_url='https://b7491e0a2209add17e1f4307eb77c991.r2.cloudflarestorage.com',
-    aws_access_key_id='688524487b5a7a205127263e5747df1b',
-    aws_secret_access_key='625c41540237360445d3114637dfeab17e2d4f3ce5b34eee2f6d671cc46a0d4c',
+    endpoint_url=os.environ['R2_ENDPOINT'],
+    aws_access_key_id=os.environ['R2_ACCESS_KEY_ID'],
+    aws_secret_access_key=os.environ['R2_SECRET_ACCESS_KEY'],
     region_name='auto'
 )
 

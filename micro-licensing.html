@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Digital Image Licenses | ARCHIVE-35</title>
-<meta name="description" content="License fine art photography from $2.50. Web, commercial, and full resolution digital downloads. C2PA verified authentic photography. Not AI generated.">
+<meta name="description" content="License fine art photography from $2.50. Web and commercial digital downloads up to 4000px. C2PA verified authentic photography. Not AI generated.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ARCHIVE-35">
 <meta property="og:title" content="Digital Image Licenses | ARCHIVE-35">
-<meta property="og:description" content="License fine art photography from $2.50. Web, commercial, and full resolution digital downloads.">
+<meta property="og:description" content="License fine art photography from $2.50. Web and commercial digital downloads up to 4000px.">
 <meta property="og:url" content="https://archive-35.com/micro-licensing.html">
 <meta property="og:image" content="https://archive-35.com/logos/archive35-og-image.png">
 <meta name="robots" content="noai, noimageai">
@@ -776,8 +776,8 @@ select.filter-select{padding:8px 16px;border:1px solid var(--border);background:
 <!-- HERO -->
 <section class="hero">
   <h1>Digital Licenses</h1>
-  <p>License fine art photography instantly. Web, commercial, and full resolution digital downloads from a 25-year, 55-country archive.</p>
-  <p>1,109 images. C2PA verified. Not AI generated.</p>
+  <p>License fine art photography instantly. Web and commercial downloads up to 4000px from a 25-year, 55-country archive.</p>
+  <p>1,174 images. C2PA verified. Not AI generated.</p>
   <p class="price-highlight">FROM $2.50 / IMAGE</p>
 </section>
 
@@ -791,7 +791,7 @@ select.filter-select{padding:8px 16px;border:1px solid var(--border);background:
   <div class="tier-card">
     <div class="tier-price">$5.00</div>
     <div class="tier-name">Commercial</div>
-    <div class="tier-desc">Full resolution + license certificate. 2 years.</div>
+    <div class="tier-desc">4000px clean. Commercial use. 2 years.</div>
   </div>
   <div class="tier-card">
     <div class="tier-price">From $280</div>
@@ -984,7 +984,7 @@ function openModal(img) {
     <div class="modal-tier">
       <div class="modal-tier-info">
         <h3>Commercial</h3>
-        <p>Full resolution + license certificate. Commercial use. 2 years.</p>
+        <p>4000px clean image. Commercial use. 2 years.</p>
       </div>
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
         <span class="modal-tier-price">$5.00</span>
@@ -1021,10 +1021,6 @@ async function buyLicense(imageId, tier) {
   const img = catalog.find(i => i.id === imageId);
   if (!img) return;
 
-  const prices = { web: 250, commercial: 500 }; // cents
-  const tierNames = { web: 'Web / Social License', commercial: 'Commercial License' };
-  const unitAmount = prices[tier] || 50;
-
   try {
     const res = await fetch('/api/micro-license/checkout', {
       method: 'POST',
@@ -1045,45 +1041,7 @@ async function buyLicense(imageId, tier) {
       alert('Checkout error: ' + data.error);
     }
   } catch (err) {
-    // Fallback: use existing checkout endpoint
-    try {
-      const res = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lineItems: [{
-            price_data: {
-              currency: 'usd',
-              product_data: {
-                name: `${img.title} - ${tierNames[tier]}`,
-                description: `Digital license for "${img.title}". ${tier === 'web' ? '1200px, 1 year' : 'Full resolution + certificate, 2 years'}. C2PA verified.`,
-                metadata: { imageId, tier, classification: img.classification }
-              },
-              unit_amount: unitAmount
-            },
-            quantity: 1
-          }],
-          license: {
-            photoId: imageId,
-            photoTitle: img.title,
-            photoFilename: img.original_filename || img.filename,
-            tier: tier,
-            tierName: tierNames[tier],
-            classification: img.classification
-          },
-          successUrl: window.location.origin + '/thank-you.html?session_id={CHECKOUT_SESSION_ID}&type=micro-license',
-          cancelUrl: window.location.origin + '/micro-licensing.html'
-        })
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert('Unable to start checkout. Please try again.');
-      }
-    } catch (fallbackErr) {
-      alert('Checkout temporarily unavailable. Please try again later.');
-    }
+    alert('Checkout temporarily unavailable. Please try again later.');
   }
 }
 

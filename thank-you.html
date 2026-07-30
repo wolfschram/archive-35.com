@@ -175,6 +175,17 @@
           <p style="color:var(--accent);font-size:0.9rem;">Didn't receive the email? Check your spam folder, or <a href="contact.html">contact us</a> and we'll resend it immediately.</p>
         </div>
 
+        <!-- MICRO-LICENSE ORDER -->
+        <div id="micro-license-order-info" style="display:none;">
+          <h2>Your image is ready!</h2>
+          <p>Your payment is confirmed. Use the secure button below within 72 hours.</p>
+          <div class="order-details" style="text-align:center;">
+            <p id="micro-download-status">Preparing your download…</p>
+            <a id="micro-download-link" class="btn btn-primary" href="#" hidden>Download Image</a>
+          </div>
+          <p style="font-size:0.9rem;">If the button does not appear, <a href="contact.html">contact us</a> with your Stripe receipt.</p>
+        </div>
+
         <!-- MIXED ORDER (prints + licenses) -->
         <div id="mixed-order-info" style="display:none;">
           <h2>Your order has been received!</h2>
@@ -211,7 +222,11 @@
           // Show correct content based on order type
           const urlParams = new URLSearchParams(window.location.search);
           const orderType = urlParams.get('type') || 'print';
-          if (orderType === 'license') {
+          if (orderType === 'micro-license') {
+            document.getElementById('micro-license-order-info').style.display = 'block';
+            document.querySelector('.page-header h1').textContent = 'Download Ready';
+            loadMicroLicense(urlParams.get('session_id'));
+          } else if (orderType === 'license') {
             document.getElementById('license-order-info').style.display = 'block';
             document.querySelector('.page-header h1').textContent = 'License Confirmed';
           } else if (orderType === 'mixed') {
@@ -219,6 +234,25 @@
             document.querySelector('.page-header h1').textContent = 'Order Confirmed';
           } else {
             document.getElementById('print-order-info').style.display = 'block';
+          }
+
+          async function loadMicroLicense(sessionId) {
+            const status = document.getElementById('micro-download-status');
+            const link = document.getElementById('micro-download-link');
+            if (!sessionId) {
+              status.textContent = 'Missing checkout reference. Please contact us with your receipt.';
+              return;
+            }
+            try {
+              const response = await fetch(`/api/micro-license/download?session_id=${encodeURIComponent(sessionId)}`);
+              const result = await response.json();
+              if (!response.ok || result.status !== 'ready') throw new Error(result.message || result.error);
+              link.href = result.download_url;
+              link.hidden = false;
+              status.textContent = `${result.license.type} · ${result.license.resolution}`;
+            } catch (error) {
+              status.textContent = 'We could not prepare the download automatically. Please contact us with your receipt.';
+            }
           }
         </script>
 

@@ -9,7 +9,7 @@
  *
  * Two license tiers:
  *   - web:        $2.50  — 2400px clean, web/blog/social use (DEFAULT)
- *   - commercial: $5.00  — full resolution + license certificate
+ *   - commercial: $5.00  — 4000px clean image, commercial use
  *
  * Payment: USDC on Base network via Coinbase x402 protocol.
  * Facilitator: Coinbase (1,000 free transactions/month).
@@ -34,10 +34,10 @@ const LICENSE_TIERS = {
   commercial: {
     price: "5.00",
     currency: "USDC",
-    description: "Commercial full-resolution license — print, web, advertising + license certificate, 2-year license",
-    max_dimension: null, // full res
+    description: "Commercial 4000px license — print, web, advertising, 2-year license",
+    max_dimension: 4000,
     watermarked: false,
-    usage: "Commercial use permitted. No exclusivity. License certificate included. Credit appreciated.",
+    usage: "Commercial use permitted. No exclusivity. Credit appreciated.",
   },
 };
 

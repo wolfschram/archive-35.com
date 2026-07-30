@@ -53,8 +53,8 @@ def test_generates_one_crawlable_page_per_controlled_product(tmp_path):
         assert 'data-sale-price-usd="9"' in text
         assert "js/printable-sale.js?v=1" in text
         assert 'data-placement="printable_detail"' in text
-        assert "js/printable-checkout.js?v=2" in text
-        assert "js/tracker.js?v=2" in text
+        assert "js/printable-checkout-v2.js" in text
+        assert "js/tracker-v2.js" in text
         assert "{{" not in text
 
     sitemap = ET.parse(tmp_path / "sitemap-printables.xml")
@@ -116,8 +116,8 @@ def test_hub_links_to_every_generated_product_page():
     assert hub.count('class="btn btn-primary direct-printable-button"') == 5
     assert hub.count('data-printable-sku="') == 5
     assert hub.count('data-placement="printables_card"') >= 17
-    assert "js/printable-checkout.js?v=2" in hub
-    assert "js/tracker.js?v=2" in hub
+    assert "js/printable-checkout-v2.js" in hub
+    assert "js/tracker-v2.js" in hub
 
     direct_ids = set(spec["campaign"]["advertised_product_ids"])
     direct_products = {
@@ -183,8 +183,8 @@ def test_sale_controller_and_click_tracking_use_actual_offer_price():
 
 
 def test_direct_checkout_tracking_is_same_origin_and_privacy_safe():
-    tracker = (ROOT / "js/tracker.js").read_text()
-    checkout = (ROOT / "js/printable-checkout.js").read_text()
+    tracker = (ROOT / "js/tracker-v2.js").read_text()
+    checkout = (ROOT / "js/printable-checkout-v2.js").read_text()
 
     assert "var API_URL = '/api/track';" in tracker
     assert "direct_printable_checkout" in checkout

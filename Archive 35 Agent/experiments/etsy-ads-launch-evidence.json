@@ -24,8 +24,15 @@
     {"listing_id": 4546681551, "sku": "A35-DIG-SET-DES-0001"},
     {"listing_id": 4546706397, "sku": "A35-DIG-SET-ICE-0001"}
   ],
+  "verified_organic_expansion_listings": [
+    {"listing_id": 4546764040, "sku": "A35-DIG-ELE-0001"},
+    {"listing_id": 4546750043, "sku": "A35-DIG-GIR-0001"},
+    {"listing_id": 4546750285, "sku": "A35-DIG-SHP-0001"},
+    {"listing_id": 4546764776, "sku": "A35-DIG-CHE-0001"},
+    {"listing_id": 4546764986, "sku": "A35-DIG-LIO-0001"}
+  ],
   "latest_observation": {
-    "captured_at": "2026-07-30T02:38:23-07:00",
+    "captured_at": "2026-07-30T03:38:08-07:00",
     "source": "signed-in Etsy Ads dashboard",
     "daily_budget_usd": 1.0,
     "advertised_listing_count": 7,
@@ -41,6 +48,7 @@
     "budget_confirmed": true,
     "budget_reduced_at": "2026-07-29T21:00:00-07:00",
     "advertised_filter_confirmed": true,
+    "organic_expansion_excluded_from_ads": true,
     "campaign_stats_at_launch": {
       "views": 0,
       "clicks": 0,

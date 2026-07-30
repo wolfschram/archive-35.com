@@ -155,6 +155,76 @@
       "etsy_title": "Canadian Glacier Printable Wall Art, Dramatic Mountain Digital Download",
       "focal_point": [0.52, 0.5],
       "tags": ["glacier wall art", "canada wall art", "mountain printable", "alpine landscape", "blue wall art", "nature photography", "travel wall decor", "instant download", "printable wall art", "mountain wall art", "modern home decor", "adventure wall art", "snow mountain print"]
+    },
+    {
+      "product_id": "A35-DIG-ELE-0001",
+      "source": "../06_Automation/etsy-export/04-black-and-white-african-elephant-herd-storm-clouds/images/11-original-118A0498-Enhanced-NR.jpg",
+      "artwork_title": "Elephant Herd Beneath the Storm",
+      "location": "Tanzania",
+      "web_slug": "elephant-herd-printable-wall-art",
+      "web_image": "elephant-herd-printable.jpg",
+      "etsy_listing_id": 4546764040,
+      "etsy_listing_slug": "elephant-herd-printable-wall-art-black",
+      "etsy_title": "Elephant Herd Printable Wall Art, Black and White Safari Digital Download",
+      "sale_included": false,
+      "focal_point": [0.53, 0.5],
+      "tags": ["elephant wall art", "elephant printable", "black white photo", "african wildlife", "safari wall decor", "wildlife printable", "monochrome decor", "savanna landscape", "storm cloud art", "authentic photo", "instant download", "printable wall art", "nature photography"]
+    },
+    {
+      "product_id": "A35-DIG-GIR-0001",
+      "source": "../06_Automation/etsy-export/06-black-and-white-solitary-giraffe-print-minimalist-afri/images/10-original-Wolf 207.jpg",
+      "artwork_title": "Solitary Giraffe on the Savanna",
+      "location": "Tanzania",
+      "web_slug": "giraffe-printable-wall-art",
+      "web_image": "solitary-giraffe-printable.jpg",
+      "etsy_listing_id": 4546750043,
+      "etsy_listing_slug": "giraffe-printable-wall-art-minimalist",
+      "etsy_title": "Giraffe Printable Wall Art, Minimalist Black and White Safari Digital Download",
+      "sale_included": false,
+      "focal_point": [0.5, 0.5],
+      "tags": ["giraffe wall art", "giraffe printable", "black white photo", "african wildlife", "safari wall decor", "minimalist animal", "monochrome decor", "savanna landscape", "wildlife printable", "authentic photo", "instant download", "printable wall art", "nature photography"]
+    },
+    {
+      "product_id": "A35-DIG-SHP-0001",
+      "source": "../06_Automation/etsy-export/07-black-and-white-shipwreck-fine-art-print-black-and-whi/images/11-original-WOLF3446-Edit.jpg",
+      "artwork_title": "Shipwreck Beneath Storm Clouds",
+      "location": "Iceland",
+      "web_slug": "shipwreck-printable-wall-art",
+      "web_image": "shipwreck-printable.jpg",
+      "etsy_listing_id": 4546750285,
+      "etsy_listing_slug": "shipwreck-printable-wall-art-moody-black",
+      "etsy_title": "Shipwreck Printable Wall Art, Moody Black and White Coastal Digital Download",
+      "sale_included": false,
+      "focal_point": [0.43, 0.52],
+      "tags": ["shipwreck wall art", "shipwreck printable", "black white photo", "coastal wall decor", "nautical wall art", "abandoned boat art", "moody photography", "storm cloud art", "maritime decor", "authentic photo", "instant download", "printable wall art", "iceland photography"]
+    },
+    {
+      "product_id": "A35-DIG-CHE-0001",
+      "source": "../06_Automation/etsy-export/27-tanzania-tanzania-wildlife-photography-print-af/images/06-original-118A0069.jpg",
+      "artwork_title": "Cheetah Standing Watch",
+      "location": "Tanzania",
+      "web_slug": "cheetah-printable-wall-art",
+      "web_image": "cheetah-printable.jpg",
+      "etsy_listing_id": 4546764776,
+      "etsy_listing_slug": "cheetah-printable-wall-art-african",
+      "etsy_title": "Cheetah Printable Wall Art, African Safari Wildlife Photography Digital Download",
+      "sale_included": false,
+      "focal_point": [0.52, 0.5],
+      "tags": ["cheetah wall art", "cheetah printable", "african wildlife", "safari wall decor", "wildlife printable", "tanzania photo", "big cat wall art", "animal photography", "authentic photo", "earth tone decor", "instant download", "printable wall art", "nature photography"]
+    },
+    {
+      "product_id": "A35-DIG-LIO-0001",
+      "source": "../06_Automation/etsy-export/28-tanzania-tanzania-wildlife-photography-print-af/images/08-original-118A0118 1.jpg",
+      "artwork_title": "Lion Pride in the Tall Grass",
+      "location": "Tanzania",
+      "web_slug": "lion-pride-printable-wall-art",
+      "web_image": "lion-pride-printable.jpg",
+      "etsy_listing_id": 4546764986,
+      "etsy_listing_slug": "lion-pride-printable-wall-art-african",
+      "etsy_title": "Lion Pride Printable Wall Art, African Safari Wildlife Digital Download",
+      "sale_included": false,
+      "focal_point": [0.54, 0.52],
+      "tags": ["lion wall art", "lion printable", "african wildlife", "safari wall decor", "wildlife printable", "tanzania photo", "big cat wall art", "animal photography", "authentic photo", "earth tone decor", "instant download", "printable wall art", "nature photography"]
     }
   ]
 }

@@ -33,6 +33,13 @@
     {"listing_id": 4546681551, "sku": "A35-DIG-SET-DES-0001", "base_price_usd": 18.0, "sale_price_usd": 13.5},
     {"listing_id": 4546706397, "sku": "A35-DIG-SET-ICE-0001", "base_price_usd": 18.0, "sale_price_usd": 13.5}
   ],
+  "organic_expansion_not_in_sale": [
+    {"listing_id": 4546764040, "sku": "A35-DIG-ELE-0001", "direct_price_usd": 9.0, "restore_price_usd": 12.0},
+    {"listing_id": 4546750043, "sku": "A35-DIG-GIR-0001", "direct_price_usd": 9.0, "restore_price_usd": 12.0},
+    {"listing_id": 4546750285, "sku": "A35-DIG-SHP-0001", "direct_price_usd": 9.0, "restore_price_usd": 12.0},
+    {"listing_id": 4546764776, "sku": "A35-DIG-CHE-0001", "direct_price_usd": 9.0, "restore_price_usd": 12.0},
+    {"listing_id": 4546764986, "sku": "A35-DIG-LIO-0001", "direct_price_usd": 9.0, "restore_price_usd": 12.0}
+  ],
   "public_verification": {
     "listing_id": 4546599089,
     "observed_sale_price_usd": 9.0,

@@ -24,8 +24,8 @@ def test_generates_one_crawlable_page_per_controlled_product(tmp_path):
     generated = module.generate(tmp_path, as_of=date(2026, 7, 30))
     pages = sorted(tmp_path.glob("printable-*.html"))
 
-    assert len(generated) == 11
-    assert len(pages) == 10
+    assert len(generated) == 16
+    assert len(pages) == 15
     for page in pages:
         text = page.read_text()
         schemas = re.findall(
@@ -45,7 +45,7 @@ def test_generates_one_crawlable_page_per_controlled_product(tmp_path):
 
     sitemap = ET.parse(tmp_path / "sitemap-printables.xml")
     namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-    assert len(sitemap.findall("s:url", namespace)) == 12
+    assert len(sitemap.findall("s:url", namespace)) == 17
 
 
 def test_bundle_page_is_truthful_and_links_to_live_etsy_listing():
@@ -89,7 +89,7 @@ def test_hub_links_to_every_generated_product_page():
     )
     collection = json.loads(schemas[0])
     items = collection["mainEntity"]["itemListElement"]
-    assert len(items) == 12
+    assert len(items) == 17
     assert {item["item"]["offers"]["price"] for item in items} == {
         "9.00",
         "13.50",
@@ -97,8 +97,8 @@ def test_hub_links_to_every_generated_product_page():
     assert {
         item["item"]["offers"]["priceValidUntil"] for item in items
     } == {"2026-08-06"}
-    assert hub.count("data-sale-active-label=") == 12
-    assert hub.count("data-price-usd=") == 12
+    assert hub.count("data-sale-active-label=") == 17
+    assert hub.count("data-price-usd=") == 17
 
 
 def test_generator_restores_base_price_after_sale(tmp_path):
@@ -106,7 +106,7 @@ def test_generator_restores_base_price_after_sale(tmp_path):
     generated = module.generate(tmp_path, as_of=date(2026, 8, 7))
 
     pages = [path for path in generated if path.suffix == ".html"]
-    assert len(pages) == 10
+    assert len(pages) == 15
     for page in pages:
         text = page.read_text()
         schema_text = re.findall(

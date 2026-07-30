@@ -48,13 +48,13 @@ def main() -> None:
         COLLECTION_TITLE,
         ARTWORK_TITLES,
         price_usd=18,
-        shop_section_id=PRINTABLE_DOWNLOADS_SECTION_ID,
     )
     listing = build_bundle_listing_copy(
         product_id=PRODUCT_ID,
         collection_title=COLLECTION_TITLE,
         artwork_titles=ARTWORK_TITLES,
         price_usd=18,
+        shop_section_id=PRINTABLE_DOWNLOADS_SECTION_ID,
     )
     listing_path = write_listing_plan(output, listing)
     preview_sources = [

@@ -1,5 +1,6 @@
 """Tests for three-photograph Etsy bundle packages."""
 
+import ast
 import json
 import zipfile
 from pathlib import Path
@@ -92,3 +93,15 @@ def test_builds_five_square_bundle_previews(tmp_path):
     for output in outputs:
         with Image.open(output) as image:
             assert image.size == (2000, 2000)
+
+
+def test_desert_builder_assigns_section_to_listing_copy():
+    script = Path(__file__).parents[2] / "scripts/build_etsy_desert_bundle.py"
+    tree = ast.parse(script.read_text())
+    calls = {
+        node.func.id: {keyword.arg for keyword in node.keywords}
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+    }
+    assert "shop_section_id" in calls["build_bundle_listing_copy"]
+    assert "shop_section_id" not in calls["build_bundle_package"]

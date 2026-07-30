@@ -67,6 +67,9 @@ function initializeEventTracking() {
 
   // Track collection browsing
   trackCollectionBrowsing();
+
+  // Track the low-cost Etsy conversion path
+  trackEtsyDigitalClicks();
 }
 
 /**
@@ -196,6 +199,25 @@ function trackCollectionBrowsing() {
       collection_name: collectionId
     });
   }
+}
+
+/**
+ * Track outbound clicks to the Etsy digital-download offer.
+ * Etsy Share & Save independently attributes eligible orders and refunds.
+ */
+function trackEtsyDigitalClicks() {
+  document.querySelectorAll('.etsy-digital-link').forEach((link) => {
+    link.addEventListener('click', () => {
+      gtag('event', 'select_content', {
+        content_type: 'etsy_digital_download',
+        item_id: 'archive35_digital_mvp',
+        link_url: link.href,
+        placement: link.dataset.placement || 'unknown',
+        value: 12,
+        currency: 'USD'
+      });
+    });
+  });
 }
 
 /**

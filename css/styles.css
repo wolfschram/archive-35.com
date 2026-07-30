@@ -1004,6 +1004,42 @@ h3 { font-size: clamp(1.125rem, 2vw, 1.5rem); }
   padding: 6rem 0;
 }
 
+/* ===== Accessible Entry Offer ===== */
+.entry-offer {
+  padding: 5rem 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(201, 169, 98, 0.12), transparent 55%),
+    var(--bg-secondary);
+  border-top: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.entry-offer-inner {
+  max-width: 760px;
+  text-align: center;
+}
+
+.entry-offer-kicker {
+  margin-bottom: 1rem;
+  color: var(--accent);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.entry-offer-copy {
+  max-width: 620px;
+  margin: 1.25rem auto 2rem;
+  color: var(--text-secondary);
+}
+
+.entry-offer-note {
+  margin-top: 1rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+}
+
 /* ===== Footer ===== */
 .footer {
   padding: 5rem 0 2rem;

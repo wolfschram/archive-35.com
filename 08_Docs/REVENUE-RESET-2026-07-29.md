@@ -52,10 +52,10 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
   spend reconciliation are complete.
 - Publication is a separate command: it verifies each remote draft, reserves the
   $0.20 listing fee against the $50 authorization, publishes, and reads back the
-  active state. Actual spend is $2.00 in listing fees.
+  active state. Actual experiment spend is $2.20 in listing-fee reserves.
 - Etsy Ads are active at $1/day on exactly the original five digital products; the
-  five additions are organic-only controls. A $21 campaign reservation leaves total
-  authorized exposure at $23 and $27 uncommitted.
+  five additions and the first bundle are organic-only controls. A $21 campaign
+  reservation leaves total authorized exposure at $23.20 and $26.80 uncommitted.
   The safety stop pauses ads at $21 actual ad spend or on August 19, whichever
   occurs first.
 - A narrow daily Revenue Operator automation captures orders, actual payment facts,
@@ -73,6 +73,10 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
 - A `Printable Downloads` shop section (ID `59608958`) was created and all ten
   controlled digital listings were assigned to it. Etsy API readback confirmed the
   same section ID on every listing.
+- The first coordinated offer, `Desert Geometry`, is live at $18 as Etsy listing
+  `4546681551`. It contains three original photographs, 15 high-resolution JPEGs
+  delivered in five verified ZIP files, five preview images, 13 tags, the expected
+  Archive-35 SKU, and the `Printable Downloads` section assignment.
 - A shop FAQ now explains the five delivered ratios, download timing, and that no
   physical print or frame is shipped.
 - Current discovery baseline before the second batch: 33 active listings, 54
@@ -87,6 +91,9 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
 - Ten build-generated product landing pages now give each printable a distinct
   search URL, factual Product structured data, an internal link from the printable
   hub, a dedicated sitemap entry, and an IndexNow submission URL.
+- A dedicated Desert Geometry bundle page is live and placed first on the printable
+  hub. Production verification confirmed the $18 Product schema, direct Etsy URL,
+  bundle image, sitemap entry, and successful IndexNow submission.
 - The focused workflow passes 39 tests. The historical full suite still stops at a
   pre-existing physical-pricing import mismatch unrelated to this digital product.
 - Revenue snapshots now return demand rows for every listing instead of exposing

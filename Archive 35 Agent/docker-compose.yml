@@ -124,6 +124,7 @@ services:
       - ./data:/app/data
       - ./logs:/app/logs
       - ./.env:/app/.env
+      - ./src:/app/src
     environment:
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     command:
@@ -138,7 +139,7 @@ services:
         uv run huey_consumer src.pipeline.scheduler.huey -w 2 -k thread -c 4 -v
     healthcheck:
       # Check if Huey can connect to its database
-      test: ["CMD", "python", "-c", "from src.pipeline.scheduler import huey; huey.connect()"]
+      test: ["CMD", "uv", "run", "python", "-c", "from src.pipeline.scheduler import huey; huey.pending_count()"]
       interval: 60s
       timeout: 10s
       retries: 3
@@ -175,6 +176,7 @@ services:
       # Shared data with other services
       - ./data:/app/data
       - ./logs:/app/logs
+      - ./src:/app/src
     environment:
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     command:
@@ -186,7 +188,7 @@ services:
         uv run python -m src.telegram.bot
     healthcheck:
       # Simple check: can the bot import its dependencies?
-      test: ["CMD", "python", "-c", "from src.telegram.bot import main"]
+      test: ["CMD", "uv", "run", "python", "-c", "from src.telegram.bot import main"]
       interval: 60s
       timeout: 10s
       retries: 2
@@ -197,8 +199,8 @@ services:
       agent-api:
         condition: service_healthy
     # Make this service optional:
-    # If TELEGRAM_BOT_TOKEN is empty, the service will fail to connect
-    # and you'll see warnings in logs but the system keeps running
+    # Stop this service when Telegram is not in use. Missing or invalid
+    # credentials fail fast while the API and scheduler continue running.
 
 # ──────────────────────────────────────────────────────────────────────
 # Volumes

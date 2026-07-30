@@ -6,6 +6,7 @@ Commands: /status, /kill, /resume
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Optional
 
@@ -13,6 +14,7 @@ from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
+from src.config import get_settings
 from src.db import get_initialized_connection
 from src.safety.audit import log as audit_log, total_cost
 from src.safety.kill_switch import activate, deactivate, get_status, is_active
@@ -148,3 +150,18 @@ async def start_polling(token: str) -> None:
     bot, dp = create_bot(token)
     logger.info("Starting Telegram bot in polling mode...")
     await dp.start_polling(bot)
+
+
+def main() -> None:
+    """Load the configured bot token and run polling until shutdown."""
+    settings = get_settings()
+    if not settings.has_telegram_config():
+        raise RuntimeError(
+            "TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must both be configured"
+        )
+    logging.basicConfig(level=settings.log_level)
+    asyncio.run(start_polling(settings.telegram_bot_token))
+
+
+if __name__ == "__main__":
+    main()

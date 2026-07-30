@@ -207,9 +207,14 @@ function trackCollectionBrowsing() {
  */
 function trackEtsyDigitalClicks() {
   document.querySelectorAll('.etsy-digital-link').forEach((link) => {
+    if (link.dataset.etsyTrackingBound === 'true') return;
+    link.dataset.etsyTrackingBound = 'true';
+
     link.addEventListener('click', () => {
+      const productId = link.dataset.productId || 'archive35_digital_mvp';
       const eventData = {
         offer: 'archive35_digital_mvp',
+        product_id: productId,
         placement: link.dataset.placement || 'unknown',
         destination: 'etsy_share_and_save',
         price_usd: 12
@@ -217,7 +222,7 @@ function trackEtsyDigitalClicks() {
 
       gtag('event', 'select_content', {
         content_type: 'etsy_digital_download',
-        item_id: 'archive35_digital_mvp',
+        item_id: productId,
         link_url: link.href,
         placement: eventData.placement,
         value: 12,

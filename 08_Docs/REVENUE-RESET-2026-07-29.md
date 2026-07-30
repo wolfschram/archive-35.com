@@ -75,6 +75,11 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
 - Current discovery baseline: 33 active listings, 54 lifetime views, zero favorites,
   13 listings with zero views, zero orders, and no first-party website-to-Etsy click
   events yet. This is insufficient exposure to draw a pricing conclusion.
+- A dedicated `/printables.html` acquisition page now shows all five offers before
+  the Etsy handoff. Each product links directly to its matching listing with an
+  `archive35photo.etsy.com` Share & Save-formatted URL, preserves the $12 disclosure,
+  and records the controlled product SKU on outbound clicks. The homepage, sitemap,
+  structured data, and `llms.txt` now route discovery through this page.
 - The focused workflow passes 39 tests. The historical full suite still stops at a
   pre-existing physical-pricing import mismatch unrelated to this digital product.
 

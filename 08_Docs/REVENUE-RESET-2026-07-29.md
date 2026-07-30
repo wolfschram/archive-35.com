@@ -53,7 +53,7 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
 - Publication is a separate command: it verifies each remote draft, reserves the
   $0.20 listing fee against the $50 authorization, publishes, and reads back the
   active state. Actual experiment spend is $2.40 in listing-fee reserves.
-- Etsy Ads are active at $1/day. Etsy automatically included the first bundle
+- Etsy Ads are active at $1/day. Etsy automatically included both bundles
   alongside the original five digital products; the five additional singles remain
   organic-only controls. A $21 campaign reservation leaves total authorized
   exposure at $23.40 and $26.60 uncommitted.
@@ -83,8 +83,9 @@ If neither happens, stop Etsy Ads and do not build more Etsy automation.
   rights-metadata-bearing JPEGs in five verified ZIP files, five approved previews,
   13 Iceland-focused tags, SKU `A35-DIG-SET-ICE-0001`, and the same shop section.
   Etsy API readback confirmed the listing and video `835502176` are active.
-- Etsy Ads automatically included the bundle inside the existing $1/day campaign;
-  the campaign remains at one view, zero clicks, zero spend, and zero orders.
+- Etsy Ads automatically included both bundles inside the existing $1/day campaign.
+  The July 30 signed-in readback confirms seven approved advertised listings,
+  three views, zero clicks, zero actual spend, and zero orders.
 - A 14.4-second silent 1080×1080 H.264 listing video now presents the five approved
   bundle cards. Etsy API readback confirmed video `835525705` is active, with no
   additional listing or advertising fee.

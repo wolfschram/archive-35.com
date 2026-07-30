@@ -39,3 +39,22 @@ def test_mvp_has_ten_distinct_valid_products_and_five_advertised():
         )
         assert listing["price"] == 12
         assert len(listing["tags"]) == 13
+
+
+def test_current_ad_evidence_matches_the_approved_campaign_scope():
+    spec = json.loads(
+        (AGENT_ROOT / "experiments" / "etsy-digital-mvp.json").read_text()
+    )
+    evidence = json.loads(
+        (AGENT_ROOT / "experiments" / "etsy-ads-launch-evidence.json").read_text()
+    )
+    approved = set(spec["campaign"]["advertised_product_ids"])
+    approved.update(spec["campaign"]["advertised_bundle_product_ids"])
+    observed = {
+        item["sku"] for item in evidence["current_approved_advertised_listings"]
+    }
+
+    assert approved == observed
+    assert len(observed) == 7
+    assert evidence["latest_observation"]["advertised_listing_count"] == 7
+    assert evidence["latest_observation"]["daily_budget_usd"] == 1.0

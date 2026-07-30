@@ -19,6 +19,10 @@
       "A35-DIG-TAN-0001",
       "A35-DIG-TET-0001",
       "A35-DIG-DUN-0001"
+    ],
+    "advertised_bundle_product_ids": [
+      "A35-DIG-SET-DES-0001",
+      "A35-DIG-SET-ICE-0001"
     ]
   },
   "products": [

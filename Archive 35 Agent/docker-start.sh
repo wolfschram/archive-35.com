@@ -2,8 +2,8 @@
 #
 # Archive-35 Agent System — Docker Startup Script
 #
-# Simple, safe startup script for 24/7 operation
-# Checks prerequisites, initializes database, starts all services, verifies health
+# Safe startup script for the API-only revenue operator stack.
+# Legacy social scheduling and Telegram require explicit Compose profiles.
 #
 # Usage:
 #   chmod +x docker-start.sh
@@ -13,7 +13,7 @@
 #   ./docker-start.sh &
 #
 # To view logs after startup:
-#   docker-compose logs -f
+#   docker compose logs -f
 
 set -e  # Exit on any error
 
@@ -70,9 +70,9 @@ if ! command -v docker &> /dev/null; then
 fi
 print_success "Docker installed"
 
-# Check Docker Compose is installed
-if ! command -v docker-compose &> /dev/null; then
-    print_error "Docker Compose not found. Please install Docker Desktop (includes Compose)"
+# Check the Docker Compose v2 plugin is installed
+if ! docker compose version &> /dev/null; then
+    print_error "Docker Compose v2 not found. Please install Docker Desktop (includes Compose)"
     exit 1
 fi
 print_success "Docker Compose installed"
@@ -148,7 +148,7 @@ echo ""
 # If yes, skip rebuild; if no, rebuild
 if docker compose config &> /dev/null; then
     REBUILD=false
-    for service in agent-api agent-scheduler agent-telegram; do
+    for service in agent-api; do
         IMAGE_NAME=$(docker compose config --format json | grep -o "archive35-${service}:\w*" | head -1 || true)
         if [ -z "$IMAGE_NAME" ]; then
             REBUILD=true
@@ -164,7 +164,7 @@ if [ "$REBUILD" = true ]; then
         exit 1
     }
 else
-    print_warning "Using existing images (run 'docker-compose build --no-cache' to rebuild)"
+    print_warning "Using existing images (run 'docker compose build --no-cache' to rebuild)"
 fi
 
 print_success "Docker images ready"
@@ -173,12 +173,12 @@ print_success "Docker images ready"
 # 5. Start Services
 # ──────────────────────────────────────────────────────────────────────
 
-print_status "Starting services..."
+print_status "Starting safe default service..."
 echo ""
 
 docker compose up -d
 
-print_success "Services started (running in background)"
+print_success "API service started (running in background)"
 
 # ──────────────────────────────────────────────────────────────────────
 # 6. Wait for Health Checks
@@ -207,8 +207,8 @@ done
 if [ $RETRY -eq $MAX_RETRIES ]; then
     print_warning "API health check timed out. Services may still be starting."
     echo ""
-    echo "  Check status: ${BLUE}docker-compose ps${NC}"
-    echo "  View logs:    ${BLUE}docker-compose logs -f agent-api${NC}"
+    echo "  Check status: ${BLUE}docker compose ps${NC}"
+    echo "  View logs:    ${BLUE}docker compose logs -f agent-api${NC}"
 else
     echo ""
 fi
@@ -238,16 +238,16 @@ echo "  ${GREEN}API Server:${NC}         http://localhost:8035"
 echo "  ${GREEN}API Docs:${NC}           http://localhost:8035/docs"
 echo "  ${GREEN}Health Check:${NC}       http://localhost:8035/health"
 echo ""
-echo "  ${BLUE}View all logs:${NC}       docker-compose logs -f"
-echo "  ${BLUE}View API logs:${NC}       docker-compose logs -f agent-api"
-echo "  ${BLUE}View scheduler logs:${NC} docker-compose logs -f agent-scheduler"
-echo "  ${BLUE}View Telegram logs:${NC}  docker-compose logs -f agent-telegram"
+echo "  ${BLUE}View all logs:${NC}       docker compose logs -f"
+echo "  ${BLUE}View API logs:${NC}       docker compose logs -f agent-api"
+echo "  ${BLUE}Legacy scheduler:${NC}      docker compose --profile legacy-social up -d agent-scheduler"
+echo "  ${BLUE}Telegram bot:${NC}          docker compose --profile telegram up -d agent-telegram"
 echo ""
-echo "  ${BLUE}Stop all services:${NC}   docker-compose down"
-echo "  ${BLUE}Restart a service:${NC}   docker-compose restart agent-api"
+echo "  ${BLUE}Stop all services:${NC}   docker compose down"
+echo "  ${BLUE}Restart a service:${NC}   docker compose restart agent-api"
 echo ""
 echo "  ${BLUE}Execute API call:${NC}    curl -s http://localhost:8035/stats | jq"
-echo "  ${BLUE}Manual pipeline run:${NC} curl -X POST http://localhost:8035/pipeline/run?dry_run=false"
+echo "  ${BLUE}Dry-run pipeline:${NC}    curl -X POST http://localhost:8035/pipeline/run?dry_run=true"
 echo ""
 echo "╔════════════════════════════════════════════════════════════════╗"
 echo ""

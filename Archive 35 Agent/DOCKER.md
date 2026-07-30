@@ -1,15 +1,10 @@
 # Archive-35 Agent — Docker Deployment Guide
 
-**For 24/7 autonomous operation without Electron Studio**
+**For safe local operation without Electron Studio**
 
-This guide explains how to run the Archive-35 Agent System as Docker containers. Once running, the system:
-
-- Analyzes photos with Claude vision AI 24/7
-- Generates social media content automatically
-- Posts to Instagram, Etsy, and other platforms
-- Sends real-time updates via Telegram
-- Maintains cost limits and rate constraints
-- Persists all data to SQLite database
+The default stack runs only the FastAPI service. Legacy social scheduling and
+Telegram are explicit opt-ins so a normal restart cannot publish content or
+enter a restart loop unexpectedly.
 
 ---
 
@@ -20,12 +15,12 @@ This guide explains how to run the Archive-35 Agent System as Docker containers.
 You need **Docker Desktop** installed:
 - **macOS**: https://www.docker.com/products/docker-desktop
 - **Windows**: https://www.docker.com/products/docker-desktop
-- **Linux**: `sudo apt install docker.io docker-compose`
+- **Linux**: install Docker Engine with the Compose v2 plugin for your distribution
 
 Verify installation:
 ```bash
 docker --version
-docker-compose --version
+docker compose --version
 ```
 
 ### 2. Configure Environment
@@ -42,7 +37,7 @@ Edit `.env` and add:
 - `TELEGRAM_CHAT_ID` (optional — your Telegram user ID)
 - `DAILY_BUDGET_USD` (e.g., 5.00 for $5/day limit)
 
-### 3. Start Everything
+### 3. Start the Safe Default
 
 ```bash
 chmod +x docker-start.sh
@@ -53,7 +48,7 @@ The startup script will:
 1. Verify Docker is installed and running
 2. Build Docker images
 3. Create data directories
-4. Start all services (API, scheduler, Telegram bot)
+4. Start the API service only
 5. Wait for health checks (30 seconds)
 6. Show you the status and access URLs
 
@@ -66,10 +61,10 @@ The startup script will:
 | Service | Purpose | Port | Notes |
 |---------|---------|------|-------|
 | **agent-api** | FastAPI REST server | 8035 | Responds to Electron Studio UI, provides health checks |
-| **agent-scheduler** | Huey background task queue | (internal) | Runs daily pipeline, generates content, posts to platforms |
-| **agent-telegram** | Telegram bot | (external) | Sends notifications, accepts manual approvals via Telegram |
+| **agent-scheduler** | Huey background task queue | (internal) | Optional `legacy-social` profile; can publish to platforms |
+| **agent-telegram** | Telegram bot | (external) | Optional `telegram` profile; requires valid credentials |
 
-All three services:
+All services:
 - Share the same SQLite database (persisted in `./data/`)
 - Read environment variables from `.env`
 - Auto-restart if they crash (`restart: unless-stopped`)
@@ -82,32 +77,39 @@ All three services:
 ### Start Services
 
 ```bash
-docker-compose up -d
+docker compose up -d
+```
+
+This starts `agent-api` only. Start an optional service explicitly:
+
+```bash
+docker compose --profile legacy-social up -d agent-scheduler
+docker compose --profile telegram up -d agent-telegram
 ```
 
 ### Check Status
 
 ```bash
 # See which services are running
-docker-compose ps
+docker compose ps
 
 # Show recent logs
-docker-compose logs -f
+docker compose logs -f
 
 # Show logs for one service
-docker-compose logs -f agent-api
-docker-compose logs -f agent-scheduler
-docker-compose logs -f agent-telegram
+docker compose logs -f agent-api
+docker compose logs -f agent-scheduler
+docker compose logs -f agent-telegram
 ```
 
 ### Stop Services
 
 ```bash
 # Stop all services (data persists)
-docker-compose down
+docker compose down
 
 # Stop all services AND delete data (careful!)
-docker-compose down -v
+docker compose down -v
 ```
 
 ### Restart a Service
@@ -115,8 +117,8 @@ docker-compose down -v
 If one service crashes or becomes unresponsive:
 
 ```bash
-docker-compose restart agent-api          # Restart API only
-docker-compose restart agent-scheduler    # Restart scheduler only
+docker compose restart agent-api          # Restart API only
+docker compose restart agent-scheduler    # Restart scheduler only
 ```
 
 ---
@@ -163,9 +165,6 @@ curl -X POST http://localhost:8035/content/{content_id}/approve | jq
 ```bash
 # Dry run (shows what would happen, no actual posting)
 curl -X POST "http://localhost:8035/pipeline/run?dry_run=true" | jq
-
-# Real run (actually generates content and posts)
-curl -X POST "http://localhost:8035/pipeline/run?dry_run=false" | jq
 ```
 
 #### View Audit Logs
@@ -186,13 +185,13 @@ The SQLite database is stored in `./data/archive35.db`
 ### View Database Tables
 
 ```bash
-docker-compose exec agent-api sqlite3 data/archive35.db ".tables"
+docker compose exec agent-api sqlite3 data/archive35.db ".tables"
 ```
 
 ### Query Data
 
 ```bash
-docker-compose exec agent-api sqlite3 data/archive35.db ".mode column" "SELECT COUNT(*) as total_photos FROM photos;"
+docker compose exec agent-api sqlite3 data/archive35.db ".mode column" "SELECT COUNT(*) as total_photos FROM photos;"
 ```
 
 ### Backup Database
@@ -221,13 +220,13 @@ Then access API at `http://localhost:9000`
 
 Check if containers are running:
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 If containers exited, check logs:
 ```bash
-docker-compose logs agent-api
-docker-compose logs agent-scheduler
+docker compose logs agent-api
+docker compose logs agent-scheduler
 ```
 
 Common issues:
@@ -249,7 +248,7 @@ If it times out, the container might be still starting. Wait 30 seconds and try 
 1. Check if `TELEGRAM_BOT_TOKEN` is set in `.env`
 2. Verify token is valid (get from @BotFather on Telegram)
 3. Check `TELEGRAM_CHAT_ID` is your actual user ID
-4. View logs: `docker-compose logs agent-telegram`
+4. View logs: `docker compose logs agent-telegram`
 
 To find your Telegram chat ID:
 1. Send any message to your bot
@@ -313,19 +312,11 @@ In `.env`, set `LOG_LEVEL`:
 - `WARNING` — Only warnings and errors
 - `ERROR` — Only errors
 
-### Disable Telegram Bot (Optional)
+### Telegram Bot (Optional)
 
-If you don't want Telegram notifications, comment out the `agent-telegram` service in `docker-compose.yml`:
-
-```yaml
-# agent-telegram:
-#   build: .
-#   ...
-```
-
-Then restart:
+Telegram remains off by default. Start it only after verifying its saved token:
 ```bash
-docker-compose up -d
+docker compose --profile telegram up -d agent-telegram
 ```
 
 ---
@@ -376,8 +367,8 @@ Requires=docker.service
 [Service]
 Type=simple
 WorkingDirectory=/path/to/archive-35.com/Archive 35 Agent
-ExecStart=/usr/bin/docker-compose up -d
-ExecStop=/usr/bin/docker-compose down
+ExecStart=/usr/bin/docker compose up -d
+ExecStop=/usr/bin/docker compose down
 Restart=unless-stopped
 RestartSec=10
 
@@ -401,10 +392,10 @@ sudo systemctl status archive35.service
 
 ```bash
 # Follow all logs
-docker-compose logs -f --tail 50
+docker compose logs -f --tail 50
 
 # Follow one service
-docker-compose logs -f agent-scheduler
+docker compose logs -f agent-scheduler
 ```
 
 ### Set Up Telegram Alerts
@@ -413,7 +404,7 @@ The system already sends Telegram messages. To add custom alerts:
 
 ```bash
 # Send a test message via Telegram bot (if configured)
-docker-compose exec agent-api \
+docker compose exec agent-api \
   python -c "from src.telegram.bot import send_message; send_message('Test alert')"
 ```
 
@@ -471,18 +462,18 @@ Check these files for more info:
 
 **API Issues?**
 ```bash
-docker-compose logs -f agent-api
+docker compose logs -f agent-api
 ```
 
 **Pipeline failing?**
 ```bash
-docker-compose logs -f agent-scheduler
+docker compose logs -f agent-scheduler
 ```
 
 **Database locked?**
 ```bash
-docker-compose restart agent-api
-docker-compose restart agent-scheduler
+docker compose restart agent-api
+docker compose restart agent-scheduler
 ```
 
 ---
@@ -492,14 +483,14 @@ docker-compose restart agent-scheduler
 | Task | Command |
 |------|---------|
 | Start for first time | `./docker-start.sh` |
-| Start again | `docker-compose up -d` |
-| Check status | `docker-compose ps` |
-| View logs | `docker-compose logs -f` |
-| Stop | `docker-compose down` |
-| Restart one service | `docker-compose restart {service}` |
-| View database | `docker-compose exec agent-api sqlite3 data/archive35.db ".tables"` |
+| Start again | `docker compose up -d` |
+| Check status | `docker compose ps` |
+| View logs | `docker compose logs -f` |
+| Stop | `docker compose down` |
+| Restart one service | `docker compose restart {service}` |
+| View database | `docker compose exec agent-api sqlite3 data/archive35.db ".tables"` |
 | Test API | `curl http://localhost:8035/health` |
-| Manual pipeline | `curl -X POST http://localhost:8035/pipeline/run?dry_run=false` |
+| Manual pipeline | `curl -X POST http://localhost:8035/pipeline/run?dry_run=true` |
 
 ---
 

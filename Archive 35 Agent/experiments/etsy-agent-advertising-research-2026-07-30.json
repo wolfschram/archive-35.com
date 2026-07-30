@@ -1,0 +1,33 @@
+{
+  "captured_at": "2026-07-30",
+  "question": "Can an open-source agent safely automate Etsy advertising or add a missing revenue capability?",
+  "sources": [
+    {
+      "name": "Etsy OpenAPI 3.0.0 specification",
+      "url": "https://www.etsy.com/openapi/generated/oas/3.0.0.json",
+      "finding": "No operation or endpoint manages Etsy Ads, promoted listings, ad campaigns, or ad budgets."
+    },
+    {
+      "name": "Etsy Dev MCP Server",
+      "url": "https://developers.etsy.com/documentation/mcp_server/devmcpserver/",
+      "finding": "Documentation-only MCP server; Etsy explicitly states that it does not call the Etsy API."
+    },
+    {
+      "name": "Etsy official open-api repository",
+      "url": "https://github.com/etsy/open-api",
+      "finding": "Current API focus is listing, order, and shop management rather than advertising control."
+    },
+    {
+      "name": "Nexscope eCommerce-Skills",
+      "url": "https://github.com/nexscope-ai/eCommerce-Skills",
+      "finding": "Instruction-only agent skills; the repository states that skills alone cannot access live marketplace data."
+    }
+  ],
+  "decision": {
+    "install_external_agent": false,
+    "reason": "The reviewed projects duplicate Archive 35 SEO and planning logic but do not add live Etsy Ads access.",
+    "safe_control_surface": "Keep the existing Etsy API integration for listings and orders, and use signed-in Etsy UI only for Ads controls.",
+    "pinterest_status": "Five finished 1000x1500 pins and copy are ready, but the available browser session is signed out and the current artwork displays the post-sale $12 price.",
+    "next_low_effort_action": "After Pinterest sign-in, schedule evergreen price-neutral pins or wait until the $12 price resumes on 2026-08-07."
+  }
+}

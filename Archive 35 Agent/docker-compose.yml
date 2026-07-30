@@ -112,6 +112,8 @@ services:
   # Logs: docker-compose logs -f agent-scheduler
   # Manual trigger: docker-compose exec agent-api curl -X POST http://localhost:8035/pipeline/run
   agent-scheduler:
+    # Explicit opt-in only: this service includes legacy social-posting jobs.
+    profiles: ["legacy-social"]
     build:
       context: .
       dockerfile: Dockerfile
@@ -163,8 +165,10 @@ services:
   #   - Scheduled summaries
   #
   # Logs: docker-compose logs -f agent-telegram
-  # To disable: comment out this service and docker-compose will skip it
+  # Start explicitly with: docker compose --profile telegram up -d agent-telegram
   agent-telegram:
+    # Explicit opt-in only: requires a currently valid Telegram bot token.
+    profiles: ["telegram"]
     build:
       context: .
       dockerfile: Dockerfile
